@@ -10,6 +10,14 @@ import DevenirArtisan from "./pages/DevenirArtisan";
 import CommentCaMarche from "./pages/CommentCaMarche";
 import Connexion from "./pages/Connexion";
 import NotFound from "./pages/NotFound";
+import { ArtisanDashboard } from "./pages/artisan/ArtisanDashboard";
+import { ArtisanProfile } from "./pages/artisan/ArtisanProfile";
+import { ArtisanDocuments } from "./pages/artisan/ArtisanDocuments";
+import { ArtisanServices } from "./pages/artisan/ArtisanServices";
+import { ArtisanRequests } from "./pages/artisan/ArtisanRequests";
+import { ArtisanMessaging } from "./pages/artisan/ArtisanMessaging";
+import { ArtisanPlanning } from "./pages/artisan/ArtisanPlanning";
+import { ArtisanSettings } from "./pages/artisan/ArtisanSettings";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +34,15 @@ const App = () => (
           <Route path="/devenir-artisan" element={<DevenirArtisan />} />
           <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
           <Route path="/connexion" element={<Connexion />} />
+          {/* Artisan Dashboard Routes */}
+          <Route path="/artisan/dashboard" element={<ArtisanDashboard />} />
+          <Route path="/artisan/profil" element={<ArtisanProfile />} />
+          <Route path="/artisan/documents" element={<ArtisanDocuments />} />
+          <Route path="/artisan/prestations" element={<ArtisanServices />} />
+          <Route path="/artisan/demandes" element={<ArtisanRequests />} />
+          <Route path="/artisan/messagerie" element={<ArtisanMessaging />} />
+          <Route path="/artisan/planning" element={<ArtisanPlanning />} />
+          <Route path="/artisan/parametres" element={<ArtisanSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
