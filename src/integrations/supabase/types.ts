@@ -223,6 +223,86 @@ export type Database = {
           },
         ]
       }
+      demo_missions: {
+        Row: {
+          applicants_count: number | null
+          budget: number | null
+          category_id: string | null
+          city: string
+          client_city: string
+          client_name: string
+          created_at: string
+          description: string | null
+          id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          applicants_count?: number | null
+          budget?: number | null
+          category_id?: string | null
+          city: string
+          client_city: string
+          client_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          applicants_count?: number | null
+          budget?: number | null
+          category_id?: string | null
+          city?: string
+          client_city?: string
+          client_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_missions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_profiles: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
