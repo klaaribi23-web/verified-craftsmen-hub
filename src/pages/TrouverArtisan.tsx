@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import ArtisanFilters from "@/components/artisan-search/ArtisanFilters";
 import ArtisanCard from "@/components/artisan-search/ArtisanCard";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
   PaginationContent,
@@ -36,65 +37,19 @@ import {
   ArrowRight
 } from "lucide-react";
 import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocations";
+import { usePublicArtisans, useCategoriesWithCount } from "@/hooks/usePublicData";
 
-const categories = [
-  { icon: Droplets, title: "Plombier", count: 847, href: "/artisans/plombier" },
-  { icon: Zap, title: "Électricien", count: 623, href: "/artisans/electricien" },
-  { icon: Flame, title: "Chauffagiste", count: 412, href: "/artisans/chauffagiste" },
-  { icon: Paintbrush, title: "Peintre", count: 956, href: "/artisans/peintre" },
-  { icon: Key, title: "Serrurier", count: 234, href: "/artisans/serrurier" },
-  { icon: Construction, title: "Maçon", count: 378, href: "/artisans/macon" },
-  { icon: Hammer, title: "Menuisier", count: 289, href: "/artisans/menuisier" },
-  { icon: Wrench, title: "Carreleur", count: 445, href: "/artisans/carreleur" },
-];
-
-const categoryNames = categories.map(c => c.title);
-
-// All artisans data (dummy data for pagination demo)
-const allArtisansData = [
-  { id: 4, name: "Pierre Lefebvre", profession: "Plombier", location: "Bordeaux (33)", rating: 4.7, reviews: 98, verified: true, experience: "8 ans", hourlyRate: "42€" },
-  { id: 5, name: "Marie Dupont", profession: "Électricien", location: "Nantes (44)", rating: 4.6, reviews: 67, verified: true, experience: "6 ans", hourlyRate: "48€" },
-  { id: 6, name: "Lucas Bernard", profession: "Chauffagiste", location: "Toulouse (31)", rating: 4.9, reviews: 134, verified: true, experience: "14 ans", hourlyRate: "55€" },
-  { id: 7, name: "Emma Moreau", profession: "Peintre", location: "Nice (06)", rating: 4.8, reviews: 89, verified: true, experience: "9 ans", hourlyRate: "38€" },
-  { id: 8, name: "Thomas Petit", profession: "Serrurier", location: "Lyon (69)", rating: 4.5, reviews: 45, verified: true, experience: "5 ans", hourlyRate: "52€" },
-  { id: 9, name: "Camille Roux", profession: "Maçon", location: "Marseille (13)", rating: 4.7, reviews: 78, verified: true, experience: "11 ans", hourlyRate: "50€" },
-  { id: 10, name: "Antoine Girard", profession: "Menuisier", location: "Strasbourg (67)", rating: 4.9, reviews: 112, verified: true, experience: "15 ans", hourlyRate: "58€" },
-  { id: 11, name: "Julie Fontaine", profession: "Carreleur", location: "Montpellier (34)", rating: 4.6, reviews: 56, verified: true, experience: "7 ans", hourlyRate: "44€" },
-  { id: 12, name: "Nicolas Lambert", profession: "Plombier", location: "Lille (59)", rating: 4.8, reviews: 91, verified: true, experience: "10 ans", hourlyRate: "46€" },
-  { id: 13, name: "Laura Michel", profession: "Électricien", location: "Rennes (35)", rating: 4.7, reviews: 73, verified: true, experience: "8 ans", hourlyRate: "49€" },
-  { id: 14, name: "Julien Mercier", profession: "Chauffagiste", location: "Grenoble (38)", rating: 4.5, reviews: 42, verified: true, experience: "6 ans", hourlyRate: "53€" },
-  { id: 15, name: "Claire Bonnet", profession: "Peintre", location: "Dijon (21)", rating: 4.9, reviews: 145, verified: true, experience: "12 ans", hourlyRate: "41€" },
-  { id: 16, name: "Maxime Dumont", profession: "Serrurier", location: "Angers (49)", rating: 4.6, reviews: 58, verified: true, experience: "7 ans", hourlyRate: "50€" },
-  { id: 17, name: "Sarah Leroy", profession: "Maçon", location: "Nîmes (30)", rating: 4.8, reviews: 87, verified: true, experience: "9 ans", hourlyRate: "48€" },
-  { id: 18, name: "David Simon", profession: "Menuisier", location: "Toulon (83)", rating: 4.7, reviews: 69, verified: true, experience: "10 ans", hourlyRate: "56€" },
-  { id: 19, name: "Léa Martin", profession: "Carreleur", location: "Le Havre (76)", rating: 4.5, reviews: 38, verified: true, experience: "5 ans", hourlyRate: "43€" },
-  { id: 20, name: "Romain Faure", profession: "Plombier", location: "Clermont-Ferrand (63)", rating: 4.9, reviews: 118, verified: true, experience: "13 ans", hourlyRate: "47€" },
-  { id: 21, name: "Pauline Blanc", profession: "Électricien", location: "Reims (51)", rating: 4.6, reviews: 52, verified: true, experience: "6 ans", hourlyRate: "51€" },
-  { id: 22, name: "Sébastien Garnier", profession: "Chauffagiste", location: "Saint-Étienne (42)", rating: 4.8, reviews: 94, verified: true, experience: "11 ans", hourlyRate: "54€" },
-  { id: 23, name: "Manon Perrin", profession: "Peintre", location: "Paris (75)", rating: 4.7, reviews: 76, verified: true, experience: "8 ans", hourlyRate: "39€" },
-  { id: 24, name: "Florian Morel", profession: "Serrurier", location: "Bordeaux (33)", rating: 4.5, reviews: 41, verified: true, experience: "5 ans", hourlyRate: "49€" },
-  { id: 25, name: "Océane Rousseau", profession: "Maçon", location: "Lyon (69)", rating: 4.9, reviews: 129, verified: true, experience: "14 ans", hourlyRate: "52€" },
-  { id: 26, name: "Hugo Chevalier", profession: "Menuisier", location: "Nantes (44)", rating: 4.6, reviews: 63, verified: true, experience: "7 ans", hourlyRate: "57€" },
-  { id: 27, name: "Chloé Muller", profession: "Carreleur", location: "Toulouse (31)", rating: 4.8, reviews: 85, verified: true, experience: "9 ans", hourlyRate: "45€" },
-  { id: 28, name: "Alexandre Fournier", profession: "Plombier", location: "Nice (06)", rating: 4.7, reviews: 71, verified: true, experience: "10 ans", hourlyRate: "44€" },
-  { id: 29, name: "Mathilde Giraud", profession: "Électricien", location: "Marseille (13)", rating: 4.5, reviews: 47, verified: true, experience: "6 ans", hourlyRate: "50€" },
-  { id: 30, name: "Vincent Andre", profession: "Chauffagiste", location: "Strasbourg (67)", rating: 4.9, reviews: 136, verified: true, experience: "15 ans", hourlyRate: "56€" },
-  { id: 31, name: "Amélie Henry", profession: "Peintre", location: "Montpellier (34)", rating: 4.6, reviews: 59, verified: true, experience: "7 ans", hourlyRate: "40€" },
-  { id: 32, name: "Théo Robert", profession: "Serrurier", location: "Lille (59)", rating: 4.8, reviews: 88, verified: true, experience: "9 ans", hourlyRate: "51€" },
-  { id: 33, name: "Inès David", profession: "Maçon", location: "Rennes (35)", rating: 4.7, reviews: 74, verified: true, experience: "10 ans", hourlyRate: "49€" },
-  { id: 34, name: "Quentin Bertrand", profession: "Menuisier", location: "Grenoble (38)", rating: 4.5, reviews: 39, verified: true, experience: "5 ans", hourlyRate: "55€" },
-  { id: 35, name: "Charlotte Morin", profession: "Carreleur", location: "Dijon (21)", rating: 4.9, reviews: 121, verified: true, experience: "12 ans", hourlyRate: "46€" },
-  { id: 36, name: "Adrien Laurent", profession: "Plombier", location: "Angers (49)", rating: 4.6, reviews: 54, verified: true, experience: "6 ans", hourlyRate: "43€" },
-  { id: 37, name: "Élodie Clément", profession: "Électricien", location: "Nîmes (30)", rating: 4.8, reviews: 92, verified: true, experience: "11 ans", hourlyRate: "52€" },
-  { id: 38, name: "Baptiste Garcia", profession: "Chauffagiste", location: "Toulon (83)", rating: 4.7, reviews: 68, verified: true, experience: "8 ans", hourlyRate: "53€" },
-  { id: 39, name: "Marion Roche", profession: "Peintre", location: "Le Havre (76)", rating: 4.5, reviews: 43, verified: true, experience: "5 ans", hourlyRate: "37€" },
-  { id: 40, name: "Dylan Lemaire", profession: "Serrurier", location: "Clermont-Ferrand (63)", rating: 4.9, reviews: 115, verified: true, experience: "13 ans", hourlyRate: "54€" },
-  { id: 41, name: "Anaïs Picard", profession: "Maçon", location: "Reims (51)", rating: 4.6, reviews: 57, verified: true, experience: "7 ans", hourlyRate: "47€" },
-  { id: 42, name: "Clément Dubois", profession: "Menuisier", location: "Saint-Étienne (42)", rating: 4.8, reviews: 83, verified: true, experience: "9 ans", hourlyRate: "59€" },
-  { id: 43, name: "Juliette Renard", profession: "Carreleur", location: "Paris (75)", rating: 4.7, reviews: 70, verified: true, experience: "8 ans", hourlyRate: "48€" },
-  { id: 44, name: "Valentin Arnaud", profession: "Plombier", location: "Bordeaux (33)", rating: 4.5, reviews: 46, verified: true, experience: "6 ans", hourlyRate: "41€" },
-  { id: 45, name: "Lucie Marchand", profession: "Électricien", location: "Lyon (69)", rating: 4.9, reviews: 132, verified: true, experience: "14 ans", hourlyRate: "53€" },
-];
+// Icon mapping for categories
+const categoryIcons: Record<string, React.ComponentType<any>> = {
+  "Plombier": Droplets,
+  "Électricien": Zap,
+  "Chauffagiste": Flame,
+  "Peintre": Paintbrush,
+  "Serrurier": Key,
+  "Maçon": Construction,
+  "Menuisier": Hammer,
+  "Carreleur": Wrench,
+};
 
 const ITEMS_PER_PAGE = 21;
 
@@ -119,13 +74,28 @@ const TrouverArtisan = () => {
   const cityInputRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  // Fetch dynamic data
+  const { data: artisansData, isLoading: artisansLoading } = usePublicArtisans();
+  const { data: categoriesData, isLoading: categoriesLoading } = useCategoriesWithCount();
+
+  // Create categories array with dynamic counts
+  const categories = useMemo(() => {
+    if (!categoriesData) return [];
+    return categoriesData.map((cat) => ({
+      icon: categoryIcons[cat.name] || Wrench,
+      title: cat.name,
+      count: cat.count,
+      href: `/trouver-artisan?category=${encodeURIComponent(cat.name.toLowerCase())}`,
+    }));
+  }, [categoriesData]);
+
   // Filter categories based on search
   const filteredCategories = useMemo(() => {
     if (!searchQuery) return categories;
     return categories.filter(cat => 
       cat.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [searchQuery, categories]);
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -167,11 +137,14 @@ const TrouverArtisan = () => {
 
   // Filter artisans based on filters + hero search
   const filteredArtisans = useMemo(() => {
-    return allArtisansData.filter((artisan) => {
+    if (!artisansData) return [];
+    
+    return artisansData.filter((artisan) => {
       // Filter by category from hero search or sidebar
       const categoryFilter = filters.category || searchQuery;
       if (categoryFilter && categoryFilter !== "all") {
-        if (!artisan.profession.toLowerCase().includes(categoryFilter.toLowerCase())) {
+        const artisanCategory = artisan.category?.name?.toLowerCase() || "";
+        if (!artisanCategory.includes(categoryFilter.toLowerCase())) {
           return false;
         }
       }
@@ -180,20 +153,26 @@ const TrouverArtisan = () => {
       const cityFilter = filters.city || locationSearch;
       if (cityFilter) {
         const cityName = cityFilter.split(" ")[0].toLowerCase();
-        if (!artisan.location.toLowerCase().includes(cityName)) {
+        const artisanCity = artisan.city?.toLowerCase() || "";
+        const artisanDept = artisan.department?.toLowerCase() || "";
+        const artisanRegion = artisan.region?.toLowerCase() || "";
+        
+        if (!artisanCity.includes(cityName) && 
+            !artisanDept.includes(cityName) && 
+            !artisanRegion.includes(cityName)) {
           return false;
         }
       }
 
       // Filter by budget (hourly rate)
-      const rate = parseInt(artisan.hourlyRate.replace("€", ""));
+      const rate = artisan.hourly_rate || 0;
       if (rate < filters.budget[0] || rate > filters.budget[1]) {
         return false;
       }
 
       return true;
     });
-  }, [filters, searchQuery, locationSearch]);
+  }, [artisansData, filters, searchQuery, locationSearch]);
 
   // Paginate filtered artisans
   const totalPages = Math.ceil(filteredArtisans.length / ITEMS_PER_PAGE);
@@ -201,6 +180,9 @@ const TrouverArtisan = () => {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  // Get total artisan count
+  const totalArtisans = artisansData?.length || 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -219,7 +201,7 @@ const TrouverArtisan = () => {
                 Trouvez votre <span className="text-gradient-gold">artisan</span>
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                Plus de 5000 artisans vérifiés à votre service
+                Plus de {totalArtisans} artisans vérifiés à votre service
               </p>
             </motion.div>
 
@@ -244,21 +226,29 @@ const TrouverArtisan = () => {
                   {/* Category Dropdown with icons in 2-3 columns */}
                   {showCategorySuggestions && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 p-4">
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {filteredCategories.map((cat) => (
-                          <button
-                            key={cat.title}
-                            onClick={() => {
-                              setSearchQuery(cat.title);
-                              setShowCategorySuggestions(false);
-                            }}
-                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors text-left"
-                          >
-                            <cat.icon className="w-5 h-5 text-gold" />
-                            <span className="text-foreground text-sm font-medium">{cat.title}</span>
-                          </button>
-                        ))}
-                      </div>
+                      {categoriesLoading ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {[1,2,3,4,5,6].map((i) => (
+                            <Skeleton key={i} className="h-12 rounded-lg" />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {filteredCategories.map((cat) => (
+                            <button
+                              key={cat.title}
+                              onClick={() => {
+                                setSearchQuery(cat.title);
+                                setShowCategorySuggestions(false);
+                              }}
+                              className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors text-left"
+                            >
+                              <cat.icon className="w-5 h-5 text-gold" />
+                              <span className="text-foreground text-sm font-medium">{cat.title}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -341,33 +331,48 @@ const TrouverArtisan = () => {
         <section className="py-16 bg-card">
           <div className="container mx-auto px-4 lg:px-8">
             <h2 className="text-2xl font-bold text-foreground mb-8">Parcourir par métier</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {categories.map((category, index) => (
-                <motion.div
-                  key={category.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Link
-                    to={category.href}
-                    className="group flex items-center gap-4 p-4 rounded-xl border border-border hover:border-gold/30 hover:shadow-soft transition-all"
+            {categoriesLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[1,2,3,4,5,6,7,8].map((i) => (
+                  <Skeleton key={i} className="h-20 rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {categories.map((category, index) => (
+                  <motion.div
+                    key={category.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
                   >
-                    <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                      <category.icon className="w-6 h-6 text-gold" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-foreground group-hover:text-gold transition-colors">
-                        {category.title}
+                    <button
+                      onClick={() => {
+                        setSearchQuery(category.title);
+                        setFilters(prev => ({ ...prev, category: category.title }));
+                        setCurrentPage(1);
+                        setTimeout(() => {
+                          resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+                        }, 100);
+                      }}
+                      className="w-full group flex items-center gap-4 p-4 rounded-xl border border-border hover:border-gold/30 hover:shadow-soft transition-all text-left"
+                    >
+                      <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                        <category.icon className="w-6 h-6 text-gold" />
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {category.count} artisans
+                      <div>
+                        <div className="font-semibold text-foreground group-hover:text-gold transition-colors">
+                          {category.title}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {category.count} artisan{category.count > 1 ? "s" : ""}
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+                    </button>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -394,7 +399,13 @@ const TrouverArtisan = () => {
 
               {/* Artisans Grid - Right Column */}
               <div className="flex-1">
-                {paginatedArtisans.length > 0 ? (
+                {artisansLoading ? (
+                  <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {[1,2,3,4,5,6].map((i) => (
+                      <Skeleton key={i} className="h-80 rounded-2xl" />
+                    ))}
+                  </div>
+                ) : paginatedArtisans.length > 0 ? (
                   <>
                     <div className="mb-4 text-sm text-muted-foreground">
                       {filteredArtisans.length} artisan{filteredArtisans.length > 1 ? "s" : ""} trouvé{filteredArtisans.length > 1 ? "s" : ""}
@@ -407,7 +418,19 @@ const TrouverArtisan = () => {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                         >
-                          <ArtisanCard {...artisan} />
+                          <ArtisanCard
+                            id={artisan.id}
+                            name={artisan.business_name}
+                            profession={artisan.category?.name || "Artisan"}
+                            location={artisan.city}
+                            rating={artisan.rating || 0}
+                            reviews={artisan.review_count || 0}
+                            verified={artisan.is_verified || false}
+                            experience={`${artisan.experience_years || 0} ans`}
+                            hourlyRate={`${artisan.hourly_rate || 0}€`}
+                            profileImage={artisan.photo_url || undefined}
+                            portfolio={artisan.portfolio_images || undefined}
+                          />
                         </motion.div>
                       ))}
                     </div>

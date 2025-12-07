@@ -5,7 +5,7 @@ import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight, Heart } from "lu
 import { toast } from "sonner";
 
 interface ArtisanCardProps {
-  id: number;
+  id: string | number;
   name: string;
   profession: string;
   location: string;
@@ -82,13 +82,20 @@ const ArtisanCard = ({
   verified,
   experience,
   hourlyRate,
+  profileImage,
+  portfolio,
 }: ArtisanCardProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const navigate = useNavigate();
   
-  const portfolio = defaultPortfolios[profession] || defaultPortfolios["Plombier"];
-  const profileImage = profileImages[id % profileImages.length];
+  // Use provided portfolio or fallback to defaults
+  const portfolioImages = portfolio && portfolio.length > 0 
+    ? portfolio 
+    : defaultPortfolios[profession] || defaultPortfolios["Plombier"];
+  
+  const numericId = typeof id === "string" ? parseInt(id.slice(0, 8), 16) : id;
+  const defaultProfileImage = profileImages[numericId % profileImages.length];
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -109,13 +116,13 @@ const ArtisanCard = ({
   const nextSlide = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentSlide((prev) => (prev + 1) % portfolio.length);
+    setCurrentSlide((prev) => (prev + 1) % portfolioImages.length);
   };
 
   const prevSlide = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentSlide((prev) => (prev - 1 + portfolio.length) % portfolio.length);
+    setCurrentSlide((prev) => (prev - 1 + portfolioImages.length) % portfolioImages.length);
   };
 
   return (
@@ -123,7 +130,7 @@ const ArtisanCard = ({
       {/* Portfolio Carousel */}
       <div className="relative h-48 overflow-hidden group">
         <img
-          src={portfolio[currentSlide]}
+          src={portfolioImages[currentSlide]}
           alt={`Réalisation ${currentSlide + 1}`}
           className="w-full h-full object-cover transition-transform duration-300"
         />
@@ -144,7 +151,7 @@ const ArtisanCard = ({
 
         {/* Dots Indicator */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {portfolio.map((_, index) => (
+          {portfolioImages.map((_, index) => (
             <button
               key={index}
               onClick={(e) => {
@@ -187,7 +194,7 @@ const ArtisanCard = ({
         {/* Profile Row */}
         <div className="flex items-center gap-3 mb-3">
           <img
-            src={profileImage}
+            src={profileImage || defaultProfileImage}
             alt={name}
             className="w-12 h-12 rounded-full object-cover border-2 border-gold"
           />
