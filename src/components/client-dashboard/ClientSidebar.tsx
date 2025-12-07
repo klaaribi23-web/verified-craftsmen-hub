@@ -1,31 +1,25 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   User,
-  FileText,
   Briefcase,
   MessageSquare,
-  Calendar,
-  LayoutDashboard,
   Settings,
   LogOut,
   BadgeCheck,
-  Gift,
+  Heart,
+  LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Tableau de bord", path: "/artisan/dashboard" },
-  { icon: User, label: "Mon profil", path: "/artisan/profil" },
-  { icon: FileText, label: "Documents", path: "/artisan/documents" },
-  { icon: Briefcase, label: "Mes prestations", path: "/artisan/prestations" },
-  { icon: MessageSquare, label: "Demandes reçues", path: "/artisan/demandes" },
-  { icon: MessageSquare, label: "Messagerie", path: "/artisan/messagerie" },
-  { icon: Calendar, label: "Planning", path: "/artisan/planning" },
-  { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires" },
-  { icon: Settings, label: "Paramètres", path: "/artisan/parametres" },
+  { icon: LayoutDashboard, label: "Tableau de bord", path: "/client/dashboard" },
+  { icon: Briefcase, label: "Mes missions", path: "/client/missions" },
+  { icon: Heart, label: "Artisans favoris", path: "/client/favoris" },
+  { icon: MessageSquare, label: "Messagerie", path: "/client/messagerie" },
+  { icon: Settings, label: "Paramètres", path: "/client/parametres" },
 ];
 
-export const ArtisanSidebar = () => {
+export const ClientSidebar = () => {
   const location = useLocation();
 
   return (
@@ -50,12 +44,8 @@ export const ArtisanSidebar = () => {
             <User className="w-6 h-6" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">Jean Dupont</p>
-            <p className="text-sm text-sidebar-foreground/70">Plombier</p>
-          </div>
-          <div className="flex items-center gap-1 px-2 py-1 bg-success/20 rounded-full">
-            <BadgeCheck className="w-4 h-4 text-success" />
-            <span className="text-xs text-success">Validé</span>
+            <p className="font-medium truncate">Marie Martin</p>
+            <p className="text-sm text-sidebar-foreground/70">Client</p>
           </div>
         </div>
       </div>

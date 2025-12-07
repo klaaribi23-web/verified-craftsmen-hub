@@ -703,54 +703,7 @@ const ArtisanPublicProfile = () => {
                       </div>
                     </div>
 
-                    {/* Social Links in Contact Card */}
-                    <div className="pt-4 border-t">
-                      <p className="text-sm text-muted-foreground mb-3 text-center">Suivez-moi</p>
-                      <div className="flex items-center justify-center gap-2">
-                        {artisanData.socialLinks.facebook && (
-                          <a 
-                            href={artisanData.socialLinks.facebook} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors"
-                          >
-                            <Facebook className="h-4 w-4" />
-                          </a>
-                        )}
-                        {artisanData.socialLinks.instagram && (
-                          <a 
-                            href={artisanData.socialLinks.instagram} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#F77737] hover:text-white transition-colors"
-                          >
-                            <Instagram className="h-4 w-4" />
-                          </a>
-                        )}
-                        {artisanData.socialLinks.linkedin && (
-                          <a 
-                            href={artisanData.socialLinks.linkedin} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors"
-                          >
-                            <Linkedin className="h-4 w-4" />
-                          </a>
-                        )}
-                        {artisanData.socialLinks.website && (
-                          <a 
-                            href={artisanData.socialLinks.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                          >
-                            <Globe className="h-4 w-4" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Share Section - moved here below social links */}
+                    {/* Share Section */}
                     <div className="pt-4 border-t">
                       <p className="text-sm text-muted-foreground mb-3 flex items-center justify-center gap-2">
                         <Share2 className="h-4 w-4" />
