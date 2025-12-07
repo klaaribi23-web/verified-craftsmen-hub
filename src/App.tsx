@@ -35,6 +35,7 @@ import AdminStatistics from "./pages/admin/AdminStatistics";
 import AdminMessaging from "./pages/admin/AdminMessaging";
 import AdminEmails from "./pages/admin/AdminEmails";
 import AdminAddArtisan from "./pages/admin/AdminAddArtisan";
+import AdminApprovals from "./pages/admin/AdminApprovals";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 
@@ -168,6 +169,11 @@ const App = () => (
           <Route path="/admin/emails" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminEmails />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/approbations" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminApprovals />
             </ProtectedRoute>
           } />
           <Route path="/admin/ajouter-artisan" element={

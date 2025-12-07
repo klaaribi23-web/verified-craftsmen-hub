@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ClientSidebar } from "@/components/client-dashboard/ClientSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Input } from "@/components/ui/input";
@@ -19,8 +20,14 @@ import {
 } from "lucide-react";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const ClientMessaging = () => {
+  const [searchParams] = useSearchParams();
+  const artisanIdFromUrl = searchParams.get("artisan");
+  const artisanNameFromUrl = searchParams.get("name");
+
   const {
     currentProfileId,
     conversations,
@@ -33,17 +40,51 @@ export const ClientMessaging = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showNewConversation, setShowNewConversation] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Fetch artisan profile for new conversation
+  const { data: artisanToContact } = useQuery({
+    queryKey: ["artisan-to-contact", artisanIdFromUrl],
+    queryFn: async () => {
+      if (!artisanIdFromUrl) return null;
+      
+      const { data, error } = await supabase
+        .from("artisans")
+        .select("id, business_name, photo_url, profile_id")
+        .eq("id", artisanIdFromUrl)
+        .single();
+
+      if (error) return null;
+      return data;
+    },
+    enabled: !!artisanIdFromUrl
+  });
 
   const selectedConversation = conversations.find(c => c.participant_id === selectedConversationId);
   const { data: messages = [], isLoading: messagesLoading } = useConversationMessages(selectedConversationId);
 
-  // Auto-select first conversation
+  // Handle URL params for new conversation
   useEffect(() => {
-    if (conversations.length > 0 && !selectedConversationId) {
+    if (artisanToContact?.profile_id) {
+      // Check if conversation already exists
+      const existingConv = conversations.find(c => c.participant_id === artisanToContact.profile_id);
+      if (existingConv) {
+        setSelectedConversationId(existingConv.participant_id);
+        setShowNewConversation(false);
+      } else {
+        setShowNewConversation(true);
+        setSelectedConversationId(artisanToContact.profile_id);
+      }
+    }
+  }, [artisanToContact, conversations]);
+
+  // Auto-select first conversation if no URL param
+  useEffect(() => {
+    if (conversations.length > 0 && !selectedConversationId && !artisanIdFromUrl) {
       setSelectedConversationId(conversations[0].participant_id);
     }
-  }, [conversations, selectedConversationId]);
+  }, [conversations, selectedConversationId, artisanIdFromUrl]);
 
   // Mark messages as read when selecting conversation
   useEffect(() => {
@@ -61,6 +102,7 @@ export const ClientMessaging = () => {
     if (newMessage.trim() && selectedConversationId) {
       sendMessage.mutate({ receiverId: selectedConversationId, content: newMessage.trim() });
       setNewMessage("");
+      setShowNewConversation(false);
     }
   };
 
@@ -158,21 +200,23 @@ export const ClientMessaging = () => {
               </div>
 
               {/* Chat Area */}
-              {selectedConversation ? (
+              {(selectedConversation || showNewConversation) ? (
                 <div className="flex-1 flex flex-col">
                   {/* Chat Header */}
                   <div className="p-4 border-b border-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10">
-                        <AvatarImage src={selectedConversation.participant_photo || undefined} />
+                        <AvatarImage src={selectedConversation?.participant_photo || artisanToContact?.photo_url || undefined} />
                         <AvatarFallback className="bg-primary/10">
                           <User className="w-5 h-5 text-primary" />
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{selectedConversation.participant_name}</p>
+                        <p className="font-medium">
+                          {selectedConversation?.participant_name || artisanNameFromUrl || artisanToContact?.business_name || "Nouvelle conversation"}
+                        </p>
                         <p className="text-sm text-muted-foreground">
-                          {selectedConversation.participant_role}
+                          {selectedConversation?.participant_role || "Artisan"}
                         </p>
                       </div>
                     </div>
