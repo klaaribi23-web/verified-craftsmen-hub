@@ -18,24 +18,41 @@ import {
   Facebook,
   Instagram,
   Linkedin,
-  Globe
+  Globe,
+  Loader2
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-
-const categories = [
-  "Plombier", "Électricien", "Peintre", "Menuisier", "Carreleur", 
-  "Maçon", "Couvreur", "Serrurier", "Chauffagiste", "Climaticien"
-];
+import { useCategories, useAddArtisan } from "@/hooks/useAdminData";
+import { useNavigate } from "react-router-dom";
 
 const cities = [
   "Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse", 
-  "Nantes", "Lille", "Strasbourg", "Nice", "Montpellier"
+  "Nantes", "Lille", "Strasbourg", "Nice", "Montpellier",
+  "Rennes", "Grenoble", "Rouen", "Toulon", "Le Havre"
 ];
 
+const regions: Record<string, { department: string; region: string }> = {
+  "Paris": { department: "Paris", region: "Île-de-France" },
+  "Lyon": { department: "Rhône", region: "Auvergne-Rhône-Alpes" },
+  "Marseille": { department: "Bouches-du-Rhône", region: "Provence-Alpes-Côte d'Azur" },
+  "Bordeaux": { department: "Gironde", region: "Nouvelle-Aquitaine" },
+  "Toulouse": { department: "Haute-Garonne", region: "Occitanie" },
+  "Nantes": { department: "Loire-Atlantique", region: "Pays de la Loire" },
+  "Lille": { department: "Nord", region: "Hauts-de-France" },
+  "Strasbourg": { department: "Bas-Rhin", region: "Grand Est" },
+  "Nice": { department: "Alpes-Maritimes", region: "Provence-Alpes-Côte d'Azur" },
+  "Montpellier": { department: "Hérault", region: "Occitanie" },
+  "Rennes": { department: "Ille-et-Vilaine", region: "Bretagne" },
+  "Grenoble": { department: "Isère", region: "Auvergne-Rhône-Alpes" },
+};
+
 const AdminAddArtisan = () => {
+  const navigate = useNavigate();
+  const { data: categories } = useCategories();
+  const addArtisan = useAddArtisan();
+  
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    businessName: "",
     email: "",
     phone: "",
     category: "",
@@ -49,30 +66,17 @@ const AdminAddArtisan = () => {
     linkedin: "",
     website: "",
   });
-  const [photo, setPhoto] = useState<File | null>(null);
-  const [portfolioImages, setPortfolioImages] = useState<File[]>([]);
+  const [photoUrl, setPhotoUrl] = useState("");
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setPhoto(e.target.files[0]);
-    }
-  };
-
-  const handlePortfolioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setPortfolioImages(Array.from(e.target.files));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate required fields
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.category || !formData.city) {
+    if (!formData.businessName || !formData.category || !formData.city) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs obligatoires.",
@@ -81,31 +85,38 @@ const AdminAddArtisan = () => {
       return;
     }
 
-    // In real app, send to backend
-    toast({
-      title: "Artisan ajouté",
-      description: `${formData.firstName} ${formData.lastName} a été ajouté à la plateforme.`,
-    });
+    const cityInfo = regions[formData.city] || { department: "", region: "" };
 
-    // Reset form
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      category: "",
-      city: "",
-      address: "",
-      description: "",
-      hourlyRate: "",
-      siret: "",
-      facebook: "",
-      instagram: "",
-      linkedin: "",
-      website: "",
-    });
-    setPhoto(null);
-    setPortfolioImages([]);
+    try {
+      await addArtisan.mutateAsync({
+        business_name: formData.businessName,
+        description: formData.description || undefined,
+        category_id: formData.category,
+        city: formData.city,
+        department: cityInfo.department,
+        region: cityInfo.region,
+        hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined,
+        siret: formData.siret || undefined,
+        photo_url: photoUrl || undefined,
+        facebook_url: formData.facebook || undefined,
+        instagram_url: formData.instagram || undefined,
+        linkedin_url: formData.linkedin || undefined,
+        website_url: formData.website || undefined,
+      });
+
+      toast({
+        title: "Artisan ajouté",
+        description: `${formData.businessName} a été ajouté à la plateforme.`,
+      });
+
+      navigate("/admin/artisans");
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout de l'artisan.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -125,36 +136,24 @@ const AdminAddArtisan = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <UserPlus className="h-5 w-5" />
-                  Informations personnelles
+                  Informations de l'artisan
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
-                      Prénom *
-                    </label>
-                    <Input
-                      placeholder="Prénom"
-                      value={formData.firstName}
-                      onChange={(e) => handleChange("firstName", e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
-                      Nom *
-                    </label>
-                    <Input
-                      placeholder="Nom"
-                      value={formData.lastName}
-                      onChange={(e) => handleChange("lastName", e.target.value)}
-                    />
-                  </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    Nom de l'entreprise / Artisan *
+                  </label>
+                  <Input
+                    placeholder="Ex: Jean Dupont Plomberie"
+                    value={formData.businessName}
+                    onChange={(e) => handleChange("businessName", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
-                    Email *
+                    Email
                   </label>
                   <Input
                     type="email"
@@ -166,7 +165,7 @@ const AdminAddArtisan = () => {
 
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
-                    Téléphone *
+                    Téléphone
                   </label>
                   <Input
                     placeholder="06 12 34 56 78"
@@ -177,23 +176,16 @@ const AdminAddArtisan = () => {
 
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
-                    Photo de profil
+                    URL de la photo de profil
                   </label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePhotoChange}
-                      className="hidden"
-                      id="photo-upload"
-                    />
-                    <label htmlFor="photo-upload" className="cursor-pointer">
-                      <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        {photo ? photo.name : "Cliquez pour ajouter une photo"}
-                      </p>
-                    </label>
-                  </div>
+                  <Input
+                    placeholder="https://..."
+                    value={photoUrl}
+                    onChange={(e) => setPhotoUrl(e.target.value)}
+                  />
+                  {photoUrl && (
+                    <img src={photoUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover mt-2" />
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -213,8 +205,8 @@ const AdminAddArtisan = () => {
                       <SelectValue placeholder="Sélectionnez une catégorie" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      {categories?.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -275,7 +267,7 @@ const AdminAddArtisan = () => {
             {/* Description */}
             <Card>
               <CardHeader>
-                <CardTitle>Description et portfolio</CardTitle>
+                <CardTitle>Description</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -286,32 +278,8 @@ const AdminAddArtisan = () => {
                     placeholder="Décrivez l'artisan, son expérience, ses spécialités..."
                     value={formData.description}
                     onChange={(e) => handleChange("description", e.target.value)}
-                    className="min-h-[120px]"
+                    className="min-h-[200px]"
                   />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Photos du portfolio
-                  </label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handlePortfolioChange}
-                      className="hidden"
-                      id="portfolio-upload"
-                    />
-                    <label htmlFor="portfolio-upload" className="cursor-pointer">
-                      <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        {portfolioImages.length > 0
-                          ? `${portfolioImages.length} image(s) sélectionnée(s)`
-                          : "Cliquez pour ajouter des photos"}
-                      </p>
-                    </label>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -375,8 +343,12 @@ const AdminAddArtisan = () => {
 
           {/* Submit Button */}
           <div className="mt-6 flex justify-end">
-            <Button type="submit" size="lg" className="gap-2">
-              <Save className="h-5 w-5" />
+            <Button type="submit" size="lg" className="gap-2" disabled={addArtisan.isPending}>
+              {addArtisan.isPending ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Save className="h-5 w-5" />
+              )}
               Créer le profil artisan
             </Button>
           </div>
