@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, CheckCircle2 } from "lucide-react";
+import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ArtisanCardProps {
   id: number;
@@ -12,7 +13,63 @@ interface ArtisanCardProps {
   verified: boolean;
   experience: string;
   hourlyRate: string;
+  profileImage?: string;
+  portfolio?: string[];
 }
+
+// Sample portfolio images for demo
+const defaultPortfolios: Record<string, string[]> = {
+  "Plombier": [
+    "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+  ],
+  "Électricien": [
+    "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=400&h=300&fit=crop",
+  ],
+  "Peintre": [
+    "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+  ],
+  "Chauffagiste": [
+    "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1581092921461-39b14e4fec0e?w=400&h=300&fit=crop",
+  ],
+  "Serrurier": [
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1581092921461-39b14e4fec0e?w=400&h=300&fit=crop",
+  ],
+  "Maçon": [
+    "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1541123603104-512919d6a96c?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+  ],
+  "Menuisier": [
+    "https://images.unsplash.com/photo-1622021142947-da7dedc7c39a?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1588854337115-1c67d9247e4d?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+  ],
+  "Carreleur": [
+    "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+  ],
+};
+
+// Sample profile images
+const profileImages = [
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop&crop=face",
+];
 
 const ArtisanCard = ({
   id,
@@ -25,54 +82,117 @@ const ArtisanCard = ({
   experience,
   hourlyRate,
 }: ArtisanCardProps) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const portfolio = defaultPortfolios[profession] || defaultPortfolios["Plombier"];
+  const profileImage = profileImages[id % profileImages.length];
+
+  const nextSlide = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev + 1) % portfolio.length);
+  };
+
+  const prevSlide = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev - 1 + portfolio.length) % portfolio.length);
+  };
+
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-soft border border-border hover:shadow-elevated transition-shadow">
-      <div className="flex items-start gap-4 mb-4">
-        <div className="w-16 h-16 rounded-xl bg-gradient-gold flex items-center justify-center text-navy-dark font-bold text-xl">
-          {name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")}
+    <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
+      {/* Portfolio Carousel */}
+      <div className="relative h-48 overflow-hidden group">
+        <img
+          src={portfolio[currentSlide]}
+          alt={`Réalisation ${currentSlide + 1}`}
+          className="w-full h-full object-cover transition-transform duration-300"
+        />
+        
+        {/* Carousel Controls */}
+        <button
+          onClick={prevSlide}
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card"
+        >
+          <ChevronLeft className="w-4 h-4 text-foreground" />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card"
+        >
+          <ChevronRight className="w-4 h-4 text-foreground" />
+        </button>
+
+        {/* Dots Indicator */}
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+          {portfolio.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setCurrentSlide(index);
+              }}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${
+                index === currentSlide 
+                  ? "bg-card w-4" 
+                  : "bg-card/60"
+              }`}
+            />
+          ))}
         </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <Link to={`/artisan/${id}`}>
-              <h3 className="font-semibold text-navy hover:text-gold transition-colors">
-                {name}
-              </h3>
-            </Link>
-            {verified && <CheckCircle2 className="w-4 h-4 text-success" />}
+
+        {/* Verified Badge */}
+        {verified && (
+          <div className="absolute top-2 right-2 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3" />
+            Vérifié
           </div>
-          <p className="text-sm text-muted-foreground">{profession}</p>
-          <div className="flex items-center gap-1 mt-1">
-            <MapPin className="w-3 h-3 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">{location}</span>
+        )}
+      </div>
+
+      {/* Card Content */}
+      <div className="p-4">
+        {/* Profile Row */}
+        <div className="flex items-center gap-3 mb-3">
+          <img
+            src={profileImage}
+            alt={name}
+            className="w-12 h-12 rounded-full object-cover border-2 border-gold"
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <Link to={`/artisan/${id}`}>
+                <h3 className="font-semibold text-foreground hover:text-gold transition-colors truncate">
+                  {name}
+                </h3>
+              </Link>
+            </div>
+            <p className="text-sm text-muted-foreground">{profession}</p>
+          </div>
+          <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
+            <Star className="w-4 h-4 fill-gold text-gold" />
+            <span className="font-semibold text-foreground">{rating}</span>
+            <span className="text-xs text-muted-foreground">({reviews})</span>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex items-center gap-1">
-          <Star className="w-4 h-4 fill-gold text-gold" />
-          <span className="font-semibold text-navy">{rating}</span>
-          <span className="text-sm text-muted-foreground">({reviews})</span>
+        {/* Location & Info */}
+        <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <MapPin className="w-3.5 h-3.5" />
+            <span>{location}</span>
+          </div>
+          <span>•</span>
+          <span>{experience}</span>
+          <span>•</span>
+          <span className="text-gold font-medium">{hourlyRate}/h</span>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="p-3 rounded-lg bg-muted text-center">
-          <div className="text-xs text-muted-foreground">Expérience</div>
-          <div className="font-semibold text-navy">{experience}</div>
-        </div>
-        <div className="p-3 rounded-lg bg-muted text-center">
-          <div className="text-xs text-muted-foreground">Tarif/h</div>
-          <div className="font-semibold text-navy">{hourlyRate}</div>
-        </div>
+        <Button variant="gold" className="w-full" asChild>
+          <Link to={`/artisan/${id}`}>Voir le profil</Link>
+        </Button>
       </div>
-
-      <Button variant="gold" className="w-full" asChild>
-        <Link to={`/artisan/${id}`}>Voir le profil</Link>
-      </Button>
     </div>
   );
 };
