@@ -18,7 +18,13 @@ import { ArtisanRequests } from "./pages/artisan/ArtisanRequests";
 import { ArtisanMessaging } from "./pages/artisan/ArtisanMessaging";
 import { ArtisanPlanning } from "./pages/artisan/ArtisanPlanning";
 import { ArtisanSettings } from "./pages/artisan/ArtisanSettings";
+import { ArtisanPartnerOffers } from "./pages/artisan/ArtisanPartnerOffers";
 import ArtisanPublicProfile from "./pages/ArtisanPublicProfile";
+import { ClientDashboard } from "./pages/client/ClientDashboard";
+import { ClientMissions } from "./pages/client/ClientMissions";
+import { ClientFavorites } from "./pages/client/ClientFavorites";
+import { ClientMessaging } from "./pages/client/ClientMessaging";
+import { ClientSettings } from "./pages/client/ClientSettings";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +38,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/trouver-artisan" element={<TrouverArtisan />} />
           <Route path="/demande-devis" element={<DemandeDevis />} />
+          <Route path="/deposer-mission" element={<DemandeDevis />} />
           <Route path="/devenir-artisan" element={<DevenirArtisan />} />
           <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
           <Route path="/connexion" element={<Connexion />} />
@@ -43,7 +50,14 @@ const App = () => (
           <Route path="/artisan/demandes" element={<ArtisanRequests />} />
           <Route path="/artisan/messagerie" element={<ArtisanMessaging />} />
           <Route path="/artisan/planning" element={<ArtisanPlanning />} />
+          <Route path="/artisan/offres-partenaires" element={<ArtisanPartnerOffers />} />
           <Route path="/artisan/parametres" element={<ArtisanSettings />} />
+          {/* Client Dashboard Routes */}
+          <Route path="/client/dashboard" element={<ClientDashboard />} />
+          <Route path="/client/missions" element={<ClientMissions />} />
+          <Route path="/client/favoris" element={<ClientFavorites />} />
+          <Route path="/client/messagerie" element={<ClientMessaging />} />
+          <Route path="/client/parametres" element={<ClientSettings />} />
           {/* Public Artisan Profile */}
           <Route path="/artisan/:id" element={<ArtisanPublicProfile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

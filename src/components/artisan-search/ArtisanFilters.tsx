@@ -32,28 +32,7 @@ const categories = [
   "Carreleur",
 ];
 
-const frenchCities = [
-  { name: "Paris", code: "75" },
-  { name: "Marseille", code: "13" },
-  { name: "Lyon", code: "69" },
-  { name: "Toulouse", code: "31" },
-  { name: "Nice", code: "06" },
-  { name: "Nantes", code: "44" },
-  { name: "Montpellier", code: "34" },
-  { name: "Strasbourg", code: "67" },
-  { name: "Bordeaux", code: "33" },
-  { name: "Lille", code: "59" },
-  { name: "Rennes", code: "35" },
-  { name: "Reims", code: "51" },
-  { name: "Saint-Étienne", code: "42" },
-  { name: "Toulon", code: "83" },
-  { name: "Le Havre", code: "76" },
-  { name: "Grenoble", code: "38" },
-  { name: "Dijon", code: "21" },
-  { name: "Angers", code: "49" },
-  { name: "Nîmes", code: "30" },
-  { name: "Clermont-Ferrand", code: "63" },
-];
+import { filterLocations, regions, departments } from "@/data/frenchLocations";
 
 const timeSlots = [
   "08:00", "09:00", "10:00", "11:00", "12:00", 
@@ -79,11 +58,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   const [interventionDate, setInterventionDate] = useState<Date | undefined>(undefined);
   const [interventionTime, setInterventionTime] = useState<string>("");
 
-  const filteredCities = frenchCities.filter(
-    (city) =>
-      city.name.toLowerCase().includes(citySearch.toLowerCase()) ||
-      city.code.includes(citySearch)
-  );
+  const filteredLocations = citySearch ? filterLocations(citySearch).slice(0, 15) : [];
 
   // Call onFiltersChange immediately when any filter changes
   const notifyFiltersChange = () => {
@@ -103,9 +78,9 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
     setInterventionTime("");
   };
 
-  const handleCitySelect = (city: { name: string; code: string }) => {
-    setSelectedCity(`${city.name} (${city.code})`);
-    setCitySearch(`${city.name} (${city.code})`);
+  const handleLocationSelect = (location: { label: string; value: string }) => {
+    setSelectedCity(location.label);
+    setCitySearch(location.label);
     setShowCitySuggestions(false);
   };
 
@@ -186,17 +161,23 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
             onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
             className="pl-10"
           />
-          {showCitySuggestions && citySearch && filteredCities.length > 0 && (
+          {showCitySuggestions && citySearch && filteredLocations.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
-              {filteredCities.map((city) => (
+              {filteredLocations.map((loc) => (
                 <button
-                  key={city.name}
+                  key={loc.value}
                   type="button"
-                  onClick={() => handleCitySelect(city)}
-                  className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm"
+                  onClick={() => handleLocationSelect(loc)}
+                  className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm flex items-center gap-2"
                 >
-                  {city.name}{" "}
-                  <span className="text-muted-foreground">({city.code})</span>
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${
+                    loc.type === 'region' ? 'bg-primary/10 text-primary' :
+                    loc.type === 'department' ? 'bg-accent/10 text-accent' :
+                    'bg-muted text-muted-foreground'
+                  }`}>
+                    {loc.type === 'region' ? 'Région' : loc.type === 'department' ? 'Dépt.' : 'Ville'}
+                  </span>
+                  {loc.label}
                 </button>
               ))}
             </div>

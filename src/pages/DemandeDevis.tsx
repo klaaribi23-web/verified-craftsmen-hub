@@ -412,7 +412,7 @@ const DemandeDevis = () => {
                         disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone}
                         className="flex-1"
                       >
-                        Envoyer ma demande
+                        Déposer ma mission
                         <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </div>
