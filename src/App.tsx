@@ -34,6 +34,8 @@ import AdminStatistics from "./pages/admin/AdminStatistics";
 import AdminMessaging from "./pages/admin/AdminMessaging";
 import AdminEmails from "./pages/admin/AdminEmails";
 import AdminAddArtisan from "./pages/admin/AdminAddArtisan";
+import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +54,8 @@ const App = () => (
           <Route path="/devenir-artisan" element={<DevenirArtisan />} />
           <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
           <Route path="/connexion" element={<Connexion />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           {/* Artisan Dashboard Routes */}
           <Route path="/artisan/dashboard" element={<ArtisanDashboard />} />
           <Route path="/artisan/profil" element={<ArtisanProfile />} />
