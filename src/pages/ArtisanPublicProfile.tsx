@@ -4,12 +4,10 @@ import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   MapPin, 
   Phone, 
-  Mail, 
   Star, 
   Shield, 
   Clock, 
@@ -17,12 +15,15 @@ import {
   FileCheck, 
   Calendar,
   MessageSquare,
-  ChevronLeft,
-  ChevronRight,
   Euro,
   Wrench,
   Award,
-  ThumbsUp
+  ThumbsUp,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Globe,
+  ExternalLink
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
@@ -50,6 +51,12 @@ const artisanData = {
   siret: "123 456 789 00012",
   insuranceCompany: "AXA Professionnels",
   insuranceNumber: "POL-2024-XXXXX",
+  socialLinks: {
+    facebook: "https://facebook.com/jp-plomberie",
+    instagram: "https://instagram.com/jp_plomberie",
+    linkedin: "https://linkedin.com/in/jp-martin",
+    website: "https://jp-plomberie.fr"
+  },
   certifications: [
     { name: "RGE QualiPAC", icon: Award },
     { name: "Qualibat", icon: Shield },
@@ -118,19 +125,7 @@ const artisanData = {
 };
 
 const ArtisanPublicProfile = () => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === artisanData.portfolio.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? artisanData.portfolio.length - 1 : prev - 1
-    );
-  };
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -162,10 +157,18 @@ const ArtisanPublicProfile = () => {
             <span>/</span>
             <span className="text-foreground">{artisanData.firstName} {artisanData.lastName}</span>
           </div>
+        </div>
+      </section>
 
+      {/* Main Content */}
+      <section className="py-8">
+        <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Info Card */}
-            <div className="lg:col-span-2">
+            
+            {/* Left Column - Main Content */}
+            <div className="lg:col-span-2 space-y-8">
+              
+              {/* Profile Header */}
               <Card className="border-0 shadow-xl bg-card/80 backdrop-blur-sm">
                 <CardContent className="p-6 md:p-8">
                   <div className="flex flex-col md:flex-row gap-6">
@@ -237,114 +240,119 @@ const ArtisanPublicProfile = () => {
                       <p className="mt-4 text-muted-foreground leading-relaxed">
                         {artisanData.description}
                       </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
-            {/* CTA Card */}
-            <div className="lg:col-span-1">
-              <Card className="border-0 shadow-xl bg-card sticky top-24">
-                <CardContent className="p-6 space-y-4">
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>
-                    <p className="text-2xl font-bold text-primary">Contactez-moi</p>
-                  </div>
-                  
-                  <Link to="/demande-devis">
-                    <Button className="w-full" size="lg">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Demander un devis gratuit
-                    </Button>
-                  </Link>
-                  
-                  <Button variant="outline" className="w-full" size="lg">
-                    <Phone className="h-4 w-4 mr-2" />
-                    Voir le téléphone
-                  </Button>
-
-                  <div className="pt-4 border-t space-y-3">
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <CheckCircle2 className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{artisanData.completedJobs} interventions</p>
-                        <p className="text-muted-foreground text-xs">réalisées sur la plateforme</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Award className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{artisanData.yearsExperience} ans d'expérience</p>
-                        <p className="text-muted-foreground text-xs">dans le métier</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <ThumbsUp className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">98% de clients satisfaits</p>
-                        <p className="text-muted-foreground text-xs">recommandent cet artisan</p>
+                      {/* Social Links */}
+                      <div className="flex items-center justify-center md:justify-start gap-3 mt-4">
+                        {artisanData.socialLinks.facebook && (
+                          <a 
+                            href={artisanData.socialLinks.facebook} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                          >
+                            <Facebook className="h-5 w-5" />
+                          </a>
+                        )}
+                        {artisanData.socialLinks.instagram && (
+                          <a 
+                            href={artisanData.socialLinks.instagram} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                          >
+                            <Instagram className="h-5 w-5" />
+                          </a>
+                        )}
+                        {artisanData.socialLinks.linkedin && (
+                          <a 
+                            href={artisanData.socialLinks.linkedin} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                          >
+                            <Linkedin className="h-5 w-5" />
+                          </a>
+                        )}
+                        {artisanData.socialLinks.website && (
+                          <a 
+                            href={artisanData.socialLinks.website} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                          >
+                            <Globe className="h-5 w-5" />
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Content Tabs */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <Tabs defaultValue="services" className="w-full">
-            <TabsList className="w-full md:w-auto flex flex-wrap justify-start gap-1 h-auto p-1 bg-muted/50">
-              <TabsTrigger value="services" className="flex-1 md:flex-none">Prestations</TabsTrigger>
-              <TabsTrigger value="portfolio" className="flex-1 md:flex-none">Réalisations</TabsTrigger>
-              <TabsTrigger value="reviews" className="flex-1 md:flex-none">Avis ({artisanData.reviewCount})</TabsTrigger>
-              <TabsTrigger value="info" className="flex-1 md:flex-none">Informations</TabsTrigger>
-            </TabsList>
-
-            {/* Services Tab */}
-            <TabsContent value="services" className="mt-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Wrench className="h-5 w-5 text-primary" />
-                      Prestations proposées
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {artisanData.services.map((service, index) => (
-                        <div 
-                          key={index}
-                          className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                        >
-                          <div>
-                            <p className="font-medium">{service.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              <Clock className="h-3 w-3 inline mr-1" />
-                              {service.duration}
-                            </p>
-                          </div>
-                          <Badge variant="secondary" className="font-semibold">
-                            <Euro className="h-3 w-3 mr-1" />
-                            {service.price}
-                          </Badge>
+              {/* Services Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Wrench className="h-5 w-5 text-primary" />
+                    Prestations proposées
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {artisanData.services.map((service, index) => (
+                      <div 
+                        key={index}
+                        className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      >
+                        <div>
+                          <p className="font-medium">{service.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            <Clock className="h-3 w-3 inline mr-1" />
+                            {service.duration}
+                          </p>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                        <Badge variant="secondary" className="font-semibold">
+                          <Euro className="h-3 w-3 mr-1" />
+                          {service.price}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
+              {/* Portfolio Section - Grid 6 photos */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileCheck className="h-5 w-5 text-primary" />
+                    Mes réalisations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {artisanData.portfolio.map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedImage(image)}
+                        className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer"
+                      >
+                        <img
+                          src={image}
+                          alt={`Réalisation ${index + 1}`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                          <ExternalLink className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Zones & Availability */}
+              <div className="grid md:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -360,158 +368,37 @@ const ArtisanPublicProfile = () => {
                         </Badge>
                       ))}
                     </div>
-                    
-                    <div className="mt-6">
-                      <h4 className="font-medium mb-3 flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        Disponibilités
-                      </h4>
-                      <div className="space-y-2 text-sm">
-                        {Object.entries(artisanData.availability).map(([day, hours]) => (
-                          <div key={day} className="flex justify-between py-1 border-b border-border/50 last:border-0">
-                            <span className="capitalize text-muted-foreground">{day}</span>
-                            <span className={hours === "Fermé" ? "text-muted-foreground" : "font-medium"}>
-                              {hours}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-primary" />
+                      Disponibilités
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm">
+                      {Object.entries(artisanData.availability).map(([day, hours]) => (
+                        <div key={day} className="flex justify-between py-1 border-b border-border/50 last:border-0">
+                          <span className="capitalize text-muted-foreground">{day}</span>
+                          <span className={hours === "Fermé" ? "text-muted-foreground" : "font-medium"}>
+                            {hours}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
               </div>
-            </TabsContent>
 
-            {/* Portfolio Tab */}
-            <TabsContent value="portfolio" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Mes réalisations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {/* Main Image */}
-                  <div className="relative rounded-lg overflow-hidden mb-4 aspect-video bg-muted">
-                    <img
-                      src={artisanData.portfolio[currentImageIndex]}
-                      alt={`Réalisation ${currentImageIndex + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <button
-                      onClick={prevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-full hover:bg-background transition-colors"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-full hover:bg-background transition-colors"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm">
-                      {currentImageIndex + 1} / {artisanData.portfolio.length}
-                    </div>
-                  </div>
-
-                  {/* Thumbnails */}
-                  <div className="grid grid-cols-6 gap-2">
-                    {artisanData.portfolio.map((image, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentImageIndex(index)}
-                        className={`relative aspect-square rounded-lg overflow-hidden ${
-                          currentImageIndex === index 
-                            ? "ring-2 ring-primary" 
-                            : "opacity-70 hover:opacity-100"
-                        } transition-all`}
-                      >
-                        <img
-                          src={image}
-                          alt={`Miniature ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Reviews Tab */}
-            <TabsContent value="reviews" className="mt-6">
-              <div className="grid lg:grid-cols-3 gap-6">
-                {/* Reviews List */}
-                <div className="lg:col-span-2">
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle>Avis clients</CardTitle>
-                        <div className="flex items-center gap-2">
-                          {renderStars(artisanData.rating)}
-                          <span className="font-bold text-lg">{artisanData.rating}</span>
-                          <span className="text-muted-foreground">/ 5</span>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-6">
-                        {artisanData.reviews.map((review) => (
-                          <div key={review.id} className="border-b border-border/50 pb-6 last:border-0 last:pb-0">
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <Avatar className="h-10 w-10">
-                                    <AvatarFallback className="bg-primary/10 text-primary">
-                                      {review.author.split(' ').map(n => n[0]).join('')}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div>
-                                    <p className="font-medium">{review.author}</p>
-                                    <p className="text-xs text-muted-foreground">{review.date}</p>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                {renderStars(review.rating)}
-                              </div>
-                            </div>
-                            <Badge variant="outline" className="mb-2 text-xs">
-                              {review.jobType}
-                            </Badge>
-                            <p className="text-muted-foreground">{review.comment}</p>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <Button variant="outline" className="w-full mt-6">
-                        Voir tous les avis
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Review Form */}
-                <div className="lg:col-span-1">
-                  <div className="sticky top-24">
-                    <ReviewForm 
-                      artisanName={`${artisanData.firstName} ${artisanData.lastName}`}
-                      isLoggedIn={false} // À connecter avec l'auth plus tard
-                      onSubmit={(review) => {
-                        console.log("Nouvel avis:", review);
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Info Tab */}
-            <TabsContent value="info" className="mt-6">
+              {/* Certifications & Legal */}
               <div className="grid md:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <FileCheck className="h-5 w-5 text-primary" />
+                      <Award className="h-5 w-5 text-primary" />
                       Certifications & Labels
                     </CardTitle>
                   </CardHeader>
@@ -556,10 +443,187 @@ const ArtisanPublicProfile = () => {
                   </CardContent>
                 </Card>
               </div>
-            </TabsContent>
-          </Tabs>
+
+              {/* Reviews Section */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-primary" />
+                      Avis clients
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      {renderStars(artisanData.rating)}
+                      <span className="font-bold text-lg">{artisanData.rating}</span>
+                      <span className="text-muted-foreground">/ 5</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {artisanData.reviews.map((review) => (
+                      <div key={review.id} className="border-b border-border/50 pb-6 last:border-0 last:pb-0">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-primary/10 text-primary">
+                                  {review.author.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{review.author}</p>
+                                <p className="text-xs text-muted-foreground">{review.date}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {renderStars(review.rating)}
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="mb-2 text-xs">
+                          {review.jobType}
+                        </Badge>
+                        <p className="text-muted-foreground">{review.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button variant="outline" className="w-full mt-6">
+                    Voir tous les avis
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Leave Review */}
+              <ReviewForm 
+                artisanName={`${artisanData.firstName} ${artisanData.lastName}`}
+                isLoggedIn={false}
+                onSubmit={(review) => {
+                  console.log("Nouvel avis:", review);
+                }}
+              />
+            </div>
+
+            {/* Right Column - Sticky Contact Card */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24 space-y-6">
+                <Card className="border-0 shadow-xl bg-card">
+                  <CardContent className="p-6 space-y-4">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>
+                      <p className="text-2xl font-bold text-primary">Contactez-moi</p>
+                    </div>
+                    
+                    <Link to="/demande-devis">
+                      <Button className="w-full" size="lg">
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Demander un devis gratuit
+                      </Button>
+                    </Link>
+                    
+                    <Button variant="outline" className="w-full" size="lg">
+                      <Phone className="h-4 w-4 mr-2" />
+                      Voir le téléphone
+                    </Button>
+
+                    <div className="pt-4 border-t space-y-3">
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <CheckCircle2 className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{artisanData.completedJobs} interventions</p>
+                          <p className="text-muted-foreground text-xs">réalisées sur la plateforme</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Award className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{artisanData.yearsExperience} ans d'expérience</p>
+                          <p className="text-muted-foreground text-xs">dans le métier</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <ThumbsUp className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">98% de clients satisfaits</p>
+                          <p className="text-muted-foreground text-xs">recommandent cet artisan</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Social Links in Contact Card */}
+                    <div className="pt-4 border-t">
+                      <p className="text-sm text-muted-foreground mb-3 text-center">Suivez-moi</p>
+                      <div className="flex items-center justify-center gap-2">
+                        {artisanData.socialLinks.facebook && (
+                          <a 
+                            href={artisanData.socialLinks.facebook} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors"
+                          >
+                            <Facebook className="h-4 w-4" />
+                          </a>
+                        )}
+                        {artisanData.socialLinks.instagram && (
+                          <a 
+                            href={artisanData.socialLinks.instagram} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#F77737] hover:text-white transition-colors"
+                          >
+                            <Instagram className="h-4 w-4" />
+                          </a>
+                        )}
+                        {artisanData.socialLinks.linkedin && (
+                          <a 
+                            href={artisanData.socialLinks.linkedin} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors"
+                          >
+                            <Linkedin className="h-4 w-4" />
+                          </a>
+                        )}
+                        {artisanData.socialLinks.website && (
+                          <a 
+                            href={artisanData.socialLinks.website} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                          >
+                            <Globe className="h-4 w-4" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <img 
+            src={selectedImage} 
+            alt="Réalisation" 
+            className="max-w-full max-h-[90vh] rounded-lg"
+          />
+        </div>
+      )}
 
       {/* CTA Section */}
       <section className="py-12 bg-primary/5">
