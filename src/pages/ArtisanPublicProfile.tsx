@@ -229,7 +229,7 @@ const ArtisanPublicProfile = () => {
       <section className="bg-gradient-to-br from-primary/5 via-background to-primary/10 pt-24 pb-8">
         <div className="container mx-auto px-4">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-white/80 bg-primary/80 backdrop-blur-sm rounded-lg px-4 py-2 w-fit mt-4">
+          <div className="flex items-center gap-2 text-sm text-white/90 bg-navy rounded-lg px-4 py-2.5 w-fit mt-8">
             <Link to="/" className="hover:text-white transition-colors">Accueil</Link>
             <span className="text-white/60">/</span>
             <Link to="/trouver-artisan" className="hover:text-white transition-colors">Artisans</Link>
@@ -827,7 +827,7 @@ const ArtisanPublicProfile = () => {
                       month={calendarMonth}
                       onMonthChange={setCalendarMonth}
                       locale={fr}
-                      className="rounded-md border pointer-events-auto w-full"
+                      className="rounded-md border pointer-events-auto [&_.rdp-months]:w-full [&_.rdp-month]:w-full [&_.rdp-table]:w-full [&_.rdp-head_row]:flex [&_.rdp-head_row]:w-full [&_.rdp-head_row]:justify-between [&_.rdp-row]:flex [&_.rdp-row]:w-full [&_.rdp-row]:justify-between [&_.rdp-cell]:flex-1 [&_.rdp-head_cell]:flex-1 [&_.rdp-day]:w-full"
                       modifiers={{
                         available: (date) => isDateAvailable(date),
                         unavailable: (date) => isDateUnavailable(date)
