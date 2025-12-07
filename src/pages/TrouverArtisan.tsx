@@ -16,6 +16,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { 
   Search, 
   MapPin, 
@@ -29,6 +35,7 @@ import {
   Wrench,
   ArrowRight
 } from "lucide-react";
+import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocations";
 
 const categories = [
   { icon: Droplets, title: "Plombier", count: 847, href: "/artisans/plombier" },
@@ -42,29 +49,6 @@ const categories = [
 ];
 
 const categoryNames = categories.map(c => c.title);
-
-const cities = [
-  { name: "Paris", code: "75" },
-  { name: "Marseille", code: "13" },
-  { name: "Lyon", code: "69" },
-  { name: "Toulouse", code: "31" },
-  { name: "Nice", code: "06" },
-  { name: "Nantes", code: "44" },
-  { name: "Strasbourg", code: "67" },
-  { name: "Montpellier", code: "34" },
-  { name: "Bordeaux", code: "33" },
-  { name: "Lille", code: "59" },
-  { name: "Rennes", code: "35" },
-  { name: "Grenoble", code: "38" },
-  { name: "Dijon", code: "21" },
-  { name: "Angers", code: "49" },
-  { name: "Nîmes", code: "30" },
-  { name: "Toulon", code: "83" },
-  { name: "Le Havre", code: "76" },
-  { name: "Clermont-Ferrand", code: "63" },
-  { name: "Reims", code: "51" },
-  { name: "Saint-Étienne", code: "42" },
-];
 
 // All artisans data (dummy data for pagination demo)
 const allArtisansData = [
@@ -137,20 +121,11 @@ const TrouverArtisan = () => {
 
   // Filter categories based on search
   const filteredCategories = useMemo(() => {
-    if (!searchQuery) return categoryNames;
-    return categoryNames.filter(cat => 
-      cat.toLowerCase().includes(searchQuery.toLowerCase())
+    if (!searchQuery) return categories;
+    return categories.filter(cat => 
+      cat.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery]);
-
-  // Filter cities based on search
-  const filteredCities = useMemo(() => {
-    if (!locationSearch) return cities;
-    return cities.filter(city => 
-      city.name.toLowerCase().includes(locationSearch.toLowerCase()) ||
-      city.code.includes(locationSearch)
-    );
-  }, [locationSearch]);
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -266,51 +241,89 @@ const TrouverArtisan = () => {
                     onFocus={() => setShowCategorySuggestions(true)}
                     className="pl-12 h-12 border-0 bg-muted text-base"
                   />
-                  {/* Category Suggestions */}
-                  {showCategorySuggestions && filteredCategories.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 max-h-60 overflow-auto">
-                      {filteredCategories.map((cat) => (
-                        <button
-                          key={cat}
-                          onClick={() => {
-                            setSearchQuery(cat);
-                            setShowCategorySuggestions(false);
-                          }}
-                          className="w-full px-4 py-3 text-left hover:bg-muted transition-colors flex items-center gap-3"
-                        >
-                          <span className="text-foreground">{cat}</span>
-                        </button>
-                      ))}
+                  {/* Category Dropdown with icons in 2-3 columns */}
+                  {showCategorySuggestions && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 p-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {filteredCategories.map((cat) => (
+                          <button
+                            key={cat.title}
+                            onClick={() => {
+                              setSearchQuery(cat.title);
+                              setShowCategorySuggestions(false);
+                            }}
+                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors text-left"
+                          >
+                            <cat.icon className="w-5 h-5 text-gold" />
+                            <span className="text-foreground text-sm font-medium">{cat.title}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {/* City Search */}
+                {/* City Search with Region Accordion */}
                 <div className="flex-1 relative" ref={cityInputRef}>
                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                   <Input
-                    placeholder="Ville ou code postal"
+                    placeholder="Région, département ou ville"
                     value={locationSearch}
                     onChange={(e) => setLocationSearch(e.target.value)}
                     onFocus={() => setShowCitySuggestions(true)}
                     className="pl-12 h-12 border-0 bg-muted text-base"
                   />
-                  {/* City Suggestions */}
-                  {showCitySuggestions && filteredCities.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 max-h-60 overflow-auto">
-                      {filteredCities.map((city) => (
-                        <button
-                          key={city.code}
-                          onClick={() => {
-                            setLocationSearch(`${city.name} (${city.code})`);
-                            setShowCitySuggestions(false);
-                          }}
-                          className="w-full px-4 py-3 text-left hover:bg-muted transition-colors"
-                        >
-                          <span className="text-foreground">{city.name}</span>
-                          <span className="text-muted-foreground ml-2">({city.code})</span>
-                        </button>
-                      ))}
+                  {/* Location Dropdown with regions accordion */}
+                  {showCitySuggestions && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 max-h-96 overflow-auto">
+                      <Accordion type="multiple" className="w-full">
+                        {regions.map((region) => {
+                          const regionDepts = departments.filter(d => d.region === region.id);
+                          return (
+                            <AccordionItem key={region.id} value={region.id} className="border-b border-border last:border-0">
+                              <AccordionTrigger className="px-4 py-3 hover:bg-muted text-foreground text-sm">
+                                {region.name}
+                              </AccordionTrigger>
+                              <AccordionContent className="pb-0">
+                                <div className="pl-4 pb-2">
+                                  {regionDepts.map((dept) => {
+                                    const deptCities = getCitiesByDepartment(dept.code);
+                                    return (
+                                      <div key={dept.code} className="mb-1">
+                                        <button
+                                          onClick={() => {
+                                            setLocationSearch(`${dept.name} (${dept.code})`);
+                                            setShowCitySuggestions(false);
+                                          }}
+                                          className="w-full text-left px-3 py-2 hover:bg-muted rounded-lg text-sm font-medium text-foreground"
+                                        >
+                                          {dept.name} ({dept.code})
+                                        </button>
+                                        {deptCities.length > 0 && (
+                                          <div className="pl-4">
+                                            {deptCities.slice(0, 5).map((city) => (
+                                              <button
+                                                key={city.name}
+                                                onClick={() => {
+                                                  setLocationSearch(city.name);
+                                                  setShowCitySuggestions(false);
+                                                }}
+                                                className="w-full text-left px-3 py-1.5 hover:bg-muted rounded text-sm text-muted-foreground"
+                                              >
+                                                {city.name}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          );
+                        })}
+                      </Accordion>
                     </div>
                   )}
                 </div>
