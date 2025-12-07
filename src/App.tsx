@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import TrouverArtisan from "./pages/TrouverArtisan";
 import NosMissions from "./pages/NosMissions";
@@ -46,6 +47,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/trouver-artisan" element={<TrouverArtisan />} />
           <Route path="/nos-missions" element={<NosMissions />} />
@@ -56,34 +58,125 @@ const App = () => (
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          {/* Artisan Dashboard Routes */}
-          <Route path="/artisan/dashboard" element={<ArtisanDashboard />} />
-          <Route path="/artisan/profil" element={<ArtisanProfile />} />
-          <Route path="/artisan/documents" element={<ArtisanDocuments />} />
-          <Route path="/artisan/prestations" element={<ArtisanServices />} />
-          <Route path="/artisan/demandes" element={<ArtisanRequests />} />
-          <Route path="/artisan/messagerie" element={<ArtisanMessaging />} />
-          <Route path="/artisan/planning" element={<ArtisanPlanning />} />
-          <Route path="/artisan/offres-partenaires" element={<ArtisanPartnerOffers />} />
-          <Route path="/artisan/parametres" element={<ArtisanSettings />} />
-          {/* Client Dashboard Routes */}
-          <Route path="/client/dashboard" element={<ClientDashboard />} />
-          <Route path="/client/missions" element={<ClientMissions />} />
-          <Route path="/client/missions/:id" element={<ClientMissionDetail />} />
-          <Route path="/client/favoris" element={<ClientFavorites />} />
-          <Route path="/client/messagerie" element={<ClientMessaging />} />
-          <Route path="/client/parametres" element={<ClientSettings />} />
-          {/* Public Artisan Profile */}
           <Route path="/artisan/:id" element={<ArtisanPublicProfile />} />
-          {/* Admin Dashboard Routes */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/artisans" element={<AdminArtisans />} />
-          <Route path="/admin/clients" element={<AdminClients />} />
-          <Route path="/admin/statistiques" element={<AdminStatistics />} />
-          <Route path="/admin/messagerie" element={<AdminMessaging />} />
-          <Route path="/admin/emails" element={<AdminEmails />} />
-          <Route path="/admin/ajouter-artisan" element={<AdminAddArtisan />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          
+          {/* Protected Artisan Routes */}
+          <Route path="/artisan/dashboard" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/artisan/profil" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/artisan/documents" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanDocuments />
+            </ProtectedRoute>
+          } />
+          <Route path="/artisan/prestations" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanServices />
+            </ProtectedRoute>
+          } />
+          <Route path="/artisan/demandes" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanRequests />
+            </ProtectedRoute>
+          } />
+          <Route path="/artisan/messagerie" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanMessaging />
+            </ProtectedRoute>
+          } />
+          <Route path="/artisan/planning" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanPlanning />
+            </ProtectedRoute>
+          } />
+          <Route path="/artisan/offres-partenaires" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanPartnerOffers />
+            </ProtectedRoute>
+          } />
+          <Route path="/artisan/parametres" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanSettings />
+            </ProtectedRoute>
+          } />
+          
+          {/* Protected Client Routes */}
+          <Route path="/client/dashboard" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/client/missions" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientMissions />
+            </ProtectedRoute>
+          } />
+          <Route path="/client/missions/:id" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientMissionDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/client/favoris" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientFavorites />
+            </ProtectedRoute>
+          } />
+          <Route path="/client/messagerie" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientMessaging />
+            </ProtectedRoute>
+          } />
+          <Route path="/client/parametres" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientSettings />
+            </ProtectedRoute>
+          } />
+          
+          {/* Protected Admin Routes */}
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/artisans" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminArtisans />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/clients" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminClients />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/statistiques" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminStatistics />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/messagerie" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminMessaging />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/emails" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminEmails />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/ajouter-artisan" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminAddArtisan />
+            </ProtectedRoute>
+          } />
+          
+          {/* Catch-all Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
