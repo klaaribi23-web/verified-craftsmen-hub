@@ -25,6 +25,7 @@ import {
   ThumbsUp
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import ReviewForm from "@/components/artisan-profile/ReviewForm";
 
 // Données fictives pour la démo
 const artisanData = {
@@ -438,52 +439,70 @@ const ArtisanPublicProfile = () => {
 
             {/* Reviews Tab */}
             <TabsContent value="reviews" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Avis clients</CardTitle>
-                    <div className="flex items-center gap-2">
-                      {renderStars(artisanData.rating)}
-                      <span className="font-bold text-lg">{artisanData.rating}</span>
-                      <span className="text-muted-foreground">/ 5</span>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {artisanData.reviews.map((review) => (
-                      <div key={review.id} className="border-b border-border/50 pb-6 last:border-0 last:pb-0">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <Avatar className="h-10 w-10">
-                                <AvatarFallback className="bg-primary/10 text-primary">
-                                  {review.author.split(' ').map(n => n[0]).join('')}
-                                </AvatarFallback>
-                              </Avatar>
+              <div className="grid lg:grid-cols-3 gap-6">
+                {/* Reviews List */}
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>Avis clients</CardTitle>
+                        <div className="flex items-center gap-2">
+                          {renderStars(artisanData.rating)}
+                          <span className="font-bold text-lg">{artisanData.rating}</span>
+                          <span className="text-muted-foreground">/ 5</span>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        {artisanData.reviews.map((review) => (
+                          <div key={review.id} className="border-b border-border/50 pb-6 last:border-0 last:pb-0">
+                            <div className="flex items-start justify-between mb-2">
                               <div>
-                                <p className="font-medium">{review.author}</p>
-                                <p className="text-xs text-muted-foreground">{review.date}</p>
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-10 w-10">
+                                    <AvatarFallback className="bg-primary/10 text-primary">
+                                      {review.author.split(' ').map(n => n[0]).join('')}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <p className="font-medium">{review.author}</p>
+                                    <p className="text-xs text-muted-foreground">{review.date}</p>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {renderStars(review.rating)}
                               </div>
                             </div>
+                            <Badge variant="outline" className="mb-2 text-xs">
+                              {review.jobType}
+                            </Badge>
+                            <p className="text-muted-foreground">{review.comment}</p>
                           </div>
-                          <div className="flex items-center gap-1">
-                            {renderStars(review.rating)}
-                          </div>
-                        </div>
-                        <Badge variant="outline" className="mb-2 text-xs">
-                          {review.jobType}
-                        </Badge>
-                        <p className="text-muted-foreground">{review.comment}</p>
+                        ))}
                       </div>
-                    ))}
+                      
+                      <Button variant="outline" className="w-full mt-6">
+                        Voir tous les avis
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Review Form */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-24">
+                    <ReviewForm 
+                      artisanName={`${artisanData.firstName} ${artisanData.lastName}`}
+                      isLoggedIn={false} // À connecter avec l'auth plus tard
+                      onSubmit={(review) => {
+                        console.log("Nouvel avis:", review);
+                      }}
+                    />
                   </div>
-                  
-                  <Button variant="outline" className="w-full mt-6">
-                    Voir tous les avis
-                  </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </TabsContent>
 
             {/* Info Tab */}
