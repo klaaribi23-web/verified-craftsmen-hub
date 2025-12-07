@@ -32,7 +32,10 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+import { useAdminStats, useArtisans } from "@/hooks/useAdminData";
+import { useQueryClient } from "@tanstack/react-query";
 
+// Demo data for charts (would come from real aggregations in production)
 const monthlyData = [
   { month: "Jan", artisans: 45, clients: 120, missions: 85 },
   { month: "Fév", artisans: 52, clients: 145, missions: 92 },
@@ -67,24 +70,29 @@ const AdminStatistics = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [period, setPeriod] = useState("year");
+  const queryClient = useQueryClient();
 
-  const handleRefresh = () => {
+  const { data: stats, isLoading } = useAdminStats();
+  const { data: artisans } = useArtisans();
+
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-    setTimeout(() => {
-      setLastUpdated(new Date());
-      setIsRefreshing(false);
-    }, 1000);
+    await queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+    await queryClient.invalidateQueries({ queryKey: ["admin-artisans"] });
+    setLastUpdated(new Date());
+    setIsRefreshing(false);
   };
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   };
 
-  const totalArtisans = 1247;
-  const totalClients = 3892;
-  const totalMissions = 2456;
-  const completedMissions = 2134;
-  const cancelledMissions = 322;
+  // Calculate average rating
+  const avgRating = artisans && artisans.length > 0
+    ? (artisans.reduce((acc, a) => acc + (a.rating || 0), 0) / artisans.filter(a => a.rating).length).toFixed(1)
+    : "N/A";
+
+  const totalReviews = artisans?.reduce((acc, a) => acc + (a.review_count || 0), 0) || 0;
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -134,7 +142,9 @@ const AdminStatistics = () => {
                   <Users className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{totalArtisans}</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {isLoading ? "..." : stats?.totalArtisans || 0}
+                  </p>
                   <p className="text-xs text-muted-foreground">Artisans</p>
                 </div>
               </div>
@@ -147,7 +157,9 @@ const AdminStatistics = () => {
                   <UserCheck className="h-5 w-5 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{totalClients}</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {isLoading ? "..." : stats?.totalClients || 0}
+                  </p>
                   <p className="text-xs text-muted-foreground">Clients</p>
                 </div>
               </div>
@@ -160,7 +172,9 @@ const AdminStatistics = () => {
                   <Briefcase className="h-5 w-5 text-yellow-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{totalMissions}</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {isLoading ? "..." : stats?.totalMissions || 0}
+                  </p>
                   <p className="text-xs text-muted-foreground">Missions</p>
                 </div>
               </div>
@@ -173,7 +187,9 @@ const AdminStatistics = () => {
                   <CheckCircle className="h-5 w-5 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{completedMissions}</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {isLoading ? "..." : stats?.completedMissions || 0}
+                  </p>
                   <p className="text-xs text-muted-foreground">Terminées</p>
                 </div>
               </div>
@@ -186,7 +202,9 @@ const AdminStatistics = () => {
                   <XCircle className="h-5 w-5 text-destructive" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{cancelledMissions}</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {isLoading ? "..." : stats?.cancelledMissions || 0}
+                  </p>
                   <p className="text-xs text-muted-foreground">Annulées</p>
                 </div>
               </div>
@@ -274,24 +292,32 @@ const AdminStatistics = () => {
               <CardTitle className="text-lg">Taux de conversion</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-primary mb-2">86.9%</div>
+              <div className="text-4xl font-bold text-primary mb-2">
+                {stats && stats.totalMissions > 0 
+                  ? ((stats.completedMissions / stats.totalMissions) * 100).toFixed(1)
+                  : 0}%
+              </div>
               <p className="text-sm text-muted-foreground">Missions terminées avec succès</p>
               <div className="flex items-center gap-1 mt-2 text-green-500">
                 <TrendingUp className="h-4 w-4" />
-                <span className="text-sm">+2.3% vs mois dernier</span>
+                <span className="text-sm">Basé sur les données réelles</span>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Temps moyen de réponse</CardTitle>
+              <CardTitle className="text-lg">Artisans actifs</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-primary mb-2">2.4h</div>
-              <p className="text-sm text-muted-foreground">Délai avant première candidature</p>
+              <div className="text-4xl font-bold text-primary mb-2">
+                {artisans?.filter(a => a.status === "active").length || 0}
+              </div>
+              <p className="text-sm text-muted-foreground">Artisans disponibles sur la plateforme</p>
               <div className="flex items-center gap-1 mt-2 text-green-500">
-                <TrendingDown className="h-4 w-4" />
-                <span className="text-sm">-15min vs mois dernier</span>
+                <TrendingUp className="h-4 w-4" />
+                <span className="text-sm">
+                  {artisans?.filter(a => a.is_verified).length || 0} vérifiés
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -300,11 +326,11 @@ const AdminStatistics = () => {
               <CardTitle className="text-lg">Note moyenne artisans</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-primary mb-2">4.7/5</div>
-              <p className="text-sm text-muted-foreground">Basée sur 8,542 avis</p>
+              <div className="text-4xl font-bold text-primary mb-2">{avgRating}/5</div>
+              <p className="text-sm text-muted-foreground">Basée sur {totalReviews.toLocaleString()} avis</p>
               <div className="flex items-center gap-1 mt-2 text-green-500">
                 <TrendingUp className="h-4 w-4" />
-                <span className="text-sm">+0.1 vs mois dernier</span>
+                <span className="text-sm">Données en temps réel</span>
               </div>
             </CardContent>
           </Card>

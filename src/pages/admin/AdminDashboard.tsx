@@ -5,6 +5,7 @@ import { AdminNotifications } from "@/components/admin-dashboard/AdminNotificati
 import { NewArtisansList } from "@/components/admin-dashboard/NewArtisansList";
 import { TopArtisansList } from "@/components/admin-dashboard/TopArtisansList";
 import { Button } from "@/components/ui/button";
+import { useAdminStats } from "@/hooks/useAdminData";
 import { 
   Users, 
   UserCheck, 
@@ -13,17 +14,22 @@ import {
   RefreshCw,
   Clock
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AdminDashboard = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
+  
+  const { data: stats, isLoading } = useAdminStats();
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-    setTimeout(() => {
-      setLastUpdated(new Date());
-      setIsRefreshing(false);
-    }, 1000);
+    await queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+    await queryClient.invalidateQueries({ queryKey: ["new-artisans"] });
+    await queryClient.invalidateQueries({ queryKey: ["top-artisans"] });
+    setLastUpdated(new Date());
+    setIsRefreshing(false);
   };
 
   const formatTime = (date: Date) => {
@@ -62,28 +68,28 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <AdminStatsCard
             title="Total Artisans"
-            value={1247}
+            value={isLoading ? 0 : stats?.totalArtisans || 0}
             icon={Users}
             trend={{ value: 12, isPositive: true }}
             color="primary"
           />
           <AdminStatsCard
             title="Total Clients"
-            value={3892}
+            value={isLoading ? 0 : stats?.totalClients || 0}
             icon={UserCheck}
             trend={{ value: 8, isPositive: true }}
             color="success"
           />
           <AdminStatsCard
             title="Missions actives"
-            value={456}
+            value={isLoading ? 0 : stats?.activeMissions || 0}
             icon={Briefcase}
             trend={{ value: 15, isPositive: true }}
             color="warning"
           />
           <AdminStatsCard
             title="Missions terminées"
-            value={2134}
+            value={isLoading ? 0 : stats?.completedMissions || 0}
             icon={TrendingUp}
             trend={{ value: 23, isPositive: true }}
             color="primary"
