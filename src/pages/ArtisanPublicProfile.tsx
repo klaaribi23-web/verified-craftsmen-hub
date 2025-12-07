@@ -580,7 +580,7 @@ const ArtisanPublicProfile = () => {
                   <Button 
                     className="w-full" 
                     size="lg"
-                    onClick={() => navigate('/client/messagerie')}
+                    onClick={() => navigate(`/client/messagerie?artisan=${artisan.id}&name=${encodeURIComponent(artisan.business_name)}`)}
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Demander un devis
@@ -756,7 +756,7 @@ const ArtisanPublicProfile = () => {
             {artisan.business_name} répond en moyenne en moins de 2 heures. 
             Demandez un devis gratuit et sans engagement.
           </p>
-          <Button size="lg" className="px-8" onClick={() => navigate('/client/messagerie')}>
+          <Button size="lg" className="px-8" onClick={() => navigate(`/client/messagerie?artisan=${artisan.id}&name=${encodeURIComponent(artisan.business_name)}`)}>
             Demander un devis gratuit
           </Button>
         </div>

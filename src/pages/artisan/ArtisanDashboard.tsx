@@ -1,6 +1,12 @@
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { StatsCard } from "@/components/artisan-dashboard/StatsCard";
+import { ProfileCompletionCard } from "@/components/artisan-dashboard/ProfileCompletionCard";
+import { ApprovalNotifications } from "@/components/artisan-dashboard/ApprovalNotifications";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { 
   Briefcase, 
   MessageSquare, 
@@ -62,6 +68,59 @@ const upcomingJobs = [
 ];
 
 export const ArtisanDashboard = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Fetch artisan profile
+  const { data: artisanProfile } = useQuery({
+    queryKey: ["artisan-profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from("artisans")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) return null;
+      return data;
+    },
+    enabled: !!user?.id
+  });
+
+  // Request approval mutation
+  const requestApprovalMutation = useMutation({
+    mutationFn: async () => {
+      if (!artisanProfile?.id) throw new Error("Profile not found");
+      
+      // Create notification for admins
+      const { data: adminRoles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      if (adminRoles) {
+        for (const admin of adminRoles) {
+          await supabase.from("notifications").insert({
+            user_id: admin.user_id,
+            title: "Nouvelle demande d'approbation",
+            message: `${artisanProfile.business_name} a demandé l'approbation de son profil.`,
+            type: "approval_request",
+            related_id: artisanProfile.id
+          });
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artisan-profile"] });
+      toast.success("Demande d'approbation envoyée ! L'administrateur examinera votre profil.");
+    },
+    onError: () => {
+      toast.error("Erreur lors de l'envoi de la demande");
+    }
+  });
+
   return (
     <div className="flex min-h-screen bg-background">
       <ArtisanSidebar />
@@ -69,10 +128,33 @@ export const ArtisanDashboard = () => {
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
           title="Tableau de bord" 
-          subtitle="Bienvenue, Jean ! Voici un aperçu de votre activité."
+          subtitle={`Bienvenue${artisanProfile?.business_name ? `, ${artisanProfile.business_name}` : ''} ! Voici un aperçu de votre activité.`}
         />
 
         <main className="flex-1 p-6 overflow-auto">
+          {/* Approval Notifications */}
+          <div className="mb-6">
+            <ApprovalNotifications />
+          </div>
+
+          {/* Profile Completion Card */}
+          {artisanProfile && artisanProfile.status !== "active" && (
+            <div className="mb-6">
+              <ProfileCompletionCard
+                profile={{
+                  photo_url: artisanProfile.photo_url,
+                  description: artisanProfile.description,
+                  siret: artisanProfile.siret,
+                  city: artisanProfile.city,
+                  portfolio_images: artisanProfile.portfolio_images,
+                  experience_years: artisanProfile.experience_years,
+                  status: artisanProfile.status
+                }}
+                onRequestApproval={() => requestApprovalMutation.mutate()}
+                isRequestingApproval={requestApprovalMutation.isPending}
+              />
+            </div>
+          )}
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
