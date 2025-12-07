@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Calendar } from "@/components/ui/calendar";
+import { toast } from "sonner";
 import { 
   MapPin, 
   Phone, 
@@ -13,9 +15,8 @@ import {
   Clock, 
   CheckCircle2, 
   FileCheck, 
-  Calendar,
+  Calendar as CalendarIcon,
   MessageSquare,
-  Euro,
   Wrench,
   Award,
   ThumbsUp,
@@ -23,10 +24,15 @@ import {
   Instagram,
   Linkedin,
   Globe,
-  ExternalLink
+  ExternalLink,
+  Share2,
+  Copy,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
+import { fr } from "date-fns/locale";
 
 // Données fictives pour la démo
 const artisanData = {
@@ -95,7 +101,11 @@ const artisanData = {
       rating: 5,
       date: "Il y a 2 jours",
       comment: "Excellent travail ! Jean-Pierre est intervenu rapidement pour une fuite urgente. Très professionnel, ponctuel et tarifs honnêtes. Je recommande vivement.",
-      jobType: "Réparation fuite"
+      jobType: "Réparation fuite",
+      photos: [
+        "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=200&h=200&fit=crop",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop"
+      ]
     },
     {
       id: 2,
@@ -103,7 +113,12 @@ const artisanData = {
       rating: 5,
       date: "Il y a 1 semaine",
       comment: "Installation d'un nouveau chauffe-eau thermodynamique. Travail soigné, explications claires et chantier laissé propre. Parfait !",
-      jobType: "Installation chauffe-eau"
+      jobType: "Installation chauffe-eau",
+      photos: [
+        "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=200&h=200&fit=crop",
+        "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=200&h=200&fit=crop",
+        "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=200&h=200&fit=crop"
+      ]
     },
     {
       id: 3,
@@ -111,7 +126,8 @@ const artisanData = {
       rating: 4,
       date: "Il y a 2 semaines",
       comment: "Très bon professionnel. Intervention rapide pour un débouchage. Seul petit bémol : un léger retard à l'arrivée, mais prévenu par téléphone.",
-      jobType: "Débouchage canalisation"
+      jobType: "Débouchage canalisation",
+      photos: []
     },
     {
       id: 4,
@@ -119,13 +135,47 @@ const artisanData = {
       rating: 5,
       date: "Il y a 3 semaines",
       comment: "Jean-Pierre a installé tout notre système de chauffage. Un travail remarquable, dans les délais et le budget annoncés. Très satisfait !",
-      jobType: "Installation chauffage"
+      jobType: "Installation chauffage",
+      photos: [
+        "https://images.unsplash.com/photo-1558618047-f4b511afd745?w=200&h=200&fit=crop"
+      ]
     }
-  ]
+  ],
+  calendarAvailability: {
+    available: [3, 4, 5, 6, 10, 11, 12, 17, 18, 19, 20, 24, 25, 26, 27],
+    unavailable: [7, 8, 13, 14, 15, 21, 22, 28, 29]
+  }
 };
 
 const ArtisanPublicProfile = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
+  const [reviewPhotoIndex, setReviewPhotoIndex] = useState<Record<number, number>>({});
+
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const handleShare = (platform: string) => {
+    const shareText = `Découvrez ${artisanData.firstName} ${artisanData.lastName}, ${artisanData.trade} sur Artisans Validés`;
+    
+    switch (platform) {
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`, '_blank');
+        break;
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + currentUrl)}`, '_blank');
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(currentUrl)}`, '_blank');
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`, '_blank');
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(currentUrl);
+        toast.success("Lien copié dans le presse-papier");
+        break;
+    }
+  };
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -140,6 +190,30 @@ const ArtisanPublicProfile = () => {
         }`}
       />
     ));
+  };
+
+  const isDateAvailable = (date: Date) => {
+    const day = date.getDate();
+    return artisanData.calendarAvailability.available.includes(day);
+  };
+
+  const isDateUnavailable = (date: Date) => {
+    const day = date.getDate();
+    return artisanData.calendarAvailability.unavailable.includes(day);
+  };
+
+  const nextReviewPhoto = (reviewId: number, totalPhotos: number) => {
+    setReviewPhotoIndex(prev => ({
+      ...prev,
+      [reviewId]: ((prev[reviewId] || 0) + 1) % totalPhotos
+    }));
+  };
+
+  const prevReviewPhoto = (reviewId: number, totalPhotos: number) => {
+    setReviewPhotoIndex(prev => ({
+      ...prev,
+      [reviewId]: ((prev[reviewId] || 0) - 1 + totalPhotos) % totalPhotos
+    }));
   };
 
   return (
@@ -288,6 +362,53 @@ const ArtisanPublicProfile = () => {
                           </a>
                         )}
                       </div>
+
+                      {/* Share Section */}
+                      <div className="mt-4 pt-4 border-t border-border/50">
+                        <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
+                          <Share2 className="h-4 w-4" />
+                          Partager ce profil
+                        </p>
+                        <div className="flex items-center justify-center md:justify-start gap-2">
+                          <button
+                            onClick={() => handleShare('facebook')}
+                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors"
+                            title="Partager sur Facebook"
+                          >
+                            <Facebook className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleShare('whatsapp')}
+                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-colors"
+                            title="Partager sur WhatsApp"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleShare('twitter')}
+                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+                            title="Partager sur X"
+                          >
+                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleShare('linkedin')}
+                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors"
+                            title="Partager sur LinkedIn"
+                          >
+                            <Linkedin className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleShare('copy')}
+                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                            title="Copier le lien"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -316,7 +437,6 @@ const ArtisanPublicProfile = () => {
                           </p>
                         </div>
                         <Badge variant="secondary" className="font-semibold">
-                          <Euro className="h-3 w-3 mr-1" />
                           {service.price}
                         </Badge>
                       </div>
@@ -488,7 +608,53 @@ const ArtisanPublicProfile = () => {
                         <Badge variant="outline" className="mb-2 text-xs">
                           {review.jobType}
                         </Badge>
-                        <p className="text-muted-foreground">{review.comment}</p>
+                        <p className="text-muted-foreground mb-3">{review.comment}</p>
+                        
+                        {/* Photos de preuves du client */}
+                        {review.photos && review.photos.length > 0 && (
+                          <div className="relative">
+                            <div className="flex items-center gap-2">
+                              <div className="relative w-full max-w-xs h-40 rounded-lg overflow-hidden">
+                                <img
+                                  src={review.photos[reviewPhotoIndex[review.id] || 0]}
+                                  alt={`Photo de ${review.author}`}
+                                  className="w-full h-full object-cover"
+                                />
+                                {review.photos.length > 1 && (
+                                  <>
+                                    <button
+                                      onClick={() => prevReviewPhoto(review.id, review.photos.length)}
+                                      className="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card/90 flex items-center justify-center hover:bg-card"
+                                    >
+                                      <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => nextReviewPhoto(review.id, review.photos.length)}
+                                      className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card/90 flex items-center justify-center hover:bg-card"
+                                    >
+                                      <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+                                      {review.photos.map((_, idx) => (
+                                        <span
+                                          key={idx}
+                                          className={`w-1.5 h-1.5 rounded-full ${
+                                            idx === (reviewPhotoIndex[review.id] || 0)
+                                              ? "bg-white"
+                                              : "bg-white/50"
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                              <span className="text-xs text-muted-foreground">
+                                {review.photos.length} photo{review.photos.length > 1 ? 's' : ''} du client
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -509,9 +675,8 @@ const ArtisanPublicProfile = () => {
               />
             </div>
 
-            {/* Right Column - Sticky Contact Card */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 space-y-6">
+            {/* Right Column - Contact Card (not sticky anymore) */}
+            <div className="lg:col-span-1 space-y-6">
                 <Card className="border-0 shadow-xl bg-card">
                   <CardContent className="p-6 space-y-4">
                     <div className="text-center mb-2">
@@ -609,7 +774,57 @@ const ArtisanPublicProfile = () => {
                     </div>
                   </CardContent>
                 </Card>
-              </div>
+
+                {/* Availability Calendar */}
+                <Card className="border-0 shadow-xl bg-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CalendarIcon className="h-5 w-5 text-primary" />
+                      Disponibilités de l'artisan
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-4 mb-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded bg-emerald-500"></span>
+                        <span>Disponible</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded bg-muted-foreground/30 relative">
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <span className="w-full h-0.5 bg-red-500 rotate-45"></span>
+                          </span>
+                        </span>
+                        <span>Indisponible</span>
+                      </div>
+                    </div>
+                    <Calendar
+                      mode="single"
+                      month={calendarMonth}
+                      onMonthChange={setCalendarMonth}
+                      locale={fr}
+                      className="rounded-md border pointer-events-auto"
+                      modifiers={{
+                        available: (date) => isDateAvailable(date),
+                        unavailable: (date) => isDateUnavailable(date)
+                      }}
+                      modifiersStyles={{
+                        available: { 
+                          backgroundColor: 'hsl(142.1 76.2% 36.3%)', 
+                          color: 'white',
+                          borderRadius: '6px'
+                        },
+                        unavailable: { 
+                          backgroundColor: 'hsl(0 0% 90%)', 
+                          color: 'hsl(0 0% 60%)',
+                          textDecoration: 'line-through',
+                          borderRadius: '6px'
+                        }
+                      }}
+                      disabled={(date) => date < new Date()}
+                    />
+                  </CardContent>
+                </Card>
             </div>
           </div>
         </div>

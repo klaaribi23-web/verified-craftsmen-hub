@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
   SelectContent,
@@ -10,7 +11,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RotateCcw, MapPin } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { RotateCcw, MapPin, CalendarIcon, Clock } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 const categories = [
   "Plombier",
@@ -46,20 +55,29 @@ const frenchCities = [
   { name: "Clermont-Ferrand", code: "63" },
 ];
 
+const timeSlots = [
+  "08:00", "09:00", "10:00", "11:00", "12:00", 
+  "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"
+];
+
 interface ArtisanFiltersProps {
   onFiltersChange: (filters: {
     budget: number[];
     category: string;
     city: string;
+    interventionDate: Date | undefined;
+    interventionTime: string;
   }) => void;
 }
 
 const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
-  const [budget, setBudget] = useState<number[]>([0, 50000]);
+  const [budget, setBudget] = useState<number[]>([0, 1500]);
   const [category, setCategory] = useState<string>("");
   const [citySearch, setCitySearch] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [interventionDate, setInterventionDate] = useState<Date | undefined>(undefined);
+  const [interventionTime, setInterventionTime] = useState<string>("");
 
   const filteredCities = frenchCities.filter(
     (city) =>
@@ -68,14 +86,16 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   );
 
   useEffect(() => {
-    onFiltersChange({ budget, category, city: selectedCity });
-  }, [budget, category, selectedCity, onFiltersChange]);
+    onFiltersChange({ budget, category, city: selectedCity, interventionDate, interventionTime });
+  }, [budget, category, selectedCity, interventionDate, interventionTime, onFiltersChange]);
 
   const handleReset = () => {
-    setBudget([0, 50000]);
+    setBudget([0, 1500]);
     setCategory("");
     setCitySearch("");
     setSelectedCity("");
+    setInterventionDate(undefined);
+    setInterventionTime("");
   };
 
   const handleCitySelect = (city: { name: string; code: string }) => {
@@ -99,23 +119,23 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
         </Button>
       </div>
 
-      {/* Budget */}
+      {/* Budget par heure */}
       <div className="mb-6">
         <Label className="text-sm font-medium text-navy mb-3 block">
-          Budget
+          Budget / heure
         </Label>
         <div className="px-2">
           <Slider
             value={budget}
             onValueChange={setBudget}
             min={0}
-            max={50000}
-            step={100}
+            max={1500}
+            step={10}
             className="mb-3"
           />
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>{budget[0].toLocaleString("fr-FR")} €</span>
-            <span>{budget[1].toLocaleString("fr-FR")} €</span>
+            <span>{budget[0].toLocaleString("fr-FR")} €/h</span>
+            <span>{budget[1].toLocaleString("fr-FR")} €/h</span>
           </div>
         </div>
       </div>
@@ -177,6 +197,59 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Date d'intervention */}
+      <div className="mb-6">
+        <Label className="text-sm font-medium text-navy mb-3 block">
+          Date d'intervention
+        </Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                !interventionDate && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {interventionDate ? format(interventionDate, "PPP", { locale: fr }) : "Sélectionner une date"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 bg-white z-50" align="start">
+            <Calendar
+              mode="single"
+              selected={interventionDate}
+              onSelect={setInterventionDate}
+              initialFocus
+              locale={fr}
+              disabled={(date) => date < new Date()}
+              className="pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {/* Heure d'intervention */}
+      <div className="mb-6">
+        <Label className="text-sm font-medium text-navy mb-3 block">
+          Heure d'intervention
+        </Label>
+        <Select value={interventionTime} onValueChange={setInterventionTime}>
+          <SelectTrigger className="w-full">
+            <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+            <SelectValue placeholder="Sélectionner une heure" />
+          </SelectTrigger>
+          <SelectContent className="bg-white z-50">
+            <SelectItem value="any">Toute heure</SelectItem>
+            {timeSlots.map((time) => (
+              <SelectItem key={time} value={time}>
+                {time}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
