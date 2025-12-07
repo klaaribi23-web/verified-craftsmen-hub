@@ -740,7 +740,11 @@ const ArtisanPublicProfile = () => {
       )}
 
       {/* Similar Artisans Carousel */}
-      <SimilarArtisansCarousel currentArtisanId={artisan.id} trade={artisan.category?.name || ""} />
+      <SimilarArtisansCarousel 
+        currentArtisanId={artisan.id} 
+        categoryId={artisan.category_id} 
+        trade={artisan.category?.name || ""} 
+      />
 
       {/* CTA Section */}
       <section className="py-12 bg-primary/5">
