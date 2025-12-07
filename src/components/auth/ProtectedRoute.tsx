@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth, UserRole } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
@@ -7,9 +7,21 @@ interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
 }
 
+// Demo mode - allows access without authentication for development
+const DEMO_MODE = true;
+
 export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const { isAuthenticated, role, isLoading } = useAuth();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  
+  // Check if demo mode is enabled
+  const isDemoAccess = DEMO_MODE && searchParams.get("demo") !== "false";
+
+  // In demo mode, allow access without authentication
+  if (isDemoAccess && !isAuthenticated && !isLoading) {
+    return <>{children}</>;
+  }
 
   if (isLoading) {
     return (
