@@ -16,12 +16,21 @@ import {
   BadgeCheck,
   Plus,
   X,
-  Save
+  Save,
+  Facebook,
+  Instagram,
+  Linkedin
 } from "lucide-react";
 
 export const ArtisanProfile = () => {
   const [zones, setZones] = useState(["Paris 11e", "Paris 12e", "Paris 20e"]);
   const [newZone, setNewZone] = useState("");
+  const [socialLinks, setSocialLinks] = useState({
+    facebook: "",
+    instagram: "",
+    linkedin: "",
+    website: ""
+  });
 
   const addZone = () => {
     if (newZone && !zones.includes(newZone)) {
@@ -131,8 +140,68 @@ export const ArtisanProfile = () => {
                   <div className="relative">
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input id="website" className="pl-10" placeholder="https://..." />
+              </div>
+            </div>
+
+            {/* Social Links */}
+            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-6">Réseaux sociaux (facultatif)</h3>
+              <p className="text-sm text-muted-foreground mb-4">Ces liens seront affichés sur votre profil public pour permettre aux clients de vous suivre.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="facebook">Facebook</Label>
+                  <div className="relative">
+                    <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input 
+                      id="facebook" 
+                      className="pl-10" 
+                      placeholder="https://facebook.com/votre-page"
+                      value={socialLinks.facebook}
+                      onChange={(e) => setSocialLinks({...socialLinks, facebook: e.target.value})}
+                    />
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="instagram">Instagram</Label>
+                  <div className="relative">
+                    <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input 
+                      id="instagram" 
+                      className="pl-10" 
+                      placeholder="https://instagram.com/votre-compte"
+                      value={socialLinks.instagram}
+                      onChange={(e) => setSocialLinks({...socialLinks, instagram: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="linkedin">LinkedIn</Label>
+                  <div className="relative">
+                    <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input 
+                      id="linkedin" 
+                      className="pl-10" 
+                      placeholder="https://linkedin.com/in/votre-profil"
+                      value={socialLinks.linkedin}
+                      onChange={(e) => setSocialLinks({...socialLinks, linkedin: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="website">Site web personnel</Label>
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input 
+                      id="website" 
+                      className="pl-10" 
+                      placeholder="https://votre-site.fr"
+                      value={socialLinks.website}
+                      onChange={(e) => setSocialLinks({...socialLinks, website: e.target.value})}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="bio">Description / Présentation</Label>
                   <Textarea 
