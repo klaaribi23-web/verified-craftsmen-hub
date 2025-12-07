@@ -1,82 +1,72 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ClientSidebar } from "@/components/client-dashboard/ClientSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Send, 
   Paperclip,
   Search,
   Phone,
-  MoreVertical
+  MoreVertical,
+  User,
+  Check,
+  CheckCheck
 } from "lucide-react";
-
-const conversations = [
-  {
-    id: 1,
-    artisan: {
-      name: "Jean-Pierre Martin",
-      trade: "Plombier",
-      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
-    },
-    mission: "Réparation fuite salle de bain",
-    lastMessage: "Je peux passer demain matin vers 9h si cela vous convient.",
-    time: "Il y a 2h",
-    unread: 2
-  },
-  {
-    id: 2,
-    artisan: {
-      name: "Marc Lefebvre",
-      trade: "Électricien",
-      photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
-    },
-    mission: "Installation tableau électrique",
-    lastMessage: "Le travail est terminé, merci pour votre confiance !",
-    time: "Hier",
-    unread: 0
-  }
-];
-
-const messages = [
-  {
-    id: 1,
-    sender: "artisan",
-    content: "Bonjour, j'ai bien reçu votre demande concernant la fuite dans votre salle de bain.",
-    time: "10:30"
-  },
-  {
-    id: 2,
-    sender: "artisan",
-    content: "Pouvez-vous me donner plus de détails sur l'emplacement exact de la fuite ?",
-    time: "10:31"
-  },
-  {
-    id: 3,
-    sender: "client",
-    content: "Bonjour, merci pour votre réponse rapide ! La fuite se situe sous le lavabo, au niveau du siphon je pense.",
-    time: "10:45"
-  },
-  {
-    id: 4,
-    sender: "artisan",
-    content: "D'accord, je vois. C'est probablement un joint usé. Je peux passer demain matin vers 9h si cela vous convient.",
-    time: "11:00"
-  }
-];
+import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
+import { cn } from "@/lib/utils";
 
 export const ClientMessaging = () => {
-  const [selectedConversation, setSelectedConversation] = useState(conversations[0]);
+  const {
+    currentProfileId,
+    conversations,
+    conversationsLoading,
+    useConversationMessages,
+    sendMessage,
+    markAsRead,
+  } = useMessaging();
+
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const selectedConversation = conversations.find(c => c.participant_id === selectedConversationId);
+  const { data: messages = [], isLoading: messagesLoading } = useConversationMessages(selectedConversationId);
+
+  // Auto-select first conversation
+  useEffect(() => {
+    if (conversations.length > 0 && !selectedConversationId) {
+      setSelectedConversationId(conversations[0].participant_id);
+    }
+  }, [conversations, selectedConversationId]);
+
+  // Mark messages as read when selecting conversation
+  useEffect(() => {
+    if (selectedConversationId && selectedConversation?.unread_count > 0) {
+      markAsRead.mutate(selectedConversationId);
+    }
+  }, [selectedConversationId]);
+
+  // Scroll to bottom when new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      // Logic to send message
+    if (newMessage.trim() && selectedConversationId) {
+      sendMessage.mutate({ receiverId: selectedConversationId, content: newMessage.trim() });
       setNewMessage("");
     }
   };
+
+  const filteredConversations = conversations.filter(conv =>
+    conv.participant_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -99,49 +89,71 @@ export const ClientMessaging = () => {
                     <Input 
                       placeholder="Rechercher..." 
                       className="pl-10"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                 </div>
                 
                 <ScrollArea className="flex-1">
-                  {conversations.map((conv) => (
-                    <button
-                      key={conv.id}
-                      onClick={() => setSelectedConversation(conv)}
-                      className={`w-full p-4 text-left border-b border-border transition-colors ${
-                        selectedConversation?.id === conv.id 
-                          ? "bg-muted" 
-                          : "hover:bg-muted/50"
-                      }`}
-                    >
-                      <div className="flex gap-3">
-                        <img 
-                          src={conv.artisan.photo} 
-                          alt={conv.artisan.name}
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="font-medium truncate">{conv.artisan.name}</p>
-                            <span className="text-xs text-muted-foreground whitespace-nowrap">
-                              {conv.time}
-                            </span>
+                  {conversationsLoading ? (
+                    <div className="p-4 space-y-4">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex gap-3">
+                          <Skeleton className="w-12 h-12 rounded-full" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
                           </div>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {conv.mission}
-                          </p>
-                          <p className="text-sm text-muted-foreground truncate mt-1">
-                            {conv.lastMessage}
-                          </p>
                         </div>
-                        {conv.unread > 0 && (
-                          <Badge className="bg-accent text-accent-foreground h-5 w-5 p-0 flex items-center justify-center">
-                            {conv.unread}
-                          </Badge>
+                      ))}
+                    </div>
+                  ) : filteredConversations.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground">
+                      <p>Aucune conversation</p>
+                    </div>
+                  ) : (
+                    filteredConversations.map((conv) => (
+                      <button
+                        key={conv.participant_id}
+                        onClick={() => setSelectedConversationId(conv.participant_id)}
+                        className={cn(
+                          "w-full p-4 text-left border-b border-border transition-colors",
+                          selectedConversationId === conv.participant_id 
+                            ? "bg-muted" 
+                            : "hover:bg-muted/50"
                         )}
-                      </div>
-                    </button>
-                  ))}
+                      >
+                        <div className="flex gap-3">
+                          <Avatar className="w-12 h-12">
+                            <AvatarImage src={conv.participant_photo || undefined} />
+                            <AvatarFallback className="bg-primary/10">
+                              <User className="w-5 h-5 text-primary" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-medium truncate">{conv.participant_name}</p>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {formatMessageTime(conv.last_message_time)}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {conv.participant_role}
+                            </p>
+                            <p className="text-sm text-muted-foreground truncate mt-1">
+                              {conv.last_message}
+                            </p>
+                          </div>
+                          {conv.unread_count > 0 && (
+                            <Badge className="bg-accent text-accent-foreground h-5 w-5 p-0 flex items-center justify-center">
+                              {conv.unread_count}
+                            </Badge>
+                          )}
+                        </div>
+                      </button>
+                    ))
+                  )}
                 </ScrollArea>
               </div>
 
@@ -151,15 +163,16 @@ export const ClientMessaging = () => {
                   {/* Chat Header */}
                   <div className="p-4 border-b border-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <img 
-                        src={selectedConversation.artisan.photo} 
-                        alt={selectedConversation.artisan.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={selectedConversation.participant_photo || undefined} />
+                        <AvatarFallback className="bg-primary/10">
+                          <User className="w-5 h-5 text-primary" />
+                        </AvatarFallback>
+                      </Avatar>
                       <div>
-                        <p className="font-medium">{selectedConversation.artisan.name}</p>
+                        <p className="font-medium">{selectedConversation.participant_name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {selectedConversation.artisan.trade} • {selectedConversation.mission}
+                          {selectedConversation.participant_role}
                         </p>
                       </div>
                     </div>
@@ -176,29 +189,58 @@ export const ClientMessaging = () => {
                   {/* Messages */}
                   <ScrollArea className="flex-1 p-4">
                     <div className="space-y-4">
-                      {messages.map((message) => (
-                        <div
-                          key={message.id}
-                          className={`flex ${message.sender === "client" ? "justify-end" : "justify-start"}`}
-                        >
-                          <div
-                            className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                              message.sender === "client"
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted"
-                            }`}
-                          >
-                            <p>{message.content}</p>
-                            <p className={`text-xs mt-1 ${
-                              message.sender === "client" 
-                                ? "text-primary-foreground/70" 
-                                : "text-muted-foreground"
-                            }`}>
-                              {message.time}
-                            </p>
-                          </div>
+                      {messagesLoading ? (
+                        <div className="space-y-4">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className={cn("flex", i % 2 === 0 ? "justify-end" : "justify-start")}>
+                              <Skeleton className="h-16 w-48 rounded-2xl" />
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      ) : messages.length === 0 ? (
+                        <div className="flex items-center justify-center h-full text-muted-foreground">
+                          <p>Aucun message. Commencez la conversation !</p>
+                        </div>
+                      ) : (
+                        messages.map((message) => (
+                          <div
+                            key={message.id}
+                            className={cn(
+                              "flex",
+                              message.sender_id === currentProfileId ? "justify-end" : "justify-start"
+                            )}
+                          >
+                            <div
+                              className={cn(
+                                "max-w-[70%] rounded-2xl px-4 py-2",
+                                message.sender_id === currentProfileId
+                                  ? "bg-primary text-primary-foreground rounded-br-md"
+                                  : "bg-muted rounded-bl-md"
+                              )}
+                            >
+                              <p>{message.content}</p>
+                              <div className={cn(
+                                "flex items-center justify-end gap-1 mt-1",
+                                message.sender_id === currentProfileId 
+                                  ? "text-primary-foreground/70" 
+                                  : "text-muted-foreground"
+                              )}>
+                                <span className="text-xs">
+                                  {formatMessageTime(message.created_at)}
+                                </span>
+                                {message.sender_id === currentProfileId && (
+                                  message.is_read ? (
+                                    <CheckCheck className="w-4 h-4" />
+                                  ) : (
+                                    <Check className="w-4 h-4" />
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                      <div ref={messagesEndRef} />
                     </div>
                   </ScrollArea>
 
@@ -214,8 +256,13 @@ export const ClientMessaging = () => {
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                         className="flex-1"
+                        disabled={sendMessage.isPending}
                       />
-                      <Button onClick={handleSendMessage} variant="gold">
+                      <Button 
+                        onClick={handleSendMessage} 
+                        variant="gold"
+                        disabled={!newMessage.trim() || sendMessage.isPending}
+                      >
                         <Send className="w-5 h-5" />
                       </Button>
                     </div>
