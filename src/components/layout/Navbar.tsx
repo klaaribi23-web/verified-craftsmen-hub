@@ -10,6 +10,7 @@ const Navbar = () => {
 
   const navLinks = [
     { href: "/trouver-artisan", label: "Trouver un artisan" },
+    { href: "/nos-missions", label: "Nos missions" },
     { href: "/comment-ca-marche", label: "Comment ça marche" },
     { href: "/devenir-artisan", label: "Devenir artisan" },
   ];
