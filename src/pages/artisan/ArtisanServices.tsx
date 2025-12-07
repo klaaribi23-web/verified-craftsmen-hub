@@ -73,6 +73,8 @@ const initialServices = [
 export const ArtisanServices = () => {
   const [services, setServices] = useState(initialServices);
   const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", price: 0, description: "", duration: "" });
 
   const toggleActive = (id: number) => {
     setServices(services.map(s => 
@@ -84,6 +86,35 @@ export const ArtisanServices = () => {
     setServices(services.map(s => 
       s.id === id ? { ...s, popular: !s.popular } : s
     ));
+  };
+
+  const startEdit = (service: typeof initialServices[0]) => {
+    setEditingId(service.id);
+    setEditForm({
+      name: service.name,
+      price: service.price || 0,
+      description: service.description,
+      duration: service.duration
+    });
+  };
+
+  const saveEdit = () => {
+    if (editingId !== null) {
+      setServices(services.map(s => 
+        s.id === editingId 
+          ? { ...s, name: editForm.name, price: editForm.price, description: editForm.description, duration: editForm.duration }
+          : s
+      ));
+      setEditingId(null);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+  };
+
+  const deleteService = (id: number) => {
+    setServices(services.filter(s => s.id !== id));
   };
 
   return (
@@ -185,71 +216,118 @@ export const ArtisanServices = () => {
                       : "border-border opacity-60"
                   }`}
                 >
-                  <div className="flex items-start gap-4">
-                    <button className="mt-1 text-muted-foreground hover:text-foreground cursor-grab">
-                      <GripVertical className="w-5 h-5" />
-                    </button>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-semibold text-foreground">{service.name}</h4>
-                            {service.popular && (
-                              <Badge className="bg-accent/20 text-accent border-0 text-xs">
-                                Populaire
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {service.description}
-                          </p>
+                  {editingId === service.id ? (
+                    /* Edit Mode */
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Nom de la prestation</Label>
+                          <Input 
+                            value={editForm.name}
+                            onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                          />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Switch 
-                            checked={service.active}
-                            onCheckedChange={() => toggleActive(service.id)}
+                        <div className="space-y-2">
+                          <Label>Prix (€)</Label>
+                          <Input 
+                            type="number"
+                            value={editForm.price}
+                            onChange={(e) => setEditForm({...editForm, price: Number(e.target.value)})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Durée estimée</Label>
+                          <Input 
+                            value={editForm.duration}
+                            onChange={(e) => setEditForm({...editForm, duration: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                          <Label>Description</Label>
+                          <Textarea 
+                            value={editForm.description}
+                            onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                            rows={2}
                           />
                         </div>
                       </div>
-                      
-                      <div className="flex flex-wrap items-center gap-4 mt-4">
-                        <div className="flex items-center gap-1 text-sm">
-                          <Euro className="w-4 h-4 text-accent" />
-                          {service.priceType === "quote" ? (
-                            <span className="text-foreground">Sur devis</span>
-                          ) : service.priceType === "hourly" ? (
-                            <span className="text-foreground">{service.price}€/h</span>
-                          ) : (
-                            <span className="text-foreground">{service.price}€</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
-                          <span>{service.duration}</span>
-                        </div>
-                        <button 
-                          onClick={() => togglePopular(service.id)}
-                          className={`text-xs px-2 py-1 rounded-full transition-colors ${
-                            service.popular 
-                              ? "bg-accent/20 text-accent" 
-                              : "bg-muted text-muted-foreground hover:bg-accent/10 hover:text-accent"
-                          }`}
-                        >
-                          {service.popular ? "★ Mise en avant" : "☆ Mettre en avant"}
-                        </button>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={cancelEdit}>
+                          Annuler
+                        </Button>
+                        <Button variant="gold" onClick={saveEdit}>
+                          <CheckCircle className="w-4 h-4 mr-2" /> Enregistrer
+                        </Button>
                       </div>
                     </div>
+                  ) : (
+                    /* View Mode */
+                    <div className="flex items-start gap-4">
+                      <button className="mt-1 text-muted-foreground hover:text-foreground cursor-grab">
+                        <GripVertical className="w-5 h-5" />
+                      </button>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-semibold text-foreground">{service.name}</h4>
+                              {service.popular && (
+                                <Badge className="bg-accent/20 text-accent border-0 text-xs">
+                                  Populaire
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {service.description}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Switch 
+                              checked={service.active}
+                              onCheckedChange={() => toggleActive(service.id)}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap items-center gap-4 mt-4">
+                          <div className="flex items-center gap-1 text-sm">
+                            <Euro className="w-4 h-4 text-accent" />
+                            {service.priceType === "quote" ? (
+                              <span className="text-foreground">Sur devis</span>
+                            ) : service.priceType === "hourly" ? (
+                              <span className="text-foreground">{service.price}€/h</span>
+                            ) : (
+                              <span className="text-foreground">{service.price}€</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4" />
+                            <span>{service.duration}</span>
+                          </div>
+                          <button 
+                            onClick={() => togglePopular(service.id)}
+                            className={`text-xs px-2 py-1 rounded-full transition-colors ${
+                              service.popular 
+                                ? "bg-accent/20 text-accent" 
+                                : "bg-muted text-muted-foreground hover:bg-accent/10 hover:text-accent"
+                            }`}
+                          >
+                            {service.popular ? "★ Mise en avant" : "☆ Mettre en avant"}
+                          </button>
+                        </div>
+                      </div>
 
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(service)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => deleteService(service.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>

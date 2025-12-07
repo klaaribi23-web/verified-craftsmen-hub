@@ -72,13 +72,13 @@ const artisanData = {
   ],
   serviceAreas: ["Paris 15ème", "Paris 14ème", "Paris 16ème", "Boulogne-Billancourt", "Issy-les-Moulineaux", "Vanves"],
   availability: {
-    monday: "8h - 19h",
-    tuesday: "8h - 19h",
-    wednesday: "8h - 19h",
-    thursday: "8h - 19h",
-    friday: "8h - 19h",
-    saturday: "9h - 17h",
-    sunday: "Fermé"
+    lundi: "8h - 19h",
+    mardi: "8h - 19h",
+    mercredi: "8h - 19h",
+    jeudi: "8h - 19h",
+    vendredi: "8h - 19h",
+    samedi: "9h - 17h",
+    dimanche: "Fermé"
   },
   portfolio: [
     "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
@@ -210,13 +210,17 @@ const ArtisanPublicProfile = () => {
                       </div>
                       
                       <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
-                        <Badge variant="secondary" className="text-sm">
-                          <Wrench className="h-3 w-3 mr-1" />
-                          {artisanData.trade}
-                        </Badge>
-                        <Badge variant="outline" className="text-sm">
-                          {artisanData.specialty}
-                        </Badge>
+                        <Link to={`/trouver-artisan?categorie=${encodeURIComponent(artisanData.trade.toLowerCase())}`}>
+                          <Badge variant="secondary" className="text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
+                            <Wrench className="h-3 w-3 mr-1" />
+                            {artisanData.trade}
+                          </Badge>
+                        </Link>
+                        <Link to={`/trouver-artisan?categorie=${encodeURIComponent(artisanData.specialty.toLowerCase())}`}>
+                          <Badge variant="outline" className="text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
+                            {artisanData.specialty}
+                          </Badge>
+                        </Link>
                       </div>
 
                       <div className="flex items-center justify-center md:justify-start gap-1 text-muted-foreground mb-4">
@@ -510,7 +514,7 @@ const ArtisanPublicProfile = () => {
               <div className="sticky top-24 space-y-6">
                 <Card className="border-0 shadow-xl bg-card">
                   <CardContent className="p-6 space-y-4">
-                    <div className="text-center">
+                    <div className="text-center mb-2">
                       <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>
                       <p className="text-2xl font-bold text-primary">Contactez-moi</p>
                     </div>
