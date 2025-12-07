@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Users, 
@@ -12,6 +12,7 @@ import {
   Shield
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin/dashboard" },
@@ -25,7 +26,14 @@ const menuItems = [
 
 export const AdminSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const notificationCount = 5; // Dummy notification count
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <aside className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
@@ -91,7 +99,10 @@ export const AdminSidebar = () => {
 
       {/* Logout */}
       <div className="p-4 border-t border-border">
-        <button className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+        >
           <LogOut className="h-5 w-5" />
           <span className="font-medium">Déconnexion</span>
         </button>

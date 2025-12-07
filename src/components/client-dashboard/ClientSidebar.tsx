@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   User,
   Briefcase,
@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/client/dashboard" },
@@ -21,6 +22,13 @@ const menuItems = [
 
 export const ClientSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <aside className="w-64 min-h-screen bg-primary text-primary-foreground flex flex-col">
@@ -77,7 +85,10 @@ export const ClientSidebar = () => {
 
       {/* Logout */}
       <div className="p-4 border-t border-sidebar-border">
-        <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground/80 hover:bg-destructive/20 hover:text-destructive transition-all duration-200 w-full">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground/80 hover:bg-destructive/20 hover:text-destructive transition-all duration-200 w-full"
+        >
           <LogOut className="w-5 h-5" />
           <span>Déconnexion</span>
         </button>

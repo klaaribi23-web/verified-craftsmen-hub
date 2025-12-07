@@ -6,42 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, MapPin, ChevronLeft, ChevronRight, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface SimilarArtisan {
-  id: number;
-  name: string;
-  profession: string;
-  location: string;
-  rating: number;
-  reviews: number;
-  verified: boolean;
-  photo: string;
-  hourlyRate: string;
-}
+import { useSimilarArtisans } from "@/hooks/usePublicData";
 
 interface SimilarArtisansCarouselProps {
-  currentArtisanId?: string;
+  currentArtisanId: string;
+  categoryId: string | null;
   trade: string;
 }
 
-const similarArtisansData: SimilarArtisan[] = [
-  { id: 101, name: "Michel Dubois", profession: "Plombier", location: "Paris 14ème", rating: 4.7, reviews: 89, verified: true, photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face", hourlyRate: "45€" },
-  { id: 102, name: "Sophie Bernard", profession: "Plombier", location: "Paris 16ème", rating: 4.9, reviews: 134, verified: true, photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face", hourlyRate: "52€" },
-  { id: 103, name: "François Leroy", profession: "Plombier", location: "Boulogne-Billancourt", rating: 4.6, reviews: 67, verified: true, photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face", hourlyRate: "48€" },
-  { id: 104, name: "Anne Moreau", profession: "Plombier", location: "Issy-les-Moulineaux", rating: 4.8, reviews: 112, verified: true, photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face", hourlyRate: "50€" },
-  { id: 105, name: "Laurent Petit", profession: "Plombier", location: "Paris 17ème", rating: 4.5, reviews: 45, verified: true, photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face", hourlyRate: "42€" },
-  { id: 106, name: "Claire Fontaine", profession: "Plombier", location: "Vanves", rating: 4.7, reviews: 78, verified: true, photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face", hourlyRate: "47€" },
-  { id: 107, name: "Pierre Martin", profession: "Plombier", location: "Paris 12ème", rating: 4.9, reviews: 156, verified: true, photo: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face", hourlyRate: "55€" },
-  { id: 108, name: "Marie Lambert", profession: "Plombier", location: "Montrouge", rating: 4.6, reviews: 91, verified: true, photo: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face", hourlyRate: "49€" },
-];
-
 const ITEMS_PER_PAGE = 4;
 
-const SimilarArtisansCarousel = ({ currentArtisanId, trade }: SimilarArtisansCarouselProps) => {
+const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: SimilarArtisansCarouselProps) => {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const { data: similarArtisans = [], isLoading } = useSimilarArtisans(categoryId, currentArtisanId);
 
-  const totalSlides = Math.ceil(similarArtisansData.length / ITEMS_PER_PAGE);
+  const totalSlides = Math.max(1, Math.ceil(similarArtisans.length / ITEMS_PER_PAGE));
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
@@ -51,12 +32,12 @@ const SimilarArtisansCarousel = ({ currentArtisanId, trade }: SimilarArtisansCar
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
-  const visibleArtisans = similarArtisansData.slice(
+  const visibleArtisans = similarArtisans.slice(
     currentSlide * ITEMS_PER_PAGE,
     (currentSlide + 1) * ITEMS_PER_PAGE
   );
 
-  const handleViewProfile = (id: number) => {
+  const handleViewProfile = (id: string) => {
     window.scrollTo({ top: 0, behavior: 'instant' });
     navigate(`/artisan/${id}`);
   };
@@ -74,6 +55,29 @@ const SimilarArtisansCarousel = ({ currentArtisanId, trade }: SimilarArtisansCar
     ));
   };
 
+  if (isLoading) {
+    return (
+      <section className="py-12 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
+            Artisans similaires
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardContent className="p-4 h-40 bg-muted" />
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (similarArtisans.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-12 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -81,24 +85,26 @@ const SimilarArtisansCarousel = ({ currentArtisanId, trade }: SimilarArtisansCar
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
             Artisans similaires
           </h2>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={prevSlide}
-              className="h-10 w-10 rounded-full"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={nextSlide}
-              className="h-10 w-10 rounded-full"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-          </div>
+          {totalSlides > 1 && (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={prevSlide}
+                className="h-10 w-10 rounded-full"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={nextSlide}
+                className="h-10 w-10 rounded-full"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="relative overflow-hidden">
@@ -121,37 +127,39 @@ const SimilarArtisansCarousel = ({ currentArtisanId, trade }: SimilarArtisansCar
                     <div className="flex items-center gap-3 mb-3">
                       <div className="relative">
                         <Avatar className="h-14 w-14 ring-2 ring-primary/20">
-                          <AvatarImage src={artisan.photo} alt={artisan.name} />
+                          <AvatarImage src={artisan.photo_url || undefined} alt={artisan.business_name} />
                           <AvatarFallback className="bg-primary text-primary-foreground">
-                            {artisan.name.split(' ').map(n => n[0]).join('')}
+                            {artisan.business_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                           </AvatarFallback>
                         </Avatar>
-                        {artisan.verified && (
+                        {artisan.is_verified && (
                           <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5">
                             <Shield className="h-3 w-3" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground truncate">{artisan.name}</h3>
+                        <h3 className="font-semibold text-foreground truncate">{artisan.business_name}</h3>
                         <Badge variant="secondary" className="text-xs mt-1">
-                          {artisan.profession}
+                          {artisan.category?.name || trade}
                         </Badge>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
                       <MapPin className="h-3 w-3" />
-                      <span className="truncate">{artisan.location}</span>
+                      <span className="truncate">{artisan.city}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
-                        {renderStars(artisan.rating)}
-                        <span className="text-sm font-medium ml-1">{artisan.rating}</span>
-                        <span className="text-xs text-muted-foreground">({artisan.reviews})</span>
+                        {renderStars(artisan.rating || 0)}
+                        <span className="text-sm font-medium ml-1">{artisan.rating?.toFixed(1) || "0.0"}</span>
+                        <span className="text-xs text-muted-foreground">({artisan.review_count || 0})</span>
                       </div>
-                      <span className="text-sm font-semibold text-primary">{artisan.hourlyRate}/h</span>
+                      {artisan.hourly_rate && (
+                        <span className="text-sm font-semibold text-primary">{artisan.hourly_rate}€/h</span>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -161,17 +169,19 @@ const SimilarArtisansCarousel = ({ currentArtisanId, trade }: SimilarArtisansCar
         </div>
 
         {/* Dots */}
-        <div className="flex justify-center gap-2 mt-6">
-          {Array.from({ length: totalSlides }).map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                idx === currentSlide ? "bg-primary" : "bg-muted-foreground/30"
-              }`}
-            />
-          ))}
-        </div>
+        {totalSlides > 1 && (
+          <div className="flex justify-center gap-2 mt-6">
+            {Array.from({ length: totalSlides }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  idx === currentSlide ? "bg-primary" : "bg-muted-foreground/30"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
