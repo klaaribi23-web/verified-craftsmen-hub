@@ -85,9 +85,14 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
       city.code.includes(citySearch)
   );
 
-  useEffect(() => {
+  // Call onFiltersChange immediately when any filter changes
+  const notifyFiltersChange = () => {
     onFiltersChange({ budget, category, city: selectedCity, interventionDate, interventionTime });
-  }, [budget, category, selectedCity, interventionDate, interventionTime, onFiltersChange]);
+  };
+
+  useEffect(() => {
+    notifyFiltersChange();
+  }, [budget, category, selectedCity, interventionDate, interventionTime]);
 
   const handleReset = () => {
     setBudget([0, 1500]);

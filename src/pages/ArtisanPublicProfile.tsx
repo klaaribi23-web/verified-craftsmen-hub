@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 import { 
   MapPin, 
   Phone, 
+  Mail,
   Star, 
   Shield, 
   Clock, 
@@ -32,6 +34,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
+import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisansCarousel";
 import { fr } from "date-fns/locale";
 
 // Données fictives pour la démo
@@ -148,9 +151,11 @@ const artisanData = {
 };
 
 const ArtisanPublicProfile = () => {
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [reviewPhotoIndex, setReviewPhotoIndex] = useState<Record<number, number>>({});
+  const [showContactInfo, setShowContactInfo] = useState(false);
 
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
@@ -224,12 +229,12 @@ const ArtisanPublicProfile = () => {
       <section className="bg-gradient-to-br from-primary/5 via-background to-primary/10 pt-24 pb-8">
         <div className="container mx-auto px-4">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-            <Link to="/" className="hover:text-primary transition-colors">Accueil</Link>
-            <span>/</span>
-            <Link to="/trouver-artisan" className="hover:text-primary transition-colors">Artisans</Link>
-            <span>/</span>
-            <span className="text-foreground">{artisanData.firstName} {artisanData.lastName}</span>
+          <div className="flex items-center gap-2 text-sm text-white/80 bg-primary/80 backdrop-blur-sm rounded-lg px-4 py-2 w-fit mt-4">
+            <Link to="/" className="hover:text-white transition-colors">Accueil</Link>
+            <span className="text-white/60">/</span>
+            <Link to="/trouver-artisan" className="hover:text-white transition-colors">Artisans</Link>
+            <span className="text-white/60">/</span>
+            <span className="text-white font-medium">{artisanData.firstName} {artisanData.lastName}</span>
           </div>
         </div>
       </section>
@@ -363,52 +368,6 @@ const ArtisanPublicProfile = () => {
                         )}
                       </div>
 
-                      {/* Share Section */}
-                      <div className="mt-4 pt-4 border-t border-border/50">
-                        <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
-                          <Share2 className="h-4 w-4" />
-                          Partager ce profil
-                        </p>
-                        <div className="flex items-center justify-center md:justify-start gap-2">
-                          <button
-                            onClick={() => handleShare('facebook')}
-                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors"
-                            title="Partager sur Facebook"
-                          >
-                            <Facebook className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleShare('whatsapp')}
-                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-colors"
-                            title="Partager sur WhatsApp"
-                          >
-                            <MessageSquare className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleShare('twitter')}
-                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-black hover:text-white transition-colors"
-                            title="Partager sur X"
-                          >
-                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleShare('linkedin')}
-                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors"
-                            title="Partager sur LinkedIn"
-                          >
-                            <Linkedin className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleShare('copy')}
-                            className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                            title="Copier le lien"
-                          >
-                            <Copy className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -498,8 +457,8 @@ const ArtisanPublicProfile = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-primary" />
-                      Disponibilités
+                      <Clock className="h-5 w-5 text-primary" />
+                      Heures de travail
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -610,49 +569,32 @@ const ArtisanPublicProfile = () => {
                         </Badge>
                         <p className="text-muted-foreground mb-3">{review.comment}</p>
                         
-                        {/* Photos de preuves du client */}
+                        {/* Photos de preuves du client - 3 par 3 */}
                         {review.photos && review.photos.length > 0 && (
-                          <div className="relative">
-                            <div className="flex items-center gap-2">
-                              <div className="relative w-full max-w-xs h-40 rounded-lg overflow-hidden">
-                                <img
-                                  src={review.photos[reviewPhotoIndex[review.id] || 0]}
-                                  alt={`Photo de ${review.author}`}
-                                  className="w-full h-full object-cover"
-                                />
-                                {review.photos.length > 1 && (
-                                  <>
-                                    <button
-                                      onClick={() => prevReviewPhoto(review.id, review.photos.length)}
-                                      className="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card/90 flex items-center justify-center hover:bg-card"
-                                    >
-                                      <ChevronLeft className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                      onClick={() => nextReviewPhoto(review.id, review.photos.length)}
-                                      className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card/90 flex items-center justify-center hover:bg-card"
-                                    >
-                                      <ChevronRight className="w-4 h-4" />
-                                    </button>
-                                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
-                                      {review.photos.map((_, idx) => (
-                                        <span
-                                          key={idx}
-                                          className={`w-1.5 h-1.5 rounded-full ${
-                                            idx === (reviewPhotoIndex[review.id] || 0)
-                                              ? "bg-white"
-                                              : "bg-white/50"
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                {review.photos.length} photo{review.photos.length > 1 ? 's' : ''} du client
-                              </span>
+                          <div className="mt-3">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {review.photos.slice(0, 3).map((photo, idx) => (
+                                <div 
+                                  key={idx} 
+                                  className="relative w-24 h-24 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                                  onClick={() => setSelectedImage(photo)}
+                                >
+                                  <img
+                                    src={photo}
+                                    alt={`Photo ${idx + 1} de ${review.author}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                              {review.photos.length > 3 && (
+                                <div className="w-24 h-24 rounded-lg bg-muted flex items-center justify-center text-sm text-muted-foreground">
+                                  +{review.photos.length - 3} photos
+                                </div>
+                              )}
                             </div>
+                            <span className="text-xs text-muted-foreground mt-2 block">
+                              {review.photos.length} photo{review.photos.length > 1 ? 's' : ''} du client
+                            </span>
                           </div>
                         )}
                       </div>
@@ -684,17 +626,52 @@ const ArtisanPublicProfile = () => {
                       <p className="text-2xl font-bold text-primary">Contactez-moi</p>
                     </div>
                     
-                    <Link to="/demande-devis">
-                      <Button className="w-full" size="lg">
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Demander un devis gratuit
-                      </Button>
-                    </Link>
-                    
-                    <Button variant="outline" className="w-full" size="lg">
-                      <Phone className="h-4 w-4 mr-2" />
-                      Voir le téléphone
+                    <Button 
+                      className="w-full" 
+                      size="lg"
+                      onClick={() => navigate('/artisan/messaging')}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Demander un devis
                     </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      className="w-full" 
+                      size="lg"
+                      onClick={() => setShowContactInfo(!showContactInfo)}
+                    >
+                      <Phone className="h-4 w-4 mr-2" />
+                      {showContactInfo ? "Masquer les contacts" : "Voir le téléphone"}
+                    </Button>
+
+                    {/* Contact Info revealed */}
+                    {showContactInfo && (
+                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Phone className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Téléphone</p>
+                            <a href={`tel:${artisanData.phone.replace(/\s/g, '')}`} className="font-medium text-primary hover:underline">
+                              {artisanData.phone}
+                            </a>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Mail className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Email</p>
+                            <a href={`mailto:${artisanData.email}`} className="font-medium text-primary hover:underline">
+                              {artisanData.email}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="pt-4 border-t space-y-3">
                       <div className="flex items-center gap-3 text-sm">
@@ -772,6 +749,53 @@ const ArtisanPublicProfile = () => {
                         )}
                       </div>
                     </div>
+
+                    {/* Share Section - moved here below social links */}
+                    <div className="pt-4 border-t">
+                      <p className="text-sm text-muted-foreground mb-3 flex items-center justify-center gap-2">
+                        <Share2 className="h-4 w-4" />
+                        Partager ce profil
+                      </p>
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleShare('facebook')}
+                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors"
+                          title="Partager sur Facebook"
+                        >
+                          <Facebook className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleShare('whatsapp')}
+                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-colors"
+                          title="Partager sur WhatsApp"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleShare('twitter')}
+                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+                          title="Partager sur X"
+                        >
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleShare('linkedin')}
+                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors"
+                          title="Partager sur LinkedIn"
+                        >
+                          <Linkedin className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleShare('copy')}
+                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                          title="Copier le lien"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -783,7 +807,7 @@ const ArtisanPublicProfile = () => {
                       Disponibilités de l'artisan
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-4">
                     <div className="flex items-center gap-4 mb-4 text-sm">
                       <div className="flex items-center gap-2">
                         <span className="w-4 h-4 rounded bg-emerald-500"></span>
@@ -803,7 +827,7 @@ const ArtisanPublicProfile = () => {
                       month={calendarMonth}
                       onMonthChange={setCalendarMonth}
                       locale={fr}
-                      className="rounded-md border pointer-events-auto"
+                      className="rounded-md border pointer-events-auto w-full"
                       modifiers={{
                         available: (date) => isDateAvailable(date),
                         unavailable: (date) => isDateUnavailable(date)
@@ -844,6 +868,9 @@ const ArtisanPublicProfile = () => {
         </div>
       )}
 
+      {/* Similar Artisans Carousel */}
+      <SimilarArtisansCarousel currentArtisanId={artisanData.id} trade={artisanData.trade} />
+
       {/* CTA Section */}
       <section className="py-12 bg-primary/5">
         <div className="container mx-auto px-4 text-center">
@@ -854,11 +881,9 @@ const ArtisanPublicProfile = () => {
             {artisanData.firstName} répond en moyenne en moins de 2 heures. 
             Demandez un devis gratuit et sans engagement.
           </p>
-          <Link to="/demande-devis">
-            <Button size="lg" className="px-8">
-              Demander un devis gratuit
-            </Button>
-          </Link>
+          <Button size="lg" className="px-8" onClick={() => navigate('/artisan/messaging')}>
+            Demander un devis gratuit
+          </Button>
         </div>
       </section>
 
