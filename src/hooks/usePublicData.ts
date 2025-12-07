@@ -26,6 +26,8 @@ export interface ArtisanPublic {
   city: string;
   department: string | null;
   region: string | null;
+  address: string | null;
+  postal_code: string | null;
   hourly_rate: number | null;
   experience_years: number | null;
   rating: number | null;
@@ -39,6 +41,11 @@ export interface ArtisanPublic {
   instagram_url: string | null;
   linkedin_url: string | null;
   website_url: string | null;
+  siret: string | null;
+  insurance_number: string | null;
+  qualifications: string[] | null;
+  availability: Record<string, string> | null;
+  category_id: string | null;
   created_at: string;
   category?: {
     id: string;
@@ -179,5 +186,70 @@ export const useArtisanById = (id: string) => {
       return data as ArtisanPublic | null;
     },
     enabled: !!id,
+  });
+};
+
+// Fetch artisan services
+export const useArtisanServices = (artisanId: string) => {
+  return useQuery({
+    queryKey: ["artisan-services", artisanId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("artisan_services")
+        .select("*")
+        .eq("artisan_id", artisanId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!artisanId,
+  });
+};
+
+// Fetch artisan reviews
+export const useArtisanReviews = (artisanId: string) => {
+  return useQuery({
+    queryKey: ["artisan-reviews", artisanId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select(`
+          *,
+          client:profiles!reviews_client_id_fkey(first_name, last_name)
+        `)
+        .eq("artisan_id", artisanId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!artisanId,
+  });
+};
+
+// Fetch similar artisans (same category, different id)
+export const useSimilarArtisans = (categoryId: string | null, excludeId: string) => {
+  return useQuery({
+    queryKey: ["similar-artisans", categoryId, excludeId],
+    queryFn: async () => {
+      if (!categoryId) return [];
+      
+      const { data, error } = await supabase
+        .from("artisans")
+        .select(`
+          *,
+          category:categories(id, name)
+        `)
+        .eq("category_id", categoryId)
+        .eq("status", "active")
+        .neq("id", excludeId)
+        .order("rating", { ascending: false })
+        .limit(6);
+
+      if (error) throw error;
+      return data as ArtisanPublic[];
+    },
+    enabled: !!categoryId,
   });
 };
