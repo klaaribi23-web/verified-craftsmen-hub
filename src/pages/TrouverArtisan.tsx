@@ -119,9 +119,11 @@ const TrouverArtisan = () => {
   const [locationSearch, setLocationSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
-    budget: [0, 50000],
+    budget: [0, 1500],
     category: "",
     city: "",
+    interventionDate: undefined as Date | undefined,
+    interventionTime: "",
   });
   
   // Suggestions state
@@ -165,7 +167,7 @@ const TrouverArtisan = () => {
   }, []);
 
   const handleFiltersChange = useCallback(
-    (newFilters: { budget: number[]; category: string; city: string }) => {
+    (newFilters: { budget: number[]; category: string; city: string; interventionDate: Date | undefined; interventionTime: string }) => {
       setFilters(newFilters);
       setCurrentPage(1);
     },
@@ -208,9 +210,9 @@ const TrouverArtisan = () => {
         }
       }
 
-      // Filter by budget (using hourly rate as proxy)
+      // Filter by budget (hourly rate)
       const rate = parseInt(artisan.hourlyRate.replace("€", ""));
-      if (rate < filters.budget[0] / 1000 || rate > filters.budget[1] / 100) {
+      if (rate < filters.budget[0] || rate > filters.budget[1]) {
         return false;
       }
 

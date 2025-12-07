@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { toast } from "sonner";
 
 interface ArtisanCardProps {
   id: number;
@@ -83,9 +84,27 @@ const ArtisanCard = ({
   hourlyRate,
 }: ArtisanCardProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const navigate = useNavigate();
   
   const portfolio = defaultPortfolios[profession] || defaultPortfolios["Plombier"];
   const profileImage = profileImages[id % profileImages.length];
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFavorite(!isFavorite);
+    if (!isFavorite) {
+      toast.success("Artisan ajouté à vos favoris");
+    } else {
+      toast.info("Artisan retiré de vos favoris");
+    }
+  };
+
+  const handleProfileClick = () => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    navigate(`/artisan/${id}`);
+  };
 
   const nextSlide = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -144,11 +163,23 @@ const ArtisanCard = ({
 
         {/* Verified Badge */}
         {verified && (
-          <div className="absolute top-2 right-2 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+          <div className="absolute top-2 right-12 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" />
             Vérifié
           </div>
         )}
+
+        {/* Favorite Button */}
+        <button
+          onClick={handleFavoriteClick}
+          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+            isFavorite 
+              ? "bg-red-500 text-white" 
+              : "bg-card/90 text-muted-foreground hover:bg-red-500 hover:text-white"
+          }`}
+        >
+          <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
+        </button>
       </div>
 
       {/* Card Content */}
@@ -179,18 +210,18 @@ const ArtisanCard = ({
 
         {/* Location & Info */}
         <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5" />
-            <span>{location}</span>
+          <div className="flex items-center gap-1 min-w-0">
+            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="truncate" title={location}>{location}</span>
           </div>
-          <span>•</span>
-          <span>{experience}</span>
-          <span>•</span>
-          <span className="text-gold font-medium">{hourlyRate}/h</span>
+          <span className="flex-shrink-0">•</span>
+          <span className="flex-shrink-0">{experience}</span>
+          <span className="flex-shrink-0">•</span>
+          <span className="text-gold font-medium flex-shrink-0">{hourlyRate}/h</span>
         </div>
 
-        <Button variant="gold" className="w-full" asChild>
-          <Link to={`/artisan/${id}`}>Voir le profil</Link>
+        <Button variant="gold" className="w-full" onClick={handleProfileClick}>
+          Voir le profil
         </Button>
       </div>
     </div>
