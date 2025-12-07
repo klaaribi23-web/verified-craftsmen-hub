@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import ArtisanFilters from "@/components/artisan-search/ArtisanFilters";
 import ArtisanCard from "@/components/artisan-search/ArtisanCard";
+import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import {
   Pagination,
   PaginationContent,
@@ -18,8 +19,6 @@ import {
 import { 
   Search, 
   MapPin, 
-  Star,
-  CheckCircle2,
   Droplets,
   Zap,
   Flame,
@@ -42,40 +41,29 @@ const categories = [
   { icon: Wrench, title: "Carreleur", count: 445, href: "/artisans/carreleur" },
 ];
 
-const featuredArtisans = [
-  {
-    id: 1,
-    name: "Jean-Pierre Martin",
-    profession: "Plombier",
-    location: "Paris 15ème",
-    rating: 4.9,
-    reviews: 127,
-    verified: true,
-    experience: "15 ans",
-    hourlyRate: "45€",
-  },
-  {
-    id: 2,
-    name: "Marc Dubois",
-    profession: "Électricien",
-    location: "Lyon 6ème",
-    rating: 4.8,
-    reviews: 89,
-    verified: true,
-    experience: "12 ans",
-    hourlyRate: "50€",
-  },
-  {
-    id: 3,
-    name: "Sophie Laurent",
-    profession: "Peintre",
-    location: "Marseille",
-    rating: 4.9,
-    reviews: 156,
-    verified: true,
-    experience: "10 ans",
-    hourlyRate: "40€",
-  },
+const categoryNames = categories.map(c => c.title);
+
+const cities = [
+  { name: "Paris", code: "75" },
+  { name: "Marseille", code: "13" },
+  { name: "Lyon", code: "69" },
+  { name: "Toulouse", code: "31" },
+  { name: "Nice", code: "06" },
+  { name: "Nantes", code: "44" },
+  { name: "Strasbourg", code: "67" },
+  { name: "Montpellier", code: "34" },
+  { name: "Bordeaux", code: "33" },
+  { name: "Lille", code: "59" },
+  { name: "Rennes", code: "35" },
+  { name: "Grenoble", code: "38" },
+  { name: "Dijon", code: "21" },
+  { name: "Angers", code: "49" },
+  { name: "Nîmes", code: "30" },
+  { name: "Toulon", code: "83" },
+  { name: "Le Havre", code: "76" },
+  { name: "Clermont-Ferrand", code: "63" },
+  { name: "Reims", code: "51" },
+  { name: "Saint-Étienne", code: "42" },
 ];
 
 // All artisans data (dummy data for pagination demo)
@@ -135,6 +123,46 @@ const TrouverArtisan = () => {
     category: "",
     city: "",
   });
+  
+  // Suggestions state
+  const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  
+  const categoryInputRef = useRef<HTMLDivElement>(null);
+  const cityInputRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Filter categories based on search
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery) return categoryNames;
+    return categoryNames.filter(cat => 
+      cat.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
+  // Filter cities based on search
+  const filteredCities = useMemo(() => {
+    if (!locationSearch) return cities;
+    return cities.filter(city => 
+      city.name.toLowerCase().includes(locationSearch.toLowerCase()) ||
+      city.code.includes(locationSearch)
+    );
+  }, [locationSearch]);
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (categoryInputRef.current && !categoryInputRef.current.contains(event.target as Node)) {
+        setShowCategorySuggestions(false);
+      }
+      if (cityInputRef.current && !cityInputRef.current.contains(event.target as Node)) {
+        setShowCitySuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleFiltersChange = useCallback(
     (newFilters: { budget: number[]; category: string; city: string }) => {
@@ -144,19 +172,38 @@ const TrouverArtisan = () => {
     []
   );
 
-  // Filter artisans based on filters
+  const handleSearch = () => {
+    // Update filters with search values
+    setFilters(prev => ({
+      ...prev,
+      category: searchQuery,
+      city: locationSearch,
+    }));
+    setHasSearched(true);
+    setCurrentPage(1);
+    
+    // Scroll to results
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
+  // Filter artisans based on filters + hero search
   const filteredArtisans = useMemo(() => {
     return allArtisansData.filter((artisan) => {
-      // Filter by category
-      if (filters.category && filters.category !== "all") {
-        if (artisan.profession.toLowerCase() !== filters.category.toLowerCase()) {
+      // Filter by category from hero search or sidebar
+      const categoryFilter = filters.category || searchQuery;
+      if (categoryFilter && categoryFilter !== "all") {
+        if (!artisan.profession.toLowerCase().includes(categoryFilter.toLowerCase())) {
           return false;
         }
       }
 
-      // Filter by city
-      if (filters.city) {
-        if (!artisan.location.toLowerCase().includes(filters.city.toLowerCase().split(" ")[0])) {
+      // Filter by city from hero search or sidebar
+      const cityFilter = filters.city || locationSearch;
+      if (cityFilter) {
+        const cityName = cityFilter.split(" ")[0].toLowerCase();
+        if (!artisan.location.toLowerCase().includes(cityName)) {
           return false;
         }
       }
@@ -169,7 +216,7 @@ const TrouverArtisan = () => {
 
       return true;
     });
-  }, [filters]);
+  }, [filters, searchQuery, locationSearch]);
 
   // Paginate filtered artisans
   const totalPages = Math.ceil(filteredArtisans.length / ITEMS_PER_PAGE);
@@ -199,33 +246,74 @@ const TrouverArtisan = () => {
               </p>
             </motion.div>
 
-            {/* Search Bar */}
+            {/* Dynamic Search Bar */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               className="max-w-4xl mx-auto"
             >
-              <div className="bg-white rounded-2xl p-3 shadow-floating flex flex-col md:flex-row gap-3">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <div className="bg-card rounded-2xl p-3 shadow-floating flex flex-col md:flex-row gap-3">
+                {/* Category Search */}
+                <div className="flex-1 relative" ref={categoryInputRef}>
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                   <Input
                     placeholder="Quel artisan recherchez-vous ?"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setShowCategorySuggestions(true)}
                     className="pl-12 h-12 border-0 bg-muted text-base"
                   />
+                  {/* Category Suggestions */}
+                  {showCategorySuggestions && filteredCategories.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 max-h-60 overflow-auto">
+                      {filteredCategories.map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => {
+                            setSearchQuery(cat);
+                            setShowCategorySuggestions(false);
+                          }}
+                          className="w-full px-4 py-3 text-left hover:bg-muted transition-colors flex items-center gap-3"
+                        >
+                          <span className="text-foreground">{cat}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex-1 relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+
+                {/* City Search */}
+                <div className="flex-1 relative" ref={cityInputRef}>
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                   <Input
                     placeholder="Ville ou code postal"
                     value={locationSearch}
                     onChange={(e) => setLocationSearch(e.target.value)}
+                    onFocus={() => setShowCitySuggestions(true)}
                     className="pl-12 h-12 border-0 bg-muted text-base"
                   />
+                  {/* City Suggestions */}
+                  {showCitySuggestions && filteredCities.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 max-h-60 overflow-auto">
+                      {filteredCities.map((city) => (
+                        <button
+                          key={city.code}
+                          onClick={() => {
+                            setLocationSearch(`${city.name} (${city.code})`);
+                            setShowCitySuggestions(false);
+                          }}
+                          className="w-full px-4 py-3 text-left hover:bg-muted transition-colors"
+                        >
+                          <span className="text-foreground">{city.name}</span>
+                          <span className="text-muted-foreground ml-2">({city.code})</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <Button variant="gold" size="lg" className="h-12 px-8">
+
+                <Button variant="gold" size="lg" className="h-12 px-8" onClick={handleSearch}>
                   <Search className="w-5 h-5 mr-2" />
                   Rechercher
                 </Button>
@@ -235,9 +323,9 @@ const TrouverArtisan = () => {
         </section>
 
         {/* Categories */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-card">
           <div className="container mx-auto px-4 lg:px-8">
-            <h2 className="text-2xl font-bold text-navy mb-8">Parcourir par métier</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-8">Parcourir par métier</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {categories.map((category, index) => (
                 <motion.div
@@ -254,7 +342,7 @@ const TrouverArtisan = () => {
                       <category.icon className="w-6 h-6 text-gold" />
                     </div>
                     <div>
-                      <div className="font-semibold text-navy group-hover:text-gold transition-colors">
+                      <div className="font-semibold text-foreground group-hover:text-gold transition-colors">
                         {category.title}
                       </div>
                       <div className="text-sm text-muted-foreground">
@@ -268,75 +356,20 @@ const TrouverArtisan = () => {
           </div>
         </section>
 
-        {/* Featured Artisans */}
+        {/* Featured Artisans Carousel */}
         <section className="py-16 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-navy">Artisans recommandés</h2>
+              <h2 className="text-2xl font-bold text-foreground">Artisans recommandés</h2>
             </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {featuredArtisans.map((artisan, index) => (
-                <motion.div
-                  key={artisan.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-2xl p-6 shadow-soft border border-border hover:shadow-elevated transition-shadow"
-                >
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-gold flex items-center justify-center text-navy-dark font-bold text-xl">
-                      {artisan.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Link to={`/artisan/${artisan.id}`}>
-                          <h3 className="font-semibold text-navy hover:text-gold transition-colors">{artisan.name}</h3>
-                        </Link>
-                        {artisan.verified && (
-                          <CheckCircle2 className="w-4 h-4 text-success" />
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{artisan.profession}</p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <MapPin className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">{artisan.location}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-gold text-gold" />
-                      <span className="font-semibold text-navy">{artisan.rating}</span>
-                      <span className="text-sm text-muted-foreground">({artisan.reviews})</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="p-3 rounded-lg bg-muted text-center">
-                      <div className="text-xs text-muted-foreground">Expérience</div>
-                      <div className="font-semibold text-navy">{artisan.experience}</div>
-                    </div>
-                    <div className="p-3 rounded-lg bg-muted text-center">
-                      <div className="text-xs text-muted-foreground">Tarif/h</div>
-                      <div className="font-semibold text-navy">{artisan.hourlyRate}</div>
-                    </div>
-                  </div>
-
-                  <Button variant="gold" className="w-full" asChild>
-                    <Link to={`/artisan/${artisan.id}`}>Voir le profil</Link>
-                  </Button>
-                </motion.div>
-              ))}
-            </div>
+            <FeaturedArtisansCarousel />
           </div>
         </section>
 
         {/* All Artisans with Filters */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-card" ref={resultsRef}>
           <div className="container mx-auto px-4 lg:px-8">
-            <h2 className="text-2xl font-bold text-navy mb-8">Tous nos artisans</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-8">Tous nos artisans</h2>
             
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Filters - Left Column */}
