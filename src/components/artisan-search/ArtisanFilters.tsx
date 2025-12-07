@@ -135,7 +135,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
             onValueChange={setBudget}
             min={0}
             max={1500}
-            step={10}
+            step={5}
             className="mb-3"
           />
           <div className="flex items-center justify-between text-sm text-muted-foreground">
