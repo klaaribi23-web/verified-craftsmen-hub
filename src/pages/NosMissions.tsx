@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -39,8 +39,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  Search, 
   MapPin, 
   Euro,
   Calendar,
@@ -59,177 +59,22 @@ import {
 } from "lucide-react";
 import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocations";
 import { useToast } from "@/hooks/use-toast";
+import { useDemoMissions, usePublicCategories } from "@/hooks/usePublicData";
+import { formatDistanceToNow, format } from "date-fns";
+import { fr } from "date-fns/locale";
 
-const categories = [
-  { icon: Droplets, title: "Plombier" },
-  { icon: Zap, title: "Électricien" },
-  { icon: Flame, title: "Chauffagiste" },
-  { icon: Paintbrush, title: "Peintre" },
-  { icon: Key, title: "Serrurier" },
-  { icon: Construction, title: "Maçon" },
-  { icon: Hammer, title: "Menuisier" },
-  { icon: Wrench, title: "Carreleur" },
-];
-
-// Dummy missions data
-const allMissions = [
-  {
-    id: 1,
-    clientName: "Marie Dupont",
-    title: "Changement de fenêtres",
-    description: "Remplacement de 4 fenêtres double vitrage dans un appartement",
-    budget: 2500,
-    city: "Paris",
-    department: "75",
-    category: "Menuisier",
-    postedDate: "2025-01-03",
-    applicants: 12,
-    status: "active"
-  },
-  {
-    id: 2,
-    clientName: "Jean Martin",
-    title: "Rénovation salle de bain",
-    description: "Rénovation complète salle de bain 8m²",
-    budget: 8000,
-    city: "Lyon",
-    department: "69",
-    category: "Plombier",
-    postedDate: "2025-01-02",
-    applicants: 8,
-    status: "active"
-  },
-  {
-    id: 3,
-    clientName: "Sophie Leroy",
-    title: "Installation tableau électrique",
-    description: "Mise aux normes tableau électrique maison 120m²",
-    budget: 3500,
-    city: "Marseille",
-    department: "13",
-    category: "Électricien",
-    postedDate: "2025-01-01",
-    applicants: 15,
-    status: "active"
-  },
-  {
-    id: 4,
-    clientName: "Pierre Bernard",
-    title: "Peinture appartement",
-    description: "Peinture complète appartement 60m² (3 pièces)",
-    budget: 2000,
-    city: "Bordeaux",
-    department: "33",
-    category: "Peintre",
-    postedDate: "2024-12-28",
-    applicants: 22,
-    status: "active"
-  },
-  {
-    id: 5,
-    clientName: "Lucie Moreau",
-    title: "Installation chaudière",
-    description: "Remplacement chaudière gaz par chaudière à condensation",
-    budget: 5500,
-    city: "Toulouse",
-    department: "31",
-    category: "Chauffagiste",
-    postedDate: "2024-12-27",
-    applicants: 6,
-    status: "active"
-  },
-  {
-    id: 6,
-    clientName: "Thomas Petit",
-    title: "Pose carrelage cuisine",
-    description: "Pose de 20m² de carrelage dans cuisine neuve",
-    budget: 1800,
-    city: "Nice",
-    department: "06",
-    category: "Carreleur",
-    postedDate: "2024-12-26",
-    applicants: 9,
-    status: "active"
-  },
-  {
-    id: 7,
-    clientName: "Emma Roux",
-    title: "Ouverture porte blindée",
-    description: "Ouverture porte blindée claquée + changement serrure",
-    budget: 350,
-    city: "Nantes",
-    department: "44",
-    category: "Serrurier",
-    postedDate: "2024-12-25",
-    applicants: 4,
-    status: "active"
-  },
-  {
-    id: 8,
-    clientName: "Lucas Simon",
-    title: "Construction mur clôture",
-    description: "Construction mur de clôture en parpaings 15m linéaires",
-    budget: 4200,
-    city: "Strasbourg",
-    department: "67",
-    category: "Maçon",
-    postedDate: "2024-12-24",
-    applicants: 7,
-    status: "active"
-  },
-  {
-    id: 9,
-    clientName: "Camille Faure",
-    title: "Réparation fuite toiture",
-    description: "Réparation urgente fuite toiture après tempête",
-    budget: 1200,
-    city: "Lille",
-    department: "59",
-    category: "Maçon",
-    postedDate: "2024-12-23",
-    applicants: 11,
-    status: "active"
-  },
-  {
-    id: 10,
-    clientName: "Hugo Lambert",
-    title: "Création cuisine sur mesure",
-    description: "Fabrication et installation cuisine sur mesure 12m²",
-    budget: 15000,
-    city: "Montpellier",
-    department: "34",
-    category: "Menuisier",
-    postedDate: "2024-12-22",
-    applicants: 18,
-    status: "active"
-  },
-  {
-    id: 11,
-    clientName: "Clara Dubois",
-    title: "Rénovation électrique complète",
-    description: "Mise aux normes électrique appartement ancien 80m²",
-    budget: 6500,
-    city: "Rennes",
-    department: "35",
-    category: "Électricien",
-    postedDate: "2024-12-21",
-    applicants: 14,
-    status: "active"
-  },
-  {
-    id: 12,
-    clientName: "Antoine Mercier",
-    title: "Installation plancher chauffant",
-    description: "Pose plancher chauffant hydraulique 45m²",
-    budget: 7200,
-    city: "Grenoble",
-    department: "38",
-    category: "Chauffagiste",
-    postedDate: "2024-12-20",
-    applicants: 5,
-    status: "active"
-  },
-];
+const categoryIcons: Record<string, any> = {
+  "Plombier": Droplets,
+  "Électricien": Zap,
+  "Chauffagiste": Flame,
+  "Peintre": Paintbrush,
+  "Serrurier": Key,
+  "Maçon": Construction,
+  "Menuisier": Hammer,
+  "Carreleur": Wrench,
+  "Couvreur": Construction,
+  "Climatisation": Flame,
+};
 
 const ITEMS_PER_PAGE = 9;
 
@@ -238,12 +83,15 @@ const NosMissions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
-  const [selectedMission, setSelectedMission] = useState<typeof allMissions[0] | null>(null);
+  const [selectedMission, setSelectedMission] = useState<any>(null);
   const [applicationMessage, setApplicationMessage] = useState("");
-  const [isLoggedIn] = useState(true); // Simulated login state
+  const [isLoggedIn] = useState(false); // Will be connected to auth later
   const [showLocationAccordion, setShowLocationAccordion] = useState(false);
   
   const locationRef = useRef<HTMLDivElement>(null);
+
+  const { data: missions, isLoading: missionsLoading } = useDemoMissions();
+  const { data: categories } = usePublicCategories();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -257,19 +105,22 @@ const NosMissions = () => {
   }, []);
 
   // Filter missions
-  const filteredMissions = allMissions.filter(mission => {
-    if (categoryFilter && categoryFilter !== "all" && mission.category !== categoryFilter) {
-      return false;
-    }
-    if (locationFilter) {
-      const searchLower = locationFilter.toLowerCase();
-      if (!mission.city.toLowerCase().includes(searchLower) && 
-          !mission.department.includes(locationFilter)) {
+  const filteredMissions = useMemo(() => {
+    if (!missions) return [];
+    
+    return missions.filter(mission => {
+      if (categoryFilter && categoryFilter !== "all" && mission.category?.name !== categoryFilter) {
         return false;
       }
-    }
-    return mission.status === "active";
-  });
+      if (locationFilter) {
+        const searchLower = locationFilter.toLowerCase();
+        if (!mission.city.toLowerCase().includes(searchLower)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [missions, categoryFilter, locationFilter]);
 
   const totalPages = Math.ceil(filteredMissions.length / ITEMS_PER_PAGE);
   const paginatedMissions = filteredMissions.slice(
@@ -302,12 +153,7 @@ const NosMissions = () => {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric"
-    });
+    return format(new Date(dateString), "dd/MM/yyyy", { locale: fr });
   };
 
   return (
@@ -346,7 +192,12 @@ const NosMissions = () => {
         {/* Missions List with Filters */}
         <section className="py-16 bg-card">
           <div className="container mx-auto px-4 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-8">Toutes les missions disponibles</h2>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-foreground">Toutes les missions disponibles</h2>
+              <Badge variant="secondary" className="text-lg px-4 py-2">
+                {filteredMissions.length} mission{filteredMissions.length > 1 ? "s" : ""}
+              </Badge>
+            </div>
             
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Filters - Left Column */}
@@ -375,14 +226,17 @@ const NosMissions = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Toutes les catégories</SelectItem>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat.title} value={cat.title}>
-                              <div className="flex items-center gap-2">
-                                <cat.icon className="w-4 h-4 text-gold" />
-                                {cat.title}
-                              </div>
-                            </SelectItem>
-                          ))}
+                          {categories?.map((cat) => {
+                            const Icon = categoryIcons[cat.name] || Construction;
+                            return (
+                              <SelectItem key={cat.id} value={cat.name}>
+                                <div className="flex items-center gap-2">
+                                  <Icon className="w-4 h-4 text-gold" />
+                                  {cat.name}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                     </div>
@@ -490,118 +344,135 @@ const NosMissions = () => {
 
               {/* Missions Grid - Right Column */}
               <div className="flex-1">
-                <div className="mb-4 text-sm text-muted-foreground">
-                  {filteredMissions.length} mission{filteredMissions.length > 1 ? "s" : ""} disponible{filteredMissions.length > 1 ? "s" : ""}
-                </div>
-
-                {paginatedMissions.length > 0 ? (
+                {missionsLoading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {Array.from({ length: 9 }).map((_, i) => (
+                      <Card key={i}>
+                        <CardContent className="p-6 space-y-4">
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-6 w-full" />
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-10 w-full" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : paginatedMissions.length > 0 ? (
                   <>
-                    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                      {paginatedMissions.map((mission, index) => (
-                        <motion.div
-                          key={mission.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                        >
-                          <Card className="h-full hover:shadow-md transition-shadow flex flex-col">
-                            <CardContent className="p-5 flex-1 flex flex-col">
-                              {/* Header */}
-                              <div className="flex items-start justify-between gap-2 mb-3">
-                                <Badge variant="secondary" className="text-xs">{mission.category}</Badge>
-                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <Users className="w-3 h-3" />
-                                  {mission.applicants}
-                                </span>
-                              </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {paginatedMissions.map((mission) => {
+                        const Icon = categoryIcons[mission.category?.name || ""] || Construction;
+                        return (
+                          <motion.div
+                            key={mission.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                          >
+                            <Card className="h-full hover:shadow-lg transition-shadow">
+                              <CardContent className="p-6 flex flex-col h-full">
+                                {/* Client info */}
+                                <div className="flex items-center gap-2 mb-3">
+                                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <User className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <span className="text-sm font-medium text-foreground">{mission.client_name}</span>
+                                </div>
 
-                              {/* Title */}
-                              <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
-                                {mission.title}
-                              </h3>
-                              
-                              {/* Description */}
-                              <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-1">
-                                {mission.description}
-                              </p>
-                              
-                              {/* Info */}
-                              <div className="space-y-2 mb-4">
-                                <div className="flex items-center gap-2 text-sm">
-                                  <User className="w-4 h-4 text-muted-foreground" />
-                                  <span className="text-foreground">{mission.clientName}</span>
+                                {/* Mission title */}
+                                <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2">
+                                  {mission.title}
+                                </h3>
+
+                                {/* Category */}
+                                <Badge variant="secondary" className="w-fit mb-3 gap-1">
+                                  <Icon className="w-3 h-3" />
+                                  {mission.category?.name || "Autre"}
+                                </Badge>
+
+                                {/* Budget */}
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                                  <Euro className="w-4 h-4" />
+                                  <span>Budget : <strong className="text-foreground">{mission.budget?.toLocaleString("fr-FR")} €</strong></span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm">
-                                  <Euro className="w-4 h-4 text-gold" />
-                                  <span className="text-gold font-semibold">{mission.budget.toLocaleString()} €</span>
+
+                                {/* Location */}
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                                  <MapPin className="w-4 h-4" />
+                                  <span>{mission.city}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm">
-                                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                                  <span className="text-muted-foreground">{mission.city} ({mission.department})</span>
+
+                                {/* Date */}
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                                  <Calendar className="w-4 h-4" />
+                                  <span>Mise en ligne : {formatDate(mission.created_at)}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm">
-                                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                                  <span className="text-muted-foreground">Mise en ligne : {formatDate(mission.postedDate)}</span>
+
+                                {/* Spacer */}
+                                <div className="flex-1" />
+
+                                {/* Applicants + Apply button */}
+                                <div className="flex items-center justify-between pt-4 border-t">
+                                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                    <Users className="w-4 h-4" />
+                                    <span>{mission.applicants_count || 0} postulant{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
+                                  </div>
+                                  <Button 
+                                    size="sm" 
+                                    onClick={() => setSelectedMission(mission)}
+                                    className="gap-1"
+                                  >
+                                    <Send className="w-4 h-4" />
+                                    Postuler
+                                  </Button>
                                 </div>
-                              </div>
-                              
-                              {/* Action */}
-                              <Button 
-                                variant="gold"
-                                className="w-full"
-                                onClick={() => setSelectedMission(mission)}
-                              >
-                                <Send className="w-4 h-4 mr-2" />
-                                Postuler
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      ))}
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        );
+                      })}
                     </div>
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <Pagination>
-                        <PaginationContent>
-                          <PaginationItem>
-                            <PaginationPrevious 
-                              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                            />
-                          </PaginationItem>
-                          
-                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                            <PaginationItem key={page}>
-                              <PaginationLink
-                                onClick={() => setCurrentPage(page)}
-                                isActive={currentPage === page}
-                                className="cursor-pointer"
-                              >
-                                {page}
-                              </PaginationLink>
+                      <div className="mt-8">
+                        <Pagination>
+                          <PaginationContent>
+                            <PaginationItem>
+                              <PaginationPrevious 
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                              />
                             </PaginationItem>
-                          ))}
-                          
-                          <PaginationItem>
-                            <PaginationNext 
-                              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                            />
-                          </PaginationItem>
-                        </PaginationContent>
-                      </Pagination>
+                            {Array.from({ length: totalPages }).map((_, i) => (
+                              <PaginationItem key={i}>
+                                <PaginationLink
+                                  onClick={() => setCurrentPage(i + 1)}
+                                  isActive={currentPage === i + 1}
+                                  className="cursor-pointer"
+                                >
+                                  {i + 1}
+                                </PaginationLink>
+                              </PaginationItem>
+                            ))}
+                            <PaginationItem>
+                              <PaginationNext 
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                              />
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      </div>
                     )}
                   </>
                 ) : (
-                  <Card>
-                    <CardContent className="p-12 text-center">
-                      <p className="text-muted-foreground">Aucune mission ne correspond à vos critères</p>
-                      <Button variant="outline" className="mt-4" onClick={resetFilters}>
-                        Réinitialiser les filtres
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <div className="text-center py-16">
+                    <p className="text-muted-foreground text-lg">Aucune mission trouvée avec ces critères</p>
+                    <Button variant="outline" onClick={resetFilters} className="mt-4">
+                      Réinitialiser les filtres
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -609,50 +480,53 @@ const NosMissions = () => {
         </section>
       </main>
 
-      {/* Application Dialog */}
+      <Footer />
+
+      {/* Application Modal */}
       <Dialog open={!!selectedMission} onOpenChange={() => setSelectedMission(null)}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Postuler à cette mission</DialogTitle>
             <DialogDescription>
-              {selectedMission?.title} - Budget : {selectedMission?.budget.toLocaleString()} €
+              {selectedMission?.title}
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
-            <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                Votre message de motivation
-              </label>
-              <Textarea
-                placeholder="Présentez votre expérience et expliquez pourquoi vous êtes le bon artisan pour cette mission..."
-                value={applicationMessage}
-                onChange={(e) => setApplicationMessage(e.target.value)}
-                rows={5}
-              />
+          {!isLoggedIn ? (
+            <div className="py-6 text-center">
+              <p className="text-muted-foreground mb-4">
+                Vous devez être connecté en tant qu'artisan pour postuler à cette mission.
+              </p>
+              <Link to="/auth">
+                <Button>Se connecter</Button>
+              </Link>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Votre profil complet sera envoyé avec votre candidature.
-            </p>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedMission(null)}>
-              Annuler
-            </Button>
-            <Button 
-              variant="gold" 
-              onClick={handleApply}
-              disabled={!applicationMessage.trim()}
-            >
-              <Send className="w-4 h-4 mr-2" />
-              Envoyer ma candidature
-            </Button>
-          </DialogFooter>
+          ) : (
+            <>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Votre message de motivation</Label>
+                  <Textarea
+                    placeholder="Présentez-vous et expliquez pourquoi vous êtes le meilleur candidat pour cette mission..."
+                    value={applicationMessage}
+                    onChange={(e) => setApplicationMessage(e.target.value)}
+                    rows={5}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSelectedMission(null)}>
+                  Annuler
+                </Button>
+                <Button onClick={handleApply} disabled={!applicationMessage.trim()}>
+                  <Send className="w-4 h-4 mr-2" />
+                  Envoyer ma demande
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
-
-      <Footer />
     </div>
   );
 };
