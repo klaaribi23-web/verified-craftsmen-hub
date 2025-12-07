@@ -27,6 +27,13 @@ import { ClientMissionDetail } from "./pages/client/ClientMissionDetail";
 import { ClientFavorites } from "./pages/client/ClientFavorites";
 import { ClientMessaging } from "./pages/client/ClientMessaging";
 import { ClientSettings } from "./pages/client/ClientSettings";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminArtisans from "./pages/admin/AdminArtisans";
+import AdminClients from "./pages/admin/AdminClients";
+import AdminStatistics from "./pages/admin/AdminStatistics";
+import AdminMessaging from "./pages/admin/AdminMessaging";
+import AdminEmails from "./pages/admin/AdminEmails";
+import AdminAddArtisan from "./pages/admin/AdminAddArtisan";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +71,14 @@ const App = () => (
           <Route path="/client/parametres" element={<ClientSettings />} />
           {/* Public Artisan Profile */}
           <Route path="/artisan/:id" element={<ArtisanPublicProfile />} />
+          {/* Admin Dashboard Routes */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/artisans" element={<AdminArtisans />} />
+          <Route path="/admin/clients" element={<AdminClients />} />
+          <Route path="/admin/statistiques" element={<AdminStatistics />} />
+          <Route path="/admin/messagerie" element={<AdminMessaging />} />
+          <Route path="/admin/emails" element={<AdminEmails />} />
+          <Route path="/admin/ajouter-artisan" element={<AdminAddArtisan />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
