@@ -96,6 +96,14 @@ export const ArtisanProfile = () => {
             <div className="bg-card rounded-xl border border-border shadow-soft p-6">
               <h3 className="text-lg font-semibold text-foreground mb-6">Informations personnelles</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="bio">Description / Présentation</Label>
+                  <Textarea 
+                    id="bio" 
+                    rows={4}
+                    defaultValue="Plombier professionnel avec 15 ans d'expérience, je suis spécialisé dans les interventions d'urgence et les rénovations complètes de salle de bain. Travail soigné et garantie décennale."
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Prénom</Label>
                   <Input id="firstName" defaultValue="Jean" />
@@ -136,10 +144,12 @@ export const ArtisanProfile = () => {
                   <Input id="experience" type="number" defaultValue="15" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="website">Site web</Label>
+                  <Label htmlFor="companyWebsite">Site web entreprise</Label>
                   <div className="relative">
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="website" className="pl-10" placeholder="https://..." />
+                    <Input id="companyWebsite" className="pl-10" placeholder="https://..." />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -188,27 +198,17 @@ export const ArtisanProfile = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="website">Site web personnel</Label>
+                  <Label htmlFor="personalWebsite">Site web personnel</Label>
                   <div className="relative">
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input 
-                      id="website" 
+                      id="personalWebsite" 
                       className="pl-10" 
                       placeholder="https://votre-site.fr"
                       value={socialLinks.website}
                       onChange={(e) => setSocialLinks({...socialLinks, website: e.target.value})}
                     />
                   </div>
-                </div>
-              </div>
-            </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="bio">Description / Présentation</Label>
-                  <Textarea 
-                    id="bio" 
-                    rows={4}
-                    defaultValue="Plombier professionnel avec 15 ans d'expérience, je suis spécialisé dans les interventions d'urgence et les rénovations complètes de salle de bain. Travail soigné et garantie décennale."
-                  />
                 </div>
               </div>
             </div>
