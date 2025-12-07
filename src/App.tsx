@@ -18,6 +18,7 @@ import { ArtisanRequests } from "./pages/artisan/ArtisanRequests";
 import { ArtisanMessaging } from "./pages/artisan/ArtisanMessaging";
 import { ArtisanPlanning } from "./pages/artisan/ArtisanPlanning";
 import { ArtisanSettings } from "./pages/artisan/ArtisanSettings";
+import ArtisanPublicProfile from "./pages/ArtisanPublicProfile";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,8 @@ const App = () => (
           <Route path="/artisan/messagerie" element={<ArtisanMessaging />} />
           <Route path="/artisan/planning" element={<ArtisanPlanning />} />
           <Route path="/artisan/parametres" element={<ArtisanSettings />} />
+          {/* Public Artisan Profile */}
+          <Route path="/artisan/:id" element={<ArtisanPublicProfile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
