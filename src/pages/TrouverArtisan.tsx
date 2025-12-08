@@ -366,7 +366,6 @@ const TrouverArtisan = () => {
                             reviews={artisan.review_count || 0}
                             verified={artisan.is_verified || false}
                             experience={`${artisan.experience_years || 0} ans`}
-                            hourlyRate={`${artisan.hourly_rate || 0}€`}
                             profileImage={artisan.photo_url || undefined}
                             portfolio={artisan.portfolio_images || undefined}
                           />
