@@ -13,7 +13,6 @@ interface ArtisanCardProps {
   reviews: number;
   verified: boolean;
   experience: string;
-  hourlyRate: string;
   profileImage?: string;
   portfolio?: string[];
 }
@@ -81,7 +80,6 @@ const ArtisanCard = ({
   reviews,
   verified,
   experience,
-  hourlyRate,
   profileImage,
   portfolio,
 }: ArtisanCardProps) => {
@@ -222,9 +220,7 @@ const ArtisanCard = ({
             <span className="truncate" title={location}>{location}</span>
           </div>
           <span className="flex-shrink-0">•</span>
-          <span className="flex-shrink-0">{experience}</span>
-          <span className="flex-shrink-0">•</span>
-          <span className="text-gold font-medium flex-shrink-0">{hourlyRate}/h</span>
+          <span className="flex-shrink-0">{experience} d'expérience</span>
         </div>
 
         <Button variant="gold" className="w-full" onClick={handleProfileClick}>

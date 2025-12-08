@@ -15,7 +15,6 @@ interface FeaturedArtisan {
   reviews: number;
   verified: boolean;
   experience: string;
-  hourlyRate: string;
   profileImage: string;
   portfolio: string[];
 }
@@ -35,7 +34,6 @@ const FeaturedArtisansCarousel = () => {
     reviews: artisan.review_count || 0,
     verified: artisan.is_verified || false,
     experience: artisan.experience_years ? `${artisan.experience_years} ans` : "N/A",
-    hourlyRate: artisan.hourly_rate ? `${artisan.hourly_rate}€` : "N/A",
     profileImage: artisan.photo_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
     portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : [
       "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
@@ -244,9 +242,7 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
             <span>{artisan.location}</span>
           </div>
           <span>•</span>
-          <span>{artisan.experience}</span>
-          <span>•</span>
-          <span className="text-gold font-medium">{artisan.hourlyRate}/h</span>
+          <span>{artisan.experience} d'expérience</span>
         </div>
 
         <Button variant="gold" className="w-full" asChild>
