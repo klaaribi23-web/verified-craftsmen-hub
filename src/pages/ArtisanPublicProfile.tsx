@@ -9,53 +9,41 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { 
-  MapPin, 
-  Phone, 
-  Mail,
-  Star, 
-  Shield, 
-  Clock, 
-  CheckCircle2, 
-  FileCheck, 
-  Calendar as CalendarIcon,
-  MessageSquare,
-  Wrench,
-  Award,
-  ThumbsUp,
-  Facebook,
-  Instagram,
-  Linkedin,
-  Globe,
-  ExternalLink,
-  Share2,
-  Copy
-} from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisansCarousel";
 import { fr } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
 import { useArtisanById, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
-
 const ArtisanPublicProfile = () => {
-  const { id } = useParams<{ id: string }>();
+  const {
+    id
+  } = useParams<{
+    id: string;
+  }>();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [showContactInfo, setShowContactInfo] = useState(false);
 
   // Fetch dynamic data
-  const { data: artisan, isLoading: artisanLoading } = useArtisanById(id || "");
-  const { data: services, isLoading: servicesLoading } = useArtisanServices(id || "");
-  const { data: reviews, isLoading: reviewsLoading } = useArtisanReviews(id || "");
-
+  const {
+    data: artisan,
+    isLoading: artisanLoading
+  } = useArtisanById(id || "");
+  const {
+    data: services,
+    isLoading: servicesLoading
+  } = useArtisanServices(id || "");
+  const {
+    data: reviews,
+    isLoading: reviewsLoading
+  } = useArtisanReviews(id || "");
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
-
   const handleShare = (platform: string) => {
     if (!artisan) return;
     const shareText = `Découvrez ${artisan.business_name}, ${artisan.category?.name || "Artisan"} sur Artisans Validés`;
-    
     switch (platform) {
       case 'facebook':
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`, '_blank');
@@ -75,20 +63,10 @@ const ArtisanPublicProfile = () => {
         break;
     }
   };
-
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        className={`h-4 w-4 ${
-          i < Math.floor(rating)
-            ? "fill-amber-400 text-amber-400"
-            : i < rating
-            ? "fill-amber-400/50 text-amber-400"
-            : "text-muted-foreground/30"
-        }`}
-      />
-    ));
+    return Array.from({
+      length: 5
+    }, (_, i) => <Star key={i} className={`h-4 w-4 ${i < Math.floor(rating) ? "fill-amber-400 text-amber-400" : i < rating ? "fill-amber-400/50 text-amber-400" : "text-muted-foreground/30"}`} />);
   };
 
   // Parse availability from JSON
@@ -109,8 +87,7 @@ const ArtisanPublicProfile = () => {
 
   // Loading state
   if (artisanLoading) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Navbar />
         <section className="pt-24 pb-8">
           <div className="container mx-auto px-4">
@@ -128,14 +105,12 @@ const ArtisanPublicProfile = () => {
           </div>
         </section>
         <Footer />
-      </div>
-    );
+      </div>;
   }
 
   // Not found state
   if (!artisan) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Navbar />
         <section className="pt-24 pb-8">
           <div className="container mx-auto px-4 text-center py-20">
@@ -147,17 +122,13 @@ const ArtisanPublicProfile = () => {
           </div>
         </section>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
   const availability = getAvailability();
   const portfolio = artisan.portfolio_images || [];
   const rating = artisan.rating || 0;
   const reviewCount = artisan.review_count || 0;
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navbar />
       
       {/* Hero Section */}
@@ -195,18 +166,14 @@ const ArtisanPublicProfile = () => {
                             {artisan.business_name.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        {artisan.is_verified && (
-                          <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white rounded-full p-1.5 shadow-lg">
+                        {artisan.is_verified && <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white rounded-full p-1.5 shadow-lg">
                             <Shield className="h-5 w-5" />
-                          </div>
-                        )}
+                          </div>}
                       </div>
-                      {artisan.is_verified && (
-                        <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20">
+                      {artisan.is_verified && <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20">
                           <Shield className="h-3 w-3 mr-1" />
                           Artisan Validé
-                        </Badge>
-                      )}
+                        </Badge>}
                     </div>
 
                     {/* Info */}
@@ -222,14 +189,12 @@ const ArtisanPublicProfile = () => {
                       </div>
                       
                       <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
-                        {artisan.category?.name && (
-                          <Link to={`/trouver-artisan?category=${encodeURIComponent(artisan.category.name.toLowerCase())}`}>
+                        {artisan.category?.name && <Link to={`/trouver-artisan?category=${encodeURIComponent(artisan.category.name.toLowerCase())}`}>
                             <Badge variant="secondary" className="text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
                               <Wrench className="h-3 w-3 mr-1" />
                               {artisan.category.name}
                             </Badge>
-                          </Link>
-                        )}
+                          </Link>}
                       </div>
 
                       <div className="flex items-center justify-center md:justify-start gap-1 text-muted-foreground mb-4">
@@ -250,54 +215,24 @@ const ArtisanPublicProfile = () => {
                         </div>
                       </div>
 
-                      {artisan.description && (
-                        <p className="mt-4 text-muted-foreground leading-relaxed">
+                      {artisan.description && <p className="mt-4 text-muted-foreground leading-relaxed">
                           {artisan.description}
-                        </p>
-                      )}
+                        </p>}
 
                       {/* Social Links */}
                       <div className="flex items-center justify-center md:justify-start gap-3 mt-4">
-                        {artisan.facebook_url && (
-                          <a 
-                            href={artisan.facebook_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                          >
+                        {artisan.facebook_url && <a href={artisan.facebook_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
                             <Facebook className="h-5 w-5" />
-                          </a>
-                        )}
-                        {artisan.instagram_url && (
-                          <a 
-                            href={artisan.instagram_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                          >
+                          </a>}
+                        {artisan.instagram_url && <a href={artisan.instagram_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
                             <Instagram className="h-5 w-5" />
-                          </a>
-                        )}
-                        {artisan.linkedin_url && (
-                          <a 
-                            href={artisan.linkedin_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                          >
+                          </a>}
+                        {artisan.linkedin_url && <a href={artisan.linkedin_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
                             <Linkedin className="h-5 w-5" />
-                          </a>
-                        )}
-                        {artisan.website_url && (
-                          <a 
-                            href={artisan.website_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                          >
+                          </a>}
+                        {artisan.website_url && <a href={artisan.website_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
                             <Globe className="h-5 w-5" />
-                          </a>
-                        )}
+                          </a>}
                       </div>
                     </div>
                   </div>
@@ -313,47 +248,29 @@ const ArtisanPublicProfile = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {servicesLoading ? (
-                    <div className="grid sm:grid-cols-2 gap-3">
-                      {[1,2,3,4].map((i) => (
-                        <Skeleton key={i} className="h-20 rounded-lg" />
-                      ))}
-                    </div>
-                  ) : services && services.length > 0 ? (
-                    <div className="grid sm:grid-cols-2 gap-3">
-                      {services.map((service) => (
-                        <div 
-                          key={service.id}
-                          className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                        >
+                  {servicesLoading ? <div className="grid sm:grid-cols-2 gap-3">
+                      {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 rounded-lg" />)}
+                    </div> : services && services.length > 0 ? <div className="grid sm:grid-cols-2 gap-3">
+                      {services.map(service => <div key={service.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                           <div>
                             <p className="font-medium">{service.title}</p>
-                            {service.duration && (
-                              <p className="text-sm text-muted-foreground">
+                            {service.duration && <p className="text-sm text-muted-foreground">
                                 <Clock className="h-3 w-3 inline mr-1" />
                                 {service.duration}
-                              </p>
-                            )}
+                              </p>}
                           </div>
-                          {service.price && (
-                            <Badge variant="secondary" className="font-semibold">
+                          {service.price && <Badge variant="secondary" className="font-semibold">
                               {service.price}€
-                            </Badge>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground text-center py-4">
+                            </Badge>}
+                        </div>)}
+                    </div> : <p className="text-muted-foreground text-center py-4">
                       Aucune prestation renseignée
-                    </p>
-                  )}
+                    </p>}
                 </CardContent>
               </Card>
 
               {/* Portfolio Section */}
-              {portfolio.length > 0 && (
-                <Card>
+              {portfolio.length > 0 && <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <FileCheck className="h-5 w-5 text-primary" />
@@ -362,26 +279,15 @@ const ArtisanPublicProfile = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {portfolio.map((image, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setSelectedImage(image)}
-                          className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer"
-                        >
-                          <img
-                            src={image}
-                            alt={`Réalisation ${index + 1}`}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                          />
+                      {portfolio.map((image, index) => <button key={index} onClick={() => setSelectedImage(image)} className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer">
+                          <img src={image} alt={`Réalisation ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                             <ExternalLink className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
-                        </button>
-                      ))}
+                        </button>)}
                     </div>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
 
               {/* Zones & Availability */}
               <div className="grid md:grid-cols-2 gap-6">
@@ -395,12 +301,8 @@ const ArtisanPublicProfile = () => {
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="outline" className="py-1.5">{artisan.city}</Badge>
-                      {artisan.department && (
-                        <Badge variant="outline" className="py-1.5">{artisan.department}</Badge>
-                      )}
-                      {artisan.region && (
-                        <Badge variant="outline" className="py-1.5">{artisan.region}</Badge>
-                      )}
+                      {artisan.department && <Badge variant="outline" className="py-1.5">{artisan.department}</Badge>}
+                      {artisan.region && <Badge variant="outline" className="py-1.5">{artisan.region}</Badge>}
                     </div>
                   </CardContent>
                 </Card>
@@ -414,14 +316,12 @@ const ArtisanPublicProfile = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2 text-sm">
-                      {Object.entries(availability).map(([day, hours]) => (
-                        <div key={day} className="flex justify-between py-1 border-b border-border/50 last:border-0">
+                      {Object.entries(availability).map(([day, hours]) => <div key={day} className="flex justify-between py-1 border-b border-border/50 last:border-0">
                           <span className="capitalize text-muted-foreground">{day}</span>
                           <span className={hours === "Fermé" ? "text-muted-foreground" : "font-medium"}>
                             {hours}
                           </span>
-                        </div>
-                      ))}
+                        </div>)}
                     </div>
                   </CardContent>
                 </Card>
@@ -429,8 +329,7 @@ const ArtisanPublicProfile = () => {
 
               {/* Certifications & Legal */}
               <div className="grid md:grid-cols-2 gap-6">
-                {artisan.qualifications && artisan.qualifications.length > 0 && (
-                  <Card>
+                {artisan.qualifications && artisan.qualifications.length > 0 && <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-primary" />
@@ -439,21 +338,15 @@ const ArtisanPublicProfile = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {artisan.qualifications.map((cert, index) => (
-                          <div 
-                            key={index}
-                            className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20"
-                          >
+                        {artisan.qualifications.map((cert, index) => <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
                             <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
                               <Award className="h-5 w-5 text-emerald-600" />
                             </div>
                             <span className="font-medium">{cert}</span>
-                          </div>
-                        ))}
+                          </div>)}
                       </div>
                     </CardContent>
-                  </Card>
-                )}
+                  </Card>}
 
                 <Card>
                   <CardHeader>
@@ -463,24 +356,18 @@ const ArtisanPublicProfile = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {artisan.siret && (
-                      <div className="p-3 rounded-lg bg-muted/50">
+                    {artisan.siret && <div className="p-3 rounded-lg bg-muted/50">
                         <p className="text-sm text-muted-foreground">SIRET</p>
                         <p className="font-medium">{artisan.siret}</p>
-                      </div>
-                    )}
-                    {artisan.insurance_number && (
-                      <div className="p-3 rounded-lg bg-muted/50">
+                      </div>}
+                    {artisan.insurance_number && <div className="p-3 rounded-lg bg-muted/50">
                         <p className="text-sm text-muted-foreground">Assurance décennale</p>
                         <p className="font-medium">N° {artisan.insurance_number}</p>
-                      </div>
-                    )}
-                    {artisan.is_verified && (
-                      <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                      </div>}
+                    {artisan.is_verified && <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
                         <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                         <span className="text-sm">Documents vérifiés par notre équipe</span>
-                      </div>
-                    )}
+                      </div>}
                   </CardContent>
                 </Card>
               </div>
@@ -501,25 +388,16 @@ const ArtisanPublicProfile = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {reviewsLoading ? (
-                    <div className="space-y-4">
-                      {[1,2,3].map((i) => (
-                        <Skeleton key={i} className="h-24 rounded-lg" />
-                      ))}
-                    </div>
-                  ) : reviews && reviews.length > 0 ? (
-                    <div className="space-y-6">
+                  {reviewsLoading ? <div className="space-y-4">
+                      {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 rounded-lg" />)}
+                    </div> : reviews && reviews.length > 0 ? <div className="space-y-6">
                       {reviews.map((review: any) => {
-                        const authorName = review.client 
-                          ? `${review.client.first_name || ""} ${review.client.last_name?.charAt(0) || ""}.`
-                          : "Client";
-                        const timeAgo = formatDistanceToNow(new Date(review.created_at), {
-                          addSuffix: true,
-                          locale: fr,
-                        });
-
-                        return (
-                          <div key={review.id} className="border-b border-border/50 pb-6 last:border-0 last:pb-0">
+                    const authorName = review.client ? `${review.client.first_name || ""} ${review.client.last_name?.charAt(0) || ""}.` : "Client";
+                    const timeAgo = formatDistanceToNow(new Date(review.created_at), {
+                      addSuffix: true,
+                      locale: fr
+                    });
+                    return <div key={review.id} className="border-b border-border/50 pb-6 last:border-0 last:pb-0">
                             <div className="flex items-start justify-between mb-2">
                               <div>
                                 <div className="flex items-center gap-2">
@@ -538,34 +416,22 @@ const ArtisanPublicProfile = () => {
                                 {renderStars(review.rating)}
                               </div>
                             </div>
-                            {review.job_type && (
-                              <Badge variant="outline" className="mb-2 text-xs">
+                            {review.job_type && <Badge variant="outline" className="mb-2 text-xs">
                                 {review.job_type}
-                              </Badge>
-                            )}
-                            {review.comment && (
-                              <p className="text-muted-foreground">{review.comment}</p>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">
+                              </Badge>}
+                            {review.comment && <p className="text-muted-foreground">{review.comment}</p>}
+                          </div>;
+                  })}
+                    </div> : <p className="text-center text-muted-foreground py-8">
                       Aucun avis pour le moment
-                    </p>
-                  )}
+                    </p>}
                 </CardContent>
               </Card>
 
               {/* Leave Review */}
-              <ReviewForm 
-                artisanName={artisan.business_name}
-                isLoggedIn={false}
-                onSubmit={(review) => {
-                  console.log("Nouvel avis:", review);
-                }}
-              />
+              <ReviewForm artisanName={artisan.business_name} isLoggedIn={false} onSubmit={review => {
+              console.log("Nouvel avis:", review);
+            }} />
             </div>
 
             {/* Right Column - Contact Card */}
@@ -577,28 +443,18 @@ const ArtisanPublicProfile = () => {
                     <p className="text-2xl font-bold text-primary">Contactez-moi</p>
                   </div>
                   
-                  <Button 
-                    className="w-full" 
-                    size="lg"
-                    onClick={() => navigate(`/client/messagerie?artisan=${artisan.id}&name=${encodeURIComponent(artisan.business_name)}`)}
-                  >
+                  <Button className="w-full" size="lg" onClick={() => navigate(`/client/messagerie?artisan=${artisan.id}&name=${encodeURIComponent(artisan.business_name)}`)}>
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Demander un devis
                   </Button>
                   
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    size="lg"
-                    onClick={() => setShowContactInfo(!showContactInfo)}
-                  >
+                  <Button variant="outline" className="w-full" size="lg" onClick={() => setShowContactInfo(!showContactInfo)}>
                     <Phone className="h-4 w-4 mr-2" />
                     {showContactInfo ? "Masquer les contacts" : "Voir le téléphone"}
                   </Button>
 
                   {/* Contact Info revealed */}
-                  {showContactInfo && (
-                    <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
+                  {showContactInfo && <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                           <Phone className="h-5 w-5 text-primary" />
@@ -617,8 +473,7 @@ const ArtisanPublicProfile = () => {
                           <p className="font-medium text-primary">Connectez-vous pour voir</p>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    </div>}
 
                   <div className="pt-4 border-t space-y-3">
                     <div className="flex items-center gap-3 text-sm">
@@ -639,17 +494,7 @@ const ArtisanPublicProfile = () => {
                         <p className="text-muted-foreground text-xs">dans le métier</p>
                       </div>
                     </div>
-                    {artisan.hourly_rate && (
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <ThumbsUp className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{artisan.hourly_rate}€/h</p>
-                          <p className="text-muted-foreground text-xs">tarif horaire</p>
-                        </div>
-                      </div>
-                    )}
+                    {artisan.hourly_rate}
                   </div>
 
                   {/* Share Section */}
@@ -659,41 +504,21 @@ const ArtisanPublicProfile = () => {
                       Partager ce profil
                     </p>
                     <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => handleShare('facebook')}
-                        className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors"
-                        title="Partager sur Facebook"
-                      >
+                      <button onClick={() => handleShare('facebook')} className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors" title="Partager sur Facebook">
                         <Facebook className="h-4 w-4" />
                       </button>
-                      <button
-                        onClick={() => handleShare('whatsapp')}
-                        className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-colors"
-                        title="Partager sur WhatsApp"
-                      >
+                      <button onClick={() => handleShare('whatsapp')} className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-colors" title="Partager sur WhatsApp">
                         <MessageSquare className="h-4 w-4" />
                       </button>
-                      <button
-                        onClick={() => handleShare('twitter')}
-                        className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-black hover:text-white transition-colors"
-                        title="Partager sur X"
-                      >
+                      <button onClick={() => handleShare('twitter')} className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-black hover:text-white transition-colors" title="Partager sur X">
                         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                         </svg>
                       </button>
-                      <button
-                        onClick={() => handleShare('linkedin')}
-                        className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors"
-                        title="Partager sur LinkedIn"
-                      >
+                      <button onClick={() => handleShare('linkedin')} className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors" title="Partager sur LinkedIn">
                         <Linkedin className="h-4 w-4" />
                       </button>
-                      <button
-                        onClick={() => handleShare('copy')}
-                        className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                        title="Copier le lien"
-                      >
+                      <button onClick={() => handleShare('copy')} className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors" title="Copier le lien">
                         <Copy className="h-4 w-4" />
                       </button>
                     </div>
@@ -710,14 +535,7 @@ const ArtisanPublicProfile = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-2 sm:p-4">
-                  <Calendar
-                    mode="single"
-                    month={calendarMonth}
-                    onMonthChange={setCalendarMonth}
-                    locale={fr}
-                    className="rounded-md border pointer-events-auto [&_.rdp-months]:w-full [&_.rdp-month]:w-full [&_.rdp-table]:w-full"
-                    disabled={(date) => date < new Date()}
-                  />
+                  <Calendar mode="single" month={calendarMonth} onMonthChange={setCalendarMonth} locale={fr} className="rounded-md border pointer-events-auto [&_.rdp-months]:w-full [&_.rdp-month]:w-full [&_.rdp-table]:w-full" disabled={date => date < new Date()} />
                 </CardContent>
               </Card>
             </div>
@@ -726,25 +544,12 @@ const ArtisanPublicProfile = () => {
       </section>
 
       {/* Image Modal */}
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <img 
-            src={selectedImage} 
-            alt="Réalisation" 
-            className="max-w-full max-h-[90vh] rounded-lg"
-          />
-        </div>
-      )}
+      {selectedImage && <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+          <img src={selectedImage} alt="Réalisation" className="max-w-full max-h-[90vh] rounded-lg" />
+        </div>}
 
       {/* Similar Artisans Carousel */}
-      <SimilarArtisansCarousel 
-        currentArtisanId={artisan.id} 
-        categoryId={artisan.category_id} 
-        trade={artisan.category?.name || ""} 
-      />
+      <SimilarArtisansCarousel currentArtisanId={artisan.id} categoryId={artisan.category_id} trade={artisan.category?.name || ""} />
 
       {/* CTA Section */}
       <section className="py-12 bg-primary/5">
@@ -763,8 +568,6 @@ const ArtisanPublicProfile = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ArtisanPublicProfile;
