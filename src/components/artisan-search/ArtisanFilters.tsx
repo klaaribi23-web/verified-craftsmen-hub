@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
@@ -30,7 +29,6 @@ const timeSlots = [
 
 interface ArtisanFiltersProps {
   onFiltersChange: (filters: {
-    budget: number[];
     category: string;
     categoryName: string;
     city: string;
@@ -40,7 +38,6 @@ interface ArtisanFiltersProps {
 }
 
 const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
-  const [budget, setBudget] = useState<number[]>([0, 1500]);
   const [category, setCategory] = useState<string>("");
   const [categoryName, setCategoryName] = useState<string>("");
   const [citySearch, setCitySearch] = useState<string>("");
@@ -53,15 +50,14 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
 
   // Call onFiltersChange immediately when any filter changes
   const notifyFiltersChange = () => {
-    onFiltersChange({ budget, category, categoryName, city: selectedCity, interventionDate, interventionTime });
+    onFiltersChange({ category, categoryName, city: selectedCity, interventionDate, interventionTime });
   };
 
   useEffect(() => {
     notifyFiltersChange();
-  }, [budget, category, categoryName, selectedCity, interventionDate, interventionTime]);
+  }, [category, categoryName, selectedCity, interventionDate, interventionTime]);
 
   const handleReset = () => {
-    setBudget([0, 1500]);
     setCategory("");
     setCategoryName("");
     setCitySearch("");
@@ -96,28 +92,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
         </Button>
       </div>
 
-      {/* Budget par heure */}
-      <div className="mb-6">
-        <Label className="text-sm font-medium text-navy mb-3 block">
-          Budget / heure
-        </Label>
-        <div className="px-2">
-          <Slider
-            value={budget}
-            onValueChange={setBudget}
-            min={0}
-            max={1500}
-            step={5}
-            className="mb-3"
-          />
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>{budget[0].toLocaleString("fr-FR")} €/h</span>
-            <span>{budget[1].toLocaleString("fr-FR")} €/h</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Catégorie - Updated to use new CategorySelect */}
+      {/* Catégorie */}
       <div className="mb-6">
         <Label className="text-sm font-medium text-navy mb-3 block">
           Catégorie
