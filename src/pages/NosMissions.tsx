@@ -45,36 +45,18 @@ import {
   Euro,
   Calendar,
   Users,
-  Droplets,
-  Zap,
-  Flame,
-  Paintbrush,
-  Key,
-  Construction,
-  Hammer,
-  Wrench,
   Send,
   RotateCcw,
   User
 } from "lucide-react";
 import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocations";
 import { useToast } from "@/hooks/use-toast";
-import { useDemoMissions, usePublicCategories } from "@/hooks/usePublicData";
+import { useDemoMissions } from "@/hooks/usePublicData";
+import { useCategoriesHierarchy } from "@/hooks/useCategories";
+import { CategoryIcon } from "@/components/categories/CategoryIcon";
+import { CategorySelect } from "@/components/categories/CategorySelect";
 import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
-
-const categoryIcons: Record<string, any> = {
-  "Plombier": Droplets,
-  "Électricien": Zap,
-  "Chauffagiste": Flame,
-  "Peintre": Paintbrush,
-  "Serrurier": Key,
-  "Maçon": Construction,
-  "Menuisier": Hammer,
-  "Carreleur": Wrench,
-  "Couvreur": Construction,
-  "Climatisation": Flame,
-};
 
 const ITEMS_PER_PAGE = 9;
 
@@ -91,7 +73,7 @@ const NosMissions = () => {
   const locationRef = useRef<HTMLDivElement>(null);
 
   const { data: missions, isLoading: missionsLoading } = useDemoMissions();
-  const { data: categories } = usePublicCategories();
+  const { data: categories } = useCategoriesHierarchy();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -226,17 +208,14 @@ const NosMissions = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Toutes les catégories</SelectItem>
-                          {categories?.map((cat) => {
-                            const Icon = categoryIcons[cat.name] || Construction;
-                            return (
-                              <SelectItem key={cat.id} value={cat.name}>
-                                <div className="flex items-center gap-2">
-                                  <Icon className="w-4 h-4 text-gold" />
-                                  {cat.name}
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
+                          {categories?.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.name}>
+                              <div className="flex items-center gap-2">
+                                <CategoryIcon iconName={cat.icon} className="w-4 h-4 text-gold" />
+                                {cat.name}
+                              </div>
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -361,16 +340,14 @@ const NosMissions = () => {
                 ) : paginatedMissions.length > 0 ? (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {paginatedMissions.map((mission) => {
-                        const Icon = categoryIcons[mission.category?.name || ""] || Construction;
-                        return (
-                          <motion.div
-                            key={mission.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                          >
-                            <Card className="h-full hover:shadow-lg transition-shadow">
-                              <CardContent className="p-6 flex flex-col h-full">
+                      {paginatedMissions.map((mission) => (
+                        <motion.div
+                          key={mission.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                        >
+                          <Card className="h-full hover:shadow-lg transition-shadow">
+                            <CardContent className="p-6 flex flex-col h-full">
                                 {/* Client info */}
                                 <div className="flex items-center gap-2 mb-3">
                                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -386,7 +363,7 @@ const NosMissions = () => {
 
                                 {/* Category */}
                                 <Badge variant="secondary" className="w-fit mb-3 gap-1">
-                                  <Icon className="w-3 h-3" />
+                                  <CategoryIcon iconName="arrow-up-right" className="w-3 h-3" />
                                   {mission.category?.name || "Autre"}
                                 </Badge>
 
@@ -429,9 +406,8 @@ const NosMissions = () => {
                               </CardContent>
                             </Card>
                           </motion.div>
-                        );
-                      })}
-                    </div>
+                        ))}
+                      </div>
 
                     {/* Pagination */}
                     {totalPages > 1 && (

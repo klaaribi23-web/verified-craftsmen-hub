@@ -37,19 +37,9 @@ import {
   ArrowRight
 } from "lucide-react";
 import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocations";
-import { usePublicArtisans, useCategoriesWithCount } from "@/hooks/usePublicData";
-
-// Icon mapping for categories
-const categoryIcons: Record<string, React.ComponentType<any>> = {
-  "Plombier": Droplets,
-  "Électricien": Zap,
-  "Chauffagiste": Flame,
-  "Peintre": Paintbrush,
-  "Serrurier": Key,
-  "Maçon": Construction,
-  "Menuisier": Hammer,
-  "Carreleur": Wrench,
-};
+import { usePublicArtisans } from "@/hooks/usePublicData";
+import { useCategoriesHierarchy, CategoryWithChildren } from "@/hooks/useCategories";
+import { CategoryIcon } from "@/components/categories/CategoryIcon";
 
 const ITEMS_PER_PAGE = 21;
 
@@ -60,6 +50,7 @@ const TrouverArtisan = () => {
   const [filters, setFilters] = useState({
     budget: [0, 1500],
     category: "",
+    categoryName: "",
     city: "",
     interventionDate: undefined as Date | undefined,
     interventionTime: "",
@@ -76,16 +67,18 @@ const TrouverArtisan = () => {
 
   // Fetch dynamic data
   const { data: artisansData, isLoading: artisansLoading } = usePublicArtisans();
-  const { data: categoriesData, isLoading: categoriesLoading } = useCategoriesWithCount();
+  const { data: categoriesData, isLoading: categoriesLoading } = useCategoriesHierarchy();
 
-  // Create categories array with dynamic counts
+  // Flatten categories for display (parent categories + their subcategories as needed)
   const categories = useMemo(() => {
     if (!categoriesData) return [];
+    // Return parent categories with their icons
     return categoriesData.map((cat) => ({
-      icon: categoryIcons[cat.name] || Wrench,
+      id: cat.id,
+      icon: cat.icon,
       title: cat.name,
-      count: cat.count,
-      href: `/trouver-artisan?category=${encodeURIComponent(cat.name.toLowerCase())}`,
+      count: cat.children?.length || 0,
+      children: cat.children || [],
     }));
   }, [categoriesData]);
 
@@ -112,7 +105,7 @@ const TrouverArtisan = () => {
   }, []);
 
   const handleFiltersChange = useCallback(
-    (newFilters: { budget: number[]; category: string; city: string; interventionDate: Date | undefined; interventionTime: string }) => {
+    (newFilters: { budget: number[]; category: string; categoryName: string; city: string; interventionDate: Date | undefined; interventionTime: string }) => {
       setFilters(newFilters);
       setCurrentPage(1);
     },
@@ -243,7 +236,7 @@ const TrouverArtisan = () => {
                               }}
                               className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors text-left"
                             >
-                              <cat.icon className="w-5 h-5 text-gold" />
+                              <CategoryIcon iconName={cat.icon} className="w-5 h-5 text-gold" />
                               <span className="text-foreground text-sm font-medium">{cat.title}</span>
                             </button>
                           ))}
@@ -358,14 +351,14 @@ const TrouverArtisan = () => {
                       className="w-full group flex items-center gap-4 p-4 rounded-xl border border-border hover:border-gold/30 hover:shadow-soft transition-all text-left"
                     >
                       <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                        <category.icon className="w-6 h-6 text-gold" />
+                        <CategoryIcon iconName={category.icon} className="w-6 h-6 text-gold" />
                       </div>
                       <div>
                         <div className="font-semibold text-foreground group-hover:text-gold transition-colors">
                           {category.title}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {category.count} artisan{category.count > 1 ? "s" : ""}
+                          {category.children.length} sous-catégorie{category.children.length > 1 ? "s" : ""}
                         </div>
                       </div>
                     </button>

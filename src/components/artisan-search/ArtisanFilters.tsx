@@ -20,19 +20,8 @@ import { RotateCcw, MapPin, CalendarIcon, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-
-const categories = [
-  "Plombier",
-  "Électricien",
-  "Chauffagiste",
-  "Peintre",
-  "Serrurier",
-  "Maçon",
-  "Menuisier",
-  "Carreleur",
-];
-
-import { filterLocations, regions, departments } from "@/data/frenchLocations";
+import { filterLocations } from "@/data/frenchLocations";
+import { CategorySelect } from "@/components/categories/CategorySelect";
 
 const timeSlots = [
   "08:00", "09:00", "10:00", "11:00", "12:00", 
@@ -43,6 +32,7 @@ interface ArtisanFiltersProps {
   onFiltersChange: (filters: {
     budget: number[];
     category: string;
+    categoryName: string;
     city: string;
     interventionDate: Date | undefined;
     interventionTime: string;
@@ -52,6 +42,7 @@ interface ArtisanFiltersProps {
 const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   const [budget, setBudget] = useState<number[]>([0, 1500]);
   const [category, setCategory] = useState<string>("");
+  const [categoryName, setCategoryName] = useState<string>("");
   const [citySearch, setCitySearch] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
@@ -62,16 +53,17 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
 
   // Call onFiltersChange immediately when any filter changes
   const notifyFiltersChange = () => {
-    onFiltersChange({ budget, category, city: selectedCity, interventionDate, interventionTime });
+    onFiltersChange({ budget, category, categoryName, city: selectedCity, interventionDate, interventionTime });
   };
 
   useEffect(() => {
     notifyFiltersChange();
-  }, [budget, category, selectedCity, interventionDate, interventionTime]);
+  }, [budget, category, categoryName, selectedCity, interventionDate, interventionTime]);
 
   const handleReset = () => {
     setBudget([0, 1500]);
     setCategory("");
+    setCategoryName("");
     setCitySearch("");
     setSelectedCity("");
     setInterventionDate(undefined);
@@ -82,6 +74,11 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
     setSelectedCity(location.label);
     setCitySearch(location.label);
     setShowCitySuggestions(false);
+  };
+
+  const handleCategoryChange = (value: string, name: string) => {
+    setCategory(value);
+    setCategoryName(name);
   };
 
   return (
@@ -120,24 +117,16 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
         </div>
       </div>
 
-      {/* Catégorie */}
+      {/* Catégorie - Updated to use new CategorySelect */}
       <div className="mb-6">
         <Label className="text-sm font-medium text-navy mb-3 block">
           Catégorie
         </Label>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Toutes les catégories" />
-          </SelectTrigger>
-          <SelectContent className="bg-white z-50">
-            <SelectItem value="all">Toutes les catégories</SelectItem>
-            {categories.map((cat) => (
-              <SelectItem key={cat} value={cat.toLowerCase()}>
-                {cat}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <CategorySelect
+          value={category}
+          onValueChange={handleCategoryChange}
+          placeholder="Toutes les catégories"
+        />
       </div>
 
       {/* Ville / Code postal */}
