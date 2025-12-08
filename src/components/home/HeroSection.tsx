@@ -2,22 +2,19 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Shield, CheckCircle2, Star, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-
 const HeroSection = () => {
-  const stats = [
-    { value: "5000+", label: "Artisans vérifiés" },
-    { value: "50K+", label: "Projets réalisés" },
-    { value: "4.8/5", label: "Note moyenne" },
-  ];
-
-  const badges = [
-    "Vérification SIRET",
-    "Assurances validées",
-    "Avis certifiés",
-  ];
-
-  return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+  const stats = [{
+    value: "5000+",
+    label: "Artisans vérifiés"
+  }, {
+    value: "50K+",
+    label: "Projets réalisés"
+  }, {
+    value: "4.8/5",
+    label: "Note moyenne"
+  }];
+  const badges = ["Vérification SIRET", "Assurances validées", "Avis certifiés"];
+  return <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-hero" />
       <div className="absolute top-20 right-0 w-1/2 h-full opacity-5">
@@ -27,11 +24,15 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.6
+        }}>
             {/* Trust Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/20 mb-6">
               <Shield className="w-4 h-4 text-gold" />
@@ -54,22 +55,17 @@ const HeroSection = () => {
 
             {/* Badges */}
             <div className="flex flex-wrap gap-3 mb-8">
-              {badges.map((badge) => (
-                <div
-                  key={badge}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white shadow-soft border border-border"
-                >
+              {badges.map(badge => <div key={badge} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white shadow-soft border border-border">
                   <CheckCircle2 className="w-4 h-4 text-success" />
                   <span className="text-sm font-medium text-navy">{badge}</span>
-                </div>
-              ))}
+                </div>)}
             </div>
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Button variant="hero" size="xl" asChild>
                 <Link to="/demande-devis">
-                  Demander un devis gratuit
+                  Déposer une annonce     
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
@@ -80,24 +76,26 @@ const HeroSection = () => {
 
             {/* Stats */}
             <div className="flex items-center gap-8">
-              {stats.map((stat, index) => (
-                <div key={stat.label} className="text-center">
+              {stats.map((stat, index) => <div key={stat.label} className="text-center">
                   <div className="text-2xl md:text-3xl font-bold text-navy">
                     {stat.value}
                   </div>
                   <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </motion.div>
 
           {/* Visual */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative hidden lg:block"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          x: 20
+        }} animate={{
+          opacity: 1,
+          x: 0
+        }} transition={{
+          duration: 0.6,
+          delay: 0.2
+        }} className="relative hidden lg:block">
             {/* Main Card */}
             <div className="relative">
               <div className="bg-white rounded-2xl shadow-floating p-6 border border-border">
@@ -109,23 +107,19 @@ const HeroSection = () => {
                     <h3 className="font-semibold text-navy">Jean-Pierre Martin</h3>
                     <p className="text-sm text-muted-foreground">Plombier · Paris 15</p>
                     <div className="flex items-center gap-1 mt-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-gold text-gold" />
-                      ))}
+                      {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-gold text-gold" />)}
                       <span className="text-sm text-muted-foreground ml-1">(127 avis)</span>
                     </div>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  {["Expérience", "Tarif/h", "Délai"].map((label, i) => (
-                    <div key={label} className="text-center p-3 rounded-lg bg-muted">
+                  {["Expérience", "Tarif/h", "Délai"].map((label, i) => <div key={label} className="text-center p-3 rounded-lg bg-muted">
                       <div className="text-sm text-muted-foreground">{label}</div>
                       <div className="font-semibold text-navy">
                         {i === 0 ? "15 ans" : i === 1 ? "45€" : "24h"}
                       </div>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
 
                 <div className="flex items-center gap-2 mb-4">
@@ -145,11 +139,12 @@ const HeroSection = () => {
               </div>
 
               {/* Floating Elements */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="absolute -top-4 -right-4 bg-white rounded-xl shadow-elevated p-4 border border-border"
-              >
+              <motion.div animate={{
+              y: [0, -10, 0]
+            }} transition={{
+              duration: 3,
+              repeat: Infinity
+            }} className="absolute -top-4 -right-4 bg-white rounded-xl shadow-elevated p-4 border border-border">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
                     <CheckCircle2 className="w-4 h-4 text-success" />
@@ -161,11 +156,12 @@ const HeroSection = () => {
                 </div>
               </motion.div>
 
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity }}
-                className="absolute -bottom-6 -left-6 bg-gradient-gold rounded-xl shadow-gold p-4"
-              >
+              <motion.div animate={{
+              y: [0, 10, 0]
+            }} transition={{
+              duration: 3.5,
+              repeat: Infinity
+            }} className="absolute -bottom-6 -left-6 bg-gradient-gold rounded-xl shadow-gold p-4">
                 <div className="flex items-center gap-3">
                   <div className="text-2xl font-bold text-navy-dark">98%</div>
                   <div className="text-sm text-navy-dark/80">
@@ -177,8 +173,6 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default HeroSection;
