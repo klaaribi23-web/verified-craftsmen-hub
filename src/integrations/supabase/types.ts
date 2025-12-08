@@ -169,23 +169,37 @@ export type Database = {
       categories: {
         Row: {
           created_at: string
+          display_order: number | null
           icon: string | null
           id: string
           name: string
+          parent_id: string | null
         }
         Insert: {
           created_at?: string
+          display_order?: number | null
           icon?: string | null
           id?: string
           name: string
+          parent_id?: string | null
         }
         Update: {
           created_at?: string
+          display_order?: number | null
           icon?: string | null
           id?: string
           name?: string
+          parent_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       client_favorites: {
         Row: {

@@ -115,58 +115,11 @@ export const useFeaturedArtisans = () => {
   });
 };
 
-// Fetch categories with artisan count
-export const usePublicCategories = () => {
-  return useQuery({
-    queryKey: ["public-categories"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("*")
-        .order("name");
-
-      if (error) throw error;
-      return data;
-    },
-  });
-};
-
-// Fetch categories with artisan count
-export const useCategoriesWithCount = () => {
-  return useQuery({
-    queryKey: ["categories-with-count"],
-    queryFn: async () => {
-      // Fetch all categories
-      const { data: categories, error: catError } = await supabase
-        .from("categories")
-        .select("id, name, icon")
-        .order("name");
-
-      if (catError) throw catError;
-
-      // Fetch artisan count per category
-      const { data: artisans, error: artError } = await supabase
-        .from("artisans")
-        .select("category_id")
-        .eq("status", "active");
-
-      if (artError) throw artError;
-
-      // Count artisans per category
-      const countMap: Record<string, number> = {};
-      artisans?.forEach((a) => {
-        if (a.category_id) {
-          countMap[a.category_id] = (countMap[a.category_id] || 0) + 1;
-        }
-      });
-
-      return categories?.map((cat) => ({
-        ...cat,
-        count: countMap[cat.id] || 0,
-      })) || [];
-    },
-  });
-};
+// Re-export categories hooks from useCategories for backwards compatibility
+export { 
+  useCategories as usePublicCategories,
+  useCategoriesWithCount 
+} from "./useCategories";
 
 // Fetch single artisan by ID
 export const useArtisanById = (id: string) => {

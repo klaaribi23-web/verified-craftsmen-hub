@@ -1,77 +1,28 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  Droplets, 
-  Zap, 
-  Flame, 
-  Paintbrush, 
-  Key, 
-  Construction,
-  Hammer,
-  Wrench,
-  ArrowRight
-} from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { useCategoriesWithCount } from "@/hooks/useCategories";
+import { CategoryIcon } from "@/components/categories/CategoryIcon";
 
-const categories = [
-  {
-    icon: Droplets,
-    title: "Plombier",
-    description: "Fuites, installations, rénovation salle de bain",
-    href: "/artisans/plombier",
-    color: "from-blue-500 to-blue-600",
-  },
-  {
-    icon: Zap,
-    title: "Électricien",
-    description: "Installations, dépannages, mise aux normes",
-    href: "/artisans/electricien",
-    color: "from-yellow-500 to-orange-500",
-  },
-  {
-    icon: Flame,
-    title: "Chauffagiste",
-    description: "Chaudières, pompes à chaleur, climatisation",
-    href: "/artisans/chauffagiste",
-    color: "from-red-500 to-orange-500",
-  },
-  {
-    icon: Paintbrush,
-    title: "Peintre",
-    description: "Peinture intérieure, extérieure, décoration",
-    href: "/artisans/peintre",
-    color: "from-purple-500 to-pink-500",
-  },
-  {
-    icon: Key,
-    title: "Serrurier",
-    description: "Ouverture de porte, blindage, serrures",
-    href: "/artisans/serrurier",
-    color: "from-slate-500 to-slate-600",
-  },
-  {
-    icon: Construction,
-    title: "Maçon",
-    description: "Construction, rénovation, extension",
-    href: "/artisans/macon",
-    color: "from-amber-500 to-amber-600",
-  },
-  {
-    icon: Hammer,
-    title: "Menuisier",
-    description: "Portes, fenêtres, meubles sur mesure",
-    href: "/artisans/menuisier",
-    color: "from-emerald-500 to-emerald-600",
-  },
-  {
-    icon: Wrench,
-    title: "Tous les métiers",
-    description: "Découvrez tous nos artisans qualifiés",
-    href: "/trouver-artisan",
-    color: "from-navy to-navy-light",
-  },
-];
+// Color gradients for parent categories
+const categoryColors: Record<string, string> = {
+  "Gros œuvre & Construction": "from-amber-500 to-amber-600",
+  "Second œuvre": "from-blue-500 to-blue-600",
+  "Menuiseries & Fermetures": "from-emerald-500 to-emerald-600",
+  "Extérieur & Aménagement": "from-green-500 to-green-600",
+  "Entretien & Dépannage": "from-red-500 to-red-600",
+  "Rénovation & Décoration": "from-purple-500 to-pink-500",
+  "Énergies & Équipements": "from-yellow-500 to-orange-500",
+  "Artisans spécialisés": "from-indigo-500 to-indigo-600",
+  "Services liés au bâtiment": "from-slate-500 to-slate-600",
+};
 
 const CategoriesSection = () => {
+  const { data: categories, isLoading } = useCategoriesWithCount();
+
+  // Take first 8 categories for display, add "All" as last
+  const displayCategories = categories?.slice(0, 7) || [];
+
   return (
     <section className="py-20 lg:py-32 bg-white">
       <div className="container mx-auto px-4 lg:px-8">
@@ -95,36 +46,69 @@ const CategoriesSection = () => {
         </motion.div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-          {categories.map((category, index) => (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+            {displayCategories.map((category, index) => (
+              <motion.div
+                key={category.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Link
+                  to={`/trouver-artisan?category=${category.id}`}
+                  className="group block bg-white rounded-2xl border border-border p-6 hover:shadow-elevated hover:border-gold/30 transition-all duration-300 h-full"
+                >
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${categoryColors[category.name] || "from-navy to-navy-light"} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <CategoryIcon iconName={category.icon} className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-navy text-lg mb-2 group-hover:text-gold transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {category.count} artisan{category.count !== 1 ? "s" : ""} disponible{category.count !== 1 ? "s" : ""}
+                  </p>
+                  <div className="flex items-center gap-1 mt-4 text-gold opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-sm font-medium">Voir les artisans</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+
+            {/* "All categories" card */}
             <motion.div
-              key={category.title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
+              transition={{ delay: 0.35 }}
             >
               <Link
-                to={category.href}
+                to="/trouver-artisan"
                 className="group block bg-white rounded-2xl border border-border p-6 hover:shadow-elevated hover:border-gold/30 transition-all duration-300 h-full"
               >
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <category.icon className="w-7 h-7 text-white" />
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-navy to-navy-light flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <ArrowRight className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="font-semibold text-navy text-lg mb-2 group-hover:text-gold transition-colors">
-                  {category.title}
+                  Tous les métiers
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  {category.description}
+                  Découvrez tous nos artisans qualifiés
                 </p>
                 <div className="flex items-center gap-1 mt-4 text-gold opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-sm font-medium">Voir les artisans</span>
+                  <span className="text-sm font-medium">Voir tous</span>
                   <ArrowRight className="w-4 h-4" />
                 </div>
               </Link>
             </motion.div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );
