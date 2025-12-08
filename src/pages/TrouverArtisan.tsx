@@ -48,7 +48,6 @@ const TrouverArtisan = () => {
   const [locationSearch, setLocationSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
-    budget: [0, 1500],
     category: "",
     categoryName: "",
     city: "",
@@ -105,7 +104,7 @@ const TrouverArtisan = () => {
   }, []);
 
   const handleFiltersChange = useCallback(
-    (newFilters: { budget: number[]; category: string; categoryName: string; city: string; interventionDate: Date | undefined; interventionTime: string }) => {
+    (newFilters: { category: string; categoryName: string; city: string; interventionDate: Date | undefined; interventionTime: string }) => {
       setFilters(newFilters);
       setCurrentPage(1);
     },
@@ -157,11 +156,6 @@ const TrouverArtisan = () => {
         }
       }
 
-      // Filter by budget (hourly rate)
-      const rate = artisan.hourly_rate || 0;
-      if (rate < filters.budget[0] || rate > filters.budget[1]) {
-        return false;
-      }
 
       return true;
     });
