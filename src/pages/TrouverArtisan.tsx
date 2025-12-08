@@ -320,54 +320,6 @@ const TrouverArtisan = () => {
           </div>
         </section>
 
-        {/* Categories */}
-        <section className="py-16 bg-card">
-          <div className="container mx-auto px-4 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-8">Parcourir par métier</h2>
-            {categoriesLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[1,2,3,4,5,6,7,8].map((i) => (
-                  <Skeleton key={i} className="h-20 rounded-xl" />
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {categories.map((category, index) => (
-                  <motion.div
-                    key={category.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <button
-                      onClick={() => {
-                        setSearchQuery(category.title);
-                        setFilters(prev => ({ ...prev, category: category.title }));
-                        setCurrentPage(1);
-                        setTimeout(() => {
-                          resultsRef.current?.scrollIntoView({ behavior: "smooth" });
-                        }, 100);
-                      }}
-                      className="w-full group flex items-center gap-4 p-4 rounded-xl border border-border hover:border-gold/30 hover:shadow-soft transition-all text-left"
-                    >
-                      <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                        <CategoryIcon iconName={category.icon} className="w-6 h-6 text-gold" />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-foreground group-hover:text-gold transition-colors">
-                          {category.title}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {category.children.length} sous-catégorie{category.children.length > 1 ? "s" : ""}
-                        </div>
-                      </div>
-                    </button>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
 
         {/* Featured Artisans Carousel */}
         <section className="py-16 bg-muted">
