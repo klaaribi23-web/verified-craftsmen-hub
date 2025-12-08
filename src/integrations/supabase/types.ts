@@ -50,6 +50,13 @@ export type Database = {
             referencedRelation: "artisans"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artisan_services_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
         ]
       }
       artisans: {
@@ -229,6 +236,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "client_favorites_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "client_favorites_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -393,6 +407,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "mission_applications_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "mission_applications_mission_id_fkey"
             columns: ["mission_id"]
             isOneToOne: false
@@ -450,6 +471,13 @@ export type Database = {
             columns: ["assigned_artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missions_assigned_artisan_id_fkey"
+            columns: ["assigned_artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
             referencedColumns: ["id"]
           },
           {
@@ -580,6 +608,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reviews_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reviews_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -618,7 +653,101 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_artisans: {
+        Row: {
+          address: string | null
+          availability: Json | null
+          business_name: string | null
+          category_id: string | null
+          city: string | null
+          created_at: string | null
+          department: string | null
+          description: string | null
+          experience_years: number | null
+          facebook_url: string | null
+          hourly_rate: number | null
+          id: string | null
+          instagram_url: string | null
+          is_verified: boolean | null
+          linkedin_url: string | null
+          missions_completed: number | null
+          photo_url: string | null
+          portfolio_images: string[] | null
+          postal_code: string | null
+          qualifications: string[] | null
+          rating: number | null
+          region: string | null
+          review_count: number | null
+          status: Database["public"]["Enums"]["artisan_status"] | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          availability?: Json | null
+          business_name?: string | null
+          category_id?: string | null
+          city?: string | null
+          created_at?: string | null
+          department?: string | null
+          description?: string | null
+          experience_years?: number | null
+          facebook_url?: string | null
+          hourly_rate?: number | null
+          id?: string | null
+          instagram_url?: string | null
+          is_verified?: boolean | null
+          linkedin_url?: string | null
+          missions_completed?: number | null
+          photo_url?: string | null
+          portfolio_images?: string[] | null
+          postal_code?: string | null
+          qualifications?: string[] | null
+          rating?: number | null
+          region?: string | null
+          review_count?: number | null
+          status?: Database["public"]["Enums"]["artisan_status"] | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          availability?: Json | null
+          business_name?: string | null
+          category_id?: string | null
+          city?: string | null
+          created_at?: string | null
+          department?: string | null
+          description?: string | null
+          experience_years?: number | null
+          facebook_url?: string | null
+          hourly_rate?: number | null
+          id?: string | null
+          instagram_url?: string | null
+          is_verified?: boolean | null
+          linkedin_url?: string | null
+          missions_completed?: number | null
+          photo_url?: string | null
+          portfolio_images?: string[] | null
+          postal_code?: string | null
+          qualifications?: string[] | null
+          rating?: number | null
+          region?: string | null
+          review_count?: number | null
+          status?: Database["public"]["Enums"]["artisan_status"] | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artisans_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_user_role: {
