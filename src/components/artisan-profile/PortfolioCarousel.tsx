@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 interface PortfolioCarouselProps {
   items: string[];
   type: "image" | "video";
-  onItemClick?: (item: string) => void;
+  onItemClick?: (item: string, index: number) => void;
 }
 
 export const PortfolioCarousel = ({ items, type, onItemClick }: PortfolioCarouselProps) => {
@@ -61,7 +61,7 @@ export const PortfolioCarousel = ({ items, type, onItemClick }: PortfolioCarouse
           <div key={startIndex + index} className="relative aspect-video rounded-xl overflow-hidden group">
             {type === "image" ? (
               <button
-                onClick={() => onItemClick?.(item)}
+                onClick={() => onItemClick?.(item, startIndex + index)}
                 className="w-full h-full cursor-pointer"
               >
                 <img
@@ -74,13 +74,31 @@ export const PortfolioCarousel = ({ items, type, onItemClick }: PortfolioCarouse
                 </div>
               </button>
             ) : (
-              <iframe
-                src={getEmbedUrl(item)}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title={`Vidéo ${startIndex + index + 1}`}
-              />
+              <button
+                onClick={() => onItemClick?.(item, startIndex + index)}
+                className="w-full h-full cursor-pointer relative"
+              >
+                {item.includes('youtube') || item.includes('youtu.be') ? (
+                  <img
+                    src={`https://img.youtube.com/vi/${item.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/)?.[1]}/mqdefault.jpg`}
+                    alt={`Vidéo ${startIndex + index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : item.startsWith('blob:') ? (
+                  <video src={item} className="w-full h-full object-cover" muted />
+                ) : (
+                  <div className="w-full h-full bg-muted flex items-center justify-center">
+                    <span className="text-muted-foreground">Vidéo</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                  <div className="h-16 w-16 rounded-full bg-white/90 flex items-center justify-center">
+                    <svg className="h-8 w-8 text-primary ml-1" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+              </button>
             )}
           </div>
         ))}

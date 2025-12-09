@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy } from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
@@ -26,6 +26,7 @@ const ArtisanPublicProfile = () => {
   }>();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [showContactInfo, setShowContactInfo] = useState(false);
 
@@ -300,6 +301,7 @@ const ArtisanPublicProfile = () => {
                     <PortfolioCarousel
                       items={artisan.portfolio_videos}
                       type="video"
+                      onItemClick={(video) => setSelectedVideo(video)}
                     />
                   </CardContent>
                 </Card>}
@@ -552,8 +554,57 @@ const ArtisanPublicProfile = () => {
       </section>
 
       {/* Image Modal */}
-      {selectedImage && <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+      {selectedImage && <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+          <button 
+            onClick={() => setSelectedImage(null)}
+            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+          >
+            <X className="h-6 w-6" />
+          </button>
           <img src={selectedImage} alt="Réalisation" className="max-w-full max-h-[90vh] rounded-lg" />
+        </div>}
+
+      {/* Video Modal */}
+      {selectedVideo && <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
+          <button 
+            onClick={() => setSelectedVideo(null)}
+            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <div className="w-full max-w-4xl aspect-video" onClick={(e) => e.stopPropagation()}>
+            {selectedVideo.startsWith('blob:') ? (
+              <video 
+                src={selectedVideo} 
+                controls 
+                autoPlay 
+                className="w-full h-full rounded-lg"
+              />
+            ) : selectedVideo.includes('youtube') || selectedVideo.includes('youtu.be') ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${selectedVideo.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/)?.[1]}?autoplay=1`}
+                className="w-full h-full rounded-lg"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Vidéo"
+              />
+            ) : selectedVideo.includes('vimeo') ? (
+              <iframe
+                src={`https://player.vimeo.com/video/${selectedVideo.match(/vimeo\.com\/(\d+)/)?.[1]}?autoplay=1`}
+                className="w-full h-full rounded-lg"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+                title="Vidéo"
+              />
+            ) : (
+              <video 
+                src={selectedVideo} 
+                controls 
+                autoPlay 
+                className="w-full h-full rounded-lg"
+              />
+            )}
+          </div>
         </div>}
 
       {/* Similar Artisans Carousel */}
