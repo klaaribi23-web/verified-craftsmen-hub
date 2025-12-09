@@ -187,10 +187,7 @@ const ArtisanPublicProfile = () => {
                         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                           {artisan.business_name}
                         </h1>
-                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 w-fit mx-auto md:mx-0">
-                          <span className="h-2 w-2 bg-emerald-500 rounded-full mr-2 animate-pulse" />
-                          Disponible
-                        </Badge>
+                        
                       </div>
                       
                       <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
@@ -283,11 +280,7 @@ const ArtisanPublicProfile = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <PortfolioCarousel
-                      items={portfolio}
-                      type="image"
-                      onItemClick={(image) => setSelectedImage(image)}
-                    />
+                    <PortfolioCarousel items={portfolio} type="image" onItemClick={image => setSelectedImage(image)} />
                   </CardContent>
                 </Card>}
 
@@ -300,11 +293,7 @@ const ArtisanPublicProfile = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <PortfolioCarousel
-                      items={artisan.portfolio_videos}
-                      type="video"
-                      onItemClick={(video) => setSelectedVideo(video)}
-                    />
+                    <PortfolioCarousel items={artisan.portfolio_videos} type="video" onItemClick={video => setSelectedVideo(video)} />
                   </CardContent>
                 </Card>}
 
@@ -557,10 +546,7 @@ const ArtisanPublicProfile = () => {
 
       {/* Image Modal */}
       {selectedImage && <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
-          <button 
-            onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
-          >
+          <button onClick={() => setSelectedImage(null)} className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
             <X className="h-6 w-6" />
           </button>
           <img src={selectedImage} alt="Réalisation" className="max-w-full max-h-[90vh] rounded-lg" />
@@ -568,44 +554,11 @@ const ArtisanPublicProfile = () => {
 
       {/* Video Modal */}
       {selectedVideo && <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
-          <button 
-            onClick={() => setSelectedVideo(null)}
-            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10"
-          >
+          <button onClick={() => setSelectedVideo(null)} className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10">
             <X className="h-6 w-6" />
           </button>
-          <div className="w-full max-w-4xl aspect-video" onClick={(e) => e.stopPropagation()}>
-            {selectedVideo.startsWith('blob:') ? (
-              <video 
-                src={selectedVideo} 
-                controls 
-                autoPlay 
-                className="w-full h-full rounded-lg"
-              />
-            ) : selectedVideo.includes('youtube') || selectedVideo.includes('youtu.be') ? (
-              <iframe
-                src={`https://www.youtube.com/embed/${selectedVideo.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/)?.[1]}?autoplay=1`}
-                className="w-full h-full rounded-lg"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title="Vidéo"
-              />
-            ) : selectedVideo.includes('vimeo') ? (
-              <iframe
-                src={`https://player.vimeo.com/video/${selectedVideo.match(/vimeo\.com\/(\d+)/)?.[1]}?autoplay=1`}
-                className="w-full h-full rounded-lg"
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowFullScreen
-                title="Vidéo"
-              />
-            ) : (
-              <video 
-                src={selectedVideo} 
-                controls 
-                autoPlay 
-                className="w-full h-full rounded-lg"
-              />
-            )}
+          <div className="w-full max-w-4xl aspect-video" onClick={e => e.stopPropagation()}>
+            {selectedVideo.startsWith('blob:') ? <video src={selectedVideo} controls autoPlay className="w-full h-full rounded-lg" /> : selectedVideo.includes('youtube') || selectedVideo.includes('youtu.be') ? <iframe src={`https://www.youtube.com/embed/${selectedVideo.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/)?.[1]}?autoplay=1`} className="w-full h-full rounded-lg" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Vidéo" /> : selectedVideo.includes('vimeo') ? <iframe src={`https://player.vimeo.com/video/${selectedVideo.match(/vimeo\.com\/(\d+)/)?.[1]}?autoplay=1`} className="w-full h-full rounded-lg" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen title="Vidéo" /> : <video src={selectedVideo} controls autoPlay className="w-full h-full rounded-lg" />}
           </div>
         </div>}
 
@@ -629,12 +582,7 @@ const ArtisanPublicProfile = () => {
       </section>
 
       {/* Chat Widget */}
-      <ChatWidget 
-        defaultOpen={chatOpen}
-        defaultArtisanId={artisan.id || undefined}
-        defaultArtisanName={artisan.business_name}
-        defaultArtisanPhoto={artisan.photo_url || undefined}
-      />
+      <ChatWidget defaultOpen={chatOpen} defaultArtisanId={artisan.id || undefined} defaultArtisanName={artisan.business_name} defaultArtisanPhoto={artisan.photo_url || undefined} />
 
       <Footer />
     </div>;
