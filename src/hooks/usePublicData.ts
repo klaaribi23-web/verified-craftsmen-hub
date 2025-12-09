@@ -35,6 +35,7 @@ export interface ArtisanPublic {
   missions_completed: number | null;
   photo_url: string | null;
   portfolio_images: string[] | null;
+  portfolio_videos: string[] | null;
   is_verified: boolean | null;
   status: string;
   facebook_url: string | null;
