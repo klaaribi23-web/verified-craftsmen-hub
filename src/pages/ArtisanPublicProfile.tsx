@@ -356,14 +356,7 @@ const ArtisanPublicProfile = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {artisan.siret && <div className="p-3 rounded-lg bg-muted/50">
-                        <p className="text-sm text-muted-foreground">SIRET</p>
-                        <p className="font-medium">{artisan.siret}</p>
-                      </div>}
-                    {artisan.insurance_number && <div className="p-3 rounded-lg bg-muted/50">
-                        <p className="text-sm text-muted-foreground">Assurance décennale</p>
-                        <p className="font-medium">N° {artisan.insurance_number}</p>
-                      </div>}
+                    {/* SIRET and insurance_number are now protected and not exposed in public view */}
                     {artisan.is_verified && <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
                         <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                         <span className="text-sm">Documents vérifiés par notre équipe</span>

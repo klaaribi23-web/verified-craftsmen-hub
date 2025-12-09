@@ -41,12 +41,11 @@ export interface ArtisanPublic {
   instagram_url: string | null;
   linkedin_url: string | null;
   website_url: string | null;
-  siret: string | null;
-  insurance_number: string | null;
   qualifications: string[] | null;
   availability: Record<string, string> | null;
   category_id: string | null;
   created_at: string;
+  updated_at: string;
   category?: {
     id: string;
     name: string;
@@ -73,13 +72,13 @@ export const useDemoMissions = () => {
   });
 };
 
-// Fetch all public artisans (active only)
+// Fetch all public artisans (active only) - uses secure public_artisans view
 export const usePublicArtisans = () => {
   return useQuery({
     queryKey: ["public-artisans"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("artisans")
+        .from("public_artisans")
         .select(`
           *,
           category:categories(id, name)
@@ -93,13 +92,13 @@ export const usePublicArtisans = () => {
   });
 };
 
-// Fetch featured artisans (top rated)
+// Fetch featured artisans (top rated) - uses secure public_artisans view
 export const useFeaturedArtisans = () => {
   return useQuery({
     queryKey: ["featured-artisans"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("artisans")
+        .from("public_artisans")
         .select(`
           *,
           category:categories(id, name)
@@ -121,13 +120,13 @@ export {
   useCategoriesWithCount 
 } from "./useCategories";
 
-// Fetch single artisan by ID
+// Fetch single artisan by ID - uses secure public_artisans view
 export const useArtisanById = (id: string) => {
   return useQuery({
     queryKey: ["artisan", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("artisans")
+        .from("public_artisans")
         .select(`
           *,
           category:categories(id, name)
@@ -181,7 +180,7 @@ export const useArtisanReviews = (artisanId: string) => {
   });
 };
 
-// Fetch similar artisans (same category, different id)
+// Fetch similar artisans (same category, different id) - uses secure public_artisans view
 export const useSimilarArtisans = (categoryId: string | null, excludeId: string) => {
   return useQuery({
     queryKey: ["similar-artisans", categoryId, excludeId],
@@ -189,7 +188,7 @@ export const useSimilarArtisans = (categoryId: string | null, excludeId: string)
       if (!categoryId) return [];
       
       const { data, error } = await supabase
-        .from("artisans")
+        .from("public_artisans")
         .select(`
           *,
           category:categories(id, name)

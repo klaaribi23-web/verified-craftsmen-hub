@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -18,6 +19,21 @@ import {
   ArrowLeft
 } from "lucide-react";
 
+// Validation schemas
+const loginSchema = z.object({
+  email: z.string().trim().email("Email invalide").max(255, "Email trop long"),
+  password: z.string().min(1, "Mot de passe requis"),
+});
+
+const signupSchema = z.object({
+  email: z.string().trim().email("Email invalide").max(255, "Email trop long"),
+  password: z.string()
+    .min(8, "Minimum 8 caractères")
+    .regex(/[A-Z]/, "Au moins une majuscule requise")
+    .regex(/[0-9]/, "Au moins un chiffre requis"),
+  firstName: z.string().trim().min(2, "Prénom requis (min 2 caractères)").max(50, "Prénom trop long"),
+  lastName: z.string().trim().min(2, "Nom requis (min 2 caractères)").max(50, "Nom trop long"),
+});
 // Google Icon component
 const GoogleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -104,16 +120,36 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      // Validate input with Zod
+      const validationResult = signupSchema.safeParse({
+        email,
+        password,
+        firstName,
+        lastName,
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast({
+          title: "Erreur de validation",
+          description: firstError.message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const validatedData = validationResult.data;
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: validatedData.email,
+        password: validatedData.password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            first_name: firstName,
-            last_name: lastName,
+            first_name: validatedData.firstName,
+            last_name: validatedData.lastName,
           }
         }
       });
@@ -182,9 +218,24 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      // Validate input with Zod
+      const validationResult = loginSchema.safeParse({ email, password });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast({
+          title: "Erreur de validation",
+          description: firstError.message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const validatedData = validationResult.data;
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: validatedData.email,
+        password: validatedData.password,
       });
 
       if (error) throw error;
@@ -430,11 +481,11 @@ const Auth = () => {
                           onChange={(e) => setPassword(e.target.value)}
                           className="pl-10"
                           required
-                          minLength={6}
+                          minLength={8}
                         />
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Minimum 6 caractères
+                        Minimum 8 caractères, une majuscule et un chiffre
                       </p>
                     </div>
 
