@@ -18,6 +18,7 @@ import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisans
 import { fr } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
 import { useArtisanById, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
+import ChatWidget from "@/components/chat/ChatWidget";
 const ArtisanPublicProfile = () => {
   const {
     id
@@ -29,6 +30,7 @@ const ArtisanPublicProfile = () => {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [showContactInfo, setShowContactInfo] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   // Fetch dynamic data
   const {
@@ -453,7 +455,7 @@ const ArtisanPublicProfile = () => {
                     <p className="text-2xl font-bold text-primary">Contactez-moi</p>
                   </div>
                   
-                  <Button className="w-full" size="lg" onClick={() => navigate(`/client/messagerie?artisan=${artisan.id}&name=${encodeURIComponent(artisan.business_name)}`)}>
+                  <Button className="w-full" size="lg" onClick={() => setChatOpen(true)}>
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Demander un devis
                   </Button>
@@ -620,11 +622,19 @@ const ArtisanPublicProfile = () => {
             {artisan.business_name} répond en moyenne en moins de 2 heures. 
             Demandez un devis gratuit et sans engagement.
           </p>
-          <Button size="lg" className="px-8" onClick={() => navigate(`/client/messagerie?artisan=${artisan.id}&name=${encodeURIComponent(artisan.business_name)}`)}>
+          <Button size="lg" className="px-8" onClick={() => setChatOpen(true)}>
             Demander un devis gratuit
           </Button>
         </div>
       </section>
+
+      {/* Chat Widget */}
+      <ChatWidget 
+        defaultOpen={chatOpen}
+        defaultArtisanId={artisan.id || undefined}
+        defaultArtisanName={artisan.business_name}
+        defaultArtisanPhoto={artisan.photo_url || undefined}
+      />
 
       <Footer />
     </div>;
