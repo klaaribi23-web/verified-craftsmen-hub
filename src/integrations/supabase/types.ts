@@ -80,6 +80,7 @@ export type Database = {
           missions_completed: number | null
           photo_url: string | null
           portfolio_images: string[] | null
+          portfolio_videos: string[] | null
           postal_code: string | null
           profile_id: string | null
           qualifications: string[] | null
@@ -112,6 +113,7 @@ export type Database = {
           missions_completed?: number | null
           photo_url?: string | null
           portfolio_images?: string[] | null
+          portfolio_videos?: string[] | null
           postal_code?: string | null
           profile_id?: string | null
           qualifications?: string[] | null
@@ -144,6 +146,7 @@ export type Database = {
           missions_completed?: number | null
           photo_url?: string | null
           portfolio_images?: string[] | null
+          portfolio_videos?: string[] | null
           postal_code?: string | null
           profile_id?: string | null
           qualifications?: string[] | null
@@ -673,6 +676,7 @@ export type Database = {
           missions_completed: number | null
           photo_url: string | null
           portfolio_images: string[] | null
+          portfolio_videos: string[] | null
           postal_code: string | null
           qualifications: string[] | null
           rating: number | null
@@ -701,6 +705,7 @@ export type Database = {
           missions_completed?: number | null
           photo_url?: string | null
           portfolio_images?: string[] | null
+          portfolio_videos?: string[] | null
           postal_code?: string | null
           qualifications?: string[] | null
           rating?: number | null
@@ -729,6 +734,7 @@ export type Database = {
           missions_completed?: number | null
           photo_url?: string | null
           portfolio_images?: string[] | null
+          portfolio_videos?: string[] | null
           postal_code?: string | null
           qualifications?: string[] | null
           rating?: number | null

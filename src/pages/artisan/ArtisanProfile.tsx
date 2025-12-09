@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import { 
   User, 
   Camera, 
@@ -19,7 +20,9 @@ import {
   Save,
   Facebook,
   Instagram,
-  Linkedin
+  Linkedin,
+  Video,
+  Link as LinkIcon
 } from "lucide-react";
 
 export const ArtisanProfile = () => {
@@ -31,6 +34,8 @@ export const ArtisanProfile = () => {
     linkedin: "",
     website: ""
   });
+  const [videos, setVideos] = useState<string[]>([]);
+  const [newVideoUrl, setNewVideoUrl] = useState("");
 
   const addZone = () => {
     if (newZone && !zones.includes(newZone)) {
@@ -41,6 +46,43 @@ export const ArtisanProfile = () => {
 
   const removeZone = (zone: string) => {
     setZones(zones.filter(z => z !== zone));
+  };
+
+  const isValidVideoUrl = (url: string) => {
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+    const vimeoRegex = /^(https?:\/\/)?(www\.)?vimeo\.com\/.+/;
+    return youtubeRegex.test(url) || vimeoRegex.test(url);
+  };
+
+  const addVideo = () => {
+    if (!newVideoUrl) {
+      toast.error("Veuillez entrer une URL de vidéo");
+      return;
+    }
+    if (!isValidVideoUrl(newVideoUrl)) {
+      toast.error("Veuillez entrer une URL YouTube ou Vimeo valide");
+      return;
+    }
+    if (videos.includes(newVideoUrl)) {
+      toast.error("Cette vidéo existe déjà");
+      return;
+    }
+    setVideos([...videos, newVideoUrl]);
+    setNewVideoUrl("");
+    toast.success("Vidéo ajoutée");
+  };
+
+  const removeVideo = (videoUrl: string) => {
+    setVideos(videos.filter(v => v !== videoUrl));
+    toast.success("Vidéo supprimée");
+  };
+
+  const getVideoThumbnail = (url: string) => {
+    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/);
+    if (youtubeMatch) {
+      return `https://img.youtube.com/vi/${youtubeMatch[1]}/mqdefault.jpg`;
+    }
+    return null;
   };
 
   return (
@@ -246,9 +288,9 @@ export const ArtisanProfile = () => {
               </div>
             </div>
 
-            {/* Portfolio */}
+            {/* Portfolio Photos */}
             <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-6">Portfolio / Réalisations</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-6">Portfolio / Réalisations (Photos)</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="aspect-square bg-muted rounded-lg overflow-hidden relative group">
@@ -264,6 +306,69 @@ export const ArtisanProfile = () => {
                   <Plus className="w-8 h-8" />
                   <span className="text-sm">Ajouter</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Portfolio Videos */}
+            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-2">Mes vidéos</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                Ajoutez des liens YouTube ou Vimeo pour présenter vos réalisations en vidéo
+              </p>
+              
+              {/* Add video input */}
+              <div className="flex gap-2 mb-6">
+                <div className="flex-1 relative">
+                  <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="https://www.youtube.com/watch?v=... ou https://vimeo.com/..."
+                    className="pl-10"
+                    value={newVideoUrl}
+                    onChange={(e) => setNewVideoUrl(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && addVideo()}
+                  />
+                </div>
+                <Button onClick={addVideo} variant="outline">
+                  <Plus className="w-4 h-4 mr-1" /> Ajouter
+                </Button>
+              </div>
+
+              {/* Video grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {videos.map((videoUrl, index) => {
+                  const thumbnail = getVideoThumbnail(videoUrl);
+                  return (
+                    <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden relative group">
+                      {thumbnail ? (
+                        <img 
+                          src={thumbnail} 
+                          alt={`Vidéo ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <Video className="w-8 h-8" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Video className="w-8 h-8 text-white" />
+                      </div>
+                      <button 
+                        onClick={() => removeVideo(videoUrl)}
+                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+                {videos.length === 0 && (
+                  <div className="aspect-video bg-muted/50 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground md:col-span-3">
+                    <Video className="w-8 h-8" />
+                    <span className="text-sm">Aucune vidéo ajoutée</span>
+                    <span className="text-xs">Ajoutez des liens YouTube ou Vimeo</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

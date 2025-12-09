@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
+import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
+import { Video } from "lucide-react";
 import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisansCarousel";
 import { fr } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
@@ -269,7 +271,7 @@ const ArtisanPublicProfile = () => {
                 </CardContent>
               </Card>
 
-              {/* Portfolio Section */}
+              {/* Portfolio Section - Photos */}
               {portfolio.length > 0 && <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -278,14 +280,27 @@ const ArtisanPublicProfile = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {portfolio.map((image, index) => <button key={index} onClick={() => setSelectedImage(image)} className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer">
-                          <img src={image} alt={`Réalisation ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                            <ExternalLink className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </div>
-                        </button>)}
-                    </div>
+                    <PortfolioCarousel
+                      items={portfolio}
+                      type="image"
+                      onItemClick={(image) => setSelectedImage(image)}
+                    />
+                  </CardContent>
+                </Card>}
+
+              {/* Portfolio Section - Videos */}
+              {artisan.portfolio_videos && artisan.portfolio_videos.length > 0 && <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Video className="h-5 w-5 text-primary" />
+                      Mes vidéos
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <PortfolioCarousel
+                      items={artisan.portfolio_videos}
+                      type="video"
+                    />
                   </CardContent>
                 </Card>}
 
