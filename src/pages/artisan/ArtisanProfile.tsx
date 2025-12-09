@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useArtisanPortfolio } from "@/hooks/useArtisanPortfolio";
 import { 
   User, 
   Camera, 
@@ -23,11 +24,9 @@ import {
   Linkedin,
   Video,
   Link as LinkIcon,
-  Upload
+  Upload,
+  Loader2
 } from "lucide-react";
-
-const MAX_PHOTOS = 12;
-const MAX_VIDEOS = 6;
 
 export const ArtisanProfile = () => {
   const [zones, setZones] = useState(["Paris 11e", "Paris 12e", "Paris 20e"]);
@@ -38,10 +37,23 @@ export const ArtisanProfile = () => {
     linkedin: "",
     website: ""
   });
-  const [videos, setVideos] = useState<string[]>([]);
   const [newVideoUrl, setNewVideoUrl] = useState("");
-  const [photos, setPhotos] = useState<string[]>(["Photo 1", "Photo 2", "Photo 3"]);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    photos,
+    videos,
+    isLoading,
+    isSaving,
+    addPhoto,
+    addVideoUrl,
+    addVideoFile,
+    removePhoto,
+    removeVideo,
+    maxPhotos,
+    maxVideos,
+  } = useArtisanPortfolio();
 
   const addZone = () => {
     if (newZone && !zones.includes(newZone)) {
@@ -60,7 +72,7 @@ export const ArtisanProfile = () => {
     return youtubeRegex.test(url) || vimeoRegex.test(url);
   };
 
-  const addVideoUrl = () => {
+  const handleAddVideoUrl = async () => {
     if (!newVideoUrl) {
       toast.error("Veuillez entrer une URL de vidéo");
       return;
@@ -69,52 +81,26 @@ export const ArtisanProfile = () => {
       toast.error("Veuillez entrer une URL YouTube ou Vimeo valide");
       return;
     }
-    if (videos.length >= MAX_VIDEOS) {
-      toast.error(`Vous ne pouvez pas ajouter plus de ${MAX_VIDEOS} vidéos`);
-      return;
-    }
-    if (videos.includes(newVideoUrl)) {
-      toast.error("Cette vidéo existe déjà");
-      return;
-    }
-    setVideos([...videos, newVideoUrl]);
+    await addVideoUrl(newVideoUrl);
     setNewVideoUrl("");
-    toast.success("Vidéo ajoutée");
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
-    if (!file.type.includes('video/mp4')) {
-      toast.error("Seuls les fichiers MP4 sont acceptés");
-      return;
+    await addPhoto(file);
+    if (photoInputRef.current) {
+      photoInputRef.current.value = "";
     }
-    
-    if (videos.length >= MAX_VIDEOS) {
-      toast.error(`Vous ne pouvez pas ajouter plus de ${MAX_VIDEOS} vidéos`);
-      return;
-    }
-    
-    // For now, create a local URL (in production, this would upload to storage)
-    const videoUrl = URL.createObjectURL(file);
-    setVideos([...videos, videoUrl]);
-    toast.success("Vidéo téléchargée");
-    
-    // Reset input
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await addVideoFile(file);
     if (videoInputRef.current) {
       videoInputRef.current.value = "";
     }
-  };
-
-  const removeVideo = (videoUrl: string) => {
-    setVideos(videos.filter(v => v !== videoUrl));
-    toast.success("Vidéo supprimée");
-  };
-
-  const removePhoto = (index: number) => {
-    setPhotos(photos.filter((_, i) => i !== index));
-    toast.success("Photo supprimée");
   };
 
   const getVideoThumbnail = (url: string) => {
@@ -125,8 +111,8 @@ export const ArtisanProfile = () => {
     return null;
   };
 
-  const isLocalVideo = (url: string) => {
-    return url.startsWith('blob:');
+  const isStorageUrl = (url: string) => {
+    return url.includes("artisan-portfolios");
   };
 
   return (
@@ -172,8 +158,13 @@ export const ArtisanProfile = () => {
                     </span>
                   </div>
                 </div>
-                <Button variant="gold">
-                  <Save className="w-4 h-4 mr-2" /> Enregistrer
+                <Button variant="gold" disabled={isSaving}>
+                  {isSaving ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4 mr-2" />
+                  )}
+                  Enregistrer
                 </Button>
               </div>
             </div>
@@ -337,30 +328,61 @@ export const ArtisanProfile = () => {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-foreground">Portfolio / Réalisations (Photos)</h3>
                 <Badge variant="outline" className="text-xs">
-                  {photos.length}/{MAX_PHOTOS} photos
+                  {photos.length}/{maxPhotos} photos
                 </Badge>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {photos.map((photo, i) => (
-                  <div key={i} className="aspect-square bg-muted rounded-lg overflow-hidden relative group">
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                      {photo}
+              
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {photos.map((photo, i) => (
+                    <div key={i} className="aspect-square bg-muted rounded-lg overflow-hidden relative group">
+                      <img 
+                        src={photo} 
+                        alt={`Photo ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button 
+                        onClick={() => removePhoto(i)}
+                        disabled={isSaving}
+                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => removePhoto(i)}
-                      className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-                {photos.length < MAX_PHOTOS && (
-                  <button className="aspect-square bg-muted/50 rounded-lg border-2 border-dashed border-border hover:border-accent hover:bg-accent/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-accent">
-                    <Plus className="w-8 h-8" />
-                    <span className="text-sm">Ajouter</span>
-                  </button>
-                )}
-              </div>
+                  ))}
+                  {photos.length < maxPhotos && (
+                    <>
+                      <input
+                        ref={photoInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                        id="photo-upload"
+                        disabled={isSaving}
+                      />
+                      <button 
+                        onClick={() => photoInputRef.current?.click()}
+                        disabled={isSaving}
+                        className="aspect-square bg-muted/50 rounded-lg border-2 border-dashed border-border hover:border-accent hover:bg-accent/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-accent disabled:opacity-50"
+                      >
+                        {isSaving ? (
+                          <Loader2 className="w-8 h-8 animate-spin" />
+                        ) : (
+                          <>
+                            <Upload className="w-8 h-8" />
+                            <span className="text-sm">Ajouter</span>
+                          </>
+                        )}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Portfolio Videos */}
@@ -368,7 +390,7 @@ export const ArtisanProfile = () => {
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-semibold text-foreground">Mes vidéos</h3>
                 <Badge variant="outline" className="text-xs">
-                  {videos.length}/{MAX_VIDEOS} vidéos
+                  {videos.length}/{maxVideos} vidéos
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground mb-6">
@@ -386,12 +408,22 @@ export const ArtisanProfile = () => {
                       className="pl-10"
                       value={newVideoUrl}
                       onChange={(e) => setNewVideoUrl(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && addVideoUrl()}
-                      disabled={videos.length >= MAX_VIDEOS}
+                      onKeyPress={(e) => e.key === "Enter" && handleAddVideoUrl()}
+                      disabled={videos.length >= maxVideos || isSaving}
                     />
                   </div>
-                  <Button onClick={addVideoUrl} variant="outline" disabled={videos.length >= MAX_VIDEOS}>
-                    <Plus className="w-4 h-4 mr-1" /> Lien
+                  <Button 
+                    onClick={handleAddVideoUrl} 
+                    variant="outline" 
+                    disabled={videos.length >= maxVideos || isSaving}
+                  >
+                    {isSaving ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-1" /> Lien
+                      </>
+                    )}
                   </Button>
                 </div>
                 
@@ -404,69 +436,80 @@ export const ArtisanProfile = () => {
                     onChange={handleVideoUpload}
                     className="hidden"
                     id="video-upload"
-                    disabled={videos.length >= MAX_VIDEOS}
+                    disabled={videos.length >= maxVideos || isSaving}
                   />
                   <Button 
                     variant="outline" 
                     className="w-full"
                     onClick={() => videoInputRef.current?.click()}
-                    disabled={videos.length >= MAX_VIDEOS}
+                    disabled={videos.length >= maxVideos || isSaving}
                   >
-                    <Upload className="w-4 h-4 mr-2" />
+                    {isSaving ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4 mr-2" />
+                    )}
                     Télécharger une vidéo MP4
                   </Button>
                 </div>
               </div>
 
               {/* Video grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {videos.map((videoUrl, index) => {
-                  const thumbnail = getVideoThumbnail(videoUrl);
-                  const isLocal = isLocalVideo(videoUrl);
-                  return (
-                    <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden relative group">
-                      {thumbnail ? (
-                        <img 
-                          src={thumbnail} 
-                          alt={`Vidéo ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : isLocal ? (
-                        <video 
-                          src={videoUrl} 
-                          className="w-full h-full object-cover"
-                          muted
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          <Video className="w-8 h-8" />
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {videos.map((videoUrl, index) => {
+                    const thumbnail = getVideoThumbnail(videoUrl);
+                    const isStorage = isStorageUrl(videoUrl);
+                    return (
+                      <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden relative group">
+                        {thumbnail ? (
+                          <img 
+                            src={thumbnail} 
+                            alt={`Vidéo ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : isStorage ? (
+                          <video 
+                            src={videoUrl} 
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <Video className="w-8 h-8" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Video className="w-8 h-8 text-white" />
                         </div>
-                      )}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Video className="w-8 h-8 text-white" />
+                        {isStorage && (
+                          <Badge className="absolute bottom-2 left-2 text-xs bg-primary/80">
+                            MP4
+                          </Badge>
+                        )}
+                        <button 
+                          onClick={() => removeVideo(index)}
+                          disabled={isSaving}
+                          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
-                      {isLocal && (
-                        <Badge className="absolute bottom-2 left-2 text-xs bg-primary/80">
-                          MP4
-                        </Badge>
-                      )}
-                      <button 
-                        onClick={() => removeVideo(videoUrl)}
-                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                    );
+                  })}
+                  {videos.length === 0 && (
+                    <div className="aspect-video bg-muted/50 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground md:col-span-3">
+                      <Video className="w-8 h-8" />
+                      <span className="text-sm">Aucune vidéo ajoutée</span>
+                      <span className="text-xs">Lien YouTube/Vimeo ou fichier MP4</span>
                     </div>
-                  );
-                })}
-                {videos.length === 0 && (
-                  <div className="aspect-video bg-muted/50 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground md:col-span-3">
-                    <Video className="w-8 h-8" />
-                    <span className="text-sm">Aucune vidéo ajoutée</span>
-                    <span className="text-xs">Lien YouTube/Vimeo ou fichier MP4</span>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </main>
