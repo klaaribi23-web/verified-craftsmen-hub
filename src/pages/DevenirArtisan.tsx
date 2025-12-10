@@ -159,23 +159,32 @@ const DevenirArtisan = () => {
           .single();
 
         if (profile) {
-          // Create artisan profile with additional info
+          // Create minimal artisan profile - user will complete the rest in dashboard
           const { error: artisanError } = await supabase
             .from("artisans")
             .insert([{
               user_id: data.user.id,
               profile_id: profile.id,
-              business_name: `${formData.firstName} ${formData.lastName}`,
-              city: formData.city,
-              description: `Artisan ${formData.profession}`,
-              status: "pending"
+              business_name: "Non renseigné",
+              city: formData.city || "Non renseigné",
+              status: "pending",
+              // All other fields remain null/empty - no demo data
+              description: null,
+              photo_url: null,
+              portfolio_images: null,
+              portfolio_videos: null,
+              experience_years: 0,
+              rating: 0,
+              review_count: 0,
+              missions_completed: 0,
+              availability: {},
             }]);
 
           if (artisanError) {
             console.error("Error creating artisan:", artisanError);
           }
 
-          // Update profile with phone
+          // Update profile with phone and city
           await supabase
             .from("profiles")
             .update({ phone: formData.phone, city: formData.city })
