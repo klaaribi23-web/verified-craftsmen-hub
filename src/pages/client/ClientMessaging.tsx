@@ -22,6 +22,9 @@ import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { QuoteMessageCard, parseQuoteFromMessage } from "@/components/chat/QuoteMessageCard";
+import { useQuotes } from "@/hooks/useQuotes";
+import { toast } from "sonner";
 
 export const ClientMessaging = () => {
   const [searchParams] = useSearchParams();
@@ -35,13 +38,19 @@ export const ClientMessaging = () => {
     useConversationMessages,
     sendMessage,
     markAsRead,
+    isDemoMode,
   } = useMessaging();
+
+  const { updateQuoteStatus } = useQuotes();
 
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [showNewConversation, setShowNewConversation] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Demo mode profile ID for message display
+  const effectiveProfileId = isDemoMode ? "demo-client" : currentProfileId;
 
   // Fetch artisan profile for new conversation
   const { data: artisanToContact } = useQuery({
@@ -67,7 +76,6 @@ export const ClientMessaging = () => {
   // Handle URL params for new conversation
   useEffect(() => {
     if (artisanToContact?.profile_id) {
-      // Check if conversation already exists
       const existingConv = conversations.find(c => c.participant_id === artisanToContact.profile_id);
       if (existingConv) {
         setSelectedConversationId(existingConv.participant_id);
@@ -106,9 +114,139 @@ export const ClientMessaging = () => {
     }
   };
 
+  const handleQuoteAction = async (quoteId: string, action: "accept" | "refuse") => {
+    if (isDemoMode) {
+      toast.success(action === "accept" ? "Devis accepté (démo)" : "Devis refusé (démo)");
+      return;
+    }
+
+    try {
+      // Get artisan profile_id from the quote
+      const { data: quote } = await supabase
+        .from("quotes")
+        .select("artisan_id")
+        .eq("id", quoteId)
+        .single();
+
+      if (!quote) {
+        toast.error("Devis introuvable");
+        return;
+      }
+
+      const { data: artisan } = await supabase
+        .from("artisans")
+        .select("profile_id")
+        .eq("id", quote.artisan_id)
+        .single();
+
+      if (!artisan?.profile_id) {
+        toast.error("Artisan introuvable");
+        return;
+      }
+
+      await updateQuoteStatus.mutateAsync({
+        quoteId,
+        status: action === "accept" ? "accepted" : "refused",
+        artisanProfileId: artisan.profile_id,
+      });
+
+      toast.success(action === "accept" ? "Devis accepté avec succès" : "Devis refusé");
+    } catch (error) {
+      toast.error("Erreur lors de la mise à jour du devis");
+    }
+  };
+
   const filteredConversations = conversations.filter(conv =>
     conv.participant_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const renderMessage = (message: { id: string; sender_id: string; content: string; is_read: boolean; created_at: string }) => {
+    const isOwn = message.sender_id === effectiveProfileId || message.sender_id === "demo-client";
+    const quoteData = parseQuoteFromMessage(message.content);
+
+    if (quoteData.isQuote && quoteData.priceHt && quoteData.priceTtc) {
+      // Determine quote status from message content
+      let status: "pending" | "accepted" | "refused" = "pending";
+      
+      return (
+        <div
+          key={message.id}
+          className={cn("flex", isOwn ? "justify-end" : "justify-start")}
+        >
+          <QuoteMessageCard
+            quoteId={quoteData.quoteId || ""}
+            description={quoteData.description || ""}
+            priceHt={quoteData.priceHt}
+            tvaRate={quoteData.tvaRate || 20}
+            priceTtc={quoteData.priceTtc}
+            status={status}
+            createdAt={message.created_at}
+            isOwn={isOwn}
+            isArtisan={false}
+            onAccept={() => handleQuoteAction(quoteData.quoteId || "", "accept")}
+            onRefuse={() => handleQuoteAction(quoteData.quoteId || "", "refuse")}
+          />
+        </div>
+      );
+    }
+
+    // Check for status messages
+    const isAccepted = message.content.includes("✅ DEVIS ACCEPTÉ");
+    const isRefused = message.content.includes("❌ DEVIS REFUSÉ");
+
+    if (isAccepted || isRefused) {
+      return (
+        <div key={message.id} className="flex justify-center my-4">
+          <div className={cn(
+            "px-4 py-2 rounded-full text-sm font-medium",
+            isAccepted 
+              ? "bg-green-500/10 text-green-600 border border-green-500/20" 
+              : "bg-red-500/10 text-red-600 border border-red-500/20"
+          )}>
+            {isAccepted ? "✅ Vous avez accepté ce devis" : "❌ Vous avez refusé ce devis"}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        key={message.id}
+        className={cn(
+          "flex",
+          isOwn ? "justify-end" : "justify-start"
+        )}
+      >
+        <div
+          className={cn(
+            "max-w-[70%] rounded-2xl px-4 py-2",
+            isOwn
+              ? "bg-primary text-primary-foreground rounded-br-md"
+              : "bg-muted rounded-bl-md"
+          )}
+        >
+          <p className="whitespace-pre-wrap">{message.content}</p>
+          <div className={cn(
+            "flex items-center justify-end gap-1 mt-1",
+            isOwn 
+              ? "text-primary-foreground/70" 
+              : "text-muted-foreground"
+          )}>
+            <span className="text-xs">
+              {formatMessageTime(message.created_at)}
+            </span>
+            {isOwn && (
+              message.is_read ? (
+                <CheckCheck className="w-4 h-4" />
+              ) : (
+                <Check className="w-4 h-4" />
+              )
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -246,43 +384,7 @@ export const ClientMessaging = () => {
                           <p>Aucun message. Commencez la conversation !</p>
                         </div>
                       ) : (
-                        messages.map((message) => (
-                          <div
-                            key={message.id}
-                            className={cn(
-                              "flex",
-                              message.sender_id === currentProfileId ? "justify-end" : "justify-start"
-                            )}
-                          >
-                            <div
-                              className={cn(
-                                "max-w-[70%] rounded-2xl px-4 py-2",
-                                message.sender_id === currentProfileId
-                                  ? "bg-primary text-primary-foreground rounded-br-md"
-                                  : "bg-muted rounded-bl-md"
-                              )}
-                            >
-                              <p>{message.content}</p>
-                              <div className={cn(
-                                "flex items-center justify-end gap-1 mt-1",
-                                message.sender_id === currentProfileId 
-                                  ? "text-primary-foreground/70" 
-                                  : "text-muted-foreground"
-                              )}>
-                                <span className="text-xs">
-                                  {formatMessageTime(message.created_at)}
-                                </span>
-                                {message.sender_id === currentProfileId && (
-                                  message.is_read ? (
-                                    <CheckCheck className="w-4 h-4" />
-                                  ) : (
-                                    <Check className="w-4 h-4" />
-                                  )
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))
+                        messages.map(renderMessage)
                       )}
                       <div ref={messagesEndRef} />
                     </div>
