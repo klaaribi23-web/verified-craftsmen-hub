@@ -7,8 +7,8 @@ interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
 }
 
-// Demo mode - allows access without authentication for development
-const DEMO_MODE = true;
+// Demo mode disabled for production
+const DEMO_MODE = false;
 
 export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const { isAuthenticated, role, isLoading } = useAuth();

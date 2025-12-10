@@ -155,9 +155,8 @@ export const useQuotes = () => {
   const [currentProfileId, setCurrentProfileId] = useState<string | null>(null);
   const [artisanId, setArtisanId] = useState<string | null>(null);
 
-  // Check if we're in demo mode
-  const isDemo = location.search.includes("demo") || location.pathname.includes("/artisan/") || location.pathname.includes("/client/");
-  const isDemoMode = !user && isDemo;
+  // Demo mode disabled for production
+  const isDemoMode = false;
 
   // Get current user's profile ID and artisan ID
   useEffect(() => {
