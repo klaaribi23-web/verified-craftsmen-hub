@@ -21,6 +21,7 @@ import {
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import Navbar from "@/components/layout/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { QuoteMessageCard, parseQuoteFromMessage } from "@/components/chat/QuoteMessageCard";
 import { useQuotes } from "@/hooks/useQuotes";
@@ -249,8 +250,10 @@ export const ClientMessaging = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <ClientSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ClientSidebar />
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
@@ -421,8 +424,9 @@ export const ClientMessaging = () => {
               )}
             </div>
           </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

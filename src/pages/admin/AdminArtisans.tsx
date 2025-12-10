@@ -38,6 +38,7 @@ import { useArtisans, useCategories, useUpdateArtisanStatus } from "@/hooks/useA
 import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import Navbar from "@/components/layout/Navbar";
 
 const AdminArtisans = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,8 +104,10 @@ const AdminArtisans = () => {
   const pendingCount = artisans?.filter(a => a.status === "pending").length || 0;
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <AdminSidebar />
       
       <main className="flex-1 p-8">
         <div className="mb-8">
@@ -333,10 +336,11 @@ const AdminArtisans = () => {
                 {selectedArtisan?.status === "suspended" ? "Réactiver" : "Révoquer"}
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
-      </main>
-    </div>
+            </DialogContent>
+          </Dialog>
+        </main>
+      </div>
+    </>
   );
 };
 

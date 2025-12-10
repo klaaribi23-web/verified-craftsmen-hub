@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import Navbar from "@/components/layout/Navbar";
 
 const favoriteArtisans = [
   {
@@ -55,8 +56,10 @@ export const ClientFavorites = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <ClientSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ClientSidebar />
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
@@ -147,8 +150,9 @@ export const ClientFavorites = () => {
               </Card>
             )}
           </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

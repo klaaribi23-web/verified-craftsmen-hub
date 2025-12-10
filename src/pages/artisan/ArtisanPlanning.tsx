@@ -15,6 +15,7 @@ import {
   Calendar as CalendarIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Navbar from "@/components/layout/Navbar";
 
 const daysOfWeek = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
@@ -115,8 +116,10 @@ export const ArtisanPlanning = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <ArtisanSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ArtisanSidebar />
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
@@ -290,11 +293,12 @@ export const ArtisanPlanning = () => {
                     <Clock className="w-4 h-4 mr-2" /> Modifier les horaires
                   </Button>
                 </div>
+                </div>
               </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

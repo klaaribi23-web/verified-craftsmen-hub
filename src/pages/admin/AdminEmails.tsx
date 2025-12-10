@@ -14,6 +14,7 @@ import {
   Search
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import Navbar from "@/components/layout/Navbar";
 
 interface Artisan {
   id: string;
@@ -95,8 +96,10 @@ const AdminEmails = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <AdminSidebar />
       
       <main className="flex-1 p-8">
         <div className="mb-6">
@@ -225,10 +228,11 @@ const AdminEmails = () => {
                 </div>
               </div>
             </CardContent>
-          </Card>
-        </div>
-      </main>
-    </div>
+            </Card>
+          </div>
+        </main>
+      </div>
+    </>
   );
 };
 

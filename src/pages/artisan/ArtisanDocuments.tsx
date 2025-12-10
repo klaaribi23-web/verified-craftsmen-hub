@@ -13,6 +13,7 @@ import {
   Trash2,
   AlertTriangle
 } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
 
 const documents = [
   {
@@ -101,8 +102,10 @@ const getStatusConfig = (status: string) => {
 
 export const ArtisanDocuments = () => {
   return (
-    <div className="flex min-h-screen bg-background">
-      <ArtisanSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ArtisanSidebar />
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
@@ -232,10 +235,11 @@ export const ArtisanDocuments = () => {
                   Votre qualification RGE a expiré. Veuillez télécharger une version à jour pour maintenir votre statut d'artisan validé.
                 </p>
               </div>
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

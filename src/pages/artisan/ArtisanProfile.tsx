@@ -27,6 +27,7 @@ import {
   Upload,
   Loader2
 } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
 
 export const ArtisanProfile = () => {
   const [zones, setZones] = useState(["Paris 11e", "Paris 12e", "Paris 20e"]);
@@ -116,10 +117,12 @@ export const ArtisanProfile = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <ArtisanSidebar />
-      
-      <div className="flex-1 flex flex-col">
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ArtisanSidebar />
+        
+        <div className="flex-1 flex flex-col">
         <DashboardHeader 
           title="Mon profil" 
           subtitle="Gérez vos informations professionnelles"
@@ -512,8 +515,9 @@ export const ArtisanProfile = () => {
               )}
             </div>
           </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

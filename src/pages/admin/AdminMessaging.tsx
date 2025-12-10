@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn } from "@/lib/utils";
+import Navbar from "@/components/layout/Navbar";
 
 const AdminMessaging = () => {
   const {
@@ -68,8 +69,10 @@ const AdminMessaging = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <AdminSidebar />
       
       <main className="flex-1 p-8">
         <div className="mb-6">
@@ -256,10 +259,11 @@ const AdminMessaging = () => {
                 <p className="text-muted-foreground">Sélectionnez une conversation pour commencer</p>
               </CardContent>
             )}
-          </Card>
-        </div>
-      </main>
-    </div>
+            </Card>
+          </div>
+        </main>
+      </div>
+    </>
   );
 };
 

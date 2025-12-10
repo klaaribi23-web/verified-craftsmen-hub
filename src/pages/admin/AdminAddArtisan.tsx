@@ -24,6 +24,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { useCategories, useAddArtisan } from "@/hooks/useAdminData";
 import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/layout/Navbar";
 
 const cities = [
   "Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse", 
@@ -120,8 +121,10 @@ const AdminAddArtisan = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <AdminSidebar />
       
       <main className="flex-1 p-8">
         <div className="mb-6">
@@ -351,10 +354,11 @@ const AdminAddArtisan = () => {
               )}
               Créer le profil artisan
             </Button>
-          </div>
-        </form>
-      </main>
-    </div>
+            </div>
+          </form>
+        </main>
+      </div>
+    </>
   );
 };
 

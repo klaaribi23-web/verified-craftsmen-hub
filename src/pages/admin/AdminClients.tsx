@@ -12,6 +12,7 @@ import {
   Filter,
   Users
 } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
 
 interface Client {
   id: string;
@@ -41,8 +42,10 @@ const AdminClients = () => {
   );
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <AdminSidebar />
       
       <main className="flex-1 p-8">
         <div className="mb-8">
@@ -165,10 +168,11 @@ const AdminClients = () => {
                 </tbody>
               </table>
             </div>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    </>
   );
 };
 

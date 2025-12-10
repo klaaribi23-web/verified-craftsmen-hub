@@ -14,11 +14,14 @@ import {
   Shield,
   Trash2
 } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
 
 export const ArtisanSettings = () => {
   return (
-    <div className="flex min-h-screen bg-background">
-      <ArtisanSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ArtisanSidebar />
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
@@ -177,10 +180,11 @@ export const ArtisanSettings = () => {
                   Supprimer
                 </Button>
               </div>
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

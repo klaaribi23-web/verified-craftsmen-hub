@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { QuoteForm } from "@/components/quotes/QuoteForm";
 import { QuoteMessageCard, parseQuoteFromMessage } from "@/components/chat/QuoteMessageCard";
+import Navbar from "@/components/layout/Navbar";
 
 export const ArtisanMessaging = () => {
   const {
@@ -155,8 +156,10 @@ export const ArtisanMessaging = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <ArtisanSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ArtisanSidebar />
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
@@ -335,16 +338,17 @@ export const ArtisanMessaging = () => {
         </main>
 
         {/* Quote Form Modal */}
-        {selectedConversationId && selectedConversation && (
-          <QuoteForm
-            open={showQuoteForm}
-            onOpenChange={setShowQuoteForm}
-            conversationId={selectedConversationId}
-            clientId={selectedConversationId}
-            clientName={selectedConversation.participant_name}
-          />
-        )}
+          {selectedConversationId && selectedConversation && (
+            <QuoteForm
+              open={showQuoteForm}
+              onOpenChange={setShowQuoteForm}
+              conversationId={selectedConversationId}
+              clientId={selectedConversationId}
+              clientName={selectedConversation.participant_name}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
