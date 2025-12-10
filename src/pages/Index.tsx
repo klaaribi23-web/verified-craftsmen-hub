@@ -6,7 +6,6 @@ import HowItWorksSection from "@/components/home/HowItWorksSection";
 import TrustSection from "@/components/home/TrustSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
-import { DemoAccessPanel } from "@/components/dev/DemoAccessPanel";
 
 const Index = () => {
   return (
@@ -21,9 +20,6 @@ const Index = () => {
         <CTASection />
       </main>
       <Footer />
-      
-      {/* Demo Access Panel - Remove in production */}
-      <DemoAccessPanel />
     </div>
   );
 };
