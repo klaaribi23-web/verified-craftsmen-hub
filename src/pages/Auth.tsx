@@ -51,6 +51,7 @@ const Auth = () => {
   // OTP verification state
   const [showOtpVerification, setShowOtpVerification] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
   const [pendingSignupData, setPendingSignupData] = useState<{
     email: string;
     password: string;
@@ -58,6 +59,16 @@ const Auth = () => {
     lastName: string;
     userType: "client" | "artisan";
   } | null>(null);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [resendTimer]);
 
   // Check if user is already logged in
   useEffect(() => {
@@ -158,6 +169,7 @@ const Auth = () => {
       });
 
       setShowOtpVerification(true);
+      setResendTimer(60);
       toast({
         title: "Code envoyé !",
         description: "Un code de confirmation a été envoyé à votre adresse email.",
@@ -258,6 +270,7 @@ const Auth = () => {
 
       if (error) throw error;
 
+      setResendTimer(60);
       toast({
         title: "Code renvoyé !",
         description: "Un nouveau code a été envoyé à votre adresse email.",
@@ -387,10 +400,10 @@ const Auth = () => {
                   <Button 
                     variant="link" 
                     onClick={handleResendOtp}
-                    disabled={isLoading}
+                    disabled={isLoading || resendTimer > 0}
                     className="text-primary"
                   >
-                    Renvoyer le code
+                    {resendTimer > 0 ? `Renvoyer dans ${resendTimer}s` : "Renvoyer le code"}
                   </Button>
                 </div>
               </CardContent>
