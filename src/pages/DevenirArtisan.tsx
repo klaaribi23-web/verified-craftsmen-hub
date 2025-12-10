@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { z } from "zod";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import { 
   ArrowRight, 
   Shield, 
@@ -16,7 +19,7 @@ import {
   Star,
   Zap,
   Clock,
-  FileCheck
+  Loader2
 } from "lucide-react";
 
 const benefits = [
@@ -59,7 +62,19 @@ const stats = [
   { value: "24h", label: "Délai de réponse" },
 ];
 
+// Validation schema
+const artisanSignupSchema = z.object({
+  firstName: z.string().trim().min(2, "Prénom requis (min 2 caractères)").max(50, "Prénom trop long"),
+  lastName: z.string().trim().min(2, "Nom requis (min 2 caractères)").max(50, "Nom trop long"),
+  email: z.string().trim().email("Email invalide").max(255, "Email trop long"),
+  phone: z.string().trim().min(10, "Numéro de téléphone invalide").max(20, "Numéro trop long"),
+  profession: z.string().trim().min(2, "Métier requis").max(100, "Métier trop long"),
+  city: z.string().trim().min(2, "Ville requise").max(100, "Ville trop longue"),
+});
+
 const DevenirArtisan = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -67,10 +82,133 @@ const DevenirArtisan = () => {
     phone: "",
     profession: "",
     city: "",
+    password: "",
   });
 
   const updateForm = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Validate form data
+      const validationResult = artisanSignupSchema.safeParse(formData);
+      
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast({
+          title: "Erreur de validation",
+          description: firstError.message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Check password
+      if (formData.password.length < 8) {
+        toast({
+          title: "Mot de passe trop court",
+          description: "Le mot de passe doit contenir au moins 8 caractères",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+
+      // Create user with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            user_type: "artisan",
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        // Check if user already exists
+        if (data.user.identities && data.user.identities.length === 0) {
+          toast({
+            title: "Email déjà utilisé",
+            description: "Cet email est déjà enregistré. Veuillez vous connecter.",
+            variant: "destructive",
+          });
+          navigate("/auth");
+          return;
+        }
+
+        // Wait for profile to be created by trigger
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", data.user.id)
+          .single();
+
+        if (profile) {
+          // Create artisan profile with additional info
+          const { error: artisanError } = await supabase
+            .from("artisans")
+            .insert([{
+              user_id: data.user.id,
+              profile_id: profile.id,
+              business_name: `${formData.firstName} ${formData.lastName}`,
+              city: formData.city,
+              description: `Artisan ${formData.profession}`,
+              status: "pending"
+            }]);
+
+          if (artisanError) {
+            console.error("Error creating artisan:", artisanError);
+          }
+
+          // Update profile with phone
+          await supabase
+            .from("profiles")
+            .update({ phone: formData.phone, city: formData.city })
+            .eq("id", profile.id);
+        }
+
+        // Check if session exists (auto-confirm enabled)
+        if (data.session) {
+          toast({
+            title: "Inscription réussie !",
+            description: "Bienvenue sur Artisans Validés. Complétez votre profil pour être visible.",
+          });
+          navigate("/artisan/dashboard");
+        } else {
+          toast({
+            title: "Email de confirmation envoyé",
+            description: "Vérifiez votre boîte mail pour confirmer votre inscription.",
+          });
+          navigate("/auth");
+        }
+      }
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      toast({
+        title: "Erreur d'inscription",
+        description: error.message === "User already registered" 
+          ? "Cet email est déjà utilisé. Veuillez vous connecter."
+          : error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -145,32 +283,34 @@ const DevenirArtisan = () => {
                     </p>
                   </div>
 
-                  <form className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="firstName" className="text-navy">Prénom</Label>
+                        <Label htmlFor="firstName" className="text-navy">Prénom *</Label>
                         <Input
                           id="firstName"
                           placeholder="Jean"
                           value={formData.firstName}
                           onChange={(e) => updateForm("firstName", e.target.value)}
                           className="mt-1.5"
+                          required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="lastName" className="text-navy">Nom</Label>
+                        <Label htmlFor="lastName" className="text-navy">Nom *</Label>
                         <Input
                           id="lastName"
                           placeholder="Dupont"
                           value={formData.lastName}
                           onChange={(e) => updateForm("lastName", e.target.value)}
                           className="mt-1.5"
+                          required
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="email" className="text-navy">Email professionnel</Label>
+                      <Label htmlFor="email" className="text-navy">Email professionnel *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -178,11 +318,27 @@ const DevenirArtisan = () => {
                         value={formData.email}
                         onChange={(e) => updateForm("email", e.target.value)}
                         className="mt-1.5"
+                        required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="phone" className="text-navy">Téléphone</Label>
+                      <Label htmlFor="password" className="text-navy">Mot de passe *</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={formData.password}
+                        onChange={(e) => updateForm("password", e.target.value)}
+                        className="mt-1.5"
+                        required
+                        minLength={8}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Minimum 8 caractères</p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="phone" className="text-navy">Téléphone *</Label>
                       <Input
                         id="phone"
                         type="tel"
@@ -190,34 +346,46 @@ const DevenirArtisan = () => {
                         value={formData.phone}
                         onChange={(e) => updateForm("phone", e.target.value)}
                         className="mt-1.5"
+                        required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="profession" className="text-navy">Métier principal</Label>
+                      <Label htmlFor="profession" className="text-navy">Métier principal *</Label>
                       <Input
                         id="profession"
                         placeholder="Plombier, Électricien, Peintre..."
                         value={formData.profession}
                         onChange={(e) => updateForm("profession", e.target.value)}
                         className="mt-1.5"
+                        required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="city" className="text-navy">Ville d'intervention</Label>
+                      <Label htmlFor="city" className="text-navy">Ville d'intervention *</Label>
                       <Input
                         id="city"
                         placeholder="Paris, Lyon, Marseille..."
                         value={formData.city}
                         onChange={(e) => updateForm("city", e.target.value)}
                         className="mt-1.5"
+                        required
                       />
                     </div>
 
-                    <Button variant="gold" size="lg" className="w-full">
+                    <Button 
+                      type="submit" 
+                      variant="gold" 
+                      size="lg" 
+                      className="w-full"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      ) : null}
                       Créer mon compte gratuit
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      {!isLoading && <ArrowRight className="w-5 h-5 ml-2" />}
                     </Button>
 
                     <p className="text-xs text-center text-muted-foreground">
@@ -228,6 +396,15 @@ const DevenirArtisan = () => {
                         politique de confidentialité
                       </Link>
                     </p>
+
+                    <div className="text-center pt-2 border-t border-border">
+                      <p className="text-sm text-muted-foreground">
+                        Déjà un compte ?{" "}
+                        <Link to="/auth" className="text-gold hover:underline font-medium">
+                          Se connecter
+                        </Link>
+                      </p>
+                    </div>
                   </form>
                 </div>
               </motion.div>
@@ -338,7 +515,7 @@ const DevenirArtisan = () => {
                   Rejoignez plus de 5000 artisans qui font confiance à Artisans Validés 
                   pour développer leur clientèle.
                 </p>
-                <Button variant="gold" size="xl">
+                <Button variant="gold" size="xl" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                   Commencer gratuitement
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
