@@ -50,9 +50,26 @@ export const useArtisanProfile = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        console.log("No user found");
         setIsLoading(false);
         return;
       }
+
+      console.log("Fetching profile for user:", user.id);
+
+      // Fetch user profile first
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        throw profileError;
+      }
+
+      console.log("Profile data:", profileData);
 
       // Fetch artisan profile
       const { data: artisanData, error: artisanError } = await supabase
@@ -61,16 +78,12 @@ export const useArtisanProfile = () => {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (artisanError) throw artisanError;
+      if (artisanError) {
+        console.error("Artisan fetch error:", artisanError);
+        throw artisanError;
+      }
 
-      // Fetch user profile
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
+      console.log("Artisan data:", artisanData);
 
       setArtisan(artisanData);
       setProfile(profileData);
@@ -100,7 +113,15 @@ export const useArtisanProfile = () => {
     linkedinUrl?: string;
     categoryId?: string;
   }) => {
-    if (!artisan || !profile) return false;
+    console.log("updateProfile called with:", updates);
+    console.log("Current artisan:", artisan);
+    console.log("Current profile:", profile);
+
+    if (!artisan || !profile) {
+      console.error("Cannot update: artisan or profile is null", { artisan, profile });
+      toast.error("Profil non chargé. Veuillez rafraîchir la page.");
+      return false;
+    }
 
     setIsSaving(true);
     try {
