@@ -10,6 +10,7 @@ import {
   LogOut,
   BadgeCheck,
   Gift,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,6 +22,7 @@ const menuItems = [
   { icon: Briefcase, label: "Mes prestations", path: "/artisan/prestations" },
   { icon: MessageSquare, label: "Demandes reçues", path: "/artisan/demandes" },
   { icon: MessageSquare, label: "Messagerie", path: "/artisan/messagerie" },
+  { icon: ClipboardList, label: "Mes devis", path: "/artisan/devis" },
   { icon: Calendar, label: "Planning", path: "/artisan/planning" },
   { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires" },
   { icon: Settings, label: "Paramètres", path: "/artisan/parametres" },

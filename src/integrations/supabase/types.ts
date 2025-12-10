@@ -571,6 +571,80 @@ export type Database = {
         }
         Relationships: []
       }
+      quotes: {
+        Row: {
+          artisan_id: string
+          client_id: string
+          conversation_id: string
+          created_at: string
+          description: string
+          id: string
+          message_id: string | null
+          price_ht: number
+          price_ttc: number | null
+          status: string
+          tva_rate: number
+          updated_at: string
+        }
+        Insert: {
+          artisan_id: string
+          client_id: string
+          conversation_id: string
+          created_at?: string
+          description: string
+          id?: string
+          message_id?: string | null
+          price_ht: number
+          price_ttc?: number | null
+          status?: string
+          tva_rate?: number
+          updated_at?: string
+        }
+        Update: {
+          artisan_id?: string
+          client_id?: string
+          conversation_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          message_id?: string | null
+          price_ht?: number
+          price_ttc?: number | null
+          status?: string
+          tva_rate?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           artisan_id: string

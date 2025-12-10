@@ -8,6 +8,7 @@ import {
   BadgeCheck,
   Heart,
   LayoutDashboard,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/client/dashboard" },
   { icon: Briefcase, label: "Mes missions", path: "/client/missions" },
+  { icon: ClipboardList, label: "Mes devis", path: "/client/devis" },
   { icon: Heart, label: "Artisans favoris", path: "/client/favoris" },
   { icon: MessageSquare, label: "Messagerie", path: "/client/messagerie" },
   { icon: Settings, label: "Paramètres", path: "/client/parametres" },

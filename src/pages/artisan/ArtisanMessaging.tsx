@@ -17,10 +17,12 @@ import {
   Video,
   User,
   Check,
-  CheckCheck
+  CheckCheck,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
+import { QuoteForm } from "@/components/quotes/QuoteForm";
 
 export const ArtisanMessaging = () => {
   const {
@@ -35,6 +37,7 @@ export const ArtisanMessaging = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showQuoteForm, setShowQuoteForm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const selectedConversation = conversations.find(c => c.participant_id === selectedConversationId);
@@ -171,6 +174,15 @@ export const ArtisanMessaging = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button 
+                      variant="gold" 
+                      size="sm"
+                      onClick={() => setShowQuoteForm(true)}
+                      className="gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Proposer un devis
+                    </Button>
                     <Button variant="ghost" size="icon">
                       <Phone className="w-5 h-5" />
                     </Button>
@@ -272,6 +284,17 @@ export const ArtisanMessaging = () => {
             )}
           </div>
         </main>
+
+        {/* Quote Form Modal */}
+        {selectedConversationId && selectedConversation && (
+          <QuoteForm
+            open={showQuoteForm}
+            onOpenChange={setShowQuoteForm}
+            conversationId={selectedConversationId}
+            clientId={selectedConversationId}
+            clientName={selectedConversation.participant_name}
+          />
+        )}
       </div>
     </div>
   );
