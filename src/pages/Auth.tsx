@@ -146,7 +146,7 @@ const Auth = () => {
 
         // Role is now automatically assigned by database trigger (handle_new_user_role)
 
-        // If artisan, create artisan profile
+        // If artisan, create empty artisan profile (no demo data)
         if (userType === "artisan") {
           // Wait a bit for the profile to be created by trigger
           await new Promise(resolve => setTimeout(resolve, 1000));
@@ -158,14 +158,25 @@ const Auth = () => {
             .single();
 
           if (profile) {
+            // Create minimal artisan profile - user will fill the rest
             const { error: artisanError } = await supabase
               .from("artisans")
               .insert([{
                 user_id: data.user.id,
                 profile_id: profile.id,
-                business_name: `${validatedData.firstName} ${validatedData.lastName}`,
+                business_name: "Non renseigné",
                 city: "Non renseigné",
-                status: "pending"
+                status: "pending",
+                // All other fields remain null/empty - no demo data
+                description: null,
+                photo_url: null,
+                portfolio_images: null,
+                portfolio_videos: null,
+                experience_years: 0,
+                rating: 0,
+                review_count: 0,
+                missions_completed: 0,
+                availability: {},
               }]);
 
             if (artisanError) {

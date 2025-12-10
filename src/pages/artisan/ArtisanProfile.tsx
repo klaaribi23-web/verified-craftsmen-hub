@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useArtisanPortfolio } from "@/hooks/useArtisanPortfolio";
+import { useArtisanProfile } from "@/hooks/useArtisanProfile";
 import { 
   User, 
   Camera, 
@@ -30,23 +31,20 @@ import {
 import Navbar from "@/components/layout/Navbar";
 
 export const ArtisanProfile = () => {
-  const [zones, setZones] = useState(["Paris 11e", "Paris 12e", "Paris 20e"]);
-  const [newZone, setNewZone] = useState("");
-  const [socialLinks, setSocialLinks] = useState({
-    facebook: "",
-    instagram: "",
-    linkedin: "",
-    website: ""
-  });
-  const [newVideoUrl, setNewVideoUrl] = useState("");
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
+  const {
+    artisan,
+    profile,
+    isLoading: profileLoading,
+    isSaving: profileSaving,
+    updateProfile,
+    updateProfilePhoto,
+  } = useArtisanProfile();
 
   const {
     photos,
     videos,
-    isLoading,
-    isSaving,
+    isLoading: portfolioLoading,
+    isSaving: portfolioSaving,
     addPhoto,
     addVideoUrl,
     addVideoFile,
@@ -56,15 +54,71 @@ export const ArtisanProfile = () => {
     maxVideos,
   } = useArtisanPortfolio();
 
-  const addZone = () => {
-    if (newZone && !zones.includes(newZone)) {
-      setZones([...zones, newZone]);
-      setNewZone("");
+  // Form state
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [description, setDescription] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [siret, setSiret] = useState("");
+  const [experienceYears, setExperienceYears] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [facebookUrl, setFacebookUrl] = useState("");
+  const [instagramUrl, setInstagramUrl] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+  
+  const [newVideoUrl, setNewVideoUrl] = useState("");
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const profilePhotoInputRef = useRef<HTMLInputElement>(null);
+
+  // Populate form when data loads
+  useEffect(() => {
+    if (profile) {
+      setFirstName(profile.first_name || "");
+      setLastName(profile.last_name || "");
+      setEmail(profile.email || "");
+      setPhone(profile.phone || "");
     }
+    if (artisan) {
+      setDescription(artisan.description || "");
+      setAddress(artisan.address || "");
+      setCity(artisan.city === "Non renseigné" ? "" : artisan.city || "");
+      setSiret(artisan.siret || "");
+      setExperienceYears(artisan.experience_years?.toString() || "");
+      setWebsiteUrl(artisan.website_url || "");
+      setFacebookUrl(artisan.facebook_url || "");
+      setInstagramUrl(artisan.instagram_url || "");
+      setLinkedinUrl(artisan.linkedin_url || "");
+    }
+  }, [profile, artisan]);
+
+  const handleSave = async () => {
+    const success = await updateProfile({
+      firstName,
+      lastName,
+      phone,
+      description,
+      city: city || "Non renseigné",
+      address,
+      siret,
+      experienceYears: experienceYears ? parseInt(experienceYears) : undefined,
+      websiteUrl,
+      facebookUrl,
+      instagramUrl,
+      linkedinUrl,
+    });
   };
 
-  const removeZone = (zone: string) => {
-    setZones(zones.filter(z => z !== zone));
+  const handleProfilePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await updateProfilePhoto(file);
+    if (profilePhotoInputRef.current) {
+      profilePhotoInputRef.current.value = "";
+    }
   };
 
   const isValidVideoUrl = (url: string) => {
@@ -116,6 +170,23 @@ export const ArtisanProfile = () => {
     return url.includes("artisan-portfolios");
   };
 
+  const isLoading = profileLoading || portfolioLoading;
+  const isSaving = profileSaving || portfolioSaving;
+
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
+        <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+          <ArtisanSidebar />
+          <div className="flex-1 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -135,33 +206,73 @@ export const ArtisanProfile = () => {
               <div className="flex flex-col md:flex-row items-start gap-6">
                 <div className="relative">
                   <div className="w-32 h-32 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
-                    <User className="w-16 h-16 text-muted-foreground" />
+                    {artisan?.photo_url ? (
+                      <img 
+                        src={artisan.photo_url} 
+                        alt="Photo de profil" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-16 h-16 text-muted-foreground" />
+                    )}
                   </div>
-                  <button className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
-                    <Camera className="w-5 h-5" />
+                  <input
+                    ref={profilePhotoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleProfilePhotoChange}
+                    className="hidden"
+                  />
+                  <button 
+                    onClick={() => profilePhotoInputRef.current?.click()}
+                    disabled={isSaving}
+                    className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform disabled:opacity-50"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Camera className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h2 className="text-2xl font-bold text-foreground">Jean Dupont</h2>
-                    <Badge className="bg-success/20 text-success border-0 gap-1">
-                      <BadgeCheck className="w-4 h-4" /> Artisan Validé
-                    </Badge>
+                    <h2 className="text-2xl font-bold text-foreground">
+                      {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Nouveau profil"}
+                    </h2>
+                    {artisan?.status === "active" && (
+                      <Badge className="bg-success/20 text-success border-0 gap-1">
+                        <BadgeCheck className="w-4 h-4" /> Artisan Validé
+                      </Badge>
+                    )}
+                    {artisan?.status === "pending" && (
+                      <Badge className="bg-warning/20 text-warning border-0">
+                        En attente de validation
+                      </Badge>
+                    )}
                   </div>
-                  <p className="text-muted-foreground mb-4">Plombier professionnel depuis 15 ans</p>
+                  <p className="text-muted-foreground mb-4">
+                    {description || "Complétez votre profil pour être visible par les clients"}
+                  </p>
                   <div className="flex flex-wrap gap-4 text-sm">
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <MapPin className="w-4 h-4" /> Paris, Île-de-France
-                    </span>
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <Phone className="w-4 h-4" /> 06 12 34 56 78
-                    </span>
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <Mail className="w-4 h-4" /> jean.dupont@email.com
-                    </span>
+                    {city && city !== "Non renseigné" && (
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <MapPin className="w-4 h-4" /> {city}
+                      </span>
+                    )}
+                    {phone && (
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Phone className="w-4 h-4" /> {phone}
+                      </span>
+                    )}
+                    {email && (
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Mail className="w-4 h-4" /> {email}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <Button variant="gold" disabled={isSaving}>
+                <Button variant="gold" disabled={isSaving} onClick={handleSave}>
                   {isSaving ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
@@ -181,28 +292,67 @@ export const ArtisanProfile = () => {
                   <Textarea 
                     id="bio" 
                     rows={4}
-                    defaultValue="Plombier professionnel avec 15 ans d'expérience, je suis spécialisé dans les interventions d'urgence et les rénovations complètes de salle de bain. Travail soigné et garantie décennale."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Décrivez votre activité, vos spécialités, votre expérience..."
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Prénom</Label>
-                  <Input id="firstName" defaultValue="Jean" />
+                  <Input 
+                    id="firstName" 
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Votre prénom"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Nom</Label>
-                  <Input id="lastName" defaultValue="Dupont" />
+                  <Input 
+                    id="lastName" 
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Votre nom"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue="jean.dupont@email.com" />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    value={email}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground">L'email ne peut pas être modifié</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Téléphone</Label>
-                  <Input id="phone" type="tel" defaultValue="06 12 34 56 78" />
+                  <Input 
+                    id="phone" 
+                    type="tel" 
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="06 12 34 56 78"
+                  />
                 </div>
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
+                  <Label htmlFor="city">Ville</Label>
+                  <Input 
+                    id="city" 
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Paris"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="address">Adresse professionnelle</Label>
-                  <Input id="address" defaultValue="123 rue de la Plomberie, 75011 Paris" />
+                  <Input 
+                    id="address" 
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="123 rue de votre activité"
+                  />
                 </div>
               </div>
             </div>
@@ -213,21 +363,34 @@ export const ArtisanProfile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="siret">Numéro SIRET</Label>
-                  <Input id="siret" defaultValue="123 456 789 00012" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="trade">Métier principal</Label>
-                  <Input id="trade" defaultValue="Plombier" />
+                  <Input 
+                    id="siret" 
+                    value={siret}
+                    onChange={(e) => setSiret(e.target.value)}
+                    placeholder="123 456 789 00012"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="experience">Années d'expérience</Label>
-                  <Input id="experience" type="number" defaultValue="15" />
+                  <Input 
+                    id="experience" 
+                    type="number" 
+                    value={experienceYears}
+                    onChange={(e) => setExperienceYears(e.target.value)}
+                    placeholder="5"
+                  />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="companyWebsite">Site web entreprise</Label>
                   <div className="relative">
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="companyWebsite" className="pl-10" placeholder="https://..." />
+                    <Input 
+                      id="companyWebsite" 
+                      className="pl-10" 
+                      value={websiteUrl}
+                      onChange={(e) => setWebsiteUrl(e.target.value)}
+                      placeholder="https://votre-site.fr"
+                    />
                   </div>
                 </div>
               </div>
@@ -246,8 +409,8 @@ export const ArtisanProfile = () => {
                       id="facebook" 
                       className="pl-10" 
                       placeholder="https://facebook.com/votre-page"
-                      value={socialLinks.facebook}
-                      onChange={(e) => setSocialLinks({...socialLinks, facebook: e.target.value})}
+                      value={facebookUrl}
+                      onChange={(e) => setFacebookUrl(e.target.value)}
                     />
                   </div>
                 </div>
@@ -259,8 +422,8 @@ export const ArtisanProfile = () => {
                       id="instagram" 
                       className="pl-10" 
                       placeholder="https://instagram.com/votre-compte"
-                      value={socialLinks.instagram}
-                      onChange={(e) => setSocialLinks({...socialLinks, instagram: e.target.value})}
+                      value={instagramUrl}
+                      onChange={(e) => setInstagramUrl(e.target.value)}
                     />
                   </div>
                 </div>
@@ -272,57 +435,11 @@ export const ArtisanProfile = () => {
                       id="linkedin" 
                       className="pl-10" 
                       placeholder="https://linkedin.com/in/votre-profil"
-                      value={socialLinks.linkedin}
-                      onChange={(e) => setSocialLinks({...socialLinks, linkedin: e.target.value})}
+                      value={linkedinUrl}
+                      onChange={(e) => setLinkedinUrl(e.target.value)}
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="personalWebsite">Site web personnel</Label>
-                  <div className="relative">
-                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input 
-                      id="personalWebsite" 
-                      className="pl-10" 
-                      placeholder="https://votre-site.fr"
-                      value={socialLinks.website}
-                      onChange={(e) => setSocialLinks({...socialLinks, website: e.target.value})}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Service Area */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-6">Zone d'intervention</h3>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {zones.map((zone) => (
-                  <Badge 
-                    key={zone} 
-                    variant="secondary" 
-                    className="px-3 py-1.5 text-sm flex items-center gap-2"
-                  >
-                    {zone}
-                    <button 
-                      onClick={() => removeZone(zone)}
-                      className="hover:text-destructive transition-colors"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <Input 
-                  placeholder="Ajouter une zone (ex: Paris 16e)" 
-                  value={newZone}
-                  onChange={(e) => setNewZone(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && addZone()}
-                />
-                <Button onClick={addZone} variant="outline">
-                  <Plus className="w-4 h-4 mr-1" /> Ajouter
-                </Button>
               </div>
             </div>
 
@@ -335,57 +452,51 @@ export const ArtisanProfile = () => {
                 </Badge>
               </div>
               
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {photos.map((photo, i) => (
-                    <div key={i} className="aspect-square bg-muted rounded-lg overflow-hidden relative group">
-                      <img 
-                        src={photo} 
-                        alt={`Photo ${i + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <button 
-                        onClick={() => removePhoto(i)}
-                        disabled={isSaving}
-                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                  {photos.length < maxPhotos && (
-                    <>
-                      <input
-                        ref={photoInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
-                        onChange={handlePhotoUpload}
-                        className="hidden"
-                        id="photo-upload"
-                        disabled={isSaving}
-                      />
-                      <button 
-                        onClick={() => photoInputRef.current?.click()}
-                        disabled={isSaving}
-                        className="aspect-square bg-muted/50 rounded-lg border-2 border-dashed border-border hover:border-accent hover:bg-accent/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-accent disabled:opacity-50"
-                      >
-                        {isSaving ? (
-                          <Loader2 className="w-8 h-8 animate-spin" />
-                        ) : (
-                          <>
-                            <Upload className="w-8 h-8" />
-                            <span className="text-sm">Ajouter</span>
-                          </>
-                        )}
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {photos.map((photo, i) => (
+                  <div key={i} className="aspect-square bg-muted rounded-lg overflow-hidden relative group">
+                    <img 
+                      src={photo} 
+                      alt={`Photo ${i + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <button 
+                      onClick={() => removePhoto(i)}
+                      disabled={isSaving}
+                      className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                {photos.length < maxPhotos && (
+                  <>
+                    <input
+                      ref={photoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      id="photo-upload"
+                      disabled={isSaving}
+                    />
+                    <button 
+                      onClick={() => photoInputRef.current?.click()}
+                      disabled={isSaving}
+                      className="aspect-square bg-muted/50 rounded-lg border-2 border-dashed border-border hover:border-accent hover:bg-accent/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-accent disabled:opacity-50"
+                    >
+                      {isSaving ? (
+                        <Loader2 className="w-8 h-8 animate-spin" />
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8" />
+                          <span className="text-sm">Ajouter</span>
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Portfolio Videos */}
@@ -458,61 +569,55 @@ export const ArtisanProfile = () => {
               </div>
 
               {/* Video grid */}
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {videos.map((videoUrl, index) => {
-                    const thumbnail = getVideoThumbnail(videoUrl);
-                    const isStorage = isStorageUrl(videoUrl);
-                    return (
-                      <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden relative group">
-                        {thumbnail ? (
-                          <img 
-                            src={thumbnail} 
-                            alt={`Vidéo ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : isStorage ? (
-                          <video 
-                            src={videoUrl} 
-                            className="w-full h-full object-cover"
-                            muted
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                            <Video className="w-8 h-8" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Video className="w-8 h-8 text-white" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {videos.map((videoUrl, index) => {
+                  const thumbnail = getVideoThumbnail(videoUrl);
+                  const isStorage = isStorageUrl(videoUrl);
+                  return (
+                    <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden relative group">
+                      {thumbnail ? (
+                        <img 
+                          src={thumbnail} 
+                          alt={`Vidéo ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : isStorage ? (
+                        <video 
+                          src={videoUrl} 
+                          className="w-full h-full object-cover"
+                          muted
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <Video className="w-8 h-8" />
                         </div>
-                        {isStorage && (
-                          <Badge className="absolute bottom-2 left-2 text-xs bg-primary/80">
-                            MP4
-                          </Badge>
-                        )}
-                        <button 
-                          onClick={() => removeVideo(index)}
-                          disabled={isSaving}
-                          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                      )}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Video className="w-8 h-8 text-white" />
                       </div>
-                    );
-                  })}
-                  {videos.length === 0 && (
-                    <div className="aspect-video bg-muted/50 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground md:col-span-3">
-                      <Video className="w-8 h-8" />
-                      <span className="text-sm">Aucune vidéo ajoutée</span>
-                      <span className="text-xs">Lien YouTube/Vimeo ou fichier MP4</span>
+                      {isStorage && (
+                        <Badge className="absolute bottom-2 left-2 text-xs bg-primary/80">
+                          MP4
+                        </Badge>
+                      )}
+                      <button 
+                        onClick={() => removeVideo(index)}
+                        disabled={isSaving}
+                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
-                  )}
-                </div>
-              )}
+                  );
+                })}
+                {videos.length === 0 && (
+                  <div className="aspect-video bg-muted/50 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground md:col-span-3">
+                    <Video className="w-8 h-8" />
+                    <span className="text-sm">Aucune vidéo ajoutée</span>
+                    <span className="text-xs">Lien YouTube/Vimeo ou fichier MP4</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           </main>
