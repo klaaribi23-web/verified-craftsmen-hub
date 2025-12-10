@@ -13,6 +13,7 @@ import {
   Plus
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import Navbar from "@/components/layout/Navbar";
 
 const recentMissions = [
   {
@@ -73,16 +74,18 @@ const getStatusBadge = (status: string) => {
 
 export const ClientDashboard = () => {
   return (
-    <div className="flex min-h-screen bg-background">
-      <ClientSidebar />
-      
-      <div className="flex-1 flex flex-col">
-        <DashboardHeader 
-          title="Tableau de bord" 
-          subtitle="Bienvenue sur votre espace client"
-        />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ClientSidebar />
+        
+        <div className="flex-1 flex flex-col">
+          <DashboardHeader 
+            title="Tableau de bord" 
+            subtitle="Bienvenue sur votre espace client"
+          />
 
-        <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-6xl mx-auto space-y-6">
             {/* Stats */}
             <div className="grid md:grid-cols-3 gap-4">
@@ -229,7 +232,8 @@ export const ClientDashboard = () => {
             </div>
           </div>
         </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

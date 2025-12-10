@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Navbar from "@/components/layout/Navbar";
 
 const recentRequests = [
   {
@@ -122,16 +123,18 @@ export const ArtisanDashboard = () => {
   });
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <ArtisanSidebar />
-      
-      <div className="flex-1 flex flex-col">
-        <DashboardHeader 
-          title="Tableau de bord" 
-          subtitle={`Bienvenue${artisanProfile?.business_name ? `, ${artisanProfile.business_name}` : ''} ! Voici un aperçu de votre activité.`}
-        />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ArtisanSidebar />
+        
+        <div className="flex-1 flex flex-col">
+          <DashboardHeader 
+            title="Tableau de bord" 
+            subtitle={`Bienvenue${artisanProfile?.business_name ? `, ${artisanProfile.business_name}` : ''} ! Voici un aperçu de votre activité.`}
+          />
 
-        <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-6 overflow-auto">
           {/* Approval Notifications */}
           <div className="mb-6">
             <ApprovalNotifications />
@@ -292,7 +295,8 @@ export const ArtisanDashboard = () => {
             </div>
           </div>
         </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

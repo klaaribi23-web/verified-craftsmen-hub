@@ -15,6 +15,7 @@ import {
   Clock
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import Navbar from "@/components/layout/Navbar";
 
 const AdminDashboard = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date());
@@ -37,10 +38,12 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
-      
-      <main className="flex-1 p-8">
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <AdminSidebar />
+        
+        <main className="flex-1 p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -110,7 +113,8 @@ const AdminDashboard = () => {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 
