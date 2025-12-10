@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -291,6 +292,7 @@ const Navbar = () => {
 
           {/* Desktop CTA / User Menu */}
           <div className="hidden lg:flex items-center gap-3">
+            {isAuthenticated && <NotificationBell />}
             {renderUserMenu()}
           </div>
 
