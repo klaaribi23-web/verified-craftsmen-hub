@@ -26,6 +26,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import Navbar from "@/components/layout/Navbar";
 
 export const ClientQuotes = () => {
   const { clientQuotes, clientQuotesLoading, updateQuoteStatus } = useQuotes();
@@ -107,8 +108,10 @@ export const ClientQuotes = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <ClientSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ClientSidebar />
 
       <div className="flex-1 flex flex-col">
         <DashboardHeader
@@ -220,7 +223,8 @@ export const ClientQuotes = () => {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        </AlertDialog>
+      </div>
+    </>
   );
 };

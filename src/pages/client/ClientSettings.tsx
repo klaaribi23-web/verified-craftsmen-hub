@@ -15,11 +15,14 @@ import {
   Lock,
   Save
 } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
 
 export const ClientSettings = () => {
   return (
-    <div className="flex min-h-screen bg-background">
-      <ClientSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ClientSidebar />
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
@@ -157,10 +160,11 @@ export const ClientSettings = () => {
                   Supprimer mon compte
                 </Button>
               </CardContent>
-            </Card>
-          </div>
-        </main>
+              </Card>
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

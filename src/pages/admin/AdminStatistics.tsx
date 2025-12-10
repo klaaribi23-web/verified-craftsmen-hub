@@ -34,6 +34,7 @@ import {
 } from "recharts";
 import { useAdminStats, useArtisans } from "@/hooks/useAdminData";
 import { useQueryClient } from "@tanstack/react-query";
+import Navbar from "@/components/layout/Navbar";
 
 // Demo data for charts (would come from real aggregations in production)
 const monthlyData = [
@@ -95,8 +96,10 @@ const AdminStatistics = () => {
   const totalReviews = artisans?.reduce((acc, a) => acc + (a.review_count || 0), 0) || 0;
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <AdminSidebar />
       
       <main className="flex-1 p-8">
         {/* Header */}
@@ -333,10 +336,11 @@ const AdminStatistics = () => {
                 <span className="text-sm">Données en temps réel</span>
               </div>
             </CardContent>
-          </Card>
-        </div>
-      </main>
-    </div>
+            </Card>
+          </div>
+        </main>
+      </div>
+    </>
   );
 };
 

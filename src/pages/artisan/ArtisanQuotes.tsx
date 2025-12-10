@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import Navbar from "@/components/layout/Navbar";
 
 export const ArtisanQuotes = () => {
   const { artisanQuotes, artisanQuotesLoading } = useQuotes();
@@ -58,8 +59,10 @@ export const ArtisanQuotes = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <ArtisanSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ArtisanSidebar />
 
       <div className="flex-1 flex flex-col">
         <DashboardHeader
@@ -143,8 +146,9 @@ export const ArtisanQuotes = () => {
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-    </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   );
 };

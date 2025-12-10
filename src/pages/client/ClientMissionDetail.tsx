@@ -27,6 +27,7 @@ import {
   Users
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Navbar from "@/components/layout/Navbar";
 
 // Dummy mission data
 const missionData = {
@@ -117,8 +118,10 @@ export const ClientMissionDetail = () => {
   const declinedApplicants = applicants.filter(a => a.status === "declined");
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <ClientSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ClientSidebar />
       
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
@@ -301,7 +304,8 @@ export const ClientMissionDetail = () => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-    </div>
+        </Dialog>
+      </div>
+    </>
   );
 };

@@ -27,6 +27,7 @@ import {
   AlertCircle,
   Loader2
 } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
 
 interface PendingArtisan {
   id: string;
@@ -169,8 +170,10 @@ const AdminApprovals = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <AdminSidebar />
       
       <main className="flex-1 p-8">
         <div className="mb-8">
@@ -445,7 +448,8 @@ const AdminApprovals = () => {
           </DialogContent>
         </Dialog>
       </main>
-    </div>
+      </div>
+    </>
   );
 };
 
