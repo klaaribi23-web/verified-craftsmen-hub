@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { QuoteNotificationListener } from "@/components/notifications/QuoteNotificationListener";
 import Index from "./pages/Index";
 import TrouverArtisan from "./pages/TrouverArtisan";
 import NosMissions from "./pages/NosMissions";
@@ -49,6 +50,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        {/* Initialize real-time quote notifications */}
+        <QuoteNotificationListener />
+        
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Index />} />

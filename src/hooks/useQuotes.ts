@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { createQuoteNotification } from "./useQuoteNotifications";
 
 export interface Quote {
   id: string;
@@ -58,7 +59,7 @@ const DEMO_QUOTES: Quote[] = [
     conversation_id: "demo-conv-2",
     artisan_id: "22222222-2222-2222-2222-222222222222",
     client_id: "demo-client-2",
-    description: "Installation de 3 prises électriques dans la cuisine - Fourniture et main d'œuvre incluses",
+    description: "Installation de 3 prises électriques dans la cuisine - Fourniture et main d'oeuvre incluses",
     price_ht: 280,
     tva_rate: 20,
     price_ttc: 336,
@@ -256,6 +257,20 @@ export const useQuotes = () => {
     }) => {
       if (!artisanId) throw new Error("Not an artisan");
 
+      // Get artisan info for notification
+      const { data: artisanData } = await supabase
+        .from("artisans")
+        .select("business_name")
+        .eq("id", artisanId)
+        .single();
+
+      // Get client user_id for notification
+      const { data: clientProfile } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .eq("id", clientId)
+        .single();
+
       // Create the quote
       const { data: quote, error: quoteError } = await supabase
         .from("quotes")
@@ -294,6 +309,17 @@ export const useQuotes = () => {
         .update({ message_id: message.id })
         .eq("id", quote.id);
 
+      // Create notification for client
+      if (clientProfile?.user_id) {
+        await createQuoteNotification(
+          clientProfile.user_id,
+          "quote_received",
+          "Nouveau devis reçu",
+          `${artisanData?.business_name || "Un artisan"} vous a envoyé un devis de ${priceTtc.toFixed(2)}€`,
+          quote.id
+        );
+      }
+
       return quote;
     },
     onSuccess: () => {
@@ -316,6 +342,27 @@ export const useQuotes = () => {
     }) => {
       if (!currentProfileId) throw new Error("Not authenticated");
 
+      // Get quote details
+      const { data: quoteData } = await supabase
+        .from("quotes")
+        .select("price_ttc, artisan_id")
+        .eq("id", quoteId)
+        .single();
+
+      // Get client name for notification
+      const { data: clientProfile } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", currentProfileId)
+        .single();
+
+      // Get artisan user_id for notification
+      const { data: artisanData } = await supabase
+        .from("artisans")
+        .select("user_id")
+        .eq("id", quoteData?.artisan_id)
+        .single();
+
       const { data, error } = await supabase
         .from("quotes")
         .update({ status })
@@ -332,6 +379,23 @@ export const useQuotes = () => {
         receiver_id: artisanProfileId,
         content: `${statusText}\n\nLe devis a été ${status === "accepted" ? "accepté" : "refusé"}.`,
       });
+
+      // Create notification for artisan
+      if (artisanData?.user_id) {
+        const clientName = clientProfile 
+          ? `${clientProfile.first_name || ""} ${clientProfile.last_name || ""}`.trim() || "Un client"
+          : "Un client";
+
+        await createQuoteNotification(
+          artisanData.user_id,
+          status === "accepted" ? "quote_accepted" : "quote_refused",
+          status === "accepted" ? "Devis accepté !" : "Devis refusé",
+          status === "accepted"
+            ? `${clientName} a accepté votre devis de ${quoteData?.price_ttc?.toFixed(2) || ""}€`
+            : `${clientName} a refusé votre devis`,
+          quoteId
+        );
+      }
 
       return data;
     },
