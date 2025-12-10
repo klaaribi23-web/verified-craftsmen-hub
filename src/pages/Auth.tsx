@@ -144,14 +144,7 @@ const Auth = () => {
           return;
         }
 
-        // Add user role
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert([{ user_id: data.user.id, role: userType }]);
-
-        if (roleError) {
-          console.error("Error adding role:", roleError);
-        }
+        // Role is now automatically assigned by database trigger (handle_new_user_role)
 
         // If artisan, create artisan profile
         if (userType === "artisan") {
