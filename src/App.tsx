@@ -21,6 +21,7 @@ import { ArtisanMessaging } from "./pages/artisan/ArtisanMessaging";
 import { ArtisanPlanning } from "./pages/artisan/ArtisanPlanning";
 import { ArtisanSettings } from "./pages/artisan/ArtisanSettings";
 import { ArtisanPartnerOffers } from "./pages/artisan/ArtisanPartnerOffers";
+import { ArtisanQuotes } from "./pages/artisan/ArtisanQuotes";
 import ArtisanPublicProfile from "./pages/ArtisanPublicProfile";
 import { ClientDashboard } from "./pages/client/ClientDashboard";
 import { ClientMissions } from "./pages/client/ClientMissions";
@@ -28,6 +29,7 @@ import { ClientMissionDetail } from "./pages/client/ClientMissionDetail";
 import { ClientFavorites } from "./pages/client/ClientFavorites";
 import { ClientMessaging } from "./pages/client/ClientMessaging";
 import { ClientSettings } from "./pages/client/ClientSettings";
+import { ClientQuotes } from "./pages/client/ClientQuotes";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminArtisans from "./pages/admin/AdminArtisans";
 import AdminClients from "./pages/admin/AdminClients";
@@ -107,6 +109,11 @@ const App = () => (
               <ArtisanSettings />
             </ProtectedRoute>
           } />
+          <Route path="/artisan/devis" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanQuotes />
+            </ProtectedRoute>
+          } />
           
           {/* Protected Client Routes */}
           <Route path="/client/dashboard" element={
@@ -137,6 +144,11 @@ const App = () => (
           <Route path="/client/parametres" element={
             <ProtectedRoute allowedRoles={["client"]}>
               <ClientSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/client/devis" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientQuotes />
             </ProtectedRoute>
           } />
           
