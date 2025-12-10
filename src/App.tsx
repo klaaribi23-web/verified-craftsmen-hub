@@ -69,7 +69,7 @@ const App = () => (
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/artisan/:id" element={<ArtisanPublicProfile />} />
+          <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           
           {/* Protected Artisan Routes */}
           <Route path="/artisan/dashboard" element={

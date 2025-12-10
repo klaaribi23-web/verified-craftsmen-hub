@@ -21,6 +21,7 @@ export interface DemoMission {
 
 export interface ArtisanPublic {
   id: string;
+  slug: string | null;
   business_name: string;
   description: string | null;
   city: string;
@@ -121,26 +122,44 @@ export {
   useCategoriesWithCount 
 } from "./useCategories";
 
-// Fetch single artisan by ID - uses secure public_artisans view
-export const useArtisanById = (id: string) => {
+// Fetch single artisan by slug or ID - uses secure public_artisans view
+export const useArtisanBySlug = (slugOrId: string) => {
   return useQuery({
-    queryKey: ["artisan", id],
+    queryKey: ["artisan", slugOrId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Try by slug first
+      let { data, error } = await supabase
         .from("public_artisans")
         .select(`
           *,
           category:categories(id, name)
         `)
-        .eq("id", id)
+        .eq("slug", slugOrId)
         .maybeSingle();
+
+      // If not found by slug, try by ID (for backwards compatibility)
+      if (!data && !error) {
+        const result = await supabase
+          .from("public_artisans")
+          .select(`
+            *,
+            category:categories(id, name)
+          `)
+          .eq("id", slugOrId)
+          .maybeSingle();
+        data = result.data;
+        error = result.error;
+      }
 
       if (error) throw error;
       return data as ArtisanPublic | null;
     },
-    enabled: !!id,
+    enabled: !!slugOrId,
   });
 };
+
+// Alias for backwards compatibility
+export const useArtisanById = useArtisanBySlug;
 
 // Fetch artisan services
 export const useArtisanServices = (artisanId: string) => {

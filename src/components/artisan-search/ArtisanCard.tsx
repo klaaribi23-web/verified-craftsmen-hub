@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 interface ArtisanCardProps {
   id: string | number;
+  slug?: string | null;
   name: string;
   profession: string;
   location: string;
@@ -73,6 +74,7 @@ const profileImages = [
 
 const ArtisanCard = ({
   id,
+  slug,
   name,
   profession,
   location,
@@ -86,6 +88,9 @@ const ArtisanCard = ({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const navigate = useNavigate();
+  
+  // Use slug for URL, fallback to id
+  const artisanUrl = slug || id;
   
   // Use provided portfolio or fallback to defaults
   const portfolioImages = portfolio && portfolio.length > 0 
@@ -108,7 +113,7 @@ const ArtisanCard = ({
 
   const handleProfileClick = () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    navigate(`/artisan/${id}`);
+    navigate(`/artisan/${artisanUrl}`);
   };
 
   const nextSlide = (e: React.MouseEvent) => {
@@ -198,7 +203,7 @@ const ArtisanCard = ({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <Link to={`/artisan/${id}`}>
+              <Link to={`/artisan/${artisanUrl}`}>
                 <h3 className="font-semibold text-foreground hover:text-gold transition-colors truncate">
                   {name}
                 </h3>
