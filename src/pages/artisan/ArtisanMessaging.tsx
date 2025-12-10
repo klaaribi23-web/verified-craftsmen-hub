@@ -23,6 +23,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { QuoteForm } from "@/components/quotes/QuoteForm";
+import { QuoteMessageCard, parseQuoteFromMessage } from "@/components/chat/QuoteMessageCard";
 
 export const ArtisanMessaging = () => {
   const {
@@ -32,6 +33,7 @@ export const ArtisanMessaging = () => {
     useConversationMessages,
     sendMessage,
     markAsRead,
+    isDemoMode,
   } = useMessaging();
 
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
@@ -42,6 +44,9 @@ export const ArtisanMessaging = () => {
 
   const selectedConversation = conversations.find(c => c.participant_id === selectedConversationId);
   const { data: messages = [], isLoading: messagesLoading } = useConversationMessages(selectedConversationId);
+
+  // Demo mode profile ID for message display
+  const effectiveProfileId = isDemoMode ? "demo-artisan" : currentProfileId;
 
   // Auto-select first conversation
   useEffect(() => {
@@ -72,6 +77,82 @@ export const ArtisanMessaging = () => {
   const filteredConversations = conversations.filter(conv =>
     conv.participant_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const renderMessage = (msg: { id: string; sender_id: string; content: string; is_read: boolean; created_at: string }) => {
+    const isOwn = msg.sender_id === effectiveProfileId || msg.sender_id === "demo-artisan";
+    const quoteData = parseQuoteFromMessage(msg.content);
+
+    if (quoteData.isQuote && quoteData.priceHt && quoteData.priceTtc) {
+      return (
+        <div
+          key={msg.id}
+          className={cn("flex", isOwn ? "justify-end" : "justify-start")}
+        >
+          <QuoteMessageCard
+            quoteId={quoteData.quoteId || ""}
+            description={quoteData.description || ""}
+            priceHt={quoteData.priceHt}
+            tvaRate={quoteData.tvaRate || 20}
+            priceTtc={quoteData.priceTtc}
+            status="pending"
+            createdAt={msg.created_at}
+            isOwn={isOwn}
+            isArtisan={true}
+          />
+        </div>
+      );
+    }
+
+    // Check for status messages
+    const isAccepted = msg.content.includes("✅ DEVIS ACCEPTÉ");
+    const isRefused = msg.content.includes("❌ DEVIS REFUSÉ");
+
+    if (isAccepted || isRefused) {
+      return (
+        <div key={msg.id} className="flex justify-center my-4">
+          <div className={cn(
+            "px-4 py-2 rounded-full text-sm font-medium",
+            isAccepted 
+              ? "bg-green-500/10 text-green-600 border border-green-500/20" 
+              : "bg-red-500/10 text-red-600 border border-red-500/20"
+          )}>
+            {isAccepted ? "✅ Devis accepté par le client" : "❌ Devis refusé par le client"}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        key={msg.id}
+        className={cn("flex", isOwn ? "justify-end" : "justify-start")}
+      >
+        <div
+          className={cn(
+            "max-w-md rounded-2xl px-4 py-3",
+            isOwn
+              ? "bg-primary text-primary-foreground rounded-br-md"
+              : "bg-card border border-border rounded-bl-md"
+          )}
+        >
+          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+          <div className={cn(
+            "flex items-center justify-end gap-1 mt-1",
+            isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+          )}>
+            <span className="text-xs">{formatMessageTime(msg.created_at)}</span>
+            {isOwn && (
+              msg.is_read ? (
+                <CheckCheck className="w-4 h-4" />
+              ) : (
+                <Check className="w-4 h-4" />
+              )
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -211,39 +292,7 @@ export const ArtisanMessaging = () => {
                         <p>Aucun message. Commencez la conversation !</p>
                       </div>
                     ) : (
-                      messages.map((msg) => (
-                        <div
-                          key={msg.id}
-                          className={cn(
-                            "flex",
-                            msg.sender_id === currentProfileId ? "justify-end" : "justify-start"
-                          )}
-                        >
-                          <div
-                            className={cn(
-                              "max-w-md rounded-2xl px-4 py-3",
-                              msg.sender_id === currentProfileId
-                                ? "bg-primary text-primary-foreground rounded-br-md"
-                                : "bg-card border border-border rounded-bl-md"
-                            )}
-                          >
-                            <p className="text-sm">{msg.content}</p>
-                            <div className={cn(
-                              "flex items-center justify-end gap-1 mt-1",
-                              msg.sender_id === currentProfileId ? "text-primary-foreground/70" : "text-muted-foreground"
-                            )}>
-                              <span className="text-xs">{formatMessageTime(msg.created_at)}</span>
-                              {msg.sender_id === currentProfileId && (
-                                msg.is_read ? (
-                                  <CheckCheck className="w-4 h-4" />
-                                ) : (
-                                  <Check className="w-4 h-4" />
-                                )
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))
+                      messages.map(renderMessage)
                     )}
                     <div ref={messagesEndRef} />
                   </div>
