@@ -37,9 +37,9 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
     (currentSlide + 1) * ITEMS_PER_PAGE
   );
 
-  const handleViewProfile = (id: string) => {
+  const handleViewProfile = (slugOrId: string) => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    navigate(`/artisan/${id}`);
+    navigate(`/artisan/${slugOrId}`);
   };
 
   const renderStars = (rating: number) => {
@@ -121,7 +121,7 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
                 <Card 
                   key={artisan.id} 
                   className="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-                  onClick={() => handleViewProfile(artisan.id)}
+                  onClick={() => handleViewProfile(artisan.slug || artisan.id)}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3 mb-3">

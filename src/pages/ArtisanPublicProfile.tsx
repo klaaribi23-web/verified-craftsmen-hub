@@ -17,13 +17,13 @@ import { Video } from "lucide-react";
 import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisansCarousel";
 import { fr } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
-import { useArtisanById, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
+import { useArtisanBySlug, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
 import ChatWidget from "@/components/chat/ChatWidget";
 const ArtisanPublicProfile = () => {
   const {
-    id
+    slug
   } = useParams<{
-    id: string;
+    slug: string;
   }>();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -32,19 +32,22 @@ const ArtisanPublicProfile = () => {
   const [showContactInfo, setShowContactInfo] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
-  // Fetch dynamic data
+  // Fetch dynamic data using slug
   const {
     data: artisan,
     isLoading: artisanLoading
-  } = useArtisanById(id || "");
+  } = useArtisanBySlug(slug || "");
+  
+  // Use artisan.id for services and reviews (they need the actual ID)
+  const artisanId = artisan?.id || "";
   const {
     data: services,
     isLoading: servicesLoading
-  } = useArtisanServices(id || "");
+  } = useArtisanServices(artisanId);
   const {
     data: reviews,
     isLoading: reviewsLoading
-  } = useArtisanReviews(id || "");
+  } = useArtisanReviews(artisanId);
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
   const handleShare = (platform: string) => {
     if (!artisan) return;

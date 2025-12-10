@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface FeaturedArtisan {
   id: string;
+  slug: string | null;
   name: string;
   profession: string;
   location: string;
@@ -27,6 +28,7 @@ const FeaturedArtisansCarousel = () => {
   // Transform DB data to display format
   const featuredArtisansData: FeaturedArtisan[] = (artisansData || []).map((artisan) => ({
     id: artisan.id,
+    slug: artisan.slug,
     name: artisan.business_name,
     profession: artisan.category?.name || "Artisan",
     location: artisan.city,
@@ -222,7 +224,7 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
             className="w-12 h-12 rounded-full object-cover border-2 border-gold"
           />
           <div className="flex-1 min-w-0">
-            <Link to={`/artisan/${artisan.id}`}>
+            <Link to={`/artisan/${artisan.slug || artisan.id}`}>
               <h3 className="font-semibold text-foreground hover:text-gold transition-colors truncate">
                 {artisan.name}
               </h3>
@@ -246,7 +248,7 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
         </div>
 
         <Button variant="gold" className="w-full" asChild>
-          <Link to={`/artisan/${artisan.id}`}>Voir le profil</Link>
+          <Link to={`/artisan/${artisan.slug || artisan.id}`}>Voir le profil</Link>
         </Button>
       </div>
     </div>

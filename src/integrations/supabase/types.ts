@@ -88,6 +88,7 @@ export type Database = {
           region: string | null
           review_count: number | null
           siret: string | null
+          slug: string | null
           status: Database["public"]["Enums"]["artisan_status"]
           updated_at: string
           user_id: string | null
@@ -121,6 +122,7 @@ export type Database = {
           region?: string | null
           review_count?: number | null
           siret?: string | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"]
           updated_at?: string
           user_id?: string | null
@@ -154,6 +156,7 @@ export type Database = {
           region?: string | null
           review_count?: number | null
           siret?: string | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"]
           updated_at?: string
           user_id?: string | null
@@ -756,6 +759,7 @@ export type Database = {
           rating: number | null
           region: string | null
           review_count: number | null
+          slug: string | null
           status: Database["public"]["Enums"]["artisan_status"] | null
           updated_at: string | null
           website_url: string | null
@@ -785,6 +789,7 @@ export type Database = {
           rating?: number | null
           region?: string | null
           review_count?: number | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
           updated_at?: string | null
           website_url?: string | null
@@ -814,6 +819,7 @@ export type Database = {
           rating?: number | null
           region?: string | null
           review_count?: number | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
           updated_at?: string | null
           website_url?: string | null
