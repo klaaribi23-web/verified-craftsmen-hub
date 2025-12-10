@@ -439,6 +439,12 @@ const Auth = () => {
                       ) : null}
                       Se connecter
                     </Button>
+
+                    <div className="text-center">
+                      <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                        Mot de passe oublié ?
+                      </Link>
+                    </div>
                   </form>
                 </TabsContent>
 

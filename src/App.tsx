@@ -41,6 +41,8 @@ import AdminAddArtisan from "./pages/admin/AdminAddArtisan";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,8 @@ const App = () => (
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/artisan/:id" element={<ArtisanPublicProfile />} />
           
           {/* Protected Artisan Routes */}
