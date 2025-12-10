@@ -6,17 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { 
   Mail, 
   Lock, 
   User, 
   Loader2,
-  ArrowLeft
+  ArrowLeft,
+  CheckCircle
 } from "lucide-react";
 
 // Validation schemas
@@ -34,34 +35,6 @@ const signupSchema = z.object({
   firstName: z.string().trim().min(2, "Prénom requis (min 2 caractères)").max(50, "Prénom trop long"),
   lastName: z.string().trim().min(2, "Nom requis (min 2 caractères)").max(50, "Nom trop long"),
 });
-// Google Icon component
-const GoogleIcon = () => (
-  <svg className="h-5 w-5" viewBox="0 0 24 24">
-    <path
-      fill="#4285F4"
-      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-    />
-    <path
-      fill="#34A853"
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-    />
-    <path
-      fill="#EA4335"
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-    />
-  </svg>
-);
-
-// Facebook Icon component
-const FacebookIcon = () => (
-  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#1877F2">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-  </svg>
-);
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -74,7 +47,17 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
+
+  // OTP verification state
+  const [showOtpVerification, setShowOtpVerification] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [pendingSignupData, setPendingSignupData] = useState<{
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    userType: "client" | "artisan";
+  } | null>(null);
 
   // Check if user is already logged in
   useEffect(() => {
@@ -96,7 +79,6 @@ const Auth = () => {
   }, []);
 
   const redirectUser = async () => {
-    // Check user role and redirect accordingly
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -120,7 +102,6 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Validate input with Zod
       const validationResult = signupSchema.safeParse({
         email,
         password,
@@ -140,65 +121,48 @@ const Auth = () => {
       }
 
       const validatedData = validationResult.data;
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { data, error } = await supabase.auth.signUp({
+
+      // Send OTP to email
+      const { error } = await supabase.auth.signInWithOtp({
         email: validatedData.email,
-        password: validatedData.password,
         options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            first_name: validatedData.firstName,
-            last_name: validatedData.lastName,
-          }
+          shouldCreateUser: false, // Don't create user yet, just send OTP
         }
       });
 
-      if (error) throw error;
-
-      if (data.user) {
-        // Add user role
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert([{ user_id: data.user.id, role: userType }]);
-
-        if (roleError) {
-          console.error("Error adding role:", roleError);
-        }
-
-        // If artisan, create artisan profile
-        if (userType === "artisan") {
-          // Get profile ID
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("user_id", data.user.id)
-            .single();
-
-          if (profile) {
-            const { error: artisanError } = await supabase
-              .from("artisans")
-              .insert([{
-                user_id: data.user.id,
-                profile_id: profile.id,
-                business_name: `${firstName} ${lastName}`,
-                city: "Non renseigné",
-                status: "pending"
-              }]);
-
-            if (artisanError) {
-              console.error("Error creating artisan:", artisanError);
+      if (error && error.message !== "Signups not allowed for otp") {
+        // For new users, we need to use a different approach
+        // Store the signup data and send verification email
+        const { error: signupError } = await supabase.auth.signUp({
+          email: validatedData.email,
+          password: validatedData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            data: {
+              first_name: validatedData.firstName,
+              last_name: validatedData.lastName,
             }
           }
-        }
-
-        toast({
-          title: "Inscription réussie !",
-          description: "Votre compte a été créé avec succès.",
         });
 
-        redirectUser();
+        if (signupError) throw signupError;
       }
+
+      // Store pending signup data
+      setPendingSignupData({
+        email: validatedData.email,
+        password: validatedData.password,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        userType,
+      });
+
+      setShowOtpVerification(true);
+      toast({
+        title: "Code envoyé !",
+        description: "Un code de confirmation a été envoyé à votre adresse email.",
+      });
+
     } catch (error: any) {
       console.error("Signup error:", error);
       toast({
@@ -213,12 +177,107 @@ const Auth = () => {
     }
   };
 
+  const handleVerifyOtp = async () => {
+    if (!pendingSignupData || otpCode.length !== 6) return;
+    
+    setIsLoading(true);
+
+    try {
+      // Verify OTP
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: pendingSignupData.email,
+        token: otpCode,
+        type: 'email',
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        // Add user role
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert([{ user_id: data.user.id, role: pendingSignupData.userType }]);
+
+        if (roleError) {
+          console.error("Error adding role:", roleError);
+        }
+
+        // If artisan, create artisan profile
+        if (pendingSignupData.userType === "artisan") {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("user_id", data.user.id)
+            .single();
+
+          if (profile) {
+            const { error: artisanError } = await supabase
+              .from("artisans")
+              .insert([{
+                user_id: data.user.id,
+                profile_id: profile.id,
+                business_name: `${pendingSignupData.firstName} ${pendingSignupData.lastName}`,
+                city: "Non renseigné",
+                status: "pending"
+              }]);
+
+            if (artisanError) {
+              console.error("Error creating artisan:", artisanError);
+            }
+          }
+        }
+
+        toast({
+          title: "Email confirmé !",
+          description: "Votre compte a été créé avec succès.",
+        });
+
+        redirectUser();
+      }
+    } catch (error: any) {
+      console.error("OTP verification error:", error);
+      toast({
+        title: "Code invalide",
+        description: "Le code de confirmation est incorrect ou a expiré.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!pendingSignupData) return;
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: pendingSignupData.email,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Code renvoyé !",
+        description: "Un nouveau code a été envoyé à votre adresse email.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Validate input with Zod
       const validationResult = loginSchema.safeParse({ email, password });
 
       if (!validationResult.success) {
@@ -260,47 +319,89 @@ const Auth = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        }
-      });
+  // OTP Verification Screen
+  if (showOtpVerification && pendingSignupData) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        
+        <main className="container mx-auto px-4 py-12">
+          <div className="max-w-md mx-auto">
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setShowOtpVerification(false);
+                setOtpCode("");
+              }}
+              className="mb-6"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Retour
+            </Button>
 
-      if (error) throw error;
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message,
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
-  };
+            <Card>
+              <CardHeader className="text-center">
+                <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <Mail className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-2xl">Vérifiez votre email</CardTitle>
+                <CardDescription>
+                  Un code de confirmation a été envoyé à <span className="font-medium text-foreground">{pendingSignupData.email}</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex justify-center">
+                  <InputOTP
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(value) => setOtpCode(value)}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
 
-  const handleFacebookSignIn = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "facebook",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        }
-      });
+                <Button 
+                  onClick={handleVerifyOtp} 
+                  className="w-full" 
+                  disabled={isLoading || otpCode.length !== 6}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                  )}
+                  Confirmer mon email
+                </Button>
 
-      if (error) throw error;
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message,
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
-  };
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Vous n'avez pas reçu le code ?
+                  </p>
+                  <Button 
+                    variant="link" 
+                    onClick={handleResendOtp}
+                    disabled={isLoading}
+                    className="text-primary"
+                  >
+                    Renvoyer le code
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -332,39 +433,6 @@ const Auth = () => {
                   <TabsTrigger value="artisan">Je suis un artisan</TabsTrigger>
                 </TabsList>
               </Tabs>
-
-              {/* OAuth buttons - Only for clients */}
-              {userType === "client" && (
-                <>
-                  <div className="space-y-3 mb-6">
-                    <Button 
-                      variant="outline" 
-                      className="w-full gap-2" 
-                      onClick={handleGoogleSignIn}
-                      disabled={isLoading}
-                    >
-                      <GoogleIcon />
-                      Continuer avec Google
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full gap-2" 
-                      onClick={handleFacebookSignIn}
-                      disabled={isLoading}
-                    >
-                      <FacebookIcon />
-                      Continuer avec Facebook
-                    </Button>
-                  </div>
-
-                  <div className="relative mb-6">
-                    <Separator />
-                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
-                      ou
-                    </span>
-                  </div>
-                </>
-              )}
 
               {/* Artisan notice */}
               {userType === "artisan" && (
@@ -493,7 +561,7 @@ const Auth = () => {
                       {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       ) : null}
-                      Créer mon compte
+                      Recevoir le code de confirmation
                     </Button>
                   </form>
                 </TabsContent>
