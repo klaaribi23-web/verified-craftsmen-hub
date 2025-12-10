@@ -102,9 +102,9 @@ export const useCategoriesWithCount = () => {
 
       if (catError) throw catError;
 
-      // Fetch artisan count per category (subcategories only)
+      // Fetch artisan count per category (subcategories only) - use public_artisans view
       const { data: artisans, error: artError } = await supabase
-        .from("artisans")
+        .from("public_artisans")
         .select("category_id")
         .eq("status", "active");
 
