@@ -10,7 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { 
   Mail, 
   Lock, 
@@ -48,27 +47,9 @@ const Auth = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
-  // OTP verification state
-  const [showOtpVerification, setShowOtpVerification] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
-  const [resendTimer, setResendTimer] = useState(0);
-  const [pendingSignupData, setPendingSignupData] = useState<{
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    userType: "client" | "artisan";
-  } | null>(null);
-
-  // Timer countdown effect
-  useEffect(() => {
-    if (resendTimer > 0) {
-      const interval = setInterval(() => {
-        setResendTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [resendTimer]);
+  // Email confirmation sent state
+  const [emailSent, setEmailSent] = useState(false);
+  const [sentEmail, setSentEmail] = useState("");
 
   // Check if user is already logged in
   useEffect(() => {
@@ -132,90 +113,51 @@ const Auth = () => {
       }
 
       const validatedData = validationResult.data;
+      const redirectUrl = `${window.location.origin}/auth/callback`;
 
-      // Send OTP to email
-      const { error } = await supabase.auth.signInWithOtp({
-        email: validatedData.email,
-        options: {
-          shouldCreateUser: false, // Don't create user yet, just send OTP
-        }
-      });
-
-      if (error && error.message !== "Signups not allowed for otp") {
-        // For new users, we need to use a different approach
-        // Store the signup data and send verification email
-        const { error: signupError } = await supabase.auth.signUp({
-          email: validatedData.email,
-          password: validatedData.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-            data: {
-              first_name: validatedData.firstName,
-              last_name: validatedData.lastName,
-            }
-          }
-        });
-
-        if (signupError) throw signupError;
-      }
-
-      // Store pending signup data
-      setPendingSignupData({
+      const { data, error } = await supabase.auth.signUp({
         email: validatedData.email,
         password: validatedData.password,
-        firstName: validatedData.firstName,
-        lastName: validatedData.lastName,
-        userType,
-      });
-
-      setShowOtpVerification(true);
-      setResendTimer(60);
-      toast({
-        title: "Code envoyé !",
-        description: "Un code de confirmation a été envoyé à votre adresse email.",
-      });
-
-    } catch (error: any) {
-      console.error("Signup error:", error);
-      toast({
-        title: "Erreur d'inscription",
-        description: error.message === "User already registered" 
-          ? "Cet email est déjà utilisé. Veuillez vous connecter."
-          : error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (!pendingSignupData || otpCode.length !== 6) return;
-    
-    setIsLoading(true);
-
-    try {
-      // Verify OTP
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: pendingSignupData.email,
-        token: otpCode,
-        type: 'email',
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            first_name: validatedData.firstName,
+            last_name: validatedData.lastName,
+            user_type: userType,
+          }
+        }
       });
 
       if (error) throw error;
 
       if (data.user) {
+        // Check if email confirmation is required
+        if (data.user.identities && data.user.identities.length === 0) {
+          // User already exists
+          toast({
+            title: "Email déjà utilisé",
+            description: "Cet email est déjà enregistré. Veuillez vous connecter.",
+            variant: "destructive",
+          });
+          setAuthMode("login");
+          setIsLoading(false);
+          return;
+        }
+
         // Add user role
         const { error: roleError } = await supabase
           .from("user_roles")
-          .insert([{ user_id: data.user.id, role: pendingSignupData.userType }]);
+          .insert([{ user_id: data.user.id, role: userType }]);
 
         if (roleError) {
           console.error("Error adding role:", roleError);
         }
 
         // If artisan, create artisan profile
-        if (pendingSignupData.userType === "artisan") {
+        if (userType === "artisan") {
+          // Wait a bit for the profile to be created by trigger
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           const { data: profile } = await supabase
             .from("profiles")
             .select("id")
@@ -228,7 +170,7 @@ const Auth = () => {
               .insert([{
                 user_id: data.user.id,
                 profile_id: profile.id,
-                business_name: `${pendingSignupData.firstName} ${pendingSignupData.lastName}`,
+                business_name: `${validatedData.firstName} ${validatedData.lastName}`,
                 city: "Non renseigné",
                 status: "pending"
               }]);
@@ -239,46 +181,30 @@ const Auth = () => {
           }
         }
 
-        toast({
-          title: "Email confirmé !",
-          description: "Votre compte a été créé avec succès.",
-        });
-
-        redirectUser();
+        // Check if session exists (auto-confirm enabled)
+        if (data.session) {
+          toast({
+            title: "Inscription réussie !",
+            description: "Bienvenue sur Artisans Validés.",
+          });
+          redirectUser();
+        } else {
+          // Email confirmation required
+          setSentEmail(validatedData.email);
+          setEmailSent(true);
+          toast({
+            title: "Email de confirmation envoyé",
+            description: "Vérifiez votre boîte mail pour confirmer votre inscription.",
+          });
+        }
       }
     } catch (error: any) {
-      console.error("OTP verification error:", error);
+      console.error("Signup error:", error);
       toast({
-        title: "Code invalide",
-        description: "Le code de confirmation est incorrect ou a expiré.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    if (!pendingSignupData) return;
-    
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: pendingSignupData.email,
-      });
-
-      if (error) throw error;
-
-      setResendTimer(60);
-      toast({
-        title: "Code renvoyé !",
-        description: "Un nouveau code a été envoyé à votre adresse email.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message,
+        title: "Erreur d'inscription",
+        description: error.message === "User already registered" 
+          ? "Cet email est déjà utilisé. Veuillez vous connecter."
+          : error.message,
         variant: "destructive",
       });
     } finally {
@@ -324,6 +250,8 @@ const Auth = () => {
         title: "Erreur de connexion",
         description: error.message === "Invalid login credentials"
           ? "Email ou mot de passe incorrect."
+          : error.message === "Email not confirmed"
+          ? "Veuillez confirmer votre email avant de vous connecter."
           : error.message,
         variant: "destructive",
       });
@@ -332,78 +260,87 @@ const Auth = () => {
     }
   };
 
-  // OTP Verification Screen
-  if (showOtpVerification && pendingSignupData) {
+  const handleResendConfirmation = async () => {
+    if (!sentEmail) return;
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: sentEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email renvoyé !",
+        description: "Un nouvel email de confirmation a été envoyé.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Email confirmation sent screen
+  if (emailSent) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         
         <main className="container mx-auto px-4 py-12">
           <div className="max-w-md mx-auto">
-            <Button 
-              variant="ghost" 
-              onClick={() => {
-                setShowOtpVerification(false);
-                setOtpCode("");
-              }}
-              className="mb-6"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour
-            </Button>
-
             <Card>
               <CardHeader className="text-center">
-                <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <Mail className="h-6 w-6 text-primary" />
+                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <CheckCircle className="h-8 w-8 text-primary" />
                 </div>
                 <CardTitle className="text-2xl">Vérifiez votre email</CardTitle>
                 <CardDescription>
-                  Un code de confirmation a été envoyé à <span className="font-medium text-foreground">{pendingSignupData.email}</span>
+                  Un email de confirmation a été envoyé à <span className="font-medium text-foreground">{sentEmail}</span>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex justify-center">
-                  <InputOTP
-                    maxLength={6}
-                    value={otpCode}
-                    onChange={(value) => setOtpCode(value)}
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
+                <div className="bg-muted/50 p-4 rounded-lg text-sm text-muted-foreground">
+                  <p>Cliquez sur le lien dans l'email pour activer votre compte et accéder à votre tableau de bord.</p>
                 </div>
 
-                <Button 
-                  onClick={handleVerifyOtp} 
-                  className="w-full" 
-                  disabled={isLoading || otpCode.length !== 6}
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                  )}
-                  Confirmer mon email
-                </Button>
-
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Vous n'avez pas reçu le code ?
+                <div className="text-center space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Vous n'avez pas reçu l'email ?
                   </p>
                   <Button 
-                    variant="link" 
-                    onClick={handleResendOtp}
-                    disabled={isLoading || resendTimer > 0}
-                    className="text-primary"
+                    variant="outline" 
+                    onClick={handleResendConfirmation}
+                    disabled={isLoading}
+                    className="w-full"
                   >
-                    {resendTimer > 0 ? `Renvoyer dans ${resendTimer}s` : "Renvoyer le code"}
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Mail className="h-4 w-4 mr-2" />
+                    )}
+                    Renvoyer l'email
+                  </Button>
+                  
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => {
+                      setEmailSent(false);
+                      setAuthMode("login");
+                    }}
+                    className="w-full"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Retour à la connexion
                   </Button>
                 </div>
               </CardContent>
@@ -574,7 +511,7 @@ const Auth = () => {
                       {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       ) : null}
-                      Recevoir le code de confirmation
+                      Créer mon compte
                     </Button>
                   </form>
                 </TabsContent>
