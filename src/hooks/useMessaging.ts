@@ -10,6 +10,9 @@ interface Message {
   content: string;
   is_read: boolean;
   created_at: string;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
+  attachment_type?: string | null;
 }
 
 interface Conversation {
@@ -185,7 +188,15 @@ export const useMessaging = () => {
 
   // Send message mutation
   const sendMessage = useMutation({
-    mutationFn: async ({ receiverId, content }: { receiverId: string; content: string }) => {
+    mutationFn: async ({ 
+      receiverId, 
+      content,
+      attachment
+    }: { 
+      receiverId: string; 
+      content: string;
+      attachment?: { url: string; name: string; type: string };
+    }) => {
       if (!currentProfileId) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
@@ -194,6 +205,9 @@ export const useMessaging = () => {
           sender_id: currentProfileId,
           receiver_id: receiverId,
           content,
+          attachment_url: attachment?.url || null,
+          attachment_name: attachment?.name || null,
+          attachment_type: attachment?.type || null,
         })
         .select()
         .single();
@@ -247,8 +261,10 @@ export const useMessaging = () => {
         await supabase.from("notifications").insert({
           user_id: receiverProfile.user_id,
           type: "new_message",
-          title: "Nouveau message",
-          message: `Vous avez reçu un nouveau message de ${senderName}`,
+          title: attachment ? "Nouveau fichier reçu" : "Nouveau message",
+          message: attachment 
+            ? `${senderName} vous a envoyé un fichier: ${attachment.name}`
+            : `Vous avez reçu un nouveau message de ${senderName}`,
           related_id: data.id,
         });
       }
@@ -258,6 +274,41 @@ export const useMessaging = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages"] });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+  });
+
+  // Upload file mutation
+  const uploadFile = useMutation({
+    mutationFn: async ({ file, receiverId }: { file: File; receiverId: string }) => {
+      if (!currentProfileId) throw new Error("Not authenticated");
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${currentProfileId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("message-attachments")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("message-attachments")
+        .getPublicUrl(fileName);
+
+      // Determine if it's an image
+      const isImage = file.type.startsWith('image/');
+      const messageContent = isImage ? "📷 Image" : `📎 ${file.name}`;
+
+      // Send message with attachment
+      return sendMessage.mutateAsync({
+        receiverId,
+        content: messageContent,
+        attachment: {
+          url: publicUrl,
+          name: file.name,
+          type: file.type,
+        },
+      });
     },
   });
 
@@ -341,6 +392,7 @@ export const useMessaging = () => {
     useConversationMessages,
     sendMessage,
     markAsRead,
+    uploadFile,
   };
 };
 
