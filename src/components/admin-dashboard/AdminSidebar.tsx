@@ -9,7 +9,8 @@ import {
   Bell,
   Mail,
   LogOut,
-  Shield
+  Shield,
+  Settings
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +26,7 @@ const menuItems = [
   { icon: MessageSquare, label: "Messagerie", path: "/admin/messagerie" },
   { icon: Mail, label: "Emails", path: "/admin/emails" },
   { icon: UserPlus, label: "Ajouter artisan", path: "/admin/ajouter-artisan" },
+  { icon: Settings, label: "Paramètres", path: "/admin/parametres" },
 ];
 
 export const AdminSidebar = () => {
