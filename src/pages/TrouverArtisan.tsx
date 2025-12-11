@@ -132,8 +132,8 @@ const TrouverArtisan = () => {
     if (!artisansData) return [];
     
     return artisansData.filter((artisan) => {
-      // Filter by category from hero search or sidebar - check both main category AND multiple categories
-      const categoryFilter = filters.category || searchQuery;
+      // Filter by category from hero search or sidebar - use categoryName (not ID) for comparison
+      const categoryFilter = filters.categoryName || searchQuery;
       if (categoryFilter && categoryFilter !== "all") {
         const filterLower = categoryFilter.toLowerCase();
         
@@ -368,6 +368,7 @@ const TrouverArtisan = () => {
                         >
                           <ArtisanCard
                             id={artisan.id}
+                            slug={artisan.slug}
                             name={artisan.business_name}
                             profession={artisan.category?.name || "Artisan"}
                             location={artisan.city}
