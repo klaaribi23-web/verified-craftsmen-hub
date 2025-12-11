@@ -4,6 +4,9 @@ import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useArtisanProfile } from "@/hooks/useArtisanProfile";
 import { 
   FileText, 
   Upload, 
@@ -18,14 +21,15 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
-interface Document {
+interface DocumentRecord {
   id: string;
   name: string;
-  type: string;
-  status: "verified" | "pending" | "expired" | "unverified";
-  uploadDate: string;
-  expiryDate: string | null;
-  fileName: string;
+  file_name: string;
+  file_path: string;
+  file_size: number | null;
+  status: string;
+  expiry_date: string | null;
+  created_at: string;
 }
 
 const requiredDocuments = [
@@ -66,39 +70,148 @@ const getStatusConfig = (status: string) => {
 };
 
 export const ArtisanDocuments = () => {
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const queryClient = useQueryClient();
+  const { artisan } = useArtisanProfile();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch documents from database
+  const { data: documents = [], isLoading } = useQuery({
+    queryKey: ["artisan-documents", artisan?.id],
+    queryFn: async () => {
+      if (!artisan?.id) return [];
+      const { data, error } = await supabase
+        .from("artisan_documents")
+        .select("*")
+        .eq("artisan_id", artisan.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as DocumentRecord[];
+    },
+    enabled: !!artisan?.id
+  });
+
+  // Upload mutation
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      if (!artisan?.id) throw new Error("Artisan non trouvé");
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Utilisateur non connecté");
+
+      // Upload file to storage
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("artisan-documents")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Insert document record
+      const { error: insertError } = await supabase
+        .from("artisan_documents")
+        .insert({
+          artisan_id: artisan.id,
+          name: file.name.replace(/\.[^/.]+$/, ""),
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          status: "pending"
+        });
+
+      if (insertError) throw insertError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
+      toast.success("Document téléchargé avec succès");
+    },
+    onError: (error) => {
+      console.error("Upload error:", error);
+      toast.error("Erreur lors du téléchargement");
+    }
+  });
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (doc: DocumentRecord) => {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("artisan-documents")
+        .remove([doc.file_path]);
+
+      if (storageError) console.error("Storage delete error:", storageError);
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("artisan_documents")
+        .delete()
+        .eq("id", doc.id);
+
+      if (dbError) throw dbError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
+      toast.success("Document supprimé");
+    },
+    onError: () => {
+      toast.error("Erreur lors de la suppression");
+    }
+  });
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Format non supporté. Utilisez PDF, JPG ou PNG.");
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Le fichier est trop volumineux (max 10 Mo)");
+      return;
+    }
+
     setIsUploading(true);
-    // Simulate upload - in real implementation, this would upload to Supabase Storage
-    setTimeout(() => {
-      const newDoc: Document = {
-        id: Date.now().toString(),
-        name: file.name.replace(/\.[^/.]+$/, ""),
-        type: "document",
-        status: "pending",
-        uploadDate: new Date().toLocaleDateString("fr-FR"),
-        expiryDate: null,
-        fileName: file.name
-      };
-      setDocuments(prev => [...prev, newDoc]);
-      setIsUploading(false);
-      toast.success("Document téléchargé avec succès");
-    }, 1500);
+    await uploadMutation.mutateAsync(file);
+    setIsUploading(false);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleDelete = (docId: string) => {
-    setDocuments(prev => prev.filter(d => d.id !== docId));
-    toast.success("Document supprimé");
+  const handleView = async (doc: DocumentRecord) => {
+    const { data } = await supabase.storage
+      .from("artisan-documents")
+      .createSignedUrl(doc.file_path, 3600);
+
+    if (data?.signedUrl) {
+      window.open(data.signedUrl, "_blank");
+    } else {
+      toast.error("Impossible d'ouvrir le document");
+    }
+  };
+
+  const handleDownload = async (doc: DocumentRecord) => {
+    const { data } = await supabase.storage
+      .from("artisan-documents")
+      .createSignedUrl(doc.file_path, 3600);
+
+    if (data?.signedUrl) {
+      const link = document.createElement("a");
+      link.href = data.signedUrl;
+      link.download = doc.file_name;
+      link.click();
+    } else {
+      toast.error("Impossible de télécharger le document");
+    }
   };
 
   const uploadedDocNames = documents.map(d => d.name.toLowerCase());
@@ -163,7 +276,7 @@ export const ArtisanDocuments = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept=".pdf,.jpg,.jpeg,.png,.webp"
                 onChange={handleUpload}
                 className="hidden"
               />
@@ -183,7 +296,11 @@ export const ArtisanDocuments = () => {
 
             {/* Documents List */}
             <div className="bg-card rounded-xl border border-border shadow-soft overflow-hidden">
-              {documents.length === 0 ? (
+              {isLoading ? (
+                <div className="p-12 flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : documents.length === 0 ? (
                 <div className="p-12 text-center">
                   <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="font-semibold text-foreground mb-2">Aucun document</h3>
@@ -205,7 +322,7 @@ export const ArtisanDocuments = () => {
                         <th className="text-left p-4 font-medium text-muted-foreground">Document</th>
                         <th className="text-left p-4 font-medium text-muted-foreground">Statut</th>
                         <th className="text-left p-4 font-medium text-muted-foreground">Date d'ajout</th>
-                        <th className="text-left p-4 font-medium text-muted-foreground">Expiration</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Taille</th>
                         <th className="text-right p-4 font-medium text-muted-foreground">Actions</th>
                       </tr>
                     </thead>
@@ -213,6 +330,10 @@ export const ArtisanDocuments = () => {
                       {documents.map((doc) => {
                         const statusConfig = getStatusConfig(doc.status);
                         const StatusIcon = statusConfig.icon;
+                        const sizeInKB = doc.file_size ? Math.round(doc.file_size / 1024) : 0;
+                        const sizeDisplay = sizeInKB > 1024 
+                          ? `${(sizeInKB / 1024).toFixed(1)} Mo` 
+                          : `${sizeInKB} Ko`;
                         
                         return (
                           <tr key={doc.id} className="hover:bg-muted/30 transition-colors">
@@ -223,7 +344,7 @@ export const ArtisanDocuments = () => {
                                 </div>
                                 <div>
                                   <p className="font-medium text-foreground">{doc.name}</p>
-                                  <p className="text-sm text-muted-foreground">{doc.fileName}</p>
+                                  <p className="text-sm text-muted-foreground">{doc.file_name}</p>
                                 </div>
                               </div>
                             </td>
@@ -233,31 +354,42 @@ export const ArtisanDocuments = () => {
                                 {statusConfig.label}
                               </Badge>
                             </td>
-                            <td className="p-4 text-muted-foreground">{doc.uploadDate}</td>
-                            <td className="p-4">
-                              {doc.expiryDate ? (
-                                <span className={doc.status === "expired" ? "text-destructive" : "text-muted-foreground"}>
-                                  {doc.expiryDate}
-                                </span>
-                              ) : (
-                                <span className="text-muted-foreground">-</span>
-                              )}
+                            <td className="p-4 text-muted-foreground">
+                              {new Date(doc.created_at).toLocaleDateString("fr-FR")}
+                            </td>
+                            <td className="p-4 text-muted-foreground">
+                              {sizeDisplay}
                             </td>
                             <td className="p-4">
                               <div className="flex items-center justify-end gap-2">
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8"
+                                  onClick={() => handleView(doc)}
+                                >
                                   <Eye className="w-4 h-4" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8"
+                                  onClick={() => handleDownload(doc)}
+                                >
                                   <Download className="w-4 h-4" />
                                 </Button>
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
                                   className="h-8 w-8 text-destructive hover:text-destructive"
-                                  onClick={() => handleDelete(doc.id)}
+                                  onClick={() => deleteMutation.mutate(doc)}
+                                  disabled={deleteMutation.isPending}
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  {deleteMutation.isPending ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="w-4 h-4" />
+                                  )}
                                 </Button>
                               </div>
                             </td>
