@@ -1,58 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import { 
   ChevronLeft, 
   ChevronRight, 
   Plus,
   Clock,
-  MapPin,
-  User,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Save,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const daysOfWeek = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
-const events = [
-  {
-    id: 1,
-    title: "Rénovation salle de bain",
-    client: "Laurent Petit",
-    address: "45 rue de la Paix, Paris 2e",
-    date: "2024-12-09",
-    startTime: "09:00",
-    endTime: "17:00",
-    type: "job",
-  },
-  {
-    id: 2,
-    title: "Dépannage fuite",
-    client: "Marie Martin",
-    address: "12 rue des Lilas, Paris 15e",
-    date: "2024-12-10",
-    startTime: "09:00",
-    endTime: "11:00",
-    type: "job",
-  },
-  {
-    id: 3,
-    title: "Installation robinetterie",
-    client: "Claire Moreau",
-    address: "12 avenue Victor Hugo, Paris 16e",
-    date: "2024-12-12",
-    startTime: "14:00",
-    endTime: "16:00",
-    type: "job",
-  },
-];
-
-const availabilitySlots = [
+const defaultAvailabilitySlots = [
   { day: "Lundi", slots: ["09:00-12:00", "14:00-18:00"], active: true },
   { day: "Mardi", slots: ["09:00-12:00", "14:00-18:00"], active: true },
   { day: "Mercredi", slots: ["09:00-12:00", "14:00-18:00"], active: true },
@@ -62,15 +40,106 @@ const availabilitySlots = [
   { day: "Dimanche", slots: [], active: false },
 ];
 
+interface AvailabilitySlot {
+  day: string;
+  slots: string[];
+  active: boolean;
+}
+
 export const ArtisanPlanning = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<"week" | "month">("week");
-  const [availability, setAvailability] = useState(availabilitySlots);
+  const [availability, setAvailability] = useState<AvailabilitySlot[]>(defaultAvailabilitySlots);
+  const [isEditingHours, setIsEditingHours] = useState(false);
+  const [editedAvailability, setEditedAvailability] = useState<AvailabilitySlot[]>(defaultAvailabilitySlots);
+
+  // Fetch artisan data
+  const { data: artisan } = useQuery({
+    queryKey: ["artisan-profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("artisans")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id
+  });
+
+  // Load availability from artisan data
+  useEffect(() => {
+    if (artisan?.availability && Array.isArray(artisan.availability)) {
+      const savedAvailability = artisan.availability as unknown as AvailabilitySlot[];
+      if (savedAvailability.length > 0) {
+        setAvailability(savedAvailability);
+        setEditedAvailability(savedAvailability);
+      }
+    }
+  }, [artisan]);
+
+  // Mutation to save availability
+  const saveAvailabilityMutation = useMutation({
+    mutationFn: async (newAvailability: AvailabilitySlot[]) => {
+      if (!artisan?.id) throw new Error("Artisan non trouvé");
+      const { error } = await supabase
+        .from("artisans")
+        .update({ availability: newAvailability as unknown as Record<string, unknown> })
+        .eq("id", artisan.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artisan-profile"] });
+      toast.success("Horaires mis à jour avec succès");
+      setIsEditingHours(false);
+      setAvailability(editedAvailability);
+    },
+    onError: () => {
+      toast.error("Erreur lors de la mise à jour des horaires");
+    }
+  });
 
   const toggleDayAvailability = (dayIndex: number) => {
     const updated = [...availability];
     updated[dayIndex].active = !updated[dayIndex].active;
     setAvailability(updated);
+  };
+
+  const toggleEditedDayAvailability = (dayIndex: number) => {
+    const updated = [...editedAvailability];
+    updated[dayIndex].active = !updated[dayIndex].active;
+    setEditedAvailability(updated);
+  };
+
+  const updateEditedSlot = (dayIndex: number, slotIndex: number, value: string) => {
+    const updated = [...editedAvailability];
+    updated[dayIndex].slots[slotIndex] = value;
+    setEditedAvailability(updated);
+  };
+
+  const addSlot = (dayIndex: number) => {
+    const updated = [...editedAvailability];
+    updated[dayIndex].slots.push("09:00-18:00");
+    setEditedAvailability(updated);
+  };
+
+  const removeSlot = (dayIndex: number, slotIndex: number) => {
+    const updated = [...editedAvailability];
+    updated[dayIndex].slots.splice(slotIndex, 1);
+    setEditedAvailability(updated);
+  };
+
+  const handleSaveAvailability = () => {
+    saveAvailabilityMutation.mutate(editedAvailability);
+  };
+
+  const openEditModal = () => {
+    setEditedAvailability([...availability]);
+    setIsEditingHours(true);
   };
 
   // Generate calendar days for the current month
@@ -107,12 +176,6 @@ export const ArtisanPlanning = () => {
 
   const nextMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-  };
-
-  const getEventsForDate = (date: Date | null) => {
-    if (!date) return [];
-    const dateStr = date.toISOString().split("T")[0];
-    return events.filter(e => e.date === dateStr);
   };
 
   return (
@@ -181,7 +244,6 @@ export const ArtisanPlanning = () => {
                 {/* Calendar Grid */}
                 <div className="grid grid-cols-7">
                   {monthDays.map((day, index) => {
-                    const dayEvents = getEventsForDate(day.date);
                     const isToday = day.date?.toDateString() === new Date().toDateString();
                     
                     return (
@@ -194,29 +256,12 @@ export const ArtisanPlanning = () => {
                         )}
                       >
                         {day.date && (
-                          <>
-                            <span className={cn(
-                              "inline-flex items-center justify-center w-7 h-7 rounded-full text-sm",
-                              isToday && "bg-accent text-accent-foreground font-bold"
-                            )}>
-                              {day.date.getDate()}
-                            </span>
-                            <div className="mt-1 space-y-1">
-                              {dayEvents.slice(0, 2).map((event) => (
-                                <div 
-                                  key={event.id}
-                                  className="text-xs p-1 rounded bg-primary/10 text-primary truncate cursor-pointer hover:bg-primary/20 transition-colors"
-                                >
-                                  {event.startTime} {event.title}
-                                </div>
-                              ))}
-                              {dayEvents.length > 2 && (
-                                <span className="text-xs text-muted-foreground">
-                                  +{dayEvents.length - 2} autres
-                                </span>
-                              )}
-                            </div>
-                          </>
+                          <span className={cn(
+                            "inline-flex items-center justify-center w-7 h-7 rounded-full text-sm",
+                            isToday && "bg-accent text-accent-foreground font-bold"
+                          )}>
+                            {day.date.getDate()}
+                          </span>
                         )}
                       </div>
                     );
@@ -226,37 +271,15 @@ export const ArtisanPlanning = () => {
 
               {/* Sidebar */}
               <div className="space-y-6">
-                {/* Upcoming Events */}
+                {/* Upcoming Events - Empty State */}
                 <div className="bg-card rounded-xl border border-border shadow-soft p-4">
                   <h3 className="font-semibold text-foreground mb-4">Prochains rendez-vous</h3>
-                  <div className="space-y-3">
-                    {events.slice(0, 3).map((event) => (
-                      <div 
-                        key={event.id}
-                        className="p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <span className="font-medium text-foreground text-sm">{event.title}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {event.startTime}
-                          </Badge>
-                        </div>
-                        <div className="space-y-1 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            {event.client}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {event.address}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <CalendarIcon className="w-3 h-3" />
-                            {new Date(event.date).toLocaleDateString("fr-FR")}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="py-8 text-center">
+                    <CalendarIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground text-sm">Aucun rendez-vous prévu</p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">
+                      Vos rendez-vous apparaîtront ici
+                    </p>
                   </div>
                 </div>
 
@@ -289,16 +312,104 @@ export const ArtisanPlanning = () => {
                       </div>
                     ))}
                   </div>
-                  <Button variant="outline" className="w-full mt-4" size="sm">
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4" 
+                    size="sm"
+                    onClick={openEditModal}
+                  >
                     <Clock className="w-4 h-4 mr-2" /> Modifier les horaires
                   </Button>
                 </div>
-                </div>
               </div>
             </div>
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
+    </div>
+
+    {/* Edit Hours Modal */}
+    <Dialog open={isEditingHours} onOpenChange={setIsEditingHours}>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Modifier les horaires de disponibilité</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          {editedAvailability.map((day, dayIndex) => (
+            <div key={day.day} className="space-y-2 p-3 rounded-lg border border-border">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Switch 
+                    checked={day.active}
+                    onCheckedChange={() => toggleEditedDayAvailability(dayIndex)}
+                  />
+                  <Label className={cn(
+                    "font-medium",
+                    day.active ? "text-foreground" : "text-muted-foreground"
+                  )}>
+                    {day.day}
+                  </Label>
+                </div>
+                {day.active && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => addSlot(dayIndex)}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+              
+              {day.active && (
+                <div className="pl-10 space-y-2">
+                  {day.slots.map((slot, slotIndex) => (
+                    <div key={slotIndex} className="flex items-center gap-2">
+                      <Input
+                        value={slot}
+                        onChange={(e) => updateEditedSlot(dayIndex, slotIndex, e.target.value)}
+                        placeholder="09:00-18:00"
+                        className="flex-1"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => removeSlot(dayIndex, slotIndex)}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                  {day.slots.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Aucun créneau défini</p>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsEditingHours(false)}>
+            Annuler
+          </Button>
+          <Button 
+            variant="gold" 
+            onClick={handleSaveAvailability}
+            disabled={saveAvailabilityMutation.isPending}
+          >
+            {saveAvailabilityMutation.isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            Enregistrer
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     </>
   );
 };

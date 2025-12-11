@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useArtisanPortfolio } from "@/hooks/useArtisanPortfolio";
 import { useArtisanProfile } from "@/hooks/useArtisanProfile";
+import { useCategoriesHierarchy } from "@/hooks/useCategories";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { cities } from "@/data/frenchLocations";
 import { 
   User, 
   Camera, 
@@ -26,11 +31,31 @@ import {
   Video,
   Link as LinkIcon,
   Upload,
-  Loader2
+  Loader2,
+  ChevronDown
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 export const ArtisanProfile = () => {
+  const queryClient = useQueryClient();
   const {
     artisan,
     profile,
@@ -54,6 +79,23 @@ export const ArtisanProfile = () => {
     maxVideos,
   } = useArtisanPortfolio();
 
+  const { data: categoriesHierarchy = [] } = useCategoriesHierarchy();
+
+  // Fetch artisan's current categories
+  const { data: artisanCategories = [] } = useQuery({
+    queryKey: ["artisan-categories", artisan?.id],
+    queryFn: async () => {
+      if (!artisan?.id) return [];
+      const { data, error } = await supabase
+        .from("artisan_categories")
+        .select("category_id")
+        .eq("artisan_id", artisan.id);
+      if (error) throw error;
+      return data.map(c => c.category_id);
+    },
+    enabled: !!artisan?.id
+  });
+
   // Form state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -68,11 +110,25 @@ export const ArtisanProfile = () => {
   const [facebookUrl, setFacebookUrl] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  
+  // City suggestions state
+  const [cityOpen, setCityOpen] = useState(false);
+  const [citySearch, setCitySearch] = useState("");
   
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const profilePhotoInputRef = useRef<HTMLInputElement>(null);
+
+  // Filter cities based on search
+  const filteredCities = useMemo(() => {
+    if (!citySearch) return cities.slice(0, 50);
+    const search = citySearch.toLowerCase();
+    return cities
+      .filter(c => c.name.toLowerCase().includes(search))
+      .slice(0, 50);
+  }, [citySearch]);
 
   // Populate form when data loads
   useEffect(() => {
@@ -95,6 +151,40 @@ export const ArtisanProfile = () => {
     }
   }, [profile, artisan]);
 
+  // Populate selected categories
+  useEffect(() => {
+    if (artisanCategories.length > 0) {
+      setSelectedCategories(artisanCategories);
+    }
+  }, [artisanCategories]);
+
+  // Update categories mutation
+  const updateCategoriesMutation = useMutation({
+    mutationFn: async (categoryIds: string[]) => {
+      if (!artisan?.id) throw new Error("Artisan non trouvé");
+      
+      // Delete existing categories
+      await supabase
+        .from("artisan_categories")
+        .delete()
+        .eq("artisan_id", artisan.id);
+      
+      // Insert new categories
+      if (categoryIds.length > 0) {
+        const { error } = await supabase
+          .from("artisan_categories")
+          .insert(categoryIds.map(catId => ({
+            artisan_id: artisan.id,
+            category_id: catId
+          })));
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artisan-categories"] });
+    }
+  });
+
   const handleSave = async () => {
     const success = await updateProfile({
       firstName,
@@ -110,6 +200,11 @@ export const ArtisanProfile = () => {
       instagramUrl,
       linkedinUrl,
     });
+    
+    // Also update categories
+    if (success) {
+      await updateCategoriesMutation.mutateAsync(selectedCategories);
+    }
   };
 
   const handleProfilePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,8 +265,28 @@ export const ArtisanProfile = () => {
     return url.includes("artisan-portfolios");
   };
 
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const getCategoryNames = () => {
+    const names: string[] = [];
+    categoriesHierarchy.forEach(parent => {
+      parent.children.forEach(child => {
+        if (selectedCategories.includes(child.id)) {
+          names.push(child.name);
+        }
+      });
+    });
+    return names;
+  };
+
   const isLoading = profileLoading || portfolioLoading;
-  const isSaving = profileSaving || portfolioSaving;
+  const isSaving = profileSaving || portfolioSaving || updateCategoriesMutation.isPending;
 
   if (isLoading) {
     return (
@@ -283,6 +398,49 @@ export const ArtisanProfile = () => {
               </div>
             </div>
 
+            {/* Categories Selection */}
+            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Catégories de services</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Sélectionnez les catégories qui correspondent à vos compétences (choix multiple)
+              </p>
+              
+              {selectedCategories.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {getCategoryNames().map((name, i) => (
+                    <Badge key={i} variant="secondary" className="bg-accent/20 text-accent">
+                      {name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              
+              <div className="space-y-2 max-h-80 overflow-y-auto border border-border rounded-lg p-4">
+                {categoriesHierarchy.map((parent) => (
+                  <Collapsible key={parent.id}>
+                    <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted/50 rounded-lg">
+                      <span className="font-medium text-foreground">{parent.name}</span>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pl-4 space-y-1">
+                      {parent.children.map((child) => (
+                        <label 
+                          key={child.id}
+                          className="flex items-center gap-2 p-2 hover:bg-muted/50 rounded-lg cursor-pointer"
+                        >
+                          <Checkbox 
+                            checked={selectedCategories.includes(child.id)}
+                            onCheckedChange={() => toggleCategory(child.id)}
+                          />
+                          <span className="text-sm text-foreground">{child.name}</span>
+                        </label>
+                      ))}
+                    </CollapsibleContent>
+                  </Collapsible>
+                ))}
+              </div>
+            </div>
+
             {/* Personal Information */}
             <div className="bg-card rounded-xl border border-border shadow-soft p-6">
               <h3 className="text-lg font-semibold text-foreground mb-6">Informations personnelles</h3>
@@ -338,12 +496,46 @@ export const ArtisanProfile = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="city">Ville</Label>
-                  <Input 
-                    id="city" 
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Paris"
-                  />
+                  <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={cityOpen}
+                        className="w-full justify-between font-normal"
+                      >
+                        {city || "Sélectionner une ville..."}
+                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Rechercher une ville..." 
+                          value={citySearch}
+                          onValueChange={setCitySearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>Aucune ville trouvée</CommandEmpty>
+                          <CommandGroup>
+                            {filteredCities.map((c) => (
+                              <CommandItem
+                                key={`${c.name}-${c.department}`}
+                                value={c.name}
+                                onSelect={() => {
+                                  setCity(`${c.name} (${c.department})`);
+                                  setCityOpen(false);
+                                  setCitySearch("");
+                                }}
+                              >
+                                {c.name} ({c.department})
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Adresse professionnelle</Label>
@@ -620,9 +812,9 @@ export const ArtisanProfile = () => {
               </div>
             </div>
           </div>
-          </main>
-        </div>
+        </main>
       </div>
+    </div>
     </>
   );
 };
