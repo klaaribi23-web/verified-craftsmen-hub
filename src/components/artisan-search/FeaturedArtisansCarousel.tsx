@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2 } from "lucide-re
 import { motion, AnimatePresence } from "framer-motion";
 import { useFeaturedArtisans } from "@/hooks/usePublicData";
 import { Skeleton } from "@/components/ui/skeleton";
-
 interface FeaturedArtisan {
   id: string;
   slug: string | null;
@@ -19,14 +18,16 @@ interface FeaturedArtisan {
   profileImage: string;
   portfolio: string[];
 }
-
 const FeaturedArtisansCarousel = () => {
   const [startIndex, setStartIndex] = useState(0);
-  const { data: artisansData, isLoading } = useFeaturedArtisans();
+  const {
+    data: artisansData,
+    isLoading
+  } = useFeaturedArtisans();
   const itemsPerView = 3;
 
   // Transform DB data to display format
-  const featuredArtisansData: FeaturedArtisan[] = (artisansData || []).map((artisan) => ({
+  const featuredArtisansData: FeaturedArtisan[] = (artisansData || []).map(artisan => ({
     id: artisan.id,
     slug: artisan.slug,
     name: artisan.business_name,
@@ -37,31 +38,19 @@ const FeaturedArtisansCarousel = () => {
     verified: artisan.is_verified || false,
     experience: artisan.experience_years ? `${artisan.experience_years} ans` : "N/A",
     profileImage: artisan.photo_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-    portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : [
-      "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
-    ],
+    portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : ["https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop"]
   }));
-
   const maxIndex = Math.max(0, Math.ceil(featuredArtisansData.length / itemsPerView) - 1);
-
   const nextSlide = () => {
-    setStartIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    setStartIndex(prev => prev >= maxIndex ? 0 : prev + 1);
   };
-
   const prevSlide = () => {
-    setStartIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+    setStartIndex(prev => prev <= 0 ? maxIndex : prev - 1);
   };
-
-  const visibleArtisans = featuredArtisansData.slice(
-    startIndex * itemsPerView,
-    startIndex * itemsPerView + itemsPerView
-  );
-
+  const visibleArtisans = featuredArtisansData.slice(startIndex * itemsPerView, startIndex * itemsPerView + itemsPerView);
   if (isLoading) {
-    return (
-      <div className="grid md:grid-cols-3 gap-6">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-card rounded-2xl shadow-soft border border-border overflow-hidden">
+    return <div className="grid md:grid-cols-3 gap-6">
+        {[1, 2, 3].map(i => <div key={i} className="bg-card rounded-2xl shadow-soft border border-border overflow-hidden">
             <Skeleton className="h-48 w-full" />
             <div className="p-4 space-y-3">
               <div className="flex items-center gap-3">
@@ -73,163 +62,112 @@ const FeaturedArtisansCarousel = () => {
               </div>
               <Skeleton className="h-10 w-full" />
             </div>
-          </div>
-        ))}
-      </div>
-    );
+          </div>)}
+      </div>;
   }
-
   if (featuredArtisansData.length === 0) {
-    return (
-      <div className="text-center py-12 text-muted-foreground">
+    return <div className="text-center py-12 text-muted-foreground">
         Aucun artisan recommandé pour le moment
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="relative">
+  return <div className="relative">
       {/* Navigation Buttons */}
-      {featuredArtisansData.length > itemsPerView && (
-        <>
-          <button
-            onClick={prevSlide}
-            className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
-          >
+      {featuredArtisansData.length > itemsPerView && <>
+          <button onClick={prevSlide} className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card shadow-lg flex items-center justify-center hover:bg-muted transition-colors">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <button
-            onClick={nextSlide}
-            className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
-          >
+          <button onClick={nextSlide} className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card shadow-lg flex items-center justify-center hover:bg-muted transition-colors">
             <ChevronRight className="w-5 h-5 text-foreground" />
           </button>
-        </>
-      )}
+        </>}
 
       {/* Carousel Content */}
       <div className="overflow-hidden px-2">
         <AnimatePresence mode="wait">
-          <motion.div
-            key={startIndex}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
-            className="grid md:grid-cols-3 gap-6"
-          >
-            {visibleArtisans.map((artisan) => (
-              <FeaturedArtisanCard key={artisan.id} artisan={artisan} />
-            ))}
+          <motion.div key={startIndex} initial={{
+          opacity: 0,
+          x: 50
+        }} animate={{
+          opacity: 1,
+          x: 0
+        }} exit={{
+          opacity: 0,
+          x: -50
+        }} transition={{
+          duration: 0.3
+        }} className="grid md:grid-cols-3 gap-6">
+            {visibleArtisans.map(artisan => <FeaturedArtisanCard key={artisan.id} artisan={artisan} />)}
           </motion.div>
         </AnimatePresence>
       </div>
 
       {/* Dots Indicator */}
-      {maxIndex > 0 && (
-        <div className="flex justify-center gap-2 mt-6">
-          {Array.from({ length: maxIndex + 1 }).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setStartIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                index === startIndex ? "bg-gold w-6" : "bg-border"
-              }`}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+      {maxIndex > 0 && <div className="flex justify-center gap-2 mt-6">
+          {Array.from({
+        length: maxIndex + 1
+      }).map((_, index) => <button key={index} onClick={() => setStartIndex(index)} className={`w-2 h-2 rounded-full transition-all ${index === startIndex ? "bg-gold w-6" : "bg-border"}`} />)}
+        </div>}
+    </div>;
 };
-
-const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
+const FeaturedArtisanCard = ({
+  artisan
+}: {
+  artisan: FeaturedArtisan;
+}) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-
   const nextSlide = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentSlide((prev) => (prev + 1) % artisan.portfolio.length);
+    setCurrentSlide(prev => (prev + 1) % artisan.portfolio.length);
   };
-
   const prevSlide = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentSlide((prev) => (prev - 1 + artisan.portfolio.length) % artisan.portfolio.length);
+    setCurrentSlide(prev => (prev - 1 + artisan.portfolio.length) % artisan.portfolio.length);
   };
-
-  return (
-    <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
+  return <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
       {/* Portfolio Carousel */}
       <div className="relative h-48 overflow-hidden group">
-        <img
-          src={artisan.portfolio[currentSlide]}
-          alt={`Réalisation ${currentSlide + 1}`}
-          className="w-full h-full object-cover transition-transform duration-300"
-        />
+        <img src={artisan.portfolio[currentSlide]} alt={`Réalisation ${currentSlide + 1}`} className="w-full h-full object-cover transition-transform duration-300" />
         
         {/* Carousel Controls */}
-        {artisan.portfolio.length > 1 && (
-          <>
-            <button
-              onClick={prevSlide}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card"
-            >
+        {artisan.portfolio.length > 1 && <>
+            <button onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card">
               <ChevronLeft className="w-4 h-4 text-foreground" />
             </button>
-            <button
-              onClick={nextSlide}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card"
-            >
+            <button onClick={nextSlide} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card">
               <ChevronRight className="w-4 h-4 text-foreground" />
             </button>
 
             {/* Dots Indicator */}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-              {artisan.portfolio.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setCurrentSlide(index);
-                  }}
-                  className={`w-1.5 h-1.5 rounded-full transition-all ${
-                    index === currentSlide 
-                      ? "bg-card w-4" 
-                      : "bg-card/60"
-                  }`}
-                />
-              ))}
+              {artisan.portfolio.map((_, index) => <button key={index} onClick={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            setCurrentSlide(index);
+          }} className={`w-1.5 h-1.5 rounded-full transition-all ${index === currentSlide ? "bg-card w-4" : "bg-card/60"}`} />)}
             </div>
-          </>
-        )}
+          </>}
 
         {/* Verified Badge */}
-        {artisan.verified && (
-          <div className="absolute top-2 right-2 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+        {artisan.verified && <div className="absolute top-2 right-2 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" />
             Vérifié
-          </div>
-        )}
+          </div>}
       </div>
 
       {/* Card Content */}
       <div className="p-4">
         {/* Profile Row */}
         <div className="flex items-center gap-3 mb-3">
-          <img
-            src={artisan.profileImage}
-            alt={artisan.name}
-            className="w-12 h-12 rounded-full object-cover border-2 border-gold"
-          />
+          <img src={artisan.profileImage} alt={artisan.name} className="w-12 h-12 rounded-full object-cover border-2 border-gold" />
           <div className="flex-1 min-w-0">
             <Link to={`/artisan/${artisan.slug || artisan.id}`}>
               <h3 className="font-semibold text-foreground hover:text-gold transition-colors truncate">
                 {artisan.name}
               </h3>
             </Link>
-            <p className="text-sm text-muted-foreground">{artisan.profession}</p>
+            
           </div>
           <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
             <Star className="w-4 h-4 fill-gold text-gold" />
@@ -251,8 +189,6 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
           <Link to={`/artisan/${artisan.slug || artisan.id}`}>Voir le profil</Link>
         </Button>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default FeaturedArtisansCarousel;
