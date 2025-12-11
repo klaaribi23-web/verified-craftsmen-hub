@@ -11,7 +11,7 @@ import {
   Search, 
   Send, 
   Paperclip, 
-  Image,
+  Image as ImageIcon,
   MoreVertical,
   Phone,
   Video,
@@ -19,12 +19,16 @@ import {
   Check,
   CheckCheck,
   FileText,
+  Download,
+  X,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { QuoteForm } from "@/components/quotes/QuoteForm";
 import { QuoteMessageCard, parseQuoteFromMessage } from "@/components/chat/QuoteMessageCard";
 import Navbar from "@/components/layout/Navbar";
+import { toast } from "sonner";
 
 export const ArtisanMessaging = () => {
   const {
@@ -34,13 +38,18 @@ export const ArtisanMessaging = () => {
     useConversationMessages,
     sendMessage,
     markAsRead,
+    uploadFile,
   } = useMessaging();
 
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [showQuoteForm, setShowQuoteForm] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const selectedConversation = conversations.find(c => c.participant_id === selectedConversationId);
   const { data: messages = [], isLoading: messagesLoading } = useConversationMessages(selectedConversationId);
@@ -67,8 +76,51 @@ export const ArtisanMessaging = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = () => {
-    if (newMessage.trim() && selectedConversationId) {
+  // Clean up preview URL
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, isImage: boolean) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Fichier trop volumineux (max 10 Mo)");
+      return;
+    }
+
+    setSelectedFile(file);
+    if (isImage && file.type.startsWith('image/')) {
+      setPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setPreviewUrl(null);
+    }
+  };
+
+  const clearSelectedFile = () => {
+    setSelectedFile(null);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (imageInputRef.current) imageInputRef.current.value = "";
+  };
+
+  const handleSendMessage = async () => {
+    if (!selectedConversationId) return;
+
+    if (selectedFile) {
+      try {
+        await uploadFile.mutateAsync({ file: selectedFile, receiverId: selectedConversationId });
+        clearSelectedFile();
+        toast.success("Fichier envoyé");
+      } catch (error) {
+        toast.error("Erreur lors de l'envoi du fichier");
+      }
+    } else if (newMessage.trim()) {
       sendMessage.mutate({ receiverId: selectedConversationId, content: newMessage.trim() });
       setNewMessage("");
     }
@@ -78,9 +130,10 @@ export const ArtisanMessaging = () => {
     conv.participant_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const renderMessage = (msg: { id: string; sender_id: string; content: string; is_read: boolean; created_at: string }) => {
+  const renderMessage = (msg: { id: string; sender_id: string; content: string; is_read: boolean; created_at: string; attachment_url?: string | null; attachment_name?: string | null; attachment_type?: string | null }) => {
     const isOwn = msg.sender_id === effectiveProfileId;
     const quoteData = parseQuoteFromMessage(msg.content);
+    const hasAttachment = !!msg.attachment_url;
 
     if (quoteData.isQuote && quoteData.priceHt && quoteData.priceTtc) {
       return (
@@ -117,6 +170,71 @@ export const ArtisanMessaging = () => {
               : "bg-red-500/10 text-red-600 border border-red-500/20"
           )}>
             {isAccepted ? "✅ Devis accepté par le client" : "❌ Devis refusé par le client"}
+          </div>
+        </div>
+      );
+    }
+
+    // Render attachment if present
+    if (hasAttachment) {
+      const isImage = msg.attachment_type?.startsWith('image/');
+      return (
+        <div
+          key={msg.id}
+          className={cn("flex", isOwn ? "justify-end" : "justify-start")}
+        >
+          <div
+            className={cn(
+              "max-w-md rounded-2xl px-4 py-3",
+              isOwn
+                ? "bg-primary text-primary-foreground rounded-br-md"
+                : "bg-card border border-border rounded-bl-md"
+            )}
+          >
+            {isImage ? (
+              <a href={msg.attachment_url || "#"} target="_blank" rel="noopener noreferrer">
+                <img 
+                  src={msg.attachment_url || ""} 
+                  alt={msg.attachment_name || "Image"} 
+                  className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+                />
+              </a>
+            ) : (
+              <a 
+                href={msg.attachment_url || "#"} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={cn(
+                  "flex items-center gap-2 p-2 rounded-lg mb-2",
+                  isOwn ? "bg-primary-foreground/10" : "bg-muted"
+                )}
+              >
+                <FileText className="w-8 h-8 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{msg.attachment_name}</p>
+                </div>
+                <Download className="w-4 h-4 flex-shrink-0" />
+              </a>
+            )}
+            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+            <div className={cn(
+              "flex items-center justify-end gap-1 mt-1",
+              isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+            )}>
+              <span className="text-xs">{formatMessageTime(msg.created_at)}</span>
+              {isOwn && (
+                <div className="flex items-center gap-0.5">
+                  {msg.is_read ? (
+                    <>
+                      <CheckCheck className="w-4 h-4 text-blue-400" />
+                      <span className="text-xs ml-1">Vu</span>
+                    </>
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       );
@@ -305,30 +423,72 @@ export const ArtisanMessaging = () => {
                   </div>
                 </ScrollArea>
 
+                {/* File Preview */}
+                {selectedFile && (
+                  <div className="p-4 border-t border-border bg-muted/50">
+                    <div className="flex items-center gap-3 p-2 bg-card rounded-lg border">
+                      {previewUrl ? (
+                        <img src={previewUrl} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                      ) : (
+                        <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
+                          <FileText className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{selectedFile.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {(selectedFile.size / 1024).toFixed(1)} Ko
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={clearSelectedFile}>
+                        <X className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Message Input */}
                 <div className="p-4 border-t border-border bg-card">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={(e) => handleFileSelect(e, false)}
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.zip"
+                  />
+                  <input
+                    type="file"
+                    ref={imageInputRef}
+                    className="hidden"
+                    onChange={(e) => handleFileSelect(e, true)}
+                    accept="image/*"
+                  />
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}>
                       <Paperclip className="w-5 h-5" />
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      <Image className="w-5 h-5" />
+                    <Button variant="ghost" size="icon" onClick={() => imageInputRef.current?.click()}>
+                      <ImageIcon className="w-5 h-5" />
                     </Button>
                     <Input
                       placeholder="Écrire un message..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       className="flex-1"
-                      onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                      disabled={sendMessage.isPending}
+                      onKeyPress={(e) => e.key === "Enter" && !selectedFile && handleSendMessage()}
+                      disabled={sendMessage.isPending || uploadFile.isPending}
                     />
                     <Button 
                       variant="gold" 
                       size="icon"
                       onClick={handleSendMessage}
-                      disabled={!newMessage.trim() || sendMessage.isPending}
+                      disabled={(!newMessage.trim() && !selectedFile) || sendMessage.isPending || uploadFile.isPending}
                     >
-                      <Send className="w-5 h-5" />
+                      {uploadFile.isPending ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Send className="w-5 h-5" />
+                      )}
                     </Button>
                   </div>
                 </div>
