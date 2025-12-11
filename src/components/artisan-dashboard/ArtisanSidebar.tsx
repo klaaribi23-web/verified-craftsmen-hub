@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/artisan/dashboard" },
