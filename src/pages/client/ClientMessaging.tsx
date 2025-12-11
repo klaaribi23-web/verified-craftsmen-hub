@@ -231,11 +231,16 @@ export const ClientMessaging = () => {
               {formatMessageTime(message.created_at)}
             </span>
             {isOwn && (
-              message.is_read ? (
-                <CheckCheck className="w-4 h-4" />
-              ) : (
-                <Check className="w-4 h-4" />
-              )
+              <div className="flex items-center gap-0.5">
+                {message.is_read ? (
+                  <>
+                    <CheckCheck className="w-4 h-4 text-blue-400" />
+                    <span className="text-xs ml-1">Vu</span>
+                  </>
+                ) : (
+                  <Check className="w-4 h-4" />
+                )}
+              </div>
             )}
           </div>
         </div>
