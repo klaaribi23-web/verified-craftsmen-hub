@@ -73,7 +73,7 @@ export const ArtisanSidebar = () => {
             <User className="w-6 h-6" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium {artisanProfile?.business_name || "Mon profil"}">Jean Dupont</p>
+            <p className="font-medium truncate">{artisanProfile?.business_name || "Mon profil"}">Jean Dupont</p>
             <p className="text-sm text-sidebar-foreground/70">{artisanProfile?.specialty || "Spécialité"}</p>
           </div>
           <div className="flex items-center gap-1 px-2 py-1 bg-success/20 rounded-full">
