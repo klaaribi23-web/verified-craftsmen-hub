@@ -22,7 +22,7 @@ import {
   Search, 
   Eye, 
   MessageSquare, 
-  Phone, 
+  Pencil, 
   UserX, 
   MapPin,
   Calendar,
@@ -39,12 +39,14 @@ import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/layout/Navbar";
+import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
 
 const AdminArtisans = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [selectedCity, setSelectedCity] = useState("Toutes");
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedArtisan, setSelectedArtisan] = useState<any>(null);
 
   const { data: artisans, isLoading: artisansLoading } = useArtisans();
@@ -282,13 +284,24 @@ const AdminArtisans = () => {
                         </td>
                         <td className="p-4">
                           <div className="flex items-center gap-2">
-                            <Link to={`/artisan/${artisan.id}`}>
-                              <Button size="sm" variant="outline">
+                            <Link to={`/artisan/${artisan.slug || artisan.id}`}>
+                              <Button size="sm" variant="outline" title="Voir le profil">
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </Link>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              title="Modifier"
+                              onClick={() => {
+                                setSelectedArtisan(artisan);
+                                setEditDialogOpen(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
                             <Link to={`/admin/messagerie?artisan=${artisan.profile_id}`}>
-                              <Button size="sm" variant="outline">
+                              <Button size="sm" variant="outline" title="Messagerie">
                                 <MessageSquare className="h-4 w-4" />
                               </Button>
                             </Link>
@@ -296,6 +309,7 @@ const AdminArtisans = () => {
                               size="sm" 
                               variant={artisan.status === "suspended" ? "default" : "destructive"} 
                               onClick={() => handleRevoke(artisan)}
+                              title={artisan.status === "suspended" ? "Réactiver" : "Suspendre"}
                             >
                               {artisan.status === "suspended" ? <CheckCircle className="h-4 w-4" /> : <UserX className="h-4 w-4" />}
                             </Button>
@@ -338,6 +352,13 @@ const AdminArtisans = () => {
             </div>
             </DialogContent>
           </Dialog>
+
+        {/* Edit Artisan Dialog */}
+        <AdminEditArtisanDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          artisan={selectedArtisan}
+        />
         </main>
       </div>
     </>
