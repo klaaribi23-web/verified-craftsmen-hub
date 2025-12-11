@@ -231,8 +231,8 @@ const DemandeDevis = () => {
         }
       }
 
-      // Create mission
-      const { error: missionError } = await supabase
+      // Create mission with pending_approval status
+      const { data: missionData, error: missionError } = await supabase
         .from("missions")
         .insert({
           client_id: profileId,
@@ -240,10 +240,30 @@ const DemandeDevis = () => {
           description: formData.description,
           city: formData.city,
           category_id: categoryId || null,
-          status: "pending"
-        });
+          status: "pending_approval"
+        })
+        .select("id")
+        .single();
 
       if (missionError) throw missionError;
+
+      // Notify admins about new mission
+      const { data: adminUsers } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      if (adminUsers && missionData) {
+        for (const admin of adminUsers) {
+          await supabase.from("notifications").insert({
+            user_id: admin.user_id,
+            title: "NOUVELLE MISSION proposée",
+            message: `Nouvelle mission "${formData.category}" soumise par un client à ${formData.city}. En attente d'approbation.`,
+            type: "new_mission",
+            related_id: missionData.id
+          });
+        }
+      }
 
       // Success
       setStep(totalSteps + 1);
