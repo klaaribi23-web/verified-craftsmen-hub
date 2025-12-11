@@ -31,7 +31,20 @@ const menuItems = [
 export const ArtisanSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOu, usert } = useAuth();
+    const { data: artisanProfile } = useQuery({
+          queryKey: ["artisan-profile", user?.id],
+          queryFn: async () => {
+                  if (!user?.id) return null;
+                  const { data } = await supabase
+                    .from("artisans")
+                    .select("*")
+                    .eq("user_id", user.id)
+                    .maybeSingle();
+                  return data;
+                },
+        });
+  
 
   const handleLogout = async () => {
     await signOut();
@@ -60,8 +73,8 @@ export const ArtisanSidebar = () => {
             <User className="w-6 h-6" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">Jean Dupont</p>
-            <p className="text-sm text-sidebar-foreground/70">Plombier</p>
+            <p className="font-medium {artisanProfile?.business_name || "Mon profil"}">Jean Dupont</p>
+            <p className="text-sm text-sidebar-foreground/70">{artisanProfile?.specialty || "Spécialité"}</p>
           </div>
           <div className="flex items-center gap-1 px-2 py-1 bg-success/20 rounded-full">
             <BadgeCheck className="w-4 h-4 text-success" />
