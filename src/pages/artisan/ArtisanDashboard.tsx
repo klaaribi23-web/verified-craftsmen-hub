@@ -15,8 +15,11 @@ import {
   Clock,
   CheckCircle,
   ArrowRight,
-  FileText
+  FileText,
+  AlertCircle,
+  XCircle
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import { Link } from "react-router-dom";
@@ -63,6 +66,33 @@ export const ArtisanDashboard = () => {
         inProgress: 0,
         completed: artisanProfile.missions_completed || 0,
         rating: artisanProfile.rating || 0
+      };
+    },
+    enabled: !!artisanProfile?.id
+  });
+
+  // Fetch documents stats
+  const { data: documentStats } = useQuery({
+    queryKey: ["artisan-documents-stats", artisanProfile?.id],
+    queryFn: async () => {
+      if (!artisanProfile?.id) return { total: 0, verified: 0, pending: 0, rejected: 0 };
+      
+      const { data, error } = await supabase
+        .from("artisan_documents")
+        .select("status")
+        .eq("artisan_id", artisanProfile.id);
+
+      if (error) {
+        console.error("Error fetching documents:", error);
+        return { total: 0, verified: 0, pending: 0, rejected: 0 };
+      }
+
+      const docs = data || [];
+      return {
+        total: docs.length,
+        verified: docs.filter(d => d.status === "verified").length,
+        pending: docs.filter(d => d.status === "pending").length,
+        rejected: docs.filter(d => d.status === "rejected").length
       };
     },
     enabled: !!artisanProfile?.id
@@ -211,6 +241,68 @@ export const ArtisanDashboard = () => {
                 value={stats?.rating?.toFixed(1) || "0.0"}
                 icon={Star}
               />
+            </div>
+
+            {/* Documents Status Card */}
+            <div className="bg-card rounded-xl border border-border shadow-soft p-6 mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Statut de mes documents</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {documentStats?.total || 0} document(s) soumis
+                    </p>
+                  </div>
+                </div>
+                <Link to="/artisan/documents">
+                  <Button variant="outline" size="sm">
+                    Gérer <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
+              
+              {documentStats && documentStats.total > 0 ? (
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex items-center gap-3 p-3 bg-success/10 rounded-lg">
+                    <CheckCircle className="w-5 h-5 text-success" />
+                    <div>
+                      <p className="text-2xl font-bold text-success">{documentStats.verified}</p>
+                      <p className="text-xs text-muted-foreground">Vérifiés</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-accent/10 rounded-lg">
+                    <Clock className="w-5 h-5 text-accent" />
+                    <div>
+                      <p className="text-2xl font-bold text-accent">{documentStats.pending}</p>
+                      <p className="text-xs text-muted-foreground">En attente</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-destructive/10 rounded-lg">
+                    <XCircle className="w-5 h-5 text-destructive" />
+                    <div>
+                      <p className="text-2xl font-bold text-destructive">{documentStats.rejected}</p>
+                      <p className="text-xs text-muted-foreground">Refusés</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Aucun document soumis. Ajoutez vos documents professionnels pour compléter votre profil.
+                    </p>
+                  </div>
+                  <Link to="/artisan/documents" className="ml-auto">
+                    <Button size="sm" variant="gold">
+                      Ajouter
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
