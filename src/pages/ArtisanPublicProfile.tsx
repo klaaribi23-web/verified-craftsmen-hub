@@ -351,12 +351,25 @@ const ArtisanPublicProfile = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2 text-sm">
-                      {Object.entries(availability).map(([day, hours]) => <div key={day} className="flex justify-between py-1 border-b border-border/50 last:border-0">
-                          <span className="capitalize text-muted-foreground">{day}</span>
-                          <span className={hours === "Fermé" ? "text-muted-foreground" : "font-medium"}>
-                            {hours}
-                          </span>
-                        </div>)}
+                      {[
+                        { key: "lundi", label: "Lundi" },
+                        { key: "mardi", label: "Mardi" },
+                        { key: "mercredi", label: "Mercredi" },
+                        { key: "jeudi", label: "Jeudi" },
+                        { key: "vendredi", label: "Vendredi" },
+                        { key: "samedi", label: "Samedi" },
+                        { key: "dimanche", label: "Dimanche" },
+                      ].map(({ key, label }) => {
+                        const hours = availability[key] || "Non renseigné";
+                        return (
+                          <div key={key} className="flex justify-between py-1 border-b border-border/50 last:border-0">
+                            <span className="text-muted-foreground">{label}</span>
+                            <span className={hours === "Fermé" ? "text-muted-foreground" : "font-medium"}>
+                              {hours}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>

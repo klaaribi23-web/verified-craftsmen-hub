@@ -5,11 +5,14 @@ export interface Artisan {
   id: string;
   profile_id: string | null;
   business_name: string;
+  slug: string | null;
   description: string | null;
   category_id: string | null;
   city: string;
   department: string | null;
   region: string | null;
+  postal_code: string | null;
+  address: string | null;
   hourly_rate: number | null;
   experience_years: number | null;
   status: "active" | "suspended" | "pending";
@@ -19,11 +22,14 @@ export interface Artisan {
   missions_completed: number | null;
   photo_url: string | null;
   portfolio_images: string[] | null;
+  portfolio_videos: string[] | null;
+  qualifications: string[] | null;
   siret: string | null;
   facebook_url: string | null;
   instagram_url: string | null;
   linkedin_url: string | null;
   website_url: string | null;
+  availability: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
   category?: {
