@@ -92,8 +92,18 @@ export const useMessaging = () => {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, first_name, last_name, avatar_url")
+        .select("id, first_name, last_name, avatar_url, user_id")
         .in("id", participantIds);
+
+      // Check which participants are admins
+      const userIds = profiles?.map(p => p.user_id).filter(Boolean) || [];
+      const { data: adminRoles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .in("user_id", userIds)
+        .eq("role", "admin");
+      
+      const adminUserIds = new Set(adminRoles?.map(r => r.user_id) || []);
 
       // Fetch artisan details if applicable
       const { data: artisans } = await supabase
@@ -114,7 +124,12 @@ export const useMessaging = () => {
         let photo = null;
         let role = "client";
 
-        if (artisan) {
+        // Check if participant is admin
+        if (profile && adminUserIds.has(profile.user_id)) {
+          name = "ADMIN";
+          photo = null;
+          role = "Administration";
+        } else if (artisan) {
           name = artisan.business_name;
           photo = artisan.photo_url;
           role = artisan.category?.name || "Artisan";
