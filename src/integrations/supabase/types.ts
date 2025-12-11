@@ -545,6 +545,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          rejection_reason: string | null
           status: Database["public"]["Enums"]["mission_status"]
           title: string
           updated_at: string
@@ -559,6 +560,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["mission_status"]
           title: string
           updated_at?: string
@@ -573,6 +575,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["mission_status"]
           title?: string
           updated_at?: string
@@ -958,7 +961,14 @@ export type Database = {
       app_role: "admin" | "artisan" | "client"
       application_status: "pending" | "accepted" | "declined"
       artisan_status: "active" | "suspended" | "pending"
-      mission_status: "pending" | "assigned" | "completed" | "cancelled"
+      mission_status:
+        | "pending"
+        | "assigned"
+        | "completed"
+        | "cancelled"
+        | "pending_approval"
+        | "rejected"
+        | "published"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1089,7 +1099,15 @@ export const Constants = {
       app_role: ["admin", "artisan", "client"],
       application_status: ["pending", "accepted", "declined"],
       artisan_status: ["active", "suspended", "pending"],
-      mission_status: ["pending", "assigned", "completed", "cancelled"],
+      mission_status: [
+        "pending",
+        "assigned",
+        "completed",
+        "cancelled",
+        "pending_approval",
+        "rejected",
+        "published",
+      ],
     },
   },
 } as const

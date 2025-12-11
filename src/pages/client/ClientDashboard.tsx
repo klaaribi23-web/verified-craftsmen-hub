@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +28,12 @@ const getStatusBadge = (status: string) => {
       return <Badge className="bg-success/10 text-success border-0">Terminée</Badge>;
     case "pending":
       return <Badge className="bg-amber-500/10 text-amber-600 border-0">En attente</Badge>;
+    case "pending_approval":
+      return <Badge className="bg-amber-500/10 text-amber-600 border-0">En approbation</Badge>;
+    case "published":
+      return <Badge className="bg-success/10 text-success border-0">Publiée</Badge>;
+    case "rejected":
+      return <Badge className="bg-destructive/10 text-destructive border-0">Refusée</Badge>;
     case "cancelled":
       return <Badge className="bg-destructive/10 text-destructive border-0">Annulée</Badge>;
     default:
@@ -368,6 +375,7 @@ export const ClientDashboard = () => {
           </main>
         </div>
       </div>
+      <ChatWidget />
     </>
   );
 };
