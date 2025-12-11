@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Shield, User, LogOut, LayoutDashboard, FileText, Settings } from "lucide-react";
+import { Menu, X, Shield, User, LogOut, LayoutDashboard, FileText, Settings, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,14 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, role, user, signOut, isLoading } = useAuth();
+  const { unreadCount: unreadMessagesCount } = useUnreadMessages();
+
+  // Get messaging link based on role
+  const getMessagingLink = () => {
+    if (role === "admin") return "/admin/messagerie";
+    if (role === "artisan") return "/artisan/messagerie";
+    return "/client/messagerie";
+  };
 
   const navLinks = [
     { href: "/trouver-artisan", label: "Trouver un artisan" },
@@ -292,7 +301,21 @@ const Navbar = () => {
 
           {/* Desktop CTA / User Menu */}
           <div className="hidden lg:flex items-center gap-3">
-            {isAuthenticated && <NotificationBell />}
+            {isAuthenticated && (
+              <>
+                <Link to={getMessagingLink()} className="relative">
+                  <Button variant="ghost" size="icon" className="relative">
+                    <MessageCircle className="w-5 h-5" />
+                    {unreadMessagesCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-medium">
+                        {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+                <NotificationBell />
+              </>
+            )}
             {renderUserMenu()}
           </div>
 
