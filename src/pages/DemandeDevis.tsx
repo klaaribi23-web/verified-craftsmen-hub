@@ -278,8 +278,12 @@ const DemandeDevis = () => {
         }
       }
     }
-    updateForm("category", categoryName);
-    updateForm("categoryId", categoryId);
+    // Update both fields in a single operation to avoid closure issues
+    setFormData(prev => ({
+      ...prev,
+      category: categoryName,
+      categoryId: categoryId
+    }));
   };
 
   return (
