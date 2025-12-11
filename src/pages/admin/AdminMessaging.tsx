@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,9 @@ import { cn } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 
 const AdminMessaging = () => {
+  const [searchParams] = useSearchParams();
+  const artisanIdFromUrl = searchParams.get("artisan");
+
   const {
     currentProfileId,
     conversations,
@@ -38,12 +42,27 @@ const AdminMessaging = () => {
   const selectedConversation = conversations.find(c => c.participant_id === selectedConversationId);
   const { data: messages = [], isLoading: messagesLoading } = useConversationMessages(selectedConversationId);
 
-  // Auto-select first conversation
+  // Handle artisan selection from URL parameter
   useEffect(() => {
-    if (conversations.length > 0 && !selectedConversationId) {
+    if (artisanIdFromUrl && conversations.length > 0) {
+      // Check if there's an existing conversation with this artisan
+      const existingConv = conversations.find(c => c.participant_id === artisanIdFromUrl);
+      if (existingConv) {
+        setSelectedConversationId(artisanIdFromUrl);
+      } else {
+        // If no existing conversation, we need to create one by sending a message
+        // For now, just set the artisan as selected (will show empty chat)
+        setSelectedConversationId(artisanIdFromUrl);
+      }
+    }
+  }, [artisanIdFromUrl, conversations]);
+
+  // Auto-select first conversation if none selected and no URL param
+  useEffect(() => {
+    if (conversations.length > 0 && !selectedConversationId && !artisanIdFromUrl) {
       setSelectedConversationId(conversations[0].participant_id);
     }
-  }, [conversations, selectedConversationId]);
+  }, [conversations, selectedConversationId, artisanIdFromUrl]);
 
   // Mark messages as read when selecting conversation
   useEffect(() => {
@@ -148,20 +167,24 @@ const AdminMessaging = () => {
 
           {/* Chat Area */}
           <Card className="col-span-2 flex flex-col">
-            {selectedConversation ? (
+            {selectedConversationId ? (
               <>
                 {/* Chat Header */}
                 <div className="p-4 border-b border-border flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar className="w-10 h-10">
-                      <AvatarImage src={selectedConversation.participant_photo || undefined} />
+                      <AvatarImage src={selectedConversation?.participant_photo || undefined} />
                       <AvatarFallback className="bg-primary/10">
                         <User className="w-5 h-5 text-primary" />
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-foreground">{selectedConversation.participant_name}</p>
-                      <p className="text-sm text-muted-foreground">{selectedConversation.participant_role}</p>
+                      <p className="font-medium text-foreground">
+                        {selectedConversation?.participant_name || "Nouvelle conversation"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedConversation?.participant_role || "Artisan"}
+                      </p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm">

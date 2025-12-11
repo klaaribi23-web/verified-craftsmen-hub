@@ -7,7 +7,6 @@ import {
   MessageSquare, 
   UserPlus,
   Bell,
-  Mail,
   LogOut,
   Shield,
   Settings
@@ -24,7 +23,6 @@ const menuItems = [
   { icon: UserCheck, label: "Clients", path: "/admin/clients" },
   { icon: BarChart3, label: "Statistiques", path: "/admin/statistiques" },
   { icon: MessageSquare, label: "Messagerie", path: "/admin/messagerie" },
-  { icon: Mail, label: "Emails", path: "/admin/emails" },
   { icon: UserPlus, label: "Ajouter artisan", path: "/admin/ajouter-artisan" },
   { icon: Settings, label: "Paramètres", path: "/admin/parametres" },
 ];
