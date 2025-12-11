@@ -36,7 +36,6 @@ import AdminArtisans from "./pages/admin/AdminArtisans";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminStatistics from "./pages/admin/AdminStatistics";
 import AdminMessaging from "./pages/admin/AdminMessaging";
-import AdminEmails from "./pages/admin/AdminEmails";
 import AdminAddArtisan from "./pages/admin/AdminAddArtisan";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -185,11 +184,6 @@ const App = () => (
           <Route path="/admin/messagerie" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminMessaging />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/emails" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminEmails />
             </ProtectedRoute>
           } />
           <Route path="/admin/approbations" element={

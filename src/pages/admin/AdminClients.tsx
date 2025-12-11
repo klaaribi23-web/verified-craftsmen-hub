@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, 
   MapPin,
@@ -13,33 +14,41 @@ import {
   Users
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-
-interface Client {
-  id: string;
-  name: string;
-  email: string;
-  city: string;
-  registeredAt: string;
-  missionsPosted: number;
-  missionsCompleted: number;
-}
-
-const clients: Client[] = [
-  { id: "1", name: "Marie Dupont", email: "marie.dupont@email.com", city: "Paris", registeredAt: "10/01/2024", missionsPosted: 5, missionsCompleted: 4 },
-  { id: "2", name: "Thomas Martin", email: "thomas.martin@email.com", city: "Lyon", registeredAt: "15/02/2024", missionsPosted: 3, missionsCompleted: 2 },
-  { id: "3", name: "Claire Bernard", email: "claire.bernard@email.com", city: "Marseille", registeredAt: "20/03/2024", missionsPosted: 8, missionsCompleted: 7 },
-  { id: "4", name: "Paul Petit", email: "paul.petit@email.com", city: "Bordeaux", registeredAt: "05/04/2024", missionsPosted: 2, missionsCompleted: 1 },
-  { id: "5", name: "Sophie Laurent", email: "sophie.laurent@email.com", city: "Toulouse", registeredAt: "12/05/2024", missionsPosted: 6, missionsCompleted: 5 },
-  { id: "6", name: "Lucas Moreau", email: "lucas.moreau@email.com", city: "Nantes", registeredAt: "18/06/2024", missionsPosted: 4, missionsCompleted: 3 },
-];
+import { useProfiles, useMissions } from "@/hooks/useAdminData";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const AdminClients = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { data: profiles, isLoading: profilesLoading } = useProfiles();
+  const { data: missions, isLoading: missionsLoading } = useMissions();
 
-  const filteredClients = clients.filter((client) => 
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const isLoading = profilesLoading || missionsLoading;
+
+  // Calculate missions per client
+  const clientsWithMissions = profiles?.map(profile => {
+    const clientMissions = missions?.filter(m => m.client_id === profile.id) || [];
+    const missionsPosted = clientMissions.length;
+    const missionsCompleted = clientMissions.filter(m => m.status === "completed").length;
+    return {
+      ...profile,
+      missionsPosted,
+      missionsCompleted,
+    };
+  }) || [];
+
+  const filteredClients = clientsWithMissions.filter((client) => 
+    (client.first_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (client.last_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
     client.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalMissionsPosted = clientsWithMissions.reduce((acc, c) => acc + c.missionsPosted, 0);
+  const totalMissionsCompleted = clientsWithMissions.reduce((acc, c) => acc + c.missionsCompleted, 0);
+
+  const formatDate = (dateString: string) => {
+    return format(new Date(dateString), "dd/MM/yyyy", { locale: fr });
+  };
 
   return (
     <>
@@ -88,7 +97,11 @@ const AdminClients = () => {
                   <Users className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{clients.length}</p>
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-2xl font-bold text-foreground">{clientsWithMissions.length}</p>
+                  )}
                   <p className="text-sm text-muted-foreground">Total clients</p>
                 </div>
               </div>
@@ -101,7 +114,11 @@ const AdminClients = () => {
                   <Briefcase className="h-6 w-6 text-yellow-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{clients.reduce((acc, c) => acc + c.missionsPosted, 0)}</p>
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-2xl font-bold text-foreground">{totalMissionsPosted}</p>
+                  )}
                   <p className="text-sm text-muted-foreground">Missions postées</p>
                 </div>
               </div>
@@ -114,7 +131,11 @@ const AdminClients = () => {
                   <Briefcase className="h-6 w-6 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{clients.reduce((acc, c) => acc + c.missionsCompleted, 0)}</p>
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-2xl font-bold text-foreground">{totalMissionsCompleted}</p>
+                  )}
                   <p className="text-sm text-muted-foreground">Missions terminées</p>
                 </div>
               </div>
@@ -137,34 +158,55 @@ const AdminClients = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredClients.map((client) => (
-                    <tr key={client.id} className="border-t border-border hover:bg-muted/30">
-                      <td className="p-4">
-                        <div>
-                          <p className="font-medium text-foreground">{client.name}</p>
-                          <p className="text-sm text-muted-foreground">{client.email}</p>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className="flex items-center gap-1 text-muted-foreground">
-                          <MapPin className="h-4 w-4" />
-                          {client.city}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className="flex items-center gap-1 text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          {client.registeredAt}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant="secondary">{client.missionsPosted}</Badge>
-                      </td>
-                      <td className="p-4">
-                        <Badge className="bg-green-500/10 text-green-500">{client.missionsCompleted}</Badge>
+                  {isLoading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={i} className="border-t border-border">
+                        <td className="p-4"><Skeleton className="h-10 w-40" /></td>
+                        <td className="p-4"><Skeleton className="h-4 w-24" /></td>
+                        <td className="p-4"><Skeleton className="h-4 w-24" /></td>
+                        <td className="p-4"><Skeleton className="h-6 w-12" /></td>
+                        <td className="p-4"><Skeleton className="h-6 w-12" /></td>
+                      </tr>
+                    ))
+                  ) : filteredClients.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                        Aucun client trouvé
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredClients.map((client) => (
+                      <tr key={client.id} className="border-t border-border hover:bg-muted/30">
+                        <td className="p-4">
+                          <div>
+                            <p className="font-medium text-foreground">
+                              {client.first_name || ""} {client.last_name || ""}
+                              {!client.first_name && !client.last_name && "Client"}
+                            </p>
+                            <p className="text-sm text-muted-foreground">{client.email}</p>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <span className="flex items-center gap-1 text-muted-foreground">
+                            <MapPin className="h-4 w-4" />
+                            {client.city || "Non renseigné"}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span className="flex items-center gap-1 text-muted-foreground">
+                            <Calendar className="h-4 w-4" />
+                            {formatDate(client.created_at)}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <Badge variant="secondary">{client.missionsPosted}</Badge>
+                        </td>
+                        <td className="p-4">
+                          <Badge className="bg-green-500/10 text-green-500">{client.missionsCompleted}</Badge>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

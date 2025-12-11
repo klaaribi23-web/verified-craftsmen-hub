@@ -1,21 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export interface DemoMission {
+export interface Mission {
   id: string;
-  client_name: string;
-  client_city: string;
+  client_id: string;
   title: string;
   description: string | null;
   category_id: string | null;
   budget: number | null;
   city: string;
   status: string;
-  applicants_count: number | null;
   created_at: string;
   category?: {
     id: string;
     name: string;
+  } | null;
+  client?: {
+    first_name: string | null;
+    last_name: string | null;
+    city: string | null;
   } | null;
 }
 
@@ -54,22 +57,32 @@ export interface ArtisanPublic {
   } | null;
 }
 
-// Fetch all demo missions
+// Fetch all pending missions (real data)
 export const useDemoMissions = () => {
   return useQuery({
-    queryKey: ["demo-missions"],
+    queryKey: ["public-missions"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("demo_missions")
+        .from("missions")
         .select(`
           *,
-          category:categories(id, name)
+          category:categories(id, name),
+          client:profiles!missions_client_id_fkey(first_name, last_name, city)
         `)
         .eq("status", "pending")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as DemoMission[];
+      
+      // Transform data to match expected format
+      return data?.map(mission => ({
+        ...mission,
+        client_name: mission.client 
+          ? `${mission.client.first_name || ""} ${mission.client.last_name || ""}`.trim() || "Client"
+          : "Client",
+        client_city: mission.client?.city || mission.city,
+        applicants_count: 0, // TODO: Count from mission_applications table
+      })) || [];
     },
   });
 };
