@@ -8,15 +8,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload, X, Plus } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2, Upload, X, Plus, Trash2, Save } from "lucide-react";
 
 interface ArtisanData {
   id: string;
   business_name: string;
   description: string | null;
+  category_id: string | null;
   city: string;
   region: string | null;
   department: string | null;
@@ -33,6 +35,15 @@ interface ArtisanData {
   linkedin_url: string | null;
   website_url: string | null;
   availability: Record<string, unknown> | null;
+}
+
+interface Service {
+  id: string;
+  artisan_id: string;
+  title: string;
+  description: string | null;
+  price: number | null;
+  duration: string | null;
 }
 
 interface AdminEditArtisanDialogProps {
@@ -53,16 +64,54 @@ const DAYS_FR = [
 
 export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEditArtisanDialogProps) => {
   const queryClient = useQueryClient();
-  const [formData, setFormData] = useState<Partial<ArtisanData>>({});
+  const [formData, setFormData] = useState<Partial<ArtisanData> & { category_id?: string | null }>({});
   const [newQualification, setNewQualification] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [availability, setAvailability] = useState<Record<string, { start: string; end: string; enabled: boolean }>>({});
+  const [services, setServices] = useState<Service[]>([]);
+  const [newService, setNewService] = useState({ title: "", description: "", price: "", duration: "" });
+
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("id, name, parent_id")
+        .order("display_order");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch services for this artisan
+  const { data: existingServices = [], refetch: refetchServices } = useQuery({
+    queryKey: ["artisan-services-admin", artisan?.id],
+    queryFn: async () => {
+      if (!artisan?.id) return [];
+      const { data, error } = await supabase
+        .from("artisan_services")
+        .select("*")
+        .eq("artisan_id", artisan.id)
+        .order("created_at");
+      if (error) throw error;
+      return data as Service[];
+    },
+    enabled: !!artisan?.id && open,
+  });
+
+  useEffect(() => {
+    if (existingServices) {
+      setServices(existingServices);
+    }
+  }, [existingServices]);
 
   useEffect(() => {
     if (artisan) {
       setFormData({
         business_name: artisan.business_name,
         description: artisan.description,
+        category_id: artisan.category_id,
         city: artisan.city,
         region: artisan.region,
         department: artisan.department,
@@ -111,7 +160,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   }, [artisan]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: Partial<ArtisanData> & { availability: Record<string, { start: string; end: string; enabled: boolean }> }) => {
+    mutationFn: async (data: Partial<ArtisanData> & { availability: Record<string, { start: string; end: string; enabled: boolean }>, category_id?: string | null }) => {
       if (!artisan?.id) throw new Error("No artisan ID");
       
       const { error } = await supabase
@@ -119,6 +168,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
         .update({
           business_name: data.business_name,
           description: data.description,
+          category_id: data.category_id,
           city: data.city,
           region: data.region,
           department: data.department,
@@ -142,6 +192,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['artisans'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-artisans'] });
       toast.success("Artisan mis à jour avec succès");
       onOpenChange(false);
     },
@@ -156,6 +207,94 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
       ...formData,
       availability,
     });
+  };
+
+  // Service mutations
+  const addServiceMutation = useMutation({
+    mutationFn: async (service: { title: string; description: string; price: number | null; duration: string }) => {
+      if (!artisan?.id) throw new Error("No artisan ID");
+      const { data, error } = await supabase
+        .from("artisan_services")
+        .insert({
+          artisan_id: artisan.id,
+          title: service.title,
+          description: service.description || null,
+          price: service.price,
+          duration: service.duration || null,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      refetchServices();
+      setNewService({ title: "", description: "", price: "", duration: "" });
+      toast.success("Service ajouté");
+    },
+    onError: () => {
+      toast.error("Erreur lors de l'ajout du service");
+    },
+  });
+
+  const updateServiceMutation = useMutation({
+    mutationFn: async (service: Service) => {
+      const { error } = await supabase
+        .from("artisan_services")
+        .update({
+          title: service.title,
+          description: service.description,
+          price: service.price,
+          duration: service.duration,
+        })
+        .eq("id", service.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      refetchServices();
+      toast.success("Service mis à jour");
+    },
+    onError: () => {
+      toast.error("Erreur lors de la mise à jour");
+    },
+  });
+
+  const deleteServiceMutation = useMutation({
+    mutationFn: async (serviceId: string) => {
+      const { error } = await supabase
+        .from("artisan_services")
+        .delete()
+        .eq("id", serviceId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      refetchServices();
+      toast.success("Service supprimé");
+    },
+    onError: () => {
+      toast.error("Erreur lors de la suppression");
+    },
+  });
+
+  const handleAddService = () => {
+    if (!newService.title.trim()) {
+      toast.error("Le titre du service est requis");
+      return;
+    }
+    addServiceMutation.mutate({
+      title: newService.title,
+      description: newService.description,
+      price: newService.price ? parseFloat(newService.price) : null,
+      duration: newService.duration,
+    });
+  };
+
+  const handleUpdateService = (service: Service) => {
+    updateServiceMutation.mutate(service);
+  };
+
+  const handleDeleteService = (serviceId: string) => {
+    deleteServiceMutation.mutate(serviceId);
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -260,6 +399,10 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
     }));
   };
 
+  // Group categories by parent
+  const parentCategories = categories.filter(c => !c.parent_id);
+  const getSubcategories = (parentId: string) => categories.filter(c => c.parent_id === parentId);
+
   if (!artisan) return null;
 
   return (
@@ -274,12 +417,14 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
 
         <ScrollArea className="h-[70vh] pr-4">
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="general">Général</TabsTrigger>
+              <TabsTrigger value="category">Catégorie</TabsTrigger>
+              <TabsTrigger value="services">Services</TabsTrigger>
               <TabsTrigger value="photos">Photos</TabsTrigger>
               <TabsTrigger value="videos">Vidéos</TabsTrigger>
               <TabsTrigger value="horaires">Horaires</TabsTrigger>
-              <TabsTrigger value="qualifications">Qualifications</TabsTrigger>
+              <TabsTrigger value="qualifications">Certifs</TabsTrigger>
             </TabsList>
 
             <TabsContent value="general" className="space-y-4 mt-4">
@@ -412,6 +557,147 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                     placeholder="https://..."
                   />
                 </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="category" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>Catégorie principale</Label>
+                <Select
+                  value={formData.category_id || ""}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner une catégorie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {parentCategories.map(parent => (
+                      <div key={parent.id}>
+                        <SelectItem value={parent.id} className="font-semibold">
+                          {parent.name}
+                        </SelectItem>
+                        {getSubcategories(parent.id).map(sub => (
+                          <SelectItem key={sub.id} value={sub.id} className="pl-6">
+                            ↳ {sub.name}
+                          </SelectItem>
+                        ))}
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="p-4 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  Catégorie actuelle: {categories.find(c => c.id === formData.category_id)?.name || "Non définie"}
+                </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="services" className="space-y-4 mt-4">
+              <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                <Label className="text-base font-semibold">Ajouter un nouveau service</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    value={newService.title}
+                    onChange={(e) => setNewService(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Titre du service *"
+                  />
+                  <Input
+                    value={newService.price}
+                    onChange={(e) => setNewService(prev => ({ ...prev, price: e.target.value }))}
+                    placeholder="Prix (€)"
+                    type="number"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    value={newService.duration}
+                    onChange={(e) => setNewService(prev => ({ ...prev, duration: e.target.value }))}
+                    placeholder="Durée (ex: 2h, 1 jour)"
+                  />
+                  <Input
+                    value={newService.description}
+                    onChange={(e) => setNewService(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Description"
+                  />
+                </div>
+                <Button onClick={handleAddService} disabled={addServiceMutation.isPending}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ajouter le service
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Services existants ({services.length})</Label>
+                {services.map((service, index) => (
+                  <div key={service.id} className="p-4 border rounded-lg space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        value={service.title}
+                        onChange={(e) => {
+                          const updated = [...services];
+                          updated[index] = { ...service, title: e.target.value };
+                          setServices(updated);
+                        }}
+                        placeholder="Titre"
+                      />
+                      <Input
+                        value={service.price || ""}
+                        onChange={(e) => {
+                          const updated = [...services];
+                          updated[index] = { ...service, price: e.target.value ? parseFloat(e.target.value) : null };
+                          setServices(updated);
+                        }}
+                        placeholder="Prix (€)"
+                        type="number"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        value={service.duration || ""}
+                        onChange={(e) => {
+                          const updated = [...services];
+                          updated[index] = { ...service, duration: e.target.value };
+                          setServices(updated);
+                        }}
+                        placeholder="Durée"
+                      />
+                      <Input
+                        value={service.description || ""}
+                        onChange={(e) => {
+                          const updated = [...services];
+                          updated[index] = { ...service, description: e.target.value };
+                          setServices(updated);
+                        }}
+                        placeholder="Description"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleUpdateService(service)}
+                        disabled={updateServiceMutation.isPending}
+                      >
+                        <Save className="h-4 w-4 mr-1" />
+                        Sauvegarder
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteService(service.id)}
+                        disabled={deleteServiceMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Supprimer
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {services.length === 0 && (
+                  <p className="text-muted-foreground text-center py-4">Aucun service configuré</p>
+                )}
               </div>
             </TabsContent>
 
