@@ -39,7 +39,6 @@ export const ClientMessaging = () => {
     useConversationMessages,
     sendMessage,
     markAsRead,
-    isDemoMode,
   } = useMessaging();
 
   const { updateQuoteStatus } = useQuotes();
@@ -50,8 +49,8 @@ export const ClientMessaging = () => {
   const [showNewConversation, setShowNewConversation] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Demo mode profile ID for message display
-  const effectiveProfileId = isDemoMode ? "demo-client" : currentProfileId;
+  // Profile ID for message display
+  const effectiveProfileId = currentProfileId;
 
   // Fetch artisan profile for new conversation
   const { data: artisanToContact } = useQuery({
@@ -116,11 +115,6 @@ export const ClientMessaging = () => {
   };
 
   const handleQuoteAction = async (quoteId: string, action: "accept" | "refuse") => {
-    if (isDemoMode) {
-      toast.success(action === "accept" ? "Devis accepté (démo)" : "Devis refusé (démo)");
-      return;
-    }
-
     try {
       // Get artisan profile_id from the quote
       const { data: quote } = await supabase
@@ -162,7 +156,7 @@ export const ClientMessaging = () => {
   );
 
   const renderMessage = (message: { id: string; sender_id: string; content: string; is_read: boolean; created_at: string }) => {
-    const isOwn = message.sender_id === effectiveProfileId || message.sender_id === "demo-client";
+    const isOwn = message.sender_id === effectiveProfileId;
     const quoteData = parseQuoteFromMessage(message.content);
 
     if (quoteData.isQuote && quoteData.priceHt && quoteData.priceTtc) {

@@ -34,7 +34,6 @@ export const ArtisanMessaging = () => {
     useConversationMessages,
     sendMessage,
     markAsRead,
-    isDemoMode,
   } = useMessaging();
 
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
@@ -46,8 +45,8 @@ export const ArtisanMessaging = () => {
   const selectedConversation = conversations.find(c => c.participant_id === selectedConversationId);
   const { data: messages = [], isLoading: messagesLoading } = useConversationMessages(selectedConversationId);
 
-  // Demo mode profile ID for message display
-  const effectiveProfileId = isDemoMode ? "demo-artisan" : currentProfileId;
+  // Profile ID for message display
+  const effectiveProfileId = currentProfileId;
 
   // Auto-select first conversation
   useEffect(() => {
@@ -80,7 +79,7 @@ export const ArtisanMessaging = () => {
   );
 
   const renderMessage = (msg: { id: string; sender_id: string; content: string; is_read: boolean; created_at: string }) => {
-    const isOwn = msg.sender_id === effectiveProfileId || msg.sender_id === "demo-artisan";
+    const isOwn = msg.sender_id === effectiveProfileId;
     const quoteData = parseQuoteFromMessage(msg.content);
 
     if (quoteData.isQuote && quoteData.priceHt && quoteData.priceTtc) {
