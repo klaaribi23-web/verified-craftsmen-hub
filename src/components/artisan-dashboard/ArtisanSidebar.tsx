@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useArtisanProfile } from "@/hooks/useArtisanProfile";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/artisan/dashboard" },
@@ -32,11 +33,15 @@ export const ArtisanSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { artisan, profile, isLoading } = useArtisanProfile();
 
   const handleLogout = async () => {
     await signOut();
     navigate("/");
   };
+
+  const displayName = profile?.first_name || artisan?.business_name || "Artisan";
+  const isVerified = artisan?.status === "active";
 
   return (
     <aside className="w-64 min-h-screen bg-primary text-primary-foreground flex flex-col">
@@ -56,17 +61,25 @@ export const ArtisanSidebar = () => {
       {/* Profile Summary */}
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-sidebar-accent flex items-center justify-center">
-            <User className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-full bg-sidebar-accent flex items-center justify-center overflow-hidden">
+            {artisan?.photo_url ? (
+              <img src={artisan.photo_url} alt="Photo de profil" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-6 h-6" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">Jean Dupont</p>
-            <p className="text-sm text-sidebar-foreground/70">Plombier</p>
+            <p className="font-medium truncate">
+              {isLoading ? "Chargement..." : displayName}
+            </p>
+            <p className="text-sm text-sidebar-foreground/70">Artisan</p>
           </div>
-          <div className="flex items-center gap-1 px-2 py-1 bg-success/20 rounded-full">
-            <BadgeCheck className="w-4 h-4 text-success" />
-            <span className="text-xs text-success">Validé</span>
-          </div>
+          {isVerified && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-success/20 rounded-full">
+              <BadgeCheck className="w-4 h-4 text-success" />
+              <span className="text-xs text-success">Validé</span>
+            </div>
+          )}
         </div>
       </div>
 

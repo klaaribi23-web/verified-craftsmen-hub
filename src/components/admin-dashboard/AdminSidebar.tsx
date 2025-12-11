@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAllNotifications } from "@/hooks/useAllNotifications";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin/dashboard" },
@@ -29,7 +31,11 @@ export const AdminSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const notificationCount = 5; // Dummy notification count
+  const { profile, isLoading } = useUserProfile();
+  const { notifications } = useAllNotifications();
+  
+  const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
+  const displayName = profile?.first_name || "Administrateur";
 
   const handleLogout = async () => {
     await signOut();
@@ -56,7 +62,9 @@ export const AdminSidebar = () => {
             <Shield className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <p className="font-medium text-sm text-foreground">Administrateur</p>
+            <p className="font-medium text-sm text-foreground">
+              {isLoading ? "Chargement..." : displayName}
+            </p>
             <p className="text-xs text-muted-foreground">Accès complet</p>
           </div>
         </div>
@@ -69,9 +77,9 @@ export const AdminSidebar = () => {
             <Bell className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium">Notifications</span>
           </div>
-          {notificationCount > 0 && (
+          {unreadCount > 0 && (
             <Badge className="bg-destructive text-destructive-foreground">
-              {notificationCount}
+              {unreadCount}
             </Badge>
           )}
         </div>

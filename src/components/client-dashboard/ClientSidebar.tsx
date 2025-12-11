@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/client/dashboard" },
@@ -26,11 +27,14 @@ export const ClientSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { profile, isLoading } = useUserProfile();
 
   const handleLogout = async () => {
     await signOut();
     navigate("/");
   };
+
+  const displayName = profile?.first_name || "Client";
 
   return (
     <aside className="w-64 min-h-screen bg-primary text-primary-foreground flex flex-col">
@@ -50,11 +54,17 @@ export const ClientSidebar = () => {
       {/* Profile Summary */}
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-sidebar-accent flex items-center justify-center">
-            <User className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-full bg-sidebar-accent flex items-center justify-center overflow-hidden">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Photo de profil" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-6 h-6" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">Marie Martin</p>
+            <p className="font-medium truncate">
+              {isLoading ? "Chargement..." : displayName}
+            </p>
             <p className="text-sm text-sidebar-foreground/70">Client</p>
           </div>
         </div>
