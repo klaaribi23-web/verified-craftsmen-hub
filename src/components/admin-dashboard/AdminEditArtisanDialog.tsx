@@ -65,6 +65,7 @@ const DAYS_FR = [
 export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEditArtisanDialogProps) => {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<Partial<ArtisanData> & { category_id?: string | null }>({});
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [newQualification, setNewQualification] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [availability, setAvailability] = useState<Record<string, { start: string; end: string; enabled: boolean }>>({});
@@ -82,6 +83,21 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
       if (error) throw error;
       return data;
     },
+  });
+
+  // Fetch artisan's current categories from junction table
+  const { data: artisanCategoriesData = [] } = useQuery({
+    queryKey: ["artisan-categories-admin", artisan?.id],
+    queryFn: async () => {
+      if (!artisan?.id) return [];
+      const { data, error } = await supabase
+        .from("artisan_categories")
+        .select("category_id")
+        .eq("artisan_id", artisan.id);
+      if (error) throw error;
+      return data.map(ac => ac.category_id);
+    },
+    enabled: !!artisan?.id && open,
   });
 
   // Fetch services for this artisan
@@ -105,6 +121,15 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
       setServices(existingServices);
     }
   }, [existingServices]);
+
+  // Load artisan's categories when data is fetched
+  useEffect(() => {
+    if (artisanCategoriesData.length > 0) {
+      setSelectedCategoryIds(artisanCategoriesData);
+    } else if (artisan?.category_id) {
+      setSelectedCategoryIds([artisan.category_id]);
+    }
+  }, [artisanCategoriesData, artisan?.category_id]);
 
   useEffect(() => {
     if (artisan) {
@@ -160,15 +185,16 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   }, [artisan]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: Partial<ArtisanData> & { availability: Record<string, { start: string; end: string; enabled: boolean }>, category_id?: string | null }) => {
+    mutationFn: async (data: Partial<ArtisanData> & { availability: Record<string, { start: string; end: string; enabled: boolean }>, category_id?: string | null, categoryIds: string[] }) => {
       if (!artisan?.id) throw new Error("No artisan ID");
       
+      // Update artisan main data (keep first category as primary)
       const { error } = await supabase
         .from('artisans')
         .update({
           business_name: data.business_name,
           description: data.description,
-          category_id: data.category_id,
+          category_id: data.categoryIds[0] || null,
           city: data.city,
           region: data.region,
           department: data.department,
@@ -189,10 +215,32 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
         .eq('id', artisan.id);
 
       if (error) throw error;
+
+      // Update junction table for multiple categories
+      // First delete existing categories
+      await supabase
+        .from('artisan_categories')
+        .delete()
+        .eq('artisan_id', artisan.id);
+
+      // Insert new categories
+      if (data.categoryIds.length > 0) {
+        const { error: catError } = await supabase
+          .from('artisan_categories')
+          .insert(
+            data.categoryIds.map(catId => ({
+              artisan_id: artisan.id,
+              category_id: catId
+            }))
+          );
+        if (catError) throw catError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['artisans'] });
       queryClient.invalidateQueries({ queryKey: ['admin-artisans'] });
+      queryClient.invalidateQueries({ queryKey: ['public-artisans'] });
+      queryClient.invalidateQueries({ queryKey: ['artisan-categories-admin'] });
       toast.success("Artisan mis à jour avec succès");
       onOpenChange(false);
     },
@@ -206,6 +254,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
     updateMutation.mutate({
       ...formData,
       availability,
+      categoryIds: selectedCategoryIds,
     });
   };
 
@@ -561,36 +610,77 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
             </TabsContent>
 
             <TabsContent value="category" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label>Catégorie principale</Label>
-                <Select
-                  value={formData.category_id || ""}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner une catégorie" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {parentCategories.map(parent => (
-                      <div key={parent.id}>
-                        <SelectItem value={parent.id} className="font-semibold">
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Catégories (sélection multiple)</Label>
+                <p className="text-sm text-muted-foreground">
+                  Sélectionnez toutes les catégories qui correspondent aux compétences de l'artisan
+                </p>
+                
+                <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto">
+                  {parentCategories.map(parent => (
+                    <div key={parent.id} className="space-y-2">
+                      <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                        <input
+                          type="checkbox"
+                          id={`cat-${parent.id}`}
+                          checked={selectedCategoryIds.includes(parent.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCategoryIds(prev => [...prev, parent.id]);
+                            } else {
+                              setSelectedCategoryIds(prev => prev.filter(id => id !== parent.id));
+                            }
+                          }}
+                          className="h-4 w-4 rounded border-input"
+                        />
+                        <label htmlFor={`cat-${parent.id}`} className="font-semibold cursor-pointer">
                           {parent.name}
-                        </SelectItem>
+                        </label>
+                      </div>
+                      <div className="pl-6 space-y-1">
                         {getSubcategories(parent.id).map(sub => (
-                          <SelectItem key={sub.id} value={sub.id} className="pl-6">
-                            ↳ {sub.name}
-                          </SelectItem>
+                          <div key={sub.id} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded">
+                            <input
+                              type="checkbox"
+                              id={`cat-${sub.id}`}
+                              checked={selectedCategoryIds.includes(sub.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedCategoryIds(prev => [...prev, sub.id]);
+                                } else {
+                                  setSelectedCategoryIds(prev => prev.filter(id => id !== sub.id));
+                                }
+                              }}
+                              className="h-4 w-4 rounded border-input"
+                            />
+                            <label htmlFor={`cat-${sub.id}`} className="text-sm cursor-pointer">
+                              {sub.name}
+                            </label>
+                          </div>
                         ))}
                       </div>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="p-4 bg-muted rounded-lg">
-                <p className="text-sm text-muted-foreground">
-                  Catégorie actuelle: {categories.find(c => c.id === formData.category_id)?.name || "Non définie"}
+                <p className="text-sm font-medium mb-2">
+                  Catégories sélectionnées ({selectedCategoryIds.length}):
                 </p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedCategoryIds.map(catId => {
+                    const cat = categories.find(c => c.id === catId);
+                    return cat ? (
+                      <span key={catId} className="px-2 py-1 bg-primary/10 text-primary rounded text-sm">
+                        {cat.name}
+                      </span>
+                    ) : null;
+                  })}
+                  {selectedCategoryIds.length === 0 && (
+                    <span className="text-muted-foreground text-sm">Aucune catégorie sélectionnée</span>
+                  )}
+                </div>
               </div>
             </TabsContent>
 

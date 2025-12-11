@@ -132,11 +132,20 @@ const TrouverArtisan = () => {
     if (!artisansData) return [];
     
     return artisansData.filter((artisan) => {
-      // Filter by category from hero search or sidebar
+      // Filter by category from hero search or sidebar - check both main category AND multiple categories
       const categoryFilter = filters.category || searchQuery;
       if (categoryFilter && categoryFilter !== "all") {
-        const artisanCategory = artisan.category?.name?.toLowerCase() || "";
-        if (!artisanCategory.includes(categoryFilter.toLowerCase())) {
+        const filterLower = categoryFilter.toLowerCase();
+        
+        // Check main category
+        const mainCategoryMatch = artisan.category?.name?.toLowerCase().includes(filterLower);
+        
+        // Check multiple categories from junction table
+        const multipleCategoriesMatch = artisan.categories?.some(
+          cat => cat.name?.toLowerCase().includes(filterLower)
+        );
+        
+        if (!mainCategoryMatch && !multipleCategoriesMatch) {
           return false;
         }
       }

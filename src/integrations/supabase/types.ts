@@ -14,6 +14,49 @@ export type Database = {
   }
   public: {
     Tables: {
+      artisan_categories: {
+        Row: {
+          artisan_id: string
+          category_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          artisan_id: string
+          category_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          artisan_id?: string
+          category_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artisan_categories_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_categories_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artisan_services: {
         Row: {
           artisan_id: string

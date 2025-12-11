@@ -217,13 +217,21 @@ const ArtisanPublicProfile = () => {
                         
                       </div>
                       
+                      {/* Quick category badges in header - show first 2 only */}
                       <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
-                        {artisan.category?.name && <Link to={`/trouver-artisan?category=${encodeURIComponent(artisan.category.name.toLowerCase())}`}>
+                        {((artisan as any).categories?.slice(0, 2) || (artisan.category ? [artisan.category] : [])).map((cat: { id: string; name: string }) => (
+                          <Link key={cat.id} to={`/trouver-artisan?category=${encodeURIComponent(cat.name.toLowerCase())}`}>
                             <Badge variant="secondary" className="text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
                               <Wrench className="h-3 w-3 mr-1" />
-                              {artisan.category.name}
+                              {cat.name}
                             </Badge>
-                          </Link>}
+                          </Link>
+                        ))}
+                        {(artisan as any).categories?.length > 2 && (
+                          <Badge variant="outline" className="text-sm">
+                            +{(artisan as any).categories.length - 2} autres
+                          </Badge>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-center md:justify-start gap-1 text-muted-foreground mb-4">
@@ -267,6 +275,49 @@ const ArtisanPublicProfile = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Categories Section */}
+              {((artisan as any).categories?.length > 0 || artisan.category) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Wrench className="h-5 w-5 text-primary" />
+                      Catégories de l'artisan
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {/* Show multiple categories if available */}
+                      {(artisan as any).categories?.length > 0 ? (
+                        (artisan as any).categories.map((cat: { id: string; name: string }) => (
+                          <Link 
+                            key={cat.id} 
+                            to={`/trouver-artisan?category=${encodeURIComponent(cat.name.toLowerCase())}`}
+                          >
+                            <Badge 
+                              variant="secondary" 
+                              className="text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors py-1.5 px-3"
+                            >
+                              <Wrench className="h-3 w-3 mr-1.5" />
+                              {cat.name}
+                            </Badge>
+                          </Link>
+                        ))
+                      ) : artisan.category?.name ? (
+                        <Link to={`/trouver-artisan?category=${encodeURIComponent(artisan.category.name.toLowerCase())}`}>
+                          <Badge 
+                            variant="secondary" 
+                            className="text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors py-1.5 px-3"
+                          >
+                            <Wrench className="h-3 w-3 mr-1.5" />
+                            {artisan.category.name}
+                          </Badge>
+                        </Link>
+                      ) : null}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Services Section */}
               <Card>
