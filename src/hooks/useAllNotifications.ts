@@ -142,10 +142,13 @@ function getToastType(type: string): "success" | "error" | "info" {
     case "quote_accepted":
     case "approval":
     case "mission_assigned":
+    case "document_verified":
       return "success";
     case "quote_refused":
     case "rejection":
+    case "document_rejected":
       return "error";
+    case "new_message":
     default:
       return "info";
   }
