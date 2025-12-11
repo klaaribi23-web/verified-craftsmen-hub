@@ -287,7 +287,7 @@ const AdminArtisans = () => {
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </Link>
-                            <Link to={`/admin/messagerie?artisan=${artisan.id}`}>
+                            <Link to={`/admin/messagerie?artisan=${artisan.profile_id}`}>
                               <Button size="sm" variant="outline">
                                 <MessageSquare className="h-4 w-4" />
                               </Button>

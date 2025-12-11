@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Artisan {
   id: string;
+  profile_id: string | null;
   business_name: string;
   description: string | null;
   category_id: string | null;
