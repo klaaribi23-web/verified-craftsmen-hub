@@ -88,7 +88,7 @@ export const ArtisanPlanning = () => {
       if (!artisan?.id) throw new Error("Artisan non trouvé");
       const { error } = await supabase
         .from("artisans")
-        .update({ availability: newAvailability as unknown as Record<string, unknown> })
+        .update({ availability: JSON.parse(JSON.stringify(newAvailability)) })
         .eq("id", artisan.id);
       if (error) throw error;
     },
