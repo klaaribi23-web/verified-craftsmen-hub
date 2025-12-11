@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,13 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { 
   UserPlus,
   Save,
@@ -27,34 +20,21 @@ import {
   Video,
   X,
   Plus,
-  Briefcase
+  Briefcase,
+  MapPin,
+  Link as LinkIcon,
+  Upload
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useCategories } from "@/hooks/useAdminData";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import { supabase } from "@/integrations/supabase/client";
-
-const cities = [
-  "Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse", 
-  "Nantes", "Lille", "Strasbourg", "Nice", "Montpellier",
-  "Rennes", "Grenoble", "Rouen", "Toulon", "Le Havre"
-];
-
-const regions: Record<string, { department: string; region: string }> = {
-  "Paris": { department: "Paris", region: "Île-de-France" },
-  "Lyon": { department: "Rhône", region: "Auvergne-Rhône-Alpes" },
-  "Marseille": { department: "Bouches-du-Rhône", region: "Provence-Alpes-Côte d'Azur" },
-  "Bordeaux": { department: "Gironde", region: "Nouvelle-Aquitaine" },
-  "Toulouse": { department: "Haute-Garonne", region: "Occitanie" },
-  "Nantes": { department: "Loire-Atlantique", region: "Pays de la Loire" },
-  "Lille": { department: "Nord", region: "Hauts-de-France" },
-  "Strasbourg": { department: "Bas-Rhin", region: "Grand Est" },
-  "Nice": { department: "Alpes-Maritimes", region: "Provence-Alpes-Côte d'Azur" },
-  "Montpellier": { department: "Hérault", region: "Occitanie" },
-  "Rennes": { department: "Ille-et-Vilaine", region: "Bretagne" },
-  "Grenoble": { department: "Isère", region: "Auvergne-Rhône-Alpes" },
-};
+import { 
+  cities as frenchCities, 
+  departments as frenchDepartments, 
+  regions as frenchRegions 
+} from "@/data/frenchLocations";
 
 const weekDays = [
   { key: "monday", label: "Lundi" },
@@ -70,13 +50,15 @@ interface ServiceItem {
   title: string;
   description: string;
   price: string;
-  duration: string;
 }
 
 const AdminAddArtisan = () => {
   const navigate = useNavigate();
   const { data: categories } = useCategories();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [isUploadingProfile, setIsUploadingProfile] = useState(false);
   
   const [formData, setFormData] = useState({
     businessName: "",
@@ -92,6 +74,10 @@ const AdminAddArtisan = () => {
     linkedin: "",
     website: "",
   });
+
+  // City search
+  const [citySearch, setCitySearch] = useState("");
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   
   // Multi-category selection
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -99,7 +85,6 @@ const AdminAddArtisan = () => {
   // Photo and video management
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [videoUrls, setVideoUrls] = useState<string[]>([]);
-  const [newPhotoUrl, setNewPhotoUrl] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [profilePhotoUrl, setProfilePhotoUrl] = useState("");
   
@@ -120,10 +105,64 @@ const AdminAddArtisan = () => {
   
   // Services
   const [services, setServices] = useState<ServiceItem[]>([]);
-  const [newService, setNewService] = useState<ServiceItem>({ title: "", description: "", price: "", duration: "" });
+  const [newService, setNewService] = useState<ServiceItem>({ title: "", description: "", price: "" });
+
+  // City suggestions - filtered from all French cities
+  const citySuggestions = useMemo(() => {
+    if (!citySearch || citySearch.length < 2) return [];
+    
+    const searchLower = citySearch.toLowerCase();
+    const results: { name: string; department: string; departmentName: string; region: string }[] = [];
+    
+    // Search in cities
+    frenchCities.forEach(city => {
+      if (city.name.toLowerCase().includes(searchLower)) {
+        const dept = frenchDepartments.find(d => d.code === city.department);
+        const region = dept ? frenchRegions.find(r => r.id === dept.region) : null;
+        results.push({
+          name: city.name,
+          department: city.department,
+          departmentName: dept?.name || "",
+          region: region?.name || ""
+        });
+      }
+    });
+    
+    // Also search in department names
+    frenchDepartments.forEach(dept => {
+      if (dept.name.toLowerCase().includes(searchLower)) {
+        const region = frenchRegions.find(r => r.id === dept.region);
+        // Add the main city of the department if exists
+        const deptCities = frenchCities.filter(c => c.department === dept.code);
+        if (deptCities.length > 0) {
+          deptCities.forEach(city => {
+            if (!results.find(r => r.name === city.name && r.department === city.department)) {
+              results.push({
+                name: city.name,
+                department: dept.code,
+                departmentName: dept.name,
+                region: region?.name || ""
+              });
+            }
+          });
+        }
+      }
+    });
+    
+    return results.slice(0, 15);
+  }, [citySearch]);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCitySelect = (cityData: { name: string; department: string; departmentName: string; region: string }) => {
+    setFormData(prev => ({
+      ...prev,
+      city: cityData.name
+    }));
+    setCitySearch(`${cityData.name} (${cityData.department})`);
+    setShowCitySuggestions(false);
   };
 
   const handleCategoryToggle = (categoryId: string) => {
@@ -134,24 +173,24 @@ const AdminAddArtisan = () => {
     );
   };
 
-  const handleAddPhotoUrl = () => {
-    if (!newPhotoUrl) return;
-    if (photoUrls.length >= 12) {
-      toast({ title: "Limite atteinte", description: "Maximum 12 photos", variant: "destructive" });
-      return;
-    }
-    setPhotoUrls((prev) => [...prev, newPhotoUrl]);
-    setNewPhotoUrl("");
-  };
-
   const handleAddVideoUrl = () => {
     if (!newVideoUrl) return;
     if (videoUrls.length >= 6) {
       toast({ title: "Limite atteinte", description: "Maximum 6 vidéos", variant: "destructive" });
       return;
     }
+    // Validate YouTube/Vimeo URL
+    const isValidUrl = newVideoUrl.includes("youtube.com") || 
+                       newVideoUrl.includes("youtu.be") || 
+                       newVideoUrl.includes("vimeo.com") ||
+                       newVideoUrl.startsWith("http");
+    if (!isValidUrl) {
+      toast({ title: "URL invalide", description: "Veuillez entrer une URL YouTube, Vimeo ou un lien valide", variant: "destructive" });
+      return;
+    }
     setVideoUrls((prev) => [...prev, newVideoUrl]);
     setNewVideoUrl("");
+    toast({ title: "Vidéo ajoutée", description: "Le lien vidéo a été ajouté" });
   };
 
   const handleRemovePhoto = (index: number) => {
@@ -175,32 +214,72 @@ const AdminAddArtisan = () => {
       return;
     }
     setServices((prev) => [...prev, newService]);
-    setNewService({ title: "", description: "", price: "", duration: "" });
+    setNewService({ title: "", description: "", price: "" });
+    toast({ title: "Prestation ajoutée", description: `${newService.title} a été ajoutée` });
   };
 
   const handleRemoveService = (index: number) => {
     setServices((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleFileUpload = async (file: File, type: "photo" | "video" | "profile") => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = `admin-uploads/${fileName}`;
+  const handleFileUpload = async (file: File, type: "photo" | "video" | "profile"): Promise<string | null> => {
+    // Validate file type
+    if (type === "photo" || type === "profile") {
+      if (!file.type.startsWith("image/")) {
+        toast({ title: "Erreur", description: "Veuillez sélectionner une image valide (JPG, PNG, etc.)", variant: "destructive" });
+        return null;
+      }
+    }
+    if (type === "video") {
+      if (!file.type.startsWith("video/")) {
+        toast({ title: "Erreur", description: "Veuillez sélectionner une vidéo valide (MP4, WebM, etc.)", variant: "destructive" });
+        return null;
+      }
+    }
 
-    const { error: uploadError } = await supabase.storage
-      .from('artisan-portfolios')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      toast({ title: "Erreur", description: "Échec de l'upload", variant: "destructive" });
+    // Check file size (max 50MB)
+    const maxSize = 50 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast({ title: "Fichier trop volumineux", description: "La taille maximum est de 50 MB", variant: "destructive" });
       return null;
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('artisan-portfolios')
-      .getPublicUrl(filePath);
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `admin-uploads/${type}/${fileName}`;
 
-    return publicUrl;
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('artisan-portfolios')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        toast({ 
+          title: "Erreur d'upload", 
+          description: `${uploadError.message}. Vérifiez que vous êtes connecté en tant qu'admin.`, 
+          variant: "destructive" 
+        });
+        return null;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('artisan-portfolios')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error("Upload exception:", error);
+      toast({ 
+        title: "Erreur", 
+        description: "Une erreur inattendue s'est produite lors de l'upload", 
+        variant: "destructive" 
+      });
+      return null;
+    }
   };
 
   const handlePhotoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -210,9 +289,18 @@ const AdminAddArtisan = () => {
       toast({ title: "Limite atteinte", description: "Maximum 12 photos", variant: "destructive" });
       return;
     }
-    const url = await handleFileUpload(file, "photo");
-    if (url) setPhotoUrls((prev) => [...prev, url]);
-    if (photoInputRef.current) photoInputRef.current.value = "";
+    
+    setIsUploadingPhoto(true);
+    try {
+      const url = await handleFileUpload(file, "photo");
+      if (url) {
+        setPhotoUrls((prev) => [...prev, url]);
+        toast({ title: "Photo ajoutée", description: "La photo a été uploadée avec succès" });
+      }
+    } finally {
+      setIsUploadingPhoto(false);
+      if (photoInputRef.current) photoInputRef.current.value = "";
+    }
   };
 
   const handleVideoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -222,17 +310,35 @@ const AdminAddArtisan = () => {
       toast({ title: "Limite atteinte", description: "Maximum 6 vidéos", variant: "destructive" });
       return;
     }
-    const url = await handleFileUpload(file, "video");
-    if (url) setVideoUrls((prev) => [...prev, url]);
-    if (videoInputRef.current) videoInputRef.current.value = "";
+    
+    setIsUploadingVideo(true);
+    try {
+      const url = await handleFileUpload(file, "video");
+      if (url) {
+        setVideoUrls((prev) => [...prev, url]);
+        toast({ title: "Vidéo ajoutée", description: "La vidéo a été uploadée avec succès" });
+      }
+    } finally {
+      setIsUploadingVideo(false);
+      if (videoInputRef.current) videoInputRef.current.value = "";
+    }
   };
 
   const handleProfilePhotoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = await handleFileUpload(file, "profile");
-    if (url) setProfilePhotoUrl(url);
-    if (profilePhotoInputRef.current) profilePhotoInputRef.current.value = "";
+    
+    setIsUploadingProfile(true);
+    try {
+      const url = await handleFileUpload(file, "profile");
+      if (url) {
+        setProfilePhotoUrl(url);
+        toast({ title: "Photo de profil ajoutée", description: "La photo de profil a été uploadée" });
+      }
+    } finally {
+      setIsUploadingProfile(false);
+      if (profilePhotoInputRef.current) profilePhotoInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -248,7 +354,11 @@ const AdminAddArtisan = () => {
     }
 
     setIsSubmitting(true);
-    const cityInfo = regions[formData.city] || { department: "", region: "" };
+
+    // Find department and region from city
+    const selectedCity = frenchCities.find(c => c.name === formData.city);
+    const selectedDept = selectedCity ? frenchDepartments.find(d => d.code === selectedCity.department) : null;
+    const selectedRegion = selectedDept ? frenchRegions.find(r => r.id === selectedDept.region) : null;
 
     try {
       // Create artisan
@@ -259,8 +369,8 @@ const AdminAddArtisan = () => {
           description: formData.description || null,
           category_id: selectedCategories[0], // Primary category
           city: formData.city,
-          department: cityInfo.department,
-          region: cityInfo.region,
+          department: selectedDept?.name || null,
+          region: selectedRegion?.name || null,
           siret: formData.siret || null,
           experience_years: formData.experienceYears ? parseInt(formData.experienceYears) : null,
           photo_url: profilePhotoUrl || null,
@@ -286,7 +396,6 @@ const AdminAddArtisan = () => {
           title: s.title,
           description: s.description || null,
           price: parseFloat(s.price) || null,
-          duration: s.duration || null,
         }));
 
         const { error: servicesError } = await supabase
@@ -318,6 +427,7 @@ const AdminAddArtisan = () => {
 
   // Get all categories
   const allCategories = categories || [];
+  
   return (
     <>
       <Navbar />
@@ -376,6 +486,7 @@ const AdminAddArtisan = () => {
                         placeholder="URL de la photo ou uploadez un fichier"
                         value={profilePhotoUrl}
                         onChange={(e) => setProfilePhotoUrl(e.target.value)}
+                        className="flex-1"
                       />
                       <input
                         ref={profilePhotoInputRef}
@@ -384,12 +495,30 @@ const AdminAddArtisan = () => {
                         onChange={handleProfilePhotoFileChange}
                         className="hidden"
                       />
-                      <Button type="button" variant="outline" onClick={() => profilePhotoInputRef.current?.click()}>
-                        <Camera className="h-4 w-4" />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => profilePhotoInputRef.current?.click()}
+                        disabled={isUploadingProfile}
+                      >
+                        {isUploadingProfile ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                     {profilePhotoUrl && (
-                      <img src={profilePhotoUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover mt-2" />
+                      <div className="relative w-20 h-20 mt-2">
+                        <img src={profilePhotoUrl} alt="Preview" className="w-full h-full rounded-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setProfilePhotoUrl("")}
+                          className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
                     )}
                   </div>
                 </CardContent>
@@ -403,7 +532,7 @@ const AdminAddArtisan = () => {
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Catégories * (sélection multiple)</Label>
-                    <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2 mt-1">
+                    <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2 mt-1 bg-background">
                       {allCategories.map((cat) => (
                         <div key={cat.id} className="flex items-center space-x-2">
                           <Checkbox
@@ -430,18 +559,42 @@ const AdminAddArtisan = () => {
                     )}
                   </div>
 
-                  <div>
-                    <Label>Ville *</Label>
-                    <Select value={formData.city} onValueChange={(value) => handleChange("city", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez une ville" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cities.map((city) => (
-                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                  <div className="relative">
+                    <Label className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Ville *
+                    </Label>
+                    <Input
+                      placeholder="Rechercher une ville française..."
+                      value={citySearch}
+                      onChange={(e) => {
+                        setCitySearch(e.target.value);
+                        setShowCitySuggestions(true);
+                      }}
+                      onFocus={() => setShowCitySuggestions(true)}
+                    />
+                    {showCitySuggestions && citySuggestions.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {citySuggestions.map((city, index) => (
+                          <button
+                            key={`${city.name}-${city.department}-${index}`}
+                            type="button"
+                            className="w-full text-left px-3 py-2 hover:bg-muted transition-colors border-b last:border-b-0"
+                            onClick={() => handleCitySelect(city)}
+                          >
+                            <div className="font-medium">{city.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {city.departmentName} ({city.department}) - {city.region}
+                            </div>
+                          </button>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </div>
+                    )}
+                    {formData.city && (
+                      <Badge variant="outline" className="mt-2">
+                        Ville sélectionnée: {formData.city}
+                      </Badge>
+                    )}
                   </div>
 
                   <div>
@@ -596,14 +749,6 @@ const AdminAddArtisan = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex gap-2">
-                  <Input
-                    placeholder="URL de l'image ou uploadez"
-                    value={newPhotoUrl}
-                    onChange={(e) => setNewPhotoUrl(e.target.value)}
-                  />
-                  <Button type="button" variant="outline" onClick={handleAddPhotoUrl}>
-                    <Plus className="h-4 w-4" />
-                  </Button>
                   <input
                     ref={photoInputRef}
                     type="file"
@@ -611,8 +756,19 @@ const AdminAddArtisan = () => {
                     onChange={handlePhotoFileChange}
                     className="hidden"
                   />
-                  <Button type="button" variant="outline" onClick={() => photoInputRef.current?.click()}>
-                    <Camera className="h-4 w-4" />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => photoInputRef.current?.click()}
+                    disabled={isUploadingPhoto || photoUrls.length >= 12}
+                    className="gap-2"
+                  >
+                    {isUploadingPhoto ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    {isUploadingPhoto ? "Upload en cours..." : "Uploader une photo"}
                   </Button>
                 </div>
                 {photoUrls.length > 0 && (
@@ -644,15 +800,33 @@ const AdminAddArtisan = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Ajoutez des liens YouTube/Vimeo ou uploadez des fichiers vidéo (MP4, WebM)
+                </p>
+                
+                {/* URL input */}
                 <div className="flex gap-2">
-                  <Input
-                    placeholder="URL YouTube/Vimeo ou uploadez un fichier"
-                    value={newVideoUrl}
-                    onChange={(e) => setNewVideoUrl(e.target.value)}
-                  />
-                  <Button type="button" variant="outline" onClick={handleAddVideoUrl}>
+                  <div className="flex-1 relative">
+                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Lien YouTube ou Vimeo..."
+                      value={newVideoUrl}
+                      onChange={(e) => setNewVideoUrl(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleAddVideoUrl}
+                    disabled={videoUrls.length >= 6}
+                  >
                     <Plus className="h-4 w-4" />
                   </Button>
+                </div>
+                
+                {/* File upload */}
+                <div className="flex gap-2">
                   <input
                     ref={videoInputRef}
                     type="file"
@@ -660,19 +834,32 @@ const AdminAddArtisan = () => {
                     onChange={handleVideoFileChange}
                     className="hidden"
                   />
-                  <Button type="button" variant="outline" onClick={() => videoInputRef.current?.click()}>
-                    <Video className="h-4 w-4" />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => videoInputRef.current?.click()}
+                    disabled={isUploadingVideo || videoUrls.length >= 6}
+                    className="gap-2"
+                  >
+                    {isUploadingVideo ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    {isUploadingVideo ? "Upload en cours..." : "Uploader une vidéo"}
                   </Button>
                 </div>
+                
                 {videoUrls.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {videoUrls.map((url, index) => (
-                      <div key={index} className="relative group p-2 border rounded-md">
-                        <p className="text-xs truncate">{url}</p>
+                      <div key={index} className="relative group p-3 border rounded-md bg-muted/30 flex items-center gap-2">
+                        <Video className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <p className="text-xs truncate flex-1">{url}</p>
                         <button
                           type="button"
                           onClick={() => handleRemoveVideo(index)}
-                          className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -692,7 +879,7 @@ const AdminAddArtisan = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <Input
                     placeholder="Titre de la prestation *"
                     value={newService.title}
@@ -703,17 +890,12 @@ const AdminAddArtisan = () => {
                     value={newService.description}
                     onChange={(e) => setNewService((prev) => ({ ...prev, description: e.target.value }))}
                   />
-                  <Input
-                    type="number"
-                    placeholder="Prix (€) *"
-                    value={newService.price}
-                    onChange={(e) => setNewService((prev) => ({ ...prev, price: e.target.value }))}
-                  />
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Durée"
-                      value={newService.duration}
-                      onChange={(e) => setNewService((prev) => ({ ...prev, duration: e.target.value }))}
+                      type="number"
+                      placeholder="Prix (€) *"
+                      value={newService.price}
+                      onChange={(e) => setNewService((prev) => ({ ...prev, price: e.target.value }))}
                     />
                     <Button type="button" variant="outline" onClick={handleAddService}>
                       <Plus className="h-4 w-4" />
@@ -730,7 +912,6 @@ const AdminAddArtisan = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge variant="secondary">{service.price}€</Badge>
-                          {service.duration && <span className="text-sm text-muted-foreground">{service.duration}</span>}
                           <button type="button" onClick={() => handleRemoveService(index)}>
                             <X className="h-4 w-4 text-destructive" />
                           </button>
