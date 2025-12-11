@@ -20,10 +20,19 @@ import {
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+
+interface ArtisanInfo {
+  id: string;
+  profile_id: string;
+  business_name: string;
+  photo_url: string | null;
+}
 
 const AdminMessaging = () => {
   const [searchParams] = useSearchParams();
-  const artisanIdFromUrl = searchParams.get("artisan");
+  const artisanProfileIdFromUrl = searchParams.get("artisan");
 
   const {
     currentProfileId,
@@ -39,30 +48,43 @@ const AdminMessaging = () => {
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Fetch artisan info when coming from URL parameter
+  const { data: artisanFromUrl } = useQuery({
+    queryKey: ['artisan-for-messaging', artisanProfileIdFromUrl],
+    queryFn: async () => {
+      if (!artisanProfileIdFromUrl) return null;
+      
+      const { data, error } = await supabase
+        .from('artisans')
+        .select('id, profile_id, business_name, photo_url')
+        .eq('profile_id', artisanProfileIdFromUrl)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching artisan:', error);
+        return null;
+      }
+      return data as ArtisanInfo;
+    },
+    enabled: !!artisanProfileIdFromUrl,
+  });
+
   const selectedConversation = conversations.find(c => c.participant_id === selectedConversationId);
   const { data: messages = [], isLoading: messagesLoading } = useConversationMessages(selectedConversationId);
 
   // Handle artisan selection from URL parameter
   useEffect(() => {
-    if (artisanIdFromUrl && conversations.length > 0) {
-      // Check if there's an existing conversation with this artisan
-      const existingConv = conversations.find(c => c.participant_id === artisanIdFromUrl);
-      if (existingConv) {
-        setSelectedConversationId(artisanIdFromUrl);
-      } else {
-        // If no existing conversation, we need to create one by sending a message
-        // For now, just set the artisan as selected (will show empty chat)
-        setSelectedConversationId(artisanIdFromUrl);
-      }
+    if (artisanProfileIdFromUrl) {
+      setSelectedConversationId(artisanProfileIdFromUrl);
     }
-  }, [artisanIdFromUrl, conversations]);
+  }, [artisanProfileIdFromUrl]);
 
   // Auto-select first conversation if none selected and no URL param
   useEffect(() => {
-    if (conversations.length > 0 && !selectedConversationId && !artisanIdFromUrl) {
+    if (conversations.length > 0 && !selectedConversationId && !artisanProfileIdFromUrl) {
       setSelectedConversationId(conversations[0].participant_id);
     }
-  }, [conversations, selectedConversationId, artisanIdFromUrl]);
+  }, [conversations, selectedConversationId, artisanProfileIdFromUrl]);
 
   // Mark messages as read when selecting conversation
   useEffect(() => {
@@ -79,6 +101,23 @@ const AdminMessaging = () => {
   const filteredConversations = conversations.filter(conv =>
     conv.participant_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Check if we have an existing conversation or need to show new conversation UI
+  const hasExistingConversation = selectedConversation !== undefined;
+  const isNewConversation = !hasExistingConversation && artisanFromUrl !== null;
+
+  // Get display info for chat header
+  const chatParticipantName = hasExistingConversation 
+    ? selectedConversation.participant_name 
+    : artisanFromUrl?.business_name || "Nouvelle conversation";
+  
+  const chatParticipantPhoto = hasExistingConversation 
+    ? selectedConversation.participant_photo 
+    : artisanFromUrl?.photo_url;
+
+  const chatParticipantRole = hasExistingConversation 
+    ? selectedConversation.participant_role 
+    : "Artisan";
 
   const handleSendMessage = () => {
     if (newMessage.trim() && selectedConversationId) {
@@ -126,41 +165,68 @@ const AdminMessaging = () => {
                     </div>
                   ))}
                 </div>
-              ) : filteredConversations.length === 0 ? (
+              ) : filteredConversations.length === 0 && !isNewConversation ? (
                 <div className="p-8 text-center text-muted-foreground">
                   <p>Aucune conversation</p>
                 </div>
               ) : (
-                filteredConversations.map((conv) => (
-                  <div
-                    key={conv.participant_id}
-                    onClick={() => setSelectedConversationId(conv.participant_id)}
-                    className={cn(
-                      "flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/50 border-b border-border",
-                      selectedConversationId === conv.participant_id && "bg-muted"
-                    )}
-                  >
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage src={conv.participant_photo || undefined} />
-                      <AvatarFallback className="bg-primary/10">
-                        <User className="w-5 h-5 text-primary" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium text-foreground truncate">{conv.participant_name}</p>
-                        <span className="text-xs text-muted-foreground">
-                          {formatMessageTime(conv.last_message_time)}
-                        </span>
+                <>
+                  {/* Show new conversation at top if from URL and no existing conv */}
+                  {isNewConversation && (
+                    <div
+                      onClick={() => setSelectedConversationId(artisanProfileIdFromUrl)}
+                      className={cn(
+                        "flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/50 border-b border-border",
+                        selectedConversationId === artisanProfileIdFromUrl && "bg-muted"
+                      )}
+                    >
+                      <Avatar className="w-12 h-12">
+                        <AvatarImage src={artisanFromUrl?.photo_url || undefined} />
+                        <AvatarFallback className="bg-primary/10">
+                          <User className="w-5 h-5 text-primary" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-foreground truncate">{artisanFromUrl?.business_name}</p>
+                          <Badge variant="outline" className="text-xs">Nouveau</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Artisan</p>
+                        <p className="text-sm text-muted-foreground italic">Nouvelle conversation</p>
                       </div>
-                      <p className="text-sm text-muted-foreground">{conv.participant_role}</p>
-                      <p className="text-sm text-muted-foreground truncate">{conv.last_message}</p>
                     </div>
-                    {conv.unread_count > 0 && (
-                      <Badge className="bg-primary">{conv.unread_count}</Badge>
-                    )}
-                  </div>
-                ))
+                  )}
+                  {filteredConversations.map((conv) => (
+                    <div
+                      key={conv.participant_id}
+                      onClick={() => setSelectedConversationId(conv.participant_id)}
+                      className={cn(
+                        "flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/50 border-b border-border",
+                        selectedConversationId === conv.participant_id && "bg-muted"
+                      )}
+                    >
+                      <Avatar className="w-12 h-12">
+                        <AvatarImage src={conv.participant_photo || undefined} />
+                        <AvatarFallback className="bg-primary/10">
+                          <User className="w-5 h-5 text-primary" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-foreground truncate">{conv.participant_name}</p>
+                          <span className="text-xs text-muted-foreground">
+                            {formatMessageTime(conv.last_message_time)}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{conv.participant_role}</p>
+                        <p className="text-sm text-muted-foreground truncate">{conv.last_message}</p>
+                      </div>
+                      {conv.unread_count > 0 && (
+                        <Badge className="bg-primary">{conv.unread_count}</Badge>
+                      )}
+                    </div>
+                  ))}
+                </>
               )}
             </ScrollArea>
           </Card>
@@ -173,17 +239,17 @@ const AdminMessaging = () => {
                 <div className="p-4 border-b border-border flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar className="w-10 h-10">
-                      <AvatarImage src={selectedConversation?.participant_photo || undefined} />
+                      <AvatarImage src={chatParticipantPhoto || undefined} />
                       <AvatarFallback className="bg-primary/10">
                         <User className="w-5 h-5 text-primary" />
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium text-foreground">
-                        {selectedConversation?.participant_name || "Nouvelle conversation"}
+                        {chatParticipantName}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {selectedConversation?.participant_role || "Artisan"}
+                        {chatParticipantRole}
                       </p>
                     </div>
                   </div>
