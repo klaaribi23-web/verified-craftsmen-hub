@@ -57,6 +57,60 @@ export type Database = {
           },
         ]
       }
+      artisan_documents: {
+        Row: {
+          artisan_id: string
+          created_at: string
+          expiry_date: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          artisan_id: string
+          created_at?: string
+          expiry_date?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          artisan_id?: string
+          created_at?: string
+          expiry_date?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artisan_documents_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_documents_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artisan_services: {
         Row: {
           artisan_id: string

@@ -36,19 +36,6 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -496,46 +483,46 @@ export const ArtisanProfile = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="city">Ville</Label>
-                  <Popover open={cityOpen} onOpenChange={setCityOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={cityOpen}
-                        className="w-full justify-between font-normal"
-                      >
-                        {city || "Sélectionner une ville..."}
-                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0" align="start">
-                      <Command>
-                        <CommandInput 
-                          placeholder="Rechercher une ville..." 
-                          value={citySearch}
-                          onValueChange={setCitySearch}
-                        />
-                        <CommandList>
-                          <CommandEmpty>Aucune ville trouvée</CommandEmpty>
-                          <CommandGroup>
-                            {filteredCities.map((c) => (
-                              <CommandItem
-                                key={`${c.name}-${c.department}`}
-                                value={c.name}
-                                onSelect={() => {
-                                  setCity(`${c.name} (${c.department})`);
-                                  setCityOpen(false);
-                                  setCitySearch("");
-                                }}
-                              >
-                                {c.name} ({c.department})
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <div className="relative">
+                    <Input 
+                      id="city"
+                      value={city}
+                      onChange={(e) => {
+                        setCity(e.target.value);
+                        setCitySearch(e.target.value);
+                        setCityOpen(e.target.value.length >= 2);
+                      }}
+                      onFocus={() => {
+                        if (city.length >= 2) setCityOpen(true);
+                      }}
+                      onBlur={() => {
+                        // Delay to allow click on suggestion
+                        setTimeout(() => setCityOpen(false), 200);
+                      }}
+                      placeholder="Tapez pour rechercher une ville..."
+                      autoComplete="off"
+                    />
+                    {cityOpen && filteredCities.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {filteredCities.map((c) => (
+                          <button
+                            key={`${c.name}-${c.department}`}
+                            type="button"
+                            className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors first:rounded-t-lg last:rounded-b-lg"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setCity(`${c.name} (${c.department})`);
+                              setCityOpen(false);
+                              setCitySearch("");
+                            }}
+                          >
+                            <span className="font-medium">{c.name}</span>
+                            <span className="text-muted-foreground ml-1">({c.department})</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Adresse professionnelle</Label>
