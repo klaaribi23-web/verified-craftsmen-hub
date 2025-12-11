@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Plus, 
   Pencil, 
@@ -14,109 +18,162 @@ import {
   Euro,
   Clock,
   GripVertical,
-  CheckCircle
+  CheckCircle,
+  Loader2,
+  Wrench
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
-const initialServices = [
-  {
-    id: 1,
-    name: "Dépannage plomberie urgence",
-    description: "Intervention rapide pour fuites, débouchages et urgences",
-    priceType: "hourly",
-    price: 60,
-    duration: "1-2h",
-    active: true,
-    popular: true,
-  },
-  {
-    id: 2,
-    name: "Installation chauffe-eau",
-    description: "Installation complète de chauffe-eau électrique ou gaz",
-    priceType: "fixed",
-    price: 350,
-    duration: "3-4h",
-    active: true,
-    popular: false,
-  },
-  {
-    id: 3,
-    name: "Rénovation salle de bain",
-    description: "Rénovation complète : plomberie, sanitaires, carrelage",
-    priceType: "quote",
-    price: null,
-    duration: "3-5 jours",
-    active: true,
-    popular: true,
-  },
-  {
-    id: 4,
-    name: "Débouchage canalisation",
-    description: "Débouchage mécanique ou haute pression",
-    priceType: "fixed",
-    price: 120,
-    duration: "1h",
-    active: true,
-    popular: false,
-  },
-  {
-    id: 5,
-    name: "Installation robinetterie",
-    description: "Pose de robinets, mitigeurs, douchettes",
-    priceType: "fixed",
-    price: 80,
-    duration: "1h",
-    active: false,
-    popular: false,
-  },
-];
+interface Service {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number | null;
+  duration: string | null;
+  artisan_id: string;
+}
 
 export const ArtisanServices = () => {
-  const [services, setServices] = useState(initialServices);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", price: 0, description: "", duration: "" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ title: "", price: 0, description: "", duration: "" });
+  const [newService, setNewService] = useState({ title: "", price: "", description: "", duration: "" });
 
-  const toggleActive = (id: number) => {
-    setServices(services.map(s => 
-      s.id === id ? { ...s, active: !s.active } : s
-    ));
-  };
+  // Fetch artisan profile
+  const { data: artisan } = useQuery({
+    queryKey: ["artisan-profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("artisans")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id
+  });
 
-  const togglePopular = (id: number) => {
-    setServices(services.map(s => 
-      s.id === id ? { ...s, popular: !s.popular } : s
-    ));
-  };
+  // Fetch services
+  const { data: services = [], isLoading } = useQuery({
+    queryKey: ["artisan-services", artisan?.id],
+    queryFn: async () => {
+      if (!artisan?.id) return [];
+      const { data, error } = await supabase
+        .from("artisan_services")
+        .select("*")
+        .eq("artisan_id", artisan.id)
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data as Service[];
+    },
+    enabled: !!artisan?.id
+  });
 
-  const startEdit = (service: typeof initialServices[0]) => {
+  // Add service mutation
+  const addServiceMutation = useMutation({
+    mutationFn: async (service: Omit<Service, "id" | "artisan_id">) => {
+      if (!artisan?.id) throw new Error("Artisan non trouvé");
+      const { error } = await supabase
+        .from("artisan_services")
+        .insert({
+          artisan_id: artisan.id,
+          title: service.title,
+          description: service.description || null,
+          price: service.price || null,
+          duration: service.duration || null
+        });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artisan-services"] });
+      toast.success("Prestation ajoutée");
+      setIsAdding(false);
+      setNewService({ title: "", price: "", description: "", duration: "" });
+    },
+    onError: () => {
+      toast.error("Erreur lors de l'ajout");
+    }
+  });
+
+  // Update service mutation
+  const updateServiceMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Service> & { id: string }) => {
+      const { error } = await supabase
+        .from("artisan_services")
+        .update(updates)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artisan-services"] });
+      toast.success("Prestation mise à jour");
+      setEditingId(null);
+    },
+    onError: () => {
+      toast.error("Erreur lors de la mise à jour");
+    }
+  });
+
+  // Delete service mutation
+  const deleteServiceMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("artisan_services")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artisan-services"] });
+      toast.success("Prestation supprimée");
+    },
+    onError: () => {
+      toast.error("Erreur lors de la suppression");
+    }
+  });
+
+  const startEdit = (service: Service) => {
     setEditingId(service.id);
     setEditForm({
-      name: service.name,
+      title: service.title,
       price: service.price || 0,
-      description: service.description,
-      duration: service.duration
+      description: service.description || "",
+      duration: service.duration || ""
     });
   };
 
   const saveEdit = () => {
-    if (editingId !== null) {
-      setServices(services.map(s => 
-        s.id === editingId 
-          ? { ...s, name: editForm.name, price: editForm.price, description: editForm.description, duration: editForm.duration }
-          : s
-      ));
-      setEditingId(null);
+    if (editingId) {
+      updateServiceMutation.mutate({
+        id: editingId,
+        title: editForm.title,
+        price: editForm.price || null,
+        description: editForm.description || null,
+        duration: editForm.duration || null
+      });
     }
   };
 
-  const cancelEdit = () => {
-    setEditingId(null);
+  const handleAddService = () => {
+    if (!newService.title.trim()) {
+      toast.error("Le nom de la prestation est requis");
+      return;
+    }
+    addServiceMutation.mutate({
+      title: newService.title,
+      description: newService.description || null,
+      price: newService.price ? parseFloat(newService.price) : null,
+      duration: newService.duration || null
+    });
   };
 
-  const deleteService = (id: number) => {
-    setServices(services.filter(s => s.id !== id));
-  };
+  const avgPrice = services.filter(s => s.price).length > 0
+    ? Math.round(services.filter(s => s.price).reduce((acc, s) => acc + (s.price || 0), 0) / services.filter(s => s.price).length)
+    : 0;
 
   return (
     <>
@@ -136,26 +193,15 @@ export const ArtisanServices = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-card rounded-xl border border-border shadow-soft p-4">
                 <p className="text-sm text-muted-foreground">Services actifs</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {services.filter(s => s.active).length}
-                </p>
+                <p className="text-2xl font-bold text-foreground">{services.length}</p>
               </div>
               <div className="bg-card rounded-xl border border-border shadow-soft p-4">
                 <p className="text-sm text-muted-foreground">Prix moyen</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {Math.round(
-                    services
-                      .filter(s => s.price)
-                      .reduce((acc, s) => acc + (s.price || 0), 0) / 
-                    services.filter(s => s.price).length
-                  )}€
-                </p>
+                <p className="text-2xl font-bold text-foreground">{avgPrice}€</p>
               </div>
               <div className="bg-card rounded-xl border border-border shadow-soft p-4">
-                <p className="text-sm text-muted-foreground">Services populaires</p>
-                <p className="text-2xl font-bold text-accent">
-                  {services.filter(s => s.popular).length}
-                </p>
+                <p className="text-sm text-muted-foreground">Services avec prix</p>
+                <p className="text-2xl font-bold text-accent">{services.filter(s => s.price).length}</p>
               </div>
             </div>
 
@@ -173,171 +219,198 @@ export const ArtisanServices = () => {
                 <h4 className="font-semibold text-foreground mb-4">Nouvelle prestation</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Nom de la prestation</Label>
-                    <Input placeholder="Ex: Dépannage plomberie" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Type de tarification</Label>
-                    <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
-                      <option value="fixed">Prix fixe</option>
-                      <option value="hourly">Taux horaire</option>
-                      <option value="quote">Sur devis</option>
-                    </select>
+                    <Label>Nom de la prestation *</Label>
+                    <Input 
+                      placeholder="Ex: Dépannage plomberie" 
+                      value={newService.title}
+                      onChange={(e) => setNewService({...newService, title: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Prix (€)</Label>
-                    <Input type="number" placeholder="60" />
+                    <Input 
+                      type="number" 
+                      placeholder="60" 
+                      value={newService.price}
+                      onChange={(e) => setNewService({...newService, price: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Durée estimée</Label>
-                    <Input placeholder="Ex: 1-2h" />
+                    <Input 
+                      placeholder="Ex: 1-2h" 
+                      value={newService.duration}
+                      onChange={(e) => setNewService({...newService, duration: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label>Description</Label>
-                    <Textarea placeholder="Décrivez votre prestation..." rows={3} />
+                    <Textarea 
+                      placeholder="Décrivez votre prestation..." 
+                      rows={3} 
+                      value={newService.description}
+                      onChange={(e) => setNewService({...newService, description: e.target.value})}
+                    />
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
                   <Button variant="outline" onClick={() => setIsAdding(false)}>
                     Annuler
                   </Button>
-                  <Button variant="gold" onClick={() => setIsAdding(false)}>
-                    <CheckCircle className="w-4 h-4 mr-2" /> Ajouter
+                  <Button 
+                    variant="gold" 
+                    onClick={handleAddService}
+                    disabled={addServiceMutation.isPending}
+                  >
+                    {addServiceMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                    )}
+                    Ajouter
                   </Button>
                 </div>
               </div>
             )}
 
             {/* Services List */}
-            <div className="space-y-4">
-              {services.map((service) => (
-                <div 
-                  key={service.id}
-                  className={`bg-card rounded-xl border shadow-soft p-6 transition-all ${
-                    service.active 
-                      ? "border-border hover:border-accent/30" 
-                      : "border-border opacity-60"
-                  }`}
-                >
-                  {editingId === service.id ? (
-                    /* Edit Mode */
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Nom de la prestation</Label>
-                          <Input 
-                            value={editForm.name}
-                            onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Prix (€)</Label>
-                          <Input 
-                            type="number"
-                            value={editForm.price}
-                            onChange={(e) => setEditForm({...editForm, price: Number(e.target.value)})}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Durée estimée</Label>
-                          <Input 
-                            value={editForm.duration}
-                            onChange={(e) => setEditForm({...editForm, duration: e.target.value})}
-                          />
-                        </div>
-                        <div className="space-y-2 md:col-span-2">
-                          <Label>Description</Label>
-                          <Textarea 
-                            value={editForm.description}
-                            onChange={(e) => setEditForm({...editForm, description: e.target.value})}
-                            rows={2}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={cancelEdit}>
-                          Annuler
-                        </Button>
-                        <Button variant="gold" onClick={saveEdit}>
-                          <CheckCircle className="w-4 h-4 mr-2" /> Enregistrer
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* View Mode */
-                    <div className="flex items-start gap-4">
-                      <button className="mt-1 text-muted-foreground hover:text-foreground cursor-grab">
-                        <GripVertical className="w-5 h-5" />
-                      </button>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-semibold text-foreground">{service.name}</h4>
-                              {service.popular && (
-                                <Badge className="bg-accent/20 text-accent border-0 text-xs">
-                                  Populaire
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {service.description}
-                            </p>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : services.length === 0 ? (
+              <div className="bg-card rounded-xl border border-border shadow-soft p-12 text-center">
+                <Wrench className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-semibold text-foreground mb-2">Aucune prestation</h3>
+                <p className="text-muted-foreground mb-4">
+                  Ajoutez vos prestations pour les afficher sur votre profil public
+                </p>
+                <Button variant="outline" onClick={() => setIsAdding(true)}>
+                  <Plus className="w-4 h-4 mr-2" /> Ajouter une prestation
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {services.map((service) => (
+                  <div 
+                    key={service.id}
+                    className="bg-card rounded-xl border border-border shadow-soft p-6 transition-all hover:border-accent/30"
+                  >
+                    {editingId === service.id ? (
+                      /* Edit Mode */
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Nom de la prestation</Label>
+                            <Input 
+                              value={editForm.title}
+                              onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                            />
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Switch 
-                              checked={service.active}
-                              onCheckedChange={() => toggleActive(service.id)}
+                          <div className="space-y-2">
+                            <Label>Prix (€)</Label>
+                            <Input 
+                              type="number"
+                              value={editForm.price}
+                              onChange={(e) => setEditForm({...editForm, price: Number(e.target.value)})}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Durée estimée</Label>
+                            <Input 
+                              value={editForm.duration}
+                              onChange={(e) => setEditForm({...editForm, duration: e.target.value})}
+                            />
+                          </div>
+                          <div className="space-y-2 md:col-span-2">
+                            <Label>Description</Label>
+                            <Textarea 
+                              value={editForm.description}
+                              onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                              rows={2}
                             />
                           </div>
                         </div>
-                        
-                        <div className="flex flex-wrap items-center gap-4 mt-4">
-                          <div className="flex items-center gap-1 text-sm">
-                            <Euro className="w-4 h-4 text-accent" />
-                            {service.priceType === "quote" ? (
-                              <span className="text-foreground">Sur devis</span>
-                            ) : service.priceType === "hourly" ? (
-                              <span className="text-foreground">{service.price}€/h</span>
-                            ) : (
-                              <span className="text-foreground">{service.price}€</span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Clock className="w-4 h-4" />
-                            <span>{service.duration}</span>
-                          </div>
-                          <button 
-                            onClick={() => togglePopular(service.id)}
-                            className={`text-xs px-2 py-1 rounded-full transition-colors ${
-                              service.popular 
-                                ? "bg-accent/20 text-accent" 
-                                : "bg-muted text-muted-foreground hover:bg-accent/10 hover:text-accent"
-                            }`}
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" onClick={() => setEditingId(null)}>
+                            Annuler
+                          </Button>
+                          <Button 
+                            variant="gold" 
+                            onClick={saveEdit}
+                            disabled={updateServiceMutation.isPending}
                           >
-                            {service.popular ? "★ Mise en avant" : "☆ Mettre en avant"}
-                          </button>
+                            {updateServiceMutation.isPending ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                            )}
+                            Enregistrer
+                          </Button>
                         </div>
                       </div>
+                    ) : (
+                      /* View Mode */
+                      <div className="flex items-start gap-4">
+                        <button className="mt-1 text-muted-foreground hover:text-foreground cursor-grab">
+                          <GripVertical className="w-5 h-5" />
+                        </button>
+                        
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-foreground">{service.title}</h4>
+                          {service.description && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {service.description}
+                            </p>
+                          )}
+                          
+                          <div className="flex flex-wrap items-center gap-4 mt-4">
+                            <div className="flex items-center gap-1 text-sm">
+                              <Euro className="w-4 h-4 text-accent" />
+                              {service.price ? (
+                                <span className="text-foreground">{service.price}€</span>
+                              ) : (
+                                <span className="text-muted-foreground">Sur devis</span>
+                              )}
+                            </div>
+                            {service.duration && (
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                <Clock className="w-4 h-4" />
+                                <span>{service.duration}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
 
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(service)}>
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => deleteService(service.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8" 
+                            onClick={() => startEdit(service)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-destructive hover:text-destructive" 
+                            onClick={() => deleteServiceMutation.mutate(service.id)}
+                            disabled={deleteServiceMutation.isPending}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                ))}
               </div>
-            </div>
-          </main>
-        </div>
+            )}
+          </div>
+        </main>
       </div>
+    </div>
     </>
   );
 };

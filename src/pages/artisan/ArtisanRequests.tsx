@@ -4,131 +4,137 @@ import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Search, 
-  Filter, 
   MapPin, 
   Calendar,
-  Clock,
   Euro,
   MessageSquare,
   CheckCircle,
   XCircle,
   Eye,
   Image,
-  AlertTriangle
+  AlertTriangle,
+  Inbox,
+  Loader2
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
-type RequestStatus = "new" | "accepted" | "rejected" | "completed";
+type RequestStatus = "pending" | "accepted" | "declined";
 
-interface Request {
-  id: number;
-  client: string;
-  service: string;
-  description: string;
-  location: string;
-  date: string;
-  budget: string;
+interface MissionApplication {
+  id: string;
   status: RequestStatus;
-  urgent: boolean;
-  hasPhotos: boolean;
-  createdAt: string;
+  created_at: string;
+  motivation_message: string | null;
+  missions: {
+    id: string;
+    title: string;
+    description: string | null;
+    city: string;
+    budget: number | null;
+    created_at: string;
+    profiles: {
+      first_name: string | null;
+      last_name: string | null;
+    } | null;
+  } | null;
 }
-
-const requests: Request[] = [
-  {
-    id: 1,
-    client: "Marie Martin",
-    service: "Fuite d'eau urgente",
-    description: "Fuite importante sous l'évier de la cuisine. L'eau coule en continu.",
-    location: "Paris 15e",
-    date: "Dès que possible",
-    budget: "100-200€",
-    status: "new",
-    urgent: true,
-    hasPhotos: true,
-    createdAt: "Il y a 2h",
-  },
-  {
-    id: 2,
-    client: "Pierre Durand",
-    service: "Installation chauffe-eau",
-    description: "Remplacement d'un vieux chauffe-eau électrique par un nouveau modèle.",
-    location: "Paris 12e",
-    date: "Semaine prochaine",
-    budget: "300-500€",
-    status: "new",
-    urgent: false,
-    hasPhotos: false,
-    createdAt: "Il y a 5h",
-  },
-  {
-    id: 3,
-    client: "Sophie Bernard",
-    service: "Débouchage canalisation",
-    description: "Évier de la salle de bain bouché, l'eau ne s'écoule plus du tout.",
-    location: "Paris 11e",
-    date: "Cette semaine",
-    budget: "80-150€",
-    status: "accepted",
-    urgent: false,
-    hasPhotos: true,
-    createdAt: "Hier",
-  },
-  {
-    id: 4,
-    client: "Laurent Petit",
-    service: "Rénovation salle de bain",
-    description: "Rénovation complète d'une salle de bain de 6m². Remplacement baignoire par douche.",
-    location: "Paris 2e",
-    date: "Mois prochain",
-    budget: "3000-5000€",
-    status: "accepted",
-    urgent: false,
-    hasPhotos: true,
-    createdAt: "Il y a 3 jours",
-  },
-  {
-    id: 5,
-    client: "Claire Moreau",
-    service: "Fuite robinet",
-    description: "Robinet de la baignoire qui goutte en permanence.",
-    location: "Paris 16e",
-    date: "Cette semaine",
-    budget: "50-100€",
-    status: "rejected",
-    urgent: false,
-    hasPhotos: false,
-    createdAt: "Il y a 2 jours",
-  },
-];
 
 const getStatusConfig = (status: RequestStatus) => {
   switch (status) {
-    case "new":
-      return { label: "Nouvelle", className: "bg-accent/20 text-accent border-0" };
+    case "pending":
+      return { label: "En attente", className: "bg-accent/20 text-accent border-0" };
     case "accepted":
       return { label: "Acceptée", className: "bg-success/20 text-success border-0" };
-    case "rejected":
+    case "declined":
       return { label: "Refusée", className: "bg-muted text-muted-foreground border-0" };
-    case "completed":
-      return { label: "Terminée", className: "bg-primary/20 text-primary border-0" };
   }
 };
 
 export const ArtisanRequests = () => {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<"all" | RequestStatus>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredRequests = requests.filter((r) => {
-    if (filter !== "all" && r.status !== filter) return false;
-    if (searchQuery && !r.client.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !r.service.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+  // Fetch artisan profile
+  const { data: artisan } = useQuery({
+    queryKey: ["artisan-profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("artisans")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id
+  });
+
+  // Fetch mission applications
+  const { data: applications = [], isLoading } = useQuery({
+    queryKey: ["artisan-applications", artisan?.id],
+    queryFn: async () => {
+      if (!artisan?.id) return [];
+      const { data, error } = await supabase
+        .from("mission_applications")
+        .select(`
+          id,
+          status,
+          created_at,
+          motivation_message,
+          missions (
+            id,
+            title,
+            description,
+            city,
+            budget,
+            created_at,
+            profiles:client_id (
+              first_name,
+              last_name
+            )
+          )
+        `)
+        .eq("artisan_id", artisan.id)
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      return data as MissionApplication[];
+    },
+    enabled: !!artisan?.id
+  });
+
+  const filteredApplications = applications.filter((app) => {
+    if (filter !== "all" && app.status !== filter) return false;
+    if (searchQuery) {
+      const clientName = `${app.missions?.profiles?.first_name || ""} ${app.missions?.profiles?.last_name || ""}`.toLowerCase();
+      const missionTitle = app.missions?.title?.toLowerCase() || "";
+      if (!clientName.includes(searchQuery.toLowerCase()) && !missionTitle.includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+    }
     return true;
   });
 
-  const newCount = requests.filter(r => r.status === "new").length;
+  const pendingCount = applications.filter(a => a.status === "pending").length;
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffTime = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Aujourd'hui";
+    if (diffDays === 1) return "Hier";
+    if (diffDays < 7) return `Il y a ${diffDays} jours`;
+    return date.toLocaleDateString("fr-FR");
+  };
 
   return (
     <>
@@ -139,7 +145,7 @@ export const ArtisanRequests = () => {
         <div className="flex-1 flex flex-col">
         <DashboardHeader 
           title="Demandes reçues" 
-          subtitle={`${newCount} nouvelle${newCount > 1 ? "s" : ""} demande${newCount > 1 ? "s" : ""} en attente`}
+          subtitle={pendingCount > 0 ? `${pendingCount} demande${pendingCount > 1 ? "s" : ""} en attente` : "Aucune demande en attente"}
         />
 
         <main className="flex-1 p-6 overflow-auto">
@@ -149,7 +155,7 @@ export const ArtisanRequests = () => {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
-                  placeholder="Rechercher par client ou service..." 
+                  placeholder="Rechercher par client ou mission..." 
                   className="pl-10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -164,12 +170,12 @@ export const ArtisanRequests = () => {
                   Toutes
                 </Button>
                 <Button 
-                  variant={filter === "new" ? "default" : "outline"} 
+                  variant={filter === "pending" ? "default" : "outline"} 
                   size="sm"
-                  onClick={() => setFilter("new")}
-                  className={filter === "new" ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
+                  onClick={() => setFilter("pending")}
+                  className={filter === "pending" ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
                 >
-                  Nouvelles ({requests.filter(r => r.status === "new").length})
+                  En attente ({applications.filter(a => a.status === "pending").length})
                 </Button>
                 <Button 
                   variant={filter === "accepted" ? "default" : "outline"} 
@@ -179,118 +185,114 @@ export const ArtisanRequests = () => {
                   Acceptées
                 </Button>
                 <Button 
-                  variant={filter === "rejected" ? "default" : "outline"} 
+                  variant={filter === "declined" ? "default" : "outline"} 
                   size="sm"
-                  onClick={() => setFilter("rejected")}
+                  onClick={() => setFilter("declined")}
                 >
                   Refusées
                 </Button>
               </div>
             </div>
 
-            {/* Requests List */}
-            <div className="space-y-4">
-              {filteredRequests.map((request) => {
-                const statusConfig = getStatusConfig(request.status);
-                
-                return (
-                  <div 
-                    key={request.id}
-                    className={`bg-card rounded-xl border shadow-soft overflow-hidden transition-all hover:shadow-elevated ${
-                      request.urgent ? "border-destructive/30" : "border-border"
-                    }`}
-                  >
-                    {request.urgent && (
-                      <div className="bg-destructive/10 px-4 py-2 flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-destructive" />
-                        <span className="text-sm font-medium text-destructive">Intervention urgente</span>
-                      </div>
-                    )}
-                    
-                    <div className="p-6">
-                      <div className="flex flex-col lg:flex-row lg:items-start gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-semibold text-foreground text-lg">{request.service}</h4>
-                                <Badge className={statusConfig.className}>
-                                  {statusConfig.label}
-                                </Badge>
+            {/* Applications List */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredApplications.length === 0 ? (
+              <div className="text-center py-12 bg-card rounded-xl border border-border">
+                <Inbox className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-semibold text-foreground mb-2">Aucune demande</h3>
+                <p className="text-muted-foreground">
+                  {searchQuery 
+                    ? "Essayez de modifier votre recherche" 
+                    : filter !== "all"
+                      ? "Aucune demande dans cette catégorie"
+                      : "Vous n'avez pas encore reçu de demandes. Postulez à des missions pour recevoir des demandes."}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredApplications.map((application) => {
+                  const statusConfig = getStatusConfig(application.status);
+                  const clientName = application.missions?.profiles 
+                    ? `${application.missions.profiles.first_name || ""} ${application.missions.profiles.last_name || ""}`.trim()
+                    : "Client";
+                  
+                  return (
+                    <div 
+                      key={application.id}
+                      className="bg-card rounded-xl border border-border shadow-soft overflow-hidden transition-all hover:shadow-elevated"
+                    >
+                      <div className="p-6">
+                        <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-semibold text-foreground text-lg">
+                                    {application.missions?.title || "Mission"}
+                                  </h4>
+                                  <Badge className={statusConfig.className}>
+                                    {statusConfig.label}
+                                  </Badge>
+                                </div>
+                                <p className="text-muted-foreground">{clientName}</p>
                               </div>
-                              <p className="text-muted-foreground">{request.client}</p>
+                              <span className="text-sm text-muted-foreground">
+                                {formatDate(application.created_at)}
+                              </span>
                             </div>
-                            <span className="text-sm text-muted-foreground">{request.createdAt}</span>
-                          </div>
-                          
-                          <p className="text-foreground mb-4">{request.description}</p>
-                          
-                          <div className="flex flex-wrap gap-4 text-sm">
-                            <div className="flex items-center gap-1 text-muted-foreground">
-                              <MapPin className="w-4 h-4" />
-                              <span>{request.location}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-muted-foreground">
-                              <Calendar className="w-4 h-4" />
-                              <span>{request.date}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-accent font-medium">
-                              <Euro className="w-4 h-4" />
-                              <span>{request.budget}</span>
-                            </div>
-                            {request.hasPhotos && (
+                            
+                            {application.missions?.description && (
+                              <p className="text-foreground mb-4 line-clamp-2">
+                                {application.missions.description}
+                              </p>
+                            )}
+                            
+                            <div className="flex flex-wrap gap-4 text-sm">
                               <div className="flex items-center gap-1 text-muted-foreground">
-                                <Image className="w-4 h-4" />
-                                <span>Photos jointes</span>
+                                <MapPin className="w-4 h-4" />
+                                <span>{application.missions?.city || "Non spécifié"}</span>
                               </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Calendar className="w-4 h-4" />
+                                <span>
+                                  {application.missions?.created_at 
+                                    ? new Date(application.missions.created_at).toLocaleDateString("fr-FR")
+                                    : "Non spécifié"}
+                                </span>
+                              </div>
+                              {application.missions?.budget && (
+                                <div className="flex items-center gap-1 text-accent font-medium">
+                                  <Euro className="w-4 h-4" />
+                                  <span>{application.missions.budget}€</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex lg:flex-col gap-2">
+                            <Button variant="outline" size="sm" className="flex-1 lg:w-full">
+                              <Eye className="w-4 h-4 mr-1" /> Voir détails
+                            </Button>
+                            {application.status === "accepted" && (
+                              <Button variant="outline" size="sm" className="flex-1 lg:w-full">
+                                <MessageSquare className="w-4 h-4 mr-1" /> Contacter
+                              </Button>
                             )}
                           </div>
                         </div>
-
-                        <div className="flex lg:flex-col gap-2">
-                          <Button variant="outline" size="sm" className="flex-1 lg:w-full">
-                            <Eye className="w-4 h-4 mr-1" /> Voir détails
-                          </Button>
-                          {request.status === "new" && (
-                            <>
-                              <Button variant="gold" size="sm" className="flex-1 lg:w-full">
-                                <CheckCircle className="w-4 h-4 mr-1" /> Accepter
-                              </Button>
-                              <Button variant="outline" size="sm" className="flex-1 lg:w-full text-destructive hover:text-destructive">
-                                <XCircle className="w-4 h-4 mr-1" /> Refuser
-                              </Button>
-                            </>
-                          )}
-                          {request.status === "accepted" && (
-                            <Button variant="outline" size="sm" className="flex-1 lg:w-full">
-                              <MessageSquare className="w-4 h-4 mr-1" /> Contacter
-                            </Button>
-                          )}
-                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-
-              {filteredRequests.length === 0 && (
-                <div className="text-center py-12 bg-card rounded-xl border border-border">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-2">Aucune demande trouvée</h3>
-                  <p className="text-muted-foreground">
-                    {searchQuery 
-                      ? "Essayez de modifier votre recherche" 
-                      : "Vous n'avez pas encore de demandes dans cette catégorie"}
-                  </p>
-                </div>
-              )}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-          </main>
-        </div>
+        </main>
       </div>
+    </div>
     </>
   );
 };
