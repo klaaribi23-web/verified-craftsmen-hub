@@ -39,6 +39,7 @@ import AdminMessaging from "./pages/admin/AdminMessaging";
 import AdminAddArtisan from "./pages/admin/AdminAddArtisan";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminDocuments from "./pages/admin/AdminDocuments";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -199,6 +200,11 @@ const App = () => (
           <Route path="/admin/parametres" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/documents" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDocuments />
             </ProtectedRoute>
           } />
           
