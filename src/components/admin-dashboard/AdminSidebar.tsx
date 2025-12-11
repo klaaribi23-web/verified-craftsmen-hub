@@ -9,7 +9,8 @@ import {
   Bell,
   LogOut,
   Shield,
-  Settings
+  Settings,
+  FileText
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,6 +20,7 @@ import { useAllNotifications } from "@/hooks/useAllNotifications";
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin/dashboard" },
   { icon: UserCheck, label: "Approbations", path: "/admin/approbations", badge: true },
+  { icon: FileText, label: "Documents", path: "/admin/documents" },
   { icon: Users, label: "Artisans", path: "/admin/artisans" },
   { icon: UserCheck, label: "Clients", path: "/admin/clients" },
   { icon: BarChart3, label: "Statistiques", path: "/admin/statistiques" },
