@@ -195,6 +195,60 @@ export const useMessaging = () => {
         .single();
 
       if (error) throw error;
+
+      // Get receiver's user_id to send notification
+      const { data: receiverProfile } = await supabase
+        .from("profiles")
+        .select("user_id, first_name, last_name")
+        .eq("id", receiverId)
+        .single();
+
+      // Get sender's name for notification
+      const { data: senderProfile } = await supabase
+        .from("profiles")
+        .select("first_name, last_name, user_id")
+        .eq("id", currentProfileId)
+        .single();
+
+      // Check if sender is admin
+      let senderName = "Quelqu'un";
+      if (senderProfile) {
+        const { data: senderRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", senderProfile.user_id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (senderRole) {
+          senderName = "ADMIN";
+        } else {
+          // Check if sender is artisan
+          const { data: artisan } = await supabase
+            .from("artisans")
+            .select("business_name")
+            .eq("profile_id", currentProfileId)
+            .maybeSingle();
+
+          if (artisan) {
+            senderName = artisan.business_name;
+          } else {
+            senderName = `${senderProfile.first_name || ""} ${senderProfile.last_name || ""}`.trim() || "Utilisateur";
+          }
+        }
+      }
+
+      // Create notification for receiver
+      if (receiverProfile?.user_id) {
+        await supabase.from("notifications").insert({
+          user_id: receiverProfile.user_id,
+          type: "new_message",
+          title: "Nouveau message",
+          message: `Vous avez reçu un nouveau message de ${senderName}`,
+          related_id: data.id,
+        });
+      }
+
       return data;
     },
     onSuccess: () => {

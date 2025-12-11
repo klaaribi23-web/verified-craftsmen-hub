@@ -9,7 +9,7 @@ import {
 import { useAllNotifications } from "@/hooks/useAllNotifications";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info } from "lucide-react";
+import { CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info, MessageCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
@@ -20,8 +20,10 @@ const NotificationBell = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "quote_accepted":
+      case "document_verified":
         return <CheckCircle className="w-4 h-4 text-green-500" />;
       case "quote_refused":
+      case "document_rejected":
         return <XCircle className="w-4 h-4 text-red-500" />;
       case "quote_received":
         return <FileText className="w-4 h-4 text-primary" />;
@@ -33,6 +35,8 @@ const NotificationBell = () => {
         return <UserPlus className="w-4 h-4 text-blue-500" />;
       case "mission_assigned":
         return <Briefcase className="w-4 h-4 text-gold" />;
+      case "new_message":
+        return <MessageCircle className="w-4 h-4 text-primary" />;
       default:
         return <Info className="w-4 h-4 text-muted-foreground" />;
     }
