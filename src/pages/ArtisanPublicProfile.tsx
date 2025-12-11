@@ -79,18 +79,42 @@ const ArtisanPublicProfile = () => {
 
   // Parse availability from JSON
   const getAvailability = () => {
+    const defaultAvailability = {
+      lundi: "8h - 18h",
+      mardi: "8h - 18h",
+      mercredi: "8h - 18h",
+      jeudi: "8h - 18h",
+      vendredi: "8h - 18h",
+      samedi: "9h - 17h",
+      dimanche: "Fermé"
+    };
+
     if (!artisan?.availability) {
-      return {
-        lundi: "8h - 18h",
-        mardi: "8h - 18h",
-        mercredi: "8h - 18h",
-        jeudi: "8h - 18h",
-        vendredi: "8h - 18h",
-        samedi: "9h - 17h",
-        dimanche: "Fermé"
-      };
+      return defaultAvailability;
     }
-    return artisan.availability as Record<string, string>;
+
+    const rawAvailability = artisan.availability as Record<string, unknown>;
+    const result: Record<string, string> = {};
+
+    for (const [day, value] of Object.entries(rawAvailability)) {
+      if (typeof value === 'string') {
+        result[day] = value;
+      } else if (value && typeof value === 'object') {
+        // Handle object format with {start, end, enabled}
+        const scheduleObj = value as { start?: string; end?: string; enabled?: boolean };
+        if (scheduleObj.enabled === false) {
+          result[day] = "Fermé";
+        } else if (scheduleObj.start && scheduleObj.end) {
+          result[day] = `${scheduleObj.start} - ${scheduleObj.end}`;
+        } else {
+          result[day] = "Non renseigné";
+        }
+      } else {
+        result[day] = "Non renseigné";
+      }
+    }
+
+    return result;
   };
 
   // Loading state
