@@ -422,6 +422,22 @@ const AdminAddArtisan = () => {
 
       if (artisanError) throw artisanError;
 
+      // Add multiple categories to junction table
+      if (selectedCategories.length > 0 && artisan) {
+        const categoriesData = selectedCategories.map((catId) => ({
+          artisan_id: artisan.id,
+          category_id: catId,
+        }));
+
+        const { error: categoriesError } = await supabase
+          .from("artisan_categories")
+          .insert(categoriesData);
+
+        if (categoriesError) {
+          console.error("Error adding categories:", categoriesError);
+        }
+      }
+
       // Add services
       if (services.length > 0 && artisan) {
         const servicesData = services.map((s) => ({

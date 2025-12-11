@@ -55,6 +55,10 @@ export interface ArtisanPublic {
     id: string;
     name: string;
   } | null;
+  categories?: {
+    id: string;
+    name: string;
+  }[];
 }
 
 // Fetch all pending missions (real data)
@@ -92,7 +96,8 @@ export const usePublicArtisans = () => {
   return useQuery({
     queryKey: ["public-artisans"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch artisans
+      const { data: artisans, error: artisansError } = await supabase
         .from("public_artisans")
         .select(`
           *,
@@ -101,8 +106,28 @@ export const usePublicArtisans = () => {
         .eq("status", "active")
         .order("rating", { ascending: false });
 
-      if (error) throw error;
-      return data as ArtisanPublic[];
+      if (artisansError) throw artisansError;
+
+      // Fetch all artisan categories
+      const { data: artisanCategories, error: catError } = await supabase
+        .from("artisan_categories")
+        .select(`
+          artisan_id,
+          category:categories(id, name)
+        `);
+
+      if (catError) throw catError;
+
+      // Map categories to artisans
+      const artisansWithCategories = artisans?.map(artisan => ({
+        ...artisan,
+        categories: artisanCategories
+          ?.filter(ac => ac.artisan_id === artisan.id)
+          .map(ac => ac.category)
+          .filter(Boolean) || []
+      })) || [];
+
+      return artisansWithCategories as (ArtisanPublic & { categories: { id: string; name: string }[] })[];
     },
   });
 };
@@ -165,7 +190,20 @@ export const useArtisanBySlug = (slugOrId: string) => {
       }
 
       if (error) throw error;
-      return data as ArtisanPublic | null;
+      if (!data) return null;
+
+      // Fetch multiple categories from junction table
+      const { data: artisanCategories } = await supabase
+        .from("artisan_categories")
+        .select(`
+          category:categories(id, name)
+        `)
+        .eq("artisan_id", data.id);
+
+      return {
+        ...data,
+        categories: artisanCategories?.map(ac => ac.category).filter(Boolean) || []
+      } as ArtisanPublic & { categories: { id: string; name: string }[] };
     },
     enabled: !!slugOrId,
   });
