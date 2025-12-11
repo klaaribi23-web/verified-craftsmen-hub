@@ -11,19 +11,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategoriesHierarchy } from "@/hooks/useCategories";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   ArrowRight, 
   ArrowLeft,
   CheckCircle2,
-  Droplets,
-  Zap,
-  Flame,
-  Paintbrush,
-  Key,
-  Construction,
-  Hammer,
-  Wrench,
   Upload,
   Calendar,
   MapPin,
@@ -35,27 +36,7 @@ import {
   Loader2
 } from "lucide-react";
 
-const categoryIcons: Record<string, any> = {
-  "plomberie": Droplets,
-  "electricite": Zap,
-  "chauffage": Flame,
-  "peinture": Paintbrush,
-  "serrurerie": Key,
-  "maconnerie": Construction,
-  "menuiserie": Hammer,
-  "autre": Wrench,
-};
-
-const defaultCategories = [
-  { icon: Droplets, title: "Plomberie", id: "plomberie" },
-  { icon: Zap, title: "Électricité", id: "electricite" },
-  { icon: Flame, title: "Chauffage", id: "chauffage" },
-  { icon: Paintbrush, title: "Peinture", id: "peinture" },
-  { icon: Key, title: "Serrurerie", id: "serrurerie" },
-  { icon: Construction, title: "Maçonnerie", id: "maconnerie" },
-  { icon: Hammer, title: "Menuiserie", id: "menuiserie" },
-  { icon: Wrench, title: "Autre", id: "autre" },
-];
+// Removed static category mappings - now using database hierarchy
 
 const urgencyOptions = [
   { id: "urgent", label: "Urgent (24-48h)", description: "Intervention rapide nécessaire" },
@@ -75,7 +56,7 @@ const contactSchema = z.object({
 const DemandeDevis = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  const { data: dbCategories } = useCategories();
+  const { data: categoriesHierarchy, isLoading: categoriesLoading } = useCategoriesHierarchy();
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -220,16 +201,8 @@ const DemandeDevis = () => {
         throw new Error("Impossible de créer le profil utilisateur");
       }
 
-      // Find category ID from database
-      let categoryId = formData.categoryId;
-      if (!categoryId && dbCategories) {
-        const matchedCategory = dbCategories.find(c => 
-          c.name.toLowerCase().includes(formData.category.toLowerCase())
-        );
-        if (matchedCategory) {
-          categoryId = matchedCategory.id;
-        }
-      }
+      // Use the categoryId directly from form
+      let categoryId = formData.categoryId || null;
 
       // Create mission with pending_approval status
       const { data: missionData, error: missionError } = await supabase
@@ -288,12 +261,26 @@ const DemandeDevis = () => {
     setFormData({ ...formData, [field]: value });
   };
 
-  // Map categories from DB or use defaults
-  const categories = dbCategories?.filter(c => !c.parent_id).slice(0, 8).map(c => ({
-    id: c.id,
-    title: c.name,
-    icon: categoryIcons[c.name.toLowerCase()] || Wrench,
-  })) || defaultCategories;
+  // Helper function to handle category selection
+  const handleCategorySelect = (categoryId: string) => {
+    // Find category name from hierarchy
+    let categoryName = "";
+    if (categoriesHierarchy) {
+      for (const parent of categoriesHierarchy) {
+        if (parent.id === categoryId) {
+          categoryName = parent.name;
+          break;
+        }
+        const child = parent.children.find(c => c.id === categoryId);
+        if (child) {
+          categoryName = child.name;
+          break;
+        }
+      }
+    }
+    updateForm("category", categoryName);
+    updateForm("categoryId", categoryId);
+  };
 
   return (
     <div className="min-h-screen bg-muted">
@@ -359,31 +346,46 @@ const DemandeDevis = () => {
                     <h2 className="text-xl font-semibold text-navy mb-6">
                       Quel type de travaux souhaitez-vous réaliser ?
                     </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                      {categories.map((cat) => (
-                        <button
-                          key={cat.id}
-                          type="button"
-                          onClick={() => {
-                            updateForm("category", cat.title);
-                            updateForm("categoryId", cat.id);
-                          }}
-                          className={`p-4 rounded-xl border-2 transition-all ${
-                            formData.category === cat.title
-                              ? "border-gold bg-gold/10"
-                              : "border-border hover:border-gold/50"
-                          }`}
+                    <div className="mb-8">
+                      {categoriesLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="w-6 h-6 animate-spin text-gold" />
+                          <span className="ml-2 text-muted-foreground">Chargement des catégories...</span>
+                        </div>
+                      ) : (
+                        <Select
+                          value={formData.categoryId}
+                          onValueChange={handleCategorySelect}
                         >
-                          <cat.icon className={`w-8 h-8 mx-auto mb-2 ${
-                            formData.category === cat.title ? "text-gold" : "text-muted-foreground"
-                          }`} />
-                          <span className={`text-sm font-medium ${
-                            formData.category === cat.title ? "text-navy" : "text-muted-foreground"
-                          }`}>
-                            {cat.title}
-                          </span>
-                        </button>
-                      ))}
+                          <SelectTrigger className="w-full h-14 text-base">
+                            <SelectValue placeholder="Sélectionnez un type de travaux" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-80 bg-white">
+                            {categoriesHierarchy?.map((parent) => (
+                              <SelectGroup key={parent.id}>
+                                <SelectLabel className="text-navy font-semibold py-2">
+                                  {parent.name}
+                                </SelectLabel>
+                                {parent.children.map((child) => (
+                                  <SelectItem 
+                                    key={child.id} 
+                                    value={child.id}
+                                    className="pl-6"
+                                  >
+                                    {child.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                      {formData.category && (
+                        <p className="mt-3 text-sm text-success flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4" />
+                          Catégorie sélectionnée : {formData.category}
+                        </p>
+                      )}
                     </div>
                     <Button
                       variant="gold"
