@@ -73,7 +73,7 @@ export const useDemoMissions = () => {
           category:categories(id, name),
           client:profiles!missions_client_id_fkey(first_name, last_name, city)
         `)
-        .eq("status", "pending")
+        .eq("status", "published")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
