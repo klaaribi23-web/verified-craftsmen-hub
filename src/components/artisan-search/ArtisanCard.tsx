@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
 interface ArtisanCardProps {
   id: string | number;
   slug?: string | null;
@@ -31,6 +34,7 @@ const defaultPortfolios: Record<string, string[]> = {
 
 // Sample profile images
 const profileImages = ["https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop&crop=face"];
+
 const ArtisanCard = ({
   id,
   slug,
@@ -46,7 +50,11 @@ const ArtisanCard = ({
 }: ArtisanCardProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+
+  const artisanId = typeof id === "string" ? id : id.toString();
 
   // Use slug for URL, fallback to id
   const artisanUrl = slug || id;
@@ -55,16 +63,99 @@ const ArtisanCard = ({
   const portfolioImages = portfolio && portfolio.length > 0 ? portfolio : defaultPortfolios[profession] || defaultPortfolios["Plombier"];
   const numericId = typeof id === "string" ? parseInt(id.slice(0, 8), 16) : id;
   const defaultProfileImage = profileImages[numericId % profileImages.length];
-  const handleFavoriteClick = (e: React.MouseEvent) => {
+
+  // Check if artisan is already in favorites on mount
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!user) return;
+
+      try {
+        // Get user's profile ID
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+
+        if (!profile) return;
+
+        // Check if this artisan is in favorites
+        const { data: favorite } = await supabase
+          .from("client_favorites")
+          .select("id")
+          .eq("client_id", profile.id)
+          .eq("artisan_id", artisanId)
+          .maybeSingle();
+
+        setIsFavorite(!!favorite);
+      } catch (error) {
+        console.error("Error checking favorite:", error);
+      }
+    };
+
+    checkFavorite();
+  }, [user, artisanId]);
+
+  const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    if (!isFavorite) {
-      toast.success("Artisan ajouté à vos favoris");
-    } else {
-      toast.info("Artisan retiré de vos favoris");
+
+    if (!isAuthenticated || !user) {
+      toast.error("Connectez-vous pour ajouter des favoris");
+      navigate("/auth");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Get user's profile ID
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profileError || !profile) {
+        toast.error("Erreur lors de la récupération du profil");
+        setIsLoading(false);
+        return;
+      }
+
+      if (isFavorite) {
+        // Remove from favorites
+        const { error } = await supabase
+          .from("client_favorites")
+          .delete()
+          .eq("client_id", profile.id)
+          .eq("artisan_id", artisanId);
+
+        if (error) throw error;
+
+        setIsFavorite(false);
+        toast.info("Artisan retiré de vos favoris");
+      } else {
+        // Add to favorites
+        const { error } = await supabase
+          .from("client_favorites")
+          .insert({
+            client_id: profile.id,
+            artisan_id: artisanId
+          });
+
+        if (error) throw error;
+
+        setIsFavorite(true);
+        toast.success("Artisan ajouté à vos favoris");
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("Erreur lors de la mise à jour des favoris");
+    } finally {
+      setIsLoading(false);
     }
   };
+
   const handleProfileClick = () => {
     window.scrollTo({
       top: 0,
@@ -72,17 +163,21 @@ const ArtisanCard = ({
     });
     navigate(`/artisan/${artisanUrl}`);
   };
+
   const nextSlide = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setCurrentSlide(prev => (prev + 1) % portfolioImages.length);
   };
+
   const prevSlide = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setCurrentSlide(prev => (prev - 1 + portfolioImages.length) % portfolioImages.length);
   };
-  return <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
+
+  return (
+    <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
       {/* Portfolio Carousel */}
       <div className="relative h-48 overflow-hidden group">
         <img src={portfolioImages[currentSlide]} alt={`Réalisation ${currentSlide + 1}`} className="w-full h-full object-cover transition-transform duration-300" />
@@ -97,21 +192,33 @@ const ArtisanCard = ({
 
         {/* Dots Indicator */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {portfolioImages.map((_, index) => <button key={index} onClick={e => {
-          e.preventDefault();
-          e.stopPropagation();
-          setCurrentSlide(index);
-        }} className={`w-1.5 h-1.5 rounded-full transition-all ${index === currentSlide ? "bg-card w-4" : "bg-card/60"}`} />)}
+          {portfolioImages.map((_, index) => (
+            <button 
+              key={index} 
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                setCurrentSlide(index);
+              }} 
+              className={`w-1.5 h-1.5 rounded-full transition-all ${index === currentSlide ? "bg-card w-4" : "bg-card/60"}`} 
+            />
+          ))}
         </div>
 
         {/* Verified Badge */}
-        {verified && <div className="absolute top-2 right-12 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+        {verified && (
+          <div className="absolute top-2 right-12 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" />
             Vérifié
-          </div>}
+          </div>
+        )}
 
         {/* Favorite Button */}
-        <button onClick={handleFavoriteClick} className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${isFavorite ? "bg-red-500 text-white" : "bg-card/90 text-muted-foreground hover:bg-red-500 hover:text-white"}`}>
+        <button 
+          onClick={handleFavoriteClick} 
+          disabled={isLoading}
+          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${isFavorite ? "bg-red-500 text-white" : "bg-card/90 text-muted-foreground hover:bg-red-500 hover:text-white"} ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
           <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
         </button>
       </div>
@@ -129,7 +236,6 @@ const ArtisanCard = ({
                 </h3>
               </Link>
             </div>
-            
           </div>
           <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
             <Star className="w-4 h-4 fill-gold text-gold" />
@@ -152,6 +258,8 @@ const ArtisanCard = ({
           Voir le profil
         </Button>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default ArtisanCard;

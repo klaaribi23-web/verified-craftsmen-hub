@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Bell } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -7,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAllNotifications } from "@/hooks/useAllNotifications";
+import { useAuth } from "@/hooks/useAuth";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info, MessageCircle } from "lucide-react";
@@ -15,6 +17,8 @@ import { cn } from "@/lib/utils";
 
 const NotificationBell = () => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { role } = useAuth();
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useAllNotifications();
 
   const getNotificationIcon = (type: string) => {
@@ -42,9 +46,41 @@ const NotificationBell = () => {
     }
   };
 
-  const handleNotificationClick = (notificationId: string, isRead: boolean) => {
+  const getNotificationRoute = (type: string): string | null => {
+    switch (type) {
+      case "new_message":
+        if (role === "admin") return "/admin/messagerie";
+        if (role === "artisan") return "/artisan/messagerie";
+        return "/client/messagerie";
+      case "quote_received":
+      case "quote_accepted":
+      case "quote_refused":
+        if (role === "artisan") return "/artisan/devis";
+        return "/client/devis";
+      case "mission_assigned":
+      case "new_application":
+        if (role === "artisan") return "/artisan/demandes";
+        return "/client/missions";
+      case "document_verified":
+      case "document_rejected":
+        return "/artisan/documents";
+      case "approval":
+      case "rejection":
+        return "/artisan/dashboard";
+      default:
+        return null;
+    }
+  };
+
+  const handleNotificationClick = (notificationId: string, isRead: boolean, type: string) => {
     if (!isRead) {
       markAsRead.mutate(notificationId);
+    }
+    
+    const route = getNotificationRoute(type);
+    if (route) {
+      setOpen(false);
+      navigate(route);
     }
   };
 
@@ -95,7 +131,7 @@ const NotificationBell = () => {
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  onClick={() => handleNotificationClick(notification.id, notification.is_read)}
+                  onClick={() => handleNotificationClick(notification.id, notification.is_read, notification.type)}
                   className={cn(
                     "p-3 cursor-pointer transition-colors hover:bg-muted/50",
                     !notification.is_read && "bg-primary/5"

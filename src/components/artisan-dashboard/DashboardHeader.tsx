@@ -1,4 +1,4 @@
-import { Bell, Search, Menu } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -37,11 +37,6 @@ export const DashboardHeader = ({ title, subtitle, onMenuClick }: DashboardHeade
               className="pl-10 w-64 bg-muted/50"
             />
           </div>
-
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
-          </Button>
         </div>
       </div>
     </header>
