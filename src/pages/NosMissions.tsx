@@ -57,17 +57,37 @@ import { CategoryIcon } from "@/components/categories/CategoryIcon";
 import { CategorySelect } from "@/components/categories/CategorySelect";
 import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const ITEMS_PER_PAGE = 9;
 
 const NosMissions = () => {
   const { toast } = useToast();
+  const { user, role, isAuthenticated } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [selectedMission, setSelectedMission] = useState<any>(null);
   const [applicationMessage, setApplicationMessage] = useState("");
-  const [isLoggedIn] = useState(false); // Will be connected to auth later
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch artisan profile for logged-in artisan
+  const { data: artisanProfile } = useQuery({
+    queryKey: ["artisan-profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("artisans")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      if (error) return null;
+      return data;
+    },
+    enabled: !!user?.id && role === "artisan",
+  });
   const [showLocationAccordion, setShowLocationAccordion] = useState(false);
   
   const locationRef = useRef<HTMLDivElement>(null);
@@ -110,22 +130,63 @@ const NosMissions = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleApply = () => {
-    if (!isLoggedIn) {
+  const handleApply = async () => {
+    if (!isAuthenticated) {
       toast({
         title: "Connexion requise",
-        description: "Vous devez être connecté en tant qu'artisan pour postuler.",
+        description: "Vous devez être connecté pour postuler.",
         variant: "destructive",
       });
       return;
     }
 
-    toast({
-      title: "Candidature envoyée !",
-      description: `Votre candidature pour "${selectedMission?.title}" a été envoyée avec succès.`,
-    });
-    setSelectedMission(null);
-    setApplicationMessage("");
+    if (role !== "artisan") {
+      toast({
+        title: "Accès réservé",
+        description: "Seuls les artisans peuvent postuler aux missions.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!artisanProfile?.id) {
+      toast({
+        title: "Profil artisan introuvable",
+        description: "Veuillez compléter votre profil artisan avant de postuler.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("mission_applications")
+        .insert({
+          mission_id: selectedMission.id,
+          artisan_id: artisanProfile.id,
+          motivation_message: applicationMessage,
+          status: "pending",
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Candidature envoyée !",
+        description: `Votre candidature pour "${selectedMission?.title}" a été envoyée avec succès.`,
+      });
+      setSelectedMission(null);
+      setApplicationMessage("");
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible d'envoyer votre candidature.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetFilters = () => {
@@ -468,13 +529,22 @@ const NosMissions = () => {
             </DialogDescription>
           </DialogHeader>
           
-          {!isLoggedIn ? (
+          {!isAuthenticated ? (
             <div className="py-6 text-center">
               <p className="text-muted-foreground mb-4">
                 Vous devez être connecté en tant qu'artisan pour postuler à cette mission.
               </p>
               <Link to="/auth">
                 <Button>Se connecter</Button>
+              </Link>
+            </div>
+          ) : role !== "artisan" ? (
+            <div className="py-6 text-center">
+              <p className="text-muted-foreground mb-4">
+                Seuls les artisans peuvent postuler aux missions. Vous êtes connecté en tant que client.
+              </p>
+              <Link to="/devenir-artisan">
+                <Button variant="outline">Devenir artisan</Button>
               </Link>
             </div>
           ) : (
@@ -494,9 +564,9 @@ const NosMissions = () => {
                 <Button variant="outline" onClick={() => setSelectedMission(null)}>
                   Annuler
                 </Button>
-                <Button onClick={handleApply} disabled={!applicationMessage.trim()}>
+                <Button onClick={handleApply} disabled={!applicationMessage.trim() || isSubmitting}>
                   <Send className="w-4 h-4 mr-2" />
-                  Envoyer ma demande
+                  {isSubmitting ? "Envoi..." : "Envoyer ma demande"}
                 </Button>
               </DialogFooter>
             </>
