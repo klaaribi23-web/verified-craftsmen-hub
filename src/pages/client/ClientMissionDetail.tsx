@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ClientSidebar } from "@/components/client-dashboard/ClientSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -23,99 +24,166 @@ import {
   MessageSquare,
   X,
   ExternalLink,
-  CheckCircle,
   Users
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
-// Dummy mission data
-const missionData = {
-  id: 1,
-  title: "Réparation fuite salle de bain",
-  description: "Fuite sous le lavabo de la salle de bain principale. Besoin d'une intervention rapide.",
-  category: "Plomberie",
-  budget: 500,
-  location: "Paris 15ème",
-  date: "15 janvier 2024",
-  status: "en_attente",
-  applicants: [
-    {
-      id: 1,
-      name: "Jean-Pierre Martin",
-      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-      profession: "Plombier",
-      rating: 4.8,
-      reviews: 127,
-      experience: "12 ans",
-      message: "Bonjour, je suis disponible immédiatement pour intervenir. J'ai plus de 12 ans d'expérience en plomberie et je suis spécialisé dans les réparations de fuites. Je vous garantis un travail soigné et durable.",
-      appliedDate: "16 janvier 2024",
-      status: "pending"
-    },
-    {
-      id: 2,
-      name: "Marc Lefevre",
-      photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-      profession: "Plombier",
-      rating: 4.6,
-      reviews: 89,
-      experience: "8 ans",
-      message: "Bonjour ! Je peux passer dès demain matin pour diagnostiquer et réparer votre fuite. Devis gratuit sur place.",
-      appliedDate: "16 janvier 2024",
-      status: "pending"
-    },
-    {
-      id: 3,
-      name: "Sophie Bernard",
-      photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-      profession: "Plombier",
-      rating: 4.9,
-      reviews: 156,
-      experience: "15 ans",
-      message: "Experte en plomberie depuis 15 ans, je vous propose une intervention rapide et efficace. Je suis équipée pour tous types de réparations.",
-      appliedDate: "17 janvier 2024",
-      status: "pending"
-    },
-  ]
-};
+interface MissionApplication {
+  id: string;
+  artisan_id: string;
+  mission_id: string;
+  motivation_message: string | null;
+  status: "pending" | "accepted" | "declined";
+  created_at: string;
+  artisan: {
+    id: string;
+    business_name: string;
+    photo_url: string | null;
+    rating: number | null;
+    review_count: number | null;
+    experience_years: number | null;
+    slug: string | null;
+    category: {
+      name: string;
+    } | null;
+  };
+}
+
+interface Mission {
+  id: string;
+  title: string;
+  description: string | null;
+  budget: number | null;
+  city: string;
+  created_at: string;
+  status: string;
+  category: {
+    name: string;
+  } | null;
+}
 
 export const ClientMissionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [applicants, setApplicants] = useState(missionData.applicants);
+  const queryClient = useQueryClient();
   const [declineDialogOpen, setDeclineDialogOpen] = useState(false);
-  const [selectedApplicant, setSelectedApplicant] = useState<typeof missionData.applicants[0] | null>(null);
+  const [selectedApplicant, setSelectedApplicant] = useState<MissionApplication | null>(null);
 
-  const handleDecline = (applicant: typeof missionData.applicants[0]) => {
+  // Fetch mission data
+  const { data: mission, isLoading: missionLoading } = useQuery({
+    queryKey: ['mission', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('missions')
+        .select(`
+          id,
+          title,
+          description,
+          budget,
+          city,
+          created_at,
+          status,
+          category:categories(name)
+        `)
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      return data as Mission;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch applications
+  const { data: applications, isLoading: applicationsLoading } = useQuery({
+    queryKey: ['mission-applications', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('mission_applications')
+        .select(`
+          id,
+          artisan_id,
+          mission_id,
+          motivation_message,
+          status,
+          created_at,
+          artisan:artisans(
+            id,
+            business_name,
+            photo_url,
+            rating,
+            review_count,
+            experience_years,
+            slug,
+            category:categories(name)
+          )
+        `)
+        .eq('mission_id', id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return (data || []) as MissionApplication[];
+    },
+    enabled: !!id,
+  });
+
+  // Decline mutation
+  const declineMutation = useMutation({
+    mutationFn: async (applicationId: string) => {
+      const { error } = await supabase
+        .from('mission_applications')
+        .update({ status: 'declined' })
+        .eq('id', applicationId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mission-applications', id] });
+      toast({
+        title: "Artisan décliné",
+        description: `${selectedApplicant?.artisan.business_name} a été informé qu'il n'a pas été retenu pour cette mission.`,
+      });
+      setDeclineDialogOpen(false);
+      setSelectedApplicant(null);
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de décliner cet artisan.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDecline = (applicant: MissionApplication) => {
     setSelectedApplicant(applicant);
     setDeclineDialogOpen(true);
   };
 
   const confirmDecline = () => {
     if (selectedApplicant) {
-      setApplicants(prev => prev.map(a => 
-        a.id === selectedApplicant.id ? { ...a, status: "declined" } : a
-      ));
-      toast({
-        title: "Artisan décliné",
-        description: `${selectedApplicant.name} a été informé qu'il n'a pas été retenu pour cette mission.`,
-      });
+      declineMutation.mutate(selectedApplicant.id);
     }
-    setDeclineDialogOpen(false);
-    setSelectedApplicant(null);
   };
 
-  const handleContact = (applicant: typeof missionData.applicants[0]) => {
+  const handleContact = (applicant: MissionApplication) => {
     toast({
       title: "Conversation ouverte",
-      description: `Vous pouvez maintenant discuter avec ${applicant.name}`,
+      description: `Vous pouvez maintenant discuter avec ${applicant.artisan.business_name}`,
     });
     navigate("/client/messagerie");
   };
 
-  const pendingApplicants = applicants.filter(a => a.status === "pending");
-  const declinedApplicants = applicants.filter(a => a.status === "declined");
+  const pendingApplicants = applications?.filter(a => a.status === "pending") || [];
+  const declinedApplicants = applications?.filter(a => a.status === "declined") || [];
+
+  const isLoading = missionLoading || applicationsLoading;
 
   return (
     <>
@@ -137,149 +205,175 @@ export const ClientMissionDetail = () => {
               Retour aux missions
             </Button>
 
-            {/* Mission Summary */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-xl">{missionData.title}</CardTitle>
-                    <p className="text-muted-foreground mt-1">{missionData.description}</p>
-                  </div>
-                  <Badge variant="secondary">{missionData.category}</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <span className="flex items-center gap-1 text-gold font-semibold">
-                    <Euro className="w-4 h-4" />
-                    Budget : {missionData.budget} €
-                  </span>
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    {missionData.location}
-                  </span>
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
-                    {missionData.date}
-                  </span>
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    {applicants.length} candidature{applicants.length > 1 ? "s" : ""}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Applicants */}
-            <div>
-              <h2 className="text-lg font-semibold mb-4">
-                Artisans ayant postulé ({pendingApplicants.length})
-              </h2>
-              
+            {isLoading ? (
               <div className="space-y-4">
-                {pendingApplicants.map((applicant) => (
-                  <Card key={applicant.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col lg:flex-row gap-6">
-                        {/* Artisan info */}
-                        <div className="flex items-start gap-4 flex-1">
-                          <Avatar className="w-16 h-16">
-                            <AvatarImage src={applicant.photo} alt={applicant.name} />
-                            <AvatarFallback>{applicant.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                          </Avatar>
-                          
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-1">
-                              <h3 className="font-semibold text-lg">{applicant.name}</h3>
-                              <Badge variant="outline">{applicant.profession}</Badge>
-                            </div>
-                            
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                              <span className="flex items-center gap-1">
-                                <Star className="w-4 h-4 text-gold fill-gold" />
-                                {applicant.rating} ({applicant.reviews} avis)
-                              </span>
-                              <span>{applicant.experience} d'expérience</span>
-                              <span>Postulé le {applicant.appliedDate}</span>
-                            </div>
-                            
-                            <div className="bg-muted rounded-lg p-4">
-                              <p className="text-sm text-foreground italic">
-                                "{applicant.message}"
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Actions */}
-                        <div className="flex flex-col gap-2 lg:w-48">
-                          <Link to={`/artisan/${applicant.id}`}>
-                            <Button variant="outline" className="w-full">
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              Voir le profil
-                            </Button>
-                          </Link>
-                          <Button 
-                            variant="gold" 
-                            className="w-full"
-                            onClick={() => handleContact(applicant)}
-                          >
-                            <MessageSquare className="w-4 h-4 mr-2" />
-                            Contacter
-                          </Button>
-                          <Button 
-                            variant="destructive" 
-                            className="w-full"
-                            onClick={() => handleDecline(applicant)}
-                          >
-                            <X className="w-4 h-4 mr-2" />
-                            Décliner
-                          </Button>
-                        </div>
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-48 w-full" />
+              </div>
+            ) : !mission ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <p className="text-muted-foreground">Mission non trouvée</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                {/* Mission Summary */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle className="text-xl">{mission.title}</CardTitle>
+                        <p className="text-muted-foreground mt-1">{mission.description}</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      {mission.category?.name && (
+                        <Badge variant="secondary">{mission.category.name}</Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      {mission.budget && (
+                        <span className="flex items-center gap-1 text-gold font-semibold">
+                          <Euro className="w-4 h-4" />
+                          Budget : {mission.budget} €
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <MapPin className="w-4 h-4" />
+                        {mission.city}
+                      </span>
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        {format(new Date(mission.created_at), "d MMMM yyyy", { locale: fr })}
+                      </span>
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Users className="w-4 h-4" />
+                        {applications?.length || 0} candidature{(applications?.length || 0) > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
 
-                {pendingApplicants.length === 0 && (
-                  <Card>
-                    <CardContent className="p-12 text-center">
-                      <p className="text-muted-foreground">Aucune candidature en attente</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-
-            {/* Declined applicants */}
-            {declinedApplicants.length > 0 && (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 text-muted-foreground">
-                  Artisans déclinés ({declinedApplicants.length})
-                </h2>
-                
-                <div className="space-y-2">
-                  {declinedApplicants.map((applicant) => (
-                    <Card key={applicant.id} className="opacity-60">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-4">
-                          <Avatar className="w-10 h-10">
-                            <AvatarImage src={applicant.photo} alt={applicant.name} />
-                            <AvatarFallback>{applicant.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <p className="font-medium">{applicant.name}</p>
-                            <p className="text-sm text-muted-foreground">{applicant.profession}</p>
+                {/* Applicants */}
+                <div>
+                  <h2 className="text-lg font-semibold mb-4">
+                    Artisans ayant postulé ({pendingApplicants.length})
+                  </h2>
+                  
+                  <div className="space-y-4">
+                    {pendingApplicants.map((applicant) => (
+                      <Card key={applicant.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-6">
+                          <div className="flex flex-col lg:flex-row gap-6">
+                            {/* Artisan info */}
+                            <div className="flex items-start gap-4 flex-1">
+                              <Avatar className="w-16 h-16">
+                                <AvatarImage src={applicant.artisan.photo_url || undefined} alt={applicant.artisan.business_name} />
+                                <AvatarFallback>{applicant.artisan.business_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                              </Avatar>
+                              
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-1">
+                                  <h3 className="font-semibold text-lg">{applicant.artisan.business_name}</h3>
+                                  {applicant.artisan.category?.name && (
+                                    <Badge variant="outline">{applicant.artisan.category.name}</Badge>
+                                  )}
+                                </div>
+                                
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                                  <span className="flex items-center gap-1">
+                                    <Star className="w-4 h-4 text-gold fill-gold" />
+                                    {applicant.artisan.rating?.toFixed(1) || "N/A"} ({applicant.artisan.review_count || 0} avis)
+                                  </span>
+                                  {applicant.artisan.experience_years && (
+                                    <span>{applicant.artisan.experience_years} ans d'expérience</span>
+                                  )}
+                                  <span>Postulé le {format(new Date(applicant.created_at), "d MMMM yyyy", { locale: fr })}</span>
+                                </div>
+                                
+                                {applicant.motivation_message && (
+                                  <div className="bg-muted rounded-lg p-4">
+                                    <p className="text-sm text-foreground italic">
+                                      "{applicant.motivation_message}"
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Actions */}
+                            <div className="flex flex-col gap-2 lg:w-48">
+                              <Link to={`/artisan/${applicant.artisan.slug || applicant.artisan.id}`}>
+                                <Button variant="outline" className="w-full">
+                                  <ExternalLink className="w-4 h-4 mr-2" />
+                                  Voir le profil
+                                </Button>
+                              </Link>
+                              <Button 
+                                variant="gold" 
+                                className="w-full"
+                                onClick={() => handleContact(applicant)}
+                              >
+                                <MessageSquare className="w-4 h-4 mr-2" />
+                                Contacter
+                              </Button>
+                              <Button 
+                                variant="destructive" 
+                                className="w-full"
+                                onClick={() => handleDecline(applicant)}
+                              >
+                                <X className="w-4 h-4 mr-2" />
+                                Décliner
+                              </Button>
+                            </div>
                           </div>
-                          <Badge variant="secondary" className="bg-destructive/10 text-destructive">
-                            Non retenu
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))}
+
+                    {pendingApplicants.length === 0 && (
+                      <Card>
+                        <CardContent className="p-12 text-center">
+                          <p className="text-muted-foreground">Aucune candidature en attente</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
                 </div>
-              </div>
+
+                {/* Declined applicants */}
+                {declinedApplicants.length > 0 && (
+                  <div>
+                    <h2 className="text-lg font-semibold mb-4 text-muted-foreground">
+                      Artisans déclinés ({declinedApplicants.length})
+                    </h2>
+                    
+                    <div className="space-y-2">
+                      {declinedApplicants.map((applicant) => (
+                        <Card key={applicant.id} className="opacity-60">
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-4">
+                              <Avatar className="w-10 h-10">
+                                <AvatarImage src={applicant.artisan.photo_url || undefined} alt={applicant.artisan.business_name} />
+                                <AvatarFallback>{applicant.artisan.business_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <p className="font-medium">{applicant.artisan.business_name}</p>
+                                <p className="text-sm text-muted-foreground">{applicant.artisan.category?.name || "Artisan"}</p>
+                              </div>
+                              <Badge variant="secondary" className="bg-destructive/10 text-destructive">
+                                Non retenu
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
@@ -291,14 +385,14 @@ export const ClientMissionDetail = () => {
           <DialogHeader>
             <DialogTitle>Décliner cet artisan ?</DialogTitle>
             <DialogDescription>
-              {selectedApplicant?.name} sera informé qu'il n'a pas été retenu pour cette mission. Cette action est irréversible.
+              {selectedApplicant?.artisan.business_name} sera informé qu'il n'a pas été retenu pour cette mission. Cette action est irréversible.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeclineDialogOpen(false)}>
               Annuler
             </Button>
-            <Button variant="destructive" onClick={confirmDecline}>
+            <Button variant="destructive" onClick={confirmDecline} disabled={declineMutation.isPending}>
               <X className="w-4 h-4 mr-2" />
               Confirmer le refus
             </Button>
