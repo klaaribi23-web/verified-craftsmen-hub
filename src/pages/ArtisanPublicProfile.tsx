@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp } from "lucide-react";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
 import { Video } from "lucide-react";
@@ -19,6 +18,9 @@ import { fr } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
 import { useArtisanBySlug, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
 import ChatWidget from "@/components/chat/ChatWidget";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+
 const ArtisanPublicProfile = () => {
   const {
     slug
@@ -26,11 +28,14 @@ const ArtisanPublicProfile = () => {
     slug: string;
   }>();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [showContactInfo, setShowContactInfo] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [artisanContact, setArtisanContact] = useState<{ phone: string | null; email: string | null }>({ phone: null, email: null });
 
   // Fetch dynamic data using slug
   const {
@@ -116,6 +121,41 @@ const ArtisanPublicProfile = () => {
 
     return result;
   };
+
+  // Fetch artisan contact info when authenticated and showContactInfo is true
+  useEffect(() => {
+    const fetchArtisanContact = async () => {
+      if (!isAuthenticated || !artisan?.id || !showContactInfo) return;
+      
+      // Get the artisan's profile_id to fetch contact info
+      const { data: artisanData, error: artisanError } = await supabase
+        .from('artisans')
+        .select('profile_id')
+        .eq('id', artisan.id)
+        .single();
+      
+      if (artisanError || !artisanData?.profile_id) {
+        // If no profile_id, the artisan doesn't have linked contact info
+        return;
+      }
+      
+      // Fetch the profile info (phone, email)
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('phone, email')
+        .eq('id', artisanData.profile_id)
+        .single();
+      
+      if (!profileError && profileData) {
+        setArtisanContact({
+          phone: profileData.phone,
+          email: profileData.email,
+        });
+      }
+    };
+    
+    fetchArtisanContact();
+  }, [isAuthenticated, artisan?.id, showContactInfo]);
 
   // Loading state
   if (artisanLoading) {
@@ -252,9 +292,32 @@ const ArtisanPublicProfile = () => {
                         </div>
                       </div>
 
-                      {artisan.description && <p className="mt-4 text-muted-foreground leading-relaxed">
-                          {artisan.description}
-                        </p>}
+                      {artisan.description && (
+                        <div className="mt-4">
+                          <p className="text-muted-foreground leading-relaxed">
+                            {descriptionExpanded || artisan.description.length <= 200
+                              ? artisan.description
+                              : `${artisan.description.slice(0, 200)}...`}
+                          </p>
+                          {artisan.description.length > 200 && (
+                            <Button 
+                              variant="link" 
+                              className="px-0 h-auto text-primary"
+                              onClick={() => setDescriptionExpanded(!descriptionExpanded)}
+                            >
+                              {descriptionExpanded ? (
+                                <>
+                                  Voir moins <ChevronUp className="h-4 w-4 ml-1" />
+                                </>
+                              ) : (
+                                <>
+                                  Voir plus <ChevronDown className="h-4 w-4 ml-1" />
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      )}
 
                       {/* Social Links */}
                       <div className="flex items-center justify-center md:justify-start gap-3 mt-4">
@@ -546,26 +609,45 @@ const ArtisanPublicProfile = () => {
                   </Button>
 
                   {/* Contact Info revealed */}
-                  {showContactInfo && <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Phone className="h-5 w-5 text-primary" />
+                  {showContactInfo && (
+                    <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
+                      {isAuthenticated ? (
+                        <>
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Phone className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Téléphone</p>
+                              <p className="font-medium text-primary">
+                                {artisanContact.phone || "Non renseigné"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Mail className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Email</p>
+                              <p className="font-medium text-primary">
+                                {artisanContact.email || "Non renseigné"}
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center py-2">
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Connectez-vous pour voir les coordonnées
+                          </p>
+                          <Button variant="outline" size="sm" onClick={() => navigate('/auth')}>
+                            Se connecter
+                          </Button>
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Téléphone</p>
-                          <p className="font-medium text-primary">Connectez-vous pour voir</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Mail className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Email</p>
-                          <p className="font-medium text-primary">Connectez-vous pour voir</p>
-                        </div>
-                      </div>
-                    </div>}
+                      )}
+                    </div>
+                  )}
 
                   <div className="pt-4 border-t space-y-3">
                     <div className="flex items-center gap-3 text-sm">
