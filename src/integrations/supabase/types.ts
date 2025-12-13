@@ -158,8 +158,6 @@ export type Database = {
       }
       artisans: {
         Row: {
-          activation_sent_at: string | null
-          activation_token: string | null
           address: string | null
           availability: Json | null
           business_name: string
@@ -194,8 +192,6 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
-          activation_sent_at?: string | null
-          activation_token?: string | null
           address?: string | null
           availability?: Json | null
           business_name: string
@@ -230,8 +226,6 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
-          activation_sent_at?: string | null
-          activation_token?: string | null
           address?: string | null
           availability?: Json | null
           business_name?: string
@@ -966,7 +960,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "artisan" | "client"
       application_status: "pending" | "accepted" | "declined"
-      artisan_status: "active" | "suspended" | "pending" | "prospect"
+      artisan_status: "active" | "suspended" | "pending"
       mission_status:
         | "pending"
         | "assigned"
@@ -1104,7 +1098,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "artisan", "client"],
       application_status: ["pending", "accepted", "declined"],
-      artisan_status: ["active", "suspended", "pending", "prospect"],
+      artisan_status: ["active", "suspended", "pending"],
       mission_status: [
         "pending",
         "assigned",
