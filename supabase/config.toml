@@ -2,3 +2,6 @@ project_id = "nkeodfivjnhawzrezuqp"
 
 [functions.send-security-notification]
 verify_jwt = false
+
+[functions.cleanup-expired-stories]
+verify_jwt = false

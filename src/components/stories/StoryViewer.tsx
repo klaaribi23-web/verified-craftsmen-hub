@@ -42,15 +42,23 @@ const StoryViewer = ({
   const currentStory = stories[currentIndex];
   const isVideo = currentStory?.media_type === "video";
 
-  // Increment view count
-  const incrementViewCount = useCallback(async (storyId: string) => {
+  // Record view with duplicate prevention
+  const recordView = useCallback(async (storyId: string) => {
     if (viewedStories.current.has(storyId)) return;
     viewedStories.current.add(storyId);
 
     try {
-      await supabase.rpc("increment_story_views", { story_id_param: storyId });
+      // Get current user ID if authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      const viewerId = user?.id || null;
+
+      // Use the new record_story_view function that prevents duplicates
+      await supabase.rpc("record_story_view", { 
+        p_story_id: storyId,
+        p_viewer_id: viewerId
+      });
     } catch (error) {
-      console.error("Error incrementing view count:", error);
+      console.error("Error recording view:", error);
     }
   }, []);
 
@@ -120,12 +128,12 @@ const StoryViewer = ({
     goToNext();
   };
 
-  // Increment view on story change
+  // Record view on story change
   useEffect(() => {
     if (isOpen && currentStory) {
-      incrementViewCount(currentStory.id);
+      recordView(currentStory.id);
     }
-  }, [isOpen, currentStory, incrementViewCount]);
+  }, [isOpen, currentStory, recordView]);
 
   // Reset on open
   useEffect(() => {
