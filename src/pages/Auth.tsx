@@ -16,7 +16,8 @@ import {
   Lock, 
   User, 
   Loader2,
-  ArrowLeft
+  ArrowLeft,
+  CheckCircle
 } from "lucide-react";
 
 // Validation schemas
@@ -40,6 +41,8 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState<"client" | "artisan">("client");
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [emailSent, setEmailSent] = useState(false);
+  const [sentEmail, setSentEmail] = useState("");
   
   // Form fields
   const [email, setEmail] = useState("");
@@ -176,11 +179,9 @@ const Auth = () => {
           }
         }
 
-        // Show confirmation message - email link will be sent by Supabase
-        toast({
-          title: "Email de confirmation envoyé",
-          description: "Veuillez cliquer sur le lien dans l'email pour activer votre compte.",
-        });
+        // Show full-page confirmation instead of toast
+        setSentEmail(validatedData.email);
+        setEmailSent(true);
       }
     } catch (error: any) {
       console.error("Signup error:", error);
@@ -249,6 +250,34 @@ const Auth = () => {
     }
   };
 
+
+  // Full-page email sent confirmation
+  if (emailSent) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
+          <div className="text-center space-y-6 p-8 max-w-md">
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <Mail className="h-10 w-10 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold">Email de confirmation envoyé !</h1>
+            <p className="text-muted-foreground">
+              Un email a été envoyé à <strong className="text-foreground">{sentEmail}</strong>.<br />
+              Cliquez sur le lien dans l'email pour activer votre compte.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Vous n'avez pas reçu l'email ? Vérifiez vos spams.
+            </p>
+            <Button variant="outline" onClick={() => setEmailSent(false)}>
+              Retour
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
