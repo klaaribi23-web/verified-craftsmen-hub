@@ -23,11 +23,19 @@ export const useApprovalCounts = () => {
         .select("*", { count: "exact", head: true })
         .eq("status", "prospect");
 
+      // Count pending documents (awaiting validation)
+      const { count: pendingDocuments } = await supabase
+        .from("artisan_documents")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+
       return {
         pendingArtisans: pendingArtisans || 0,
         pendingMissions: pendingMissions || 0,
         prospectArtisans: prospectArtisans || 0,
-        total: (pendingArtisans || 0) + (pendingMissions || 0) + (prospectArtisans || 0)
+        pendingDocuments: pendingDocuments || 0,
+        totalApprovals: (pendingArtisans || 0) + (pendingMissions || 0) + (prospectArtisans || 0),
+        total: (pendingArtisans || 0) + (pendingMissions || 0) + (prospectArtisans || 0) + (pendingDocuments || 0)
       };
     },
     refetchInterval: 30000 // Refresh every 30 seconds
