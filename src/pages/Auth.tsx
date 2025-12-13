@@ -10,13 +10,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { notifyNewDeviceLogin } from "@/hooks/useSecurityNotifications";
 import { 
   Mail, 
   Lock, 
   User, 
   Loader2,
-  ArrowLeft,
-  CheckCircle
+  ArrowLeft
 } from "lucide-react";
 
 // Validation schemas
@@ -246,6 +246,11 @@ const Auth = () => {
       });
 
       if (error) throw error;
+
+      // Send new device notification (runs in background)
+      if (data.user) {
+        notifyNewDeviceLogin(data.user.id);
+      }
 
       toast({
         title: "Connexion réussie !",

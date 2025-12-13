@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { notifyPasswordChanged } from "@/hooks/useSecurityNotifications";
 import { 
   Lock, 
   Loader2,
@@ -72,11 +73,16 @@ const ResetPassword = () => {
         return;
       }
 
-      const { error } = await supabase.auth.updateUser({
+      const { data, error } = await supabase.auth.updateUser({
         password: password,
       });
 
       if (error) throw error;
+
+      // Send security notification for password change
+      if (data.user) {
+        notifyPasswordChanged(data.user.id);
+      }
 
       toast({
         title: "Mot de passe mis à jour",
