@@ -20,6 +20,8 @@ import { useArtisanBySlug, useArtisanServices, useArtisanReviews } from "@/hooks
 import ChatWidget from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
+import { cn } from "@/lib/utils";
 
 const ArtisanPublicProfile = () => {
   const {
@@ -54,6 +56,10 @@ const ArtisanPublicProfile = () => {
     data: reviews,
     isLoading: reviewsLoading
   } = useArtisanReviews(artisanId);
+  
+  // Check for active stories
+  const { hasActiveStories } = usePublicArtisanStories(artisanId);
+  
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
   const handleShare = (platform: string) => {
     if (!artisan) return;
@@ -233,7 +239,10 @@ const ArtisanPublicProfile = () => {
                     {/* Photo & Badge */}
                     <div className="flex flex-col items-center gap-3">
                       <div className="relative">
-                        <Avatar className="h-32 w-32 ring-4 ring-primary/20">
+                        <Avatar className={cn(
+                          "h-32 w-32 ring-4",
+                          hasActiveStories ? "ring-green-500 cursor-pointer" : "ring-primary/20"
+                        )}>
                           <AvatarImage src={artisan.photo_url || undefined} alt={artisan.business_name} />
                           <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
                             {artisan.business_name.slice(0, 2).toUpperCase()}
