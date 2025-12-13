@@ -15,6 +15,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -27,10 +37,18 @@ import {
   Loader2,
   Briefcase,
   Euro,
-  User
+  User,
+  Store,
+  ExternalLink,
+  Pencil,
+  Trash2,
+  TrendingUp,
+  Users,
+  ShoppingBag
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface PendingArtisan {
   id: string;
@@ -42,6 +60,7 @@ interface PendingArtisan {
   experience_years: number | null;
   portfolio_images: string[] | null;
   created_at: string;
+  slug: string | null;
   category: { name: string } | null;
   profile: { 
     first_name: string | null; 
@@ -49,6 +68,18 @@ interface PendingArtisan {
     email: string;
     phone: string | null;
   } | null;
+}
+
+interface ProspectArtisan {
+  id: string;
+  business_name: string;
+  city: string;
+  description: string | null;
+  photo_url: string | null;
+  portfolio_images: string[] | null;
+  created_at: string;
+  slug: string | null;
+  category: { name: string } | null;
 }
 
 interface PendingMission {
@@ -69,12 +100,14 @@ interface PendingMission {
 
 const AdminApprovals = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("missions");
   const [selectedArtisan, setSelectedArtisan] = useState<PendingArtisan | null>(null);
   const [selectedMission, setSelectedMission] = useState<PendingMission | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showMissionRejectDialog, setShowMissionRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [prospectToDelete, setProspectToDelete] = useState<ProspectArtisan | null>(null);
 
   // Fetch pending artisans
   const { data: pendingArtisans = [], isLoading: isLoadingArtisans } = useQuery({
@@ -92,6 +125,7 @@ const AdminApprovals = () => {
           experience_years,
           portfolio_images,
           created_at,
+          slug,
           category:categories(name),
           profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
         `)
@@ -100,6 +134,52 @@ const AdminApprovals = () => {
 
       if (error) throw error;
       return data as PendingArtisan[];
+    }
+  });
+
+  // Fetch prospect artisans (vitrines)
+  const { data: prospectArtisans = [], isLoading: isLoadingProspects } = useQuery({
+    queryKey: ["prospect-artisans"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("artisans")
+        .select(`
+          id,
+          business_name,
+          city,
+          description,
+          photo_url,
+          portfolio_images,
+          created_at,
+          slug,
+          category:categories(name)
+        `)
+        .eq("status", "prospect")
+        .is("user_id", null)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as ProspectArtisan[];
+    }
+  });
+
+  // Count recently claimed (prospects that became pending this month)
+  const { data: claimedThisMonth = 0 } = useQuery({
+    queryKey: ["claimed-this-month"],
+    queryFn: async () => {
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      const { count, error } = await supabase
+        .from("artisans")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending")
+        .not("user_id", "is", null)
+        .gte("updated_at", startOfMonth.toISOString());
+
+      if (error) throw error;
+      return count || 0;
     }
   });
 
@@ -279,6 +359,27 @@ const AdminApprovals = () => {
     }
   });
 
+  // Delete prospect mutation
+  const deleteProspectMutation = useMutation({
+    mutationFn: async (prospectId: string) => {
+      const { error } = await supabase
+        .from("artisans")
+        .delete()
+        .eq("id", prospectId)
+        .eq("status", "prospect");
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+      toast.success("Fiche vitrine supprimée");
+      setProspectToDelete(null);
+    },
+    onError: () => {
+      toast.error("Erreur lors de la suppression");
+    }
+  });
+
   const getProfileCompleteness = (artisan: PendingArtisan) => {
     let score = 0;
     let total = 6;
@@ -320,6 +421,12 @@ const AdminApprovals = () => {
                 <span className="hidden xs:inline">Artisans</span>
                 <span className="xs:hidden">Art.</span>
                 <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{pendingArtisans.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="vitrines" className="flex-1 gap-1.5 text-xs sm:text-sm px-2 sm:px-4 py-2">
+                <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">Vitrines</span>
+                <span className="xs:hidden">Vitr.</span>
+                <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{prospectArtisans.length}</Badge>
               </TabsTrigger>
             </TabsList>
 
@@ -543,6 +650,156 @@ const AdminApprovals = () => {
                 </Card>
               )}
             </TabsContent>
+
+            {/* VITRINES TAB */}
+            <TabsContent value="vitrines">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
+                <Card>
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <ShoppingBag className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Actives</p>
+                        <p className="text-lg md:text-2xl font-bold">{prospectArtisans.length}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="p-2 bg-emerald-500/10 rounded-lg">
+                        <Users className="h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Revendiquées</p>
+                        <p className="text-lg md:text-2xl font-bold">{claimedThisMonth}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="p-2 bg-gold/10 rounded-lg">
+                        <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-gold" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Conversion</p>
+                        <p className="text-lg md:text-2xl font-bold">
+                          {prospectArtisans.length + claimedThisMonth > 0 
+                            ? Math.round((claimedThisMonth / (prospectArtisans.length + claimedThisMonth)) * 100) 
+                            : 0}%
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {isLoadingProspects ? (
+                <div className="flex items-center justify-center py-12 md:py-20">
+                  <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
+                </div>
+              ) : prospectArtisans.length > 0 ? (
+                <div className="grid gap-3 md:gap-6">
+                  {prospectArtisans.map((prospect) => (
+                    <Card key={prospect.id} className="hover:shadow-lg transition-shadow">
+                      <CardContent className="p-3 md:p-6">
+                        <div className="flex gap-3 md:gap-6">
+                          <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0">
+                            <AvatarImage src={prospect.photo_url || DEFAULT_AVATAR} />
+                            <AvatarFallback className="text-lg md:text-xl bg-primary text-primary-foreground">
+                              {prospect.business_name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="min-w-0">
+                                <h3 className="text-base md:text-xl font-bold truncate">{prospect.business_name}</h3>
+                                <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="h-3 w-3 md:h-4 md:w-4" />
+                                    <span className="truncate max-w-[80px] md:max-w-none">{prospect.city}</span>
+                                  </span>
+                                  {prospect.category && (
+                                    <Badge variant="secondary" className="text-xs px-1.5 py-0">{prospect.category.name}</Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <Badge variant="outline" className="gap-1 text-xs shrink-0 bg-amber-500/10 text-amber-600 border-amber-500/30">
+                                <Store className="h-2.5 w-2.5" />
+                                Vitrine
+                              </Badge>
+                            </div>
+
+                            {prospect.description && (
+                              <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-3">
+                                {prospect.description}
+                              </p>
+                            )}
+
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-3">
+                              <span>Créée le {new Date(prospect.created_at).toLocaleDateString('fr-FR')}</span>
+                              {prospect.portfolio_images && prospect.portfolio_images.length > 0 && (
+                                <span>• {prospect.portfolio_images.length} photo(s)</span>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5 md:gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="flex-1 min-w-[70px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                onClick={() => window.open(`/artisan/${prospect.slug}`, '_blank')}
+                              >
+                                <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                <span className="hidden sm:inline">Voir</span>
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="flex-1 min-w-[70px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                onClick={() => navigate(`/admin/ajouter-artisan?edit=${prospect.id}`)}
+                              >
+                                <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                <span className="hidden sm:inline">Modifier</span>
+                              </Button>
+                              <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                className="flex-1 min-w-[70px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                onClick={() => setProspectToDelete(prospect)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                <span className="hidden sm:inline">Supprimer</span>
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="py-12 md:py-20 text-center">
+                    <Store className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
+                    <h3 className="text-lg md:text-xl font-semibold mb-2">Aucune fiche vitrine</h3>
+                    <p className="text-muted-foreground text-sm md:text-base mb-4">
+                      Créez des fiches vitrines pour attirer de nouveaux artisans.
+                    </p>
+                    <Button onClick={() => navigate("/admin/ajouter-artisan")}>
+                      Créer une fiche vitrine
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
           </Tabs>
 
           {/* Reject Artisan Dialog */}
@@ -741,6 +998,34 @@ const AdminApprovals = () => {
               )}
             </DialogContent>
           </Dialog>
+
+          {/* Delete Prospect Confirmation Dialog */}
+          <AlertDialog open={!!prospectToDelete} onOpenChange={() => setProspectToDelete(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Supprimer la fiche vitrine ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Êtes-vous sûr de vouloir supprimer la fiche vitrine "{prospectToDelete?.business_name}" ? 
+                  Cette action est irréversible.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={() => {
+                    if (prospectToDelete) {
+                      deleteProspectMutation.mutate(prospectToDelete.id);
+                    }
+                  }}
+                  disabled={deleteProspectMutation.isPending}
+                >
+                  {deleteProspectMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </main>
       </div>
     </>
