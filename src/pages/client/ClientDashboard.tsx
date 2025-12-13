@@ -184,10 +184,10 @@ export const ClientDashboard = () => {
             subtitle={`Bienvenue${profile?.first_name ? `, ${profile.first_name}` : ''} sur votre espace client`}
           />
 
-          <main className="flex-1 p-6 overflow-auto">
-            <div className="max-w-6xl mx-auto space-y-6">
+          <main className="flex-1 p-4 md:p-6 overflow-auto">
+            <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
               {/* Stats */}
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-4">
@@ -233,16 +233,16 @@ export const ClientDashboard = () => {
 
               {/* Quick Actions */}
               <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                       <h3 className="font-semibold text-lg mb-1">Besoin d'un artisan ?</h3>
                       <p className="text-muted-foreground text-sm">
                         Déposez une mission et recevez des propositions d'artisans qualifiés
                       </p>
                     </div>
-                    <Link to="/demande-devis">
-                      <Button variant="gold">
+                    <Link to="/demande-devis" className="w-full sm:w-auto">
+                      <Button variant="gold" className="w-full sm:w-auto">
                         <Plus className="w-4 h-4 mr-2" />
                         Déposer une mission
                       </Button>
@@ -251,7 +251,7 @@ export const ClientDashboard = () => {
                 </CardContent>
               </Card>
 
-              <div className="grid lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 {/* Recent Missions */}
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
