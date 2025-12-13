@@ -298,108 +298,113 @@ const AdminApprovals = () => {
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <AdminSidebar />
       
-        <main className="flex-1 p-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground">Demandes d'approbation</h1>
-            <p className="text-muted-foreground mt-1">
+        <main className="flex-1 p-4 md:p-8">
+          <div className="mb-4 md:mb-8">
+            <h1 className="text-xl md:text-3xl font-bold text-foreground">Demandes d'approbation</h1>
+            <p className="text-muted-foreground text-sm md:text-base mt-1">
               Vérifiez et approuvez les profils artisans et les missions
             </p>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="missions" className="gap-2">
-                <Briefcase className="w-4 h-4" />
-                Missions ({pendingMissions.length})
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
+            <TabsList className="w-full flex h-auto gap-1 p-1">
+              <TabsTrigger value="missions" className="flex-1 gap-1.5 text-xs sm:text-sm px-2 sm:px-4 py-2">
+                <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">Missions</span>
+                <span className="xs:hidden">Miss.</span>
+                <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{pendingMissions.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="artisans" className="gap-2">
-                <User className="w-4 h-4" />
-                Artisans ({pendingArtisans.length})
+              <TabsTrigger value="artisans" className="flex-1 gap-1.5 text-xs sm:text-sm px-2 sm:px-4 py-2">
+                <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">Artisans</span>
+                <span className="xs:hidden">Art.</span>
+                <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{pendingArtisans.length}</Badge>
               </TabsTrigger>
             </TabsList>
 
             {/* MISSIONS TAB */}
             <TabsContent value="missions">
               {isLoadingMissions ? (
-                <div className="flex items-center justify-center py-20">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="flex items-center justify-center py-12 md:py-20">
+                  <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
                 </div>
               ) : pendingMissions.length > 0 ? (
-                <div className="grid gap-6">
+                <div className="grid gap-3 md:gap-6">
                   {pendingMissions.map((mission) => (
                     <Card key={mission.id} className="hover:shadow-lg transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex flex-col md:flex-row gap-6">
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <h3 className="text-xl font-bold">{mission.title}</h3>
-                                <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
-                                  <MapPin className="h-4 w-4" />
-                                  {mission.city}
-                                  {mission.category && (
-                                    <>
-                                      <span>•</span>
-                                      <Badge variant="secondary">{mission.category.name}</Badge>
-                                    </>
-                                  )}
-                                  {mission.budget && (
-                                    <>
-                                      <span>•</span>
-                                      <span className="flex items-center gap-1 text-gold font-medium">
-                                        <Euro className="h-3 w-3" />
-                                        {mission.budget} €
-                                      </span>
-                                    </>
-                                  )}
-                                </div>
+                      <CardContent className="p-3 md:p-6">
+                        <div className="flex flex-col gap-3 md:gap-4">
+                          {/* Header */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-base md:text-xl font-bold truncate">{mission.title}</h3>
+                              <div className="flex flex-wrap items-center gap-1.5 md:gap-2 text-muted-foreground text-xs md:text-sm mt-1">
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
+                                  <span className="truncate max-w-[100px] md:max-w-none">{mission.city}</span>
+                                </span>
+                                {mission.category && (
+                                  <Badge variant="secondary" className="text-xs px-1.5 py-0">{mission.category.name}</Badge>
+                                )}
+                                {mission.budget && (
+                                  <span className="flex items-center gap-0.5 text-gold font-medium">
+                                    <Euro className="h-3 w-3" />
+                                    {mission.budget} €
+                                  </span>
+                                )}
                               </div>
-                              <Badge variant="outline" className="gap-1">
-                                <Clock className="h-3 w-3" />
-                                En attente
-                              </Badge>
                             </div>
+                            <Badge variant="outline" className="gap-1 text-xs shrink-0">
+                              <Clock className="h-2.5 w-2.5 md:h-3 md:w-3" />
+                              <span className="hidden sm:inline">En attente</span>
+                            </Badge>
+                          </div>
 
-                            {mission.description && (
-                              <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
-                                {mission.description}
-                              </p>
-                            )}
+                          {mission.description && (
+                            <p className="text-muted-foreground text-xs md:text-sm line-clamp-2">
+                              {mission.description}
+                            </p>
+                          )}
 
-                            <div className="text-sm text-muted-foreground mb-4">
-                              <span className="font-medium">Client : </span>
-                              {mission.client?.first_name} {mission.client?.last_name} ({mission.client?.email})
-                            </div>
+                          <div className="text-xs md:text-sm text-muted-foreground">
+                            <span className="font-medium">Client : </span>
+                            <span className="truncate">{mission.client?.first_name} {mission.client?.last_name}</span>
+                            <span className="hidden md:inline"> ({mission.client?.email})</span>
+                          </div>
 
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setSelectedMission(mission)}
-                              >
-                                <Eye className="h-4 w-4 mr-1" />
-                                Voir détails
-                              </Button>
-                              <Button
-                                size="sm"
-                                onClick={() => approveMissionMutation.mutate(mission.id)}
-                                disabled={approveMissionMutation.isPending}
-                              >
-                                <CheckCircle2 className="h-4 w-4 mr-1" />
-                                Approuver
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedMission(mission);
-                                  setShowMissionRejectDialog(true);
-                                }}
-                              >
-                                <XCircle className="h-4 w-4 mr-1" />
-                                Refuser
-                              </Button>
-                            </div>
+                          {/* Actions - Mobile optimized */}
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 min-w-[80px] text-xs md:text-sm h-8 md:h-9"
+                              onClick={() => setSelectedMission(mission)}
+                            >
+                              <Eye className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" />
+                              Détails
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="flex-1 min-w-[80px] text-xs md:text-sm h-8 md:h-9"
+                              onClick={() => approveMissionMutation.mutate(mission.id)}
+                              disabled={approveMissionMutation.isPending}
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" />
+                              <span className="hidden sm:inline">Approuver</span>
+                              <span className="sm:hidden">OK</span>
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="flex-1 min-w-[80px] text-xs md:text-sm h-8 md:h-9"
+                              onClick={() => {
+                                setSelectedMission(mission);
+                                setShowMissionRejectDialog(true);
+                              }}
+                            >
+                              <XCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" />
+                              Refuser
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
@@ -408,10 +413,10 @@ const AdminApprovals = () => {
                 </div>
               ) : (
                 <Card>
-                  <CardContent className="py-20 text-center">
-                    <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Aucune mission en attente</h3>
-                    <p className="text-muted-foreground">
+                  <CardContent className="py-12 md:py-20 text-center">
+                    <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-emerald-500 mx-auto mb-3 md:mb-4" />
+                    <h3 className="text-lg md:text-xl font-semibold mb-2">Aucune mission en attente</h3>
+                    <p className="text-muted-foreground text-sm md:text-base">
                       Toutes les missions ont été traitées.
                     </p>
                   </CardContent>
@@ -422,72 +427,75 @@ const AdminApprovals = () => {
             {/* ARTISANS TAB */}
             <TabsContent value="artisans">
               {isLoadingArtisans ? (
-                <div className="flex items-center justify-center py-20">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="flex items-center justify-center py-12 md:py-20">
+                  <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
                 </div>
               ) : pendingArtisans.length > 0 ? (
-                <div className="grid gap-6">
+                <div className="grid gap-3 md:gap-6">
                   {pendingArtisans.map((artisan) => {
                     const completeness = getProfileCompleteness(artisan);
                     return (
                       <Card key={artisan.id} className="hover:shadow-lg transition-shadow">
-                        <CardContent className="p-6">
-                          <div className="flex flex-col md:flex-row gap-6">
-                            <Avatar className="h-24 w-24 ring-4 ring-muted">
+                        <CardContent className="p-3 md:p-6">
+                          <div className="flex gap-3 md:gap-6">
+                            {/* Avatar - Smaller on mobile */}
+                            <Avatar className="h-14 w-14 md:h-24 md:w-24 ring-2 md:ring-4 ring-muted shrink-0">
                               <AvatarImage src={artisan.photo_url || undefined} />
-                              <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                              <AvatarFallback className="text-lg md:text-2xl bg-primary text-primary-foreground">
                                 {artisan.business_name.slice(0, 2).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
 
-                            <div className="flex-1">
-                              <div className="flex items-start justify-between mb-2">
-                                <div>
-                                  <h3 className="text-xl font-bold">{artisan.business_name}</h3>
-                                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                                    <MapPin className="h-4 w-4" />
-                                    {artisan.city}
+                            <div className="flex-1 min-w-0">
+                              {/* Header */}
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <div className="min-w-0">
+                                  <h3 className="text-base md:text-xl font-bold truncate">{artisan.business_name}</h3>
+                                  <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
+                                    <span className="flex items-center gap-1">
+                                      <MapPin className="h-3 w-3 md:h-4 md:w-4" />
+                                      <span className="truncate max-w-[80px] md:max-w-none">{artisan.city}</span>
+                                    </span>
                                     {artisan.category && (
-                                      <>
-                                        <span>•</span>
-                                        <Badge variant="secondary">{artisan.category.name}</Badge>
-                                      </>
+                                      <Badge variant="secondary" className="text-xs px-1.5 py-0">{artisan.category.name}</Badge>
                                     )}
                                   </div>
                                 </div>
-                                <Badge variant="outline" className="gap-1">
-                                  <Clock className="h-3 w-3" />
+                                <Badge variant="outline" className="gap-1 text-xs shrink-0 hidden sm:flex">
+                                  <Clock className="h-2.5 w-2.5" />
                                   En attente
                                 </Badge>
                               </div>
 
                               {artisan.description && (
-                                <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
+                                <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-4">
                                   {artisan.description}
                                 </p>
                               )}
 
-                              <div className="flex flex-wrap gap-2 mb-4">
-                                <Badge variant={artisan.photo_url ? "default" : "secondary"} className="gap-1">
-                                  {artisan.photo_url ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
-                                  Photo
+                              {/* Badges - Compact on mobile */}
+                              <div className="flex flex-wrap gap-1 md:gap-2 mb-2 md:mb-4">
+                                <Badge variant={artisan.photo_url ? "default" : "secondary"} className="gap-0.5 text-xs px-1.5 py-0">
+                                  {artisan.photo_url ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
+                                  <span className="hidden sm:inline">Photo</span>
                                 </Badge>
-                                <Badge variant={artisan.siret ? "default" : "secondary"} className="gap-1">
-                                  {artisan.siret ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
+                                <Badge variant={artisan.siret ? "default" : "secondary"} className="gap-0.5 text-xs px-1.5 py-0">
+                                  {artisan.siret ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
                                   SIRET
                                 </Badge>
-                                <Badge variant={artisan.portfolio_images && artisan.portfolio_images.length >= 3 ? "default" : "secondary"} className="gap-1">
-                                  {artisan.portfolio_images && artisan.portfolio_images.length >= 3 ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
-                                  Portfolio ({artisan.portfolio_images?.length || 0}/3)
+                                <Badge variant={artisan.portfolio_images && artisan.portfolio_images.length >= 3 ? "default" : "secondary"} className="gap-0.5 text-xs px-1.5 py-0">
+                                  {artisan.portfolio_images && artisan.portfolio_images.length >= 3 ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
+                                  {artisan.portfolio_images?.length || 0}/3
                                 </Badge>
                               </div>
 
-                              <div className="mb-4">
-                                <div className="flex justify-between text-sm mb-1">
-                                  <span className="text-muted-foreground">Profil complété</span>
+                              {/* Progress bar - Compact on mobile */}
+                              <div className="mb-2 md:mb-4">
+                                <div className="flex justify-between text-xs mb-1">
+                                  <span className="text-muted-foreground">Profil</span>
                                   <span className="font-medium">{completeness.percentage}%</span>
                                 </div>
-                                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                <div className="h-1.5 md:h-2 bg-muted rounded-full overflow-hidden">
                                   <div 
                                     className={`h-full transition-all ${
                                       completeness.percentage >= 80 ? 'bg-emerald-500' : 
@@ -498,18 +506,21 @@ const AdminApprovals = () => {
                                 </div>
                               </div>
 
-                              <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => setSelectedArtisan(artisan)}>
-                                  <Eye className="h-4 w-4 mr-1" />
-                                  Voir le profil
+                              {/* Actions - Mobile optimized */}
+                              <div className="flex flex-wrap gap-1.5 md:gap-2">
+                                <Button variant="outline" size="sm" className="flex-1 min-w-[60px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => setSelectedArtisan(artisan)}>
+                                  <Eye className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                  <span className="hidden sm:inline">Voir</span>
                                 </Button>
-                                <Button size="sm" onClick={() => approveArtisanMutation.mutate(artisan.id)} disabled={approveArtisanMutation.isPending}>
-                                  <CheckCircle2 className="h-4 w-4 mr-1" />
-                                  Approuver
+                                <Button size="sm" className="flex-1 min-w-[60px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => approveArtisanMutation.mutate(artisan.id)} disabled={approveArtisanMutation.isPending}>
+                                  <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                  <span className="hidden sm:inline">Approuver</span>
+                                  <span className="sm:hidden">OK</span>
                                 </Button>
-                                <Button variant="destructive" size="sm" onClick={() => { setSelectedArtisan(artisan); setShowRejectDialog(true); }}>
-                                  <XCircle className="h-4 w-4 mr-1" />
-                                  Refuser
+                                <Button variant="destructive" size="sm" className="flex-1 min-w-[60px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => { setSelectedArtisan(artisan); setShowRejectDialog(true); }}>
+                                  <XCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                  <span className="hidden sm:inline">Refuser</span>
+                                  <span className="sm:hidden">Non</span>
                                 </Button>
                               </div>
                             </div>
@@ -521,10 +532,10 @@ const AdminApprovals = () => {
                 </div>
               ) : (
                 <Card>
-                  <CardContent className="py-20 text-center">
-                    <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Aucune demande en attente</h3>
-                    <p className="text-muted-foreground">
+                  <CardContent className="py-12 md:py-20 text-center">
+                    <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-emerald-500 mx-auto mb-3 md:mb-4" />
+                    <h3 className="text-lg md:text-xl font-semibold mb-2">Aucune demande en attente</h3>
+                    <p className="text-muted-foreground text-sm md:text-base">
                       Toutes les demandes d'approbation ont été traitées.
                     </p>
                   </CardContent>
@@ -601,17 +612,17 @@ const AdminApprovals = () => {
 
           {/* View Artisan Profile Dialog */}
           <Dialog open={!!selectedArtisan && !showRejectDialog} onOpenChange={() => setSelectedArtisan(null)}>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto mx-2 md:mx-auto">
               {selectedArtisan && (
                 <>
                   <DialogHeader>
-                    <DialogTitle>Profil de {selectedArtisan.business_name}</DialogTitle>
+                    <DialogTitle className="text-lg md:text-xl">Profil de {selectedArtisan.business_name}</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-4 md:space-y-6">
+                    <div className="grid grid-cols-2 gap-3 md:gap-4 text-xs md:text-sm">
                       <div>
                         <p className="text-muted-foreground">Email</p>
-                        <p className="font-medium">{selectedArtisan.profile?.email || "Non renseigné"}</p>
+                        <p className="font-medium truncate">{selectedArtisan.profile?.email || "Non renseigné"}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Téléphone</p>
@@ -629,15 +640,15 @@ const AdminApprovals = () => {
 
                     {selectedArtisan.description && (
                       <div>
-                        <p className="text-muted-foreground text-sm mb-1">Description</p>
-                        <p className="text-sm">{selectedArtisan.description}</p>
+                        <p className="text-muted-foreground text-xs md:text-sm mb-1">Description</p>
+                        <p className="text-xs md:text-sm">{selectedArtisan.description}</p>
                       </div>
                     )}
 
                     {selectedArtisan.portfolio_images && selectedArtisan.portfolio_images.length > 0 && (
                       <div>
-                        <p className="text-muted-foreground text-sm mb-2">Portfolio</p>
-                        <div className="grid grid-cols-3 gap-2">
+                        <p className="text-muted-foreground text-xs md:text-sm mb-2">Portfolio</p>
+                        <div className="grid grid-cols-3 gap-1.5 md:gap-2">
                           {selectedArtisan.portfolio_images.map((img, i) => (
                             <img key={i} src={img} alt={`Portfolio ${i + 1}`} className="aspect-square object-cover rounded-lg" />
                           ))}
@@ -645,13 +656,13 @@ const AdminApprovals = () => {
                       </div>
                     )}
 
-                    <div className="flex gap-2 pt-4 border-t">
-                      <Button className="flex-1" onClick={() => approveArtisanMutation.mutate(selectedArtisan.id)} disabled={approveArtisanMutation.isPending}>
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                    <div className="flex gap-2 pt-3 md:pt-4 border-t">
+                      <Button className="flex-1 h-9 md:h-10 text-sm" onClick={() => approveArtisanMutation.mutate(selectedArtisan.id)} disabled={approveArtisanMutation.isPending}>
+                        <CheckCircle2 className="h-4 w-4 mr-1 md:mr-2" />
                         Approuver
                       </Button>
-                      <Button variant="destructive" className="flex-1" onClick={() => setShowRejectDialog(true)}>
-                        <XCircle className="h-4 w-4 mr-2" />
+                      <Button variant="destructive" className="flex-1 h-9 md:h-10 text-sm" onClick={() => setShowRejectDialog(true)}>
+                        <XCircle className="h-4 w-4 mr-1 md:mr-2" />
                         Refuser
                       </Button>
                     </div>
@@ -663,21 +674,21 @@ const AdminApprovals = () => {
 
           {/* View Mission Details Dialog */}
           <Dialog open={!!selectedMission && !showMissionRejectDialog} onOpenChange={() => setSelectedMission(null)}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto mx-2 md:mx-auto">
               {selectedMission && (
                 <>
                   <DialogHeader>
-                    <DialogTitle>{selectedMission.title}</DialogTitle>
+                    <DialogTitle className="text-lg md:text-xl">{selectedMission.title}</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-3 md:space-y-4">
+                    <div className="grid grid-cols-2 gap-3 md:gap-4 text-xs md:text-sm">
                       <div>
                         <p className="text-muted-foreground">Client</p>
                         <p className="font-medium">{selectedMission.client?.first_name} {selectedMission.client?.last_name}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Email</p>
-                        <p className="font-medium">{selectedMission.client?.email}</p>
+                        <p className="font-medium truncate">{selectedMission.client?.email}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Ville</p>
@@ -691,15 +702,15 @@ const AdminApprovals = () => {
 
                     {selectedMission.description && (
                       <div>
-                        <p className="text-muted-foreground text-sm mb-1">Description</p>
-                        <p className="text-sm whitespace-pre-wrap">{selectedMission.description}</p>
+                        <p className="text-muted-foreground text-xs md:text-sm mb-1">Description</p>
+                        <p className="text-xs md:text-sm whitespace-pre-wrap">{selectedMission.description}</p>
                       </div>
                     )}
 
                     {selectedMission.photos && selectedMission.photos.length > 0 && (
                       <div>
-                        <p className="text-muted-foreground text-sm mb-2">Photos de la mission ({selectedMission.photos.length})</p>
-                        <div className="grid grid-cols-3 gap-2">
+                        <p className="text-muted-foreground text-xs md:text-sm mb-2">Photos ({selectedMission.photos.length})</p>
+                        <div className="grid grid-cols-3 gap-1.5 md:gap-2">
                           {selectedMission.photos.map((photo, i) => (
                             <img 
                               key={i} 
@@ -713,13 +724,14 @@ const AdminApprovals = () => {
                       </div>
                     )}
 
-                    <div className="flex gap-2 pt-4 border-t">
-                      <Button className="flex-1" onClick={() => approveMissionMutation.mutate(selectedMission.id)} disabled={approveMissionMutation.isPending}>
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        Approuver et Publier
+                    <div className="flex gap-2 pt-3 md:pt-4 border-t">
+                      <Button className="flex-1 h-9 md:h-10 text-sm" onClick={() => approveMissionMutation.mutate(selectedMission.id)} disabled={approveMissionMutation.isPending}>
+                        <CheckCircle2 className="h-4 w-4 mr-1 md:mr-2" />
+                        <span className="hidden sm:inline">Approuver et Publier</span>
+                        <span className="sm:hidden">Approuver</span>
                       </Button>
-                      <Button variant="destructive" className="flex-1" onClick={() => setShowMissionRejectDialog(true)}>
-                        <XCircle className="h-4 w-4 mr-2" />
+                      <Button variant="destructive" className="flex-1 h-9 md:h-10 text-sm" onClick={() => setShowMissionRejectDialog(true)}>
+                        <XCircle className="h-4 w-4 mr-1 md:mr-2" />
                         Refuser
                       </Button>
                     </div>
