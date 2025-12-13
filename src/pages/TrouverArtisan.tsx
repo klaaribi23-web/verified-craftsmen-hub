@@ -224,7 +224,7 @@ const TrouverArtisan = () => {
                 {/* Category Dropdown - Full width across entire search bar */}
                 {showCategorySuggestions && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-xl z-50 p-6">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Catégories</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Catégories principales</h3>
                     {categoriesLoading ? (
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
                         {[1,2,3,4,5,6,7,8,9].map((i) => (
@@ -232,23 +232,38 @@ const TrouverArtisan = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
-                        {filteredCategories.map((cat) => (
-                          <button
-                            key={cat.title}
+                      <>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
+                          {categories.slice(0, 15).map((cat) => (
+                            <button
+                              key={cat.id}
+                              onClick={() => {
+                                setSearchQuery(cat.title);
+                                setShowCategorySuggestions(false);
+                              }}
+                              className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-gold/10 hover:border-gold/30 border border-transparent transition-all text-left group"
+                            >
+                              <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                                <CategoryIcon iconName={cat.icon} className="w-5 h-5 text-gold" />
+                              </div>
+                              <span className="text-foreground text-sm font-medium leading-tight">{cat.title}</span>
+                            </button>
+                          ))}
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-border flex justify-center">
+                          <Button
+                            variant="outline"
                             onClick={() => {
-                              setSearchQuery(cat.title);
                               setShowCategorySuggestions(false);
+                              resultsRef.current?.scrollIntoView({ behavior: "smooth" });
                             }}
-                            className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-gold/10 hover:border-gold/30 border border-transparent transition-all text-left group"
+                            className="gap-2"
                           >
-                            <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                              <CategoryIcon iconName={cat.icon} className="w-5 h-5 text-gold" />
-                            </div>
-                            <span className="text-foreground text-sm font-medium leading-tight">{cat.title}</span>
-                          </button>
-                        ))}
-                      </div>
+                            Voir plus de catégories
+                            <ArrowRight className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </>
                     )}
                   </div>
                 )}
