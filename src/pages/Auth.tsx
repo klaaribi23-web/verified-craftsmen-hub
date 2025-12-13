@@ -43,12 +43,22 @@ const Auth = () => {
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [emailSent, setEmailSent] = useState(false);
   const [sentEmail, setSentEmail] = useState("");
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   
   // Form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+
+  // Cooldown timer for resend button
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
 
   // Check if user is already logged in
@@ -250,7 +260,37 @@ const Auth = () => {
     }
   };
 
+  const handleResendEmail = async () => {
+    if (resendCooldown > 0 || isResending) return;
+    
+    setIsResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: sentEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      });
 
+      if (error) throw error;
+
+      toast({
+        title: "Email renvoyé !",
+        description: "Un nouvel email de confirmation a été envoyé.",
+      });
+      setResendCooldown(60); // 60 seconds cooldown
+    } catch (error: any) {
+      console.error("Resend error:", error);
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de renvoyer l'email.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
   // Full-page email sent confirmation
   if (emailSent) {
     return (
@@ -269,9 +309,23 @@ const Auth = () => {
             <p className="text-sm text-muted-foreground">
               Vous n'avez pas reçu l'email ? Vérifiez vos spams.
             </p>
-            <Button variant="outline" onClick={() => setEmailSent(false)}>
-              Retour
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button 
+                variant="default" 
+                onClick={handleResendEmail}
+                disabled={isResending || resendCooldown > 0}
+              >
+                {isResending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                {resendCooldown > 0 
+                  ? `Renvoyer (${resendCooldown}s)` 
+                  : "Renvoyer l'email"}
+              </Button>
+              <Button variant="outline" onClick={() => setEmailSent(false)}>
+                Retour
+              </Button>
+            </div>
           </div>
         </div>
         <Footer />
