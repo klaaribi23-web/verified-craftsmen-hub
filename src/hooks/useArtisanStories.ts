@@ -49,8 +49,8 @@ export const useArtisanStories = () => {
     (story) => new Date(story.expires_at) <= new Date()
   );
 
-  // Upload a new story (accepts File or Blob)
-  const uploadStory = async (file: File | Blob, caption?: string) => {
+  // Upload a new story (live capture only - accepts Blob from camera)
+  const uploadStory = async (blob: Blob, caption?: string) => {
     if (!artisan?.id) {
       toast.error("Profil artisan non trouvé");
       return null;
@@ -58,26 +58,17 @@ export const useArtisanStories = () => {
 
     setIsUploading(true);
     try {
-      // Determine file extension and media type
-      let fileExt = "jpg";
-      let mediaType: "image" | "video" = "image";
-      
-      if (file instanceof File) {
-        fileExt = file.name.split(".").pop() || "jpg";
-        mediaType = file.type.startsWith("video/") ? "video" : "image";
-      } else {
-        // Blob from camera capture
-        mediaType = file.type.startsWith("video/") ? "video" : "image";
-        fileExt = mediaType === "video" ? "webm" : "jpg";
-      }
+      // Determine file extension and media type from Blob
+      const mediaType: "image" | "video" = blob.type.startsWith("video/") ? "video" : "image";
+      const fileExt = mediaType === "video" ? "webm" : "jpg";
       
       const fileName = `${artisan.id}/${Date.now()}.${fileExt}`;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from("artisan-stories")
-        .upload(fileName, file, {
-          contentType: file.type,
+        .upload(fileName, blob, {
+          contentType: blob.type,
         });
 
       if (uploadError) throw uploadError;
