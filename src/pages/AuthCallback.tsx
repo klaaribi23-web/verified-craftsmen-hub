@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [targetDashboard, setTargetDashboard] = useState<string>("/client/dashboard");
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -53,19 +54,21 @@ const AuthCallback = () => {
             .eq("user_id", session.user.id)
             .single();
 
-          // Show welcome toast
-          toast({
-            title: "Inscription réussie !",
-            description: "Bienvenue sur Artisans Validés.",
-          });
-
+          // Determine target dashboard
+          let dashboard = "/client/dashboard";
           if (roles?.role === "admin") {
-            navigate("/admin/dashboard");
+            dashboard = "/admin/dashboard";
           } else if (roles?.role === "artisan") {
-            navigate("/artisan/dashboard");
-          } else {
-            navigate("/client/dashboard");
+            dashboard = "/artisan/dashboard";
           }
+          
+          setTargetDashboard(dashboard);
+          setShowSuccess(true);
+          
+          // Redirect after 2.5 seconds
+          setTimeout(() => {
+            navigate(dashboard);
+          }, 2500);
         } else {
           navigate("/auth");
         }
@@ -86,6 +89,24 @@ const AuthCallback = () => {
           <Button onClick={() => navigate("/auth")}>
             Retour à la connexion
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-6 p-8">
+          <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+            <CheckCircle className="h-10 w-10 text-green-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-green-600">Bravo !</h1>
+          <p className="text-lg text-foreground">Votre inscription est confirmée</p>
+          <div className="flex items-center justify-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Redirection en cours...</span>
+          </div>
         </div>
       </div>
     );
