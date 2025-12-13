@@ -66,6 +66,14 @@ const AuthCallback = () => {
               .single();
 
             if (profile) {
+              // Get artisan info before update for notification
+              const { data: artisanData } = await supabase
+                .from("artisans")
+                .select("id, business_name")
+                .eq("slug", claimSlug)
+                .eq("status", "prospect")
+                .single();
+
               const { error: updateError } = await supabase
                 .from("artisans")
                 .update({ 
@@ -78,6 +86,24 @@ const AuthCallback = () => {
 
               if (updateError) {
                 console.error("Error linking artisan profile:", updateError);
+              } else if (artisanData) {
+                // Send notification to admin about the claim
+                const { data: adminRoles } = await supabase
+                  .from("user_roles")
+                  .select("user_id")
+                  .eq("role", "admin");
+
+                if (adminRoles && adminRoles.length > 0) {
+                  const notifications = adminRoles.map(admin => ({
+                    user_id: admin.user_id,
+                    type: "artisan_claim",
+                    title: "Fiche artisan revendiquée",
+                    message: `L'artisan "${artisanData.business_name}" a revendiqué sa fiche vitrine et attend la validation de ses documents.`,
+                    related_id: artisanData.id
+                  }));
+
+                  await supabase.from("notifications").insert(notifications);
+                }
               }
             }
             
