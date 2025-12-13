@@ -176,35 +176,10 @@ const Auth = () => {
           }
         }
 
-        // Send OTP verification code via edge function
-        const { error: sendError } = await supabase.functions.invoke("send-verification-code", {
-          body: {
-            email: validatedData.email,
-            userId: data.user.id,
-            userType: userType,
-            firstName: validatedData.firstName,
-          },
-        });
-
-        if (sendError) {
-          console.error("Error sending verification code:", sendError);
-          toast({
-            title: "Erreur",
-            description: "Impossible d'envoyer le code de vérification. Veuillez réessayer.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Navigate to verification page with state
-        navigate("/verifier-email", {
-          state: {
-            email: validatedData.email,
-            userId: data.user.id,
-            userType: userType,
-            firstName: validatedData.firstName,
-            password: validatedData.password,
-          },
+        // Show confirmation message - email link will be sent by Supabase
+        toast({
+          title: "Email de confirmation envoyé",
+          description: "Veuillez cliquer sur le lien dans l'email pour activer votre compte.",
         });
       }
     } catch (error: any) {

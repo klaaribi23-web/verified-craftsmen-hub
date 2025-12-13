@@ -44,7 +44,7 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import VerifyEmail from "./pages/VerifyEmail";
+
 
 const queryClient = new QueryClient();
 
@@ -71,7 +71,7 @@ const App = () => (
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/verifier-email" element={<VerifyEmail />} />
+          
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           

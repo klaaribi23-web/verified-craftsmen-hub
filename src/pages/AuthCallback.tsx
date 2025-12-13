@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -34,6 +35,12 @@ const AuthCallback = () => {
             .select("role")
             .eq("user_id", session.user.id)
             .single();
+
+          // Show welcome toast
+          toast({
+            title: "Inscription réussie !",
+            description: "Bienvenue sur Artisans Validés.",
+          });
 
           if (roles?.role === "admin") {
             navigate("/admin/dashboard");
