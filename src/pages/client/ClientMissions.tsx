@@ -221,29 +221,44 @@ export const ClientMissions = () => {
             subtitle="Gérez vos demandes de travaux et consultez les candidatures"
           />
 
-          <main className="flex-1 p-6 overflow-auto">
-            <div className="max-w-5xl mx-auto space-y-6">
+          <main className="flex-1 p-3 md:p-6 overflow-auto">
+            <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
               {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col gap-3 md:gap-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold md:hidden">Missions</h2>
+                  <Link to="/demande-devis" className="md:hidden">
+                    <Button variant="gold" size="sm">
+                      <Plus className="w-4 h-4 mr-1" />
+                      Nouvelle
+                    </Button>
+                  </Link>
+                </div>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="flex-wrap">
-                    <TabsTrigger value="all">Toutes ({missions.length})</TabsTrigger>
-                    <TabsTrigger value="pending_approval">
-                      En approbation ({missions.filter((m: any) => m.status === "pending_approval").length})
+                  <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1">
+                    <TabsTrigger value="all" className="flex-1 min-w-[30%] sm:min-w-0 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+                      Toutes ({missions.length})
                     </TabsTrigger>
-                    <TabsTrigger value="published">
-                      Publiées ({missions.filter((m: any) => m.status === "published").length})
+                    <TabsTrigger value="pending_approval" className="flex-1 min-w-[30%] sm:min-w-0 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+                      <span className="hidden sm:inline">Approbation</span>
+                      <span className="sm:hidden">Appro.</span> ({missions.filter((m: any) => m.status === "pending_approval").length})
                     </TabsTrigger>
-                    <TabsTrigger value="rejected">
-                      Refusées ({missions.filter((m: any) => m.status === "rejected").length})
+                    <TabsTrigger value="published" className="flex-1 min-w-[30%] sm:min-w-0 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+                      <span className="hidden sm:inline">Publiées</span>
+                      <span className="sm:hidden">Pub.</span> ({missions.filter((m: any) => m.status === "published").length})
                     </TabsTrigger>
-                    <TabsTrigger value="en_cours">
-                      En cours ({missions.filter((m: any) => m.status === "assigned").length})
+                    <TabsTrigger value="rejected" className="flex-1 min-w-[30%] sm:min-w-0 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+                      <span className="hidden sm:inline">Refusées</span>
+                      <span className="sm:hidden">Ref.</span> ({missions.filter((m: any) => m.status === "rejected").length})
+                    </TabsTrigger>
+                    <TabsTrigger value="en_cours" className="flex-1 min-w-[30%] sm:min-w-0 sm:flex-none text-xs sm:text-sm px-2 sm:px-3">
+                      <span className="hidden sm:inline">En cours</span>
+                      <span className="sm:hidden">Cours</span> ({missions.filter((m: any) => m.status === "assigned").length})
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
                 
-                <Link to="/demande-devis">
+                <Link to="/demande-devis" className="hidden md:block self-end">
                   <Button variant="gold">
                     <Plus className="w-4 h-4 mr-2" />
                     Nouvelle mission

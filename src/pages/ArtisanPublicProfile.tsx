@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
@@ -227,15 +228,28 @@ const ArtisanPublicProfile = () => {
       </section>
 
       {/* Main Content */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-3 gap-8">
+      <section className="py-4 md:py-8">
+        <div className="container mx-auto px-3 md:px-4">
+          <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-8">
             
+            {/* Mobile Contact Card - Sticky at top on mobile */}
+            <div className="lg:hidden sticky top-16 z-30 -mx-3 px-3 py-2 bg-background/95 backdrop-blur-sm border-b">
+              <div className="flex items-center justify-between gap-2">
+                <Button className="flex-1" size="sm" onClick={() => setChatOpen(true)}>
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Demander un devis
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setShowContactInfo(!showContactInfo)}>
+                  <Phone className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
             {/* Left Column - Main Content */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-4 md:space-y-8">
               
               {/* Profile Header */}
-              <Card className="border-0 shadow-xl bg-card/80 backdrop-blur-sm">
+              <Card className="border-0 shadow-lg md:shadow-xl bg-card/80 backdrop-blur-sm">
                 <CardContent className="p-6 md:p-8">
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Photo & Badge */}
@@ -397,41 +411,48 @@ const ArtisanPublicProfile = () => {
                 </Card>
               )}
 
-              {/* Services Section */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Wrench className="h-5 w-5 text-primary" />
-                    Prestations proposées
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {servicesLoading ? <div className="grid sm:grid-cols-2 gap-3">
-                      {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 rounded-lg" />)}
-                    </div> : services && services.length > 0 ? <div className="grid sm:grid-cols-2 gap-3">
-                      {services.map(service => <div key={service.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                          <div>
-                            <p className="font-medium">{service.title}</p>
-                            {service.duration && <p className="text-sm text-muted-foreground">
-                                <Clock className="h-3 w-3 inline mr-1" />
-                                {service.duration}
-                              </p>}
-                          </div>
-                          {service.price ? (
-                            <Badge variant="secondary" className="font-semibold">
-                              {service.price}€
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-accent/10 text-accent border-accent/20 font-semibold">
-                              Sur Devis
-                            </Badge>
-                          )}
-                        </div>)}
-                    </div> : <p className="text-muted-foreground text-center py-4">
-                      Aucune prestation renseignée
-                    </p>}
-                </CardContent>
-              </Card>
+              {/* Services Section - Collapsible on mobile */}
+              <Collapsible defaultOpen className="md:block">
+                <Card>
+                  <CollapsibleTrigger className="w-full md:cursor-default">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <Wrench className="h-5 w-5 text-primary" />
+                        Prestations proposées
+                      </CardTitle>
+                      <ChevronDown className="h-5 w-5 text-muted-foreground md:hidden transition-transform data-[state=open]:rotate-180" />
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent className="pt-0 md:pt-0">
+                      {servicesLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-16 md:h-20 rounded-lg" />)}
+                        </div> : services && services.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                          {services.map(service => <div key={service.id} className="flex items-center justify-between p-3 md:p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium text-sm md:text-base truncate">{service.title}</p>
+                                {service.duration && <p className="text-xs md:text-sm text-muted-foreground">
+                                    <Clock className="h-3 w-3 inline mr-1" />
+                                    {service.duration}
+                                  </p>}
+                              </div>
+                              {service.price ? (
+                                <Badge variant="secondary" className="font-semibold shrink-0 ml-2 text-xs md:text-sm">
+                                  {service.price}€
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-accent/10 text-accent border-accent/20 font-semibold shrink-0 ml-2 text-xs md:text-sm">
+                                  Sur Devis
+                                </Badge>
+                              )}
+                            </div>)}
+                        </div> : <p className="text-muted-foreground text-center py-4">
+                          Aucune prestation renseignée
+                        </p>}
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
 
               {/* Portfolio Section - Photos */}
               {portfolio.length > 0 && <Card>
@@ -462,55 +483,62 @@ const ArtisanPublicProfile = () => {
                   </CardContent>
                 </Card>}
 
-              {/* Zones & Availability */}
-              <div className="grid md:grid-cols-2 gap-6">
+              {/* Zones & Availability - Collapsible on mobile */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5 text-primary" />
+                  <CardHeader className="pb-2 md:pb-4">
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                      <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                       Zone d'intervention
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline" className="py-1.5">{artisan.city}</Badge>
-                      {artisan.department && <Badge variant="outline" className="py-1.5">{artisan.department}</Badge>}
-                      {artisan.region && <Badge variant="outline" className="py-1.5">{artisan.region}</Badge>}
+                  <CardContent className="pt-0">
+                    <div className="flex flex-wrap gap-1.5 md:gap-2">
+                      <Badge variant="outline" className="py-1 md:py-1.5 text-xs md:text-sm">{artisan.city}</Badge>
+                      {artisan.department && <Badge variant="outline" className="py-1 md:py-1.5 text-xs md:text-sm">{artisan.department}</Badge>}
+                      {artisan.region && <Badge variant="outline" className="py-1 md:py-1.5 text-xs md:text-sm">{artisan.region}</Badge>}
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-primary" />
-                      Heures de travail
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      {[
-                        { key: "lundi", label: "Lundi" },
-                        { key: "mardi", label: "Mardi" },
-                        { key: "mercredi", label: "Mercredi" },
-                        { key: "jeudi", label: "Jeudi" },
-                        { key: "vendredi", label: "Vendredi" },
-                        { key: "samedi", label: "Samedi" },
-                        { key: "dimanche", label: "Dimanche" },
-                      ].map(({ key, label }) => {
-                        const hours = availability[key] || "Non renseigné";
-                        return (
-                          <div key={key} className="flex justify-between py-1 border-b border-border/50 last:border-0">
-                            <span className="text-muted-foreground">{label}</span>
-                            <span className={hours === "Fermé" ? "text-muted-foreground" : "font-medium"}>
-                              {hours}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
+                <Collapsible defaultOpen className="md:block">
+                  <Card>
+                    <CollapsibleTrigger className="w-full md:cursor-default">
+                      <CardHeader className="pb-2 md:pb-4 flex flex-row items-center justify-between">
+                        <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                          <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                          Heures de travail
+                        </CardTitle>
+                        <ChevronDown className="h-5 w-5 text-muted-foreground md:hidden" />
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent className="pt-0">
+                        <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
+                          {[
+                            { key: "lundi", label: "Lun" },
+                            { key: "mardi", label: "Mar" },
+                            { key: "mercredi", label: "Mer" },
+                            { key: "jeudi", label: "Jeu" },
+                            { key: "vendredi", label: "Ven" },
+                            { key: "samedi", label: "Sam" },
+                            { key: "dimanche", label: "Dim" },
+                          ].map(({ key, label }) => {
+                            const hours = availability[key] || "Non renseigné";
+                            return (
+                              <div key={key} className="flex justify-between py-0.5 md:py-1 border-b border-border/50 last:border-0">
+                                <span className="text-muted-foreground">{label}</span>
+                                <span className={hours === "Fermé" ? "text-muted-foreground" : "font-medium"}>
+                                  {hours}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
               </div>
 
               {/* Certifications & Legal */}
@@ -613,9 +641,9 @@ const ArtisanPublicProfile = () => {
             }} />
             </div>
 
-            {/* Right Column - Contact Card */}
-            <div className="lg:col-span-1 space-y-6">
-              <Card className="border-0 shadow-xl bg-card">
+            {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
+            <div className="hidden lg:block lg:col-span-1 space-y-6">
+              <Card className="border-0 shadow-xl bg-card sticky top-24">
                 <CardContent className="p-6 space-y-4">
                   <div className="text-center mb-2">
                     <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>

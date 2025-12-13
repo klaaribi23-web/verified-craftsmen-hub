@@ -56,32 +56,32 @@ const AdminClients = () => {
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <AdminSidebar />
       
-      <main className="flex-1 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Gestion des Clients</h1>
-          <p className="text-muted-foreground mt-1">Consultez la liste des clients inscrits</p>
+      <main className="flex-1 p-4 md:p-8">
+        <div className="mb-4 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Gestion des Clients</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">Consultez la liste des clients inscrits</p>
         </div>
 
         {/* Filters */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Filter className="h-5 w-5" />
+        <Card className="mb-4 md:mb-6">
+          <CardHeader className="pb-2 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <Filter className="h-4 w-4 md:h-5 md:w-5" />
               Recherche
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 md:gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Rechercher un client par nom ou email..."
+                  placeholder="Rechercher..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
-              <Button variant="outline" onClick={() => setSearchTerm("")}>
+              <Button variant="outline" onClick={() => setSearchTerm("")} className="w-full sm:w-auto">
                 Réinitialiser
               </Button>
             </div>
@@ -89,7 +89,7 @@ const AdminClients = () => {
         </Card>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
