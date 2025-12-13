@@ -29,6 +29,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import { supabase } from "@/integrations/supabase/client";
+import { DEFAULT_AVATAR } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -270,8 +271,10 @@ export const ClientMissionDetail = () => {
                             {/* Artisan info */}
                             <div className="flex items-start gap-4 flex-1">
                               <Avatar className="w-16 h-16">
-                                <AvatarImage src={applicant.artisan.photo_url || undefined} alt={applicant.artisan.business_name} />
-                                <AvatarFallback>{applicant.artisan.business_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                <AvatarImage src={applicant.artisan.photo_url || DEFAULT_AVATAR} alt={applicant.artisan.business_name} />
+                                <AvatarFallback>
+                                  <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
+                                </AvatarFallback>
                               </Avatar>
                               
                               <div className="flex-1">
@@ -356,8 +359,10 @@ export const ClientMissionDetail = () => {
                           <CardContent className="p-4">
                             <div className="flex items-center gap-4">
                               <Avatar className="w-10 h-10">
-                                <AvatarImage src={applicant.artisan.photo_url || undefined} alt={applicant.artisan.business_name} />
-                                <AvatarFallback>{applicant.artisan.business_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                <AvatarImage src={applicant.artisan.photo_url || DEFAULT_AVATAR} alt={applicant.artisan.business_name} />
+                                <AvatarFallback>
+                                  <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
+                                </AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
                                 <p className="font-medium">{applicant.artisan.business_name}</p>

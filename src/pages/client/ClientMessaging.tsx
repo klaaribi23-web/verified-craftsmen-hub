@@ -25,7 +25,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
-import { cn } from "@/lib/utils";
+import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/layout/Navbar";
 import { supabase } from "@/integrations/supabase/client";
@@ -443,9 +443,9 @@ export const ClientMessaging = () => {
                       >
                         <div className="flex gap-3">
                           <Avatar className="w-10 h-10 md:w-12 md:h-12 shrink-0">
-                            <AvatarImage src={conv.participant_photo || undefined} />
+                            <AvatarImage src={conv.participant_photo || DEFAULT_AVATAR} />
                             <AvatarFallback className="bg-primary/10">
-                              <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                              <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">

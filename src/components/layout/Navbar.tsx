@@ -13,8 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import { DEFAULT_AVATAR } from "@/lib/utils";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -102,9 +103,10 @@ const Navbar = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar className="h-10 w-10 border-2 border-primary">
+            <Avatar className="h-10 w-10 border-2 border-primary">
+                <AvatarImage src={DEFAULT_AVATAR} alt="Avatar" />
                 <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                  {getUserInitials()}
+                  <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -151,8 +153,9 @@ const Navbar = () => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar className="h-10 w-10 border-2 border-gold">
+              <AvatarImage src={DEFAULT_AVATAR} alt="Avatar" />
               <AvatarFallback className="bg-gold/20 text-navy font-semibold">
-                {getUserInitials()}
+                <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
               </AvatarFallback>
             </Avatar>
           </Button>

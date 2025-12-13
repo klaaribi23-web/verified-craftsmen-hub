@@ -30,6 +30,7 @@ import {
   User
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
+import { DEFAULT_AVATAR } from "@/lib/utils";
 
 interface PendingArtisan {
   id: string;
@@ -440,9 +441,9 @@ const AdminApprovals = () => {
                           <div className="flex gap-3 md:gap-6">
                             {/* Avatar - Smaller on mobile */}
                             <Avatar className="h-14 w-14 md:h-24 md:w-24 ring-2 md:ring-4 ring-muted shrink-0">
-                              <AvatarImage src={artisan.photo_url || undefined} />
+                              <AvatarImage src={artisan.photo_url || DEFAULT_AVATAR} />
                               <AvatarFallback className="text-lg md:text-2xl bg-primary text-primary-foreground">
-                                {artisan.business_name.slice(0, 2).toUpperCase()}
+                                <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                               </AvatarFallback>
                             </Avatar>
 

@@ -22,7 +22,7 @@ import ChatWidget from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
-import { cn } from "@/lib/utils";
+import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
 
 const ArtisanPublicProfile = () => {
@@ -264,7 +264,7 @@ const ArtisanPublicProfile = () => {
                         )}>
                           <AvatarImage src={artisan.photo_url || undefined} alt={artisan.business_name} />
                           <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                            {artisan.business_name.slice(0, 2).toUpperCase()}
+                            <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                           </AvatarFallback>
                         </Avatar>
                         {artisan.is_verified && <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white rounded-full p-1.5 shadow-lg">
