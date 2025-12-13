@@ -22,6 +22,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn } from "@/lib/utils";
+import StoryViewer from "@/components/stories/StoryViewer";
 
 const ArtisanPublicProfile = () => {
   const {
@@ -39,6 +40,7 @@ const ArtisanPublicProfile = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [artisanContact, setArtisanContact] = useState<{ phone: string | null; email: string | null }>({ phone: null, email: null });
+  const [storyViewerOpen, setStoryViewerOpen] = useState(false);
 
   // Fetch dynamic data using slug
   const {
@@ -58,7 +60,7 @@ const ArtisanPublicProfile = () => {
   } = useArtisanReviews(artisanId);
   
   // Check for active stories
-  const { hasActiveStories } = usePublicArtisanStories(artisanId);
+  const { stories, hasActiveStories } = usePublicArtisanStories(artisanId);
   
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
   const handleShare = (platform: string) => {
@@ -238,7 +240,10 @@ const ArtisanPublicProfile = () => {
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Photo & Badge */}
                     <div className="flex flex-col items-center gap-3">
-                      <div className="relative">
+                      <div 
+                        className="relative"
+                        onClick={() => hasActiveStories && setStoryViewerOpen(true)}
+                      >
                         <Avatar className={cn(
                           "h-32 w-32 ring-4",
                           hasActiveStories ? "ring-green-500 cursor-pointer" : "ring-primary/20"
@@ -823,6 +828,15 @@ const ArtisanPublicProfile = () => {
 
       {/* Chat Widget */}
       <ChatWidget defaultOpen={chatOpen} defaultArtisanId={artisan.id || undefined} defaultArtisanName={artisan.business_name} defaultArtisanPhoto={artisan.photo_url || undefined} />
+
+      {/* Story Viewer */}
+      <StoryViewer
+        stories={stories}
+        artisanName={artisan.business_name}
+        artisanPhoto={artisan.photo_url}
+        isOpen={storyViewerOpen}
+        onClose={() => setStoryViewerOpen(false)}
+      />
 
       <Footer />
     </div>;
