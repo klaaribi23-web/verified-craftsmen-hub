@@ -54,6 +54,45 @@ const AuthCallback = () => {
             .eq("user_id", session.user.id)
             .single();
 
+          // Check if this is a claim flow (artisan claiming an existing profile)
+          const claimSlug = localStorage.getItem('artisan_claim_slug');
+          
+          if (claimSlug) {
+            // Link user to existing artisan profile
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("id")
+              .eq("user_id", session.user.id)
+              .single();
+
+            if (profile) {
+              const { error: updateError } = await supabase
+                .from("artisans")
+                .update({ 
+                  user_id: session.user.id, 
+                  profile_id: profile.id,
+                  status: "pending" 
+                })
+                .eq("slug", claimSlug)
+                .eq("status", "prospect");
+
+              if (updateError) {
+                console.error("Error linking artisan profile:", updateError);
+              }
+            }
+            
+            // Clear the claim slug from localStorage
+            localStorage.removeItem('artisan_claim_slug');
+            
+            setTargetDashboard("/artisan/dashboard");
+            setShowSuccess(true);
+            
+            setTimeout(() => {
+              navigate("/artisan/dashboard");
+            }, 2500);
+            return;
+          }
+
           // If artisan role, ensure artisan profile exists
           if (roles?.role === "artisan") {
             const { data: existingArtisan } = await supabase

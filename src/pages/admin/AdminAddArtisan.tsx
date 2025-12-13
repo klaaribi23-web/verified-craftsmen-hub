@@ -23,8 +23,7 @@ import {
   Briefcase,
   MapPin,
   Link as LinkIcon,
-  Upload,
-  FileText
+  Upload
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useCategories } from "@/hooks/useAdminData";
@@ -60,7 +59,7 @@ const AdminAddArtisan = () => {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
-  const [isUploadingDocument, setIsUploadingDocument] = useState(false);
+  
   
   const [formData, setFormData] = useState({
     businessName: "",
@@ -93,10 +92,6 @@ const AdminAddArtisan = () => {
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const profilePhotoInputRef = useRef<HTMLInputElement>(null);
-  const documentInputRef = useRef<HTMLInputElement>(null);
-  
-  // Legal documents
-  const [legalDocuments, setLegalDocuments] = useState<{ name: string; url: string }[]>([]);
   
   // Work schedule
   const [availability, setAvailability] = useState<Record<string, { enabled: boolean; start: string; end: string }>>({
@@ -242,12 +237,6 @@ const AdminAddArtisan = () => {
         return null;
       }
     }
-    if (type === "document") {
-      if (file.type !== "application/pdf") {
-        toast({ title: "Erreur", description: "Veuillez sélectionner un fichier PDF", variant: "destructive" });
-        return null;
-      }
-    }
 
     // Check file size (max 50MB)
     const maxSize = 50 * 1024 * 1024;
@@ -294,26 +283,6 @@ const AdminAddArtisan = () => {
     }
   };
 
-  const handleDocumentFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    setIsUploadingDocument(true);
-    try {
-      const url = await handleFileUpload(file, "document");
-      if (url) {
-        setLegalDocuments((prev) => [...prev, { name: file.name, url }]);
-        toast({ title: "Document ajouté", description: "Le document a été uploadé avec succès" });
-      }
-    } finally {
-      setIsUploadingDocument(false);
-      if (documentInputRef.current) documentInputRef.current.value = "";
-    }
-  };
-
-  const handleRemoveDocument = (index: number) => {
-    setLegalDocuments((prev) => prev.filter((_, i) => i !== index));
-  };
 
   const handlePhotoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -415,8 +384,9 @@ const AdminAddArtisan = () => {
           linkedin_url: formData.linkedin || null,
           website_url: formData.website || null,
           availability: availability,
-          status: "active",
-          is_verified: true,
+          status: "prospect",
+          is_verified: false,
+          user_id: null,
         }])
         .select()
         .single();
@@ -457,24 +427,6 @@ const AdminAddArtisan = () => {
         }
       }
 
-      // Add legal documents to artisan_documents table
-      if (legalDocuments.length > 0 && artisan) {
-        const documentsData = legalDocuments.map((doc) => ({
-          artisan_id: artisan.id,
-          name: doc.name.replace(/\.[^/.]+$/, ""), // Name without extension
-          file_name: doc.name,
-          file_path: doc.url,
-          status: 'verified', // Verified because added by admin
-        }));
-
-        const { error: documentsError } = await supabase
-          .from("artisan_documents")
-          .insert(documentsData);
-
-        if (documentsError) {
-          console.error("Error adding documents:", documentsError);
-        }
-      }
 
       toast({
         title: "Artisan ajouté",
@@ -939,73 +891,6 @@ const AdminAddArtisan = () => {
               </CardContent>
             </Card>
 
-            {/* Legal Documents */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Documents légaux
-                  <Badge variant="outline" className="ml-2">{legalDocuments.length} document(s)</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Ajoutez les documents légaux de l'artisan : attestation d'assurance, Kbis, certificats, etc. (format PDF uniquement)
-                </p>
-                
-                <div className="flex gap-2">
-                  <input
-                    ref={documentInputRef}
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleDocumentFileChange}
-                    className="hidden"
-                  />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => documentInputRef.current?.click()}
-                    disabled={isUploadingDocument}
-                    className="gap-2"
-                  >
-                    {isUploadingDocument ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Upload className="h-4 w-4" />
-                    )}
-                    {isUploadingDocument ? "Upload en cours..." : "Ajouter un document PDF"}
-                  </Button>
-                </div>
-                
-                {legalDocuments.length > 0 && (
-                  <div className="space-y-2">
-                    {legalDocuments.map((doc, index) => (
-                      <div key={index} className="relative group p-3 border rounded-md bg-muted/30 flex items-center gap-3">
-                        <FileText className="h-5 w-5 text-red-500 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{doc.name}</p>
-                          <a 
-                            href={doc.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-xs text-primary hover:underline"
-                          >
-                            Voir le document
-                          </a>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveDocument(index)}
-                          className="bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
 
             {/* Services */}
             <Card>
