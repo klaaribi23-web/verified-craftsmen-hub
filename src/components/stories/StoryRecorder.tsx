@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { 
   X, 
   Camera, 
-  Video, 
   SwitchCamera, 
   Loader2,
   RotateCcw,
@@ -21,12 +19,32 @@ interface StoryRecorderProps {
   isUploading?: boolean;
 }
 
-const MAX_VIDEO_DURATION = 20; // 20 seconds max
+const MAX_VIDEO_DURATION = 20;
 
 // Detect mobile device
 const isMobileDevice = () => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
     (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+};
+
+// Get best supported mime type (MP4 first for Safari/iOS)
+const getSupportedMimeType = (): string => {
+  const types = [
+    "video/mp4",
+    "video/mp4;codecs=h264,aac",
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm;codecs=h264,opus",
+    "video/webm"
+  ];
+  
+  for (const type of types) {
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(type)) {
+      console.log("Using codec:", type);
+      return type;
+    }
+  }
+  return "";
 };
 
 const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorderProps) => {
@@ -46,7 +64,7 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Start camera stream with HD quality 1080p and 9:16 aspect ratio
+  // Start camera stream with adaptive constraints for portrait mode
   const startCamera = useCallback(async () => {
     try {
       setError(null);
@@ -56,22 +74,32 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
         streamRef.current.getTracks().forEach(track => track.stop());
       }
 
+      // Detect portrait orientation
+      const isPortrait = window.innerHeight > window.innerWidth;
+      console.log("Portrait mode:", isPortrait);
+
+      // Adaptive constraints for portrait/landscape
+      const videoConstraints: MediaTrackConstraints = {
+        facingMode,
+        width: { ideal: isPortrait ? 1080 : 1920, min: 640 },
+        height: { ideal: isPortrait ? 1920 : 1080, min: 480 },
+        aspectRatio: { ideal: isPortrait ? 9/16 : 16/9 },
+        frameRate: { ideal: 30, min: 24 }
+      };
+
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode,
-          width: { ideal: 1080, min: 720 },
-          height: { ideal: 1920, min: 1280 },
-          aspectRatio: { ideal: 9/16 },
-          frameRate: { ideal: 30 }
-        },
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true
-        }
+        video: videoConstraints,
+        audio: true
       });
 
       streamRef.current = stream;
       setHasPermission(true);
+
+      // Log actual camera settings for debug
+      const videoTrack = stream.getVideoTracks()[0];
+      const settings = videoTrack.getSettings();
+      console.log("Camera settings:", settings);
+      console.log("Resolution:", settings.width, "x", settings.height);
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -80,8 +108,8 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
       console.error("Camera access error:", err);
       setHasPermission(false);
       setError(err.name === "NotAllowedError" 
-        ? "Accès à la caméra refusé. Veuillez autoriser l'accès dans les paramètres de votre navigateur."
-        : "Impossible d'accéder à la caméra. Vérifiez que votre appareil dispose d'une caméra."
+        ? "Accès à la caméra refusé. Veuillez autoriser l'accès dans les paramètres."
+        : "Impossible d'accéder à la caméra."
       );
     }
   }, [facingMode]);
@@ -158,48 +186,47 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
     }, "image/jpeg", 0.95);
   };
 
-  // Start video recording with HD quality and high bitrate
+  // Start video recording with Safari/iOS compatibility
   const startRecording = () => {
     if (!streamRef.current) {
       setError("Caméra non disponible. Veuillez réessayer.");
       return;
     }
 
+    // Check if MediaRecorder is available
+    if (typeof MediaRecorder === 'undefined') {
+      setError("L'enregistrement vidéo n'est pas supporté sur votre navigateur.");
+      return;
+    }
+
     chunksRef.current = [];
     setRecordingTime(0);
 
-    // Find best supported codec for quality
-    const mimeTypes = [
-      "video/webm;codecs=vp9,opus",
-      "video/webm;codecs=vp8,opus",
-      "video/webm;codecs=h264,opus",
-      "video/mp4;codecs=h264,aac",
-      "video/webm"
-    ];
-    
-    let mimeType = "video/webm";
-    for (const type of mimeTypes) {
-      if (MediaRecorder.isTypeSupported(type)) {
-        mimeType = type;
-        break;
-      }
-    }
+    const mimeType = getSupportedMimeType();
+    console.log("Recording with mimeType:", mimeType);
 
     try {
-      const mediaRecorder = new MediaRecorder(streamRef.current, { 
-        mimeType,
+      const options: MediaRecorderOptions = {
         videoBitsPerSecond: 2500000 // 2.5 Mbps for HD quality
-      });
+      };
+      
+      if (mimeType) {
+        options.mimeType = mimeType;
+      }
+
+      const mediaRecorder = new MediaRecorder(streamRef.current, options);
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (e) => {
+        console.log("Data available:", e.data.size);
         if (e.data.size > 0) {
           chunksRef.current.push(e.data);
         }
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: mimeType });
+        console.log("Recording stopped, chunks:", chunksRef.current.length);
+        const blob = new Blob(chunksRef.current, { type: mimeType || "video/webm" });
         const url = URL.createObjectURL(blob);
         setCapturedMedia({ blob, type: "video", url });
 
@@ -209,14 +236,16 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
         }
       };
 
-      mediaRecorder.onerror = (e) => {
+      mediaRecorder.onerror = (e: any) => {
         console.error("MediaRecorder error:", e);
-        setError("Erreur d'enregistrement. Veuillez réessayer.");
+        setError("Erreur d'enregistrement. Essayez de prendre une photo.");
         setIsRecording(false);
       };
 
-      mediaRecorder.start(100);
+      // Start without timeslice for better Safari compatibility
+      mediaRecorder.start();
       setIsRecording(true);
+      console.log("Recording started");
 
       // Start timer
       timerRef.current = setInterval(() => {
@@ -230,7 +259,7 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
       }, 1000);
     } catch (err) {
       console.error("Recording error:", err);
-      setError("Erreur lors du démarrage de l'enregistrement. Votre appareil ne supporte peut-être pas l'enregistrement vidéo.");
+      setError("Votre appareil ne supporte pas l'enregistrement vidéo. Essayez de prendre une photo.");
     }
   };
 
@@ -296,7 +325,10 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
   // Block recording on PC - show simple message
   if (!isMobile) {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+      <div 
+        className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+        style={{ height: "100dvh" }}
+      >
         <div className="text-center p-6">
           <Camera className="w-16 h-16 text-white/50 mx-auto mb-4" />
           <p className="text-white text-xl font-medium mb-6">
@@ -311,29 +343,24 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+    <div 
+      className="fixed inset-0 z-50 bg-black flex flex-col overflow-hidden"
+      style={{ height: "100dvh" }}
+    >
       {/* Hidden canvas for photo capture */}
       <canvas ref={canvasRef} className="hidden" />
 
-      {/* Close button */}
-      <button
-        onClick={handleClose}
-        className="absolute top-4 left-4 z-20 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-      >
-        <X className="h-6 w-6" />
-      </button>
-
       {/* Main content */}
       {!capturedMedia ? (
-        // Camera view
-        <>
+        // Camera view - full screen with overlay controls
+        <div className="relative w-full h-full">
           {/* Permission error */}
           {hasPermission === false && (
-            <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center z-30">
               <Camera className="w-16 h-16 text-muted-foreground mb-4" />
               <p className="text-white text-lg mb-2">Accès caméra requis</p>
               <p className="text-muted-foreground text-sm mb-6">
-                {error || "Veuillez autoriser l'accès à la caméra pour filmer une story."}
+                {error || "Veuillez autoriser l'accès à la caméra."}
               </p>
               <Button onClick={startCamera} variant="secondary">
                 Réessayer
@@ -341,131 +368,155 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
             </div>
           )}
 
-          {/* Camera preview */}
+          {/* Camera preview - object-contain to avoid zoom */}
           {hasPermission !== false && (
-            <>
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className={cn(
-                  "flex-1 w-full object-cover",
-                  facingMode === "user" && "scale-x-[-1]"
-                )}
-              />
-
-              {/* Recording timer */}
-              {isRecording && (
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-destructive/90 px-3 py-1.5 rounded-full">
-                  <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                  <span className="text-white font-mono text-sm">
-                    {formatTime(recordingTime)} / {formatTime(MAX_VIDEO_DURATION)}
-                  </span>
-                </div>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={cn(
+                "w-full h-full object-contain bg-black",
+                facingMode === "user" && "scale-x-[-1]"
               )}
-
-              {/* Recording progress bar */}
-              {isRecording && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-white/20">
-                  <div 
-                    className="h-full bg-destructive transition-all duration-1000"
-                    style={{ width: `${(recordingTime / MAX_VIDEO_DURATION) * 100}%` }}
-                  />
-                </div>
-              )}
-
-              {/* Camera controls */}
-              <div className="absolute bottom-0 left-0 right-0 z-20 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                <div className="flex items-center justify-center gap-8">
-                  {/* Switch camera */}
-                  <button
-                    onClick={switchCamera}
-                    disabled={isRecording}
-                    className="p-3 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-50"
-                  >
-                    <SwitchCamera className="w-6 h-6" />
-                  </button>
-
-                  {/* Record/Stop button with pulsing animation */}
-                  {isRecording ? (
-                    <button
-                      onClick={stopRecording}
-                      className="w-20 h-20 rounded-full bg-destructive border-4 border-white flex items-center justify-center animate-pulse"
-                    >
-                      <Square className="w-8 h-8 text-white fill-white" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={startRecording}
-                      className="w-20 h-20 rounded-full bg-destructive border-4 border-white hover:scale-105 transition-transform active:scale-95"
-                    />
-                  )}
-
-                  {/* Take photo */}
-                  <button
-                    onClick={takePhoto}
-                    disabled={isRecording}
-                    className="p-3 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-50"
-                  >
-                    <Camera className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <p className="text-center text-white/60 text-sm mt-4">
-                  {isRecording 
-                    ? "Appuyez sur ■ pour arrêter" 
-                    : "Appuyez sur ● pour filmer ou 📷 pour une photo"}
-                </p>
-              </div>
-            </>
+            />
           )}
-        </>
-      ) : (
-        // Preview captured media
-        <div className="flex-1 flex flex-col">
-          {/* Media preview */}
-          <div className="flex-1 flex items-center justify-center bg-black">
-            {capturedMedia.type === "video" ? (
-              <video
-                src={capturedMedia.url}
-                className="max-w-full max-h-full object-contain"
-                autoPlay
-                loop
-                muted
-                playsInline
-              />
-            ) : (
-              <img
-                src={capturedMedia.url}
-                alt="Capture"
-                className="max-w-full max-h-full object-contain"
-              />
-            )}
-          </div>
 
-          {/* Caption and actions */}
-          <div className="p-4 bg-black/90 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="caption" className="text-white">Légende (optionnel)</Label>
+          {/* Close button - inside frame */}
+          <button
+            onClick={handleClose}
+            className="absolute top-4 left-4 z-20 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+            style={{ top: "max(env(safe-area-inset-top), 1rem)" }}
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          {/* Recording timer - inside frame */}
+          {isRecording && (
+            <div 
+              className="absolute left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-destructive/90 px-3 py-1.5 rounded-full"
+              style={{ top: "max(env(safe-area-inset-top), 1rem)" }}
+            >
+              <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              <span className="text-white font-mono text-sm">
+                {formatTime(recordingTime)} / {formatTime(MAX_VIDEO_DURATION)}
+              </span>
+            </div>
+          )}
+
+          {/* Recording progress bar */}
+          {isRecording && (
+            <div className="absolute top-0 left-0 right-0 h-1 bg-white/20 z-20">
+              <div 
+                className="h-full bg-destructive transition-all duration-1000"
+                style={{ width: `${(recordingTime / MAX_VIDEO_DURATION) * 100}%` }}
+              />
+            </div>
+          )}
+
+          {/* Camera controls - inside frame with safe area padding */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 z-20 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
+            style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1.5rem)" }}
+          >
+            <div className="flex items-center justify-center gap-8">
+              {/* Switch camera */}
+              <button
+                onClick={switchCamera}
+                disabled={isRecording}
+                className="p-3 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-50"
+              >
+                <SwitchCamera className="w-6 h-6" />
+              </button>
+
+              {/* Record/Stop button with pulsing animation when recording */}
+              {isRecording ? (
+                <button
+                  onClick={stopRecording}
+                  className="w-20 h-20 rounded-full bg-destructive border-4 border-white flex items-center justify-center animate-pulse shadow-lg"
+                >
+                  <Square className="w-8 h-8 text-white fill-white" />
+                </button>
+              ) : (
+                <button
+                  onClick={startRecording}
+                  className="w-20 h-20 rounded-full bg-destructive border-4 border-white hover:scale-105 transition-transform active:scale-95 shadow-lg"
+                  aria-label="Enregistrer"
+                />
+              )}
+
+              {/* Take photo */}
+              <button
+                onClick={takePhoto}
+                disabled={isRecording}
+                className="p-3 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-50"
+              >
+                <Camera className="w-6 h-6" />
+              </button>
+            </div>
+
+            <p className="text-center text-white/60 text-xs mt-3">
+              {isRecording 
+                ? "Appuyez sur ■ pour arrêter" 
+                : "● Filmer · 📷 Photo"}
+            </p>
+          </div>
+        </div>
+      ) : (
+        // Preview captured media - with controls inside frame
+        <div className="relative w-full h-full">
+          {/* Media preview */}
+          {capturedMedia.type === "video" ? (
+            <video
+              src={capturedMedia.url}
+              className="w-full h-full object-contain bg-black"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+          ) : (
+            <img
+              src={capturedMedia.url}
+              alt="Capture"
+              className="w-full h-full object-contain bg-black"
+            />
+          )}
+
+          {/* Close button - inside frame */}
+          <button
+            onClick={handleClose}
+            className="absolute top-4 left-4 z-20 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+            style={{ top: "max(env(safe-area-inset-top), 1rem)" }}
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          {/* Controls overlay - inside frame */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 z-20 p-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent"
+            style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1rem)" }}
+          >
+            {/* Caption input */}
+            <div className="mb-4">
               <Input
-                id="caption"
-                placeholder="Décrivez votre réalisation..."
+                placeholder="Ajouter une légende... (optionnel)"
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 maxLength={150}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 text-sm"
               />
-              <p className="text-xs text-white/60 text-right">
-                {caption.length}/150 caractères
+              <p className="text-xs text-white/40 text-right mt-1">
+                {caption.length}/150
               </p>
             </div>
 
+            {/* Action buttons */}
             <div className="flex gap-3">
               <Button
                 variant="outline"
                 onClick={handleRetake}
-                className="flex-1 border-white/20 text-white hover:bg-white/10"
+                className="flex-1 border-white/30 text-white bg-white/10 hover:bg-white/20"
                 disabled={isUploading}
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
