@@ -22,6 +22,7 @@ import {
   X,
   Loader2,
   ImageIcon,
+  ArrowLeft,
 } from "lucide-react";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn } from "@/lib/utils";
@@ -55,6 +56,7 @@ export const ClientMessaging = () => {
   const [showNewConversation, setShowNewConversation] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [mobileShowChat, setMobileShowChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -368,6 +370,16 @@ export const ClientMessaging = () => {
     );
   };
 
+  // Handle conversation selection with mobile view switch
+  const handleSelectConversation = (participantId: string) => {
+    setSelectedConversationId(participantId);
+    setMobileShowChat(true);
+  };
+
+  const handleBackToList = () => {
+    setMobileShowChat(false);
+  };
+
   return (
     <>
       <Navbar />
@@ -380,12 +392,15 @@ export const ClientMessaging = () => {
           subtitle="Échangez avec les artisans"
         />
 
-        <main className="flex-1 p-6 overflow-hidden">
-          <div className="max-w-6xl mx-auto h-[calc(100vh-200px)]">
+        <main className="flex-1 p-2 md:p-6 overflow-hidden">
+          <div className="max-w-6xl mx-auto h-[calc(100vh-180px)] md:h-[calc(100vh-200px)]">
             <div className="bg-card rounded-xl border border-border shadow-soft h-full flex overflow-hidden">
-              {/* Conversations List */}
-              <div className="w-80 border-r border-border flex flex-col">
-                <div className="p-4 border-b border-border">
+              {/* Conversations List - Hidden on mobile when chat is open */}
+              <div className={cn(
+                "w-full md:w-80 border-r border-border flex flex-col",
+                mobileShowChat ? "hidden md:flex" : "flex"
+              )}>
+                <div className="p-3 md:p-4 border-b border-border">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input 
@@ -418,37 +433,37 @@ export const ClientMessaging = () => {
                     filteredConversations.map((conv) => (
                       <button
                         key={conv.participant_id}
-                        onClick={() => setSelectedConversationId(conv.participant_id)}
+                        onClick={() => handleSelectConversation(conv.participant_id)}
                         className={cn(
-                          "w-full p-4 text-left border-b border-border transition-colors",
+                          "w-full p-3 md:p-4 text-left border-b border-border transition-colors",
                           selectedConversationId === conv.participant_id 
                             ? "bg-muted" 
-                            : "hover:bg-muted/50"
+                            : "hover:bg-muted/50 active:bg-muted"
                         )}
                       >
                         <div className="flex gap-3">
-                          <Avatar className="w-12 h-12">
+                          <Avatar className="w-10 h-10 md:w-12 md:h-12 shrink-0">
                             <AvatarImage src={conv.participant_photo || undefined} />
                             <AvatarFallback className="bg-primary/10">
-                              <User className="w-5 h-5 text-primary" />
+                              <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
-                              <p className="font-medium truncate">{conv.participant_name}</p>
+                              <p className="font-medium truncate text-sm md:text-base">{conv.participant_name}</p>
                               <span className="text-xs text-muted-foreground whitespace-nowrap">
                                 {formatMessageTime(conv.last_message_time)}
                               </span>
                             </div>
-                            <p className="text-sm text-muted-foreground truncate">
+                            <p className="text-xs md:text-sm text-muted-foreground truncate">
                               {conv.participant_role}
                             </p>
-                            <p className="text-sm text-muted-foreground truncate mt-1">
+                            <p className="text-xs md:text-sm text-muted-foreground truncate mt-1">
                               {conv.last_message}
                             </p>
                           </div>
                           {conv.unread_count > 0 && (
-                            <Badge className="bg-accent text-accent-foreground h-5 w-5 p-0 flex items-center justify-center">
+                            <Badge className="bg-accent text-accent-foreground h-5 w-5 p-0 flex items-center justify-center shrink-0">
                               {conv.unread_count}
                             </Badge>
                           )}
@@ -459,29 +474,40 @@ export const ClientMessaging = () => {
                 </ScrollArea>
               </div>
 
-              {/* Chat Area */}
+              {/* Chat Area - Full screen on mobile when open */}
               {(selectedConversation || showNewConversation) ? (
-                <div className="flex-1 flex flex-col">
+                <div className={cn(
+                  "flex-1 flex flex-col",
+                  mobileShowChat ? "flex" : "hidden md:flex"
+                )}>
                   {/* Chat Header */}
-                  <div className="p-4 border-b border-border flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-10 h-10">
+                  <div className="p-3 md:p-4 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="md:hidden shrink-0"
+                        onClick={handleBackToList}
+                      >
+                        <ArrowLeft className="w-5 h-5" />
+                      </Button>
+                      <Avatar className="w-8 h-8 md:w-10 md:h-10 shrink-0">
                         <AvatarImage src={selectedConversation?.participant_photo || artisanToContact?.photo_url || undefined} />
                         <AvatarFallback className="bg-primary/10">
-                          <User className="w-5 h-5 text-primary" />
+                          <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-medium">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm md:text-base truncate">
                           {selectedConversation?.participant_name || artisanNameFromUrl || artisanToContact?.business_name || "Nouvelle conversation"}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs md:text-sm text-muted-foreground truncate">
                           {selectedConversation?.participant_role || "Artisan"}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon">
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" className="hidden sm:flex">
                         <Phone className="w-5 h-5" />
                       </Button>
                       <Button variant="ghost" size="icon">
@@ -491,8 +517,8 @@ export const ClientMessaging = () => {
                   </div>
 
                   {/* Messages */}
-                  <ScrollArea className="flex-1 p-4">
-                    <div className="space-y-4">
+                  <ScrollArea className="flex-1 p-3 md:p-4">
+                    <div className="space-y-3 md:space-y-4">
                       {messagesLoading ? (
                         <div className="space-y-4">
                           {[1, 2, 3].map((i) => (
@@ -502,7 +528,7 @@ export const ClientMessaging = () => {
                           ))}
                         </div>
                       ) : messages.length === 0 ? (
-                        <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                           <p>Aucun message. Commencez la conversation !</p>
                         </div>
                       ) : (
@@ -514,18 +540,18 @@ export const ClientMessaging = () => {
 
                   {/* File Preview */}
                   {selectedFile && (
-                    <div className="p-4 border-t border-border bg-muted/50">
+                    <div className="p-3 md:p-4 border-t border-border bg-muted/50">
                       <div className="flex items-center gap-3 p-2 bg-card rounded-lg border">
                         {previewUrl ? (
-                          <img src={previewUrl} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                          <img src={previewUrl} alt="Preview" className="w-12 h-12 md:w-16 md:h-16 object-cover rounded" />
                         ) : (
-                          <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
-                            <FileText className="w-8 h-8 text-muted-foreground" />
+                          <div className="w-12 h-12 md:w-16 md:h-16 bg-muted rounded flex items-center justify-center">
+                            <FileText className="w-6 h-6 md:w-8 md:h-8 text-muted-foreground" />
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{selectedFile.name}</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="font-medium truncate text-sm">{selectedFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
                             {(selectedFile.size / 1024).toFixed(1)} Ko
                           </p>
                         </div>
@@ -537,7 +563,7 @@ export const ClientMessaging = () => {
                   )}
 
                   {/* Message Input */}
-                  <div className="p-4 border-t border-border">
+                  <div className="p-2 md:p-4 border-t border-border">
                     <input
                       type="file"
                       ref={fileInputRef}
@@ -552,11 +578,11 @@ export const ClientMessaging = () => {
                       onChange={(e) => handleFileSelect(e, true)}
                       accept="image/*"
                     />
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}>
+                    <div className="flex gap-1 md:gap-2">
+                      <Button variant="ghost" size="icon" className="shrink-0" onClick={() => fileInputRef.current?.click()}>
                         <Paperclip className="w-5 h-5" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => imageInputRef.current?.click()}>
+                      <Button variant="ghost" size="icon" className="shrink-0 hidden sm:flex" onClick={() => imageInputRef.current?.click()}>
                         <ImageIcon className="w-5 h-5" />
                       </Button>
                       <Input 
@@ -564,12 +590,14 @@ export const ClientMessaging = () => {
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyPress={(e) => e.key === "Enter" && !selectedFile && handleSendMessage()}
-                        className="flex-1"
+                        className="flex-1 text-sm md:text-base"
                         disabled={sendMessage.isPending || uploadFile.isPending}
                       />
                       <Button 
                         onClick={handleSendMessage} 
                         variant="gold"
+                        size="icon"
+                        className="shrink-0"
                         disabled={(!newMessage.trim() && !selectedFile) || sendMessage.isPending || uploadFile.isPending}
                       >
                         {uploadFile.isPending ? (
@@ -582,7 +610,7 @@ export const ClientMessaging = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                <div className="flex-1 hidden md:flex items-center justify-center text-muted-foreground">
                   Sélectionnez une conversation
                 </div>
               )}
