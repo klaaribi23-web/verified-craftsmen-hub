@@ -38,8 +38,8 @@ export const ArtisanServices = () => {
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ title: "", price: 0, description: "", duration: "" });
-  const [newService, setNewService] = useState({ title: "", price: "", description: "", duration: "" });
+  const [editForm, setEditForm] = useState({ title: "", price: 0, description: "", duration: "", surDevis: false });
+  const [newService, setNewService] = useState({ title: "", price: "", description: "", duration: "", surDevis: false });
 
   // Fetch artisan profile
   const { data: artisan } = useQuery({
@@ -92,7 +92,7 @@ export const ArtisanServices = () => {
       queryClient.invalidateQueries({ queryKey: ["artisan-services"] });
       toast.success("Prestation ajoutée");
       setIsAdding(false);
-      setNewService({ title: "", price: "", description: "", duration: "" });
+      setNewService({ title: "", price: "", description: "", duration: "", surDevis: false });
     },
     onError: () => {
       toast.error("Erreur lors de l'ajout");
@@ -142,7 +142,8 @@ export const ArtisanServices = () => {
       title: service.title,
       price: service.price || 0,
       description: service.description || "",
-      duration: service.duration || ""
+      duration: service.duration || "",
+      surDevis: service.price === null
     });
   };
 
@@ -151,7 +152,7 @@ export const ArtisanServices = () => {
       updateServiceMutation.mutate({
         id: editingId,
         title: editForm.title,
-        price: editForm.price || null,
+        price: editForm.surDevis ? null : (editForm.price || null),
         description: editForm.description || null,
         duration: editForm.duration || null
       });
@@ -166,7 +167,7 @@ export const ArtisanServices = () => {
     addServiceMutation.mutate({
       title: newService.title,
       description: newService.description || null,
-      price: newService.price ? parseFloat(newService.price) : null,
+      price: newService.surDevis ? null : (newService.price ? parseFloat(newService.price) : null),
       duration: newService.duration || null
     });
   };
@@ -227,13 +228,26 @@ export const ArtisanServices = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Prix (€)</Label>
-                    <Input 
-                      type="number" 
-                      placeholder="60" 
-                      value={newService.price}
-                      onChange={(e) => setNewService({...newService, price: e.target.value})}
-                    />
+                    <Label>Prix</Label>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Switch 
+                          id="new-sur-devis"
+                          checked={newService.surDevis}
+                          onCheckedChange={(checked) => setNewService({...newService, surDevis: checked, price: checked ? "" : newService.price})}
+                        />
+                        <Label htmlFor="new-sur-devis" className="text-sm font-normal cursor-pointer">Sur Devis</Label>
+                      </div>
+                      {!newService.surDevis && (
+                        <Input 
+                          type="number" 
+                          placeholder="60€" 
+                          value={newService.price}
+                          onChange={(e) => setNewService({...newService, price: e.target.value})}
+                          className="flex-1"
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Durée estimée</Label>
@@ -308,12 +322,26 @@ export const ArtisanServices = () => {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label>Prix (€)</Label>
-                            <Input 
-                              type="number"
-                              value={editForm.price}
-                              onChange={(e) => setEditForm({...editForm, price: Number(e.target.value)})}
-                            />
+                            <Label>Prix</Label>
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2">
+                                <Switch 
+                                  id="edit-sur-devis"
+                                  checked={editForm.surDevis}
+                                  onCheckedChange={(checked) => setEditForm({...editForm, surDevis: checked, price: checked ? 0 : editForm.price})}
+                                />
+                                <Label htmlFor="edit-sur-devis" className="text-sm font-normal cursor-pointer">Sur Devis</Label>
+                              </div>
+                              {!editForm.surDevis && (
+                                <Input 
+                                  type="number"
+                                  placeholder="60€"
+                                  value={editForm.price}
+                                  onChange={(e) => setEditForm({...editForm, price: Number(e.target.value)})}
+                                  className="flex-1"
+                                />
+                              )}
+                            </div>
                           </div>
                           <div className="space-y-2">
                             <Label>Durée estimée</Label>
