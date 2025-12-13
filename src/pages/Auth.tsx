@@ -47,9 +47,6 @@ const Auth = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
-  // Email confirmation sent state
-  const [emailSent, setEmailSent] = useState(false);
-  const [sentEmail, setSentEmail] = useState("");
 
   // Check if user is already logged in
   useEffect(() => {
@@ -113,13 +110,13 @@ const Auth = () => {
       }
 
       const validatedData = validationResult.data;
-      const redirectUrl = `${window.location.origin}/auth/callback`;
 
+      // Create user WITHOUT email confirmation (we handle it with OTP)
       const { data, error } = await supabase.auth.signUp({
         email: validatedData.email,
         password: validatedData.password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             first_name: validatedData.firstName,
             last_name: validatedData.lastName,
@@ -131,9 +128,8 @@ const Auth = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Check if email confirmation is required
+        // Check if user already exists
         if (data.user.identities && data.user.identities.length === 0) {
-          // User already exists
           toast({
             title: "Email déjà utilisé",
             description: "Cet email est déjà enregistré. Veuillez vous connecter.",
@@ -144,11 +140,8 @@ const Auth = () => {
           return;
         }
 
-        // Role is now automatically assigned by database trigger (handle_new_user_role)
-
-        // If artisan, create empty artisan profile (no demo data)
+        // If artisan, create empty artisan profile
         if (userType === "artisan") {
-          // Wait a bit for the profile to be created by trigger
           await new Promise(resolve => setTimeout(resolve, 1000));
           
           const { data: profile } = await supabase
@@ -158,7 +151,6 @@ const Auth = () => {
             .single();
 
           if (profile) {
-            // Create minimal artisan profile - user will fill the rest
             const { error: artisanError } = await supabase
               .from("artisans")
               .insert([{
@@ -167,7 +159,6 @@ const Auth = () => {
                 business_name: "Non renseigné",
                 city: "Non renseigné",
                 status: "pending",
-                // All other fields remain null/empty - no demo data
                 description: null,
                 photo_url: null,
                 portfolio_images: null,
@@ -185,22 +176,36 @@ const Auth = () => {
           }
         }
 
-        // Check if session exists (auto-confirm enabled)
-        if (data.session) {
+        // Send OTP verification code via edge function
+        const { error: sendError } = await supabase.functions.invoke("send-verification-code", {
+          body: {
+            email: validatedData.email,
+            userId: data.user.id,
+            userType: userType,
+            firstName: validatedData.firstName,
+          },
+        });
+
+        if (sendError) {
+          console.error("Error sending verification code:", sendError);
           toast({
-            title: "Inscription réussie !",
-            description: "Bienvenue sur Artisans Validés.",
+            title: "Erreur",
+            description: "Impossible d'envoyer le code de vérification. Veuillez réessayer.",
+            variant: "destructive",
           });
-          redirectUser();
-        } else {
-          // Email confirmation required
-          setSentEmail(validatedData.email);
-          setEmailSent(true);
-          toast({
-            title: "Email de confirmation envoyé",
-            description: "Vérifiez votre boîte mail pour confirmer votre inscription.",
-          });
+          return;
         }
+
+        // Navigate to verification page with state
+        navigate("/verifier-email", {
+          state: {
+            email: validatedData.email,
+            userId: data.user.id,
+            userType: userType,
+            firstName: validatedData.firstName,
+            password: validatedData.password,
+          },
+        });
       }
     } catch (error: any) {
       console.error("Signup error:", error);
@@ -264,98 +269,6 @@ const Auth = () => {
     }
   };
 
-  const handleResendConfirmation = async () => {
-    if (!sentEmail) return;
-    
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: sentEmail,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Email renvoyé !",
-        description: "Un nouvel email de confirmation a été envoyé.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Email confirmation sent screen
-  if (emailSent) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        
-        <main className="container mx-auto px-4 py-12">
-          <div className="max-w-md mx-auto">
-            <Card>
-              <CardHeader className="text-center">
-                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle className="h-8 w-8 text-primary" />
-                </div>
-                <CardTitle className="text-2xl">Vérifiez votre email</CardTitle>
-                <CardDescription>
-                  Un email de confirmation a été envoyé à <span className="font-medium text-foreground">{sentEmail}</span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="bg-muted/50 p-4 rounded-lg text-sm text-muted-foreground">
-                  <p>Cliquez sur le lien dans l'email pour activer votre compte et accéder à votre tableau de bord.</p>
-                </div>
-
-                <div className="text-center space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Vous n'avez pas reçu l'email ?
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleResendConfirmation}
-                    disabled={isLoading}
-                    className="w-full"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Mail className="h-4 w-4 mr-2" />
-                    )}
-                    Renvoyer l'email
-                  </Button>
-                  
-                  <Button 
-                    variant="ghost" 
-                    onClick={() => {
-                      setEmailSent(false);
-                      setAuthMode("login");
-                    }}
-                    className="w-full"
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Retour à la connexion
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
-
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">

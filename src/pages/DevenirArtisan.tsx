@@ -119,14 +119,12 @@ const DevenirArtisan = () => {
         return;
       }
 
-      const redirectUrl = `${window.location.origin}/auth/callback`;
-
       // Create user with Supabase
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             first_name: formData.firstName,
             last_name: formData.lastName,
@@ -159,7 +157,7 @@ const DevenirArtisan = () => {
           .single();
 
         if (profile) {
-          // Create minimal artisan profile - user will complete the rest in dashboard
+          // Create minimal artisan profile
           const { error: artisanError } = await supabase
             .from("artisans")
             .insert([{
@@ -168,7 +166,6 @@ const DevenirArtisan = () => {
               business_name: "Non renseigné",
               city: formData.city || "Non renseigné",
               status: "pending",
-              // All other fields remain null/empty - no demo data
               description: null,
               photo_url: null,
               portfolio_images: null,
@@ -191,20 +188,36 @@ const DevenirArtisan = () => {
             .eq("id", profile.id);
         }
 
-        // Check if session exists (auto-confirm enabled)
-        if (data.session) {
+        // Send OTP verification code via edge function
+        const { error: sendError } = await supabase.functions.invoke("send-verification-code", {
+          body: {
+            email: formData.email,
+            userId: data.user.id,
+            userType: "artisan",
+            firstName: formData.firstName,
+          },
+        });
+
+        if (sendError) {
+          console.error("Error sending verification code:", sendError);
           toast({
-            title: "Inscription réussie !",
-            description: "Bienvenue sur Artisans Validés. Complétez votre profil pour être visible.",
+            title: "Erreur",
+            description: "Impossible d'envoyer le code de vérification. Veuillez réessayer.",
+            variant: "destructive",
           });
-          navigate("/artisan/dashboard");
-        } else {
-          toast({
-            title: "Email de confirmation envoyé",
-            description: "Vérifiez votre boîte mail pour confirmer votre inscription.",
-          });
-          navigate("/auth");
+          return;
         }
+
+        // Navigate to verification page with state
+        navigate("/verifier-email", {
+          state: {
+            email: formData.email,
+            userId: data.user.id,
+            userType: "artisan",
+            firstName: formData.firstName,
+            password: formData.password,
+          },
+        });
       }
     } catch (error: any) {
       console.error("Signup error:", error);
