@@ -102,14 +102,26 @@ export const useCategories = () => {
   });
 };
 
-// Fetch all profiles (clients)
+// Fetch all profiles (clients only - filtered by role)
 export const useProfiles = () => {
   return useQuery({
-    queryKey: ["admin-profiles"],
+    queryKey: ["admin-clients"],
     queryFn: async () => {
+      // Get user_ids with 'client' role only
+      const { data: clientRoles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "client");
+
+      if (rolesError) throw rolesError;
+      if (!clientRoles || clientRoles.length === 0) return [];
+
+      const clientUserIds = clientRoles.map(r => r.user_id);
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
+        .in("user_id", clientUserIds)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -144,10 +156,11 @@ export const useAdminStats = () => {
         .from("artisans")
         .select("*", { count: "exact", head: true });
 
-      // Get profiles count (clients)
+      // Get actual clients count (only users with 'client' role)
       const { count: clientsCount } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact", head: true });
+        .from("user_roles")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "client");
 
       // Get missions counts
       const { data: missions } = await supabase
