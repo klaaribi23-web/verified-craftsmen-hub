@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn } from "@/lib/utils";
+import StoryViewer from "@/components/stories/StoryViewer";
 
 interface ArtisanCardProps {
   id: string | number;
@@ -53,11 +54,12 @@ const ArtisanCard = ({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [storyViewerOpen, setStoryViewerOpen] = useState(false);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
   const artisanId = typeof id === "string" ? id : id.toString();
-  const { hasActiveStories } = usePublicArtisanStories(artisanId);
+  const { stories, hasActiveStories } = usePublicArtisanStories(artisanId);
 
   // Use slug for URL, fallback to id
   const artisanUrl = slug || id;
@@ -233,9 +235,18 @@ const ArtisanCard = ({
           <img 
             src={profileImage || defaultProfileImage} 
             alt={name} 
+            onClick={(e) => {
+              if (hasActiveStories) {
+                e.preventDefault();
+                e.stopPropagation();
+                setStoryViewerOpen(true);
+              }
+            }}
             className={cn(
               "w-12 h-12 rounded-full object-cover border-2",
-              hasActiveStories ? "border-green-500" : "border-gold"
+              hasActiveStories 
+                ? "border-green-500 cursor-pointer animate-story-pulse" 
+                : "border-gold"
             )} 
           />
           <div className="flex-1 min-w-0">
@@ -268,6 +279,15 @@ const ArtisanCard = ({
           Voir le profil
         </Button>
       </div>
+
+      {/* Story Viewer */}
+      <StoryViewer
+        stories={stories}
+        artisanName={name}
+        artisanPhoto={profileImage || defaultProfileImage}
+        isOpen={storyViewerOpen}
+        onClose={() => setStoryViewerOpen(false)}
+      />
     </div>
   );
 };
