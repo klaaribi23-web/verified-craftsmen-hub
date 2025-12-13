@@ -1,11 +1,10 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { useArtisanStories, ArtisanStory } from "@/hooks/useArtisanStories";
+import StoryRecorder from "@/components/stories/StoryRecorder";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,14 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Plus, Trash2, Eye, Clock, Image, Video, Loader2, Type } from "lucide-react";
+import { Trash2, Eye, Clock, Image, Video, Loader2, Type, Camera } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -38,48 +30,11 @@ export const ArtisanStories = () => {
     isDeleting,
   } = useArtisanStories();
   
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [storyToDelete, setStoryToDelete] = useState<string | null>(null);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [caption, setCaption] = useState("");
+  const [isRecorderOpen, setIsRecorderOpen] = useState(false);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/quicktime"];
-    if (!validTypes.includes(file.type)) {
-      return;
-    }
-
-    // Validate file size (50MB max)
-    if (file.size > 50 * 1024 * 1024) {
-      return;
-    }
-
-    setSelectedFile(file);
-    setUploadDialogOpen(true);
-    
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleUploadConfirm = async () => {
-    if (!selectedFile) return;
-    
-    await uploadStory(selectedFile, caption);
-    setUploadDialogOpen(false);
-    setSelectedFile(null);
-    setCaption("");
-  };
-
-  const handleUploadCancel = () => {
-    setUploadDialogOpen(false);
-    setSelectedFile(null);
-    setCaption("");
+  const handlePublish = async (blob: Blob, mediaType: "image" | "video", caption?: string) => {
+    await uploadStory(blob, caption);
   };
 
   const handleDeleteConfirm = () => {
@@ -190,36 +145,27 @@ export const ArtisanStories = () => {
                   Mes Stories
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  Partagez vos réalisations du moment (visibles 24h)
+                  Filmez vos réalisations en direct (visibles 24h)
                 </p>
               </div>
               
-              <div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="gap-2"
-                >
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Upload en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4" />
-                      Ajouter une story
-                    </>
-                  )}
-                </Button>
-              </div>
+              <Button
+                onClick={() => setIsRecorderOpen(true)}
+                disabled={isUploading}
+                className="gap-2"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Publication en cours...
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-4 h-4" />
+                    Filmer une story
+                  </>
+                )}
+              </Button>
             </div>
 
             {isLoading ? (
@@ -239,14 +185,22 @@ export const ArtisanStories = () => {
                     <Card className="border-dashed">
                       <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                         <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                          <Image className="w-8 h-8 text-muted-foreground" />
+                          <Camera className="w-8 h-8 text-muted-foreground" />
                         </div>
                         <h3 className="font-medium text-foreground mb-2">
                           Aucune story active
                         </h3>
-                        <p className="text-muted-foreground text-sm max-w-sm">
-                          Ajoutez une photo ou vidéo pour montrer vos réalisations du moment à vos clients potentiels
+                        <p className="text-muted-foreground text-sm max-w-sm mb-4">
+                          Filmez vos réalisations en direct pour montrer votre travail à vos clients potentiels
                         </p>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setIsRecorderOpen(true)}
+                          className="gap-2"
+                        >
+                          <Camera className="w-4 h-4" />
+                          Filmer ma première story
+                        </Button>
                       </CardContent>
                     </Card>
                   ) : (
@@ -298,66 +252,13 @@ export const ArtisanStories = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Upload dialog with caption */}
-      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ajouter une story</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            {/* File preview */}
-            {selectedFile && (
-              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-                {selectedFile.type.startsWith("video/") ? (
-                  <video
-                    src={URL.createObjectURL(selectedFile)}
-                    className="w-full h-full object-contain"
-                    controls
-                  />
-                ) : (
-                  <img
-                    src={URL.createObjectURL(selectedFile)}
-                    alt="Aperçu"
-                    className="w-full h-full object-contain"
-                  />
-                )}
-              </div>
-            )}
-            
-            {/* Caption input */}
-            <div className="space-y-2">
-              <Label htmlFor="caption">Légende (optionnel)</Label>
-              <Input
-                id="caption"
-                placeholder="Décrivez votre réalisation..."
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                maxLength={150}
-              />
-              <p className="text-xs text-muted-foreground text-right">
-                {caption.length}/150 caractères
-              </p>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={handleUploadCancel}>
-              Annuler
-            </Button>
-            <Button onClick={handleUploadConfirm} disabled={isUploading}>
-              {isUploading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Upload...
-                </>
-              ) : (
-                "Publier"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Story Recorder */}
+      <StoryRecorder
+        isOpen={isRecorderOpen}
+        onClose={() => setIsRecorderOpen(false)}
+        onPublish={handlePublish}
+        isUploading={isUploading}
+      />
     </div>
   );
 };

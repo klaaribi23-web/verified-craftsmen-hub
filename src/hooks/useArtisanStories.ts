@@ -49,8 +49,8 @@ export const useArtisanStories = () => {
     (story) => new Date(story.expires_at) <= new Date()
   );
 
-  // Upload a new story
-  const uploadStory = async (file: File, caption?: string) => {
+  // Upload a new story (accepts File or Blob)
+  const uploadStory = async (file: File | Blob, caption?: string) => {
     if (!artisan?.id) {
       toast.error("Profil artisan non trouvé");
       return null;
@@ -58,14 +58,27 @@ export const useArtisanStories = () => {
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
+      // Determine file extension and media type
+      let fileExt = "jpg";
+      let mediaType: "image" | "video" = "image";
+      
+      if (file instanceof File) {
+        fileExt = file.name.split(".").pop() || "jpg";
+        mediaType = file.type.startsWith("video/") ? "video" : "image";
+      } else {
+        // Blob from camera capture
+        mediaType = file.type.startsWith("video/") ? "video" : "image";
+        fileExt = mediaType === "video" ? "webm" : "jpg";
+      }
+      
       const fileName = `${artisan.id}/${Date.now()}.${fileExt}`;
-      const mediaType = file.type.startsWith("video/") ? "video" : "image";
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from("artisan-stories")
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          contentType: file.type,
+        });
 
       if (uploadError) throw uploadError;
 
@@ -90,11 +103,11 @@ export const useArtisanStories = () => {
       if (insertError) throw insertError;
 
       queryClient.invalidateQueries({ queryKey: ["artisan-stories", artisan.id] });
-      toast.success("Story ajoutée avec succès !");
+      toast.success("Story publiée avec succès !");
       return data;
     } catch (error: any) {
       console.error("Error uploading story:", error);
-      toast.error("Erreur lors de l'upload de la story");
+      toast.error("Erreur lors de la publication de la story");
       return null;
     } finally {
       setIsUploading(false);

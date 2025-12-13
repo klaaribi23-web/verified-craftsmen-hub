@@ -1091,6 +1091,10 @@ export type Database = {
         Args: { story_id_param: string }
         Returns: undefined
       }
+      record_story_view: {
+        Args: { p_story_id: string; p_viewer_id?: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "artisan" | "client"
