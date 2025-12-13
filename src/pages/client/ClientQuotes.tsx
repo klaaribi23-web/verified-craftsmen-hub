@@ -74,9 +74,9 @@ export const ClientQuotes = () => {
   const renderQuotes = (quotes: Quote[]) => {
     if (clientQuotesLoading) {
       return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-64 rounded-xl" />
+            <Skeleton key={i} className="h-48 md:h-64 rounded-xl" />
           ))}
         </div>
       );
@@ -84,15 +84,15 @@ export const ClientQuotes = () => {
 
     if (quotes.length === 0) {
       return (
-        <div className="text-center py-12 text-muted-foreground">
-          <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p>Aucun devis dans cette catégorie</p>
+        <div className="text-center py-8 md:py-12 text-muted-foreground">
+          <FileText className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 md:mb-4 opacity-50" />
+          <p className="text-sm md:text-base">Aucun devis dans cette catégorie</p>
         </div>
       );
     }
 
     return (
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         {quotes.map((quote) => (
           <QuoteCard
             key={quote.id}
@@ -119,25 +119,25 @@ export const ClientQuotes = () => {
           subtitle="Consultez et gérez vos devis reçus"
         />
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-3 md:p-6">
           <div className="max-w-6xl mx-auto">
-            <Tabs defaultValue="all" className="space-y-6">
-              <TabsList>
-                <TabsTrigger value="all" className="gap-2">
-                  <FileText className="w-4 h-4" />
-                  Tous ({clientQuotes.length})
+            <Tabs defaultValue="all" className="space-y-4 md:space-y-6">
+              <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1">
+                <TabsTrigger value="all" className="flex-1 min-w-[45%] sm:min-w-0 sm:flex-none gap-1 text-xs sm:text-sm px-2 sm:px-3">
+                  <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Tous</span> ({clientQuotes.length})
                 </TabsTrigger>
-                <TabsTrigger value="pending" className="gap-2">
-                  <Clock className="w-4 h-4" />
-                  En attente ({pendingQuotes.length})
+                <TabsTrigger value="pending" className="flex-1 min-w-[45%] sm:min-w-0 sm:flex-none gap-1 text-xs sm:text-sm px-2 sm:px-3">
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">En attente</span> ({pendingQuotes.length})
                 </TabsTrigger>
-                <TabsTrigger value="accepted" className="gap-2">
-                  <Check className="w-4 h-4" />
-                  Acceptés ({acceptedQuotes.length})
+                <TabsTrigger value="accepted" className="flex-1 min-w-[45%] sm:min-w-0 sm:flex-none gap-1 text-xs sm:text-sm px-2 sm:px-3">
+                  <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Acceptés</span> ({acceptedQuotes.length})
                 </TabsTrigger>
-                <TabsTrigger value="refused" className="gap-2">
-                  <X className="w-4 h-4" />
-                  Refusés ({refusedQuotes.length})
+                <TabsTrigger value="refused" className="flex-1 min-w-[45%] sm:min-w-0 sm:flex-none gap-1 text-xs sm:text-sm px-2 sm:px-3">
+                  <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Refusés</span> ({refusedQuotes.length})
                 </TabsTrigger>
               </TabsList>
 

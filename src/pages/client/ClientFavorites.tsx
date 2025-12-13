@@ -102,14 +102,14 @@ export const ClientFavorites = () => {
             subtitle="Vos artisans préférés enregistrés"
           />
 
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-3 md:p-6 overflow-auto">
             <div className="max-w-5xl mx-auto">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
               ) : favoriteArtisans.length > 0 ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {favoriteArtisans.map((fav: any) => (
                     <Card key={fav.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                       <CardContent className="p-0">

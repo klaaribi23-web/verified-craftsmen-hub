@@ -148,24 +148,25 @@ export const ArtisanRequests = () => {
           subtitle={pendingCount > 0 ? `${pendingCount} demande${pendingCount > 1 ? "s" : ""} en attente` : "Aucune demande en attente"}
         />
 
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="max-w-5xl mx-auto space-y-6">
+        <main className="flex-1 p-3 md:p-6 overflow-auto">
+          <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
             {/* Filters */}
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
+            <div className="flex flex-col gap-3 md:gap-4">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
-                  placeholder="Rechercher par client ou mission..." 
+                  placeholder="Rechercher..." 
                   className="pl-10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-1.5 md:gap-2">
                 <Button 
                   variant={filter === "all" ? "default" : "outline"} 
                   size="sm"
                   onClick={() => setFilter("all")}
+                  className="text-xs md:text-sm px-2 md:px-3"
                 >
                   Toutes
                 </Button>
@@ -173,14 +174,15 @@ export const ArtisanRequests = () => {
                   variant={filter === "pending" ? "default" : "outline"} 
                   size="sm"
                   onClick={() => setFilter("pending")}
-                  className={filter === "pending" ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
+                  className={`text-xs md:text-sm px-2 md:px-3 ${filter === "pending" ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}`}
                 >
-                  En attente ({applications.filter(a => a.status === "pending").length})
+                  Attente ({applications.filter(a => a.status === "pending").length})
                 </Button>
                 <Button 
                   variant={filter === "accepted" ? "default" : "outline"} 
                   size="sm"
                   onClick={() => setFilter("accepted")}
+                  className="text-xs md:text-sm px-2 md:px-3"
                 >
                   Acceptées
                 </Button>
@@ -188,6 +190,7 @@ export const ArtisanRequests = () => {
                   variant={filter === "declined" ? "default" : "outline"} 
                   size="sm"
                   onClick={() => setFilter("declined")}
+                  className="text-xs md:text-sm px-2 md:px-3"
                 >
                   Refusées
                 </Button>
@@ -224,39 +227,39 @@ export const ArtisanRequests = () => {
                       key={application.id}
                       className="bg-card rounded-xl border border-border shadow-soft overflow-hidden transition-all hover:shadow-elevated"
                     >
-                      <div className="p-6">
-                        <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                      <div className="p-3 md:p-6">
+                        <div className="flex flex-col gap-3 md:gap-4">
                           <div className="flex-1">
-                            <div className="flex items-start justify-between mb-3">
-                              <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <h4 className="font-semibold text-foreground text-lg">
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2 md:mb-3">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2 mb-1">
+                                  <h4 className="font-semibold text-foreground text-sm md:text-lg truncate">
                                     {application.missions?.title || "Mission"}
                                   </h4>
-                                  <Badge className={statusConfig.className}>
+                                  <Badge className={`${statusConfig.className} text-xs`}>
                                     {statusConfig.label}
                                   </Badge>
                                 </div>
-                                <p className="text-muted-foreground">{clientName}</p>
+                                <p className="text-muted-foreground text-xs md:text-sm">{clientName}</p>
                               </div>
-                              <span className="text-sm text-muted-foreground">
+                              <span className="text-xs md:text-sm text-muted-foreground shrink-0">
                                 {formatDate(application.created_at)}
                               </span>
                             </div>
                             
                             {application.missions?.description && (
-                              <p className="text-foreground mb-4 line-clamp-2">
+                              <p className="text-foreground text-xs md:text-sm mb-3 md:mb-4 line-clamp-2">
                                 {application.missions.description}
                               </p>
                             )}
                             
-                            <div className="flex flex-wrap gap-4 text-sm">
+                            <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm">
                               <div className="flex items-center gap-1 text-muted-foreground">
-                                <MapPin className="w-4 h-4" />
+                                <MapPin className="w-3 h-3 md:w-4 md:h-4" />
                                 <span>{application.missions?.city || "Non spécifié"}</span>
                               </div>
                               <div className="flex items-center gap-1 text-muted-foreground">
-                                <Calendar className="w-4 h-4" />
+                                <Calendar className="w-3 h-3 md:w-4 md:h-4" />
                                 <span>
                                   {application.missions?.created_at 
                                     ? new Date(application.missions.created_at).toLocaleDateString("fr-FR")
@@ -265,20 +268,20 @@ export const ArtisanRequests = () => {
                               </div>
                               {application.missions?.budget && (
                                 <div className="flex items-center gap-1 text-accent font-medium">
-                                  <Euro className="w-4 h-4" />
+                                  <Euro className="w-3 h-3 md:w-4 md:h-4" />
                                   <span>{application.missions.budget}€</span>
                                 </div>
                               )}
                             </div>
                           </div>
 
-                          <div className="flex lg:flex-col gap-2">
-                            <Button variant="outline" size="sm" className="flex-1 lg:w-full">
-                              <Eye className="w-4 h-4 mr-1" /> Voir détails
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="flex-1 text-xs md:text-sm">
+                              <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" /> Détails
                             </Button>
                             {application.status === "accepted" && (
-                              <Button variant="outline" size="sm" className="flex-1 lg:w-full">
-                                <MessageSquare className="w-4 h-4 mr-1" /> Contacter
+                              <Button variant="outline" size="sm" className="flex-1 text-xs md:text-sm">
+                                <MessageSquare className="w-3 h-3 md:w-4 md:h-4 mr-1" /> Contacter
                               </Button>
                             )}
                           </div>

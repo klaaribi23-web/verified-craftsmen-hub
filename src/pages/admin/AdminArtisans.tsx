@@ -111,26 +111,26 @@ const AdminArtisans = () => {
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <AdminSidebar />
       
-      <main className="flex-1 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Gestion des Artisans</h1>
-          <p className="text-muted-foreground mt-1">Gérez tous les artisans de la plateforme</p>
+      <main className="flex-1 p-4 md:p-8">
+        <div className="mb-4 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Gestion des Artisans</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">Gérez tous les artisans de la plateforme</p>
         </div>
 
         {/* Filters */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Filter className="h-5 w-5" />
+        <Card className="mb-4 md:mb-6">
+          <CardHeader className="pb-2 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <Filter className="h-4 w-4 md:h-5 md:w-5" />
               Filtres
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              <div className="relative sm:col-span-2 lg:col-span-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Rechercher un artisan..."
+                  placeholder="Rechercher..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -156,7 +156,7 @@ const AdminArtisans = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <Button variant="outline" onClick={() => { setSearchTerm(""); setSelectedCategory("Tous"); setSelectedCity("Toutes"); }}>
+              <Button variant="outline" onClick={() => { setSearchTerm(""); setSelectedCategory("Tous"); setSelectedCity("Toutes"); }} className="w-full">
                 Réinitialiser
               </Button>
             </div>
@@ -164,29 +164,29 @@ const AdminArtisans = () => {
         </Card>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-foreground">{artisans?.length || 0}</p>
-              <p className="text-sm text-muted-foreground">Total artisans</p>
+            <CardContent className="p-3 md:p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-foreground">{artisans?.length || 0}</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Total</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-green-500">{activeCount}</p>
-              <p className="text-sm text-muted-foreground">Actifs</p>
+            <CardContent className="p-3 md:p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-green-500">{activeCount}</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Actifs</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-yellow-500">{pendingCount}</p>
-              <p className="text-sm text-muted-foreground">En attente</p>
+            <CardContent className="p-3 md:p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-yellow-500">{pendingCount}</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Attente</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-destructive">{suspendedCount}</p>
-              <p className="text-sm text-muted-foreground">Suspendus</p>
+            <CardContent className="p-3 md:p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-destructive">{suspendedCount}</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Suspendus</p>
             </CardContent>
           </Card>
         </div>
