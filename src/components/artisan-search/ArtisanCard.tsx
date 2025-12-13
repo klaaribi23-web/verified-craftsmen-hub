@@ -5,6 +5,8 @@ import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight, Heart } from "lu
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
+import { cn } from "@/lib/utils";
 
 interface ArtisanCardProps {
   id: string | number;
@@ -55,6 +57,7 @@ const ArtisanCard = ({
   const { user, isAuthenticated } = useAuth();
 
   const artisanId = typeof id === "string" ? id : id.toString();
+  const { hasActiveStories } = usePublicArtisanStories(artisanId);
 
   // Use slug for URL, fallback to id
   const artisanUrl = slug || id;
@@ -227,7 +230,14 @@ const ArtisanCard = ({
       <div className="p-4">
         {/* Profile Row */}
         <div className="flex items-center gap-3 mb-3">
-          <img src={profileImage || defaultProfileImage} alt={name} className="w-12 h-12 rounded-full object-cover border-2 border-gold" />
+          <img 
+            src={profileImage || defaultProfileImage} 
+            alt={name} 
+            className={cn(
+              "w-12 h-12 rounded-full object-cover border-2",
+              hasActiveStories ? "border-green-500" : "border-gold"
+            )} 
+          />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <Link to={`/artisan/${artisanUrl}`}>
