@@ -238,9 +238,9 @@ export const ArtisanDashboard = () => {
             subtitle={`Bienvenue${artisanProfile?.business_name ? `, ${artisanProfile.business_name}` : ''} ! Voici un aperçu de votre activité.`}
           />
 
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-4 md:p-6 overflow-auto">
             {/* Approval Notifications */}
-            <div className="mb-6">
+            <div className="mb-4 md:mb-6">
               <ApprovalNotifications />
             </div>
 
@@ -264,7 +264,7 @@ export const ArtisanDashboard = () => {
             )}
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
               <StatsCard
                 title="Demandes reçues"
                 value={stats?.requests || 0}
@@ -290,10 +290,10 @@ export const ArtisanDashboard = () => {
             </div>
 
             {/* Stories Stats Card */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6 mb-8">
-              <div className="flex items-center justify-between mb-4">
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                     <Video className="w-5 h-5 text-accent" />
                   </div>
                   <div>
@@ -304,42 +304,42 @@ export const ArtisanDashboard = () => {
                   </div>
                 </div>
                 <Link to="/artisan/stories">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
                     Gérer <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </Link>
               </div>
               
-              <div className="grid grid-cols-3 gap-4">
-                <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg">
-                  <Video className="w-5 h-5 text-primary" />
+              <div className="grid grid-cols-3 gap-2 md:gap-4">
+                <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-primary/10 rounded-lg text-center md:text-left">
+                  <Video className="w-5 h-5 text-primary hidden md:block" />
                   <div>
-                    <p className="text-2xl font-bold text-primary">{storiesStats?.active || 0}</p>
-                    <p className="text-xs text-muted-foreground">Actives (24h)</p>
+                    <p className="text-lg md:text-2xl font-bold text-primary">{storiesStats?.active || 0}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground">Actives (24h)</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-accent/10 rounded-lg">
-                  <Eye className="w-5 h-5 text-accent" />
+                <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-accent/10 rounded-lg text-center md:text-left">
+                  <Eye className="w-5 h-5 text-accent hidden md:block" />
                   <div>
-                    <p className="text-2xl font-bold text-accent">{storiesStats?.views || 0}</p>
-                    <p className="text-xs text-muted-foreground">Vues totales</p>
+                    <p className="text-lg md:text-2xl font-bold text-accent">{storiesStats?.views || 0}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground">Vues totales</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-success/10 rounded-lg">
-                  <Users className="w-5 h-5 text-success" />
+                <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-success/10 rounded-lg text-center md:text-left">
+                  <Users className="w-5 h-5 text-success hidden md:block" />
                   <div>
-                    <p className="text-2xl font-bold text-success">{storiesStats?.uniqueViewers || 0}</p>
-                    <p className="text-xs text-muted-foreground">Visiteurs uniques</p>
+                    <p className="text-lg md:text-2xl font-bold text-success">{storiesStats?.uniqueViewers || 0}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground">Visiteurs uniques</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Documents Status Card */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6 mb-8">
-              <div className="flex items-center justify-between mb-4">
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <FileText className="w-5 h-5 text-primary" />
                   </div>
                   <div>
@@ -350,46 +350,46 @@ export const ArtisanDashboard = () => {
                   </div>
                 </div>
                 <Link to="/artisan/documents">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
                     Gérer <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </Link>
               </div>
               
               {documentStats && documentStats.total > 0 ? (
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="flex items-center gap-3 p-3 bg-success/10 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-success" />
+                <div className="grid grid-cols-3 gap-2 md:gap-4">
+                  <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-success/10 rounded-lg text-center md:text-left">
+                    <CheckCircle className="w-5 h-5 text-success hidden md:block" />
                     <div>
-                      <p className="text-2xl font-bold text-success">{documentStats.verified}</p>
-                      <p className="text-xs text-muted-foreground">Vérifiés</p>
+                      <p className="text-lg md:text-2xl font-bold text-success">{documentStats.verified}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">Vérifiés</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-accent/10 rounded-lg">
-                    <Clock className="w-5 h-5 text-accent" />
+                  <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-accent/10 rounded-lg text-center md:text-left">
+                    <Clock className="w-5 h-5 text-accent hidden md:block" />
                     <div>
-                      <p className="text-2xl font-bold text-accent">{documentStats.pending}</p>
-                      <p className="text-xs text-muted-foreground">En attente</p>
+                      <p className="text-lg md:text-2xl font-bold text-accent">{documentStats.pending}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">En attente</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-destructive/10 rounded-lg">
-                    <XCircle className="w-5 h-5 text-destructive" />
+                  <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-destructive/10 rounded-lg text-center md:text-left">
+                    <XCircle className="w-5 h-5 text-destructive hidden md:block" />
                     <div>
-                      <p className="text-2xl font-bold text-destructive">{documentStats.rejected}</p>
-                      <p className="text-xs text-muted-foreground">Refusés</p>
+                      <p className="text-lg md:text-2xl font-bold text-destructive">{documentStats.rejected}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">Refusés</p>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-muted-foreground" />
-                  <div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <div className="flex-1">
                     <p className="text-sm text-muted-foreground">
                       Aucun document soumis. Ajoutez vos documents professionnels pour compléter votre profil.
                     </p>
                   </div>
-                  <Link to="/artisan/documents" className="ml-auto">
-                    <Button size="sm" variant="gold">
+                  <Link to="/artisan/documents" className="w-full sm:w-auto sm:ml-auto">
+                    <Button size="sm" variant="gold" className="w-full sm:w-auto">
                       Ajouter
                     </Button>
                   </Link>
@@ -397,7 +397,7 @@ export const ArtisanDashboard = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               {/* Recent Requests */}
               <div className="bg-card rounded-xl border border-border shadow-soft">
                 <div className="p-6 border-b border-border flex items-center justify-between">
