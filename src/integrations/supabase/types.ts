@@ -219,6 +219,7 @@ export type Database = {
           created_at: string
           department: string | null
           description: string | null
+          email: string | null
           experience_years: number | null
           facebook_url: string | null
           hourly_rate: number | null
@@ -255,6 +256,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           description?: string | null
+          email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
           hourly_rate?: number | null
@@ -291,6 +293,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           description?: string | null
+          email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
           hourly_rate?: number | null

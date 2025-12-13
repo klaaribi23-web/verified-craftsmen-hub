@@ -399,6 +399,7 @@ const AdminAddArtisan = () => {
         .from("artisans")
         .insert([{
           business_name: formData.businessName,
+          email: formData.email || null,
           description: formData.description || null,
           category_id: selectedCategories[0], // Primary category
           city: formData.city,
@@ -453,6 +454,25 @@ const AdminAddArtisan = () => {
 
         if (servicesError) {
           console.error("Error adding services:", servicesError);
+        }
+      }
+
+      // Add legal documents to artisan_documents table
+      if (legalDocuments.length > 0 && artisan) {
+        const documentsData = legalDocuments.map((doc) => ({
+          artisan_id: artisan.id,
+          name: doc.name.replace(/\.[^/.]+$/, ""), // Name without extension
+          file_name: doc.name,
+          file_path: doc.url,
+          status: 'verified', // Verified because added by admin
+        }));
+
+        const { error: documentsError } = await supabase
+          .from("artisan_documents")
+          .insert(documentsData);
+
+        if (documentsError) {
+          console.error("Error adding documents:", documentsError);
         }
       }
 
