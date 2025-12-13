@@ -251,17 +251,14 @@ const TrouverArtisan = () => {
                           ))}
                         </div>
                         <div className="mt-4 pt-4 border-t border-border flex justify-center">
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setShowCategorySuggestions(false);
-                              resultsRef.current?.scrollIntoView({ behavior: "smooth" });
-                            }}
-                            className="gap-2"
+                          <Link
+                            to="/trouver-artisan"
+                            onClick={() => setShowCategorySuggestions(false)}
+                            className="inline-flex items-center gap-2 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium transition-colors"
                           >
                             Voir plus de catégories
                             <ArrowRight className="w-4 h-4" />
-                          </Button>
+                          </Link>
                         </div>
                       </>
                     )}
