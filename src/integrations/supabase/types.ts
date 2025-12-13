@@ -551,6 +551,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          photos: string[] | null
           rejection_reason: string | null
           status: Database["public"]["Enums"]["mission_status"]
           title: string
@@ -566,6 +567,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          photos?: string[] | null
           rejection_reason?: string | null
           status?: Database["public"]["Enums"]["mission_status"]
           title: string
@@ -581,6 +583,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          photos?: string[] | null
           rejection_reason?: string | null
           status?: Database["public"]["Enums"]["mission_status"]
           title?: string

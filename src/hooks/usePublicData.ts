@@ -11,6 +11,7 @@ export interface Mission {
   city: string;
   status: string;
   created_at: string;
+  photos?: string[] | null;
   category?: {
     id: string;
     name: string;

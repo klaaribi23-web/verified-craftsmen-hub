@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
+import MissionPhotoUpload from "@/components/missions/MissionPhotoUpload";
 import {
   Select,
   SelectContent,
@@ -25,7 +26,6 @@ import {
   ArrowRight, 
   ArrowLeft,
   CheckCircle2,
-  Upload,
   Calendar,
   MapPin,
   Phone,
@@ -71,6 +71,7 @@ const DemandeDevis = () => {
     email: "",
     phone: "",
     password: "",
+    photos: [] as string[],
   });
 
   const totalSteps = isAuthenticated ? 4 : 5; // 5 steps if not authenticated (includes password)
@@ -213,7 +214,8 @@ const DemandeDevis = () => {
           description: formData.description,
           city: formData.city,
           category_id: categoryId || null,
-          status: "pending_approval"
+          status: "pending_approval",
+          photos: formData.photos.length > 0 ? formData.photos : null
         })
         .select("id")
         .single();
@@ -432,14 +434,13 @@ const DemandeDevis = () => {
 
                       <div>
                         <Label className="text-navy mb-3 block">
-                          Ajouter des photos (optionnel)
+                          Ajouter des photos (optionnel) - Max 3 photos
                         </Label>
-                        <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-gold/50 transition-colors cursor-pointer">
-                          <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                          <p className="text-sm text-muted-foreground">
-                            Glissez vos photos ici ou cliquez pour sélectionner
-                          </p>
-                        </div>
+                        <MissionPhotoUpload
+                          photos={formData.photos}
+                          onPhotosChange={(photos) => setFormData(prev => ({ ...prev, photos }))}
+                          maxPhotos={3}
+                        />
                       </div>
 
                       <div>
