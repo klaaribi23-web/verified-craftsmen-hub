@@ -172,6 +172,17 @@ const NosMissions = () => {
 
       if (error) throw error;
 
+      // Send notification to client
+      if (selectedMission.client_id) {
+        await supabase.from("notifications").insert({
+          user_id: selectedMission.client_id,
+          type: "new_application",
+          title: "Nouvelle candidature",
+          message: `Un artisan a postulé à votre mission "${selectedMission.title}"`,
+          related_id: selectedMission.id,
+        });
+      }
+
       toast({
         title: "Candidature envoyée !",
         description: `Votre candidature pour "${selectedMission?.title}" a été envoyée avec succès.`,
