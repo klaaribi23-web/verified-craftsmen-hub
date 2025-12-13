@@ -158,6 +158,8 @@ export type Database = {
       }
       artisans: {
         Row: {
+          activation_sent_at: string | null
+          activation_token: string | null
           address: string | null
           availability: Json | null
           business_name: string
@@ -192,6 +194,8 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          activation_sent_at?: string | null
+          activation_token?: string | null
           address?: string | null
           availability?: Json | null
           business_name: string
@@ -226,6 +230,8 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          activation_sent_at?: string | null
+          activation_token?: string | null
           address?: string | null
           availability?: Json | null
           business_name?: string

@@ -377,10 +377,10 @@ const AdminAddArtisan = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.businessName || selectedCategories.length === 0 || !formData.city) {
+    if (!formData.businessName || selectedCategories.length === 0 || !formData.city || !formData.email) {
       toast({
         title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires (nom, catégorie, ville).",
+        description: "Veuillez remplir tous les champs obligatoires (nom, email, catégorie, ville).",
         variant: "destructive",
       });
       return;
@@ -414,8 +414,8 @@ const AdminAddArtisan = () => {
           linkedin_url: formData.linkedin || null,
           website_url: formData.website || null,
           availability: availability,
-          status: "active",
-          is_verified: true,
+          status: "prospect",
+          is_verified: false,
         }])
         .select()
         .single();
@@ -510,13 +510,17 @@ const AdminAddArtisan = () => {
                   </div>
 
                   <div>
-                    <Label>Email</Label>
+                    <Label>Email *</Label>
                     <Input
                       type="email"
                       placeholder="email@example.com"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
+                      required
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      L'email sera utilisé pour envoyer le lien d'activation
+                    </p>
                   </div>
 
                   <div>
