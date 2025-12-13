@@ -21,7 +21,7 @@ import { useApprovalCounts } from "@/hooks/useApprovalCounts";
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin/dashboard" },
   { icon: UserCheck, label: "Approbations", path: "/admin/approbations", badge: "approvals" },
-  { icon: FileText, label: "Documents", path: "/admin/documents" },
+  { icon: FileText, label: "Documents", path: "/admin/documents", badge: "documents" },
   { icon: Users, label: "Artisans", path: "/admin/artisans" },
   { icon: UserCheck, label: "Clients", path: "/admin/clients" },
   { icon: BarChart3, label: "Statistiques", path: "/admin/statistiques" },
@@ -39,7 +39,8 @@ export const AdminSidebar = () => {
   const { data: approvalCounts } = useApprovalCounts();
   
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
-  const pendingApprovalsCount = approvalCounts?.total || 0;
+  const pendingApprovalsCount = approvalCounts?.totalApprovals || 0;
+  const pendingDocumentsCount = approvalCounts?.pendingDocuments || 0;
   const displayName = profile?.first_name || "Administrateur";
 
   const handleLogout = async () => {
@@ -109,6 +110,11 @@ export const AdminSidebar = () => {
               {item.badge === "approvals" && pendingApprovalsCount > 0 && (
                 <Badge className="ml-auto bg-destructive text-destructive-foreground text-xs px-2">
                   {pendingApprovalsCount}
+                </Badge>
+              )}
+              {item.badge === "documents" && pendingDocumentsCount > 0 && (
+                <Badge className="ml-auto bg-destructive text-destructive-foreground text-xs px-2">
+                  {pendingDocumentsCount}
                 </Badge>
               )}
             </NavLink>
