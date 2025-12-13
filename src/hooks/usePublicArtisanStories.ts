@@ -9,7 +9,7 @@ export const usePublicArtisanStories = (artisanId: string | undefined) => {
 
       const { data, error } = await supabase
         .from("artisan_stories")
-        .select("id, media_url, media_type, created_at, expires_at")
+        .select("id, media_url, media_type, caption, created_at, expires_at")
         .eq("artisan_id", artisanId)
         .gt("expires_at", new Date().toISOString())
         .order("created_at", { ascending: false });

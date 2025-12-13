@@ -7,6 +7,7 @@ interface Story {
   id: string;
   media_url: string;
   media_type: string;
+  caption?: string | null;
   created_at: string;
   expires_at: string;
 }
@@ -230,7 +231,14 @@ const StoryViewer = ({
           )}
         </div>
 
-        {/* Video mute toggle */}
+        {/* Caption */}
+        {currentStory.caption && (
+          <div className="absolute bottom-16 left-0 right-0 z-10 px-4">
+            <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3 max-w-lg mx-auto">
+              <p className="text-white text-sm text-center">{currentStory.caption}</p>
+            </div>
+          </div>
+        )}
         {isVideo && (
           <button
             onClick={(e) => {

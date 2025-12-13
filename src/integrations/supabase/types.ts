@@ -159,6 +159,7 @@ export type Database = {
       artisan_stories: {
         Row: {
           artisan_id: string
+          caption: string | null
           created_at: string
           duration: number | null
           expires_at: string
@@ -169,6 +170,7 @@ export type Database = {
         }
         Insert: {
           artisan_id: string
+          caption?: string | null
           created_at?: string
           duration?: number | null
           expires_at?: string
@@ -179,6 +181,7 @@ export type Database = {
         }
         Update: {
           artisan_id?: string
+          caption?: string | null
           created_at?: string
           duration?: number | null
           expires_at?: string
