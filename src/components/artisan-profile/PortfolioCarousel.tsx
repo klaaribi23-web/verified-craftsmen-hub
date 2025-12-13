@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -9,119 +10,114 @@ interface PortfolioCarouselProps {
 }
 
 export const PortfolioCarousel = ({ items, type, onItemClick }: PortfolioCarouselProps) => {
-  const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 3;
-  const totalPages = Math.ceil(items.length / itemsPerPage);
-  
-  const startIndex = currentPage * itemsPerPage;
-  const visibleItems = items.slice(startIndex, startIndex + itemsPerPage);
-
-  const goToPrevious = () => {
-    setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
-  };
-
-  const goToNext = () => {
-    setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
-  };
-
-  const getYouTubeEmbedUrl = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    if (match && match[2].length === 11) {
-      return `https://www.youtube.com/embed/${match[2]}`;
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true,
+    align: "start",
+    slidesToScroll: 1,
+    breakpoints: {
+      '(min-width: 768px)': { slidesToScroll: 3 }
     }
-    return url;
-  };
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
-  const getVimeoEmbedUrl = (url: string) => {
-    const regExp = /vimeo\.com\/(\d+)/;
-    const match = url.match(regExp);
-    if (match) {
-      return `https://player.vimeo.com/video/${match[1]}`;
-    }
-    return url;
-  };
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
-  const getEmbedUrl = (url: string) => {
-    if (url.includes("youtube") || url.includes("youtu.be")) {
-      return getYouTubeEmbedUrl(url);
-    }
-    if (url.includes("vimeo")) {
-      return getVimeoEmbedUrl(url);
-    }
-    return url;
-  };
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    setScrollSnaps(emblaApi.scrollSnapList());
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
   if (items.length === 0) return null;
 
   return (
     <div className="relative">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {visibleItems.map((item, index) => (
-          <div key={startIndex + index} className="relative aspect-video rounded-xl overflow-hidden group">
-            {type === "image" ? (
-              <button
-                onClick={() => onItemClick?.(item, startIndex + index)}
-                className="w-full h-full cursor-pointer"
-              >
-                <img
-                  src={item}
-                  alt={`Réalisation ${startIndex + index + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                  <ExternalLink className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </button>
-            ) : (
-              <button
-                onClick={() => onItemClick?.(item, startIndex + index)}
-                className="w-full h-full cursor-pointer relative"
-              >
-                {item.includes('youtube') || item.includes('youtu.be') ? (
-                  <img
-                    src={`https://img.youtube.com/vi/${item.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/)?.[1]}/mqdefault.jpg`}
-                    alt={`Vidéo ${startIndex + index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                ) : item.startsWith('blob:') ? (
-                  <video src={item} className="w-full h-full object-cover" muted />
+      {/* Embla Carousel with swipe */}
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex -ml-3">
+          {items.map((item, index) => (
+            <div 
+              key={index} 
+              className="flex-[0_0_100%] md:flex-[0_0_33.333%] min-w-0 pl-3"
+            >
+              <div className="relative aspect-video rounded-xl overflow-hidden group">
+                {type === "image" ? (
+                  <button
+                    onClick={() => onItemClick?.(item, index)}
+                    className="w-full h-full cursor-pointer"
+                  >
+                    <img
+                      src={item}
+                      alt={`Réalisation ${index + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                      <ExternalLink className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </button>
                 ) : (
-                  <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <span className="text-muted-foreground">Vidéo</span>
-                  </div>
+                  <button
+                    onClick={() => onItemClick?.(item, index)}
+                    className="w-full h-full cursor-pointer relative"
+                  >
+                    {item.includes('youtube') || item.includes('youtu.be') ? (
+                      <img
+                        src={`https://img.youtube.com/vi/${item.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/)?.[1]}/mqdefault.jpg`}
+                        alt={`Vidéo ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : item.startsWith('blob:') ? (
+                      <video src={item} className="w-full h-full object-cover" muted />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <span className="text-muted-foreground">Vidéo</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <div className="h-16 w-16 rounded-full bg-white/90 flex items-center justify-center">
+                        <svg className="h-8 w-8 text-primary ml-1" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
                 )}
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                  <div className="h-16 w-16 rounded-full bg-white/90 flex items-center justify-center">
-                    <svg className="h-8 w-8 text-primary ml-1" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
-              </button>
-            )}
-          </div>
-        ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {totalPages > 1 && (
+      {scrollSnaps.length > 1 && (
         <div className="flex items-center justify-center gap-4 mt-4">
           <Button
             variant="outline"
             size="icon"
-            onClick={goToPrevious}
-            className="h-8 w-8 rounded-full"
+            onClick={scrollPrev}
+            className="h-8 w-8 rounded-full touch-manipulation"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           
           <div className="flex items-center gap-2">
-            {Array.from({ length: totalPages }).map((_, index) => (
+            {scrollSnaps.map((_, index) => (
               <button
                 key={index}
-                onClick={() => setCurrentPage(index)}
-                className={`h-2 w-2 rounded-full transition-colors ${
-                  index === currentPage
+                onClick={() => scrollTo(index)}
+                className={`h-2 w-2 rounded-full transition-colors touch-manipulation ${
+                  index === selectedIndex
                     ? "bg-primary"
                     : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                 }`}
@@ -132,8 +128,8 @@ export const PortfolioCarousel = ({ items, type, onItemClick }: PortfolioCarouse
           <Button
             variant="outline"
             size="icon"
-            onClick={goToNext}
-            className="h-8 w-8 rounded-full"
+            onClick={scrollNext}
+            className="h-8 w-8 rounded-full touch-manipulation"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

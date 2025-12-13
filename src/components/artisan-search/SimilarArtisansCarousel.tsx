@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import useEmblaCarousel from "embla-carousel-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, MapPin, ChevronLeft, ChevronRight, Shield } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useSimilarArtisans } from "@/hooks/usePublicData";
 
 interface SimilarArtisansCarouselProps {
@@ -14,28 +14,40 @@ interface SimilarArtisansCarouselProps {
   trade: string;
 }
 
-const ITEMS_PER_PAGE = 4;
-
 const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: SimilarArtisansCarouselProps) => {
   const navigate = useNavigate();
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true,
+    align: "start",
+    slidesToScroll: 1,
+    breakpoints: {
+      '(min-width: 640px)': { slidesToScroll: 2 },
+      '(min-width: 1024px)': { slidesToScroll: 4 }
+    }
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   
   const { data: similarArtisans = [], isLoading } = useSimilarArtisans(categoryId, currentArtisanId);
 
-  const totalSlides = Math.max(1, Math.ceil(similarArtisans.length / ITEMS_PER_PAGE));
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
-  };
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-  };
-
-  const visibleArtisans = similarArtisans.slice(
-    currentSlide * ITEMS_PER_PAGE,
-    (currentSlide + 1) * ITEMS_PER_PAGE
-  );
+  useEffect(() => {
+    if (!emblaApi) return;
+    setScrollSnaps(emblaApi.scrollSnapList());
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
   const handleViewProfile = (slugOrId: string) => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -85,21 +97,21 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
             Artisans similaires
           </h2>
-          {totalSlides > 1 && (
+          {similarArtisans.length > 1 && (
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="icon"
-                onClick={prevSlide}
-                className="h-10 w-10 rounded-full"
+                onClick={scrollPrev}
+                className="h-10 w-10 rounded-full touch-manipulation"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
               <Button
                 variant="outline"
                 size="icon"
-                onClick={nextSlide}
-                className="h-10 w-10 rounded-full"
+                onClick={scrollNext}
+                className="h-10 w-10 rounded-full touch-manipulation"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
@@ -107,20 +119,16 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
           )}
         </div>
 
-        <div className="relative overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentSlide}
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.3 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-            >
-              {visibleArtisans.map((artisan) => (
+        {/* Embla Carousel with swipe */}
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex -ml-6">
+            {similarArtisans.map((artisan) => (
+              <div 
+                key={artisan.id} 
+                className="flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-6"
+              >
                 <Card 
-                  key={artisan.id} 
-                  className="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  className="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full"
                   onClick={() => handleViewProfile(artisan.slug || artisan.id)}
                 >
                   <CardContent className="p-4">
@@ -163,20 +171,20 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </motion.div>
-          </AnimatePresence>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Dots */}
-        {totalSlides > 1 && (
+        {scrollSnaps.length > 1 && (
           <div className="flex justify-center gap-2 mt-6">
-            {Array.from({ length: totalSlides }).map((_, idx) => (
+            {scrollSnaps.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  idx === currentSlide ? "bg-primary" : "bg-muted-foreground/30"
+                onClick={() => scrollTo(idx)}
+                className={`w-2 h-2 rounded-full transition-colors touch-manipulation ${
+                  idx === selectedIndex ? "bg-primary" : "bg-muted-foreground/30"
                 }`}
               />
             ))}

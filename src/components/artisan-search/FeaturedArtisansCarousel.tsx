@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
+import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useFeaturedArtisans } from "@/hooks/usePublicData";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface FeaturedArtisan {
   id: string;
@@ -22,11 +21,17 @@ interface FeaturedArtisan {
 }
 
 const FeaturedArtisansCarousel = () => {
-  const [startIndex, setStartIndex] = useState(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true,
+    align: "start",
+    slidesToScroll: 1,
+    breakpoints: {
+      '(min-width: 768px)': { slidesToScroll: 3 }
+    }
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const { data: artisansData, isLoading } = useFeaturedArtisans();
-  const isMobile = useIsMobile();
-  
-  const itemsPerView = isMobile ? 1 : 3;
 
   // Transform DB data to display format
   const featuredArtisansData: FeaturedArtisan[] = (artisansData || []).map(artisan => ({
@@ -43,20 +48,24 @@ const FeaturedArtisansCarousel = () => {
     portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : ["https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop"]
   }));
 
-  const maxIndex = Math.max(0, Math.ceil(featuredArtisansData.length / itemsPerView) - 1);
-  
-  const nextSlide = () => {
-    setStartIndex(prev => prev >= maxIndex ? 0 : prev + 1);
-  };
-  
-  const prevSlide = () => {
-    setStartIndex(prev => prev <= 0 ? maxIndex : prev - 1);
-  };
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
-  const visibleArtisans = featuredArtisansData.slice(
-    startIndex * itemsPerView, 
-    startIndex * itemsPerView + itemsPerView
-  );
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    setScrollSnaps(emblaApi.scrollSnapList());
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
   if (isLoading) {
     return (
@@ -90,18 +99,18 @@ const FeaturedArtisansCarousel = () => {
 
   return (
     <div className="relative">
-      {/* Navigation Buttons - Always visible on mobile for touch */}
-      {featuredArtisansData.length > itemsPerView && (
+      {/* Navigation Buttons */}
+      {featuredArtisansData.length > 1 && (
         <>
           <button 
-            onClick={prevSlide} 
+            onClick={scrollPrev} 
             className="absolute -left-2 md:-left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-card shadow-lg flex items-center justify-center hover:bg-muted transition-colors touch-manipulation"
             aria-label="Précédent"
           >
             <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
           </button>
           <button 
-            onClick={nextSlide} 
+            onClick={scrollNext} 
             className="absolute -right-2 md:-right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-card shadow-lg flex items-center justify-center hover:bg-muted transition-colors touch-manipulation"
             aria-label="Suivant"
           >
@@ -110,33 +119,29 @@ const FeaturedArtisansCarousel = () => {
         </>
       )}
 
-      {/* Carousel Content */}
-      <div className="overflow-hidden px-4 md:px-2">
-        <AnimatePresence mode="wait">
-          <motion.div 
-            key={startIndex} 
-            initial={{ opacity: 0, x: 50 }} 
-            animate={{ opacity: 1, x: 0 }} 
-            exit={{ opacity: 0, x: -50 }} 
-            transition={{ duration: 0.3 }} 
-            className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
-          >
-            {visibleArtisans.map(artisan => (
-              <FeaturedArtisanCard key={artisan.id} artisan={artisan} />
-            ))}
-          </motion.div>
-        </AnimatePresence>
+      {/* Embla Carousel */}
+      <div className="overflow-hidden px-4 md:px-2" ref={emblaRef}>
+        <div className="flex -ml-4">
+          {featuredArtisansData.map(artisan => (
+            <div 
+              key={artisan.id} 
+              className="flex-[0_0_100%] md:flex-[0_0_33.333%] min-w-0 pl-4"
+            >
+              <FeaturedArtisanCard artisan={artisan} />
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Dots Indicator */}
-      {maxIndex > 0 && (
+      {scrollSnaps.length > 1 && (
         <div className="flex justify-center gap-2 mt-6">
-          {Array.from({ length: maxIndex + 1 }).map((_, index) => (
+          {scrollSnaps.map((_, index) => (
             <button 
               key={index} 
-              onClick={() => setStartIndex(index)} 
+              onClick={() => scrollTo(index)} 
               className={`h-2 rounded-full transition-all touch-manipulation ${
-                index === startIndex ? "bg-gold w-6" : "bg-border w-2"
+                index === selectedIndex ? "bg-gold w-6" : "bg-border w-2"
               }`}
               aria-label={`Page ${index + 1}`}
             />
@@ -148,42 +153,63 @@ const FeaturedArtisansCarousel = () => {
 };
 
 const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [currentSlide, setCurrentSlide] = useState(0);
-  
-  const nextSlide = (e: React.MouseEvent) => {
+
+  const scrollPrev = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentSlide(prev => (prev + 1) % artisan.portfolio.length);
-  };
-  
-  const prevSlide = (e: React.MouseEvent) => {
+    emblaApi?.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentSlide(prev => (prev - 1 + artisan.portfolio.length) % artisan.portfolio.length);
-  };
+    emblaApi?.scrollNext();
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCurrentSlide(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
   return (
     <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
-      {/* Portfolio Carousel */}
-      <div className="relative h-48 overflow-hidden group">
-        <img 
-          src={artisan.portfolio[currentSlide]} 
-          alt={`Réalisation ${currentSlide + 1}`} 
-          className="w-full h-full object-cover transition-transform duration-300" 
-        />
+      {/* Portfolio Carousel with swipe */}
+      <div className="relative h-48 overflow-hidden group" ref={emblaRef}>
+        <div className="flex h-full">
+          {artisan.portfolio.map((img, index) => (
+            <div key={index} className="flex-[0_0_100%] min-w-0 h-full">
+              <img 
+                src={img} 
+                alt={`Réalisation ${index + 1}`} 
+                className="w-full h-full object-cover" 
+              />
+            </div>
+          ))}
+        </div>
         
         {/* Carousel Controls */}
         {artisan.portfolio.length > 1 && (
           <>
             <button 
-              onClick={prevSlide} 
+              onClick={scrollPrev} 
               className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card touch-manipulation"
               aria-label="Image précédente"
             >
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
             <button 
-              onClick={nextSlide} 
+              onClick={scrollNext} 
               className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card touch-manipulation"
               aria-label="Image suivante"
             >
@@ -198,9 +224,9 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
                   onClick={e => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setCurrentSlide(index);
+                    emblaApi?.scrollTo(index);
                   }} 
-                  className={`w-2 h-2 rounded-full transition-all ${
+                  className={`w-2 h-2 rounded-full transition-all touch-manipulation ${
                     index === currentSlide ? "bg-card w-4" : "bg-card/60"
                   }`}
                   aria-label={`Image ${index + 1}`}
