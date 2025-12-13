@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Star, Briefcase } from "lucide-react";
 import { useTopArtisans } from "@/hooks/useAdminData";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DEFAULT_AVATAR } from "@/lib/utils";
 
 const getRankColor = (rank: number) => {
   switch (rank) {
@@ -64,7 +65,7 @@ export const TopArtisansList = () => {
                 {index + 1}
               </Badge>
               <img
-                src={artisan.photo_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"}
+                src={artisan.photo_url || DEFAULT_AVATAR}
                 alt={artisan.business_name}
                 className="w-10 h-10 rounded-full object-cover"
               />

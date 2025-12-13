@@ -16,7 +16,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useArtisanProfile } from "@/hooks/useArtisanProfile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -69,11 +69,11 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-sidebar-accent flex items-center justify-center overflow-hidden flex-shrink-0">
-            {artisan?.photo_url ? (
-              <img src={artisan.photo_url} alt="Photo de profil" className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-6 h-6" />
-            )}
+            <img 
+              src={artisan?.photo_url || DEFAULT_AVATAR} 
+              alt="Photo de profil" 
+              className="w-full h-full object-cover" 
+            />
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate">

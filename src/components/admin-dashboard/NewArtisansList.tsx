@@ -7,6 +7,7 @@ import { useNewArtisans } from "@/hooks/useAdminData";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DEFAULT_AVATAR } from "@/lib/utils";
 
 export const NewArtisansList = () => {
   const { data: newArtisans, isLoading } = useNewArtisans();
@@ -59,7 +60,7 @@ export const NewArtisansList = () => {
                 className="flex items-center gap-4 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
               >
                 <img
-                  src={artisan.photo_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"}
+                  src={artisan.photo_url || DEFAULT_AVATAR}
                   alt={artisan.business_name}
                   className="w-12 h-12 rounded-full object-cover"
                 />

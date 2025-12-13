@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { useAuth } from "@/hooks/useAuth";
+import { DEFAULT_AVATAR } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   MessageSquare, 
@@ -383,9 +384,9 @@ export const ChatWidget = ({
                     >
                       <div className="relative">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src={conv.participant_photo || undefined} />
+                          <AvatarImage src={conv.participant_photo || DEFAULT_AVATAR} />
                           <AvatarFallback className="bg-primary/10">
-                            <User className="h-5 w-5 text-primary" />
+                            <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                           </AvatarFallback>
                         </Avatar>
                         {conv.unread_count > 0 && (

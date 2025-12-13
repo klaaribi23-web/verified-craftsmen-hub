@@ -24,7 +24,7 @@ import {
   Loader2,
   ArrowLeft,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { QuoteForm } from "@/components/quotes/QuoteForm";
 import { QuoteMessageCard, parseQuoteFromMessage } from "@/components/chat/QuoteMessageCard";
@@ -349,9 +349,9 @@ export const ArtisanMessaging = () => {
                     >
                       <div className="relative shrink-0">
                         <Avatar className="w-10 h-10 md:w-12 md:h-12">
-                          <AvatarImage src={conv.participant_photo || undefined} />
+                          <AvatarImage src={conv.participant_photo || DEFAULT_AVATAR} />
                           <AvatarFallback className="bg-primary/10">
-                            <User className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                            <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                           </AvatarFallback>
                         </Avatar>
                       </div>
@@ -394,9 +394,9 @@ export const ArtisanMessaging = () => {
                         <ArrowLeft className="w-5 h-5" />
                       </Button>
                       <Avatar className="w-8 h-8 md:w-10 md:h-10 shrink-0">
-                        <AvatarImage src={selectedConversation.participant_photo || undefined} />
+                        <AvatarImage src={selectedConversation.participant_photo || DEFAULT_AVATAR} />
                         <AvatarFallback className="bg-primary/10">
-                          <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                          <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
