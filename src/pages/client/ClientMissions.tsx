@@ -28,13 +28,15 @@ import {
   Euro,
   AlertCircle,
   Edit,
-  Loader2
+  Loader2,
+  ImageIcon
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import MissionPhotoUpload from "@/components/missions/MissionPhotoUpload";
 
 type MissionStatus = "pending" | "pending_approval" | "published" | "rejected" | "assigned" | "completed" | "cancelled";
 
@@ -64,7 +66,7 @@ export const ClientMissions = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("all");
   const [editingMission, setEditingMission] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ title: "", description: "" });
+  const [editForm, setEditForm] = useState({ title: "", description: "", photos: [] as string[] });
 
   // Fetch client profile
   const { data: profile } = useQuery({
@@ -96,6 +98,7 @@ export const ClientMissions = () => {
           budget,
           status,
           city,
+          photos,
           rejection_reason,
           created_at,
           categories:category_id (name),
@@ -133,12 +136,13 @@ export const ClientMissions = () => {
 
   // Update mission mutation (for resubmission)
   const updateMissionMutation = useMutation({
-    mutationFn: async ({ id, title, description }: { id: string; title: string; description: string }) => {
+    mutationFn: async ({ id, title, description, photos }: { id: string; title: string; description: string; photos: string[] }) => {
       const { error } = await supabase
         .from("missions")
         .update({ 
           title, 
           description, 
+          photos: photos.length > 0 ? photos : null,
           status: "pending_approval",
           rejection_reason: null 
         })
@@ -186,7 +190,11 @@ export const ClientMissions = () => {
       });
 
   const openEditDialog = (mission: any) => {
-    setEditForm({ title: mission.title, description: mission.description || "" });
+    setEditForm({ 
+      title: mission.title, 
+      description: mission.description || "",
+      photos: mission.photos || []
+    });
     setEditingMission(mission);
   };
 
@@ -195,7 +203,8 @@ export const ClientMissions = () => {
       updateMissionMutation.mutate({
         id: editingMission.id,
         title: editForm.title,
-        description: editForm.description
+        description: editForm.description,
+        photos: editForm.photos
       });
     }
   };
@@ -276,6 +285,26 @@ export const ClientMissions = () => {
                             <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                               {mission.description}
                             </p>
+
+                            {/* Mission photos preview */}
+                            {mission.photos && mission.photos.length > 0 && (
+                              <div className="flex gap-2 mb-4">
+                                {mission.photos.slice(0, 3).map((photo: string, i: number) => (
+                                  <img 
+                                    key={i}
+                                    src={photo}
+                                    alt={`Photo ${i + 1}`}
+                                    className="w-16 h-16 object-cover rounded-lg border"
+                                  />
+                                ))}
+                                {mission.photos.length > 0 && (
+                                  <span className="text-xs text-muted-foreground flex items-center">
+                                    <ImageIcon className="w-3 h-3 mr-1" />
+                                    {mission.photos.length} photo{mission.photos.length > 1 ? "s" : ""}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                             
                             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                               {mission.categories?.name && (
@@ -387,7 +416,7 @@ export const ClientMissions = () => {
           <DialogHeader>
             <DialogTitle>Modifier et resoumettre la mission</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             <div>
               <Label htmlFor="edit-title">Titre</Label>
               <Input
@@ -403,6 +432,17 @@ export const ClientMissions = () => {
                 value={editForm.description}
                 onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                 rows={5}
+              />
+            </div>
+            <div>
+              <Label className="flex items-center gap-2 mb-3">
+                <ImageIcon className="w-4 h-4" />
+                Photos (optionnel - max 3)
+              </Label>
+              <MissionPhotoUpload
+                photos={editForm.photos}
+                onPhotosChange={(photos) => setEditForm({ ...editForm, photos })}
+                maxPhotos={3}
               />
             </div>
           </div>

@@ -57,6 +57,7 @@ interface PendingMission {
   city: string;
   budget: number | null;
   created_at: string;
+  photos?: string[] | null;
   category: { name: string } | null;
   client: {
     first_name: string | null;
@@ -113,6 +114,7 @@ const AdminApprovals = () => {
           description,
           city,
           budget,
+          photos,
           created_at,
           category:categories(name),
           client:profiles!missions_client_id_fkey(first_name, last_name, email)
@@ -690,7 +692,24 @@ const AdminApprovals = () => {
                     {selectedMission.description && (
                       <div>
                         <p className="text-muted-foreground text-sm mb-1">Description</p>
-                        <p className="text-sm">{selectedMission.description}</p>
+                        <p className="text-sm whitespace-pre-wrap">{selectedMission.description}</p>
+                      </div>
+                    )}
+
+                    {selectedMission.photos && selectedMission.photos.length > 0 && (
+                      <div>
+                        <p className="text-muted-foreground text-sm mb-2">Photos de la mission ({selectedMission.photos.length})</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {selectedMission.photos.map((photo, i) => (
+                            <img 
+                              key={i} 
+                              src={photo} 
+                              alt={`Photo ${i + 1}`} 
+                              className="aspect-square object-cover rounded-lg border cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => window.open(photo, '_blank')}
+                            />
+                          ))}
+                        </div>
                       </div>
                     )}
 
