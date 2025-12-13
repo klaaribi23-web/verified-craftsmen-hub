@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import { Shield, Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from "lucide-react";
+import logo from "@/assets/logo.png";
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const footerLinks = {
@@ -56,9 +58,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 bg-gradient-gold rounded-lg flex items-center justify-center shadow-gold">
-                <Shield className="w-6 h-6 text-navy-dark" />
-              </div>
+              <img src={logo} alt="Artisans Validés" className="w-10 h-10 rounded-lg" />
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-white leading-tight">ARTISANS</span>
                 <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
