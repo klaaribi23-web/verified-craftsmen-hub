@@ -46,7 +46,7 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Start camera stream
+  // Start camera stream with HD quality 1080p and 9:16 aspect ratio
   const startCamera = useCallback(async () => {
     try {
       setError(null);
@@ -59,10 +59,15 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode,
-          width: { ideal: 1080 },
-          height: { ideal: 1920 }
+          width: { ideal: 1080, min: 720 },
+          height: { ideal: 1920, min: 1280 },
+          aspectRatio: { ideal: 9/16 },
+          frameRate: { ideal: 30 }
         },
-        audio: true
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true
+        }
       });
 
       streamRef.current = stream;
@@ -102,18 +107,35 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
     setFacingMode(prev => prev === "user" ? "environment" : "user");
   };
 
-  // Take photo
+  // Take photo with 9:16 aspect ratio crop and HD quality
   const takePhoto = () => {
     if (!videoRef.current || !canvasRef.current) return;
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
     
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    // Calculate 9:16 crop from video
+    const targetAspect = 9 / 16;
+    const videoAspect = video.videoWidth / video.videoHeight;
+    
+    let sourceX = 0, sourceY = 0, sourceWidth = video.videoWidth, sourceHeight = video.videoHeight;
+    
+    if (videoAspect > targetAspect) {
+      // Video too wide → horizontal crop
+      sourceWidth = video.videoHeight * targetAspect;
+      sourceX = (video.videoWidth - sourceWidth) / 2;
+    } else {
+      // Video too tall → vertical crop
+      sourceHeight = video.videoWidth / targetAspect;
+      sourceY = (video.videoHeight - sourceHeight) / 2;
+    }
+    
+    // Canvas in 1080x1920 (9:16) for HD quality
+    canvas.width = 1080;
+    canvas.height = 1920;
 
     // Mirror the image if using front camera
     if (facingMode === "user") {
@@ -121,7 +143,7 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
       ctx.scale(-1, 1);
     }
 
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, 1080, 1920);
 
     canvas.toBlob((blob) => {
       if (blob) {
@@ -133,22 +155,41 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
           streamRef.current.getTracks().forEach(track => track.stop());
         }
       }
-    }, "image/jpeg", 0.9);
+    }, "image/jpeg", 0.95);
   };
 
-  // Start video recording
+  // Start video recording with HD quality and high bitrate
   const startRecording = () => {
-    if (!streamRef.current) return;
+    if (!streamRef.current) {
+      setError("Caméra non disponible. Veuillez réessayer.");
+      return;
+    }
 
     chunksRef.current = [];
     setRecordingTime(0);
 
-    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")
-      ? "video/webm;codecs=vp8,opus"
-      : "video/webm";
+    // Find best supported codec for quality
+    const mimeTypes = [
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm;codecs=h264,opus",
+      "video/mp4;codecs=h264,aac",
+      "video/webm"
+    ];
+    
+    let mimeType = "video/webm";
+    for (const type of mimeTypes) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        mimeType = type;
+        break;
+      }
+    }
 
     try {
-      const mediaRecorder = new MediaRecorder(streamRef.current, { mimeType });
+      const mediaRecorder = new MediaRecorder(streamRef.current, { 
+        mimeType,
+        videoBitsPerSecond: 2500000 // 2.5 Mbps for HD quality
+      });
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (e) => {
@@ -168,6 +209,12 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
         }
       };
 
+      mediaRecorder.onerror = (e) => {
+        console.error("MediaRecorder error:", e);
+        setError("Erreur d'enregistrement. Veuillez réessayer.");
+        setIsRecording(false);
+      };
+
       mediaRecorder.start(100);
       setIsRecording(true);
 
@@ -183,7 +230,7 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
       }, 1000);
     } catch (err) {
       console.error("Recording error:", err);
-      setError("Erreur lors du démarrage de l'enregistrement");
+      setError("Erreur lors du démarrage de l'enregistrement. Votre appareil ne supporte peut-être pas l'enregistrement vidéo.");
     }
   };
 
@@ -246,36 +293,16 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
 
   if (!isOpen) return null;
 
-  // Block recording on PC - show message
+  // Block recording on PC - show simple message
   if (!isMobile) {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6">
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-4 left-4 z-20 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-        >
-          <X className="h-6 w-6" />
-        </button>
-
-        <div className="text-center max-w-md">
-          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
-            <Camera className="w-10 h-10 text-primary" />
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Utilisez votre téléphone
-          </h2>
-          <p className="text-white/70 mb-6">
-            Les stories ne peuvent être filmées que depuis votre smartphone. 
-            Connectez-vous à votre espace artisan depuis votre téléphone pour filmer une story.
+      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+        <div className="text-center p-6">
+          <Camera className="w-16 h-16 text-white/50 mx-auto mb-4" />
+          <p className="text-white text-xl font-medium mb-6">
+            Stories disponibles sur mobile uniquement
           </p>
-          <div className="bg-white/10 rounded-lg p-4 mb-6">
-            <p className="text-white/60 text-sm mb-2">Accédez à :</p>
-            <p className="text-primary font-mono text-sm break-all">
-              {window.location.origin}/artisan/stories
-            </p>
-          </div>
-          <Button onClick={handleClose} variant="secondary" className="w-full">
+          <Button onClick={handleClose} variant="secondary">
             Fermer
           </Button>
         </div>
@@ -360,18 +387,18 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
                     <SwitchCamera className="w-6 h-6" />
                   </button>
 
-                  {/* Record/Stop button */}
+                  {/* Record/Stop button with pulsing animation */}
                   {isRecording ? (
                     <button
                       onClick={stopRecording}
-                      className="w-20 h-20 rounded-full bg-destructive border-4 border-white flex items-center justify-center"
+                      className="w-20 h-20 rounded-full bg-destructive border-4 border-white flex items-center justify-center animate-pulse"
                     >
                       <Square className="w-8 h-8 text-white fill-white" />
                     </button>
                   ) : (
                     <button
                       onClick={startRecording}
-                      className="w-20 h-20 rounded-full bg-destructive border-4 border-white"
+                      className="w-20 h-20 rounded-full bg-destructive border-4 border-white hover:scale-105 transition-transform active:scale-95"
                     />
                   )}
 

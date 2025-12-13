@@ -2,7 +2,9 @@ import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { useArtisanStories, ArtisanStory } from "@/hooks/useArtisanStories";
+import { useArtisanProfile } from "@/hooks/useArtisanProfile";
 import StoryRecorder from "@/components/stories/StoryRecorder";
+import StoryViewer from "@/components/stories/StoryViewer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -30,8 +32,11 @@ export const ArtisanStories = () => {
     isDeleting,
   } = useArtisanStories();
   
+  const { artisan } = useArtisanProfile();
+  
   const [storyToDelete, setStoryToDelete] = useState<string | null>(null);
   const [isRecorderOpen, setIsRecorderOpen] = useState(false);
+  const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
 
   const handlePublish = async (blob: Blob, mediaType: "image" | "video", caption?: string) => {
     await uploadStory(blob, caption);
@@ -57,8 +62,11 @@ export const ArtisanStories = () => {
     return `${diffMins}min restantes`;
   };
 
-  const StoryCard = ({ story, isExpired = false }: { story: ArtisanStory; isExpired?: boolean }) => (
-    <Card className={`overflow-hidden group relative ${isExpired ? "opacity-60" : ""}`}>
+  const StoryCard = ({ story, isExpired = false, index }: { story: ArtisanStory; isExpired?: boolean; index: number }) => (
+    <Card 
+      className={`overflow-hidden group relative cursor-pointer ${isExpired ? "opacity-60" : ""}`}
+      onClick={() => !isExpired && setSelectedStoryIndex(index)}
+    >
       <CardContent className="p-0 relative aspect-[9/16]">
         {story.media_type === "video" ? (
           <video
@@ -91,7 +99,10 @@ export const ArtisanStories = () => {
               variant="ghost"
               size="icon"
               className="bg-black/50 hover:bg-destructive text-white opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => setStoryToDelete(story.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setStoryToDelete(story.id);
+              }}
               disabled={isDeleting}
             >
               <Trash2 className="w-4 h-4" />
@@ -205,8 +216,8 @@ export const ArtisanStories = () => {
                     </Card>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                      {activeStories.map((story) => (
-                        <StoryCard key={story.id} story={story} />
+                      {activeStories.map((story, index) => (
+                        <StoryCard key={story.id} story={story} index={index} />
                       ))}
                     </div>
                   )}
@@ -219,8 +230,8 @@ export const ArtisanStories = () => {
                       Stories expirées ({expiredStories.length})
                     </h2>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                      {expiredStories.map((story) => (
-                        <StoryCard key={story.id} story={story} isExpired />
+                      {expiredStories.map((story, index) => (
+                        <StoryCard key={story.id} story={story} isExpired index={index} />
                       ))}
                     </div>
                   </section>
@@ -258,6 +269,16 @@ export const ArtisanStories = () => {
         onClose={() => setIsRecorderOpen(false)}
         onPublish={handlePublish}
         isUploading={isUploading}
+      />
+
+      {/* Story Viewer for full-screen preview */}
+      <StoryViewer
+        stories={activeStories}
+        artisanName={artisan?.business_name || "Mon profil"}
+        artisanPhoto={artisan?.photo_url}
+        initialIndex={selectedStoryIndex || 0}
+        isOpen={selectedStoryIndex !== null}
+        onClose={() => setSelectedStoryIndex(null)}
       />
     </div>
   );
