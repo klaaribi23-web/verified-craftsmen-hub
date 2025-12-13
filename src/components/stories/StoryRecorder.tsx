@@ -23,7 +23,14 @@ interface StoryRecorderProps {
 
 const MAX_VIDEO_DURATION = 20; // 20 seconds max
 
+// Detect mobile device
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+};
+
 const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorderProps) => {
+  const isMobile = isMobileDevice();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [isRecording, setIsRecording] = useState(false);
@@ -238,6 +245,43 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
   };
 
   if (!isOpen) return null;
+
+  // Block recording on PC - show message
+  if (!isMobile) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6">
+        {/* Close button */}
+        <button
+          onClick={handleClose}
+          className="absolute top-4 left-4 z-20 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+        >
+          <X className="h-6 w-6" />
+        </button>
+
+        <div className="text-center max-w-md">
+          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
+            <Camera className="w-10 h-10 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">
+            Utilisez votre téléphone
+          </h2>
+          <p className="text-white/70 mb-6">
+            Les stories ne peuvent être filmées que depuis votre smartphone. 
+            Connectez-vous à votre espace artisan depuis votre téléphone pour filmer une story.
+          </p>
+          <div className="bg-white/10 rounded-lg p-4 mb-6">
+            <p className="text-white/60 text-sm mb-2">Accédez à :</p>
+            <p className="text-primary font-mono text-sm break-all">
+              {window.location.origin}/artisan/stories
+            </p>
+          </div>
+          <Button onClick={handleClose} variant="secondary" className="w-full">
+            Fermer
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
