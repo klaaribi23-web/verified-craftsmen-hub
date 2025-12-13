@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
 import { Video } from "lucide-react";
@@ -30,6 +30,7 @@ const ArtisanPublicProfile = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [showContactInfo, setShowContactInfo] = useState(false);
@@ -421,7 +422,10 @@ const ArtisanPublicProfile = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <PortfolioCarousel items={portfolio} type="image" onItemClick={image => setSelectedImage(image)} />
+                    <PortfolioCarousel items={portfolio} type="image" onItemClick={(image, index) => {
+                      setSelectedImage(image);
+                      setSelectedImageIndex(index);
+                    }} />
                   </CardContent>
                 </Card>}
 
@@ -718,12 +722,60 @@ const ArtisanPublicProfile = () => {
       </section>
 
       {/* Image Modal */}
-      {selectedImage && <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
-          <button onClick={() => setSelectedImage(null)} className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+      {selectedImage && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+          <button 
+            onClick={() => setSelectedImage(null)} 
+            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10"
+          >
             <X className="h-6 w-6" />
           </button>
-          <img src={selectedImage} alt="Réalisation" className="max-w-full max-h-[90vh] rounded-lg" />
-        </div>}
+          
+          {/* Previous Arrow */}
+          {portfolio.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const newIndex = selectedImageIndex === 0 ? portfolio.length - 1 : selectedImageIndex - 1;
+                setSelectedImageIndex(newIndex);
+                setSelectedImage(portfolio[newIndex]);
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10"
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </button>
+          )}
+          
+          <img 
+            src={selectedImage} 
+            alt={`Réalisation ${selectedImageIndex + 1}`} 
+            className="max-w-full max-h-[90vh] rounded-lg" 
+            onClick={(e) => e.stopPropagation()}
+          />
+          
+          {/* Next Arrow */}
+          {portfolio.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const newIndex = selectedImageIndex === portfolio.length - 1 ? 0 : selectedImageIndex + 1;
+                setSelectedImageIndex(newIndex);
+                setSelectedImage(portfolio[newIndex]);
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors z-10"
+            >
+              <ChevronRight className="h-8 w-8" />
+            </button>
+          )}
+          
+          {/* Image Counter */}
+          {portfolio.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm">
+              {selectedImageIndex + 1} / {portfolio.length}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Video Modal */}
       {selectedVideo && <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
