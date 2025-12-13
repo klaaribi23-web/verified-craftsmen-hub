@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Shield, User, LogOut, LayoutDashboard, FileText, Settings, MessageCircle } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, FileText, Settings, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import {
@@ -267,9 +268,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-gradient-gold rounded-lg flex items-center justify-center shadow-gold group-hover:scale-105 transition-transform">
-              <Shield className="w-6 h-6 text-navy-dark" />
-            </div>
+            <img src={logo} alt="Artisans Validés" className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform" />
             <div className="flex flex-col">
               <span className="text-lg font-bold text-navy leading-tight">ARTISANS</span>
               <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
