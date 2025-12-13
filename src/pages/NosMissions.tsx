@@ -17,7 +17,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Pagination,
   PaginationContent,
@@ -47,19 +46,20 @@ import {
   Users,
   Send,
   RotateCcw,
-  User
+  User,
+  Eye
 } from "lucide-react";
 import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocations";
 import { useToast } from "@/hooks/use-toast";
 import { useDemoMissions } from "@/hooks/usePublicData";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
-import { CategorySelect } from "@/components/categories/CategorySelect";
-import { formatDistanceToNow, format } from "date-fns";
+import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import MissionDetailModal from "@/components/missions/MissionDetailModal";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -70,17 +70,17 @@ const NosMissions = () => {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [selectedMission, setSelectedMission] = useState<any>(null);
-  const [applicationMessage, setApplicationMessage] = useState("");
+  const [detailMission, setDetailMission] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch artisan profile for logged-in artisan
   const { data: artisanProfile } = useQuery({
-    queryKey: ["artisan-profile", user?.id],
+    queryKey: ["artisan-profile-full", user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from("artisans")
-        .select("id")
+        .select("id, business_name")
         .eq("user_id", user.id)
         .single();
       if (error) return null;
@@ -88,6 +88,7 @@ const NosMissions = () => {
     },
     enabled: !!user?.id && role === "artisan",
   });
+
   const [showLocationAccordion, setShowLocationAccordion] = useState(false);
   
   const locationRef = useRef<HTMLDivElement>(null);
@@ -130,7 +131,13 @@ const NosMissions = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleApply = async () => {
+  // Generate automatic application message
+  const getAutoMessage = () => {
+    const artisanName = artisanProfile?.business_name || "un artisan qualifié";
+    return `Bonjour, je suis ${artisanName}.\nVotre mission m'intéresse, je suis disponible pour en discuter.`;
+  };
+
+  const handleApply = async (mission: any) => {
     if (!isAuthenticated) {
       toast({
         title: "Connexion requise",
@@ -161,34 +168,48 @@ const NosMissions = () => {
     setIsSubmitting(true);
 
     try {
+      const autoMessage = getAutoMessage();
+      
       const { error } = await supabase
         .from("mission_applications")
         .insert({
-          mission_id: selectedMission.id,
+          mission_id: mission.id,
           artisan_id: artisanProfile.id,
-          motivation_message: applicationMessage,
+          motivation_message: autoMessage,
           status: "pending",
         });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === "23505") {
+          toast({
+            title: "Candidature existante",
+            description: "Vous avez déjà postulé à cette mission.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
 
       // Send notification to client
-      if (selectedMission.client_id) {
+      if (mission.client_id) {
         await supabase.from("notifications").insert({
-          user_id: selectedMission.client_id,
+          user_id: mission.client_id,
           type: "new_application",
           title: "Nouvelle candidature",
-          message: `Un artisan a postulé à votre mission "${selectedMission.title}"`,
-          related_id: selectedMission.id,
+          message: `Un artisan a postulé à votre mission "${mission.title}"`,
+          related_id: mission.id,
         });
       }
 
       toast({
         title: "Candidature envoyée !",
-        description: `Votre candidature pour "${selectedMission?.title}" a été envoyée avec succès.`,
+        description: `Votre candidature pour "${mission.title}" a été envoyée avec succès.`,
       });
+      
+      // Close modals
       setSelectedMission(null);
-      setApplicationMessage("");
+      setDetailMission(null);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -209,6 +230,8 @@ const NosMissions = () => {
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), "dd/MM/yyyy", { locale: fr });
   };
+
+  const canApply = isAuthenticated && role === "artisan" && !!artisanProfile?.id;
 
   return (
     <div className="min-h-screen bg-background">
@@ -440,10 +463,12 @@ const NosMissions = () => {
                                 </Badge>
 
                                 {/* Budget */}
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                                  <Euro className="w-4 h-4" />
-                                  <span>Budget : <strong className="text-foreground">{mission.budget?.toLocaleString("fr-FR")} €</strong></span>
-                                </div>
+                                {mission.budget && (
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                                    <Euro className="w-4 h-4" />
+                                    <span>Budget : <strong className="text-foreground">{mission.budget?.toLocaleString("fr-FR")} €</strong></span>
+                                  </div>
+                                )}
 
                                 {/* Location */}
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
@@ -460,16 +485,27 @@ const NosMissions = () => {
                                 {/* Spacer */}
                                 <div className="flex-1" />
 
-                                {/* Applicants + Apply button */}
-                                <div className="flex items-center justify-between pt-4 border-t">
-                                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <Users className="w-4 h-4" />
-                                    <span>{mission.applicants_count || 0} postulant{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
-                                  </div>
+                                {/* Applicants count */}
+                                <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
+                                  <Users className="w-4 h-4" />
+                                  <span>{mission.applicants_count || 0} postulant{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
+                                </div>
+
+                                {/* Action buttons */}
+                                <div className="flex gap-2 pt-4 border-t">
+                                  <Button 
+                                    variant="outline"
+                                    size="sm" 
+                                    onClick={() => setDetailMission(mission)}
+                                    className="flex-1 gap-1"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                    Détails
+                                  </Button>
                                   <Button 
                                     size="sm" 
                                     onClick={() => setSelectedMission(mission)}
-                                    className="gap-1"
+                                    className="flex-1 gap-1"
                                   >
                                     <Send className="w-4 h-4" />
                                     Postuler
@@ -530,7 +566,20 @@ const NosMissions = () => {
 
       <Footer />
 
-      {/* Application Modal */}
+      {/* Mission Detail Modal */}
+      <MissionDetailModal
+        mission={detailMission}
+        open={!!detailMission}
+        onClose={() => setDetailMission(null)}
+        onApply={() => {
+          if (detailMission) {
+            handleApply(detailMission);
+          }
+        }}
+        canApply={canApply}
+      />
+
+      {/* Application Confirmation Modal */}
       <Dialog open={!!selectedMission} onOpenChange={() => setSelectedMission(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -561,23 +610,23 @@ const NosMissions = () => {
           ) : (
             <>
               <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label>Votre message de motivation</Label>
-                  <Textarea
-                    placeholder="Présentez-vous et expliquez pourquoi vous êtes le meilleur candidat pour cette mission..."
-                    value={applicationMessage}
-                    onChange={(e) => setApplicationMessage(e.target.value)}
-                    rows={5}
-                  />
+                <div className="bg-muted p-4 rounded-lg">
+                  <p className="text-sm font-medium text-foreground mb-2">Votre message de candidature :</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {getAutoMessage()}
+                  </p>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Ce message sera envoyé automatiquement au client avec votre candidature.
+                </p>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setSelectedMission(null)}>
                   Annuler
                 </Button>
-                <Button onClick={handleApply} disabled={!applicationMessage.trim() || isSubmitting}>
+                <Button onClick={() => handleApply(selectedMission)} disabled={isSubmitting}>
                   <Send className="w-4 h-4 mr-2" />
-                  {isSubmitting ? "Envoi..." : "Envoyer ma demande"}
+                  {isSubmitting ? "Envoi..." : "Confirmer ma candidature"}
                 </Button>
               </DialogFooter>
             </>
