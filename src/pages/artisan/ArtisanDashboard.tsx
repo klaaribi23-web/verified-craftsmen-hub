@@ -17,7 +17,10 @@ import {
   ArrowRight,
   FileText,
   AlertCircle,
-  XCircle
+  XCircle,
+  Video,
+  Eye,
+  Users
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -93,6 +96,49 @@ export const ArtisanDashboard = () => {
         verified: docs.filter(d => d.status === "verified").length,
         pending: docs.filter(d => d.status === "pending").length,
         rejected: docs.filter(d => d.status === "rejected").length
+      };
+    },
+    enabled: !!artisanProfile?.id
+  });
+
+  // Fetch stories stats
+  const { data: storiesStats } = useQuery({
+    queryKey: ["artisan-stories-stats", artisanProfile?.id],
+    queryFn: async () => {
+      if (!artisanProfile?.id) return { active: 0, total: 0, views: 0, uniqueViewers: 0 };
+      
+      // Get all stories for this artisan
+      const { data: stories, error } = await supabase
+        .from("artisan_stories")
+        .select("id, views_count, expires_at")
+        .eq("artisan_id", artisanProfile.id);
+
+      if (error) {
+        console.error("Error fetching stories stats:", error);
+        return { active: 0, total: 0, views: 0, uniqueViewers: 0 };
+      }
+
+      const now = new Date().toISOString();
+      const activeStories = stories?.filter(s => s.expires_at > now) || [];
+      const totalViews = stories?.reduce((sum, s) => sum + (s.views_count || 0), 0) || 0;
+
+      // Get unique viewers count
+      const storyIds = stories?.map(s => s.id) || [];
+      let uniqueViewers = 0;
+      
+      if (storyIds.length > 0) {
+        const { count } = await supabase
+          .from("story_views")
+          .select("viewer_id", { count: "exact", head: true })
+          .in("story_id", storyIds);
+        uniqueViewers = count || 0;
+      }
+
+      return {
+        active: activeStories.length,
+        total: stories?.length || 0,
+        views: totalViews,
+        uniqueViewers
       };
     },
     enabled: !!artisanProfile?.id
@@ -241,6 +287,52 @@ export const ArtisanDashboard = () => {
                 value={stats?.rating?.toFixed(1) || "0.0"}
                 icon={Star}
               />
+            </div>
+
+            {/* Stories Stats Card */}
+            <div className="bg-card rounded-xl border border-border shadow-soft p-6 mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                    <Video className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Mes Stories</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {storiesStats?.active || 0} story active sur {storiesStats?.total || 0} total
+                    </p>
+                  </div>
+                </div>
+                <Link to="/artisan/stories">
+                  <Button variant="outline" size="sm">
+                    Gérer <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg">
+                  <Video className="w-5 h-5 text-primary" />
+                  <div>
+                    <p className="text-2xl font-bold text-primary">{storiesStats?.active || 0}</p>
+                    <p className="text-xs text-muted-foreground">Actives (24h)</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-accent/10 rounded-lg">
+                  <Eye className="w-5 h-5 text-accent" />
+                  <div>
+                    <p className="text-2xl font-bold text-accent">{storiesStats?.views || 0}</p>
+                    <p className="text-xs text-muted-foreground">Vues totales</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-success/10 rounded-lg">
+                  <Users className="w-5 h-5 text-success" />
+                  <div>
+                    <p className="text-2xl font-bold text-success">{storiesStats?.uniqueViewers || 0}</p>
+                    <p className="text-xs text-muted-foreground">Visiteurs uniques</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Documents Status Card */}
