@@ -27,7 +27,10 @@ import {
   Loader2,
   Briefcase,
   Euro,
-  User
+  User,
+  UserPlus,
+  Send,
+  Mail
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
@@ -41,6 +44,7 @@ interface PendingArtisan {
   experience_years: number | null;
   portfolio_images: string[] | null;
   created_at: string;
+  status: string;
   category: { name: string } | null;
   profile: { 
     first_name: string | null; 
@@ -73,8 +77,9 @@ const AdminApprovals = () => {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showMissionRejectDialog, setShowMissionRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [sendingActivationFor, setSendingActivationFor] = useState<string | null>(null);
 
-  // Fetch pending artisans
+  // Fetch pending artisans (status = pending, awaiting approval after self-registration)
   const { data: pendingArtisans = [], isLoading: isLoadingArtisans } = useQuery({
     queryKey: ["pending-artisans"],
     queryFn: async () => {
@@ -90,10 +95,39 @@ const AdminApprovals = () => {
           experience_years,
           portfolio_images,
           created_at,
+          status,
           category:categories(name),
           profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
         `)
         .eq("status", "pending")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as PendingArtisan[];
+    }
+  });
+
+  // Fetch prospect artisans (status = prospect, created by admin)
+  const { data: prospectArtisans = [], isLoading: isLoadingProspects } = useQuery({
+    queryKey: ["prospect-artisans"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("artisans")
+        .select(`
+          id,
+          business_name,
+          city,
+          description,
+          photo_url,
+          siret,
+          experience_years,
+          portfolio_images,
+          created_at,
+          status,
+          category:categories(name),
+          profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
+        `)
+        .eq("status", "prospect")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -123,6 +157,33 @@ const AdminApprovals = () => {
       if (error) throw error;
       return data as PendingMission[];
     }
+  });
+
+  // Send activation email mutation
+  const sendActivationEmailMutation = useMutation({
+    mutationFn: async (prospect: PendingArtisan) => {
+      if (!prospect.profile?.email) {
+        throw new Error("Email non disponible pour ce prospect");
+      }
+
+      const { data, error } = await supabase.functions.invoke("send-activation-email", {
+        body: {
+          artisanId: prospect.id,
+          businessName: prospect.business_name,
+          email: prospect.profile.email,
+        },
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, prospect) => {
+      toast.success(`Email d'activation envoyé à ${prospect.profile?.email}`);
+      queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+    },
+    onError: (error: Error) => {
+      toast.error(`Erreur lors de l'envoi: ${error.message}`);
+    },
   });
 
   // Approve artisan mutation
@@ -218,7 +279,7 @@ const AdminApprovals = () => {
           await supabase.from("notifications").insert({
             user_id: userData.user_id,
             title: "Mission approuvée !",
-            message: `Votre mission "${mission.title}" a été approuvée et est maintenant publiée. Les artisans peuvent désormais postuler.`,
+            message: `Votre mission "${mission.title}" a été approuvée et est maintenant publiée.`,
             type: "mission_approved",
             related_id: missionId
           });
@@ -257,7 +318,7 @@ const AdminApprovals = () => {
           await supabase.from("notifications").insert({
             user_id: userData.user_id,
             title: "Mission refusée",
-            message: `Votre mission "${mission.title}" a été refusée. Raison : ${reason}. Vous pouvez modifier votre annonce et la resoumettre.`,
+            message: `Votre mission "${mission.title}" a été refusée. Raison : ${reason}.`,
             type: "mission_rejected",
             related_id: missionId
           });
@@ -278,7 +339,7 @@ const AdminApprovals = () => {
 
   const getProfileCompleteness = (artisan: PendingArtisan) => {
     let score = 0;
-    let total = 6;
+    const total = 6;
     
     if (artisan.photo_url) score++;
     if (artisan.description && artisan.description.length > 50) score++;
@@ -288,6 +349,15 @@ const AdminApprovals = () => {
     if (artisan.city && artisan.city !== "Non renseigné") score++;
 
     return { score, total, percentage: Math.round((score / total) * 100) };
+  };
+
+  const handleSendActivation = async (prospect: PendingArtisan) => {
+    setSendingActivationFor(prospect.id);
+    try {
+      await sendActivationEmailMutation.mutateAsync(prospect);
+    } finally {
+      setSendingActivationFor(null);
+    }
   };
 
   return (
@@ -300,12 +370,12 @@ const AdminApprovals = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground">Demandes d'approbation</h1>
             <p className="text-muted-foreground mt-1">
-              Vérifiez et approuvez les profils artisans et les missions
+              Gérez les missions, artisans et prospects en attente
             </p>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid w-full max-w-2xl grid-cols-3">
               <TabsTrigger value="missions" className="gap-2">
                 <Briefcase className="w-4 h-4" />
                 Missions ({pendingMissions.length})
@@ -313,6 +383,10 @@ const AdminApprovals = () => {
               <TabsTrigger value="artisans" className="gap-2">
                 <User className="w-4 h-4" />
                 Artisans ({pendingArtisans.length})
+              </TabsTrigger>
+              <TabsTrigger value="prospects" className="gap-2">
+                <UserPlus className="w-4 h-4" />
+                Prospects ({prospectArtisans.length})
               </TabsTrigger>
             </TabsList>
 
@@ -370,30 +444,15 @@ const AdminApprovals = () => {
                             </div>
 
                             <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setSelectedMission(mission)}
-                              >
+                              <Button variant="outline" size="sm" onClick={() => setSelectedMission(mission)}>
                                 <Eye className="h-4 w-4 mr-1" />
                                 Voir détails
                               </Button>
-                              <Button
-                                size="sm"
-                                onClick={() => approveMissionMutation.mutate(mission.id)}
-                                disabled={approveMissionMutation.isPending}
-                              >
+                              <Button size="sm" onClick={() => approveMissionMutation.mutate(mission.id)} disabled={approveMissionMutation.isPending}>
                                 <CheckCircle2 className="h-4 w-4 mr-1" />
                                 Approuver
                               </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedMission(mission);
-                                  setShowMissionRejectDialog(true);
-                                }}
-                              >
+                              <Button variant="destructive" size="sm" onClick={() => { setSelectedMission(mission); setShowMissionRejectDialog(true); }}>
                                 <XCircle className="h-4 w-4 mr-1" />
                                 Refuser
                               </Button>
@@ -409,9 +468,7 @@ const AdminApprovals = () => {
                   <CardContent className="py-20 text-center">
                     <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Aucune mission en attente</h3>
-                    <p className="text-muted-foreground">
-                      Toutes les missions ont été traitées.
-                    </p>
+                    <p className="text-muted-foreground">Toutes les missions ont été traitées.</p>
                   </CardContent>
                 </Card>
               )}
@@ -522,9 +579,105 @@ const AdminApprovals = () => {
                   <CardContent className="py-20 text-center">
                     <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Aucune demande en attente</h3>
-                    <p className="text-muted-foreground">
-                      Toutes les demandes d'approbation ont été traitées.
+                    <p className="text-muted-foreground">Toutes les demandes d'approbation ont été traitées.</p>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* PROSPECTS TAB */}
+            <TabsContent value="prospects">
+              {isLoadingProspects ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : prospectArtisans.length > 0 ? (
+                <div className="grid gap-6">
+                  {prospectArtisans.map((prospect) => (
+                    <Card key={prospect.id} className="hover:shadow-lg transition-shadow border-l-4 border-l-amber-500">
+                      <CardContent className="p-6">
+                        <div className="flex flex-col md:flex-row gap-6">
+                          <Avatar className="h-24 w-24 ring-4 ring-amber-500/20">
+                            <AvatarImage src={prospect.photo_url || undefined} />
+                            <AvatarFallback className="text-2xl bg-amber-500/20 text-amber-700">
+                              {prospect.business_name.slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h3 className="text-xl font-bold">{prospect.business_name}</h3>
+                                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                                  <MapPin className="h-4 w-4" />
+                                  {prospect.city}
+                                  {prospect.category && (
+                                    <>
+                                      <span>•</span>
+                                      <Badge variant="secondary">{prospect.category.name}</Badge>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                              <Badge className="gap-1 bg-amber-500/20 text-amber-700 border-amber-500/30">
+                                <UserPlus className="h-3 w-3" />
+                                Prospect
+                              </Badge>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                              <Mail className="h-4 w-4" />
+                              <span>{prospect.profile?.email || "Email non renseigné"}</span>
+                            </div>
+
+                            {prospect.description && (
+                              <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
+                                {prospect.description}
+                              </p>
+                            )}
+
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm" onClick={() => setSelectedArtisan(prospect)}>
+                                <Eye className="h-4 w-4 mr-1" />
+                                Voir le profil
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="gold"
+                                onClick={() => handleSendActivation(prospect)}
+                                disabled={sendingActivationFor === prospect.id || !prospect.profile?.email}
+                              >
+                                {sendingActivationFor === prospect.id ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                    Envoi...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Send className="h-4 w-4 mr-1" />
+                                    Finaliser l'inscription
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="py-20 text-center">
+                    <UserPlus className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Aucun prospect</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Les artisans créés par l'admin apparaîtront ici.
                     </p>
+                    <Button variant="outline" onClick={() => window.location.href = "/admin/ajouter-artisan"}>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Ajouter un artisan
+                    </Button>
                   </CardContent>
                 </Card>
               )}
@@ -574,7 +727,7 @@ const AdminApprovals = () => {
                 </DialogDescription>
               </DialogHeader>
               <Textarea
-                placeholder="Raison du refus (ex: Description incomplète, budget irréaliste...)"
+                placeholder="Raison du refus..."
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 rows={4}
@@ -643,16 +796,39 @@ const AdminApprovals = () => {
                       </div>
                     )}
 
-                    <div className="flex gap-2 pt-4 border-t">
-                      <Button className="flex-1" onClick={() => approveArtisanMutation.mutate(selectedArtisan.id)} disabled={approveArtisanMutation.isPending}>
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        Approuver
-                      </Button>
-                      <Button variant="destructive" className="flex-1" onClick={() => setShowRejectDialog(true)}>
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Refuser
-                      </Button>
-                    </div>
+                    {selectedArtisan.status === "prospect" ? (
+                      <div className="flex gap-2 pt-4 border-t">
+                        <Button 
+                          className="flex-1" 
+                          variant="gold"
+                          onClick={() => handleSendActivation(selectedArtisan)}
+                          disabled={sendingActivationFor === selectedArtisan.id || !selectedArtisan.profile?.email}
+                        >
+                          {sendingActivationFor === selectedArtisan.id ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Envoi en cours...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-4 w-4 mr-2" />
+                              Finaliser l'inscription
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2 pt-4 border-t">
+                        <Button className="flex-1" onClick={() => approveArtisanMutation.mutate(selectedArtisan.id)} disabled={approveArtisanMutation.isPending}>
+                          <CheckCircle2 className="h-4 w-4 mr-2" />
+                          Approuver
+                        </Button>
+                        <Button variant="destructive" className="flex-1" onClick={() => setShowRejectDialog(true)}>
+                          <XCircle className="h-4 w-4 mr-2" />
+                          Refuser
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </>
               )}
