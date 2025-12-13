@@ -208,7 +208,7 @@ const TrouverArtisan = () => {
               transition={{ delay: 0.1 }}
               className="max-w-4xl mx-auto"
             >
-              <div className="bg-card rounded-2xl p-3 shadow-floating flex flex-col md:flex-row gap-3">
+              <div className="bg-card rounded-2xl p-3 shadow-floating flex flex-col md:flex-row gap-3 relative">
                 {/* Category Search */}
                 <div className="flex-1 relative" ref={categoryInputRef}>
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
@@ -219,35 +219,39 @@ const TrouverArtisan = () => {
                     onFocus={() => setShowCategorySuggestions(true)}
                     className="pl-12 h-12 border-0 bg-muted text-base"
                   />
-                  {/* Category Dropdown with icons in 2-3 columns */}
-                  {showCategorySuggestions && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 p-4">
-                      {categoriesLoading ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                          {[1,2,3,4,5,6].map((i) => (
-                            <Skeleton key={i} className="h-12 rounded-lg" />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                          {filteredCategories.map((cat) => (
-                            <button
-                              key={cat.title}
-                              onClick={() => {
-                                setSearchQuery(cat.title);
-                                setShowCategorySuggestions(false);
-                              }}
-                              className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors text-left"
-                            >
-                              <CategoryIcon iconName={cat.icon} className="w-5 h-5 text-gold" />
-                              <span className="text-foreground text-sm font-medium">{cat.title}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
+
+                {/* Category Dropdown - Full width across entire search bar */}
+                {showCategorySuggestions && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-xl z-50 p-6">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Catégories</h3>
+                    {categoriesLoading ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
+                        {[1,2,3,4,5,6,7,8,9].map((i) => (
+                          <Skeleton key={i} className="h-14 rounded-xl" />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
+                        {filteredCategories.map((cat) => (
+                          <button
+                            key={cat.title}
+                            onClick={() => {
+                              setSearchQuery(cat.title);
+                              setShowCategorySuggestions(false);
+                            }}
+                            className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-gold/10 hover:border-gold/30 border border-transparent transition-all text-left group"
+                          >
+                            <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                              <CategoryIcon iconName={cat.icon} className="w-5 h-5 text-gold" />
+                            </div>
+                            <span className="text-foreground text-sm font-medium leading-tight">{cat.title}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* City Search with Region Accordion */}
                 <div className="flex-1 relative" ref={cityInputRef}>
