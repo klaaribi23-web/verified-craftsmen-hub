@@ -4,6 +4,8 @@ import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { useArtisanStories, ArtisanStory } from "@/hooks/useArtisanStories";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +16,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Eye, Clock, Image, Video, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Plus, Trash2, Eye, Clock, Image, Video, Loader2, Type } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -31,8 +40,11 @@ export const ArtisanStories = () => {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [storyToDelete, setStoryToDelete] = useState<string | null>(null);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [caption, setCaption] = useState("");
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -47,10 +59,27 @@ export const ArtisanStories = () => {
       return;
     }
 
-    await uploadStory(file);
+    setSelectedFile(file);
+    setUploadDialogOpen(true);
+    
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handleUploadConfirm = async () => {
+    if (!selectedFile) return;
+    
+    await uploadStory(selectedFile, caption);
+    setUploadDialogOpen(false);
+    setSelectedFile(null);
+    setCaption("");
+  };
+
+  const handleUploadCancel = () => {
+    setUploadDialogOpen(false);
+    setSelectedFile(null);
+    setCaption("");
   };
 
   const handleDeleteConfirm = () => {
@@ -114,8 +143,16 @@ export const ArtisanStories = () => {
             </Button>
           </div>
           
-          {/* Bottom: stats */}
+          {/* Bottom: stats and caption */}
           <div className="space-y-2">
+            {/* Caption if exists */}
+            {story.caption && (
+              <div className="flex items-start gap-2 text-white">
+                <Type className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span className="text-xs line-clamp-2">{story.caption}</span>
+              </div>
+            )}
+            
             {/* Views count */}
             <div className="flex items-center gap-2 text-white">
               <Eye className="w-4 h-4" />
@@ -260,6 +297,67 @@ export const ArtisanStories = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Upload dialog with caption */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter une story</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* File preview */}
+            {selectedFile && (
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                {selectedFile.type.startsWith("video/") ? (
+                  <video
+                    src={URL.createObjectURL(selectedFile)}
+                    className="w-full h-full object-contain"
+                    controls
+                  />
+                ) : (
+                  <img
+                    src={URL.createObjectURL(selectedFile)}
+                    alt="Aperçu"
+                    className="w-full h-full object-contain"
+                  />
+                )}
+              </div>
+            )}
+            
+            {/* Caption input */}
+            <div className="space-y-2">
+              <Label htmlFor="caption">Légende (optionnel)</Label>
+              <Input
+                id="caption"
+                placeholder="Décrivez votre réalisation..."
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                maxLength={150}
+              />
+              <p className="text-xs text-muted-foreground text-right">
+                {caption.length}/150 caractères
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={handleUploadCancel}>
+              Annuler
+            </Button>
+            <Button onClick={handleUploadConfirm} disabled={isUploading}>
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Upload...
+                </>
+              ) : (
+                "Publier"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

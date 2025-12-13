@@ -11,6 +11,7 @@ export interface ArtisanStory {
   media_type: string;
   duration: number | null;
   views_count: number;
+  caption: string | null;
   created_at: string;
   expires_at: string;
 }
@@ -49,7 +50,7 @@ export const useArtisanStories = () => {
   );
 
   // Upload a new story
-  const uploadStory = async (file: File) => {
+  const uploadStory = async (file: File, caption?: string) => {
     if (!artisan?.id) {
       toast.error("Profil artisan non trouvé");
       return null;
@@ -81,6 +82,7 @@ export const useArtisanStories = () => {
           media_url: urlData.publicUrl,
           media_type: mediaType,
           duration: mediaType === "video" ? 15 : 5,
+          caption: caption || null,
         })
         .select()
         .single();
