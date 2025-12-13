@@ -1,18 +1,35 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Vérifier s'il y a un code dans l'URL (flow PKCE)
+        const code = searchParams.get('code');
         
-        if (error) throw error;
+        if (code) {
+          // Échanger le code contre une session
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) {
+            console.error("Exchange error:", exchangeError);
+            setError("Le lien de confirmation a expiré ou est invalide. Veuillez réessayer.");
+            return;
+          }
+        }
+
+        // Récupérer la session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
 
         if (session?.user) {
           // Check if user has a role
@@ -54,18 +71,31 @@ const AuthCallback = () => {
         }
       } catch (error) {
         console.error("Auth callback error:", error);
-        navigate("/auth");
+        setError("Une erreur est survenue lors de la confirmation. Veuillez réessayer.");
       }
     };
 
     handleCallback();
-  }, [navigate]);
+  }, [navigate, searchParams]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <p className="text-destructive">{error}</p>
+          <Button onClick={() => navigate("/auth")}>
+            Retour à la connexion
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-        <p className="text-muted-foreground">Connexion en cours...</p>
+        <p className="text-muted-foreground">Confirmation en cours...</p>
       </div>
     </div>
   );
