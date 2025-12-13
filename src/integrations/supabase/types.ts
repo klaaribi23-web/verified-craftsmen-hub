@@ -156,6 +156,54 @@ export type Database = {
           },
         ]
       }
+      artisan_stories: {
+        Row: {
+          artisan_id: string
+          created_at: string
+          duration: number | null
+          expires_at: string
+          id: string
+          media_type: string
+          media_url: string
+          views_count: number | null
+        }
+        Insert: {
+          artisan_id: string
+          created_at?: string
+          duration?: number | null
+          expires_at?: string
+          id?: string
+          media_type: string
+          media_url: string
+          views_count?: number | null
+        }
+        Update: {
+          artisan_id?: string
+          created_at?: string
+          duration?: number | null
+          expires_at?: string
+          id?: string
+          media_type?: string
+          media_url?: string
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artisan_stories_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_stories_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artisans: {
         Row: {
           activation_sent_at: string | null
@@ -828,6 +876,38 @@ export type Database = {
           },
         ]
       }
+      story_views: {
+        Row: {
+          id: string
+          story_id: string
+          viewed_at: string
+          viewer_id: string | null
+          viewer_ip: string | null
+        }
+        Insert: {
+          id?: string
+          story_id: string
+          viewed_at?: string
+          viewer_id?: string | null
+          viewer_ip?: string | null
+        }
+        Update: {
+          id?: string
+          story_id?: string
+          viewed_at?: string
+          viewer_id?: string | null
+          viewer_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_views_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "artisan_stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_devices: {
         Row: {
           browser: string | null
@@ -1003,6 +1083,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_story_views: {
+        Args: { story_id_param: string }
+        Returns: undefined
       }
     }
     Enums: {
