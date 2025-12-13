@@ -11,6 +11,7 @@ import {
   BadgeCheck,
   Gift,
   ClipboardList,
+  Camera,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,6 +20,7 @@ import { useArtisanProfile } from "@/hooks/useArtisanProfile";
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/artisan/dashboard" },
   { icon: User, label: "Mon profil", path: "/artisan/profil" },
+  { icon: Camera, label: "Mes Stories", path: "/artisan/stories" },
   { icon: FileText, label: "Documents", path: "/artisan/documents" },
   { icon: Briefcase, label: "Mes prestations", path: "/artisan/prestations" },
   { icon: MessageSquare, label: "Demandes reçues", path: "/artisan/demandes" },
