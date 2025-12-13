@@ -22,6 +22,7 @@ import {
   Download,
   X,
   Loader2,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
@@ -47,6 +48,7 @@ export const ArtisanMessaging = () => {
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [mobileShowChat, setMobileShowChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -277,6 +279,16 @@ export const ArtisanMessaging = () => {
     );
   };
 
+  // Handle conversation selection with mobile view switch
+  const handleSelectConversation = (participantId: string) => {
+    setSelectedConversationId(participantId);
+    setMobileShowChat(true);
+  };
+
+  const handleBackToList = () => {
+    setMobileShowChat(false);
+  };
+
   return (
     <>
       <Navbar />
@@ -289,215 +301,232 @@ export const ArtisanMessaging = () => {
           subtitle="Communiquez avec vos clients"
         />
 
-        <main className="flex-1 flex overflow-hidden">
-          {/* Conversations List */}
-          <div className="w-80 border-r border-border bg-card flex flex-col">
-            <div className="p-4 border-b border-border">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Rechercher..." 
-                  className="pl-10 bg-muted/50"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+        <main className="flex-1 flex overflow-hidden p-2 md:p-0">
+          <div className="flex-1 flex bg-card md:bg-transparent rounded-xl md:rounded-none border md:border-0 overflow-hidden">
+            {/* Conversations List - Hidden on mobile when chat is open */}
+            <div className={cn(
+              "w-full md:w-80 border-r border-border bg-card flex flex-col",
+              mobileShowChat ? "hidden md:flex" : "flex"
+            )}>
+              <div className="p-3 md:p-4 border-b border-border">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Rechercher..." 
+                    className="pl-10 bg-muted/50"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
               </div>
-            </div>
-            
-            <ScrollArea className="flex-1">
-              {conversationsLoading ? (
-                <div className="p-4 space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex gap-3">
-                      <Skeleton className="w-12 h-12 rounded-full" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/2" />
+              
+              <ScrollArea className="flex-1">
+                {conversationsLoading ? (
+                  <div className="p-4 space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex gap-3">
+                        <Skeleton className="w-12 h-12 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : filteredConversations.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  <p>Aucune conversation</p>
-                </div>
-              ) : (
-                filteredConversations.map((conv) => (
-                  <button
-                    key={conv.participant_id}
-                    onClick={() => setSelectedConversationId(conv.participant_id)}
-                    className={cn(
-                      "w-full p-4 flex items-start gap-3 hover:bg-muted/50 transition-colors text-left",
-                      selectedConversationId === conv.participant_id && "bg-muted"
-                    )}
-                  >
-                    <div className="relative">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage src={conv.participant_photo || undefined} />
+                    ))}
+                  </div>
+                ) : filteredConversations.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p>Aucune conversation</p>
+                  </div>
+                ) : (
+                  filteredConversations.map((conv) => (
+                    <button
+                      key={conv.participant_id}
+                      onClick={() => handleSelectConversation(conv.participant_id)}
+                      className={cn(
+                        "w-full p-3 md:p-4 flex items-start gap-3 hover:bg-muted/50 active:bg-muted transition-colors text-left",
+                        selectedConversationId === conv.participant_id && "bg-muted"
+                      )}
+                    >
+                      <div className="relative shrink-0">
+                        <Avatar className="w-10 h-10 md:w-12 md:h-12">
+                          <AvatarImage src={conv.participant_photo || undefined} />
+                          <AvatarFallback className="bg-primary/10">
+                            <User className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-foreground text-sm md:text-base truncate">{conv.participant_name}</span>
+                          <span className="text-xs text-muted-foreground shrink-0 ml-2">
+                            {formatMessageTime(conv.last_message_time)}
+                          </span>
+                        </div>
+                        <p className="text-xs md:text-sm text-muted-foreground truncate">{conv.last_message}</p>
+                      </div>
+                      {conv.unread_count > 0 && (
+                        <Badge className="bg-accent text-accent-foreground border-0 h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs shrink-0">
+                          {conv.unread_count}
+                        </Badge>
+                      )}
+                    </button>
+                  ))
+                )}
+              </ScrollArea>
+            </div>
+
+            {/* Chat Area - Full screen on mobile when open */}
+            <div className={cn(
+              "flex-1 flex flex-col",
+              mobileShowChat ? "flex" : "hidden md:flex"
+            )}>
+              {selectedConversation ? (
+                <>
+                  {/* Chat Header */}
+                  <div className="h-14 md:h-16 border-b border-border bg-card px-3 md:px-6 flex items-center justify-between">
+                    <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="md:hidden shrink-0"
+                        onClick={handleBackToList}
+                      >
+                        <ArrowLeft className="w-5 h-5" />
+                      </Button>
+                      <Avatar className="w-8 h-8 md:w-10 md:h-10 shrink-0">
+                        <AvatarImage src={selectedConversation.participant_photo || undefined} />
                         <AvatarFallback className="bg-primary/10">
-                          <User className="w-6 h-6 text-primary" />
+                          <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                         </AvatarFallback>
                       </Avatar>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-foreground">{conv.participant_name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatMessageTime(conv.last_message_time)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground truncate">{conv.last_message}</p>
-                    </div>
-                    {conv.unread_count > 0 && (
-                      <Badge className="bg-accent text-accent-foreground border-0 h-5 w-5 p-0 flex items-center justify-center rounded-full text-xs">
-                        {conv.unread_count}
-                      </Badge>
-                    )}
-                  </button>
-                ))
-              )}
-            </ScrollArea>
-          </div>
-
-          {/* Chat Area */}
-          <div className="flex-1 flex flex-col">
-            {selectedConversation ? (
-              <>
-                {/* Chat Header */}
-                <div className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={selectedConversation.participant_photo || undefined} />
-                      <AvatarFallback className="bg-primary/10">
-                        <User className="w-5 h-5 text-primary" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-foreground">{selectedConversation.participant_name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {selectedConversation.participant_role}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="gold" 
-                      size="sm"
-                      onClick={() => setShowQuoteForm(true)}
-                      className="gap-2"
-                    >
-                      <FileText className="w-4 h-4" />
-                      Proposer un devis
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <Phone className="w-5 h-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <Video className="w-5 h-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Messages */}
-                <ScrollArea className="flex-1 p-6 bg-muted/30">
-                  <div className="space-y-4">
-                    {messagesLoading ? (
-                      <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
-                          <div key={i} className={cn("flex", i % 2 === 0 ? "justify-end" : "justify-start")}>
-                            <Skeleton className="h-16 w-48 rounded-2xl" />
-                          </div>
-                        ))}
-                      </div>
-                    ) : messages.length === 0 ? (
-                      <div className="flex items-center justify-center h-full text-muted-foreground">
-                        <p>Aucun message. Commencez la conversation !</p>
-                      </div>
-                    ) : (
-                      messages.map(renderMessage)
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
-                </ScrollArea>
-
-                {/* File Preview */}
-                {selectedFile && (
-                  <div className="p-4 border-t border-border bg-muted/50">
-                    <div className="flex items-center gap-3 p-2 bg-card rounded-lg border">
-                      {previewUrl ? (
-                        <img src={previewUrl} alt="Preview" className="w-16 h-16 object-cover rounded" />
-                      ) : (
-                        <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
-                          <FileText className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{selectedFile.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {(selectedFile.size / 1024).toFixed(1)} Ko
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground text-sm md:text-base truncate">{selectedConversation.participant_name}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {selectedConversation.participant_role}
                         </p>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={clearSelectedFile}>
-                        <X className="w-5 h-5" />
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button 
+                        variant="gold" 
+                        size="sm"
+                        onClick={() => setShowQuoteForm(true)}
+                        className="gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-3"
+                      >
+                        <FileText className="w-3 h-3 md:w-4 md:h-4" />
+                        <span className="hidden sm:inline">Proposer un</span> devis
+                      </Button>
+                      <Button variant="ghost" size="icon" className="hidden sm:flex">
+                        <Phone className="w-5 h-5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="hidden sm:flex">
+                        <Video className="w-5 h-5" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="w-5 h-5" />
                       </Button>
                     </div>
                   </div>
-                )}
 
-                {/* Message Input */}
-                <div className="p-4 border-t border-border bg-card">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={(e) => handleFileSelect(e, false)}
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.zip"
-                  />
-                  <input
-                    type="file"
-                    ref={imageInputRef}
-                    className="hidden"
-                    onChange={(e) => handleFileSelect(e, true)}
-                    accept="image/*"
-                  />
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}>
-                      <Paperclip className="w-5 h-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => imageInputRef.current?.click()}>
-                      <ImageIcon className="w-5 h-5" />
-                    </Button>
-                    <Input
-                      placeholder="Écrire un message..."
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      className="flex-1"
-                      onKeyPress={(e) => e.key === "Enter" && !selectedFile && handleSendMessage()}
-                      disabled={sendMessage.isPending || uploadFile.isPending}
-                    />
-                    <Button 
-                      variant="gold" 
-                      size="icon"
-                      onClick={handleSendMessage}
-                      disabled={(!newMessage.trim() && !selectedFile) || sendMessage.isPending || uploadFile.isPending}
-                    >
-                      {uploadFile.isPending ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                  {/* Messages */}
+                  <ScrollArea className="flex-1 p-3 md:p-6 bg-muted/30">
+                    <div className="space-y-3 md:space-y-4">
+                      {messagesLoading ? (
+                        <div className="space-y-4">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className={cn("flex", i % 2 === 0 ? "justify-end" : "justify-start")}>
+                              <Skeleton className="h-16 w-48 rounded-2xl" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : messages.length === 0 ? (
+                        <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                          <p>Aucun message. Commencez la conversation !</p>
+                        </div>
                       ) : (
-                        <Send className="w-5 h-5" />
+                        messages.map(renderMessage)
                       )}
-                    </Button>
+                      <div ref={messagesEndRef} />
+                    </div>
+                  </ScrollArea>
+
+                  {/* File Preview */}
+                  {selectedFile && (
+                    <div className="p-3 md:p-4 border-t border-border bg-muted/50">
+                      <div className="flex items-center gap-3 p-2 bg-card rounded-lg border">
+                        {previewUrl ? (
+                          <img src={previewUrl} alt="Preview" className="w-12 h-12 md:w-16 md:h-16 object-cover rounded" />
+                        ) : (
+                          <div className="w-12 h-12 md:w-16 md:h-16 bg-muted rounded flex items-center justify-center">
+                            <FileText className="w-6 h-6 md:w-8 md:h-8 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate text-sm">{selectedFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(selectedFile.size / 1024).toFixed(1)} Ko
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={clearSelectedFile}>
+                          <X className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Message Input */}
+                  <div className="p-2 md:p-4 border-t border-border bg-card">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      onChange={(e) => handleFileSelect(e, false)}
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.zip"
+                    />
+                    <input
+                      type="file"
+                      ref={imageInputRef}
+                      className="hidden"
+                      onChange={(e) => handleFileSelect(e, true)}
+                      accept="image/*"
+                    />
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Button variant="ghost" size="icon" className="shrink-0" onClick={() => fileInputRef.current?.click()}>
+                        <Paperclip className="w-5 h-5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="shrink-0 hidden sm:flex" onClick={() => imageInputRef.current?.click()}>
+                        <ImageIcon className="w-5 h-5" />
+                      </Button>
+                      <Input
+                        placeholder="Écrire un message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        className="flex-1 text-sm md:text-base"
+                        onKeyPress={(e) => e.key === "Enter" && !selectedFile && handleSendMessage()}
+                        disabled={sendMessage.isPending || uploadFile.isPending}
+                      />
+                      <Button 
+                        variant="gold" 
+                        size="icon"
+                        className="shrink-0"
+                        onClick={handleSendMessage}
+                        disabled={(!newMessage.trim() && !selectedFile) || sendMessage.isPending || uploadFile.isPending}
+                      >
+                        {uploadFile.isPending ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Send className="w-5 h-5" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
+                </>
+              ) : (
+                <div className="flex-1 hidden md:flex items-center justify-center text-muted-foreground">
+                  Sélectionnez une conversation pour commencer
                 </div>
-              </>
-            ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                Sélectionnez une conversation pour commencer
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </main>
 
