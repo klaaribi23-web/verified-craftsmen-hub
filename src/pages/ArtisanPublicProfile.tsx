@@ -246,7 +246,7 @@ const ArtisanPublicProfile = () => {
                       >
                         <Avatar className={cn(
                           "h-32 w-32 ring-4",
-                          hasActiveStories ? "ring-green-500 cursor-pointer" : "ring-primary/20"
+                          hasActiveStories ? "ring-green-500 cursor-pointer animate-story-pulse" : "ring-primary/20"
                         )}>
                           <AvatarImage src={artisan.photo_url || undefined} alt={artisan.business_name} />
                           <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
