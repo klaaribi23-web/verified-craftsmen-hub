@@ -888,39 +888,6 @@ export type Database = {
         }
         Relationships: []
       }
-      verification_codes: {
-        Row: {
-          attempts: number | null
-          code: string
-          created_at: string | null
-          email: string
-          expires_at: string
-          id: string
-          user_id: string
-          user_type: string
-        }
-        Insert: {
-          attempts?: number | null
-          code: string
-          created_at?: string | null
-          email: string
-          expires_at: string
-          id?: string
-          user_id: string
-          user_type: string
-        }
-        Update: {
-          attempts?: number | null
-          code?: string
-          created_at?: string | null
-          email?: string
-          expires_at?: string
-          id?: string
-          user_id?: string
-          user_type?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       public_artisans: {
