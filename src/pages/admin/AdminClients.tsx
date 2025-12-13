@@ -11,12 +11,16 @@ import {
   Calendar,
   Briefcase,
   Filter,
-  Users
+  Users,
+  Download,
+  Mail,
+  Phone
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { useProfiles, useMissions } from "@/hooks/useAdminData";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { toast } from "sonner";
 
 const AdminClients = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,6 +52,34 @@ const AdminClients = () => {
 
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), "dd/MM/yyyy", { locale: fr });
+  };
+
+  const exportToCSV = () => {
+    const headers = ["Prénom", "Nom", "Email", "Téléphone", "Ville", "Inscrit le", "Missions postées", "Missions terminées"];
+    const rows = filteredClients.map(client => [
+      client.first_name || "",
+      client.last_name || "",
+      client.email,
+      client.phone || "",
+      client.city || "",
+      formatDate(client.created_at),
+      client.missionsPosted.toString(),
+      client.missionsCompleted.toString()
+    ]);
+
+    const csvContent = [
+      headers.join(";"),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(";"))
+    ].join("\n");
+
+    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `clients_${format(new Date(), "yyyy-MM-dd")}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success("Export CSV téléchargé");
   };
 
   return (
@@ -83,6 +115,10 @@ const AdminClients = () => {
               </div>
               <Button variant="outline" onClick={() => setSearchTerm("")} className="w-full sm:w-auto">
                 Réinitialiser
+              </Button>
+              <Button onClick={exportToCSV} disabled={filteredClients.length === 0} className="w-full sm:w-auto">
+                <Download className="h-4 w-4 mr-2" />
+                Exporter CSV
               </Button>
             </div>
           </CardContent>
@@ -151,10 +187,10 @@ const AdminClients = () => {
                 <thead className="bg-muted/50">
                   <tr>
                     <th className="text-left p-4 font-medium">Client</th>
-                    <th className="text-left p-4 font-medium">Ville</th>
-                    <th className="text-left p-4 font-medium">Inscrit le</th>
-                    <th className="text-left p-4 font-medium">Missions postées</th>
-                    <th className="text-left p-4 font-medium">Missions terminées</th>
+                    <th className="text-left p-4 font-medium hidden md:table-cell">Téléphone</th>
+                    <th className="text-left p-4 font-medium hidden lg:table-cell">Ville</th>
+                    <th className="text-left p-4 font-medium hidden lg:table-cell">Inscrit le</th>
+                    <th className="text-left p-4 font-medium">Missions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -162,9 +198,9 @@ const AdminClients = () => {
                     Array.from({ length: 5 }).map((_, i) => (
                       <tr key={i} className="border-t border-border">
                         <td className="p-4"><Skeleton className="h-10 w-40" /></td>
-                        <td className="p-4"><Skeleton className="h-4 w-24" /></td>
-                        <td className="p-4"><Skeleton className="h-4 w-24" /></td>
-                        <td className="p-4"><Skeleton className="h-6 w-12" /></td>
+                        <td className="p-4 hidden md:table-cell"><Skeleton className="h-4 w-24" /></td>
+                        <td className="p-4 hidden lg:table-cell"><Skeleton className="h-4 w-24" /></td>
+                        <td className="p-4 hidden lg:table-cell"><Skeleton className="h-4 w-24" /></td>
                         <td className="p-4"><Skeleton className="h-6 w-12" /></td>
                       </tr>
                     ))
@@ -183,26 +219,39 @@ const AdminClients = () => {
                               {client.first_name || ""} {client.last_name || ""}
                               {!client.first_name && !client.last_name && "Client"}
                             </p>
-                            <p className="text-sm text-muted-foreground">{client.email}</p>
+                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                              <Mail className="h-3 w-3" />
+                              {client.email}
+                            </p>
+                            <p className="text-sm text-muted-foreground flex items-center gap-1 md:hidden">
+                              <Phone className="h-3 w-3" />
+                              {client.phone || "Non renseigné"}
+                            </p>
                           </div>
                         </td>
-                        <td className="p-4">
+                        <td className="p-4 hidden md:table-cell">
+                          <span className="flex items-center gap-1 text-muted-foreground">
+                            <Phone className="h-4 w-4" />
+                            {client.phone || "Non renseigné"}
+                          </span>
+                        </td>
+                        <td className="p-4 hidden lg:table-cell">
                           <span className="flex items-center gap-1 text-muted-foreground">
                             <MapPin className="h-4 w-4" />
                             {client.city || "Non renseigné"}
                           </span>
                         </td>
-                        <td className="p-4">
+                        <td className="p-4 hidden lg:table-cell">
                           <span className="flex items-center gap-1 text-muted-foreground">
                             <Calendar className="h-4 w-4" />
                             {formatDate(client.created_at)}
                           </span>
                         </td>
                         <td className="p-4">
-                          <Badge variant="secondary">{client.missionsPosted}</Badge>
-                        </td>
-                        <td className="p-4">
-                          <Badge className="bg-green-500/10 text-green-500">{client.missionsCompleted}</Badge>
+                          <div className="flex gap-1">
+                            <Badge variant="secondary" title="Postées">{client.missionsPosted}</Badge>
+                            <Badge className="bg-green-500/10 text-green-500" title="Terminées">{client.missionsCompleted}</Badge>
+                          </div>
                         </td>
                       </tr>
                     ))
