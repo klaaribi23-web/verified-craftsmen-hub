@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface Story {
   id: string;
@@ -214,7 +216,15 @@ const StoryViewer = ({
               </div>
             )}
           </div>
-          <span className="text-white font-medium text-sm">{artisanName}</span>
+          <div className="flex flex-col">
+            <span className="text-white font-medium text-sm">{artisanName}</span>
+            <span className="text-white/60 text-xs">
+              {formatDistanceToNow(new Date(currentStory.created_at), { 
+                addSuffix: true, 
+                locale: fr 
+              })}
+            </span>
+          </div>
         </div>
 
         {/* Media content */}
