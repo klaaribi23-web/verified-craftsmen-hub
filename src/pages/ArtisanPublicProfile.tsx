@@ -10,7 +10,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
 import { Video } from "lucide-react";
@@ -234,15 +234,28 @@ const ArtisanPublicProfile = () => {
             
             {/* Mobile Contact Card - Sticky at top on mobile */}
             <div className="lg:hidden sticky top-16 z-30 -mx-3 px-3 py-2 bg-background/95 backdrop-blur-sm border-b">
-              <div className="flex items-center justify-between gap-2">
-                <Button className="flex-1" size="sm" onClick={() => setChatOpen(true)}>
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Demander un devis
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowContactInfo(!showContactInfo)}>
-                  <Phone className="h-4 w-4" />
-                </Button>
-              </div>
+              {artisan.status === 'prospect' ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Button 
+                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-white" 
+                    size="sm" 
+                    onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Revendiquer cette fiche
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between gap-2">
+                  <Button className="flex-1" size="sm" onClick={() => setChatOpen(true)}>
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Demander un devis
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setShowContactInfo(!showContactInfo)}>
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Left Column - Main Content */}
@@ -645,20 +658,45 @@ const ArtisanPublicProfile = () => {
             <div className="hidden lg:block lg:col-span-1 space-y-6">
               <Card className="border-0 shadow-xl bg-card sticky top-24">
                 <CardContent className="p-6 space-y-4">
-                  <div className="text-center mb-2">
-                    <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>
-                    <p className="text-2xl font-bold text-primary">Contactez-moi</p>
-                  </div>
-                  
-                  <Button className="w-full" size="lg" onClick={() => setChatOpen(true)}>
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Demander un devis
-                  </Button>
-                  
-                  <Button variant="outline" className="w-full" size="lg" onClick={() => setShowContactInfo(!showContactInfo)}>
-                    <Phone className="h-4 w-4 mr-2" />
-                    {showContactInfo ? "Masquer les contacts" : "Voir le téléphone"}
-                  </Button>
+                  {artisan.status === 'prospect' ? (
+                    <>
+                      <div className="text-center mb-2">
+                        <p className="text-sm text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
+                        <p className="text-2xl font-bold text-amber-600">Revendiquez votre fiche</p>
+                      </div>
+                      
+                      <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                        <p className="text-sm text-muted-foreground text-center mb-3">
+                          Cette fiche a été créée pour vous. Réclamez-la pour gérer votre profil et recevoir des demandes de clients.
+                        </p>
+                        <Button 
+                          className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
+                          size="lg" 
+                          onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Revendiquer cette fiche
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-center mb-2">
+                        <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>
+                        <p className="text-2xl font-bold text-primary">Contactez-moi</p>
+                      </div>
+                      
+                      <Button className="w-full" size="lg" onClick={() => setChatOpen(true)}>
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Demander un devis
+                      </Button>
+                      
+                      <Button variant="outline" className="w-full" size="lg" onClick={() => setShowContactInfo(!showContactInfo)}>
+                        <Phone className="h-4 w-4 mr-2" />
+                        {showContactInfo ? "Masquer les contacts" : "Voir le téléphone"}
+                      </Button>
+                    </>
+                  )}
 
                   {/* Contact Info revealed */}
                   {showContactInfo && (

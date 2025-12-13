@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -74,7 +74,10 @@ const artisanSignupSchema = z.object({
 
 const DevenirArtisan = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const claimSlug = searchParams.get('claim');
   const [isLoading, setIsLoading] = useState(false);
+  const [claimArtisan, setClaimArtisan] = useState<{ id: string; email: string | null; business_name: string } | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -84,6 +87,29 @@ const DevenirArtisan = () => {
     city: "",
     password: "",
   });
+
+  // Fetch artisan data if claiming
+  useEffect(() => {
+    const fetchClaimArtisan = async () => {
+      if (!claimSlug) return;
+      
+      const { data, error } = await supabase
+        .from('artisans')
+        .select('id, email, business_name')
+        .eq('slug', claimSlug)
+        .eq('status', 'prospect')
+        .maybeSingle();
+      
+      if (!error && data) {
+        setClaimArtisan(data);
+        if (data.email) {
+          setFormData(prev => ({ ...prev, email: data.email || '' }));
+        }
+      }
+    };
+    
+    fetchClaimArtisan();
+  }, [claimSlug]);
 
   const updateForm = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -147,6 +173,11 @@ const DevenirArtisan = () => {
           return;
         }
 
+        // If claiming, store the claim slug for AuthCallback to handle
+        if (claimSlug) {
+          localStorage.setItem('artisan_claim_slug', claimSlug);
+        }
+
         // Wait for profile to be created by trigger
         await new Promise(resolve => setTimeout(resolve, 1000));
         
@@ -157,28 +188,31 @@ const DevenirArtisan = () => {
           .single();
 
         if (profile) {
-          // Create minimal artisan profile
-          const { error: artisanError } = await supabase
-            .from("artisans")
-            .insert([{
-              user_id: data.user.id,
-              profile_id: profile.id,
-              business_name: "Non renseigné",
-              city: formData.city || "Non renseigné",
-              status: "pending",
-              description: null,
-              photo_url: null,
-              portfolio_images: null,
-              portfolio_videos: null,
-              experience_years: 0,
-              rating: 0,
-              review_count: 0,
-              missions_completed: 0,
-              availability: {},
-            }]);
+          // Only create new artisan profile if NOT claiming an existing one
+          if (!claimSlug) {
+            // Create minimal artisan profile
+            const { error: artisanError } = await supabase
+              .from("artisans")
+              .insert([{
+                user_id: data.user.id,
+                profile_id: profile.id,
+                business_name: "Non renseigné",
+                city: formData.city || "Non renseigné",
+                status: "pending",
+                description: null,
+                photo_url: null,
+                portfolio_images: null,
+                portfolio_videos: null,
+                experience_years: 0,
+                rating: 0,
+                review_count: 0,
+                missions_completed: 0,
+                availability: {},
+              }]);
 
-          if (artisanError) {
-            console.error("Error creating artisan:", artisanError);
+            if (artisanError) {
+              console.error("Error creating artisan:", artisanError);
+            }
           }
 
           // Update profile with phone and city
@@ -271,12 +305,26 @@ const DevenirArtisan = () => {
                 transition={{ delay: 0.2 }}
               >
                 <div className="bg-white rounded-2xl p-8 shadow-floating">
+                  {claimArtisan && (
+                    <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-sm font-medium text-amber-800 mb-1">
+                        Vous revendiquez la fiche :
+                      </p>
+                      <p className="text-lg font-bold text-amber-900">
+                        {claimArtisan.business_name}
+                      </p>
+                      <p className="text-xs text-amber-700 mt-1">
+                        Créez votre compte pour gérer cette fiche.
+                      </p>
+                    </div>
+                  )}
+                  
                   <div className="text-center mb-6">
                     <h2 className="text-xl font-bold text-navy mb-2">
-                      Créer mon compte artisan
+                      {claimSlug ? "Revendiquer ma fiche" : "Créer mon compte artisan"}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Inscription rapide en 2 minutes
+                      {claimSlug ? "Finalisez votre inscription" : "Inscription rapide en 2 minutes"}
                     </p>
                   </div>
 
