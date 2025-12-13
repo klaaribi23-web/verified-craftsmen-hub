@@ -403,9 +403,15 @@ const ArtisanPublicProfile = () => {
                                 {service.duration}
                               </p>}
                           </div>
-                          {service.price && <Badge variant="secondary" className="font-semibold">
+                          {service.price ? (
+                            <Badge variant="secondary" className="font-semibold">
                               {service.price}€
-                            </Badge>}
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-accent/10 text-accent border-accent/20 font-semibold">
+                              Sur Devis
+                            </Badge>
+                          )}
                         </div>)}
                     </div> : <p className="text-muted-foreground text-center py-4">
                       Aucune prestation renseignée
