@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -10,9 +11,12 @@ import {
   LogOut,
   Shield,
   Settings,
-  FileText
+  FileText,
+  Menu
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAllNotifications } from "@/hooks/useAllNotifications";
@@ -30,7 +34,7 @@ const menuItems = [
   { icon: Settings, label: "Paramètres", path: "/admin/parametres" },
 ];
 
-export const AdminSidebar = () => {
+const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
@@ -49,9 +53,9 @@ export const AdminSidebar = () => {
   };
 
   return (
-    <aside className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
+    <>
       {/* Logo */}
-      <div className="p-6 border-b border-border">
+      <div className="p-4 lg:p-6 border-b border-border">
         <div className="flex items-center gap-2">
           <Shield className="h-8 w-8 text-primary" />
           <div>
@@ -64,11 +68,11 @@ export const AdminSidebar = () => {
       {/* Admin Info */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
             <Shield className="h-5 w-5 text-primary" />
           </div>
-          <div>
-            <p className="font-medium text-sm text-foreground">
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-sm text-foreground truncate">
               {isLoading ? "Chargement..." : displayName}
             </p>
             <p className="text-xs text-muted-foreground">Accès complet</p>
@@ -92,21 +96,22 @@ export const AdminSidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <NavLink
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              onClick={onItemClick}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors min-h-[44px] ${
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <item.icon className="h-5 w-5" />
-              <span className="font-medium">{item.label}</span>
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <span className="font-medium truncate">{item.label}</span>
               {item.badge === "approvals" && pendingApprovalsCount > 0 && (
                 <Badge className="ml-auto bg-destructive text-destructive-foreground text-xs px-2">
                   {pendingApprovalsCount}
@@ -126,12 +131,44 @@ export const AdminSidebar = () => {
       <div className="p-4 border-t border-border">
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors min-h-[44px]"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-5 w-5 flex-shrink-0" />
           <span className="font-medium">Déconnexion</span>
         </button>
       </div>
-    </aside>
+    </>
+  );
+};
+
+export const AdminSidebar = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      {/* Mobile Menu Button */}
+      <div className="lg:hidden fixed bottom-4 left-4 z-50">
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button 
+              size="icon" 
+              className="h-14 w-14 rounded-full shadow-lg bg-primary text-primary-foreground"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[280px] p-0 bg-card">
+            <div className="flex flex-col h-full">
+              <SidebarContent onItemClick={() => setOpen(false)} />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-64 bg-card border-r border-border min-h-screen flex-col">
+        <SidebarContent />
+      </aside>
+    </>
   );
 };

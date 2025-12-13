@@ -184,15 +184,23 @@ const ArtisanCard = ({
   return (
     <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
       {/* Portfolio Carousel */}
-      <div className="relative h-48 overflow-hidden group">
+      <div className="relative h-44 md:h-48 overflow-hidden group">
         <img src={portfolioImages[currentSlide]} alt={`Réalisation ${currentSlide + 1}`} className="w-full h-full object-cover transition-transform duration-300" />
         
-        {/* Carousel Controls */}
-        <button onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card">
-          <ChevronLeft className="w-4 h-4 text-foreground" />
+        {/* Carousel Controls - Always visible on mobile for touch */}
+        <button 
+          onClick={prevSlide} 
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/90 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-card touch-manipulation"
+          aria-label="Image précédente"
+        >
+          <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
-        <button onClick={nextSlide} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-card">
-          <ChevronRight className="w-4 h-4 text-foreground" />
+        <button 
+          onClick={nextSlide} 
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/90 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-card touch-manipulation"
+          aria-label="Image suivante"
+        >
+          <ChevronRight className="w-5 h-5 text-foreground" />
         </button>
 
         {/* Dots Indicator */}
@@ -205,16 +213,17 @@ const ArtisanCard = ({
                 e.stopPropagation();
                 setCurrentSlide(index);
               }} 
-              className={`w-1.5 h-1.5 rounded-full transition-all ${index === currentSlide ? "bg-card w-4" : "bg-card/60"}`} 
+              className={`w-2 h-2 rounded-full transition-all ${index === currentSlide ? "bg-card w-4" : "bg-card/60"}`} 
+              aria-label={`Image ${index + 1}`}
             />
           ))}
         </div>
 
         {/* Verified Badge */}
         {verified && (
-          <div className="absolute top-2 right-12 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+          <div className="absolute top-2 right-14 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" />
-            Vérifié
+            <span className="hidden sm:inline">Vérifié</span>
           </div>
         )}
 
@@ -222,9 +231,10 @@ const ArtisanCard = ({
         <button 
           onClick={handleFavoriteClick} 
           disabled={isLoading}
-          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${isFavorite ? "bg-red-500 text-white" : "bg-card/90 text-muted-foreground hover:bg-red-500 hover:text-white"} ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`absolute top-2 right-2 w-10 h-10 rounded-full flex items-center justify-center transition-all touch-manipulation ${isFavorite ? "bg-red-500 text-white" : "bg-card/90 text-muted-foreground hover:bg-red-500 hover:text-white"} ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+          aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
-          <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
+          <Heart className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`} />
         </button>
       </div>
 
@@ -243,7 +253,7 @@ const ArtisanCard = ({
               }
             }}
             className={cn(
-              "w-12 h-12 rounded-full object-cover border-2",
+              "w-11 h-11 md:w-12 md:h-12 rounded-full object-cover border-2 flex-shrink-0",
               hasActiveStories 
                 ? "border-green-500 cursor-pointer animate-story-pulse" 
                 : "border-gold"
@@ -252,30 +262,30 @@ const ArtisanCard = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <Link to={`/artisan/${artisanUrl}`}>
-                <h3 className="font-semibold text-foreground hover:text-gold transition-colors truncate">
+                <h3 className="font-semibold text-foreground hover:text-gold transition-colors truncate text-sm md:text-base">
                   {name}
                 </h3>
               </Link>
             </div>
           </div>
-          <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg">
+          <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg flex-shrink-0">
             <Star className="w-4 h-4 fill-gold text-gold" />
-            <span className="font-semibold text-foreground">{rating}</span>
-            <span className="text-xs text-muted-foreground">({reviews})</span>
+            <span className="font-semibold text-foreground text-sm">{rating}</span>
+            <span className="text-xs text-muted-foreground hidden sm:inline">({reviews})</span>
           </div>
         </div>
 
         {/* Location & Info */}
-        <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 md:gap-4 mb-4 text-xs md:text-sm text-muted-foreground">
           <div className="flex items-center gap-1 min-w-0">
             <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate" title={location}>{location}</span>
           </div>
           <span className="flex-shrink-0">•</span>
-          <span className="flex-shrink-0">{experience} d'expérience</span>
+          <span className="flex-shrink-0 whitespace-nowrap">{experience} d'exp.</span>
         </div>
 
-        <Button variant="gold" className="w-full" onClick={handleProfileClick}>
+        <Button variant="gold" className="w-full h-11" onClick={handleProfileClick}>
           Voir le profil
         </Button>
       </div>

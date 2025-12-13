@@ -150,9 +150,9 @@ const TrouverArtisan = () => {
   return <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="pt-20">
+      <main className="pt-16 lg:pt-20">
         {/* Hero Search */}
-        <section className="bg-navy py-16 lg:py-24">
+        <section className="bg-navy py-10 md:py-16 lg:py-24">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div initial={{
             opacity: 0,
@@ -160,11 +160,11 @@ const TrouverArtisan = () => {
           }} animate={{
             opacity: 1,
             y: 0
-          }} className="text-center mb-10">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+          }} className="text-center mb-6 md:mb-10">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-4">
                 Trouvez votre <span className="text-gradient-gold">artisan</span>
               </h1>
-              <p className="text-lg text-white/70 max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto px-4">
                 Plus de {totalArtisans} artisans vérifiés à votre service
               </p>
             </motion.div>
@@ -186,21 +186,21 @@ const TrouverArtisan = () => {
 
 
         {/* Featured Artisans Carousel */}
-        <section className="py-16 bg-muted">
+        <section className="py-10 md:py-16 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-foreground">Artisans recommandés</h2>
+            <div className="flex items-center justify-between mb-6 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">Artisans recommandés</h2>
             </div>
             <FeaturedArtisansCarousel />
           </div>
         </section>
 
         {/* All Artisans with Filters */}
-        <section className="py-16 bg-card" ref={resultsRef}>
+        <section className="py-10 md:py-16 bg-card" ref={resultsRef}>
           <div className="container mx-auto px-4 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-8">Tous nos artisans</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6 md:mb-8">Tous nos artisans</h2>
             
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
               {/* Filters - Left Column */}
               <div className="lg:w-80 flex-shrink-0">
                 <ArtisanFilters onFiltersChange={handleFiltersChange} />
@@ -208,14 +208,14 @@ const TrouverArtisan = () => {
 
               {/* Artisans Grid - Right Column */}
               <div className="flex-1">
-                {artisansLoading ? <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {artisansLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                     {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-80 rounded-2xl" />)}
                   </div> : paginatedArtisans.length > 0 ? <>
                     <div className="mb-4 text-sm text-muted-foreground">
                       {filteredArtisans.length} artisan{filteredArtisans.length > 1 ? "s" : ""} trouvé{filteredArtisans.length > 1 ? "s" : ""}
                     </div>
                     
-                    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8">
                       {paginatedArtisans.map(artisan => <motion.div key={artisan.id} initial={{
                     opacity: 0,
                     y: 20
@@ -229,21 +229,24 @@ const TrouverArtisan = () => {
 
                     {/* Pagination */}
                     {totalPages > 1 && <Pagination>
-                        <PaginationContent>
+                        <PaginationContent className="flex-wrap gap-1">
                           <PaginationItem>
-                            <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} />
+                            <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className={`${currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} min-h-[44px]`} />
                           </PaginationItem>
                           
                           {Array.from({
                       length: totalPages
-                    }, (_, i) => i + 1).map(page => <PaginationItem key={page}>
-                              <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer">
+                    }, (_, i) => i + 1).slice(
+                      Math.max(0, currentPage - 3),
+                      Math.min(totalPages, currentPage + 2)
+                    ).map(page => <PaginationItem key={page}>
+                              <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer min-h-[44px] min-w-[44px]">
                                 {page}
                               </PaginationLink>
                             </PaginationItem>)}
                           
                           <PaginationItem>
-                            <PaginationNext onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} />
+                            <PaginationNext onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className={`${currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} min-h-[44px]`} />
                           </PaginationItem>
                         </PaginationContent>
                       </Pagination>}
@@ -256,16 +259,16 @@ const TrouverArtisan = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-16 bg-muted">
+        <section className="py-10 md:py-16 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="bg-gradient-gold rounded-3xl p-8 lg:p-12 text-center">
-              <h2 className="text-2xl lg:text-3xl font-bold text-navy-dark mb-4">
+            <div className="bg-gradient-gold rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center">
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-navy-dark mb-3 md:mb-4">
                 Vous ne trouvez pas ce que vous cherchez ?
               </h2>
-              <p className="text-navy-dark/70 mb-8 max-w-xl mx-auto">
+              <p className="text-navy-dark/70 mb-6 md:mb-8 max-w-xl mx-auto text-sm md:text-base">
                 Décrivez votre projet et nous vous mettrons en relation avec les artisans les plus adaptés.
               </p>
-              <Button variant="default" size="lg" asChild>
+              <Button variant="default" size="lg" asChild className="w-full sm:w-auto">
                 <Link to="/demande-devis">
                   Déposer une demande de devis
                   <ArrowRight className="w-5 h-5 ml-2" />
