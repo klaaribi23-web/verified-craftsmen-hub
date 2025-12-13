@@ -73,6 +73,7 @@ export const ArtisanDocuments = () => {
   const queryClient = useQueryClient();
   const { artisan } = useArtisanProfile();
   const [isUploading, setIsUploading] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch documents from database
@@ -188,29 +189,59 @@ export const ArtisanDocuments = () => {
   };
 
   const handleView = async (doc: DocumentRecord) => {
-    const { data } = await supabase.storage
-      .from("artisan-documents")
-      .createSignedUrl(doc.file_path, 3600);
+    try {
+      const { data, error } = await supabase.storage
+        .from("artisan-documents")
+        .createSignedUrl(doc.file_path, 3600);
 
-    if (data?.signedUrl) {
+      if (error || !data?.signedUrl) {
+        console.error("View error:", error);
+        toast.error("Impossible d'ouvrir le document");
+        return;
+      }
+
       window.open(data.signedUrl, "_blank");
-    } else {
-      toast.error("Impossible d'ouvrir le document");
+    } catch (error) {
+      console.error("View error:", error);
+      toast.error("Erreur lors de l'ouverture du document");
     }
   };
 
   const handleDownload = async (doc: DocumentRecord) => {
-    const { data } = await supabase.storage
-      .from("artisan-documents")
-      .createSignedUrl(doc.file_path, 3600);
+    setDownloadingId(doc.id);
+    try {
+      const { data, error } = await supabase.storage
+        .from("artisan-documents")
+        .createSignedUrl(doc.file_path, 3600, {
+          download: doc.file_name
+        });
 
-    if (data?.signedUrl) {
+      if (error || !data?.signedUrl) {
+        console.error("Download error:", error);
+        toast.error("Impossible de télécharger le document");
+        return;
+      }
+
+      // Fetch as blob for reliable cross-origin download
+      const response = await fetch(data.signedUrl);
+      if (!response.ok) throw new Error("Erreur de téléchargement");
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = data.signedUrl;
+      link.href = url;
       link.download = doc.file_name;
+      document.body.appendChild(link);
       link.click();
-    } else {
-      toast.error("Impossible de télécharger le document");
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success("Document téléchargé");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Erreur lors du téléchargement");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -375,8 +406,13 @@ export const ArtisanDocuments = () => {
                                   size="icon" 
                                   className="h-8 w-8"
                                   onClick={() => handleDownload(doc)}
+                                  disabled={downloadingId === doc.id}
                                 >
-                                  <Download className="w-4 h-4" />
+                                  {downloadingId === doc.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Download className="w-4 h-4" />
+                                  )}
                                 </Button>
                                 <Button 
                                   variant="ghost" 
