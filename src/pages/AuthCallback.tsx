@@ -54,6 +54,34 @@ const AuthCallback = () => {
             .eq("user_id", session.user.id)
             .single();
 
+          // If artisan role, ensure artisan profile exists
+          if (roles?.role === "artisan") {
+            const { data: existingArtisan } = await supabase
+              .from("artisans")
+              .select("id")
+              .eq("user_id", session.user.id)
+              .maybeSingle();
+
+            // Create artisan profile if missing
+            if (!existingArtisan) {
+              const { data: profile } = await supabase
+                .from("profiles")
+                .select("id, city")
+                .eq("user_id", session.user.id)
+                .single();
+
+              if (profile) {
+                await supabase.from("artisans").insert([{
+                  user_id: session.user.id,
+                  profile_id: profile.id,
+                  business_name: "Non renseigné",
+                  city: profile.city || "Non renseigné",
+                  status: "pending",
+                }]);
+              }
+            }
+          }
+
           // Determine target dashboard
           let dashboard = "/client/dashboard";
           if (roles?.role === "admin") {
