@@ -654,9 +654,9 @@ const ArtisanPublicProfile = () => {
             }} />
             </div>
 
-            {/* Right Column - Contact Card - Hidden on mobile (shown as fixed position) */}
-            <div className="hidden lg:block lg:col-span-1">
-              <Card className="border-0 shadow-xl bg-card fixed top-24 w-[320px] max-h-[calc(100vh-120px)] overflow-y-auto">
+            {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
+            <div className="hidden lg:block lg:col-span-1 space-y-6">
+              <Card className="border-0 shadow-xl bg-card sticky top-24">
                 <CardContent className="p-6 space-y-4">
                   {artisan.status === 'prospect' ? (
                     <>
