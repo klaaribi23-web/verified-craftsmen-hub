@@ -41,6 +41,7 @@ import AdminAddArtisan from "./pages/admin/AdminAddArtisan";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminDocuments from "./pages/admin/AdminDocuments";
+import AdminBulkImport from "./pages/admin/AdminBulkImport";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -214,6 +215,11 @@ const App = () => (
           <Route path="/admin/documents" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminDocuments />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/import-massif" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminBulkImport />
             </ProtectedRoute>
           } />
           

@@ -12,7 +12,8 @@ import {
   Shield,
   Settings,
   FileText,
-  Menu
+  Menu,
+  Upload
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const menuItems = [
   { icon: BarChart3, label: "Statistiques", path: "/admin/statistiques" },
   { icon: MessageSquare, label: "Messagerie", path: "/admin/messagerie" },
   { icon: UserPlus, label: "Ajouter artisan", path: "/admin/ajouter-artisan" },
+  { icon: Upload, label: "Import massif", path: "/admin/import-massif" },
   { icon: Settings, label: "Paramètres", path: "/admin/parametres" },
 ];
 
