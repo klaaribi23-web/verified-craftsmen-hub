@@ -1,0 +1,574 @@
+import { useState, useCallback } from "react";
+import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
+import Navbar from "@/components/layout/Navbar";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useCategories } from "@/hooks/useAdminData";
+import { 
+  Upload, 
+  FileJson, 
+  CheckCircle2, 
+  XCircle, 
+  AlertTriangle,
+  Loader2,
+  Download,
+  Trash2
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+interface ParsedArtisan {
+  businessName: string;
+  description: string;
+  email: string;
+  phone: string;
+  city: string;
+  postalCode: string;
+  address: string;
+  siret: string;
+  services: string[];
+  rating: number;
+  reviewsCount: number;
+}
+
+interface ColumnConfig {
+  key: keyof ParsedArtisan;
+  label: string;
+  enabled: boolean;
+  required: boolean;
+}
+
+const DEFAULT_COLUMNS: ColumnConfig[] = [
+  { key: "businessName", label: "Nom de l'entreprise", enabled: true, required: true },
+  { key: "description", label: "Description", enabled: true, required: false },
+  { key: "email", label: "Email", enabled: true, required: false },
+  { key: "phone", label: "Téléphone", enabled: true, required: false },
+  { key: "city", label: "Ville", enabled: true, required: true },
+  { key: "postalCode", label: "Code postal", enabled: true, required: false },
+  { key: "address", label: "Adresse", enabled: true, required: false },
+  { key: "siret", label: "SIRET", enabled: true, required: false },
+  { key: "services", label: "Services", enabled: true, required: false },
+];
+
+// Map common service names to category names
+const SERVICE_TO_CATEGORY_MAP: Record<string, string> = {
+  "plomberie": "Plombier",
+  "plombier": "Plombier",
+  "chauffage": "Chauffagiste",
+  "chauffagiste": "Chauffagiste",
+  "électricité": "Électricien",
+  "electricite": "Électricien",
+  "électricien": "Électricien",
+  "electricien": "Électricien",
+  "peinture": "Peintre",
+  "peintre": "Peintre",
+  "maçonnerie": "Maçon",
+  "maconnerie": "Maçon",
+  "maçon": "Maçon",
+  "macon": "Maçon",
+  "carrelage": "Carreleur",
+  "carreleur": "Carreleur",
+  "menuiserie": "Menuisier",
+  "menuisier": "Menuisier",
+  "couverture": "Couvreur",
+  "couvreur": "Couvreur",
+  "toiture": "Couvreur",
+  "serrurerie": "Serrurier",
+  "serrurier": "Serrurier",
+  "climatisation": "Climaticien",
+  "climaticien": "Climaticien",
+  "isolation": "Isolation thermique",
+  "rénovation": "Rénovation complète",
+  "renovation": "Rénovation complète",
+};
+
+const AdminBulkImport = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const [parsedData, setParsedData] = useState<ParsedArtisan[]>([]);
+  const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
+  const [importResults, setImportResults] = useState<{ success: number; errors: number; errorDetails: string[] } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const { data: categories } = useCategories();
+
+  const parseJsonFile = (jsonData: any[]): ParsedArtisan[] => {
+    return jsonData.map((item) => ({
+      businessName: item.businessName || item.business_name || item.name || "",
+      description: item.about || item.description || "",
+      email: item.contact?.email || item.email || "",
+      phone: item.contact?.telephone || item.contact?.phone || item.phone || "",
+      city: item.contact?.address?.city || item.city || "",
+      postalCode: item.contact?.address?.postalCode || item.postal_code || item.postalCode || "",
+      address: item.contact?.address?.street || item.address || "",
+      siret: item.contact?.vatID || item.siret || "",
+      services: Array.isArray(item.services) ? item.services : [],
+      rating: item.rating || 0,
+      reviewsCount: item.reviews_count || item.reviewsCount || 0,
+    }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      processFile(selectedFile);
+    }
+  };
+
+  const processFile = (selectedFile: File) => {
+    if (!selectedFile.name.endsWith(".json")) {
+      toast({
+        title: "Format invalide",
+        description: "Veuillez sélectionner un fichier JSON",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Fichier trop volumineux",
+        description: "Le fichier ne doit pas dépasser 10 MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setFile(selectedFile);
+    setImportResults(null);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        const data = Array.isArray(json) ? json : [json];
+        const parsed = parseJsonFile(data);
+        setParsedData(parsed);
+        setColumns(DEFAULT_COLUMNS);
+        
+        toast({
+          title: "Fichier analysé",
+          description: `${parsed.length} artisans détectés`,
+        });
+      } catch (error) {
+        toast({
+          title: "Erreur de parsing",
+          description: "Le fichier JSON est invalide",
+          variant: "destructive",
+        });
+      }
+    };
+    reader.readAsText(selectedFile);
+  };
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile) {
+      processFile(droppedFile);
+    }
+  }, []);
+
+  const toggleColumn = (key: keyof ParsedArtisan) => {
+    setColumns((prev) =>
+      prev.map((col) =>
+        col.key === key && !col.required ? { ...col, enabled: !col.enabled } : col
+      )
+    );
+  };
+
+  const findCategoryId = (services: string[]): string | null => {
+    if (!categories || services.length === 0) return null;
+
+    for (const service of services) {
+      const normalizedService = service.toLowerCase().trim();
+      const mappedCategory = SERVICE_TO_CATEGORY_MAP[normalizedService];
+      
+      if (mappedCategory) {
+        const category = categories.find(
+          (c) => c.name.toLowerCase() === mappedCategory.toLowerCase()
+        );
+        if (category) return category.id;
+      }
+
+      // Try direct match
+      const directMatch = categories.find(
+        (c) => c.name.toLowerCase().includes(normalizedService) ||
+               normalizedService.includes(c.name.toLowerCase())
+      );
+      if (directMatch) return directMatch.id;
+    }
+
+    return null;
+  };
+
+  const handleImport = async () => {
+    if (parsedData.length === 0) return;
+
+    setIsImporting(true);
+    setImportProgress(0);
+    setImportResults(null);
+
+    const enabledColumns = columns.filter((c) => c.enabled).map((c) => c.key);
+    const batchSize = 500;
+    const totalBatches = Math.ceil(parsedData.length / batchSize);
+    let successCount = 0;
+    let errorCount = 0;
+    const errorDetails: string[] = [];
+
+    for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+      const start = batchIndex * batchSize;
+      const end = Math.min(start + batchSize, parsedData.length);
+      const batch = parsedData.slice(start, end);
+
+      for (const artisan of batch) {
+        try {
+          // Build artisan data based on enabled columns
+          const artisanData: any = {
+            business_name: artisan.businessName || "À compléter",
+            city: artisan.city || "À compléter",
+            status: "prospect" as const,
+            is_verified: false,
+          };
+
+          if (enabledColumns.includes("description")) {
+            artisanData.description = artisan.description;
+          }
+          if (enabledColumns.includes("email")) {
+            artisanData.email = artisan.email;
+          }
+          if (enabledColumns.includes("phone")) {
+            artisanData.phone = artisan.phone;
+          }
+          if (enabledColumns.includes("postalCode")) {
+            artisanData.postal_code = artisan.postalCode;
+          }
+          if (enabledColumns.includes("address")) {
+            artisanData.address = artisan.address;
+          }
+          if (enabledColumns.includes("siret")) {
+            artisanData.siret = artisan.siret;
+          }
+
+          // Find category from services
+          const categoryId = findCategoryId(artisan.services);
+          if (categoryId) {
+            artisanData.category_id = categoryId;
+          }
+
+          // Insert artisan
+          const { data: insertedArtisan, error: artisanError } = await supabase
+            .from("artisans")
+            .insert(artisanData)
+            .select()
+            .single();
+
+          if (artisanError) throw artisanError;
+
+          // Insert into artisan_categories if category found
+          if (categoryId && insertedArtisan) {
+            await supabase.from("artisan_categories").insert({
+              artisan_id: insertedArtisan.id,
+              category_id: categoryId,
+            });
+          }
+
+          // Insert services if enabled
+          if (enabledColumns.includes("services") && artisan.services.length > 0 && insertedArtisan) {
+            const serviceInserts = artisan.services.slice(0, 10).map((service) => ({
+              artisan_id: insertedArtisan.id,
+              title: service,
+            }));
+
+            await supabase.from("artisan_services").insert(serviceInserts);
+          }
+
+          successCount++;
+        } catch (error: any) {
+          errorCount++;
+          errorDetails.push(`${artisan.businessName}: ${error.message}`);
+        }
+      }
+
+      // Update progress
+      const progress = Math.round(((batchIndex + 1) / totalBatches) * 100);
+      setImportProgress(progress);
+    }
+
+    setIsImporting(false);
+    setImportResults({ success: successCount, errors: errorCount, errorDetails });
+
+    if (errorCount === 0) {
+      toast({
+        title: "✅ Import réussi",
+        description: `${successCount} artisans VITRINE créés`,
+      });
+    } else {
+      toast({
+        title: "⚠️ Import terminé avec erreurs",
+        description: `${successCount} importés, ${errorCount} erreurs`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClear = () => {
+    setFile(null);
+    setParsedData([]);
+    setImportResults(null);
+    setImportProgress(0);
+  };
+
+  const downloadErrorReport = () => {
+    if (!importResults?.errorDetails.length) return;
+    
+    const csvContent = "data:text/csv;charset=utf-8," + 
+      "Artisan,Erreur\n" +
+      importResults.errorDetails.map(e => `"${e.split(":")[0]}","${e.split(":").slice(1).join(":")}"`).join("\n");
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", "erreurs_import.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <>
+      <Navbar />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <AdminSidebar />
+        
+        <main className="flex-1 p-4 md:p-8">
+          <div className="mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Import massif d'artisans</h1>
+            <p className="text-muted-foreground mt-1">Importez des artisans VITRINE depuis un fichier JSON</p>
+          </div>
+
+          {/* Upload Zone */}
+          {!file && (
+            <Card className="mb-6">
+              <CardContent className="p-8">
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${
+                    isDragging 
+                      ? "border-primary bg-primary/5" 
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">Glissez-déposez votre fichier JSON</h3>
+                  <p className="text-muted-foreground mb-4">ou cliquez pour sélectionner un fichier</p>
+                  <p className="text-sm text-muted-foreground mb-4">Maximum 10 MB • Format JSON uniquement</p>
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label htmlFor="file-upload">
+                    <Button asChild>
+                      <span>
+                        <FileJson className="h-4 w-4 mr-2" />
+                        Sélectionner un fichier
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* File Info & Clear */}
+          {file && (
+            <Card className="mb-6">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileJson className="h-8 w-8 text-primary" />
+                    <div>
+                      <p className="font-medium">{file.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {(file.size / 1024).toFixed(1)} KB • {parsedData.length} artisans détectés
+                      </p>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleClear}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Effacer
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Column Selection */}
+          {parsedData.length > 0 && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-lg">Colonnes à importer</CardTitle>
+                <CardDescription>Sélectionnez les colonnes que vous souhaitez importer</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {columns.map((col) => (
+                    <div
+                      key={col.key}
+                      className="flex items-center space-x-2"
+                    >
+                      <Checkbox
+                        id={col.key}
+                        checked={col.enabled}
+                        disabled={col.required}
+                        onCheckedChange={() => toggleColumn(col.key)}
+                      />
+                      <label
+                        htmlFor={col.key}
+                        className={`text-sm cursor-pointer ${col.required ? "font-medium" : ""}`}
+                      >
+                        {col.label}
+                        {col.required && <span className="text-destructive ml-1">*</span>}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">* Colonnes obligatoires</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Preview Table */}
+          {parsedData.length > 0 && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-lg">Prévisualisation</CardTitle>
+                <CardDescription>10 premiers artisans sur {parsedData.length}</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {columns.filter(c => c.enabled).map((col) => (
+                          <TableHead key={col.key}>{col.label}</TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {parsedData.slice(0, 10).map((artisan, index) => (
+                        <TableRow key={index}>
+                          {columns.filter(c => c.enabled).map((col) => (
+                            <TableCell key={col.key} className="max-w-[200px] truncate">
+                              {col.key === "services" 
+                                ? artisan.services.slice(0, 2).join(", ") + (artisan.services.length > 2 ? "..." : "")
+                                : String(artisan[col.key] || "-")}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Progress Bar */}
+          {isImporting && (
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <span className="font-medium">Import en cours...</span>
+                  <span className="text-muted-foreground">{importProgress}%</span>
+                </div>
+                <Progress value={importProgress} className="h-3" />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Traitement par lots de 500 artisans...
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Results */}
+          {importResults && (
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-6 mb-4">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <span className="font-medium text-green-500">{importResults.success} importés</span>
+                  </div>
+                  {importResults.errors > 0 && (
+                    <div className="flex items-center gap-2">
+                      <XCircle className="h-5 w-5 text-destructive" />
+                      <span className="font-medium text-destructive">{importResults.errors} erreurs</span>
+                    </div>
+                  )}
+                </div>
+                
+                {importResults.errors > 0 && (
+                  <Button variant="outline" size="sm" onClick={downloadErrorReport}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Télécharger le rapport d'erreurs
+                  </Button>
+                )}
+
+                <div className="mt-4 p-4 bg-muted rounded-lg">
+                  <p className="text-sm">
+                    <AlertTriangle className="h-4 w-4 inline mr-2 text-yellow-500" />
+                    Les artisans importés sont en statut <Badge variant="secondary">VITRINE</Badge> et apparaîtront dans 
+                    <strong> Approbations → Vitrines</strong> pour être revendiqués.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Import Button */}
+          {parsedData.length > 0 && !isImporting && (
+            <div className="flex justify-end gap-4">
+              <Button variant="outline" onClick={handleClear}>
+                Annuler
+              </Button>
+              <Button onClick={handleImport} disabled={parsedData.length === 0}>
+                <Upload className="h-4 w-4 mr-2" />
+                Publier {parsedData.length} artisans VITRINE
+              </Button>
+            </div>
+          )}
+        </main>
+      </div>
+    </>
+  );
+};
+
+export default AdminBulkImport;
