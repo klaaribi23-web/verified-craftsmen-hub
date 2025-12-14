@@ -133,7 +133,7 @@ export const useMessaging = () => {
 
         // Check if participant is admin - ensure user_id exists before checking
         if (profile?.user_id && adminUserIds.has(profile.user_id)) {
-          name = "ADMIN";
+          name = "ADMIN ⭐";
           photo = null;
           role = "Administration";
         } else if (artisan) {
@@ -239,7 +239,7 @@ export const useMessaging = () => {
           .maybeSingle();
 
         if (senderRole) {
-          senderName = "ADMIN";
+          senderName = "ADMIN ⭐";
         } else {
           // Check if sender is artisan
           const { data: artisan } = await supabase
@@ -295,9 +295,16 @@ export const useMessaging = () => {
         .from("message-attachments")
         .getPublicUrl(fileName);
 
-      // Determine if it's an image
+      // Determine if it's an image or audio
       const isImage = file.type.startsWith('image/');
-      const messageContent = isImage ? "📷 Image" : `📎 ${file.name}`;
+      const isAudio = file.type.startsWith('audio/');
+      let messageContent = `📎 ${file.name}`;
+      
+      if (isImage) {
+        messageContent = "📷 Image";
+      } else if (isAudio) {
+        messageContent = "🎤 Message vocal";
+      }
 
       // Send message with attachment
       return sendMessage.mutateAsync({
@@ -307,6 +314,36 @@ export const useMessaging = () => {
           url: publicUrl,
           name: file.name,
           type: file.type,
+        },
+      });
+    },
+  });
+
+  // Upload voice message mutation
+  const uploadVoiceMessage = useMutation({
+    mutationFn: async ({ audioBlob, receiverId, duration }: { audioBlob: Blob; receiverId: string; duration: number }) => {
+      if (!currentProfileId) throw new Error("Not authenticated");
+      
+      const fileName = `${currentProfileId}/${Date.now()}-voice.webm`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("message-attachments")
+        .upload(fileName, audioBlob, { contentType: 'audio/webm' });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("message-attachments")
+        .getPublicUrl(fileName);
+
+      // Send message with voice attachment
+      return sendMessage.mutateAsync({
+        receiverId,
+        content: `🎤 Message vocal • ${duration}s`,
+        attachment: {
+          url: publicUrl,
+          name: `voice-${duration}s.webm`,
+          type: 'audio/webm',
         },
       });
     },
@@ -393,6 +430,7 @@ export const useMessaging = () => {
     sendMessage,
     markAsRead,
     uploadFile,
+    uploadVoiceMessage,
   };
 };
 
