@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CityAutocomplete } from "@/components/location/CityAutocomplete";
 import { 
   UserPlus,
   Save,
@@ -76,10 +77,6 @@ const AdminAddArtisan = () => {
     website: "",
   });
 
-  // City search
-  const [citySearch, setCitySearch] = useState("");
-  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
-  
   // Multi-category selection
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   
@@ -108,62 +105,8 @@ const AdminAddArtisan = () => {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [newService, setNewService] = useState<ServiceItem>({ title: "", description: "", price: "" });
 
-  // City suggestions - filtered from all French cities
-  const citySuggestions = useMemo(() => {
-    if (!citySearch || citySearch.length < 2) return [];
-    
-    const searchLower = citySearch.toLowerCase();
-    const results: { name: string; department: string; departmentName: string; region: string }[] = [];
-    
-    // Search in cities
-    frenchCities.forEach(city => {
-      if (city.name.toLowerCase().includes(searchLower)) {
-        const dept = frenchDepartments.find(d => d.code === city.department);
-        const region = dept ? frenchRegions.find(r => r.id === dept.region) : null;
-        results.push({
-          name: city.name,
-          department: city.department,
-          departmentName: dept?.name || "",
-          region: region?.name || ""
-        });
-      }
-    });
-    
-    // Also search in department names
-    frenchDepartments.forEach(dept => {
-      if (dept.name.toLowerCase().includes(searchLower)) {
-        const region = frenchRegions.find(r => r.id === dept.region);
-        // Add the main city of the department if exists
-        const deptCities = frenchCities.filter(c => c.department === dept.code);
-        if (deptCities.length > 0) {
-          deptCities.forEach(city => {
-            if (!results.find(r => r.name === city.name && r.department === city.department)) {
-              results.push({
-                name: city.name,
-                department: dept.code,
-                departmentName: dept.name,
-                region: region?.name || ""
-              });
-            }
-          });
-        }
-      }
-    });
-    
-    return results.slice(0, 15);
-  }, [citySearch]);
-
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleCitySelect = (cityData: { name: string; department: string; departmentName: string; region: string }) => {
-    setFormData(prev => ({
-      ...prev,
-      city: cityData.name
-    }));
-    setCitySearch(`${cityData.name} (${cityData.department})`);
-    setShowCitySuggestions(false);
   };
 
   const handleCategoryToggle = (categoryId: string) => {
@@ -580,42 +523,17 @@ const AdminAddArtisan = () => {
                     )}
                   </div>
 
-                  <div className="relative">
+                  <div>
                     <Label className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
                       Ville *
                     </Label>
-                    <Input
+                    <CityAutocomplete
+                      value={formData.city}
+                      onChange={(value) => handleChange("city", value)}
                       placeholder="Rechercher une ville française..."
-                      value={citySearch}
-                      onChange={(e) => {
-                        setCitySearch(e.target.value);
-                        setShowCitySuggestions(true);
-                      }}
-                      onFocus={() => setShowCitySuggestions(true)}
+                      required
                     />
-                    {showCitySuggestions && citySuggestions.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
-                        {citySuggestions.map((city, index) => (
-                          <button
-                            key={`${city.name}-${city.department}-${index}`}
-                            type="button"
-                            className="w-full text-left px-3 py-2 hover:bg-muted transition-colors border-b last:border-b-0"
-                            onClick={() => handleCitySelect(city)}
-                          >
-                            <div className="font-medium">{city.name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {city.departmentName} ({city.department}) - {city.region}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {formData.city && (
-                      <Badge variant="outline" className="mt-2">
-                        Ville sélectionnée: {formData.city}
-                      </Badge>
-                    )}
                   </div>
 
                   <div>
