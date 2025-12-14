@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Mic } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface VoiceMessageProps {
@@ -8,6 +8,26 @@ interface VoiceMessageProps {
   duration?: number;
   isOwn?: boolean;
 }
+
+// Generate consistent waveform data based on URL hash
+const generateWaveformData = (url: string, barCount: number = 40): number[] => {
+  let hash = 0;
+  for (let i = 0; i < url.length; i++) {
+    hash = ((hash << 5) - hash) + url.charCodeAt(i);
+    hash = hash & hash;
+  }
+  
+  const bars: number[] = [];
+  for (let i = 0; i < barCount; i++) {
+    // Create natural-looking waveform with varying heights
+    const seed = Math.abs(Math.sin(hash * (i + 1) * 0.1) * 10000);
+    const base = 0.3 + (seed % 0.7);
+    // Add some wave-like variation
+    const wave = Math.sin(i * 0.3) * 0.2 + Math.sin(i * 0.7) * 0.15;
+    bars.push(Math.min(1, Math.max(0.15, base + wave)));
+  }
+  return bars;
+};
 
 export const VoiceMessage = ({ audioUrl, duration = 0, isOwn = false }: VoiceMessageProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -17,6 +37,8 @@ export const VoiceMessage = ({ audioUrl, duration = 0, isOwn = false }: VoiceMes
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  
+  const waveformData = useMemo(() => generateWaveformData(audioUrl, 35), [audioUrl]);
 
   useEffect(() => {
     const audio = new Audio(audioUrl);
@@ -87,7 +109,7 @@ export const VoiceMessage = ({ audioUrl, duration = 0, isOwn = false }: VoiceMes
 
   return (
     <div className={cn(
-      "flex items-center gap-3 p-3 rounded-2xl min-w-[200px] max-w-[280px]",
+      "flex items-center gap-2 p-2.5 rounded-2xl min-w-[220px] max-w-[300px] shadow-sm",
       isOwn 
         ? "bg-primary text-primary-foreground" 
         : "bg-muted text-foreground"
@@ -98,10 +120,10 @@ export const VoiceMessage = ({ audioUrl, duration = 0, isOwn = false }: VoiceMes
         size="icon"
         onClick={togglePlay}
         className={cn(
-          "h-10 w-10 rounded-full shrink-0",
+          "h-11 w-11 rounded-full shrink-0 transition-all duration-200",
           isOwn 
-            ? "bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground" 
-            : "bg-primary/10 hover:bg-primary/20 text-primary"
+            ? "bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground hover:scale-105" 
+            : "bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105"
         )}
       >
         {isPlaying ? (
@@ -112,66 +134,62 @@ export const VoiceMessage = ({ audioUrl, duration = 0, isOwn = false }: VoiceMes
       </Button>
 
       <div className="flex-1 min-w-0">
-        {/* Waveform visualization (simplified as progress bar) */}
+        {/* Waveform visualization */}
         <div 
           ref={progressRef}
-          className={cn(
-            "h-8 rounded cursor-pointer flex items-center relative",
-            isOwn ? "bg-primary-foreground/10" : "bg-background/50"
-          )}
+          className="h-9 cursor-pointer flex items-center gap-[2px] px-1"
           onClick={handleProgressClick}
         >
-          {/* Waveform bars */}
-          <div className="flex items-center gap-0.5 w-full h-full px-2">
-            {Array.from({ length: 20 }).map((_, i) => {
-              const barProgress = (i + 1) / 20 * 100;
-              const isActive = barProgress <= progress;
-              // Random heights for visual effect
-              const height = 30 + Math.sin(i * 0.8) * 50 + Math.cos(i * 1.2) * 30;
-              
-              return (
-                <div
-                  key={i}
-                  className={cn(
-                    "w-1 rounded-full transition-all",
-                    isActive 
-                      ? isOwn ? "bg-primary-foreground" : "bg-primary"
-                      : isOwn ? "bg-primary-foreground/30" : "bg-muted-foreground/30"
-                  )}
-                  style={{ height: `${height}%` }}
-                />
-              );
-            })}
-          </div>
+          {waveformData.map((height, i) => {
+            const barProgress = ((i + 1) / waveformData.length) * 100;
+            const isActive = barProgress <= progress;
+            const isCurrentBar = Math.abs(barProgress - progress) < (100 / waveformData.length);
+            
+            return (
+              <div
+                key={i}
+                className={cn(
+                  "w-[3px] rounded-full transition-all duration-150",
+                  isActive 
+                    ? isOwn 
+                      ? "bg-primary-foreground" 
+                      : "bg-primary"
+                    : isOwn 
+                      ? "bg-primary-foreground/30" 
+                      : "bg-muted-foreground/30",
+                  isCurrentBar && isPlaying && "animate-pulse"
+                )}
+                style={{ 
+                  height: `${height * 100}%`,
+                  minHeight: '4px',
+                  transform: isCurrentBar && isPlaying ? 'scaleY(1.1)' : 'scaleY(1)',
+                }}
+              />
+            );
+          })}
         </div>
 
-        {/* Time and speed */}
-        <div className="flex items-center justify-between mt-1 px-1">
+        {/* Time and speed controls */}
+        <div className="flex items-center justify-between px-1 mt-0.5">
           <span className={cn(
-            "text-xs",
-            isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+            "text-[11px] font-medium tabular-nums",
+            isOwn ? "text-primary-foreground/80" : "text-muted-foreground"
           )}>
-            {formatTime(currentTime)} / {formatTime(audioDuration)}
+            {isPlaying ? formatTime(currentTime) : formatTime(audioDuration)}
           </span>
           <button
             onClick={cyclePlaybackRate}
             className={cn(
-              "text-xs font-medium px-1.5 py-0.5 rounded",
+              "text-[10px] font-semibold px-1.5 py-0.5 rounded-md transition-colors",
               isOwn 
                 ? "bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/30" 
-                : "bg-muted text-muted-foreground hover:bg-accent"
+                : "bg-accent text-accent-foreground hover:bg-accent/80"
             )}
           >
-            {playbackRate}x
+            {playbackRate}×
           </button>
         </div>
       </div>
-
-      {/* Mic icon */}
-      <Mic className={cn(
-        "h-4 w-4 shrink-0",
-        isOwn ? "text-primary-foreground/50" : "text-muted-foreground"
-      )} />
     </div>
   );
 };
