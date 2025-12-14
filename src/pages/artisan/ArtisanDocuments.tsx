@@ -112,7 +112,7 @@ export const ArtisanDocuments = () => {
       if (uploadError) throw uploadError;
 
       // Insert document record
-      const { error: insertError } = await supabase
+      const { data: insertedDoc, error: insertError } = await supabase
         .from("artisan_documents")
         .insert({
           artisan_id: artisan.id,
@@ -121,9 +121,29 @@ export const ArtisanDocuments = () => {
           file_path: filePath,
           file_size: file.size,
           status: "pending"
-        });
+        })
+        .select("id")
+        .single();
 
       if (insertError) throw insertError;
+
+      // Notify all admins about new document
+      const { data: admins } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      if (admins && admins.length > 0) {
+        const notifications = admins.map((admin) => ({
+          user_id: admin.user_id,
+          type: "new_document",
+          title: "Nouveau document à vérifier",
+          message: `L'artisan ${artisan.business_name} a soumis un document : ${file.name}`,
+          related_id: insertedDoc?.id || null,
+        }));
+
+        await supabase.from("notifications").insert(notifications);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });

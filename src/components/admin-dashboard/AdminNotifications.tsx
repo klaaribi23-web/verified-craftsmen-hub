@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, User, Briefcase, UserPlus, Trash2, Check } from "lucide-react";
+import { Bell, User, Briefcase, UserPlus, Trash2, Check, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,8 @@ const getIcon = (type: string) => {
       return User;
     case "mission":
       return Briefcase;
+    case "document":
+      return FileText;
     default:
       return Bell;
   }
@@ -40,6 +42,8 @@ const getColor = (type: string) => {
       return "bg-green-500/10 text-green-500";
     case "mission":
       return "bg-yellow-500/10 text-yellow-500";
+    case "document":
+      return "bg-orange-500/10 text-orange-500";
     default:
       return "bg-muted text-muted-foreground";
   }
@@ -152,9 +156,41 @@ export const AdminNotifications = () => {
       )
       .subscribe();
 
+    // Subscribe to new documents
+    const documentsChannel = supabase
+      .channel("documents-notifications")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "artisan_documents" },
+        async (payload) => {
+          const newDoc = payload.new as any;
+          // Fetch artisan info
+          const { data: artisan } = await supabase
+            .from("artisans")
+            .select("business_name")
+            .eq("id", newDoc.artisan_id)
+            .single();
+          
+          setNotifications((prev) => [
+            {
+              id: `document-${newDoc.id}`,
+              type: "document",
+              title: "Nouveau document",
+              message: `${artisan?.business_name || "Un artisan"} a soumis : ${newDoc.name}`,
+              is_read: false,
+              created_at: newDoc.created_at,
+              related_id: newDoc.id,
+            },
+            ...prev,
+          ].slice(0, 8));
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(artisansChannel);
       supabase.removeChannel(missionsChannel);
+      supabase.removeChannel(documentsChannel);
     };
   }, []);
 

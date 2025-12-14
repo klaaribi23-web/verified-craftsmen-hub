@@ -149,6 +149,7 @@ function getToastType(type: string): "success" | "error" | "info" {
     case "document_rejected":
       return "error";
     case "new_message":
+    case "new_document":
     default:
       return "info";
   }
