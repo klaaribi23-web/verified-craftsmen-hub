@@ -66,7 +66,7 @@ export const ClientMissions = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("all");
   const [editingMission, setEditingMission] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ title: "", description: "", photos: [] as string[] });
+  const [editForm, setEditForm] = useState({ title: "", description: "", photos: [] as string[], budget: "", city: "" });
 
   // Fetch client profile
   const { data: profile } = useQuery({
@@ -134,43 +134,61 @@ export const ClientMissions = () => {
     enabled: missions.length > 0
   });
 
-  // Update mission mutation (for resubmission)
+  // Update mission mutation (for editing)
   const updateMissionMutation = useMutation({
-    mutationFn: async ({ id, title, description, photos }: { id: string; title: string; description: string; photos: string[] }) => {
+    mutationFn: async ({ id, title, description, photos, budget, city, wasRejected }: { 
+      id: string; 
+      title: string; 
+      description: string; 
+      photos: string[];
+      budget: number | null;
+      city: string;
+      wasRejected: boolean;
+    }) => {
+      const updateData: any = { 
+        title, 
+        description, 
+        photos: photos.length > 0 ? photos : null,
+        budget,
+        city
+      };
+
+      // Only change status to pending_approval if mission was rejected or is pending_approval
+      if (wasRejected) {
+        updateData.status = "pending_approval";
+        updateData.rejection_reason = null;
+      }
+
       const { error } = await supabase
         .from("missions")
-        .update({ 
-          title, 
-          description, 
-          photos: photos.length > 0 ? photos : null,
-          status: "pending_approval",
-          rejection_reason: null 
-        })
+        .update(updateData)
         .eq("id", id);
 
       if (error) throw error;
 
-      // Notify admin of resubmission
-      const { data: adminUsers } = await supabase
-        .from("user_roles")
-        .select("user_id")
-        .eq("role", "admin");
+      // Notify admin if it was a resubmission from rejected status
+      if (wasRejected) {
+        const { data: adminUsers } = await supabase
+          .from("user_roles")
+          .select("user_id")
+          .eq("role", "admin");
 
-      if (adminUsers) {
-        for (const admin of adminUsers) {
-          await supabase.from("notifications").insert({
-            user_id: admin.user_id,
-            title: "MISSION modifiée et resoumise",
-            message: `La mission "${title}" a été modifiée et resoumise pour approbation.`,
-            type: "mission_resubmit",
-            related_id: id
-          });
+        if (adminUsers) {
+          for (const admin of adminUsers) {
+            await supabase.from("notifications").insert({
+              user_id: admin.user_id,
+              title: "MISSION modifiée et resoumise",
+              message: `La mission "${title}" a été modifiée et resoumise pour approbation.`,
+              type: "mission_resubmit",
+              related_id: id
+            });
+          }
         }
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["client-missions"] });
-      toast.success("Mission resoumise pour approbation");
+      toast.success(variables.wasRejected ? "Mission resoumise pour approbation" : "Mission modifiée avec succès");
       setEditingMission(null);
     },
     onError: () => {
@@ -193,18 +211,23 @@ export const ClientMissions = () => {
     setEditForm({ 
       title: mission.title, 
       description: mission.description || "",
-      photos: mission.photos || []
+      photos: mission.photos || [],
+      budget: mission.budget ? String(mission.budget) : "",
+      city: mission.city || ""
     });
     setEditingMission(mission);
   };
 
-  const handleResubmit = () => {
+  const handleSaveMission = () => {
     if (editingMission) {
       updateMissionMutation.mutate({
         id: editingMission.id,
         title: editForm.title,
         description: editForm.description,
-        photos: editForm.photos
+        photos: editForm.photos,
+        budget: editForm.budget ? parseFloat(editForm.budget) : null,
+        city: editForm.city,
+        wasRejected: editingMission.status === "rejected"
       });
     }
   };
@@ -375,14 +398,15 @@ export const ClientMissions = () => {
                           </div>
                           
                           <div className="flex flex-col gap-2">
-                            {mission.status === "rejected" && (
+                            {/* Edit button for all editable missions */}
+                            {mission.status !== "completed" && mission.status !== "cancelled" && mission.status !== "assigned" && (
                               <Button 
-                                variant="gold" 
+                                variant={mission.status === "rejected" ? "gold" : "outline"}
                                 size="sm" 
                                 onClick={() => openEditDialog(mission)}
                               >
                                 <Edit className="w-4 h-4 mr-1" />
-                                Modifier et resoumettre
+                                {mission.status === "rejected" ? "Modifier et resoumettre" : "Modifier"}
                               </Button>
                             )}
                             <Link to={`/client/missions/${mission.id}`}>
@@ -425,11 +449,13 @@ export const ClientMissions = () => {
         </div>
       </div>
 
-      {/* Edit & Resubmit Dialog */}
+      {/* Edit Dialog */}
       <Dialog open={!!editingMission} onOpenChange={() => setEditingMission(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Modifier et resoumettre la mission</DialogTitle>
+            <DialogTitle>
+              {editingMission?.status === "rejected" ? "Modifier et resoumettre la mission" : "Modifier la mission"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             <div>
@@ -446,8 +472,29 @@ export const ClientMissions = () => {
                 id="edit-description"
                 value={editForm.description}
                 onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                rows={5}
+                rows={4}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-budget">Budget (€)</Label>
+                <Input
+                  id="edit-budget"
+                  type="number"
+                  value={editForm.budget}
+                  onChange={(e) => setEditForm({ ...editForm, budget: e.target.value })}
+                  placeholder="Ex: 500"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-city">Ville</Label>
+                <Input
+                  id="edit-city"
+                  value={editForm.city}
+                  onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                  placeholder="Ex: Paris"
+                />
+              </div>
             </div>
             <div>
               <Label className="flex items-center gap-2 mb-3">
@@ -467,11 +514,11 @@ export const ClientMissions = () => {
             </Button>
             <Button 
               variant="gold" 
-              onClick={handleResubmit}
-              disabled={updateMissionMutation.isPending || !editForm.title.trim()}
+              onClick={handleSaveMission}
+              disabled={updateMissionMutation.isPending || !editForm.title.trim() || !editForm.city.trim()}
             >
               {updateMissionMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Resoumettre pour approbation
+              {editingMission?.status === "rejected" ? "Resoumettre pour approbation" : "Enregistrer"}
             </Button>
           </DialogFooter>
         </DialogContent>
