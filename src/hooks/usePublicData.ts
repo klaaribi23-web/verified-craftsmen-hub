@@ -92,19 +92,19 @@ export const useDemoMissions = () => {
   });
 };
 
-// Fetch all public artisans (active only) - uses secure public_artisans view
+// Fetch all public artisans (active + prospect) - uses secure public_artisans view
 export const usePublicArtisans = () => {
   return useQuery({
     queryKey: ["public-artisans"],
     queryFn: async () => {
-      // Fetch artisans
+      // Fetch artisans (active + prospect for showcase profiles)
       const { data: artisans, error: artisansError } = await supabase
         .from("public_artisans")
         .select(`
           *,
           category:categories(id, name)
         `)
-        .eq("status", "active")
+        .in("status", ["active", "prospect"])
         .order("rating", { ascending: false });
 
       if (artisansError) throw artisansError;
@@ -133,7 +133,7 @@ export const usePublicArtisans = () => {
   });
 };
 
-// Fetch featured artisans (top rated) - uses secure public_artisans view
+// Fetch featured artisans (top rated, active + prospect) - uses secure public_artisans view
 export const useFeaturedArtisans = () => {
   return useQuery({
     queryKey: ["featured-artisans"],
@@ -144,8 +144,7 @@ export const useFeaturedArtisans = () => {
           *,
           category:categories(id, name)
         `)
-        .eq("status", "active")
-        .eq("is_verified", true)
+        .in("status", ["active", "prospect"])
         .order("rating", { ascending: false })
         .limit(12);
 
@@ -266,7 +265,7 @@ export const useSimilarArtisans = (categoryId: string | null, excludeId: string)
           category:categories(id, name)
         `)
         .eq("category_id", categoryId)
-        .eq("status", "active")
+        .in("status", ["active", "prospect"])
         .neq("id", excludeId)
         .order("rating", { ascending: false })
         .limit(6);
