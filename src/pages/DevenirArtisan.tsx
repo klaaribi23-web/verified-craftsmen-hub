@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
 import { 
   ArrowRight, 
   Shield, 
@@ -68,7 +69,6 @@ const artisanSignupSchema = z.object({
   lastName: z.string().trim().min(2, "Nom requis (min 2 caractères)").max(50, "Nom trop long"),
   email: z.string().trim().email("Email invalide").max(255, "Email trop long"),
   phone: z.string().trim().min(10, "Numéro de téléphone invalide").max(20, "Numéro trop long"),
-  profession: z.string().trim().min(2, "Métier requis").max(100, "Métier trop long"),
   city: z.string().trim().min(2, "Ville requise").max(100, "Ville trop longue"),
 });
 
@@ -78,12 +78,12 @@ const DevenirArtisan = () => {
   const claimSlug = searchParams.get('claim');
   const [isLoading, setIsLoading] = useState(false);
   const [claimArtisan, setClaimArtisan] = useState<{ id: string; email: string | null; business_name: string } | null>(null);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
-    profession: "",
     city: "",
     password: "",
   });
@@ -145,6 +145,17 @@ const DevenirArtisan = () => {
         return;
       }
 
+      // Check categories (only for new registrations, not claims)
+      if (!claimSlug && selectedCategoryIds.length === 0) {
+        toast({
+          title: "Métier requis",
+          description: "Veuillez sélectionner au moins un métier",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       // Create user with Supabase
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
@@ -191,7 +202,7 @@ const DevenirArtisan = () => {
           // Only create new artisan profile if NOT claiming an existing one
           if (!claimSlug) {
             // Create minimal artisan profile
-            const { error: artisanError } = await supabase
+            const { data: artisanData, error: artisanError } = await supabase
               .from("artisans")
               .insert([{
                 user_id: data.user.id,
@@ -208,10 +219,26 @@ const DevenirArtisan = () => {
                 review_count: 0,
                 missions_completed: 0,
                 availability: {},
-              }]);
+              }])
+              .select("id")
+              .single();
 
             if (artisanError) {
               console.error("Error creating artisan:", artisanError);
+            } else if (artisanData && selectedCategoryIds.length > 0) {
+              // Insert artisan categories
+              const categoryInserts = selectedCategoryIds.map(categoryId => ({
+                artisan_id: artisanData.id,
+                category_id: categoryId,
+              }));
+              
+              const { error: catError } = await supabase
+                .from("artisan_categories")
+                .insert(categoryInserts);
+              
+              if (catError) {
+                console.error("Error inserting categories:", catError);
+              }
             }
           }
 
@@ -396,15 +423,17 @@ const DevenirArtisan = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="profession" className="text-navy">Métier principal *</Label>
-                      <Input
-                        id="profession"
-                        placeholder="Plombier, Électricien, Peintre..."
-                        value={formData.profession}
-                        onChange={(e) => updateForm("profession", e.target.value)}
-                        className="mt-1.5"
-                        required
-                      />
+                      <Label className="text-navy">Métiers / Spécialités *</Label>
+                      <div className="mt-1.5">
+                        <CategoryMultiSelect
+                          selectedIds={selectedCategoryIds}
+                          onChange={setSelectedCategoryIds}
+                          placeholder="Sélectionnez vos métiers..."
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Vous pouvez sélectionner plusieurs catégories
+                      </p>
                     </div>
 
                     <div>
