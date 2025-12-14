@@ -41,6 +41,8 @@ const NotificationBell = () => {
         return <Briefcase className="w-4 h-4 text-gold" />;
       case "new_message":
         return <MessageCircle className="w-4 h-4 text-primary" />;
+      case "new_document":
+        return <FileText className="w-4 h-4 text-orange-500" />;
       default:
         return <Info className="w-4 h-4 text-muted-foreground" />;
     }
@@ -67,6 +69,8 @@ const NotificationBell = () => {
       case "approval":
       case "rejection":
         return "/artisan/dashboard";
+      case "new_document":
+        return "/admin/documents";
       default:
         return null;
     }
