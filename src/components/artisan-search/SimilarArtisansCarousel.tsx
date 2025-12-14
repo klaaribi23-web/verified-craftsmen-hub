@@ -135,9 +135,9 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
                     <div className="flex items-center gap-3 mb-3">
                       <div className="relative">
                         <Avatar className="h-14 w-14 ring-2 ring-primary/20">
-                          <AvatarImage src={artisan.photo_url || undefined} alt={artisan.business_name} />
-                          <AvatarFallback className="bg-primary text-primary-foreground">
-                            {artisan.business_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          <AvatarImage src={artisan.photo_url || "/favicon.png"} alt={artisan.business_name} />
+                          <AvatarFallback className="bg-muted">
+                            <img src="/favicon.png" alt="Artisans Validés" className="h-full w-full object-contain" />
                           </AvatarFallback>
                         </Avatar>
                         {artisan.is_verified && (

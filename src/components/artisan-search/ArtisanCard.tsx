@@ -23,20 +23,8 @@ interface ArtisanCardProps {
   portfolio?: string[];
 }
 
-// Sample portfolio images for demo
-const defaultPortfolios: Record<string, string[]> = {
-  "Plombier": ["https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"],
-  "Électricien": ["https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=400&h=300&fit=crop"],
-  "Peintre": ["https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"],
-  "Chauffagiste": ["https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1581092921461-39b14e4fec0e?w=400&h=300&fit=crop"],
-  "Serrurier": ["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1581092921461-39b14e4fec0e?w=400&h=300&fit=crop"],
-  "Maçon": ["https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1541123603104-512919d6a96c?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"],
-  "Menuisier": ["https://images.unsplash.com/photo-1622021142947-da7dedc7c39a?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1588854337115-1c67d9247e4d?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"],
-  "Carreleur": ["https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&h=300&fit=crop", "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"]
-};
-
-// Sample profile images
-const profileImages = ["https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face", "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop&crop=face"];
+// Default logo for artisans without photos
+const DEFAULT_LOGO = "/favicon.png";
 
 const ArtisanCard = ({
   id,
@@ -64,10 +52,9 @@ const ArtisanCard = ({
   // Use slug for URL, fallback to id
   const artisanUrl = slug || id;
 
-  // Use provided portfolio or fallback to defaults
-  const portfolioImages = portfolio && portfolio.length > 0 ? portfolio : defaultPortfolios[profession] || defaultPortfolios["Plombier"];
-  const numericId = typeof id === "string" ? parseInt(id.slice(0, 8), 16) : id;
-  const defaultProfileImage = profileImages[numericId % profileImages.length];
+  // Use provided portfolio or fallback to logo
+  const portfolioImages = portfolio && portfolio.length > 0 ? portfolio : [DEFAULT_LOGO];
+  const defaultProfileImage = profileImage || DEFAULT_LOGO;
 
   // Check if artisan is already in favorites on mount
   useEffect(() => {

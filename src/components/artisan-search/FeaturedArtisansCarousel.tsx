@@ -44,8 +44,8 @@ const FeaturedArtisansCarousel = () => {
     reviews: artisan.review_count || 0,
     verified: artisan.is_verified || false,
     experience: artisan.experience_years ? `${artisan.experience_years} ans` : "N/A",
-    profileImage: artisan.photo_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-    portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : ["https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop"]
+    profileImage: artisan.photo_url || "/favicon.png",
+    portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : ["/favicon.png"]
   }));
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
