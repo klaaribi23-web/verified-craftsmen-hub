@@ -133,35 +133,39 @@ const ArtisanPublicProfile = () => {
   };
 
   // Fetch artisan contact info when authenticated and showContactInfo is true
+  // Priority: artisans.phone/email (imported data) > profiles.phone/email (user updated)
   useEffect(() => {
     const fetchArtisanContact = async () => {
       if (!isAuthenticated || !artisan?.id || !showContactInfo) return;
       
-      // Get the artisan's profile_id to fetch contact info
+      // Get the artisan's direct contact info (phone, email) and profile_id
       const { data: artisanData, error: artisanError } = await supabase
         .from('artisans')
-        .select('profile_id')
+        .select('phone, email, profile_id')
         .eq('id', artisan.id)
         .single();
       
-      if (artisanError || !artisanData?.profile_id) {
-        // If no profile_id, the artisan doesn't have linked contact info
-        return;
+      if (artisanError) return;
+      
+      // Use artisan's direct phone/email first (imported data)
+      let phone = artisanData?.phone || null;
+      let email = artisanData?.email || null;
+      
+      // If artisan has a profile_id and missing contact info, fallback to profiles table
+      if (artisanData?.profile_id && (!phone || !email)) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('phone, email')
+          .eq('id', artisanData.profile_id)
+          .single();
+        
+        if (!profileError && profileData) {
+          phone = phone || profileData.phone;
+          email = email || profileData.email;
+        }
       }
       
-      // Fetch the profile info (phone, email)
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('phone, email')
-        .eq('id', artisanData.profile_id)
-        .single();
-      
-      if (!profileError && profileData) {
-        setArtisanContact({
-          phone: profileData.phone,
-          email: profileData.email,
-        });
-      }
+      setArtisanContact({ phone, email });
     };
     
     fetchArtisanContact();
