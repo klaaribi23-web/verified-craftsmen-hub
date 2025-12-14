@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
+import { CityAutocomplete } from "@/components/location/CityAutocomplete";
 import { 
   ArrowRight, 
   Shield, 
@@ -438,14 +439,14 @@ const DevenirArtisan = () => {
 
                     <div>
                       <Label htmlFor="city" className="text-navy">Ville d'intervention *</Label>
-                      <Input
-                        id="city"
-                        placeholder="Paris, Lyon, Marseille..."
-                        value={formData.city}
-                        onChange={(e) => updateForm("city", e.target.value)}
-                        className="mt-1.5"
-                        required
-                      />
+                      <div className="mt-1.5">
+                        <CityAutocomplete
+                          value={formData.city}
+                          onChange={(value) => updateForm("city", value)}
+                          placeholder="Tapez votre ville..."
+                          required
+                        />
+                      </div>
                     </div>
 
                     <Button 
