@@ -23,6 +23,7 @@ import {
   Loader2,
   ImageIcon,
   ArrowLeft,
+  Star,
 } from "lucide-react";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
@@ -32,6 +33,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { QuoteMessageCard, parseQuoteFromMessage } from "@/components/chat/QuoteMessageCard";
 import { useQuotes } from "@/hooks/useQuotes";
 import { toast } from "sonner";
+import { VoiceRecorder } from "@/components/chat/VoiceRecorder";
+import { VoiceMessage } from "@/components/chat/VoiceMessage";
 
 export const ClientMessaging = () => {
   const [searchParams] = useSearchParams();
@@ -46,6 +49,7 @@ export const ClientMessaging = () => {
     sendMessage,
     markAsRead,
     uploadFile,
+    uploadVoiceMessage,
   } = useMessaging();
 
   const { updateQuoteStatus } = useQuotes();
@@ -215,6 +219,48 @@ export const ClientMessaging = () => {
     const isOwn = message.sender_id === effectiveProfileId;
     const quoteData = parseQuoteFromMessage(message.content);
     const hasAttachment = !!message.attachment_url;
+    const isVoice = message.attachment_type?.startsWith('audio/');
+
+    // Parse voice duration from content
+    const durationMatch = message.content.match(/(\d+)s/);
+    const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
+
+    if (isVoice && message.attachment_url) {
+      return (
+        <div
+          key={message.id}
+          className={cn("flex", isOwn ? "justify-end" : "justify-start")}
+        >
+          <div className="flex flex-col">
+            <VoiceMessage 
+              audioUrl={message.attachment_url} 
+              duration={duration}
+              isOwn={isOwn} 
+            />
+            <div className={cn(
+              "flex items-center justify-end gap-1 mt-1 px-2",
+              isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+            )}>
+              <span className="text-xs">
+                {formatMessageTime(message.created_at)}
+              </span>
+              {isOwn && (
+                <div className="flex items-center gap-0.5">
+                  {message.is_read ? (
+                    <>
+                      <CheckCheck className="w-4 h-4 text-blue-400" />
+                      <span className="text-xs ml-1">Vu</span>
+                    </>
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     if (quoteData.isQuote && quoteData.priceHt && quoteData.priceTtc) {
       // Determine quote status from message content
@@ -450,7 +496,12 @@ export const ClientMessaging = () => {
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
-                              <p className="font-medium truncate text-sm md:text-base">{conv.participant_name}</p>
+                              <p className="font-medium truncate text-sm md:text-base">
+                                {conv.participant_name}
+                                {conv.participant_name === "ADMIN ⭐" && (
+                                  <Star className="w-3 h-3 text-gold fill-gold inline ml-1" />
+                                )}
+                              </p>
                               <span className="text-xs text-muted-foreground whitespace-nowrap">
                                 {formatMessageTime(conv.last_message_time)}
                               </span>
@@ -585,6 +636,19 @@ export const ClientMessaging = () => {
                       <Button variant="ghost" size="icon" className="shrink-0 hidden sm:flex" onClick={() => imageInputRef.current?.click()}>
                         <ImageIcon className="w-5 h-5" />
                       </Button>
+                      <VoiceRecorder 
+                        onSend={async (audioBlob, duration) => {
+                          if (selectedConversationId) {
+                            await uploadVoiceMessage.mutateAsync({ 
+                              audioBlob, 
+                              receiverId: selectedConversationId, 
+                              duration 
+                            });
+                            toast.success("Message vocal envoyé");
+                          }
+                        }}
+                        disabled={sendMessage.isPending || uploadFile.isPending}
+                      />
                       <Input 
                         placeholder="Écrire un message..." 
                         value={newMessage}
