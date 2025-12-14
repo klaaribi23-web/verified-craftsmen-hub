@@ -209,9 +209,6 @@ export const ArtisanMessaging = () => {
     // Check for status messages
     const isAccepted = msg.content.includes("✅ DEVIS ACCEPTÉ");
     const isRefused = msg.content.includes("❌ DEVIS REFUSÉ");
-    }
-
-    // Render attachment if present
     if (hasAttachment) {
       const isImage = msg.attachment_type?.startsWith('image/');
       return (
@@ -328,8 +325,8 @@ export const ArtisanMessaging = () => {
       <Navbar />
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <ArtisanSidebar />
-      
-      <div className="flex-1 flex flex-col">
+        
+        <div className="flex-1 flex flex-col">
         <DashboardHeader 
           title="Messagerie" 
           subtitle="Communiquez avec vos clients"
@@ -583,17 +580,18 @@ export const ArtisanMessaging = () => {
         </main>
 
         {/* Quote Form Modal */}
-          {selectedConversationId && selectedConversation && (
-            <QuoteForm
-              open={showQuoteForm}
-              onOpenChange={setShowQuoteForm}
-              conversationId={selectedConversationId}
-              clientId={selectedConversationId}
-              clientName={selectedConversation.participant_name}
-            />
-          )}
-        </div>
+        {selectedConversationId && selectedConversation && (
+          <QuoteForm
+            open={showQuoteForm}
+            onOpenChange={setShowQuoteForm}
+            conversationId={selectedConversationId}
+            clientId={selectedConversationId}
+            clientName={selectedConversation.participant_name}
+          />
+        )}
       </div>
+    </div>
     </>
   );
 };
+
