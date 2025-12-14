@@ -17,7 +17,8 @@ import {
   AlertTriangle,
   Loader2,
   Download,
-  Trash2
+  Trash2,
+  FileSpreadsheet
 } from "lucide-react";
 import {
   Table,
@@ -95,6 +96,7 @@ const SERVICE_TO_CATEGORY_MAP: Record<string, string> = {
 
 const AdminBulkImport = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [fileType, setFileType] = useState<"json" | "csv" | null>(null);
   const [parsedData, setParsedData] = useState<ParsedArtisan[]>([]);
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [isImporting, setIsImporting] = useState(false);
@@ -120,6 +122,96 @@ const AdminBulkImport = () => {
     }));
   };
 
+  const parseCsvFile = (csvContent: string): ParsedArtisan[] => {
+    const lines = csvContent.split("\n").filter(line => line.trim());
+    if (lines.length < 2) return [];
+
+    // Parse header row
+    const headers = lines[0].split(/[,;]/).map(h => h.trim().toLowerCase().replace(/"/g, ""));
+    
+    // Map CSV headers to our fields
+    const headerMap: Record<string, keyof ParsedArtisan> = {
+      "nom": "businessName",
+      "nom de l'entreprise": "businessName",
+      "business_name": "businessName",
+      "businessname": "businessName",
+      "entreprise": "businessName",
+      "raison sociale": "businessName",
+      "description": "description",
+      "about": "description",
+      "email": "email",
+      "mail": "email",
+      "telephone": "phone",
+      "téléphone": "phone",
+      "phone": "phone",
+      "tel": "phone",
+      "ville": "city",
+      "city": "city",
+      "code postal": "postalCode",
+      "code_postal": "postalCode",
+      "postal_code": "postalCode",
+      "cp": "postalCode",
+      "adresse": "address",
+      "address": "address",
+      "siret": "siret",
+      "siren": "siret",
+      "services": "services",
+      "prestations": "services",
+      "categorie": "services",
+      "catégorie": "services",
+    };
+
+    const columnIndexes: Partial<Record<keyof ParsedArtisan, number>> = {};
+    headers.forEach((header, index) => {
+      const mappedField = headerMap[header];
+      if (mappedField) {
+        columnIndexes[mappedField] = index;
+      }
+    });
+
+    // Parse data rows
+    return lines.slice(1).map((line) => {
+      // Handle quoted values with commas inside
+      const values: string[] = [];
+      let current = "";
+      let inQuotes = false;
+      
+      for (const char of line) {
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if ((char === "," || char === ";") && !inQuotes) {
+          values.push(current.trim());
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+
+      const getValue = (field: keyof ParsedArtisan): string => {
+        const index = columnIndexes[field];
+        return index !== undefined ? values[index]?.replace(/"/g, "") || "" : "";
+      };
+
+      const servicesValue = getValue("services");
+      const services = servicesValue ? servicesValue.split(/[|,;]/).map(s => s.trim()).filter(Boolean) : [];
+
+      return {
+        businessName: getValue("businessName"),
+        description: getValue("description"),
+        email: getValue("email"),
+        phone: getValue("phone"),
+        city: getValue("city"),
+        postalCode: getValue("postalCode"),
+        address: getValue("address"),
+        siret: getValue("siret"),
+        services,
+        rating: 0,
+        reviewsCount: 0,
+      };
+    }).filter(a => a.businessName || a.city);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
@@ -128,10 +220,13 @@ const AdminBulkImport = () => {
   };
 
   const processFile = (selectedFile: File) => {
-    if (!selectedFile.name.endsWith(".json")) {
+    const isJson = selectedFile.name.endsWith(".json");
+    const isCsv = selectedFile.name.endsWith(".csv");
+
+    if (!isJson && !isCsv) {
       toast({
         title: "Format invalide",
-        description: "Veuillez sélectionner un fichier JSON",
+        description: "Veuillez sélectionner un fichier JSON ou CSV",
         variant: "destructive",
       });
       return;
@@ -147,14 +242,23 @@ const AdminBulkImport = () => {
     }
 
     setFile(selectedFile);
+    setFileType(isJson ? "json" : "csv");
     setImportResults(null);
 
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const json = JSON.parse(event.target?.result as string);
-        const data = Array.isArray(json) ? json : [json];
-        const parsed = parseJsonFile(data);
+        const content = event.target?.result as string;
+        let parsed: ParsedArtisan[];
+
+        if (isJson) {
+          const json = JSON.parse(content);
+          const data = Array.isArray(json) ? json : [json];
+          parsed = parseJsonFile(data);
+        } else {
+          parsed = parseCsvFile(content);
+        }
+
         setParsedData(parsed);
         setColumns(DEFAULT_COLUMNS);
         
@@ -165,7 +269,7 @@ const AdminBulkImport = () => {
       } catch (error) {
         toast({
           title: "Erreur de parsing",
-          description: "Le fichier JSON est invalide",
+          description: `Le fichier ${isJson ? "JSON" : "CSV"} est invalide`,
           variant: "destructive",
         });
       }
@@ -337,6 +441,7 @@ const AdminBulkImport = () => {
 
   const handleClear = () => {
     setFile(null);
+    setFileType(null);
     setParsedData([]);
     setImportResults(null);
     setImportProgress(0);
@@ -366,7 +471,7 @@ const AdminBulkImport = () => {
         <main className="flex-1 p-4 md:p-8">
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">Import massif d'artisans</h1>
-            <p className="text-muted-foreground mt-1">Importez des artisans VITRINE depuis un fichier JSON</p>
+            <p className="text-muted-foreground mt-1">Importez des artisans VITRINE depuis un fichier JSON ou CSV</p>
           </div>
 
           {/* Upload Zone */}
@@ -384,12 +489,12 @@ const AdminBulkImport = () => {
                   }`}
                 >
                   <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">Glissez-déposez votre fichier JSON</h3>
+                  <h3 className="text-lg font-semibold mb-2">Glissez-déposez votre fichier JSON ou CSV</h3>
                   <p className="text-muted-foreground mb-4">ou cliquez pour sélectionner un fichier</p>
-                  <p className="text-sm text-muted-foreground mb-4">Maximum 10 MB • Format JSON uniquement</p>
+                  <p className="text-sm text-muted-foreground mb-4">Maximum 10 MB • Formats JSON et CSV supportés</p>
                   <input
                     type="file"
-                    accept=".json"
+                    accept=".json,.csv"
                     onChange={handleFileChange}
                     className="hidden"
                     id="file-upload"
@@ -397,11 +502,14 @@ const AdminBulkImport = () => {
                   <label htmlFor="file-upload">
                     <Button asChild>
                       <span>
-                        <FileJson className="h-4 w-4 mr-2" />
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
                         Sélectionner un fichier
                       </span>
                     </Button>
                   </label>
+                  <p className="text-xs text-muted-foreground mt-6">
+                    <strong>CSV :</strong> Colonnes attendues : nom, email, telephone, ville, code_postal, adresse, siret, services
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -413,11 +521,15 @@ const AdminBulkImport = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <FileJson className="h-8 w-8 text-primary" />
+                    {fileType === "json" ? (
+                      <FileJson className="h-8 w-8 text-primary" />
+                    ) : (
+                      <FileSpreadsheet className="h-8 w-8 text-green-600" />
+                    )}
                     <div>
                       <p className="font-medium">{file.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {(file.size / 1024).toFixed(1)} KB • {parsedData.length} artisans détectés
+                        {(file.size / 1024).toFixed(1)} KB • {parsedData.length} artisans détectés • Format {fileType?.toUpperCase()}
                       </p>
                     </div>
                   </div>
