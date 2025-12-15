@@ -74,7 +74,7 @@ const HeroSection = () => {
                 </Link>
               </Button>
               <Button variant="outline" size="xl" asChild>
-                <Link to="/devenir-artisan" className="bg-primary text-accent">Je suis artisan</Link>
+                <Link to="/devenir-artisan" className="text-accent bg-accent">Je suis artisan</Link>
               </Button>
             </div>
 
