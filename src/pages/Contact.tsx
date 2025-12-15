@@ -1,5 +1,6 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,6 +40,11 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Contactez-nous"
+        description="Une question ? Contactez l'équipe Artisans Validés par email, téléphone ou formulaire. Nous répondons sous 24h."
+        canonical="https://artisansvalides.fr/contact"
+      />
       <Navbar />
       
       {/* Hero Section with Image */}

@@ -12,8 +12,15 @@ import { motion } from "framer-motion";
 import { Star, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import SEOHead from "@/components/seo/SEOHead";
+
 const Index = () => {
   return <div className="min-h-screen">
+      <SEOHead 
+        title="Trouvez des artisans de confiance"
+        description="Mise en relation rapide avec des artisans qualifiés et vérifiés en France. Devis gratuit, qualité et expertise garantie pour tous vos projets de travaux."
+        canonical="https://artisansvalides.fr"
+      />
       <Navbar />
       <main>
         <HeroSection />

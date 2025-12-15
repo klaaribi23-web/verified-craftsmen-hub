@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -235,6 +236,11 @@ const NosMissions = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Missions disponibles pour artisans"
+        description="Consultez les demandes de travaux des particuliers et postulez directement. Trouvez votre prochaine mission qualifiée près de chez vous."
+        canonical="https://artisansvalides.fr/nos-missions"
+      />
       <Navbar />
       
       <main className="pt-20">

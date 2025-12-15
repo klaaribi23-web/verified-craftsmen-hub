@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -291,6 +292,11 @@ const DemandeDevis = () => {
 
   return (
     <div className="min-h-screen bg-muted">
+      <SEOHead 
+        title="Demander un devis gratuit"
+        description="Décrivez votre projet et recevez jusqu'à 5 devis d'artisans qualifiés en 24h. Service 100% gratuit et sans engagement."
+        canonical="https://artisansvalides.fr/demande-devis"
+      />
       <Navbar />
       
       <main className="pt-20 pb-16">

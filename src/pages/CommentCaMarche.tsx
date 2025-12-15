@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { 
@@ -86,6 +87,11 @@ const faqs = [
 const CommentCaMarche = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Comment ça marche"
+        description="Découvrez le fonctionnement d'Artisans Validés : trouvez un artisan de confiance ou développez votre activité en quelques étapes simples."
+        canonical="https://artisansvalides.fr/comment-ca-marche"
+      />
       <Navbar />
       
       <main className="pt-20">
