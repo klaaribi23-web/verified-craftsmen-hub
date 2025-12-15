@@ -193,12 +193,12 @@ export const ArtisanDashboard = () => {
 
       if (adminRoles) {
         for (const admin of adminRoles) {
-          await supabase.from("notifications").insert({
-            user_id: admin.user_id,
-            title: "Nouvelle demande d'approbation",
-            message: `${artisanProfile.business_name} a demandé l'approbation de son profil.`,
-            type: "approval_request",
-            related_id: artisanProfile.id
+          await supabase.rpc("create_notification", {
+            p_user_id: admin.user_id,
+            p_type: "approval_request",
+            p_title: "Nouvelle demande d'approbation",
+            p_message: `${artisanProfile.business_name} a demandé l'approbation de son profil.`,
+            p_related_id: artisanProfile.id
           });
         }
       }

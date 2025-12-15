@@ -227,11 +227,12 @@ const AdminApprovals = () => {
           .single();
 
         if (userData) {
-          await supabase.from("notifications").insert({
-            user_id: userData.user_id,
-            title: "Profil approuvé !",
-            message: "Félicitations ! Votre profil a été approuvé et est maintenant visible publiquement.",
-            type: "approval"
+          await supabase.rpc("create_notification", {
+            p_user_id: userData.user_id,
+            p_type: "approval",
+            p_title: "Profil approuvé !",
+            p_message: "Félicitations ! Votre profil a été approuvé et est maintenant visible publiquement.",
+            p_related_id: null
           });
         }
       }
@@ -258,11 +259,12 @@ const AdminApprovals = () => {
           .single();
 
         if (userData) {
-          await supabase.from("notifications").insert({
-            user_id: userData.user_id,
-            title: "Profil non approuvé",
-            message: `Votre demande d'approbation a été refusée. Raison : ${reason}. Veuillez corriger les éléments mentionnés et soumettre à nouveau votre demande.`,
-            type: "rejection"
+          await supabase.rpc("create_notification", {
+            p_user_id: userData.user_id,
+            p_type: "rejection",
+            p_title: "Profil non approuvé",
+            p_message: `Votre demande d'approbation a été refusée. Raison : ${reason}. Veuillez corriger les éléments mentionnés et soumettre à nouveau votre demande.`,
+            p_related_id: null
           });
         }
       }
@@ -298,12 +300,12 @@ const AdminApprovals = () => {
           .single();
 
         if (userData) {
-          await supabase.from("notifications").insert({
-            user_id: userData.user_id,
-            title: "Mission approuvée !",
-            message: `Votre mission "${mission.title}" a été approuvée et est maintenant publiée. Les artisans peuvent désormais postuler.`,
-            type: "mission_approved",
-            related_id: missionId
+          await supabase.rpc("create_notification", {
+            p_user_id: userData.user_id,
+            p_type: "mission_approved",
+            p_title: "Mission approuvée !",
+            p_message: `Votre mission "${mission.title}" a été approuvée et est maintenant publiée. Les artisans peuvent désormais postuler.`,
+            p_related_id: missionId
           });
         }
       }
@@ -337,12 +339,12 @@ const AdminApprovals = () => {
           .single();
 
         if (userData) {
-          await supabase.from("notifications").insert({
-            user_id: userData.user_id,
-            title: "Mission refusée",
-            message: `Votre mission "${mission.title}" a été refusée. Raison : ${reason}. Vous pouvez modifier votre annonce et la resoumettre.`,
-            type: "mission_rejected",
-            related_id: missionId
+          await supabase.rpc("create_notification", {
+            p_user_id: userData.user_id,
+            p_type: "mission_rejected",
+            p_title: "Mission refusée",
+            p_message: `Votre mission "${mission.title}" a été refusée. Raison : ${reason}. Vous pouvez modifier votre annonce et la resoumettre.`,
+            p_related_id: missionId
           });
         }
       }

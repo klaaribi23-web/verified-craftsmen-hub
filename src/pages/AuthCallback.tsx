@@ -94,15 +94,15 @@ const AuthCallback = () => {
                   .eq("role", "admin");
 
                 if (adminRoles && adminRoles.length > 0) {
-                  const notifications = adminRoles.map(admin => ({
-                    user_id: admin.user_id,
-                    type: "artisan_claim",
-                    title: "Fiche artisan revendiquée",
-                    message: `L'artisan "${artisanData.business_name}" a revendiqué sa fiche vitrine et attend la validation de ses documents.`,
-                    related_id: artisanData.id
-                  }));
-
-                  await supabase.from("notifications").insert(notifications);
+                  for (const admin of adminRoles) {
+                    await supabase.rpc("create_notification", {
+                      p_user_id: admin.user_id,
+                      p_type: "artisan_claim",
+                      p_title: "Fiche artisan revendiquée",
+                      p_message: `L'artisan "${artisanData.business_name}" a revendiqué sa fiche vitrine et attend la validation de ses documents.`,
+                      p_related_id: artisanData.id
+                    });
+                  }
                 }
               }
             }

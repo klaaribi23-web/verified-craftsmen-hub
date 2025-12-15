@@ -1021,7 +1021,7 @@ export type Database = {
           created_at?: string | null
           department?: string | null
           description?: string | null
-          email?: string | null
+          email?: never
           experience_years?: number | null
           facebook_url?: string | null
           hourly_rate?: number | null
@@ -1030,7 +1030,7 @@ export type Database = {
           is_verified?: boolean | null
           linkedin_url?: string | null
           missions_completed?: number | null
-          phone?: string | null
+          phone?: never
           photo_url?: string | null
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
@@ -1053,7 +1053,7 @@ export type Database = {
           created_at?: string | null
           department?: string | null
           description?: string | null
-          email?: string | null
+          email?: never
           experience_years?: number | null
           facebook_url?: string | null
           hourly_rate?: number | null
@@ -1062,7 +1062,7 @@ export type Database = {
           is_verified?: boolean | null
           linkedin_url?: string | null
           missions_completed?: number | null
-          phone?: string | null
+          phone?: never
           photo_url?: string | null
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
@@ -1088,6 +1088,16 @@ export type Database = {
       }
     }
     Functions: {
+      create_notification: {
+        Args: {
+          p_message: string
+          p_related_id?: string
+          p_title: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

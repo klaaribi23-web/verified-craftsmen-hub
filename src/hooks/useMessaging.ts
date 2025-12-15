@@ -256,16 +256,16 @@ export const useMessaging = () => {
         }
       }
 
-      // Create notification for receiver
+      // Create notification for receiver using secure RPC
       if (receiverProfile?.user_id) {
-        await supabase.from("notifications").insert({
-          user_id: receiverProfile.user_id,
-          type: "new_message",
-          title: attachment ? "Nouveau fichier reçu" : "Nouveau message",
-          message: attachment 
+        await supabase.rpc("create_notification", {
+          p_user_id: receiverProfile.user_id,
+          p_type: "new_message",
+          p_title: attachment ? "Nouveau fichier reçu" : "Nouveau message",
+          p_message: attachment 
             ? `${senderName} vous a envoyé un fichier: ${attachment.name}`
             : `Vous avez reçu un nouveau message de ${senderName}`,
-          related_id: data.id,
+          p_related_id: data.id,
         });
       }
 

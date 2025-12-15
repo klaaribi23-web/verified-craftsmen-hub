@@ -144,7 +144,7 @@ export const useQuoteNotifications = () => {
   };
 };
 
-// Helper function to create quote notification
+// Helper function to create quote notification using secure RPC function
 export const createQuoteNotification = async (
   userId: string,
   type: "quote_accepted" | "quote_refused" | "quote_received",
@@ -152,12 +152,12 @@ export const createQuoteNotification = async (
   message: string,
   relatedId?: string
 ) => {
-  const { error } = await supabase.from("notifications").insert({
-    user_id: userId,
-    type,
-    title,
-    message,
-    related_id: relatedId || null,
+  const { error } = await supabase.rpc("create_notification", {
+    p_user_id: userId,
+    p_type: type,
+    p_title: title,
+    p_message: message,
+    p_related_id: relatedId || null,
   });
 
   if (error) {

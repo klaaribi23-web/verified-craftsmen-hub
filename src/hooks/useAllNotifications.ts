@@ -155,7 +155,7 @@ function getToastType(type: string): "success" | "error" | "info" {
   }
 }
 
-// Helper function to create notifications (can be used anywhere)
+// Helper function to create notifications using secure RPC function
 export const createNotification = async (
   userId: string,
   type: string,
@@ -163,12 +163,12 @@ export const createNotification = async (
   message: string,
   relatedId?: string
 ) => {
-  const { error } = await supabase.from("notifications").insert({
-    user_id: userId,
-    type,
-    title,
-    message,
-    related_id: relatedId || null,
+  const { error } = await supabase.rpc("create_notification", {
+    p_user_id: userId,
+    p_type: type,
+    p_title: title,
+    p_message: message,
+    p_related_id: relatedId || null,
   });
 
   if (error) {

@@ -231,12 +231,12 @@ const DemandeDevis = () => {
 
       if (adminUsers && missionData) {
         for (const admin of adminUsers) {
-          await supabase.from("notifications").insert({
-            user_id: admin.user_id,
-            title: "NOUVELLE MISSION proposée",
-            message: `Nouvelle mission "${formData.category}" soumise par un client à ${formData.city}. En attente d'approbation.`,
-            type: "new_mission",
-            related_id: missionData.id
+          await supabase.rpc("create_notification", {
+            p_user_id: admin.user_id,
+            p_type: "new_mission",
+            p_title: "NOUVELLE MISSION proposée",
+            p_message: `Nouvelle mission "${formData.category}" soumise par un client à ${formData.city}. En attente d'approbation.`,
+            p_related_id: missionData.id
           });
         }
       }

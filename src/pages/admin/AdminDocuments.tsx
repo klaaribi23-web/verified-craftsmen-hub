@@ -113,13 +113,14 @@ const AdminDocuments = () => {
 
       if (error) throw error;
 
-      // Send notification to artisan
+      // Send notification to artisan using secure RPC
       if (doc.artisan?.user_id) {
-        await supabase.from("notifications").insert({
-          user_id: doc.artisan.user_id,
-          title: "Document vérifié",
-          message: `Votre document "${doc.name}" a été vérifié et approuvé.`,
-          type: "document_approved"
+        await supabase.rpc("create_notification", {
+          p_user_id: doc.artisan.user_id,
+          p_type: "document_approved",
+          p_title: "Document vérifié",
+          p_message: `Votre document "${doc.name}" a été vérifié et approuvé.`,
+          p_related_id: null
         });
       }
     },
@@ -143,13 +144,14 @@ const AdminDocuments = () => {
 
       if (error) throw error;
 
-      // Send notification to artisan
+      // Send notification to artisan using secure RPC
       if (doc.artisan?.user_id) {
-        await supabase.from("notifications").insert({
-          user_id: doc.artisan.user_id,
-          title: "Document refusé",
-          message: `Votre document "${doc.name}" a été refusé. Raison : ${reason}`,
-          type: "document_rejected"
+        await supabase.rpc("create_notification", {
+          p_user_id: doc.artisan.user_id,
+          p_type: "document_rejected",
+          p_title: "Document refusé",
+          p_message: `Votre document "${doc.name}" a été refusé. Raison : ${reason}`,
+          p_related_id: null
         });
       }
     },
