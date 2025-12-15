@@ -168,8 +168,16 @@ const HowItWorksSection = () => {
                 </div>
               )}
 
+              {/* Step Number Badge - outside overflow container */}
               <motion.div 
-                className="bg-white rounded-2xl p-8 shadow-soft border border-border relative h-full overflow-hidden"
+                className="absolute -top-3 left-8 z-20 px-4 py-1.5 bg-gradient-gold rounded-full text-navy-dark text-sm font-bold shadow-gold"
+                whileHover={{ scale: 1.1 }}
+              >
+                {step.step}
+              </motion.div>
+
+              <motion.div 
+                className="bg-white rounded-2xl p-8 pt-10 shadow-soft border border-border relative h-full"
                 whileHover={{ 
                   y: -8,
                   boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)"
@@ -177,20 +185,12 @@ const HowItWorksSection = () => {
                 transition={{ duration: 0.3 }}
               >
                 {/* Hover gradient overlay */}
-                <motion.div
-                  className={`absolute inset-0 ${step.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                <div
+                  className={`absolute inset-0 rounded-2xl ${step.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
                 />
-                
-                {/* Step Number Badge */}
-                <motion.div 
-                  className="absolute -top-4 left-8 px-3 py-1 bg-gradient-gold rounded-full text-navy-dark text-sm font-bold shadow-gold"
-                  whileHover={{ scale: 1.1 }}
-                >
-                  {step.step}
-                </motion.div>
 
                 {/* Animated Icon */}
-                <div className="mb-6 mt-2 relative z-10">
+                <div className="mb-6 relative z-10">
                   <AnimatedIcon icon={step.icon} color={step.color} index={index} />
                 </div>
 
