@@ -191,14 +191,14 @@ const NosMissions = () => {
         throw error;
       }
 
-      // Send notification to client
+      // Send notification to client using secure RPC
       if (mission.client_id) {
-        await supabase.from("notifications").insert({
-          user_id: mission.client_id,
-          type: "new_application",
-          title: "Nouvelle candidature",
-          message: `Un artisan a postulé à votre mission "${mission.title}"`,
-          related_id: mission.id,
+        await supabase.rpc("create_notification", {
+          p_user_id: mission.client_id,
+          p_type: "new_application",
+          p_title: "Nouvelle candidature",
+          p_message: `Un artisan a postulé à votre mission "${mission.title}"`,
+          p_related_id: mission.id
         });
       }
 

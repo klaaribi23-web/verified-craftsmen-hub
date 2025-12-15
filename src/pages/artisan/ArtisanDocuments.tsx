@@ -134,15 +134,15 @@ export const ArtisanDocuments = () => {
         .eq("role", "admin");
 
       if (admins && admins.length > 0) {
-        const notifications = admins.map((admin) => ({
-          user_id: admin.user_id,
-          type: "new_document",
-          title: "Nouveau document à vérifier",
-          message: `L'artisan ${artisan.business_name} a soumis un document : ${file.name}`,
-          related_id: insertedDoc?.id || null,
-        }));
-
-        await supabase.from("notifications").insert(notifications);
+        for (const admin of admins) {
+          await supabase.rpc("create_notification", {
+            p_user_id: admin.user_id,
+            p_type: "new_document",
+            p_title: "Nouveau document à vérifier",
+            p_message: `L'artisan ${artisan.business_name} a soumis un document : ${file.name}`,
+            p_related_id: insertedDoc?.id || null
+          });
+        }
       }
     },
     onSuccess: () => {

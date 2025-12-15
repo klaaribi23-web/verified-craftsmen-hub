@@ -175,12 +175,12 @@ export const ClientMissions = () => {
 
         if (adminUsers) {
           for (const admin of adminUsers) {
-            await supabase.from("notifications").insert({
-              user_id: admin.user_id,
-              title: "MISSION modifiée et resoumise",
-              message: `La mission "${title}" a été modifiée et resoumise pour approbation.`,
-              type: "mission_resubmit",
-              related_id: id
+            await supabase.rpc("create_notification", {
+              p_user_id: admin.user_id,
+              p_type: "mission_resubmit",
+              p_title: "MISSION modifiée et resoumise",
+              p_message: `La mission "${title}" a été modifiée et resoumise pour approbation.`,
+              p_related_id: id
             });
           }
         }
