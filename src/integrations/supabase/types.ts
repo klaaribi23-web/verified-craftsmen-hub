@@ -1098,6 +1098,16 @@ export type Database = {
         }
         Returns: string
       }
+      get_conversation_participants: {
+        Args: { p_profile_id: string }
+        Returns: {
+          avatar_url: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+        }[]
+      }
       get_my_profile_id: { Args: never; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
