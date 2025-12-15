@@ -12,10 +12,8 @@ import { motion } from "framer-motion";
 import { Star, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <Navbar />
       <main>
         <HeroSection />
@@ -24,13 +22,17 @@ const Index = () => {
         {/* Featured Artisans Section */}
         <section className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
+            <motion.div initial={{
+            opacity: 0,
+            y: 20
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.6
+          }} viewport={{
+            once: true
+          }} className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-full mb-4">
                 <Star className="h-4 w-4 text-gold fill-gold" />
                 <span className="text-sm font-medium text-gold">Top artisans</span>
@@ -45,13 +47,18 @@ const Index = () => {
             
             <FeaturedArtisansCarousel />
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="text-center mt-10"
-            >
+            <motion.div initial={{
+            opacity: 0,
+            y: 20
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.6,
+            delay: 0.3
+          }} viewport={{
+            once: true
+          }} className="text-center mt-10">
               <Button asChild size="lg" variant="gold" className="group">
                 <Link to="/trouver-artisan">
                   Voir tous les artisans
@@ -63,14 +70,12 @@ const Index = () => {
         </section>
         
         <HowItWorksSection />
-        <GallerySection />
+        
         <TrustSection />
         <TestimonialsSection />
         <CTASection />
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
