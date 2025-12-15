@@ -172,7 +172,13 @@ const ArtisanCard = ({
     <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
       {/* Portfolio Carousel */}
       <div className="relative h-44 md:h-48 overflow-hidden group">
-        <img src={portfolioImages[currentSlide]} alt={`Réalisation ${currentSlide + 1}`} className="w-full h-full object-cover transition-transform duration-300" />
+        <img 
+          src={portfolioImages[currentSlide]} 
+          alt={`Réalisation de ${name} - Photo ${currentSlide + 1}`} 
+          width={400}
+          height={192}
+          className="w-full h-full object-cover transition-transform duration-300" 
+        />
         
         {/* Carousel Controls - Always visible on mobile for touch */}
         <button 
@@ -231,7 +237,9 @@ const ArtisanCard = ({
         <div className="flex items-center gap-3 mb-3">
           <img 
             src={profileImage || defaultProfileImage} 
-            alt={name} 
+            alt={`Photo de profil de ${name}`}
+            width={48}
+            height={48}
             onClick={(e) => {
               if (hasActiveStories) {
                 e.preventDefault();

@@ -207,10 +207,10 @@ const TrouverArtisan = () => {
             <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6 md:mb-8">Tous nos artisans</h2>
             
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-              {/* Filters - Left Column */}
-              <div className="lg:w-80 flex-shrink-0">
+            {/* Filters - Left Column */}
+              <aside className="lg:w-80 flex-shrink-0" aria-label="Filtres de recherche">
                 <ArtisanFilters onFiltersChange={handleFiltersChange} />
-              </div>
+              </aside>
 
               {/* Artisans Grid - Right Column */}
               <div className="flex-1">

@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
+import LocalBusinessSchema from "@/components/seo/LocalBusinessSchema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -228,6 +229,15 @@ const ArtisanPublicProfile = () => {
         canonical={seoCanonical}
         ogImage={artisan.photo_url || undefined}
         ogType="profile"
+      />
+      <LocalBusinessSchema
+        name={artisan.business_name}
+        image={artisan.photo_url || undefined}
+        city={artisan.city}
+        region={artisan.region || undefined}
+        rating={rating}
+        reviewCount={reviewCount}
+        description={artisan.description || undefined}
       />
       <Navbar />
       
