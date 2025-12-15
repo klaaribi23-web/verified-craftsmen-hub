@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Shield, CheckCircle2, Star, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import heroBackground from "@/assets/hero-artisan-bg.jpg";
+
 const HeroSection = () => {
   const stats = [{
     value: "5000+",
@@ -15,9 +17,16 @@ const HeroSection = () => {
   }];
   const badges = ["Vérification SIRET", "Assurances validées", "Avis certifiés"];
   return <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-hero" />
-      <div className="absolute top-20 right-0 w-1/2 h-full opacity-5">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <img 
+          src={heroBackground} 
+          alt="Artisan professionnel au travail" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/85 to-navy/70" />
+      </div>
+      <div className="absolute top-20 right-0 w-1/2 h-full opacity-10">
         <div className="w-full h-full bg-[radial-gradient(circle_at_center,_hsl(var(--gold))_0%,_transparent_70%)]" />
       </div>
 
@@ -34,20 +43,20 @@ const HeroSection = () => {
           duration: 0.6
         }}>
             {/* Trust Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/20 mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-6">
               <Shield className="w-4 h-4 text-gold" />
-              <span className="text-sm font-medium text-navy">
+              <span className="text-sm font-medium text-white">
                 La référence qualité en France
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-navy leading-tight mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
               Trouvez l'artisan{" "}
               <span className="text-gradient-gold">parfait</span> pour vos
               travaux
             </h1>
 
-            <p className="text-lg text-muted-foreground mb-8 max-w-xl">
+            <p className="text-lg text-white/80 mb-8 max-w-xl">
               Connectez-vous avec des artisans vérifiés, qualifiés et proches de
               chez vous. Devis gratuit, avis certifiés, tranquillité d'esprit
               garantie.
@@ -55,9 +64,9 @@ const HeroSection = () => {
 
             {/* Badges */}
             <div className="flex flex-wrap gap-3 mb-8">
-              {badges.map(badge => <div key={badge} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white shadow-soft border border-border">
-                  <CheckCircle2 className="w-4 h-4 text-success" />
-                  <span className="text-sm font-medium text-navy">{badge}</span>
+              {badges.map(badge => <div key={badge} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+                  <CheckCircle2 className="w-4 h-4 text-gold" />
+                  <span className="text-sm font-medium text-white">{badge}</span>
                 </div>)}
             </div>
 
@@ -75,12 +84,12 @@ const HeroSection = () => {
             </div>
 
             {/* Stats */}
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-8 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
               {stats.map((stat, index) => <div key={stat.label} className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-navy">
+                  <div className="text-2xl md:text-3xl font-bold text-white">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  <div className="text-sm text-white/70">{stat.label}</div>
                 </div>)}
             </div>
           </motion.div>
