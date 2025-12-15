@@ -107,7 +107,7 @@ const TestimonialsSection = () => {
         {/* Testimonials Grid */}
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
-            <motion.div
+            <motion.article
               key={testimonial.name}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -160,7 +160,9 @@ const TestimonialsSection = () => {
                   <div className="relative">
                     <img
                       src={testimonial.image}
-                      alt={testimonial.name}
+                      alt={`Photo de ${testimonial.name}`}
+                      width={56}
+                      height={56}
                       className="w-14 h-14 rounded-full object-cover border-2 border-gold shadow-md"
                     />
                     {testimonial.verified && (
@@ -176,19 +178,19 @@ const TestimonialsSection = () => {
                     )}
                   </div>
                   <div>
-                    <div className="font-semibold text-navy">
+                    <h3 className="font-semibold text-navy">
                       {testimonial.name}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
                       {testimonial.location} · {testimonial.artisan}
-                    </div>
+                    </p>
                   </div>
                 </motion.div>
               </div>
               
               {/* Hover glow effect */}
-              <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-gold/20 to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
-            </motion.div>
+              <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-gold/20 to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" aria-hidden="true" />
+            </motion.article>
           ))}
         </div>
 

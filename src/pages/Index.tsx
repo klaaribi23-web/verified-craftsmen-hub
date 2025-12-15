@@ -13,6 +13,7 @@ import { Star, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/seo/SEOHead";
+import OrganizationSchema from "@/components/seo/OrganizationSchema";
 
 const Index = () => {
   return <div className="min-h-screen">
@@ -21,6 +22,7 @@ const Index = () => {
         description="Mise en relation rapide avec des artisans qualifiés et vérifiés en France. Devis gratuit, qualité et expertise garantie pour tous vos projets de travaux."
         canonical="https://artisansvalides.fr"
       />
+      <OrganizationSchema />
       <Navbar />
       <main>
         <HeroSection />

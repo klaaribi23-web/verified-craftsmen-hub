@@ -58,7 +58,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-6">
-              <img src={logo} alt="Artisans Validés" className="w-10 h-10 rounded-lg" />
+              <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg" />
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-white leading-tight">ARTISANS</span>
                 <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
@@ -84,8 +84,8 @@ const Footer = () => {
           </div>
 
           {/* Services */}
-          <div>
-            <h4 className="font-semibold text-white mb-4">Nos métiers</h4>
+          <nav aria-label="Nos métiers">
+            <h2 className="font-semibold text-white mb-4">Nos métiers</h2>
             <ul className="space-y-3">
               {footerLinks.services.map(link => <li key={link.href}>
                   <Link to={link.href} className="text-sm text-white/70 hover:text-gold transition-colors">
@@ -93,11 +93,11 @@ const Footer = () => {
                   </Link>
                 </li>)}
             </ul>
-          </div>
+          </nav>
 
           {/* Company */}
-          <div>
-            <h4 className="font-semibold text-white mb-4">Entreprise</h4>
+          <nav aria-label="Entreprise">
+            <h2 className="font-semibold text-white mb-4">Entreprise</h2>
             <ul className="space-y-3">
               {footerLinks.company.map(link => <li key={link.href}>
                   <Link to={link.href} className="text-sm text-white/70 hover:text-gold transition-colors">
@@ -105,11 +105,11 @@ const Footer = () => {
                   </Link>
                 </li>)}
             </ul>
-          </div>
+          </nav>
 
           {/* Legal */}
-          <div>
-            <h4 className="font-semibold text-white mb-4">Informations</h4>
+          <nav aria-label="Informations légales">
+            <h2 className="font-semibold text-white mb-4">Informations</h2>
             <ul className="space-y-3">
               {footerLinks.legal.map(link => <li key={link.href}>
                   <Link to={link.href} className="text-sm text-white/70 hover:text-gold transition-colors">
@@ -117,7 +117,7 @@ const Footer = () => {
                   </Link>
                 </li>)}
             </ul>
-          </div>
+          </nav>
         </div>
       </div>
 
@@ -128,15 +128,15 @@ const Footer = () => {
             <p className="text-sm text-white/50">
               © {currentYear} Artisans Validés. Tous droits réservés.
             </p>
-            <div className="flex items-center gap-4">
-              <a href="#" className="text-white/50 hover:text-gold transition-colors">
-                <Facebook className="w-5 h-5" />
+            <div className="flex items-center gap-4" role="list" aria-label="Réseaux sociaux">
+              <a href="https://www.facebook.com/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-gold transition-colors" aria-label="Facebook">
+                <Facebook className="w-5 h-5" aria-hidden="true" />
               </a>
-              <a href="#" className="text-white/50 hover:text-gold transition-colors">
-                <Instagram className="w-5 h-5" />
+              <a href="https://www.instagram.com/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-gold transition-colors" aria-label="Instagram">
+                <Instagram className="w-5 h-5" aria-hidden="true" />
               </a>
-              <a href="#" className="text-white/50 hover:text-gold transition-colors">
-                <Linkedin className="w-5 h-5" />
+              <a href="https://www.linkedin.com/company/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-gold transition-colors" aria-label="LinkedIn">
+                <Linkedin className="w-5 h-5" aria-hidden="true" />
               </a>
             </div>
           </div>

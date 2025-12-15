@@ -21,7 +21,9 @@ const HeroSection = () => {
       <div className="absolute inset-0">
         <img 
           src={heroBackground} 
-          alt="Artisan professionnel au travail" 
+          alt="Artisan professionnel qualifié au travail sur un chantier" 
+          width={1920}
+          height={1080}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/85 to-navy/70" />
