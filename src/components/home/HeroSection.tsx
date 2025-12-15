@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Shield, CheckCircle2, Star, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
-
 const HeroSection = () => {
   const stats = [{
     value: "5000+",
@@ -19,13 +18,7 @@ const HeroSection = () => {
   return <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
-        <img 
-          src={heroBackground} 
-          alt="Artisan professionnel qualifié au travail sur un chantier" 
-          width={1920}
-          height={1080}
-          className="w-full h-full object-cover"
-        />
+        <img src={heroBackground} alt="Artisan professionnel qualifié au travail sur un chantier" width={1920} height={1080} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/85 to-navy/70" />
       </div>
       <div className="absolute top-20 right-0 w-1/2 h-full opacity-10">
@@ -81,7 +74,7 @@ const HeroSection = () => {
                 </Link>
               </Button>
               <Button variant="outline" size="xl" asChild>
-                <Link to="/devenir-artisan">Je suis artisan</Link>
+                <Link to="/devenir-artisan" className="bg-primary text-accent">Je suis artisan</Link>
               </Button>
             </div>
 
