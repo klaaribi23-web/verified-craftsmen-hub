@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -272,6 +273,11 @@ const DevenirArtisan = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Devenir artisan partenaire"
+        description="Rejoignez le réseau Artisans Validés : recevez des chantiers qualifiés, développez votre activité et obtenez le badge de confiance."
+        canonical="https://artisansvalides.fr/devenir-artisan"
+      />
       <Navbar />
       
       <main className="pt-20">

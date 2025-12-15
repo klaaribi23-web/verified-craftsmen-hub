@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -214,7 +215,20 @@ const ArtisanPublicProfile = () => {
   const portfolio = artisan.portfolio_images || [];
   const rating = artisan.rating || 0;
   const reviewCount = artisan.review_count || 0;
+  
+  // Dynamic SEO meta for artisan profile
+  const seoTitle = `${artisan.business_name} - ${artisan.category?.name || "Artisan"} à ${artisan.city}`;
+  const seoDescription = `Découvrez ${artisan.business_name}, ${artisan.category?.name || "artisan"} à ${artisan.city}. ${rating.toFixed(1)}/5 (${reviewCount} avis). Demandez un devis gratuit.`;
+  const seoCanonical = `https://artisansvalides.fr/artisan/${artisan.slug}`;
+  
   return <div className="min-h-screen bg-background">
+      <SEOHead 
+        title={seoTitle}
+        description={seoDescription}
+        canonical={seoCanonical}
+        ogImage={artisan.photo_url || undefined}
+        ogType="profile"
+      />
       <Navbar />
       
       {/* Hero Section */}

@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
@@ -148,6 +149,11 @@ const TrouverArtisan = () => {
   // Get total artisan count
   const totalArtisans = artisansData?.length || 0;
   return <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Trouver un artisan qualifié"
+        description="Trouvez et comparez les meilleurs artisans vérifiés près de chez vous. Plombiers, électriciens, peintres et plus. Devis gratuit en 24h."
+        canonical="https://artisansvalides.fr/trouver-artisan"
+      />
       <Navbar />
       
       <main className="pt-16 lg:pt-20">
