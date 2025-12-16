@@ -47,6 +47,7 @@ import AuthCallback from "./pages/AuthCallback";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Contact from "./pages/Contact";
+import APropos from "./pages/APropos";
 
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/a-propos" element={<APropos />} />
           
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
