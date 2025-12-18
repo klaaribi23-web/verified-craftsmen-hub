@@ -73,8 +73,8 @@ const HeroSection = () => {
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
-              <Button variant="outline" size="xl" asChild>
-                <Link to="/devenir-artisan" className="text-primary bg-accent">Je suis artisan</Link>
+              <Button variant="outline" size="xl" className="bg-white text-primary border-white hover:bg-white/90" asChild>
+                <Link to="/devenir-artisan">Je suis artisan</Link>
               </Button>
             </div>
 
