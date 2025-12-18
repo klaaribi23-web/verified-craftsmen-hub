@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { 
   Mail, 
   Loader2,
@@ -116,6 +117,11 @@ const ForgotPassword = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Mot de passe oublié" 
+        description="Réinitialisez votre mot de passe Artisans Validés"
+        noIndex={true}
+      />
       <Navbar />
       
       <main className="container mx-auto px-4 py-12">

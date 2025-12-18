@@ -1,6 +1,7 @@
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { StatsCard } from "@/components/artisan-dashboard/StatsCard";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { ProfileCompletionCard } from "@/components/artisan-dashboard/ProfileCompletionCard";
 import { ApprovalNotifications } from "@/components/artisan-dashboard/ApprovalNotifications";
 import { useAuth } from "@/hooks/useAuth";
@@ -228,6 +229,11 @@ export const ArtisanDashboard = () => {
 
   return (
     <>
+      <SEOHead 
+        title="Tableau de bord Artisan" 
+        description="Gérez votre activité d'artisan sur Artisans Validés"
+        noIndex={true}
+      />
       <Navbar />
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <ArtisanSidebar />

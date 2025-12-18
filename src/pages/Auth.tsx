@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -335,6 +336,11 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Connexion" 
+        description="Connectez-vous à votre compte Artisans Validés"
+        noIndex={true}
+      />
       <Navbar />
       
       <main className="container mx-auto px-4 py-12">

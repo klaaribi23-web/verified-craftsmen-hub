@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { AdminStatsCard } from "@/components/admin-dashboard/AdminStatsCard";
 import { AdminNotifications } from "@/components/admin-dashboard/AdminNotifications";
 import { NewArtisansList } from "@/components/admin-dashboard/NewArtisansList";
@@ -39,6 +40,11 @@ const AdminDashboard = () => {
 
   return (
     <>
+      <SEOHead 
+        title="Administration" 
+        description="Panneau d'administration Artisans Validés"
+        noIndex={true}
+      />
       <Navbar />
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <AdminSidebar />
