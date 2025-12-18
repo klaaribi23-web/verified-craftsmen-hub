@@ -1,5 +1,6 @@
 import { ClientSidebar } from "@/components/client-dashboard/ClientSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -174,6 +175,11 @@ export const ClientDashboard = () => {
 
   return (
     <>
+      <SEOHead 
+        title="Tableau de bord Client" 
+        description="Gérez vos missions et artisans favoris sur Artisans Validés"
+        noIndex={true}
+      />
       <Navbar />
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <ClientSidebar />

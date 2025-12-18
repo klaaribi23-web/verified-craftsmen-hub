@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -206,12 +207,19 @@ const AuthCallback = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-        <p className="text-muted-foreground">Confirmation en cours...</p>
+    <>
+      <SEOHead 
+        title="Confirmation" 
+        description="Confirmation de votre inscription"
+        noIndex={true}
+      />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Confirmation en cours...</p>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
