@@ -49,6 +49,7 @@ import {
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
 
 interface PendingArtisan {
   id: string;
@@ -108,6 +109,8 @@ const AdminApprovals = () => {
   const [showMissionRejectDialog, setShowMissionRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [prospectToDelete, setProspectToDelete] = useState<ProspectArtisan | null>(null);
+  const [editProspect, setEditProspect] = useState<ProspectArtisan | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   // Fetch pending artisans
   const { data: pendingArtisans = [], isLoading: isLoadingArtisans } = useQuery({
@@ -766,12 +769,15 @@ const AdminApprovals = () => {
                                 variant="outline" 
                                 size="sm" 
                                 className="flex-1 min-w-[70px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
-                                onClick={() => navigate(`/admin/ajouter-artisan?edit=${prospect.id}`)}
+                                onClick={() => {
+                                  setEditProspect(prospect);
+                                  setEditDialogOpen(true);
+                                }}
                               >
                                 <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
                                 <span className="hidden sm:inline">Modifier</span>
                               </Button>
-                              <Button 
+                              <Button
                                 variant="destructive" 
                                 size="sm" 
                                 className="flex-1 min-w-[70px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
@@ -1028,6 +1034,19 @@ const AdminApprovals = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          {/* Edit Prospect Dialog */}
+          <AdminEditArtisanDialog
+            open={editDialogOpen}
+            onOpenChange={(open) => {
+              setEditDialogOpen(open);
+              if (!open) {
+                setEditProspect(null);
+                queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+              }
+            }}
+            artisan={editProspect as any}
+          />
         </main>
       </div>
     </>
