@@ -88,6 +88,28 @@ const AuthCallback = () => {
               if (updateError) {
                 console.error("Error linking artisan profile:", updateError);
               } else if (artisanData) {
+                // Vérifier que l'update a bien fonctionné avant de continuer
+                let verified = false;
+                for (let i = 0; i < 3; i++) {
+                  const { data: verifyArtisan } = await supabase
+                    .from("artisans")
+                    .select("id, user_id")
+                    .eq("user_id", session.user.id)
+                    .maybeSingle();
+                  
+                  if (verifyArtisan?.user_id === session.user.id) {
+                    verified = true;
+                    console.log("Artisan profile linked successfully, verified on attempt", i + 1);
+                    break;
+                  }
+                  // Attendre 500ms avant de réessayer
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                if (!verified) {
+                  console.warn("Could not verify artisan link after 3 attempts");
+                }
+
                 // Send notification to admin about the claim
                 const { data: adminRoles } = await supabase
                   .from("user_roles")

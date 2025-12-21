@@ -71,19 +71,38 @@ export const useArtisanProfile = () => {
 
       console.log("Profile data:", profileData);
 
-      // Fetch artisan profile
-      const { data: artisanData, error: artisanError } = await supabase
-        .from("artisans")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      // Fetch artisan profile with retry logic for newly claimed profiles
+      let artisanData = null;
+      let artisanError = null;
+      
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data, error } = await supabase
+          .from("artisans")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        
+        artisanData = data;
+        artisanError = error;
+        
+        if (artisanData || artisanError) {
+          console.log(`Artisan data found on attempt ${attempt + 1}:`, artisanData);
+          break;
+        }
+        
+        // Attendre avant de réessayer (utile pour les profils fraîchement revendiqués)
+        if (attempt < 2) {
+          console.log(`Artisan not found, retrying in 1s... (attempt ${attempt + 1}/3)`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
 
       if (artisanError) {
         console.error("Artisan fetch error:", artisanError);
         throw artisanError;
       }
 
-      console.log("Artisan data:", artisanData);
+      console.log("Final artisan data:", artisanData);
 
       setArtisan(artisanData);
       setProfile(profileData);
