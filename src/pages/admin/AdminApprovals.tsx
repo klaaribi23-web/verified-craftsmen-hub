@@ -712,31 +712,31 @@ const AdminApprovals = () => {
               ) : prospectArtisans.length > 0 ? (
                 <div className="grid gap-3 md:gap-6">
                   {prospectArtisans.map((prospect) => (
-                    <Card key={prospect.id} className="hover:shadow-lg transition-shadow">
+                    <Card key={prospect.id} className="hover:shadow-lg transition-shadow overflow-hidden">
                       <CardContent className="p-3 md:p-6">
-                        <div className="flex gap-3 md:gap-6">
-                          <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0">
+                        <div className="flex flex-col sm:flex-row gap-3 md:gap-6">
+                          <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0 self-start">
                             <AvatarImage src={prospect.photo_url || DEFAULT_AVATAR} />
                             <AvatarFallback className="text-lg md:text-xl bg-primary text-primary-foreground">
                               {prospect.business_name.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
 
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <div className="min-w-0">
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                              <div className="min-w-0 flex-1">
                                 <h3 className="text-base md:text-xl font-bold truncate">{prospect.business_name}</h3>
                                 <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
                                   <span className="flex items-center gap-1">
-                                    <MapPin className="h-3 w-3 md:h-4 md:w-4" />
-                                    <span className="truncate max-w-[80px] md:max-w-none">{prospect.city}</span>
+                                    <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
+                                    <span className="truncate">{prospect.city}</span>
                                   </span>
                                   {prospect.category && (
-                                    <Badge variant="secondary" className="text-xs px-1.5 py-0">{prospect.category.name}</Badge>
+                                    <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{prospect.category.name}</Badge>
                                   )}
                                 </div>
                               </div>
-                              <Badge variant="outline" className="gap-1 text-xs shrink-0 bg-amber-500/10 text-amber-600 border-amber-500/30">
+                              <Badge variant="outline" className="gap-1 text-xs shrink-0 bg-amber-500/10 text-amber-600 border-amber-500/30 self-start">
                                 <Store className="h-2.5 w-2.5" />
                                 Vitrine
                               </Badge>
@@ -755,35 +755,35 @@ const AdminApprovals = () => {
                               )}
                             </div>
 
-                            <div className="flex flex-wrap gap-1.5 md:gap-2">
+                            <div className="grid grid-cols-3 gap-2">
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="flex-1 min-w-[70px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
                                 onClick={() => window.open(`/artisan/${prospect.slug}`, '_blank')}
                               >
-                                <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                 <span className="hidden sm:inline">Voir</span>
                               </Button>
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="flex-1 min-w-[70px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
                                 onClick={() => {
                                   setEditProspect(prospect);
                                   setEditDialogOpen(true);
                                 }}
                               >
-                                <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                 <span className="hidden sm:inline">Modifier</span>
                               </Button>
                               <Button
                                 variant="destructive" 
                                 size="sm" 
-                                className="flex-1 min-w-[70px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
                                 onClick={() => setProspectToDelete(prospect)}
                               >
-                                <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                 <span className="hidden sm:inline">Supprimer</span>
                               </Button>
                             </div>
