@@ -117,19 +117,23 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   });
 
   useEffect(() => {
-    if (existingServices) {
+    if (existingServices && existingServices.length > 0) {
       setServices(existingServices);
     }
   }, [existingServices]);
 
-  // Load artisan's categories when data is fetched
+  // Load artisan's categories when data is fetched - only run once per artisan
   useEffect(() => {
-    if (artisanCategoriesData.length > 0) {
+    if (!open || !artisan?.id) return;
+    
+    if (artisanCategoriesData && artisanCategoriesData.length > 0) {
       setSelectedCategoryIds(artisanCategoriesData);
     } else if (artisan?.category_id) {
       setSelectedCategoryIds([artisan.category_id]);
+    } else {
+      setSelectedCategoryIds([]);
     }
-  }, [artisanCategoriesData, artisan?.category_id]);
+  }, [open, artisan?.id, artisan?.category_id, JSON.stringify(artisanCategoriesData)]);
 
   useEffect(() => {
     if (artisan) {
