@@ -61,6 +61,7 @@ import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
+import { VitrineStatsCharts } from "@/components/admin-dashboard/VitrineStatsCharts";
 
 const PROSPECTS_PER_PAGE = 50;
 
@@ -765,6 +766,9 @@ const AdminApprovals = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Detailed Statistics Charts */}
+              <VitrineStatsCharts />
 
               {/* Search and pagination controls */}
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
