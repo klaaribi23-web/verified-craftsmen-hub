@@ -56,6 +56,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
+  Mail,
+  Phone,
+  Calendar,
+  UserCheck,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -97,6 +101,27 @@ interface ProspectArtisan {
   category: { name: string } | null;
 }
 
+interface ClaimedArtisan {
+  id: string;
+  business_name: string;
+  city: string;
+  email: string | null;
+  phone: string | null;
+  description: string | null;
+  photo_url: string | null;
+  created_at: string;
+  updated_at: string;
+  slug: string | null;
+  status: string;
+  category: { name: string } | null;
+  profile: {
+    first_name: string | null;
+    last_name: string | null;
+    email: string;
+    phone: string | null;
+  } | null;
+}
+
 interface PendingMission {
   id: string;
   title: string;
@@ -130,6 +155,14 @@ const AdminApprovals = () => {
   const [prospectPage, setProspectPage] = useState(0);
   const [prospectsPerPage, setProspectsPerPage] = useState(PROSPECTS_PER_PAGE);
   const [prospectSearch, setProspectSearch] = useState("");
+  
+  // Sub-tab state for vitrines
+  const [vitrineSubTab, setVitrineSubTab] = useState("actives");
+  
+  // Pagination state for claimed artisans
+  const [claimedPage, setClaimedPage] = useState(0);
+  const [claimedPerPage, setClaimedPerPage] = useState(50);
+  const [claimedSearch, setClaimedSearch] = useState("");
 
   // Fetch pending artisans
   const { data: pendingArtisans = [], isLoading: isLoadingArtisans } = useQuery({
@@ -223,9 +256,93 @@ const AdminApprovals = () => {
       const { count, error } = await supabase
         .from("artisans")
         .select("*", { count: "exact", head: true })
-        .eq("status", "pending")
         .not("user_id", "is", null)
         .gte("updated_at", startOfMonth.toISOString());
+
+      if (error) throw error;
+      return count || 0;
+    }
+  });
+
+  // Fetch total count of claimed artisans
+  const { data: totalClaimed = 0 } = useQuery({
+    queryKey: ["claimed-artisans-count", claimedSearch],
+    queryFn: async () => {
+      let query = supabase
+        .from("artisans")
+        .select("*", { count: "exact", head: true })
+        .not("user_id", "is", null);
+      
+      if (claimedSearch.trim()) {
+        query = query.or(`business_name.ilike.%${claimedSearch}%,city.ilike.%${claimedSearch}%,email.ilike.%${claimedSearch}%`);
+      }
+
+      const { count, error } = await query;
+      if (error) throw error;
+      return count || 0;
+    }
+  });
+
+  // Fetch claimed artisans with pagination
+  const { data: claimedArtisans = [], isLoading: isLoadingClaimed } = useQuery({
+    queryKey: ["claimed-artisans", claimedPage, claimedPerPage, claimedSearch],
+    queryFn: async () => {
+      let query = supabase
+        .from("artisans")
+        .select(`
+          id,
+          business_name,
+          city,
+          email,
+          phone,
+          description,
+          photo_url,
+          created_at,
+          updated_at,
+          slug,
+          status,
+          category:categories(name),
+          profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
+        `)
+        .not("user_id", "is", null);
+      
+      if (claimedSearch.trim()) {
+        query = query.or(`business_name.ilike.%${claimedSearch}%,city.ilike.%${claimedSearch}%,email.ilike.%${claimedSearch}%`);
+      }
+      
+      const { data, error } = await query
+        .order("updated_at", { ascending: false })
+        .range(claimedPage * claimedPerPage, (claimedPage + 1) * claimedPerPage - 1);
+
+      if (error) throw error;
+      return data as ClaimedArtisan[];
+    }
+  });
+
+  // Count pending approval (claimed but waiting)
+  const { data: pendingApprovalCount = 0 } = useQuery({
+    queryKey: ["pending-approval-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("artisans")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending")
+        .not("user_id", "is", null);
+
+      if (error) throw error;
+      return count || 0;
+    }
+  });
+
+  // Count approved artisans (claimed and approved)
+  const { data: approvedCount = 0 } = useQuery({
+    queryKey: ["approved-artisans-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("artisans")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "active")
+        .not("user_id", "is", null);
 
       if (error) throw error;
       return count || 0;
@@ -432,10 +549,15 @@ const AdminApprovals = () => {
     }
   });
 
-  // Pagination helpers
+  // Pagination helpers for prospects
   const totalProspectPages = Math.ceil(totalProspects / prospectsPerPage);
   const startIndex = prospectPage * prospectsPerPage + 1;
   const endIndex = Math.min((prospectPage + 1) * prospectsPerPage, totalProspects);
+
+  // Pagination helpers for claimed
+  const totalClaimedPages = Math.ceil(totalClaimed / claimedPerPage);
+  const claimedStartIndex = claimedPage * claimedPerPage + 1;
+  const claimedEndIndex = Math.min((claimedPage + 1) * claimedPerPage, totalClaimed);
 
   const handleProspectSearchChange = (value: string) => {
     setProspectSearch(value);
@@ -445,6 +567,26 @@ const AdminApprovals = () => {
   const handlePerPageChange = (value: string) => {
     setProspectsPerPage(parseInt(value));
     setProspectPage(0); // Reset to first page
+  };
+
+  const handleClaimedSearchChange = (value: string) => {
+    setClaimedSearch(value);
+    setClaimedPage(0);
+  };
+
+  const handleClaimedPerPageChange = (value: string) => {
+    setClaimedPerPage(parseInt(value));
+    setClaimedPage(0);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const getProfileCompleteness = (artisan: PendingArtisan) => {
@@ -721,7 +863,7 @@ const AdminApprovals = () => {
             {/* VITRINES TAB */}
             <TabsContent value="vitrines">
               {/* Stats Cards */}
-              <div className="grid grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
                 <Card>
                   <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2 md:gap-3">
@@ -729,7 +871,7 @@ const AdminApprovals = () => {
                         <ShoppingBag className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Actives</p>
+                        <p className="text-xs text-muted-foreground">Vitrines actives</p>
                         <p className="text-lg md:text-2xl font-bold">{totalProspects.toLocaleString('fr-FR')}</p>
                       </div>
                     </div>
@@ -739,11 +881,24 @@ const AdminApprovals = () => {
                   <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2 md:gap-3">
                       <div className="p-2 bg-emerald-500/10 rounded-lg">
-                        <Users className="h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
+                        <UserCheck className="h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Revendiquées</p>
-                        <p className="text-lg md:text-2xl font-bold">{claimedThisMonth}</p>
+                        <p className="text-xs text-muted-foreground">Total revendiquées</p>
+                        <p className="text-lg md:text-2xl font-bold">{totalClaimed}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="p-2 bg-amber-500/10 rounded-lg">
+                        <Clock className="h-4 w-4 md:h-5 md:w-5 text-amber-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">En attente</p>
+                        <p className="text-lg md:text-2xl font-bold">{pendingApprovalCount}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -755,12 +910,8 @@ const AdminApprovals = () => {
                         <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-gold" />
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Conversion</p>
-                        <p className="text-lg md:text-2xl font-bold">
-                          {totalProspects + claimedThisMonth > 0 
-                            ? Math.round((claimedThisMonth / (totalProspects + claimedThisMonth)) * 100) 
-                            : 0}%
-                        </p>
+                        <p className="text-xs text-muted-foreground">Ce mois</p>
+                        <p className="text-lg md:text-2xl font-bold">{claimedThisMonth}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -770,205 +921,445 @@ const AdminApprovals = () => {
               {/* Detailed Statistics Charts */}
               <VitrineStatsCharts />
 
-              {/* Search and pagination controls */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Rechercher par nom ou ville..."
-                    value={prospectSearch}
-                    onChange={(e) => handleProspectSearchChange(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
-                  <Select value={prospectsPerPage.toString()} onValueChange={handlePerPageChange}>
-                    <SelectTrigger className="w-20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="25">25</SelectItem>
-                      <SelectItem value="50">50</SelectItem>
-                      <SelectItem value="100">100</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              {/* Sub-tabs for Vitrines */}
+              <Tabs value={vitrineSubTab} onValueChange={setVitrineSubTab} className="mt-4">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="actives" className="gap-1.5">
+                    <Store className="h-4 w-4" />
+                    Vitrines actives
+                    <Badge variant="secondary" className="ml-1 text-xs">{totalProspects.toLocaleString('fr-FR')}</Badge>
+                  </TabsTrigger>
+                  <TabsTrigger value="revendiquees" className="gap-1.5">
+                    <UserCheck className="h-4 w-4" />
+                    Revendiquées
+                    <Badge variant="secondary" className="ml-1 text-xs">{totalClaimed}</Badge>
+                  </TabsTrigger>
+                </TabsList>
 
-              {/* Pagination info */}
-              {totalProspects > 0 && (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
-                  <span>
-                    Affichage {startIndex} - {endIndex} sur {totalProspects.toLocaleString('fr-FR')} vitrines
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setProspectPage(p => Math.max(0, p - 1))}
-                      disabled={prospectPage === 0}
-                    >
-                      <ChevronLeft className="h-4 w-4 mr-1" />
-                      Précédent
-                    </Button>
-                    <span className="text-sm font-medium px-2">
-                      Page {prospectPage + 1} / {totalProspectPages || 1}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setProspectPage(p => Math.min(totalProspectPages - 1, p + 1))}
-                      disabled={prospectPage >= totalProspectPages - 1}
-                    >
-                      Suivant
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
+                {/* VITRINES ACTIVES SUB-TAB */}
+                <TabsContent value="actives">
+                  {/* Search and pagination controls */}
+                  <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Rechercher par nom ou ville..."
+                        value={prospectSearch}
+                        onChange={(e) => handleProspectSearchChange(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
+                      <Select value={prospectsPerPage.toString()} onValueChange={handlePerPageChange}>
+                        <SelectTrigger className="w-20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="25">25</SelectItem>
+                          <SelectItem value="50">50</SelectItem>
+                          <SelectItem value="100">100</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                </div>
-              )}
 
-              {isLoadingProspects ? (
-                <div className="flex items-center justify-center py-12 md:py-20">
-                  <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
-                </div>
-              ) : prospectArtisans.length > 0 ? (
-                <>
-                  <div className="grid gap-3 md:gap-6">
-                    {prospectArtisans.map((prospect) => (
-                      <Card key={prospect.id} className="hover:shadow-lg transition-shadow overflow-hidden">
-                        <CardContent className="p-3 md:p-6">
-                          <div className="flex flex-col sm:flex-row gap-3 md:gap-6">
-                            <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0 self-start">
-                              <AvatarImage src={prospect.photo_url || DEFAULT_AVATAR} />
-                              <AvatarFallback className="text-lg md:text-xl bg-primary text-primary-foreground">
-                                {prospect.business_name.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
+                  {/* Pagination info */}
+                  {totalProspects > 0 && (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
+                      <span>
+                        Affichage {startIndex} - {endIndex} sur {totalProspects.toLocaleString('fr-FR')} vitrines
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setProspectPage(p => Math.max(0, p - 1))}
+                          disabled={prospectPage === 0}
+                        >
+                          <ChevronLeft className="h-4 w-4 mr-1" />
+                          Précédent
+                        </Button>
+                        <span className="text-sm font-medium px-2">
+                          Page {prospectPage + 1} / {totalProspectPages || 1}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setProspectPage(p => Math.min(totalProspectPages - 1, p + 1))}
+                          disabled={prospectPage >= totalProspectPages - 1}
+                        >
+                          Suivant
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
 
-                            <div className="flex-1 min-w-0 overflow-hidden">
-                              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
-                                <div className="min-w-0 flex-1">
-                                  <h3 className="text-base md:text-xl font-bold truncate">{prospect.business_name}</h3>
-                                  <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
-                                    <span className="flex items-center gap-1">
-                                      <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
-                                      <span className="truncate">{prospect.city}</span>
-                                    </span>
-                                    {prospect.category && (
-                                      <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{prospect.category.name}</Badge>
+                  {isLoadingProspects ? (
+                    <div className="flex items-center justify-center py-12 md:py-20">
+                      <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
+                    </div>
+                  ) : prospectArtisans.length > 0 ? (
+                    <>
+                      <div className="grid gap-3 md:gap-6">
+                        {prospectArtisans.map((prospect) => (
+                          <Card key={prospect.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                            <CardContent className="p-3 md:p-6">
+                              <div className="flex flex-col sm:flex-row gap-3 md:gap-6">
+                                <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0 self-start">
+                                  <AvatarImage src={prospect.photo_url || DEFAULT_AVATAR} />
+                                  <AvatarFallback className="text-lg md:text-xl bg-primary text-primary-foreground">
+                                    {prospect.business_name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+
+                                <div className="flex-1 min-w-0 overflow-hidden">
+                                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                                    <div className="min-w-0 flex-1">
+                                      <h3 className="text-base md:text-xl font-bold truncate">{prospect.business_name}</h3>
+                                      <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
+                                        <span className="flex items-center gap-1">
+                                          <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
+                                          <span className="truncate">{prospect.city}</span>
+                                        </span>
+                                        {prospect.category && (
+                                          <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{prospect.category.name}</Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <Badge variant="outline" className="gap-1 text-xs shrink-0 bg-amber-500/10 text-amber-600 border-amber-500/30 self-start">
+                                      <Store className="h-2.5 w-2.5" />
+                                      Vitrine
+                                    </Badge>
+                                  </div>
+
+                                  {prospect.description && (
+                                    <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-3">
+                                      {prospect.description}
+                                    </p>
+                                  )}
+
+                                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-3">
+                                    <span>Créée le {new Date(prospect.created_at).toLocaleDateString('fr-FR')}</span>
+                                    {prospect.portfolio_images && prospect.portfolio_images.length > 0 && (
+                                      <span>• {prospect.portfolio_images.length} photo(s)</span>
+                                    )}
+                                  </div>
+
+                                  <div className="grid grid-cols-3 gap-2">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                      onClick={() => window.open(`/artisan/${prospect.slug}`, '_blank')}
+                                    >
+                                      <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                      <span className="hidden sm:inline">Voir</span>
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                      onClick={() => {
+                                        setEditProspect(prospect);
+                                        setEditDialogOpen(true);
+                                      }}
+                                    >
+                                      <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                      <span className="hidden sm:inline">Modifier</span>
+                                    </Button>
+                                    <Button
+                                      variant="destructive" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                      onClick={() => setProspectToDelete(prospect)}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                      <span className="hidden sm:inline">Supprimer</span>
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+
+                      {/* Bottom pagination */}
+                      {totalProspectPages > 1 && (
+                        <div className="flex items-center justify-center gap-2 mt-6">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setProspectPage(p => Math.max(0, p - 1))}
+                            disabled={prospectPage === 0}
+                          >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Précédent
+                          </Button>
+                          <span className="text-sm font-medium px-4">
+                            Page {prospectPage + 1} / {totalProspectPages}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setProspectPage(p => Math.min(totalProspectPages - 1, p + 1))}
+                            disabled={prospectPage >= totalProspectPages - 1}
+                          >
+                            Suivant
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Card>
+                      <CardContent className="py-12 md:py-20 text-center">
+                        <Store className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
+                        <h3 className="text-lg md:text-xl font-semibold mb-2">
+                          {prospectSearch ? "Aucun résultat" : "Aucune fiche vitrine"}
+                        </h3>
+                        <p className="text-muted-foreground text-sm md:text-base mb-4">
+                          {prospectSearch 
+                            ? `Aucune vitrine trouvée pour "${prospectSearch}"`
+                            : "Créez des fiches vitrines pour attirer de nouveaux artisans."}
+                        </p>
+                        {prospectSearch ? (
+                          <Button variant="outline" onClick={() => setProspectSearch("")}>
+                            Effacer la recherche
+                          </Button>
+                        ) : (
+                          <Button onClick={() => navigate("/admin/ajouter-artisan")}>
+                            Créer une fiche vitrine
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </TabsContent>
+
+                {/* REVENDIQUEES SUB-TAB */}
+                <TabsContent value="revendiquees">
+                  {/* Search and pagination controls */}
+                  <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Rechercher par nom, ville ou email..."
+                        value={claimedSearch}
+                        onChange={(e) => handleClaimedSearchChange(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
+                      <Select value={claimedPerPage.toString()} onValueChange={handleClaimedPerPageChange}>
+                        <SelectTrigger className="w-20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="25">25</SelectItem>
+                          <SelectItem value="50">50</SelectItem>
+                          <SelectItem value="100">100</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Pagination info */}
+                  {totalClaimed > 0 && (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
+                      <span>
+                        Affichage {claimedStartIndex} - {claimedEndIndex} sur {totalClaimed.toLocaleString('fr-FR')} artisans revendiqués
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setClaimedPage(p => Math.max(0, p - 1))}
+                          disabled={claimedPage === 0}
+                        >
+                          <ChevronLeft className="h-4 w-4 mr-1" />
+                          Précédent
+                        </Button>
+                        <span className="text-sm font-medium px-2">
+                          Page {claimedPage + 1} / {totalClaimedPages || 1}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setClaimedPage(p => Math.min(totalClaimedPages - 1, p + 1))}
+                          disabled={claimedPage >= totalClaimedPages - 1}
+                        >
+                          Suivant
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {isLoadingClaimed ? (
+                    <div className="flex items-center justify-center py-12 md:py-20">
+                      <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
+                    </div>
+                  ) : claimedArtisans.length > 0 ? (
+                    <>
+                      <div className="grid gap-3 md:gap-4">
+                        {claimedArtisans.map((artisan) => (
+                          <Card key={artisan.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                            <CardContent className="p-3 md:p-6">
+                              <div className="flex flex-col sm:flex-row gap-3 md:gap-6">
+                                <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0 self-start">
+                                  <AvatarImage src={artisan.photo_url || DEFAULT_AVATAR} />
+                                  <AvatarFallback className="text-lg md:text-xl bg-primary text-primary-foreground">
+                                    {artisan.business_name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+
+                                <div className="flex-1 min-w-0 overflow-hidden">
+                                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                                    <div className="min-w-0 flex-1">
+                                      <h3 className="text-base md:text-xl font-bold truncate">{artisan.business_name}</h3>
+                                      <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm mt-1">
+                                        <span className="flex items-center gap-1">
+                                          <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
+                                          <span className="truncate">{artisan.city}</span>
+                                        </span>
+                                        {artisan.category && (
+                                          <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{artisan.category.name}</Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <Badge 
+                                      variant={artisan.status === 'active' ? 'default' : 'outline'} 
+                                      className={`gap-1 text-xs shrink-0 self-start ${
+                                        artisan.status === 'active' 
+                                          ? 'bg-emerald-500 text-white' 
+                                          : 'bg-amber-500/10 text-amber-600 border-amber-500/30'
+                                      }`}
+                                    >
+                                      {artisan.status === 'active' ? (
+                                        <>
+                                          <CheckCircle2 className="h-2.5 w-2.5" />
+                                          Approuvé
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Clock className="h-2.5 w-2.5" />
+                                          En attente
+                                        </>
+                                      )}
+                                    </Badge>
+                                  </div>
+
+                                  {/* Artisan contact info */}
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3 text-xs md:text-sm">
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                      <User className="h-3.5 w-3.5 shrink-0" />
+                                      <span className="truncate">
+                                        {artisan.profile?.first_name || artisan.profile?.last_name 
+                                          ? `${artisan.profile?.first_name || ''} ${artisan.profile?.last_name || ''}`.trim()
+                                          : 'Non renseigné'}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                      <Mail className="h-3.5 w-3.5 shrink-0" />
+                                      <span className="truncate">{artisan.profile?.email || artisan.email || 'Non renseigné'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                      <Phone className="h-3.5 w-3.5 shrink-0" />
+                                      <span>{artisan.profile?.phone || artisan.phone || 'Non renseigné'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                      <Calendar className="h-3.5 w-3.5 shrink-0" />
+                                      <span>Revendiquée le {formatDate(artisan.updated_at)}</span>
+                                    </div>
+                                  </div>
+
+                                  {artisan.description && (
+                                    <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-3">
+                                      {artisan.description}
+                                    </p>
+                                  )}
+
+                                  <div className="flex flex-wrap gap-2">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-3"
+                                      onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}
+                                    >
+                                      <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                      Voir la fiche
+                                    </Button>
+                                    {artisan.status === 'pending' && (
+                                      <Button 
+                                        size="sm" 
+                                        className="text-xs md:text-sm h-8 md:h-9 px-3"
+                                        onClick={() => navigate('/admin/approbations')}
+                                      >
+                                        <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                        Aller aux approbations
+                                      </Button>
                                     )}
                                   </div>
                                 </div>
-                                <Badge variant="outline" className="gap-1 text-xs shrink-0 bg-amber-500/10 text-amber-600 border-amber-500/30 self-start">
-                                  <Store className="h-2.5 w-2.5" />
-                                  Vitrine
-                                </Badge>
                               </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
 
-                              {prospect.description && (
-                                <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-3">
-                                  {prospect.description}
-                                </p>
-                              )}
-
-                              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-3">
-                                <span>Créée le {new Date(prospect.created_at).toLocaleDateString('fr-FR')}</span>
-                                {prospect.portfolio_images && prospect.portfolio_images.length > 0 && (
-                                  <span>• {prospect.portfolio_images.length} photo(s)</span>
-                                )}
-                              </div>
-
-                              <div className="grid grid-cols-3 gap-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
-                                  onClick={() => window.open(`/artisan/${prospect.slug}`, '_blank')}
-                                >
-                                  <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
-                                  <span className="hidden sm:inline">Voir</span>
-                                </Button>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
-                                  onClick={() => {
-                                    setEditProspect(prospect);
-                                    setEditDialogOpen(true);
-                                  }}
-                                >
-                                  <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
-                                  <span className="hidden sm:inline">Modifier</span>
-                                </Button>
-                                <Button
-                                  variant="destructive" 
-                                  size="sm" 
-                                  className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
-                                  onClick={() => setProspectToDelete(prospect)}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
-                                  <span className="hidden sm:inline">Supprimer</span>
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  {/* Bottom pagination */}
-                  {totalProspectPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 mt-6">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setProspectPage(p => Math.max(0, p - 1))}
-                        disabled={prospectPage === 0}
-                      >
-                        <ChevronLeft className="h-4 w-4 mr-1" />
-                        Précédent
-                      </Button>
-                      <span className="text-sm font-medium px-4">
-                        Page {prospectPage + 1} / {totalProspectPages}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setProspectPage(p => Math.min(totalProspectPages - 1, p + 1))}
-                        disabled={prospectPage >= totalProspectPages - 1}
-                      >
-                        Suivant
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                      </Button>
-                    </div>
+                      {/* Bottom pagination */}
+                      {totalClaimedPages > 1 && (
+                        <div className="flex items-center justify-center gap-2 mt-6">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setClaimedPage(p => Math.max(0, p - 1))}
+                            disabled={claimedPage === 0}
+                          >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Précédent
+                          </Button>
+                          <span className="text-sm font-medium px-4">
+                            Page {claimedPage + 1} / {totalClaimedPages}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setClaimedPage(p => Math.min(totalClaimedPages - 1, p + 1))}
+                            disabled={claimedPage >= totalClaimedPages - 1}
+                          >
+                            Suivant
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Card>
+                      <CardContent className="py-12 md:py-20 text-center">
+                        <UserCheck className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
+                        <h3 className="text-lg md:text-xl font-semibold mb-2">
+                          {claimedSearch ? "Aucun résultat" : "Aucune fiche revendiquée"}
+                        </h3>
+                        <p className="text-muted-foreground text-sm md:text-base mb-4">
+                          {claimedSearch 
+                            ? `Aucun artisan trouvé pour "${claimedSearch}"`
+                            : "Aucun artisan n'a encore revendiqué sa fiche vitrine."}
+                        </p>
+                        {claimedSearch && (
+                          <Button variant="outline" onClick={() => setClaimedSearch("")}>
+                            Effacer la recherche
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
                   )}
-                </>
-              ) : (
-                <Card>
-                  <CardContent className="py-12 md:py-20 text-center">
-                    <Store className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
-                    <h3 className="text-lg md:text-xl font-semibold mb-2">
-                      {prospectSearch ? "Aucun résultat" : "Aucune fiche vitrine"}
-                    </h3>
-                    <p className="text-muted-foreground text-sm md:text-base mb-4">
-                      {prospectSearch 
-                        ? `Aucune vitrine trouvée pour "${prospectSearch}"`
-                        : "Créez des fiches vitrines pour attirer de nouveaux artisans."}
-                    </p>
-                    {prospectSearch ? (
-                      <Button variant="outline" onClick={() => setProspectSearch("")}>
-                        Effacer la recherche
-                      </Button>
-                    ) : (
-                      <Button onClick={() => navigate("/admin/ajouter-artisan")}>
-                        Créer une fiche vitrine
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+                </TabsContent>
+              </Tabs>
             </TabsContent>
           </Tabs>
 
