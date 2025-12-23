@@ -60,6 +60,7 @@ import {
   Phone,
   Calendar,
   UserCheck,
+  FileText,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -120,6 +121,9 @@ interface ClaimedArtisan {
     email: string;
     phone: string | null;
   } | null;
+  documents_count?: number;
+  documents_pending?: number;
+  documents_approved?: number;
 }
 
 interface PendingMission {
@@ -164,10 +168,24 @@ const AdminApprovals = () => {
   const [claimedPerPage, setClaimedPerPage] = useState(50);
   const [claimedSearch, setClaimedSearch] = useState("");
 
-  // Fetch pending artisans
+  // Fetch pending artisans (only those with at least 1 document)
   const { data: pendingArtisans = [], isLoading: isLoadingArtisans } = useQuery({
     queryKey: ["pending-artisans"],
     queryFn: async () => {
+      // First, get artisan IDs that have at least one document
+      const { data: artisansWithDocs, error: docsError } = await supabase
+        .from("artisan_documents")
+        .select("artisan_id");
+      
+      if (docsError) throw docsError;
+      
+      const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
+      
+      if (artisanIdsWithDocs.length === 0) {
+        return [] as PendingArtisan[];
+      }
+      
+      // Then fetch pending artisans who have documents
       const { data, error } = await supabase
         .from("artisans")
         .select(`
@@ -185,6 +203,7 @@ const AdminApprovals = () => {
           profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
         `)
         .eq("status", "pending")
+        .in("id", artisanIdsWithDocs)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -283,7 +302,7 @@ const AdminApprovals = () => {
     }
   });
 
-  // Fetch claimed artisans with pagination
+  // Fetch claimed artisans with pagination and document counts
   const { data: claimedArtisans = [], isLoading: isLoadingClaimed } = useQuery({
     queryKey: ["claimed-artisans", claimedPage, claimedPerPage, claimedSearch],
     queryFn: async () => {
@@ -315,7 +334,36 @@ const AdminApprovals = () => {
         .range(claimedPage * claimedPerPage, (claimedPage + 1) * claimedPerPage - 1);
 
       if (error) throw error;
-      return data as ClaimedArtisan[];
+      
+      // Fetch document counts for each artisan
+      const artisanIds = data?.map(a => a.id) || [];
+      if (artisanIds.length === 0) return [] as ClaimedArtisan[];
+      
+      const { data: allDocs } = await supabase
+        .from("artisan_documents")
+        .select("artisan_id, status")
+        .in("artisan_id", artisanIds);
+      
+      // Build a map of document counts per artisan
+      const docCounts: Record<string, { total: number; pending: number; approved: number }> = {};
+      allDocs?.forEach(doc => {
+        if (!docCounts[doc.artisan_id]) {
+          docCounts[doc.artisan_id] = { total: 0, pending: 0, approved: 0 };
+        }
+        docCounts[doc.artisan_id].total++;
+        if (doc.status === 'pending') docCounts[doc.artisan_id].pending++;
+        if (doc.status === 'approved') docCounts[doc.artisan_id].approved++;
+      });
+      
+      // Merge document counts into artisan data
+      const enrichedData = data?.map(artisan => ({
+        ...artisan,
+        documents_count: docCounts[artisan.id]?.total || 0,
+        documents_pending: docCounts[artisan.id]?.pending || 0,
+        documents_approved: docCounts[artisan.id]?.approved || 0,
+      })) as ClaimedArtisan[];
+      
+      return enrichedData;
     }
   });
 
@@ -346,6 +394,55 @@ const AdminApprovals = () => {
 
       if (error) throw error;
       return count || 0;
+    }
+  });
+
+  // Count claimed artisans without documents
+  const { data: claimedWithoutDocsCount = 0 } = useQuery({
+    queryKey: ["claimed-without-docs-count"],
+    queryFn: async () => {
+      // Get all claimed artisans
+      const { data: claimedArtisans } = await supabase
+        .from("artisans")
+        .select("id")
+        .not("user_id", "is", null);
+      
+      if (!claimedArtisans || claimedArtisans.length === 0) return 0;
+      
+      // Get artisans that have documents
+      const { data: artisansWithDocs } = await supabase
+        .from("artisan_documents")
+        .select("artisan_id");
+      
+      const artisanIdsWithDocs = new Set(artisansWithDocs?.map(d => d.artisan_id) || []);
+      
+      // Count claimed artisans without documents
+      return claimedArtisans.filter(a => !artisanIdsWithDocs.has(a.id)).length;
+    }
+  });
+
+  // Count claimed artisans with documents
+  const { data: claimedWithDocsCount = 0 } = useQuery({
+    queryKey: ["claimed-with-docs-count"],
+    queryFn: async () => {
+      // Get all pending artisans with user_id
+      const { data: pendingArtisans } = await supabase
+        .from("artisans")
+        .select("id")
+        .eq("status", "pending")
+        .not("user_id", "is", null);
+      
+      if (!pendingArtisans || pendingArtisans.length === 0) return 0;
+      
+      // Get artisans that have documents
+      const { data: artisansWithDocs } = await supabase
+        .from("artisan_documents")
+        .select("artisan_id");
+      
+      const artisanIdsWithDocs = new Set(artisansWithDocs?.map(d => d.artisan_id) || []);
+      
+      // Count pending artisans with documents
+      return pendingArtisans.filter(a => artisanIdsWithDocs.has(a.id)).length;
     }
   });
 
@@ -917,6 +1014,58 @@ const AdminApprovals = () => {
                   </CardContent>
                 </Card>
               </div>
+              
+              {/* Second row of stats for claimed */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
+                <Card>
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="p-2 bg-red-500/10 rounded-lg">
+                        <AlertCircle className="h-4 w-4 md:h-5 md:w-5 text-red-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Sans documents</p>
+                        <p className="text-lg md:text-2xl font-bold">{claimedWithoutDocsCount}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="p-2 bg-blue-500/10 rounded-lg">
+                        <FileText className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Avec documents</p>
+                        <p className="text-lg md:text-2xl font-bold">{claimedWithDocsCount}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="p-2 bg-emerald-500/10 rounded-lg">
+                        <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Approuvés</p>
+                        <p className="text-lg md:text-2xl font-bold">{approvedCount}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="opacity-0 pointer-events-none">
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <div className="h-4 w-4 md:h-5 md:w-5" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
               {/* Detailed Statistics Charts */}
               <VitrineStatsCharts />
@@ -1275,6 +1424,34 @@ const AdminApprovals = () => {
                                       <Calendar className="h-3.5 w-3.5 shrink-0" />
                                       <span>Revendiquée le {formatDate(artisan.updated_at)}</span>
                                     </div>
+                                  </div>
+                                  
+                                  {/* Documents status */}
+                                  <div className="mb-3">
+                                    <Badge 
+                                      variant="outline"
+                                      className={`gap-1.5 text-xs ${
+                                        artisan.documents_count === 0 
+                                          ? 'bg-red-500/10 text-red-600 border-red-500/30' 
+                                          : artisan.documents_approved && artisan.documents_approved > 0
+                                            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
+                                            : 'bg-amber-500/10 text-amber-600 border-amber-500/30'
+                                      }`}
+                                    >
+                                      <FileText className="h-3 w-3" />
+                                      {artisan.documents_count === 0 ? (
+                                        '0 document'
+                                      ) : artisan.documents_approved && artisan.documents_approved > 0 ? (
+                                        `${artisan.documents_approved} document(s) validé(s)`
+                                      ) : (
+                                        `${artisan.documents_pending || 0} document(s) en attente`
+                                      )}
+                                    </Badge>
+                                    {artisan.documents_count === 0 && artisan.status === 'pending' && (
+                                      <span className="text-xs text-muted-foreground ml-2">
+                                        ⚠️ Doit soumettre ses documents
+                                      </span>
+                                    )}
                                   </div>
 
                                   {artisan.description && (
