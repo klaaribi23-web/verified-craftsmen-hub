@@ -323,7 +323,8 @@ const AdminApprovals = () => {
           category:categories(name),
           profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
         `)
-        .not("user_id", "is", null);
+        .not("user_id", "is", null)
+        .eq("status", "pending"); // Only show pending claimed artisans
       
       if (claimedSearch.trim()) {
         query = query.or(`business_name.ilike.%${claimedSearch}%,city.ilike.%${claimedSearch}%,email.ilike.%${claimedSearch}%`);
@@ -382,29 +383,15 @@ const AdminApprovals = () => {
     }
   });
 
-  // Count approved artisans (claimed and approved)
-  const { data: approvedCount = 0 } = useQuery({
-    queryKey: ["approved-artisans-count"],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("artisans")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "active")
-        .not("user_id", "is", null);
-
-      if (error) throw error;
-      return count || 0;
-    }
-  });
-
-  // Count claimed artisans without documents
+  // Count pending claimed artisans without documents
   const { data: claimedWithoutDocsCount = 0 } = useQuery({
     queryKey: ["claimed-without-docs-count"],
     queryFn: async () => {
-      // Get all claimed artisans
+      // Get all pending claimed artisans
       const { data: claimedArtisans } = await supabase
         .from("artisans")
         .select("id")
+        .eq("status", "pending")
         .not("user_id", "is", null);
       
       if (!claimedArtisans || claimedArtisans.length === 0) return 0;
@@ -416,7 +403,7 @@ const AdminApprovals = () => {
       
       const artisanIdsWithDocs = new Set(artisansWithDocs?.map(d => d.artisan_id) || []);
       
-      // Count claimed artisans without documents
+      // Count pending claimed artisans without documents
       return claimedArtisans.filter(a => !artisanIdsWithDocs.has(a.id)).length;
     }
   });
@@ -1050,17 +1037,8 @@ const AdminApprovals = () => {
                         <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Approuvés</p>
-                        <p className="text-lg md:text-2xl font-bold">{approvedCount}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="opacity-0 pointer-events-none">
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="p-2 bg-muted rounded-lg">
-                        <div className="h-4 w-4 md:h-5 md:w-5" />
+                        <p className="text-xs text-muted-foreground">Prêts à approuver</p>
+                        <p className="text-lg md:text-2xl font-bold">{claimedWithDocsCount}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -1381,24 +1359,11 @@ const AdminApprovals = () => {
                                       </div>
                                     </div>
                                     <Badge 
-                                      variant={artisan.status === 'active' ? 'default' : 'outline'} 
-                                      className={`gap-1 text-xs shrink-0 self-start ${
-                                        artisan.status === 'active' 
-                                          ? 'bg-emerald-500 text-white' 
-                                          : 'bg-amber-500/10 text-amber-600 border-amber-500/30'
-                                      }`}
+                                      variant="outline" 
+                                      className="gap-1 text-xs shrink-0 self-start bg-amber-500/10 text-amber-600 border-amber-500/30"
                                     >
-                                      {artisan.status === 'active' ? (
-                                        <>
-                                          <CheckCircle2 className="h-2.5 w-2.5" />
-                                          Approuvé
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Clock className="h-2.5 w-2.5" />
-                                          En attente
-                                        </>
-                                      )}
+                                      <Clock className="h-2.5 w-2.5" />
+                                      En attente d'approbation
                                     </Badge>
                                   </div>
 
