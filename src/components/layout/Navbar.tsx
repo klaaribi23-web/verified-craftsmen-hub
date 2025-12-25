@@ -35,7 +35,7 @@ const Navbar = () => {
     { href: "/trouver-artisan", label: "Trouver un artisan" },
     { href: "/nos-missions", label: "Nos missions" },
     { href: "/comment-ca-marche", label: "Comment ça marche" },
-    { href: "/a-propos", label: "À propos" },
+    { href: "/blog", label: "Blog" },
     { href: "/devenir-artisan", label: "Devenir artisan" },
   ];
 
