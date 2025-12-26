@@ -1,22 +1,14 @@
 # Robots.txt pour Artisans Validés
 # https://artisansvalides.fr
 
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Autoriser tous les robots
 User-agent: *
 Allow: /
 
-# Pages protégées - Tableau de bord Artisan
+# Pages publiques d'artisans - autorisées (profils publics)
+Allow: /artisan/
+
+# Pages protégées - Tableau de bord Artisan (privé)
 Disallow: /artisan/dashboard
 Disallow: /artisan/profil
 Disallow: /artisan/documents
@@ -27,6 +19,7 @@ Disallow: /artisan/parametres
 Disallow: /artisan/devis
 Disallow: /artisan/demandes
 Disallow: /artisan/stories
+Disallow: /artisan/offres-partenaires
 
 # Pages protégées - Tableau de bord Client
 Disallow: /client/
@@ -35,8 +28,10 @@ Disallow: /client/
 Disallow: /admin/
 
 # Pages d'authentification
+Disallow: /auth
 Disallow: /auth/callback
 Disallow: /reset-password
+Disallow: /mot-de-passe-oublie
 Disallow: /activer-compte
 
 # Sitemap

@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
 
 interface SEOHeadProps {
   title: string;
@@ -20,8 +21,10 @@ export const SEOHead = ({
   ogType = "website", 
   noIndex = false 
 }: SEOHeadProps) => {
+  const location = useLocation();
   const fullTitle = `${title} | Artisans Validés`;
-  const canonicalUrl = canonical || SITE_URL;
+  // Use provided canonical or generate from current path
+  const canonicalUrl = canonical || `${SITE_URL}${location.pathname === '/' ? '' : location.pathname}`;
   const imageUrl = ogImage || DEFAULT_OG_IMAGE;
   
   return (
