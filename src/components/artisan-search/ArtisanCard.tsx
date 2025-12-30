@@ -21,6 +21,7 @@ interface ArtisanCardProps {
   experience: string;
   profileImage?: string;
   portfolio?: string[];
+  distance?: number | null;
 }
 
 // Default logo for artisans without photos
@@ -37,7 +38,8 @@ const ArtisanCard = ({
   verified,
   experience,
   profileImage,
-  portfolio
+  portfolio,
+  distance
 }: ArtisanCardProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -276,6 +278,12 @@ const ArtisanCard = ({
             <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate" title={location}>{location}</span>
           </div>
+          {distance !== null && distance !== undefined && (
+            <>
+              <span className="flex-shrink-0">•</span>
+              <span className="flex-shrink-0 whitespace-nowrap text-gold font-medium">{Math.round(distance)} km</span>
+            </>
+          )}
           <span className="flex-shrink-0">•</span>
           <span className="flex-shrink-0 whitespace-nowrap">{experience} d'exp.</span>
         </div>
