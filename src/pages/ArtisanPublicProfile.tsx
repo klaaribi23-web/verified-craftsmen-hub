@@ -356,10 +356,6 @@ const ArtisanPublicProfile = () => {
                           <span className="font-semibold ml-1">{rating.toFixed(1)}</span>
                           <span className="text-muted-foreground">({reviewCount} avis)</span>
                         </div>
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <Clock className="h-4 w-4" />
-                          <span>Répond en {"< 2h"}</span>
-                        </div>
                       </div>
 
                       {artisan.description && (
