@@ -2,12 +2,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { RotateCcw, MapPin, CalendarIcon, SlidersHorizontal, X } from "lucide-react";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { RotateCcw, MapPin, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { filterLocations } from "@/data/frenchLocations";
 import { CategorySelect } from "@/components/categories/CategorySelect";
@@ -18,8 +15,7 @@ interface ArtisanFiltersProps {
     category: string;
     categoryName: string;
     city: string;
-    interventionDate: Date | undefined;
-    interventionTime: string;
+    radius: number;
   }) => void;
 }
 
@@ -34,8 +30,8 @@ const FiltersContent = ({
   setSelectedCity,
   showCitySuggestions,
   setShowCitySuggestions,
-  interventionDate,
-  setInterventionDate,
+  radius,
+  setRadius,
   handleReset,
   handleCategoryChange,
   handleLocationSelect,
@@ -51,8 +47,8 @@ const FiltersContent = ({
   setSelectedCity: (v: string) => void;
   showCitySuggestions: boolean;
   setShowCitySuggestions: (v: boolean) => void;
-  interventionDate: Date | undefined;
-  setInterventionDate: (v: Date | undefined) => void;
+  radius: number;
+  setRadius: (v: number) => void;
   handleReset: () => void;
   handleCategoryChange: (value: string, name: string) => void;
   handleLocationSelect: (location: { label: string; value: string }) => void;
@@ -121,36 +117,37 @@ const FiltersContent = ({
         </div>
       </div>
 
-      {/* Date d'intervention */}
+      {/* Rayon d'intervention */}
       <div className="mb-6">
         <Label className="text-sm font-medium text-navy mb-3 block">
-          Date d'intervention
+          Rayon d'intervention
         </Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              className={cn(
-                "w-full justify-start text-left font-normal h-11", 
-                !interventionDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {interventionDate ? format(interventionDate, "PPP", { locale: fr }) : "Sélectionner une date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-white z-50" align="start">
-            <Calendar 
-              mode="single" 
-              selected={interventionDate} 
-              onSelect={setInterventionDate} 
-              initialFocus 
-              locale={fr} 
-              disabled={date => date < new Date()} 
-              className="pointer-events-auto" 
-            />
-          </PopoverContent>
-        </Popover>
+        <div className="space-y-4">
+          <Slider
+            value={[radius]}
+            onValueChange={(values) => setRadius(values[0])}
+            max={200}
+            min={0}
+            step={5}
+            className="w-full"
+            disabled={!selectedCity}
+          />
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-muted-foreground">0 km</span>
+            <span className={cn(
+              "font-medium px-3 py-1 rounded-full",
+              selectedCity ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+            )}>
+              {radius} km
+            </span>
+            <span className="text-muted-foreground">200 km</span>
+          </div>
+          {!selectedCity && (
+            <p className="text-xs text-muted-foreground italic">
+              Sélectionnez d'abord une ville pour activer le rayon
+            </p>
+          )}
+        </div>
       </div>
     </>
   );
@@ -162,36 +159,33 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   const [citySearch, setCitySearch] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
-  const [interventionDate, setInterventionDate] = useState<Date | undefined>(undefined);
-  const [interventionTime, setInterventionTime] = useState<string>("");
+  const [radius, setRadius] = useState<number>(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   
   const filteredLocations = citySearch ? filterLocations(citySearch).slice(0, 15) : [];
 
   // Count active filters
-  const activeFiltersCount = [category, selectedCity, interventionDate].filter(Boolean).length;
+  const activeFiltersCount = [category, selectedCity, radius > 0].filter(Boolean).length;
 
   const notifyFiltersChange = () => {
     onFiltersChange({
       category,
       categoryName,
       city: selectedCity,
-      interventionDate,
-      interventionTime
+      radius
     });
   };
 
   useEffect(() => {
     notifyFiltersChange();
-  }, [category, categoryName, selectedCity, interventionDate, interventionTime]);
+  }, [category, categoryName, selectedCity, radius]);
 
   const handleReset = () => {
     setCategory("");
     setCategoryName("");
     setCitySearch("");
     setSelectedCity("");
-    setInterventionDate(undefined);
-    setInterventionTime("");
+    setRadius(0);
   };
 
   const handleLocationSelect = (location: { label: string; value: string }) => {
@@ -216,8 +210,8 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
     setSelectedCity,
     showCitySuggestions,
     setShowCitySuggestions,
-    interventionDate,
-    setInterventionDate,
+    radius,
+    setRadius,
     handleReset,
     handleCategoryChange,
     handleLocationSelect,

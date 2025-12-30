@@ -17,6 +17,7 @@ import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocati
 import { usePublicArtisans } from "@/hooks/usePublicData";
 import { useCategoriesHierarchy, CategoryWithChildren } from "@/hooks/useCategories";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
+import { isWithinRadius } from "@/lib/geoDistance";
 const ITEMS_PER_PAGE = 21;
 const TrouverArtisan = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,8 +27,7 @@ const TrouverArtisan = () => {
     category: "",
     categoryName: "",
     city: "",
-    interventionDate: undefined as Date | undefined,
-    interventionTime: ""
+    radius: 0
   });
 
   // Suggestions state
@@ -84,8 +84,7 @@ const TrouverArtisan = () => {
     category: string;
     categoryName: string;
     city: string;
-    interventionDate: Date | undefined;
-    interventionTime: string;
+    radius: number;
   }) => {
     setFilters(newFilters);
     setCurrentPage(1);
@@ -127,15 +126,25 @@ const TrouverArtisan = () => {
         }
       }
 
-      // Filter by city from hero search or sidebar
+      // Filter by city from hero search or sidebar with radius support
       const cityFilter = filters.city || locationSearch;
       if (cityFilter) {
-        const cityName = cityFilter.split(" ")[0].toLowerCase();
-        const artisanCity = artisan.city?.toLowerCase() || "";
-        const artisanDept = artisan.department?.toLowerCase() || "";
-        const artisanRegion = artisan.region?.toLowerCase() || "";
-        if (!artisanCity.includes(cityName) && !artisanDept.includes(cityName) && !artisanRegion.includes(cityName)) {
-          return false;
+        const artisanCity = artisan.city || "";
+        
+        // If radius is set and city is selected, use distance calculation
+        if (filters.radius > 0 && filters.city) {
+          if (!isWithinRadius(artisanCity, filters.city, filters.radius)) {
+            return false;
+          }
+        } else {
+          // Fallback to text matching
+          const cityName = cityFilter.split(" ")[0].toLowerCase();
+          const artisanCityLower = artisanCity.toLowerCase();
+          const artisanDept = artisan.department?.toLowerCase() || "";
+          const artisanRegion = artisan.region?.toLowerCase() || "";
+          if (!artisanCityLower.includes(cityName) && !artisanDept.includes(cityName) && !artisanRegion.includes(cityName)) {
+            return false;
+          }
         }
       }
       return true;
