@@ -17,7 +17,8 @@ import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocati
 import { usePublicArtisans } from "@/hooks/usePublicData";
 import { useCategoriesHierarchy, CategoryWithChildren } from "@/hooks/useCategories";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
-import { isWithinRadius } from "@/lib/geoDistance";
+import { isWithinRadius, calculateDistance, getCityCoordinates } from "@/lib/geoDistance";
+
 const ITEMS_PER_PAGE = 21;
 const TrouverArtisan = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,10 +108,15 @@ const TrouverArtisan = () => {
     }, 100);
   };
 
-  // Filter artisans based on filters + hero search
-  const filteredArtisans = useMemo(() => {
-    if (!artisansData) return [];
-    return artisansData.filter(artisan => {
+  // Filter artisans based on filters + hero search and calculate distances
+  const { filteredArtisans, artisanDistances } = useMemo(() => {
+    if (!artisansData) return { filteredArtisans: [], artisanDistances: new Map<string, number>() };
+    
+    const distances = new Map<string, number>();
+    const searchCity = filters.city || locationSearch;
+    const searchCoords = searchCity ? getCityCoordinates(searchCity.split(" ")[0]) : null;
+    
+    const filtered = artisansData.filter(artisan => {
       // Filter by category from hero search or sidebar - use categoryName (not ID) for comparison
       const categoryFilter = filters.categoryName || searchQuery;
       if (categoryFilter && categoryFilter !== "all") {
@@ -131,13 +137,22 @@ const TrouverArtisan = () => {
       if (cityFilter) {
         const artisanCity = artisan.city || "";
         
-        // If radius is set and city is selected, use distance calculation
-        if (filters.radius > 0 && filters.city) {
-          if (!isWithinRadius(artisanCity, filters.city, filters.radius)) {
-            return false;
+        // Calculate distance if we have coordinates for both cities
+        if (searchCoords) {
+          const artisanCoords = getCityCoordinates(artisanCity);
+          if (artisanCoords) {
+            const distance = calculateDistance(searchCoords.lat, searchCoords.lng, artisanCoords.lat, artisanCoords.lng);
+            distances.set(artisan.id, distance);
+            
+            // If radius is set, filter by distance
+            if (filters.radius > 0 && distance > filters.radius) {
+              return false;
+            }
           }
-        } else {
-          // Fallback to text matching
+        }
+        
+        // If no coordinates or radius not set, use text matching
+        if (!searchCoords || filters.radius === 0) {
           const cityName = cityFilter.split(" ")[0].toLowerCase();
           const artisanCityLower = artisanCity.toLowerCase();
           const artisanDept = artisan.department?.toLowerCase() || "";
@@ -149,6 +164,8 @@ const TrouverArtisan = () => {
       }
       return true;
     });
+    
+    return { filteredArtisans: filtered, artisanDistances: distances };
   }, [artisansData, filters, searchQuery, locationSearch]);
 
   // Paginate filtered artisans
@@ -238,7 +255,7 @@ const TrouverArtisan = () => {
                     opacity: 1,
                     y: 0
                   }}>
-                          <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} />
+                          <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} distance={artisanDistances.get(artisan.id) ?? null} />
                         </motion.div>)}
                     </div>
 
