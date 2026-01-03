@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
 import AdCarousel from "@/components/ads/AdCarousel";
 import {
@@ -61,6 +62,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import MissionDetailModal from "@/components/missions/MissionDetailModal";
+import { calculateDistance, getCityCoordinates } from "@/lib/geoDistance";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -70,6 +72,8 @@ const NosMissions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [radiusFilter, setRadiusFilter] = useState(0);
   const [selectedMission, setSelectedMission] = useState<any>(null);
   const [detailMission, setDetailMission] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,23 +112,59 @@ const NosMissions = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filter missions
-  const filteredMissions = useMemo(() => {
-    if (!missions) return [];
+  // Filter missions with distance calculation
+  const { filteredMissions, missionDistances } = useMemo(() => {
+    if (!missions) return { filteredMissions: [], missionDistances: new Map<string, number>() };
     
-    return missions.filter(mission => {
+    const distances = new Map<string, number>();
+    const searchCoords = selectedCity ? getCityCoordinates(selectedCity) : null;
+    
+    const filtered = missions.filter(mission => {
+      // Category filter
       if (categoryFilter && categoryFilter !== "all" && mission.category?.name !== categoryFilter) {
         return false;
       }
-      if (locationFilter) {
-        const searchLower = locationFilter.toLowerCase();
-        if (!mission.city.toLowerCase().includes(searchLower)) {
-          return false;
+      
+      // Location filter with radius
+      if (locationFilter || selectedCity) {
+        const missionCity = mission.city || "";
+        
+        // If we have a selected city with coordinates
+        if (searchCoords && selectedCity) {
+          const missionCoords = getCityCoordinates(missionCity);
+          if (missionCoords) {
+            const distance = calculateDistance(
+              searchCoords.lat, searchCoords.lng,
+              missionCoords.lat, missionCoords.lng
+            );
+            distances.set(mission.id, distance);
+            
+            // If radius is set, filter by distance
+            if (radiusFilter > 0 && distance > radiusFilter) {
+              return false;
+            }
+          } else {
+            // No coordinates for mission city, fallback to text search
+            if (radiusFilter > 0) {
+              return false; // Can't calculate distance, exclude if radius filter active
+            }
+          }
+        }
+        
+        // If no selected city or radius = 0, filter by text
+        if (!selectedCity || radiusFilter === 0) {
+          const searchLower = locationFilter.toLowerCase();
+          if (!missionCity.toLowerCase().includes(searchLower)) {
+            return false;
+          }
         }
       }
+      
       return true;
     });
-  }, [missions, categoryFilter, locationFilter]);
+    
+    return { filteredMissions: filtered, missionDistances: distances };
+  }, [missions, categoryFilter, locationFilter, selectedCity, radiusFilter]);
 
   const totalPages = Math.ceil(filteredMissions.length / ITEMS_PER_PAGE);
   const paginatedMissions = filteredMissions.slice(
@@ -225,6 +265,8 @@ const NosMissions = () => {
   const resetFilters = () => {
     setCategoryFilter("");
     setLocationFilter("");
+    setSelectedCity("");
+    setRadiusFilter(0);
     setCurrentPage(1);
   };
 
@@ -357,6 +399,8 @@ const NosMissions = () => {
                                               <button
                                                 onClick={() => {
                                                   setLocationFilter(`${dept.name} (${dept.code})`);
+                                                  setSelectedCity("");
+                                                  setRadiusFilter(0);
                                                   setShowLocationAccordion(false);
                                                   setCurrentPage(1);
                                                 }}
@@ -371,6 +415,7 @@ const NosMissions = () => {
                                                       key={city.name}
                                                       onClick={() => {
                                                         setLocationFilter(city.name);
+                                                        setSelectedCity(city.name);
                                                         setShowLocationAccordion(false);
                                                         setCurrentPage(1);
                                                       }}
@@ -395,8 +440,38 @@ const NosMissions = () => {
                       </div>
                     </div>
 
+                    {/* Radius Filter */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Rayon d'intervention</Label>
+                      <Slider
+                        value={[radiusFilter]}
+                        onValueChange={(values) => { setRadiusFilter(values[0]); setCurrentPage(1); }}
+                        max={200}
+                        min={0}
+                        step={5}
+                        disabled={!selectedCity}
+                        className={!selectedCity ? "opacity-50" : ""}
+                      />
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>0 km</span>
+                        <span className={`font-medium px-3 py-1 rounded-full ${
+                          radiusFilter > 0 && selectedCity 
+                            ? "bg-primary/10 text-primary" 
+                            : "bg-muted text-muted-foreground"
+                        }`}>
+                          {radiusFilter} km
+                        </span>
+                        <span>200 km</span>
+                      </div>
+                      {!selectedCity && (
+                        <p className="text-xs text-muted-foreground italic">
+                          Sélectionnez une ville pour activer le rayon
+                        </p>
+                      )}
+                    </div>
+
                     {/* Active filters summary */}
-                    {(categoryFilter || locationFilter) && (
+                    {(categoryFilter || locationFilter || (radiusFilter > 0 && selectedCity)) && (
                       <div className="pt-4 border-t">
                         <p className="text-sm text-muted-foreground mb-2">Filtres actifs :</p>
                         <div className="flex flex-wrap gap-2">
@@ -413,9 +488,18 @@ const NosMissions = () => {
                             <Badge 
                               variant="secondary" 
                               className="cursor-pointer"
-                              onClick={() => { setLocationFilter(""); setCurrentPage(1); }}
+                              onClick={() => { setLocationFilter(""); setSelectedCity(""); setRadiusFilter(0); setCurrentPage(1); }}
                             >
                               {locationFilter} ×
+                            </Badge>
+                          )}
+                          {radiusFilter > 0 && selectedCity && (
+                            <Badge 
+                              variant="secondary" 
+                              className="cursor-pointer"
+                              onClick={() => { setRadiusFilter(0); setCurrentPage(1); }}
+                            >
+                              Rayon: {radiusFilter} km ×
                             </Badge>
                           )}
                         </div>
@@ -483,6 +567,11 @@ const NosMissions = () => {
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                                   <MapPin className="w-4 h-4" />
                                   <span>{mission.city}</span>
+                                  {missionDistances.get(mission.id) !== undefined && selectedCity && (
+                                    <span className="text-xs text-primary font-medium bg-primary/10 px-2 py-0.5 rounded-full">
+                                      {Math.round(missionDistances.get(mission.id)!)} km
+                                    </span>
+                                  )}
                                 </div>
 
                                 {/* Date */}
