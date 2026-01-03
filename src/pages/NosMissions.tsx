@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
+import AdCarousel from "@/components/ads/AdCarousel";
 import {
   Dialog,
   DialogContent,
@@ -262,13 +262,16 @@ const NosMissions = () => {
           </div>
         </section>
 
-        {/* Featured Artisans Carousel */}
-        <section className="py-16 bg-muted">
+        {/* Advertising Carousel */}
+        <section className="py-12 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-foreground">Nos artisans recommandés</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-foreground">Offres partenaires</h2>
+              <Badge variant="outline" className="text-xs text-muted-foreground">
+                Publicité
+              </Badge>
             </div>
-            <FeaturedArtisansCarousel />
+            <AdCarousel />
           </div>
         </section>
 
