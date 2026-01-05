@@ -2,6 +2,14 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+export interface WorkingHours {
+  [key: string]: {
+    enabled: boolean;
+    start: string;
+    end: string;
+  };
+}
+
 interface ArtisanProfile {
   id: string;
   user_id: string | null;
@@ -24,6 +32,7 @@ interface ArtisanProfile {
   linkedin_url: string | null;
   category_id: string | null;
   status: string;
+  working_hours: WorkingHours | null;
 }
 
 interface UserProfile {
@@ -252,6 +261,33 @@ export const useArtisanProfile = () => {
     }
   };
 
+  const updateWorkingHours = async (workingHours: WorkingHours) => {
+    if (!artisan) return false;
+
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Non authentifié");
+
+      const { error } = await supabase
+        .from("artisans")
+        .update({ working_hours: workingHours })
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      setArtisan(prev => prev ? { ...prev, working_hours: workingHours } : null);
+      toast.success("Horaires mis à jour avec succès");
+      return true;
+    } catch (error: any) {
+      console.error("Error updating working hours:", error);
+      toast.error("Erreur lors de la mise à jour des horaires");
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return {
     artisan,
     profile,
@@ -259,6 +295,7 @@ export const useArtisanProfile = () => {
     isSaving,
     updateProfile,
     updateProfilePhoto,
+    updateWorkingHours,
     refetch: fetchProfile,
   };
 };
