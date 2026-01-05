@@ -44,6 +44,10 @@ interface ParsedArtisan {
   linkedinUrl: string;
   facebookUrl: string;
   websiteUrl: string;
+  googleId: string;
+  googleMapsUrl: string;
+  googleRating: number;
+  googleReviewCount: number;
 }
 
 interface ColumnConfig {
@@ -63,11 +67,13 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: "address", label: "Adresse", enabled: true, required: false },
   { key: "siret", label: "SIRET", enabled: true, required: false },
   { key: "services", label: "Services", enabled: true, required: false },
-  { key: "rating", label: "Note", enabled: true, required: false },
-  { key: "reviewsCount", label: "Nombre d'avis", enabled: true, required: false },
   { key: "linkedinUrl", label: "LinkedIn", enabled: true, required: false },
   { key: "facebookUrl", label: "Facebook", enabled: true, required: false },
   { key: "websiteUrl", label: "Site Web", enabled: true, required: false },
+  { key: "googleId", label: "Google ID", enabled: true, required: false },
+  { key: "googleMapsUrl", label: "Lien Google Maps", enabled: true, required: false },
+  { key: "googleRating", label: "Note Google", enabled: true, required: false },
+  { key: "googleReviewCount", label: "Avis Google", enabled: true, required: false },
 ];
 
 // Map common service names to category names
@@ -125,11 +131,17 @@ const AdminBulkImport = () => {
       address: item.contact?.address?.street || item.address || "",
       siret: item.contact?.vatID || item.siret || "",
       services: Array.isArray(item.services) ? item.services : [],
-      rating: item.rating || 0,
-      reviewsCount: item.reviews_count || item.reviewsCount || 0,
+      // Platform ratings (not Google)
+      rating: 0,
+      reviewsCount: 0,
       linkedinUrl: item.linkedin_url || item.linkedinUrl || item.contact?.linkedin || "",
       facebookUrl: item.facebook_url || item.facebookUrl || item.contact?.facebook || "",
       websiteUrl: item.website_url || item.websiteUrl || item.contact?.website || item.website || "",
+      // Google data
+      googleId: item.google_id || item.googleId || "",
+      googleMapsUrl: item.link || item.google_maps_url || item.googleMapsUrl || "",
+      googleRating: item.rating || 0,
+      googleReviewCount: item.review_count || item.reviews_count || item.reviewsCount || 0,
     }));
   };
 
@@ -178,11 +190,22 @@ const AdminBulkImport = () => {
       "website_url": "websiteUrl",
       "site web": "websiteUrl",
       "site": "websiteUrl",
-      "note": "rating",
-      "rating": "rating",
-      "avis": "reviewsCount",
-      "reviews": "reviewsCount",
-      "review_count": "reviewsCount",
+      "google_id": "googleId",
+      "googleid": "googleId",
+      "google id": "googleId",
+      "link": "googleMapsUrl",
+      "google_maps_url": "googleMapsUrl",
+      "google maps": "googleMapsUrl",
+      "lien google": "googleMapsUrl",
+      "rating": "googleRating",
+      "note": "googleRating",
+      "note google": "googleRating",
+      "google_rating": "googleRating",
+      "review_count": "googleReviewCount",
+      "reviews_count": "googleReviewCount",
+      "avis": "googleReviewCount",
+      "avis google": "googleReviewCount",
+      "google_review_count": "googleReviewCount",
     };
 
     const columnIndexes: Partial<Record<keyof ParsedArtisan, number>> = {};
@@ -230,11 +253,15 @@ const AdminBulkImport = () => {
         address: getValue("address"),
         siret: getValue("siret"),
         services,
-        rating: parseFloat(getValue("rating")) || 0,
-        reviewsCount: parseInt(getValue("reviewsCount")) || 0,
+        rating: 0,
+        reviewsCount: 0,
         linkedinUrl: getValue("linkedinUrl"),
         facebookUrl: getValue("facebookUrl"),
         websiteUrl: getValue("websiteUrl"),
+        googleId: getValue("googleId"),
+        googleMapsUrl: getValue("googleMapsUrl"),
+        googleRating: parseFloat(getValue("googleRating")) || 0,
+        googleReviewCount: parseInt(getValue("googleReviewCount")) || 0,
       };
     }).filter(a => a.businessName || a.city);
   };
@@ -403,12 +430,6 @@ const AdminBulkImport = () => {
           if (enabledColumns.includes("siret")) {
             artisanData.siret = artisan.siret;
           }
-          if (enabledColumns.includes("rating") && artisan.rating > 0) {
-            artisanData.rating = artisan.rating;
-          }
-          if (enabledColumns.includes("reviewsCount") && artisan.reviewsCount > 0) {
-            artisanData.review_count = artisan.reviewsCount;
-          }
           if (enabledColumns.includes("linkedinUrl") && artisan.linkedinUrl) {
             artisanData.linkedin_url = artisan.linkedinUrl;
           }
@@ -417,6 +438,19 @@ const AdminBulkImport = () => {
           }
           if (enabledColumns.includes("websiteUrl") && artisan.websiteUrl) {
             artisanData.website_url = artisan.websiteUrl;
+          }
+          // Google data
+          if (enabledColumns.includes("googleId") && artisan.googleId) {
+            artisanData.google_id = artisan.googleId;
+          }
+          if (enabledColumns.includes("googleMapsUrl") && artisan.googleMapsUrl) {
+            artisanData.google_maps_url = artisan.googleMapsUrl;
+          }
+          if (enabledColumns.includes("googleRating") && artisan.googleRating > 0) {
+            artisanData.google_rating = artisan.googleRating;
+          }
+          if (enabledColumns.includes("googleReviewCount") && artisan.googleReviewCount > 0) {
+            artisanData.google_review_count = artisan.googleReviewCount;
           }
 
           // Find category from services
