@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar } from "@/components/ui/calendar";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, Calendar as CalendarIcon, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
 import { Video } from "lucide-react";
@@ -38,7 +38,6 @@ const ArtisanPublicProfile = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
-  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [showContactInfo, setShowContactInfo] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
@@ -94,45 +93,6 @@ const ArtisanPublicProfile = () => {
     }, (_, i) => <Star key={i} className={`h-4 w-4 ${i < Math.floor(rating) ? "fill-amber-400 text-amber-400" : i < rating ? "fill-amber-400/50 text-amber-400" : "text-muted-foreground/30"}`} />);
   };
 
-  // Parse availability from JSON
-  const getAvailability = () => {
-    const defaultAvailability = {
-      lundi: "8h - 18h",
-      mardi: "8h - 18h",
-      mercredi: "8h - 18h",
-      jeudi: "8h - 18h",
-      vendredi: "8h - 18h",
-      samedi: "9h - 17h",
-      dimanche: "Fermé"
-    };
-
-    if (!artisan?.availability) {
-      return defaultAvailability;
-    }
-
-    const rawAvailability = artisan.availability as Record<string, unknown>;
-    const result: Record<string, string> = {};
-
-    for (const [day, value] of Object.entries(rawAvailability)) {
-      if (typeof value === 'string') {
-        result[day] = value;
-      } else if (value && typeof value === 'object') {
-        // Handle object format with {start, end, enabled}
-        const scheduleObj = value as { start?: string; end?: string; enabled?: boolean };
-        if (scheduleObj.enabled === false) {
-          result[day] = "Fermé";
-        } else if (scheduleObj.start && scheduleObj.end) {
-          result[day] = `${scheduleObj.start} - ${scheduleObj.end}`;
-        } else {
-          result[day] = "Non renseigné";
-        }
-      } else {
-        result[day] = "Non renseigné";
-      }
-    }
-
-    return result;
-  };
 
   // Fetch artisan contact info when authenticated and showContactInfo is true
   // Priority: artisans.phone/email (imported data) > profiles.phone/email (user updated)
@@ -212,7 +172,6 @@ const ArtisanPublicProfile = () => {
         <Footer />
       </div>;
   }
-  const availability = getAvailability();
   const portfolio = artisan.portfolio_images || [];
   const rating = artisan.rating || 0;
   const reviewCount = artisan.review_count || 0;
@@ -537,45 +496,6 @@ const ArtisanPublicProfile = () => {
                     </div>
                   </CardContent>
                 </Card>
-
-                <Collapsible defaultOpen className="md:block">
-                  <Card>
-                    <CollapsibleTrigger className="w-full md:cursor-default">
-                      <CardHeader className="pb-2 md:pb-4 flex flex-row items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                          <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                          Heures de travail
-                        </CardTitle>
-                        <ChevronDown className="h-5 w-5 text-muted-foreground md:hidden" />
-                      </CardHeader>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <CardContent className="pt-0">
-                        <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                          {[
-                            { key: "lundi", label: "Lun" },
-                            { key: "mardi", label: "Mar" },
-                            { key: "mercredi", label: "Mer" },
-                            { key: "jeudi", label: "Jeu" },
-                            { key: "vendredi", label: "Ven" },
-                            { key: "samedi", label: "Sam" },
-                            { key: "dimanche", label: "Dim" },
-                          ].map(({ key, label }) => {
-                            const hours = availability[key] || "Non renseigné";
-                            return (
-                              <div key={key} className="flex justify-between py-0.5 md:py-1 border-b border-border/50 last:border-0">
-                                <span className="text-muted-foreground">{label}</span>
-                                <span className={hours === "Fermé" ? "text-muted-foreground" : "font-medium"}>
-                                  {hours}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </CardContent>
-                    </CollapsibleContent>
-                  </Card>
-                </Collapsible>
               </div>
 
               {/* Certifications & Legal */}
@@ -814,18 +734,6 @@ const ArtisanPublicProfile = () => {
                 </CardContent>
               </Card>
 
-              {/* Availability Calendar */}
-              <Card className="border-0 shadow-xl bg-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CalendarIcon className="h-5 w-5 text-primary" />
-                    Disponibilités
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-2 sm:p-4">
-                  <Calendar mode="single" month={calendarMonth} onMonthChange={setCalendarMonth} locale={fr} className="rounded-md border pointer-events-auto [&_.rdp-months]:w-full [&_.rdp-month]:w-full [&_.rdp-table]:w-full" disabled={date => date < new Date()} />
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
