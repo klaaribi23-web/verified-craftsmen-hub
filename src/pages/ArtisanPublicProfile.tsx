@@ -509,13 +509,13 @@ const ArtisanPublicProfile = () => {
                     <CardContent className="pt-0">
                       <div className="space-y-1.5">
                         {[
-                          { key: "monday", label: "Lundi" },
-                          { key: "tuesday", label: "Mardi" },
-                          { key: "wednesday", label: "Mercredi" },
-                          { key: "thursday", label: "Jeudi" },
-                          { key: "friday", label: "Vendredi" },
-                          { key: "saturday", label: "Samedi" },
-                          { key: "sunday", label: "Dimanche" },
+                          { key: "lundi", label: "Lundi" },
+                          { key: "mardi", label: "Mardi" },
+                          { key: "mercredi", label: "Mercredi" },
+                          { key: "jeudi", label: "Jeudi" },
+                          { key: "vendredi", label: "Vendredi" },
+                          { key: "samedi", label: "Samedi" },
+                          { key: "dimanche", label: "Dimanche" },
                         ].map(day => {
                           const hours = (artisan as any).working_hours?.[day.key];
                           if (!hours) return null;
