@@ -48,7 +48,7 @@ export interface ArtisanPublic {
   linkedin_url: string | null;
   website_url: string | null;
   qualifications: string[] | null;
-  availability: Record<string, string> | null;
+  working_hours: Record<string, unknown> | null;
   category_id: string | null;
   created_at: string;
   updated_at: string;

@@ -29,7 +29,7 @@ export interface Artisan {
   instagram_url: string | null;
   linkedin_url: string | null;
   website_url: string | null;
-  availability: Record<string, unknown> | null;
+  working_hours: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
   category?: {
