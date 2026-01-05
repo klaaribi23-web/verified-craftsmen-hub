@@ -41,6 +41,9 @@ interface ParsedArtisan {
   services: string[];
   rating: number;
   reviewsCount: number;
+  linkedinUrl: string;
+  facebookUrl: string;
+  websiteUrl: string;
 }
 
 interface ColumnConfig {
@@ -60,6 +63,11 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: "address", label: "Adresse", enabled: true, required: false },
   { key: "siret", label: "SIRET", enabled: true, required: false },
   { key: "services", label: "Services", enabled: true, required: false },
+  { key: "rating", label: "Note", enabled: true, required: false },
+  { key: "reviewsCount", label: "Nombre d'avis", enabled: true, required: false },
+  { key: "linkedinUrl", label: "LinkedIn", enabled: true, required: false },
+  { key: "facebookUrl", label: "Facebook", enabled: true, required: false },
+  { key: "websiteUrl", label: "Site Web", enabled: true, required: false },
 ];
 
 // Map common service names to category names
@@ -119,6 +127,9 @@ const AdminBulkImport = () => {
       services: Array.isArray(item.services) ? item.services : [],
       rating: item.rating || 0,
       reviewsCount: item.reviews_count || item.reviewsCount || 0,
+      linkedinUrl: item.linkedin_url || item.linkedinUrl || item.contact?.linkedin || "",
+      facebookUrl: item.facebook_url || item.facebookUrl || item.contact?.facebook || "",
+      websiteUrl: item.website_url || item.websiteUrl || item.contact?.website || item.website || "",
     }));
   };
 
@@ -159,6 +170,19 @@ const AdminBulkImport = () => {
       "prestations": "services",
       "categorie": "services",
       "catégorie": "services",
+      "linkedin": "linkedinUrl",
+      "linkedin_url": "linkedinUrl",
+      "facebook": "facebookUrl",
+      "facebook_url": "facebookUrl",
+      "website": "websiteUrl",
+      "website_url": "websiteUrl",
+      "site web": "websiteUrl",
+      "site": "websiteUrl",
+      "note": "rating",
+      "rating": "rating",
+      "avis": "reviewsCount",
+      "reviews": "reviewsCount",
+      "review_count": "reviewsCount",
     };
 
     const columnIndexes: Partial<Record<keyof ParsedArtisan, number>> = {};
@@ -206,8 +230,11 @@ const AdminBulkImport = () => {
         address: getValue("address"),
         siret: getValue("siret"),
         services,
-        rating: 0,
-        reviewsCount: 0,
+        rating: parseFloat(getValue("rating")) || 0,
+        reviewsCount: parseInt(getValue("reviewsCount")) || 0,
+        linkedinUrl: getValue("linkedinUrl"),
+        facebookUrl: getValue("facebookUrl"),
+        websiteUrl: getValue("websiteUrl"),
       };
     }).filter(a => a.businessName || a.city);
   };
@@ -375,6 +402,21 @@ const AdminBulkImport = () => {
           }
           if (enabledColumns.includes("siret")) {
             artisanData.siret = artisan.siret;
+          }
+          if (enabledColumns.includes("rating") && artisan.rating > 0) {
+            artisanData.rating = artisan.rating;
+          }
+          if (enabledColumns.includes("reviewsCount") && artisan.reviewsCount > 0) {
+            artisanData.review_count = artisan.reviewsCount;
+          }
+          if (enabledColumns.includes("linkedinUrl") && artisan.linkedinUrl) {
+            artisanData.linkedin_url = artisan.linkedinUrl;
+          }
+          if (enabledColumns.includes("facebookUrl") && artisan.facebookUrl) {
+            artisanData.facebook_url = artisan.facebookUrl;
+          }
+          if (enabledColumns.includes("websiteUrl") && artisan.websiteUrl) {
+            artisanData.website_url = artisan.websiteUrl;
           }
 
           // Find category from services
