@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useArtisanPortfolio } from "@/hooks/useArtisanPortfolio";
-import { useArtisanProfile } from "@/hooks/useArtisanProfile";
+import { useArtisanProfile, WorkingHours } from "@/hooks/useArtisanProfile";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,7 +33,8 @@ import {
   Link as LinkIcon,
   Upload,
   Loader2,
-  ChevronDown
+  ChevronDown,
+  Clock
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import {
@@ -50,6 +52,7 @@ export const ArtisanProfile = () => {
     isSaving: profileSaving,
     updateProfile,
     updateProfilePhoto,
+    updateWorkingHours,
   } = useArtisanProfile();
 
   const {
@@ -99,6 +102,18 @@ export const ArtisanProfile = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   
+  // Working hours state
+  const defaultWorkingHours: WorkingHours = {
+    lundi: { enabled: true, start: "08:00", end: "18:00" },
+    mardi: { enabled: true, start: "08:00", end: "18:00" },
+    mercredi: { enabled: true, start: "08:00", end: "18:00" },
+    jeudi: { enabled: true, start: "08:00", end: "18:00" },
+    vendredi: { enabled: true, start: "08:00", end: "18:00" },
+    samedi: { enabled: false, start: "09:00", end: "12:00" },
+    dimanche: { enabled: false, start: "09:00", end: "12:00" },
+  };
+  const [workingHours, setWorkingHours] = useState<WorkingHours>(defaultWorkingHours);
+  
   // City suggestions state
   const [cityOpen, setCityOpen] = useState(false);
   const [citySearch, setCitySearch] = useState("");
@@ -135,6 +150,10 @@ export const ArtisanProfile = () => {
       setFacebookUrl(artisan.facebook_url || "");
       setInstagramUrl(artisan.instagram_url || "");
       setLinkedinUrl(artisan.linkedin_url || "");
+      // Load working hours from artisan data
+      if (artisan.working_hours && typeof artisan.working_hours === 'object') {
+        setWorkingHours(artisan.working_hours as WorkingHours);
+      }
     }
   }, [profile, artisan]);
 
@@ -258,6 +277,24 @@ export const ArtisanProfile = () => {
         ? prev.filter(id => id !== categoryId)
         : [...prev, categoryId]
     );
+  };
+
+  const handleWorkingHoursChange = (
+    day: string, 
+    field: "enabled" | "start" | "end", 
+    value: boolean | string
+  ) => {
+    setWorkingHours(prev => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSaveWorkingHours = async () => {
+    await updateWorkingHours(workingHours);
   };
 
   const getCategoryNames = () => {
@@ -619,6 +656,73 @@ export const ArtisanProfile = () => {
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Working Hours */}
+            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-accent" />
+                  <h3 className="text-lg font-semibold text-foreground">Horaires de travail</h3>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSaveWorkingHours}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4 mr-2" />
+                  )}
+                  Enregistrer
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Définissez vos horaires d'ouverture pour chaque jour de la semaine.
+              </p>
+              <div className="space-y-3">
+                {[
+                  { key: "lundi", label: "Lundi" },
+                  { key: "mardi", label: "Mardi" },
+                  { key: "mercredi", label: "Mercredi" },
+                  { key: "jeudi", label: "Jeudi" },
+                  { key: "vendredi", label: "Vendredi" },
+                  { key: "samedi", label: "Samedi" },
+                  { key: "dimanche", label: "Dimanche" },
+                ].map(({ key, label }) => (
+                  <div key={key} className="flex items-center gap-4 p-3 border border-border rounded-lg bg-muted/30">
+                    <div className="flex items-center gap-3 min-w-[140px]">
+                      <Switch
+                        checked={workingHours[key]?.enabled ?? false}
+                        onCheckedChange={(checked) => handleWorkingHoursChange(key, "enabled", checked)}
+                      />
+                      <span className="font-medium text-foreground">{label}</span>
+                    </div>
+                    {workingHours[key]?.enabled && (
+                      <div className="flex items-center gap-2 flex-1">
+                        <Input
+                          type="time"
+                          value={workingHours[key]?.start || "08:00"}
+                          onChange={(e) => handleWorkingHoursChange(key, "start", e.target.value)}
+                          className="w-28"
+                        />
+                        <span className="text-muted-foreground">à</span>
+                        <Input
+                          type="time"
+                          value={workingHours[key]?.end || "18:00"}
+                          onChange={(e) => handleWorkingHoursChange(key, "end", e.target.value)}
+                          className="w-28"
+                        />
+                      </div>
+                    )}
+                    {!workingHours[key]?.enabled && (
+                      <span className="text-muted-foreground text-sm">Fermé</span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
