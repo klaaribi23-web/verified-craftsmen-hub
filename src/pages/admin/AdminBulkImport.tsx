@@ -9,25 +9,18 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCategories } from "@/hooks/useAdminData";
-import { 
-  Upload, 
-  FileJson, 
-  CheckCircle2, 
-  XCircle, 
+import {
+  Upload,
+  FileJson,
+  CheckCircle2,
+  XCircle,
   AlertTriangle,
   Loader2,
   Download,
   Trash2,
-  FileSpreadsheet
+  FileSpreadsheet,
 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface ParsedArtisan {
   businessName: string;
@@ -48,6 +41,7 @@ interface ParsedArtisan {
   googleMapsUrl: string;
   googleRating: number;
   googleReviewCount: number;
+  portfolioImages: string[];
 }
 
 interface ColumnConfig {
@@ -74,38 +68,39 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: "googleMapsUrl", label: "Lien Google Maps", enabled: true, required: false },
   { key: "googleRating", label: "Note Google", enabled: true, required: false },
   { key: "googleReviewCount", label: "Avis Google", enabled: true, required: false },
+  { key: "portfolioImages", label: "Images Portfolio", enabled: true, required: false },
 ];
 
 // Map common service names to category names
 const SERVICE_TO_CATEGORY_MAP: Record<string, string> = {
-  "plomberie": "Plombier",
-  "plombier": "Plombier",
-  "chauffage": "Chauffagiste",
-  "chauffagiste": "Chauffagiste",
-  "électricité": "Électricien",
-  "electricite": "Électricien",
-  "électricien": "Électricien",
-  "electricien": "Électricien",
-  "peinture": "Peintre",
-  "peintre": "Peintre",
-  "maçonnerie": "Maçon",
-  "maconnerie": "Maçon",
-  "maçon": "Maçon",
-  "macon": "Maçon",
-  "carrelage": "Carreleur",
-  "carreleur": "Carreleur",
-  "menuiserie": "Menuisier",
-  "menuisier": "Menuisier",
-  "couverture": "Couvreur",
-  "couvreur": "Couvreur",
-  "toiture": "Couvreur",
-  "serrurerie": "Serrurier",
-  "serrurier": "Serrurier",
-  "climatisation": "Climaticien",
-  "climaticien": "Climaticien",
-  "isolation": "Isolation thermique",
-  "rénovation": "Rénovation complète",
-  "renovation": "Rénovation complète",
+  plomberie: "Plombier",
+  plombier: "Plombier",
+  chauffage: "Chauffagiste",
+  chauffagiste: "Chauffagiste",
+  électricité: "Électricien",
+  electricite: "Électricien",
+  électricien: "Électricien",
+  electricien: "Électricien",
+  peinture: "Peintre",
+  peintre: "Peintre",
+  maçonnerie: "Maçon",
+  maconnerie: "Maçon",
+  maçon: "Maçon",
+  macon: "Maçon",
+  carrelage: "Carreleur",
+  carreleur: "Carreleur",
+  menuiserie: "Menuisier",
+  menuisier: "Menuisier",
+  couverture: "Couvreur",
+  couvreur: "Couvreur",
+  toiture: "Couvreur",
+  serrurerie: "Serrurier",
+  serrurier: "Serrurier",
+  climatisation: "Climaticien",
+  climaticien: "Climaticien",
+  isolation: "Isolation thermique",
+  rénovation: "Rénovation complète",
+  renovation: "Rénovation complète",
 };
 
 const AdminBulkImport = () => {
@@ -115,7 +110,11 @@ const AdminBulkImport = () => {
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
-  const [importResults, setImportResults] = useState<{ success: number; errors: number; errorDetails: string[] } | null>(null);
+  const [importResults, setImportResults] = useState<{
+    success: number;
+    errors: number;
+    errorDetails: string[];
+  } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const { data: categories } = useCategories();
@@ -142,70 +141,71 @@ const AdminBulkImport = () => {
       googleMapsUrl: item.link || item.google_maps_url || item.googleMapsUrl || "",
       googleRating: item.rating || 0,
       googleReviewCount: item.review_count || item.reviews_count || item.reviewsCount || 0,
+      portfolioImages: item.portfolio_images || item.portfolioImages || [],
     }));
   };
 
   const parseCsvFile = (csvContent: string): ParsedArtisan[] => {
-    const lines = csvContent.split("\n").filter(line => line.trim());
+    const lines = csvContent.split("\n").filter((line) => line.trim());
     if (lines.length < 2) return [];
 
     // Parse header row
-    const headers = lines[0].split(/[,;]/).map(h => h.trim().toLowerCase().replace(/"/g, ""));
-    
+    const headers = lines[0].split(/[,;]/).map((h) => h.trim().toLowerCase().replace(/"/g, ""));
+
     // Map CSV headers to our fields
     const headerMap: Record<string, keyof ParsedArtisan> = {
-      "nom": "businessName",
+      nom: "businessName",
       "nom de l'entreprise": "businessName",
-      "business_name": "businessName",
-      "businessname": "businessName",
-      "entreprise": "businessName",
+      business_name: "businessName",
+      businessname: "businessName",
+      entreprise: "businessName",
       "raison sociale": "businessName",
-      "description": "description",
-      "about": "description",
-      "email": "email",
-      "mail": "email",
-      "telephone": "phone",
-      "téléphone": "phone",
-      "phone": "phone",
-      "tel": "phone",
-      "ville": "city",
-      "city": "city",
+      description: "description",
+      about: "description",
+      email: "email",
+      mail: "email",
+      telephone: "phone",
+      téléphone: "phone",
+      phone: "phone",
+      tel: "phone",
+      ville: "city",
+      city: "city",
       "code postal": "postalCode",
-      "code_postal": "postalCode",
-      "postal_code": "postalCode",
-      "cp": "postalCode",
-      "adresse": "address",
-      "address": "address",
-      "siret": "siret",
-      "siren": "siret",
-      "services": "services",
-      "prestations": "services",
-      "categorie": "services",
-      "catégorie": "services",
-      "linkedin": "linkedinUrl",
-      "linkedin_url": "linkedinUrl",
-      "facebook": "facebookUrl",
-      "facebook_url": "facebookUrl",
-      "website": "websiteUrl",
-      "website_url": "websiteUrl",
+      code_postal: "postalCode",
+      postal_code: "postalCode",
+      cp: "postalCode",
+      adresse: "address",
+      address: "address",
+      siret: "siret",
+      siren: "siret",
+      services: "services",
+      prestations: "services",
+      categorie: "services",
+      catégorie: "services",
+      linkedin: "linkedinUrl",
+      linkedin_url: "linkedinUrl",
+      facebook: "facebookUrl",
+      facebook_url: "facebookUrl",
+      website: "websiteUrl",
+      website_url: "websiteUrl",
       "site web": "websiteUrl",
-      "site": "websiteUrl",
-      "google_id": "googleId",
-      "googleid": "googleId",
+      site: "websiteUrl",
+      google_id: "googleId",
+      googleid: "googleId",
       "google id": "googleId",
-      "link": "googleMapsUrl",
-      "google_maps_url": "googleMapsUrl",
+      link: "googleMapsUrl",
+      google_maps_url: "googleMapsUrl",
       "google maps": "googleMapsUrl",
       "lien google": "googleMapsUrl",
-      "rating": "googleRating",
-      "note": "googleRating",
+      rating: "googleRating",
+      note: "googleRating",
       "note google": "googleRating",
-      "google_rating": "googleRating",
-      "review_count": "googleReviewCount",
-      "reviews_count": "googleReviewCount",
-      "avis": "googleReviewCount",
+      google_rating: "googleRating",
+      review_count: "googleReviewCount",
+      reviews_count: "googleReviewCount",
+      avis: "googleReviewCount",
       "avis google": "googleReviewCount",
-      "google_review_count": "googleReviewCount",
+      google_review_count: "googleReviewCount",
     };
 
     const columnIndexes: Partial<Record<keyof ParsedArtisan, number>> = {};
@@ -217,53 +217,62 @@ const AdminBulkImport = () => {
     });
 
     // Parse data rows
-    return lines.slice(1).map((line) => {
-      // Handle quoted values with commas inside
-      const values: string[] = [];
-      let current = "";
-      let inQuotes = false;
-      
-      for (const char of line) {
-        if (char === '"') {
-          inQuotes = !inQuotes;
-        } else if ((char === "," || char === ";") && !inQuotes) {
-          values.push(current.trim());
-          current = "";
-        } else {
-          current += char;
+    return lines
+      .slice(1)
+      .map((line) => {
+        // Handle quoted values with commas inside
+        const values: string[] = [];
+        let current = "";
+        let inQuotes = false;
+
+        for (const char of line) {
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if ((char === "," || char === ";") && !inQuotes) {
+            values.push(current.trim());
+            current = "";
+          } else {
+            current += char;
+          }
         }
-      }
-      values.push(current.trim());
+        values.push(current.trim());
 
-      const getValue = (field: keyof ParsedArtisan): string => {
-        const index = columnIndexes[field];
-        return index !== undefined ? values[index]?.replace(/"/g, "") || "" : "";
-      };
+        const getValue = (field: keyof ParsedArtisan): string => {
+          const index = columnIndexes[field];
+          return index !== undefined ? values[index]?.replace(/"/g, "") || "" : "";
+        };
 
-      const servicesValue = getValue("services");
-      const services = servicesValue ? servicesValue.split(/[|,;]/).map(s => s.trim()).filter(Boolean) : [];
+        const servicesValue = getValue("services");
+        const services = servicesValue
+          ? servicesValue
+              .split(/[|,;]/)
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [];
 
-      return {
-        businessName: getValue("businessName"),
-        description: getValue("description"),
-        email: getValue("email"),
-        phone: getValue("phone"),
-        city: getValue("city"),
-        postalCode: getValue("postalCode"),
-        address: getValue("address"),
-        siret: getValue("siret"),
-        services,
-        rating: 0,
-        reviewsCount: 0,
-        linkedinUrl: getValue("linkedinUrl"),
-        facebookUrl: getValue("facebookUrl"),
-        websiteUrl: getValue("websiteUrl"),
-        googleId: getValue("googleId"),
-        googleMapsUrl: getValue("googleMapsUrl"),
-        googleRating: parseFloat(getValue("googleRating")) || 0,
-        googleReviewCount: parseInt(getValue("googleReviewCount")) || 0,
-      };
-    }).filter(a => a.businessName || a.city);
+        return {
+          businessName: getValue("businessName"),
+          description: getValue("description"),
+          email: getValue("email"),
+          phone: getValue("phone"),
+          city: getValue("city"),
+          postalCode: getValue("postalCode"),
+          address: getValue("address"),
+          siret: getValue("siret"),
+          services,
+          rating: 0,
+          reviewsCount: 0,
+          linkedinUrl: getValue("linkedinUrl"),
+          facebookUrl: getValue("facebookUrl"),
+          websiteUrl: getValue("websiteUrl"),
+          googleId: getValue("googleId"),
+          googleMapsUrl: getValue("googleMapsUrl"),
+          googleRating: parseFloat(getValue("googleRating")) || 0,
+          googleReviewCount: parseInt(getValue("googleReviewCount")) || 0,
+          portfolioImages: [], // CSV support for arrays is complex, skipping for now or handle string split if needed
+        };
+      })
+      .filter((a) => a.businessName || a.city);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -315,7 +324,7 @@ const AdminBulkImport = () => {
 
         setParsedData(parsed);
         setColumns(DEFAULT_COLUMNS);
-        
+
         toast({
           title: "Fichier analysé",
           description: `${parsed.length} artisans détectés`,
@@ -352,9 +361,7 @@ const AdminBulkImport = () => {
 
   const toggleColumn = (key: keyof ParsedArtisan) => {
     setColumns((prev) =>
-      prev.map((col) =>
-        col.key === key && !col.required ? { ...col, enabled: !col.enabled } : col
-      )
+      prev.map((col) => (col.key === key && !col.required ? { ...col, enabled: !col.enabled } : col)),
     );
   };
 
@@ -364,18 +371,15 @@ const AdminBulkImport = () => {
     for (const service of services) {
       const normalizedService = service.toLowerCase().trim();
       const mappedCategory = SERVICE_TO_CATEGORY_MAP[normalizedService];
-      
+
       if (mappedCategory) {
-        const category = categories.find(
-          (c) => c.name.toLowerCase() === mappedCategory.toLowerCase()
-        );
+        const category = categories.find((c) => c.name.toLowerCase() === mappedCategory.toLowerCase());
         if (category) return category.id;
       }
 
       // Try direct match
       const directMatch = categories.find(
-        (c) => c.name.toLowerCase().includes(normalizedService) ||
-               normalizedService.includes(c.name.toLowerCase())
+        (c) => c.name.toLowerCase().includes(normalizedService) || normalizedService.includes(c.name.toLowerCase()),
       );
       if (directMatch) return directMatch.id;
     }
@@ -452,6 +456,9 @@ const AdminBulkImport = () => {
           if (enabledColumns.includes("googleReviewCount") && artisan.googleReviewCount > 0) {
             artisanData.google_review_count = artisan.googleReviewCount;
           }
+          if (enabledColumns.includes("portfolioImages") && artisan.portfolioImages.length > 0) {
+            artisanData.portfolio_images = artisan.portfolioImages;
+          }
 
           // Find category from services
           const categoryId = findCategoryId(artisan.services);
@@ -525,11 +532,12 @@ const AdminBulkImport = () => {
 
   const downloadErrorReport = () => {
     if (!importResults?.errorDetails.length) return;
-    
-    const csvContent = "data:text/csv;charset=utf-8," + 
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
       "Artisan,Erreur\n" +
-      importResults.errorDetails.map(e => `"${e.split(":")[0]}","${e.split(":").slice(1).join(":")}"`).join("\n");
-    
+      importResults.errorDetails.map((e) => `"${e.split(":")[0]}","${e.split(":").slice(1).join(":")}"`).join("\n");
+
     const link = document.createElement("a");
     link.setAttribute("href", encodeURI(csvContent));
     link.setAttribute("download", "erreurs_import.csv");
@@ -543,7 +551,7 @@ const AdminBulkImport = () => {
       <Navbar />
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <AdminSidebar />
-        
+
         <main className="flex-1 p-4 md:p-8">
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">Import massif d'artisans</h1>
@@ -559,9 +567,7 @@ const AdminBulkImport = () => {
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${
-                    isDragging 
-                      ? "border-primary bg-primary/5" 
-                      : "border-border hover:border-primary/50"
+                    isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
                   }`}
                 >
                   <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -584,7 +590,8 @@ const AdminBulkImport = () => {
                     </Button>
                   </label>
                   <p className="text-xs text-muted-foreground mt-6">
-                    <strong>CSV :</strong> Colonnes attendues : nom, email, telephone, ville, code_postal, adresse, siret, services
+                    <strong>CSV :</strong> Colonnes attendues : nom, email, telephone, ville, code_postal, adresse,
+                    siret, services
                   </p>
                 </div>
               </CardContent>
@@ -605,7 +612,8 @@ const AdminBulkImport = () => {
                     <div>
                       <p className="font-medium">{file.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {(file.size / 1024).toFixed(1)} KB • {parsedData.length} artisans détectés • Format {fileType?.toUpperCase()}
+                        {(file.size / 1024).toFixed(1)} KB • {parsedData.length} artisans détectés • Format{" "}
+                        {fileType?.toUpperCase()}
                       </p>
                     </div>
                   </div>
@@ -628,10 +636,7 @@ const AdminBulkImport = () => {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {columns.map((col) => (
-                    <div
-                      key={col.key}
-                      className="flex items-center space-x-2"
-                    >
+                    <div key={col.key} className="flex items-center space-x-2">
                       <Checkbox
                         id={col.key}
                         checked={col.enabled}
@@ -665,21 +670,27 @@ const AdminBulkImport = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        {columns.filter(c => c.enabled).map((col) => (
-                          <TableHead key={col.key}>{col.label}</TableHead>
-                        ))}
+                        {columns
+                          .filter((c) => c.enabled)
+                          .map((col) => (
+                            <TableHead key={col.key}>{col.label}</TableHead>
+                          ))}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {parsedData.slice(0, 10).map((artisan, index) => (
                         <TableRow key={index}>
-                          {columns.filter(c => c.enabled).map((col) => (
-                            <TableCell key={col.key} className="max-w-[200px] truncate">
-                              {col.key === "services" 
-                                ? artisan.services.slice(0, 2).join(", ") + (artisan.services.length > 2 ? "..." : "")
-                                : String(artisan[col.key] || "-")}
-                            </TableCell>
-                          ))}
+                          {columns
+                            .filter((c) => c.enabled)
+                            .map((col) => (
+                              <TableCell key={col.key} className="max-w-[200px] truncate">
+                                {col.key === "services"
+                                  ? artisan.services.slice(0, 2).join(", ") + (artisan.services.length > 2 ? "..." : "")
+                                  : col.key === "portfolioImages"
+                                    ? `${artisan.portfolioImages.length} photos`
+                                    : String(artisan[col.key] || "-")}
+                              </TableCell>
+                            ))}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -699,9 +710,7 @@ const AdminBulkImport = () => {
                   <span className="text-muted-foreground">{importProgress}%</span>
                 </div>
                 <Progress value={importProgress} className="h-3" />
-                <p className="text-sm text-muted-foreground mt-2">
-                  Traitement par lots de 500 artisans...
-                </p>
+                <p className="text-sm text-muted-foreground mt-2">Traitement par lots de 500 artisans...</p>
               </CardContent>
             </Card>
           )}
@@ -722,7 +731,7 @@ const AdminBulkImport = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {importResults.errors > 0 && (
                   <Button variant="outline" size="sm" onClick={downloadErrorReport}>
                     <Download className="h-4 w-4 mr-2" />
@@ -733,7 +742,7 @@ const AdminBulkImport = () => {
                 <div className="mt-4 p-4 bg-muted rounded-lg">
                   <p className="text-sm">
                     <AlertTriangle className="h-4 w-4 inline mr-2 text-yellow-500" />
-                    Les artisans importés sont en statut <Badge variant="secondary">VITRINE</Badge> et apparaîtront dans 
+                    Les artisans importés sont en statut <Badge variant="secondary">VITRINE</Badge> et apparaîtront dans
                     <strong> Approbations → Vitrines</strong> pour être revendiqués.
                   </p>
                 </div>
