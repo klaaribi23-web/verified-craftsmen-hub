@@ -479,7 +479,7 @@ const ArtisanPublicProfile = () => {
                   </CardContent>
                 </Card>}
 
-              {/* Zones & Availability - Collapsible on mobile */}
+              {/* Zones & Working Hours */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                 <Card>
                   <CardHeader className="pb-2 md:pb-4">
@@ -496,6 +496,48 @@ const ArtisanPublicProfile = () => {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Working Hours Card */}
+                {(artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2 md:pb-4">
+                      <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                        <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                        Heures de travail
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-1.5">
+                        {[
+                          { key: "monday", label: "Lundi" },
+                          { key: "tuesday", label: "Mardi" },
+                          { key: "wednesday", label: "Mercredi" },
+                          { key: "thursday", label: "Jeudi" },
+                          { key: "friday", label: "Vendredi" },
+                          { key: "saturday", label: "Samedi" },
+                          { key: "sunday", label: "Dimanche" },
+                        ].map(day => {
+                          const hours = (artisan as any).working_hours?.[day.key];
+                          if (!hours) return null;
+                          
+                          const isEnabled = hours.enabled !== false;
+                          const displayTime = isEnabled 
+                            ? `${hours.start || "08:00"} - ${hours.end || "18:00"}`
+                            : "Fermé";
+                          
+                          return (
+                            <div key={day.key} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">{day.label}</span>
+                              <span className={isEnabled ? "font-medium" : "text-muted-foreground"}>
+                                {displayTime}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
               {/* Certifications & Legal */}

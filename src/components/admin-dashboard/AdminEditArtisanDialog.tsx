@@ -34,7 +34,7 @@ interface ArtisanData {
   instagram_url: string | null;
   linkedin_url: string | null;
   website_url: string | null;
-  availability: Record<string, unknown> | null;
+  working_hours: Record<string, unknown> | null;
 }
 
 interface Service {
@@ -158,10 +158,10 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
         website_url: artisan.website_url,
       });
 
-      // Parse availability
+      // Parse working_hours
       const defaultAvailability: Record<string, { start: string; end: string; enabled: boolean }> = {};
       DAYS_FR.forEach(day => {
-        const dayData = artisan.availability?.[day.key];
+        const dayData = artisan.working_hours?.[day.key];
         if (typeof dayData === 'string') {
           if (dayData === 'Fermé' || dayData === '') {
             defaultAvailability[day.key] = { start: '08:00', end: '18:00', enabled: false };
@@ -189,7 +189,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   }, [artisan]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: Partial<ArtisanData> & { availability: Record<string, { start: string; end: string; enabled: boolean }>, category_id?: string | null, categoryIds: string[] }) => {
+    mutationFn: async (data: Partial<ArtisanData> & { working_hours: Record<string, { start: string; end: string; enabled: boolean }>, category_id?: string | null, categoryIds: string[] }) => {
       if (!artisan?.id) throw new Error("No artisan ID");
       
       // Update artisan main data (keep first category as primary)
@@ -214,7 +214,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
           instagram_url: data.instagram_url,
           linkedin_url: data.linkedin_url,
           website_url: data.website_url,
-          availability: JSON.parse(JSON.stringify(data.availability)),
+          working_hours: JSON.parse(JSON.stringify(data.working_hours)),
         })
         .eq('id', artisan.id);
 
@@ -257,7 +257,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   const handleSave = () => {
     updateMutation.mutate({
       ...formData,
-      availability,
+      working_hours: availability,
       categoryIds: selectedCategoryIds,
     });
   };

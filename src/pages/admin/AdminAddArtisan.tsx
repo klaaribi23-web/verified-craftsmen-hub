@@ -326,7 +326,7 @@ const AdminAddArtisan = () => {
           instagram_url: formData.instagram || null,
           linkedin_url: formData.linkedin || null,
           website_url: formData.website || null,
-          availability: availability,
+          working_hours: availability,
           status: "prospect",
           is_verified: false,
           user_id: null,

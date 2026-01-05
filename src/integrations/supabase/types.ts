@@ -244,6 +244,7 @@ export type Database = {
           updated_at: string
           user_id: string | null
           website_url: string | null
+          working_hours: Json | null
         }
         Insert: {
           activation_sent_at?: string | null
@@ -281,6 +282,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           website_url?: string | null
+          working_hours?: Json | null
         }
         Update: {
           activation_sent_at?: string | null
@@ -318,6 +320,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           website_url?: string | null
+          working_hours?: Json | null
         }
         Relationships: [
           {
@@ -1007,6 +1010,7 @@ export type Database = {
           status: Database["public"]["Enums"]["artisan_status"] | null
           updated_at: string | null
           website_url: string | null
+          working_hours: Json | null
         }
         Insert: {
           address?: string | null
@@ -1038,6 +1042,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["artisan_status"] | null
           updated_at?: string | null
           website_url?: string | null
+          working_hours?: Json | null
         }
         Update: {
           address?: string | null
@@ -1069,6 +1074,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["artisan_status"] | null
           updated_at?: string | null
           website_url?: string | null
+          working_hours?: Json | null
         }
         Relationships: [
           {
