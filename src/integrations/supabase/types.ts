@@ -221,6 +221,10 @@ export type Database = {
           email: string | null
           experience_years: number | null
           facebook_url: string | null
+          google_id: string | null
+          google_maps_url: string | null
+          google_rating: number | null
+          google_review_count: number | null
           hourly_rate: number | null
           id: string
           instagram_url: string | null
@@ -259,6 +263,10 @@ export type Database = {
           email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
+          google_id?: string | null
+          google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
           hourly_rate?: number | null
           id?: string
           instagram_url?: string | null
@@ -297,6 +305,10 @@ export type Database = {
           email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
+          google_id?: string | null
+          google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
           hourly_rate?: number | null
           id?: string
           instagram_url?: string | null
@@ -991,6 +1003,10 @@ export type Database = {
           email: string | null
           experience_years: number | null
           facebook_url: string | null
+          google_id: string | null
+          google_maps_url: string | null
+          google_rating: number | null
+          google_review_count: number | null
           hourly_rate: number | null
           id: string | null
           instagram_url: string | null
@@ -1023,6 +1039,10 @@ export type Database = {
           email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
+          google_id?: string | null
+          google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
           hourly_rate?: number | null
           id?: string | null
           instagram_url?: string | null
@@ -1055,6 +1075,10 @@ export type Database = {
           email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
+          google_id?: string | null
+          google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
           hourly_rate?: number | null
           id?: string | null
           instagram_url?: string | null
