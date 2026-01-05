@@ -20,7 +20,7 @@ export const useArtisanPortfolio = () => {
     const fetchArtisanData = async () => {
       if (!user?.id) {
         setIsLoading(false);
-        console.log("not work");
+        console.log("here");
         return;
       }
 
