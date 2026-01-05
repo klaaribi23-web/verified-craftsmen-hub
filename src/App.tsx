@@ -19,7 +19,7 @@ import { ArtisanDocuments } from "./pages/artisan/ArtisanDocuments";
 import { ArtisanServices } from "./pages/artisan/ArtisanServices";
 import { ArtisanRequests } from "./pages/artisan/ArtisanRequests";
 import { ArtisanMessaging } from "./pages/artisan/ArtisanMessaging";
-import { ArtisanPlanning } from "./pages/artisan/ArtisanPlanning";
+
 import { ArtisanSettings } from "./pages/artisan/ArtisanSettings";
 import { ArtisanPartnerOffers } from "./pages/artisan/ArtisanPartnerOffers";
 import { ArtisanQuotes } from "./pages/artisan/ArtisanQuotes";
@@ -114,11 +114,6 @@ const App = () => (
           <Route path="/artisan/messagerie" element={
             <ProtectedRoute allowedRoles={["artisan"]}>
               <ArtisanMessaging />
-            </ProtectedRoute>
-          } />
-          <Route path="/artisan/planning" element={
-            <ProtectedRoute allowedRoles={["artisan"]}>
-              <ArtisanPlanning />
             </ProtectedRoute>
           } />
           <Route path="/artisan/offres-partenaires" element={
