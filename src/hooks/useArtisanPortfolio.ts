@@ -20,6 +20,7 @@ export const useArtisanPortfolio = () => {
     const fetchArtisanData = async () => {
       if (!user?.id) {
         setIsLoading(false);
+        console.log("not work");
         return;
       }
 
@@ -78,9 +79,7 @@ export const useArtisanPortfolio = () => {
     const fileName = `${artisanId}/photos/${Date.now()}.${fileExt}`;
 
     try {
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(fileName, file);
+      const { error: uploadError } = await supabase.storage.from(BUCKET_NAME).upload(fileName, file);
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
@@ -88,9 +87,9 @@ export const useArtisanPortfolio = () => {
         return null;
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from(BUCKET_NAME)
-        .getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(BUCKET_NAME).getPublicUrl(fileName);
 
       return publicUrl;
     } catch (err) {
@@ -125,9 +124,7 @@ export const useArtisanPortfolio = () => {
     const fileName = `${artisanId}/videos/${Date.now()}.mp4`;
 
     try {
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(fileName, file);
+      const { error: uploadError } = await supabase.storage.from(BUCKET_NAME).upload(fileName, file);
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
@@ -135,9 +132,9 @@ export const useArtisanPortfolio = () => {
         return null;
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from(BUCKET_NAME)
-        .getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(BUCKET_NAME).getPublicUrl(fileName);
 
       return publicUrl;
     } catch (err) {
