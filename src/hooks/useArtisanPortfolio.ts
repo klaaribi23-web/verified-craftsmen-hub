@@ -58,6 +58,11 @@ export const useArtisanPortfolio = () => {
       return null;
     }
 
+    if (!artisanId) {
+      toast.error("Profil artisan non trouvé");
+      return null;
+    }
+
     if (photos.length >= MAX_PHOTOS) {
       toast.error(`Maximum ${MAX_PHOTOS} photos autorisées`);
       return null;
@@ -70,7 +75,7 @@ export const useArtisanPortfolio = () => {
     }
 
     const fileExt = file.name.split(".").pop();
-    const fileName = `${user.id}/photos/${Date.now()}.${fileExt}`;
+    const fileName = `${artisanId}/photos/${Date.now()}.${fileExt}`;
 
     try {
       const { error: uploadError } = await supabase.storage
@@ -102,6 +107,11 @@ export const useArtisanPortfolio = () => {
       return null;
     }
 
+    if (!artisanId) {
+      toast.error("Profil artisan non trouvé");
+      return null;
+    }
+
     if (videos.length >= MAX_VIDEOS) {
       toast.error(`Maximum ${MAX_VIDEOS} vidéos autorisées`);
       return null;
@@ -112,7 +122,7 @@ export const useArtisanPortfolio = () => {
       return null;
     }
 
-    const fileName = `${user.id}/videos/${Date.now()}.mp4`;
+    const fileName = `${artisanId}/videos/${Date.now()}.mp4`;
 
     try {
       const { error: uploadError } = await supabase.storage
