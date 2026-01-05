@@ -212,7 +212,6 @@ export type Database = {
           activation_sent_at: string | null
           activation_token: string | null
           address: string | null
-          availability: Json | null
           business_name: string
           category_id: string | null
           city: string
@@ -250,7 +249,6 @@ export type Database = {
           activation_sent_at?: string | null
           activation_token?: string | null
           address?: string | null
-          availability?: Json | null
           business_name: string
           category_id?: string | null
           city: string
@@ -288,7 +286,6 @@ export type Database = {
           activation_sent_at?: string | null
           activation_token?: string | null
           address?: string | null
-          availability?: Json | null
           business_name?: string
           category_id?: string | null
           city?: string
@@ -982,7 +979,6 @@ export type Database = {
       public_artisans: {
         Row: {
           address: string | null
-          availability: Json | null
           business_name: string | null
           category_id: string | null
           city: string | null
@@ -1014,14 +1010,13 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          availability?: Json | null
           business_name?: string | null
           category_id?: string | null
           city?: string | null
           created_at?: string | null
           department?: string | null
           description?: string | null
-          email?: never
+          email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
           hourly_rate?: number | null
@@ -1030,7 +1025,7 @@ export type Database = {
           is_verified?: boolean | null
           linkedin_url?: string | null
           missions_completed?: number | null
-          phone?: never
+          phone?: string | null
           photo_url?: string | null
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
@@ -1046,14 +1041,13 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          availability?: Json | null
           business_name?: string | null
           category_id?: string | null
           city?: string | null
           created_at?: string | null
           department?: string | null
           description?: string | null
-          email?: never
+          email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
           hourly_rate?: number | null
@@ -1062,7 +1056,7 @@ export type Database = {
           is_verified?: boolean | null
           linkedin_url?: string | null
           missions_completed?: number | null
-          phone?: never
+          phone?: string | null
           photo_url?: string | null
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
