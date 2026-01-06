@@ -34,5 +34,11 @@ Disallow: /reset-password
 Disallow: /mot-de-passe-oublie
 Disallow: /activer-compte
 
+# Anciennes URLs WordPress - ne pas indexer
+Disallow: /accueil-old
+Disallow: /accueil-old/
+Disallow: /artisansvalides
+Disallow: /artisansvalides/
+
 # Sitemap
 Sitemap: https://artisansvalides.fr/sitemap.xml

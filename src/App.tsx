@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { QuoteNotificationListener } from "@/components/notifications/QuoteNotificationListener";
 import Index from "./pages/Index";
@@ -83,7 +83,12 @@ const App = () => (
           <Route path="/blog/:slug" element={<BlogArticle />} />
           
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
-          <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
+          
+          {/* Redirections SEO - anciennes URLs WordPress */}
+          <Route path="/accueil-old" element={<Navigate to="/" replace />} />
+          <Route path="/accueil-old/" element={<Navigate to="/" replace />} />
+          <Route path="/artisansvalides" element={<Navigate to="/" replace />} />
+          <Route path="/artisansvalides/" element={<Navigate to="/" replace />} />
           
           {/* Protected Artisan Routes */}
           <Route path="/artisan/dashboard" element={
