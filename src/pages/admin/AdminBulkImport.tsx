@@ -401,6 +401,43 @@ const AdminBulkImport = () => {
     let errorCount = 0;
     const errorDetails: string[] = [];
 
+    const processPortfolioImages = async (artisanId: string, imageUrls: string[]): Promise<string[]> => {
+      const uploadedUrls: string[] = [];
+
+      for (const url of imageUrls) {
+        try {
+          // 1. Fetch the image from Google (client-side)
+          // Note: This relies on the image host allowing CORS.
+          // lh3.googleusercontent.com usually allows it.
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
+
+          const blob = await response.blob();
+          const fileExt = blob.type.split("/")[1] || "jpg";
+          const fileName = `${artisanId}/imported/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+          // 2. Upload to Supabase Storage
+          const { error: uploadError } = await supabase.storage.from("artisan-portfolios").upload(fileName, blob, {
+            contentType: blob.type,
+            upsert: true,
+          });
+
+          if (uploadError) throw uploadError;
+
+          // 3. Get Public URL
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from("artisan-portfolios").getPublicUrl(fileName);
+
+          uploadedUrls.push(publicUrl);
+        } catch (err) {
+          console.error(`Error processing image ${url} for artisan ${artisanId}:`, err);
+          // Continue with other images even if one fails
+        }
+      }
+      return uploadedUrls;
+    };
+
     for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
       const start = batchIndex * batchSize;
       const end = Math.min(start + batchSize, parsedData.length);
@@ -491,6 +528,22 @@ const AdminBulkImport = () => {
             }));
 
             await supabase.from("artisan_services").insert(serviceInserts);
+          }
+
+          // Process Portfolio Images if enabled and present
+          if (enabledColumns.includes("portfolioImages") && artisan.portfolioImages.length > 0 && insertedArtisan) {
+            // Note: We do this AFTER initial insert to have the artisan_id
+            try {
+              const uploadedUrls = await processPortfolioImages(insertedArtisan.id, artisan.portfolioImages);
+
+              if (uploadedUrls.length > 0) {
+                await supabase.from("artisans").update({ portfolio_images: uploadedUrls }).eq("id", insertedArtisan.id);
+              }
+            } catch (imgError) {
+              console.error("Error processing portfolio images for", artisan.businessName, imgError);
+              // Don't fail the entire artisan import just because images failed, but maybe log it?
+              // errorDetails.push(`${artisan.businessName} (Images Warning): ${imgError.message}`);
+            }
           }
 
           successCount++;
