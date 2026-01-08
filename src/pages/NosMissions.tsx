@@ -103,6 +103,16 @@ const NosMissions = () => {
   // Use the coordinates cache hook
   const { getCoordinates, isLoading: coordinatesLoading } = useCityCoordinatesCache(missionCities);
 
+  // Helper to normalize city name for comparison
+  const normalizeCity = (city: string): string => {
+    return city
+      .split("(")[0] // Remove (XX) suffix
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""); // Remove accents
+  };
+
   // Filter missions with distance calculation
   const { filteredMissions, missionDistances } = useMemo(() => {
     if (!missions) return { filteredMissions: [], missionDistances: new Map<string, number>() };
@@ -115,24 +125,52 @@ const NosMissions = () => {
         return false;
       }
       
-      // Location filter with radius
+      const missionCity = mission.city || "";
+      
+      // Location filter - City selected with coordinates
       if (selectedCity && searchCoordinates) {
-        const missionCity = mission.city || "";
         const missionCoords = getCoordinates(missionCity);
         
-        if (missionCoords) {
+        if (radiusFilter === 0) {
+          // Radius = 0: strict city match only
+          const normalizedMissionCity = normalizeCity(missionCity);
+          const normalizedSelectedCity = normalizeCity(selectedCity);
+          
+          if (normalizedMissionCity !== normalizedSelectedCity) {
+            return false;
+          }
+          
+          // Calculate distance for display even with radius 0
+          if (missionCoords) {
+            const distance = calculateDistance(
+              searchCoordinates.lat, searchCoordinates.lng,
+              missionCoords.lat, missionCoords.lng
+            );
+            distances.set(mission.id, distance);
+          }
+        } else {
+          // Radius > 0: filter by distance
+          if (!missionCoords) {
+            // No coordinates for mission city, exclude
+            return false;
+          }
+          
           const distance = calculateDistance(
             searchCoordinates.lat, searchCoordinates.lng,
             missionCoords.lat, missionCoords.lng
           );
           distances.set(mission.id, distance);
           
-          // If radius is set, filter by distance
-          if (radiusFilter > 0 && distance > radiusFilter) {
+          if (distance > radiusFilter) {
             return false;
           }
-        } else if (radiusFilter > 0) {
-          // No coordinates for mission city, exclude if radius filter active
+        }
+      } else if (locationFilter && locationFilter.length >= 2 && !selectedCity) {
+        // Text filter without confirmed city selection - dynamic text filtering
+        const normalizedMissionCity = normalizeCity(missionCity);
+        const normalizedFilter = normalizeCity(locationFilter);
+        
+        if (!normalizedMissionCity.includes(normalizedFilter)) {
           return false;
         }
       }
@@ -141,7 +179,7 @@ const NosMissions = () => {
     });
     
     return { filteredMissions: filtered, missionDistances: distances };
-  }, [missions, categoryFilter, selectedCity, searchCoordinates, radiusFilter, getCoordinates]);
+  }, [missions, categoryFilter, selectedCity, searchCoordinates, radiusFilter, getCoordinates, locationFilter]);
 
   const totalPages = Math.ceil(filteredMissions.length / ITEMS_PER_PAGE);
   const paginatedMissions = filteredMissions.slice(
@@ -351,8 +389,16 @@ const NosMissions = () => {
                         value={locationFilter}
                         onChange={(value, coordinates) => {
                           setLocationFilter(value);
-                          setSelectedCity(value);
-                          setSearchCoordinates(coordinates || null);
+                          if (coordinates) {
+                            // City selected from list - enable geographic filtering
+                            setSelectedCity(value);
+                            setSearchCoordinates(coordinates);
+                          } else {
+                            // Text typed without selection - reset geographic filtering
+                            setSelectedCity("");
+                            setSearchCoordinates(null);
+                            setRadiusFilter(0);
+                          }
                           setCurrentPage(1);
                         }}
                         placeholder="Rechercher une ville..."
@@ -408,7 +454,7 @@ const NosMissions = () => {
                             <Badge 
                               variant="secondary" 
                               className="cursor-pointer"
-                              onClick={() => { setLocationFilter(""); setSelectedCity(""); setRadiusFilter(0); setCurrentPage(1); }}
+                              onClick={() => { setLocationFilter(""); setSelectedCity(""); setSearchCoordinates(null); setRadiusFilter(0); setCurrentPage(1); }}
                             >
                               {locationFilter} ×
                             </Badge>
@@ -570,10 +616,66 @@ const NosMissions = () => {
                   </>
                 ) : (
                   <div className="text-center py-16">
-                    <p className="text-muted-foreground text-lg">Aucune mission trouvée avec ces critères</p>
-                    <Button variant="outline" onClick={resetFilters} className="mt-4">
-                      Réinitialiser les filtres
-                    </Button>
+                    {selectedCity && radiusFilter === 0 ? (
+                      <>
+                        <p className="text-muted-foreground text-lg mb-2">
+                          Aucune mission trouvée à <strong>{selectedCity.split("(")[0].trim()}</strong>
+                        </p>
+                        <p className="text-muted-foreground text-sm mb-4">
+                          Essayez d'élargir votre recherche avec le rayon d'intervention
+                        </p>
+                        <div className="flex gap-2 justify-center">
+                          <Button 
+                            variant="outline" 
+                            onClick={() => { setRadiusFilter(30); setCurrentPage(1); }}
+                          >
+                            Élargir à 30 km
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => { setRadiusFilter(50); setCurrentPage(1); }}
+                          >
+                            Élargir à 50 km
+                          </Button>
+                        </div>
+                      </>
+                    ) : selectedCity && radiusFilter > 0 ? (
+                      <>
+                        <p className="text-muted-foreground text-lg mb-2">
+                          Aucune mission trouvée dans un rayon de {radiusFilter} km autour de <strong>{selectedCity.split("(")[0].trim()}</strong>
+                        </p>
+                        <div className="flex gap-2 justify-center mt-4">
+                          <Button 
+                            variant="outline" 
+                            onClick={() => { setRadiusFilter(Math.min(200, radiusFilter + 50)); setCurrentPage(1); }}
+                          >
+                            Augmenter le rayon
+                          </Button>
+                          <Button variant="outline" onClick={resetFilters}>
+                            Réinitialiser les filtres
+                          </Button>
+                        </div>
+                      </>
+                    ) : locationFilter && !selectedCity ? (
+                      <>
+                        <p className="text-muted-foreground text-lg mb-2">
+                          Aucune mission ne correspond à "{locationFilter}"
+                        </p>
+                        <p className="text-muted-foreground text-sm mb-4">
+                          Sélectionnez une ville dans la liste pour activer la recherche géographique
+                        </p>
+                        <Button variant="outline" onClick={resetFilters}>
+                          Réinitialiser les filtres
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-muted-foreground text-lg">Aucune mission trouvée avec ces critères</p>
+                        <Button variant="outline" onClick={resetFilters} className="mt-4">
+                          Réinitialiser les filtres
+                        </Button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
