@@ -226,8 +226,8 @@ const ArtisanSubscription = () => {
             </div>
           </div>
 
-            {/* Pricing Cards - Vertical Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Pricing Cards - Grid Layout with proper spacing */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
               {SUBSCRIPTION_PLANS.map((plan) => (
                 <PricingCard
                   key={plan.id}

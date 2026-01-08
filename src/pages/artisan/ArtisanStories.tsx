@@ -3,6 +3,8 @@ import Navbar from "@/components/layout/Navbar";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { useArtisanStories, ArtisanStory } from "@/hooks/useArtisanStories";
 import { useArtisanProfile } from "@/hooks/useArtisanProfile";
+import { useSubscription } from "@/hooks/useSubscription";
+import { FeatureGate } from "@/components/subscription/FeatureGate";
 import StoryRecorder from "@/components/stories/StoryRecorder";
 import StoryViewer from "@/components/stories/StoryViewer";
 import { Button } from "@/components/ui/button";
@@ -33,6 +35,7 @@ export const ArtisanStories = () => {
   } = useArtisanStories();
   
   const { artisan } = useArtisanProfile();
+  const { tier, isLoading: isLoadingSubscription } = useSubscription();
   
   const [storyToDelete, setStoryToDelete] = useState<string | null>(null);
   const [isRecorderOpen, setIsRecorderOpen] = useState(false);
@@ -142,6 +145,9 @@ export const ArtisanStories = () => {
     </Card>
   );
 
+  // Check if user has access to Stories (Essential+ tier)
+  const hasStoriesAccess = tier !== "free";
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -160,26 +166,36 @@ export const ArtisanStories = () => {
                 </p>
               </div>
               
-              <Button
-                onClick={() => setIsRecorderOpen(true)}
-                disabled={isUploading}
-                className="gap-2"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Publication en cours...
-                  </>
-                ) : (
-                  <>
-                    <Camera className="w-4 h-4" />
-                    Filmer une story
-                  </>
-                )}
-              </Button>
+              {hasStoriesAccess && (
+                <Button
+                  onClick={() => setIsRecorderOpen(true)}
+                  disabled={isUploading}
+                  className="gap-2"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Publication en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-4 h-4" />
+                      Filmer une story
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
 
-            {isLoading ? (
+            {/* Feature Gate for free users */}
+            {!hasStoriesAccess && !isLoadingSubscription ? (
+              <FeatureGate 
+                requiredTier="essential" 
+                feature="Stories Live"
+              >
+                <div />
+              </FeatureGate>
+            ) : isLoading || isLoadingSubscription ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
@@ -264,12 +280,14 @@ export const ArtisanStories = () => {
       </AlertDialog>
 
       {/* Story Recorder */}
-      <StoryRecorder
-        isOpen={isRecorderOpen}
-        onClose={() => setIsRecorderOpen(false)}
-        onPublish={handlePublish}
-        isUploading={isUploading}
-      />
+      {hasStoriesAccess && (
+        <StoryRecorder
+          isOpen={isRecorderOpen}
+          onClose={() => setIsRecorderOpen(false)}
+          onPublish={handlePublish}
+          isUploading={isUploading}
+        />
+      )}
 
       {/* Story Viewer for full-screen preview */}
       <StoryViewer

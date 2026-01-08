@@ -5,7 +5,6 @@ import {
   FileText,
   Briefcase,
   MessageSquare,
-  Calendar,
   LayoutDashboard,
   Settings,
   LogOut,
@@ -14,34 +13,23 @@ import {
   ClipboardList,
   Camera,
   Menu,
-  X,
   Crown,
+  Lock,
 } from "lucide-react";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useArtisanProfile } from "@/hooks/useArtisanProfile";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-
-const menuItems = [
-  { icon: LayoutDashboard, label: "Tableau de bord", path: "/artisan/dashboard" },
-  { icon: User, label: "Mon profil", path: "/artisan/profil" },
-  { icon: Camera, label: "Mes Stories", path: "/artisan/stories" },
-  { icon: FileText, label: "Documents", path: "/artisan/documents" },
-  { icon: Briefcase, label: "Mes prestations", path: "/artisan/prestations" },
-  { icon: MessageSquare, label: "Demandes reçues", path: "/artisan/demandes" },
-  { icon: MessageSquare, label: "Messagerie", path: "/artisan/messagerie" },
-  { icon: ClipboardList, label: "Mes devis", path: "/artisan/devis" },
-  { icon: Crown, label: "Mon abonnement", path: "/artisan/abonnement" },
-  { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires" },
-  { icon: Settings, label: "Paramètres", path: "/artisan/parametres" },
-];
+import { Badge } from "@/components/ui/badge";
 
 const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const { artisan, profile, isLoading } = useArtisanProfile();
+  const { tier } = useSubscription();
 
   const handleLogout = async () => {
     await signOut();
@@ -50,6 +38,21 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
 
   const displayName = profile?.first_name || artisan?.business_name || "Artisan";
   const isVerified = artisan?.status === "active";
+  const hasStoriesAccess = tier !== "free";
+
+  const menuItems = [
+    { icon: LayoutDashboard, label: "Tableau de bord", path: "/artisan/dashboard" },
+    { icon: User, label: "Mon profil", path: "/artisan/profil" },
+    { icon: Camera, label: "Mes Stories", path: "/artisan/stories", requiresPro: !hasStoriesAccess },
+    { icon: FileText, label: "Documents", path: "/artisan/documents" },
+    { icon: Briefcase, label: "Mes prestations", path: "/artisan/prestations" },
+    { icon: MessageSquare, label: "Demandes reçues", path: "/artisan/demandes" },
+    { icon: MessageSquare, label: "Messagerie", path: "/artisan/messagerie" },
+    { icon: ClipboardList, label: "Mes devis", path: "/artisan/devis" },
+    { icon: Crown, label: "Mon abonnement", path: "/artisan/abonnement" },
+    { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires" },
+    { icon: Settings, label: "Paramètres", path: "/artisan/parametres" },
+  ];
 
   return (
     <>
@@ -109,7 +112,13 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
                   )}
                 >
                   <item.icon className="w-5 h-5 flex-shrink-0" />
-                  <span className="truncate">{item.label}</span>
+                  <span className="truncate flex-1">{item.label}</span>
+                  {item.requiresPro && (
+                    <Badge variant="secondary" className="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      PRO
+                    </Badge>
+                  )}
                 </Link>
               </li>
             );
