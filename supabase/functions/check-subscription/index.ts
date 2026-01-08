@@ -22,6 +22,14 @@ const PRICE_TO_TIER: Record<string, string> = {
   "price_1SnLiLHsPR7NolTlo2WwBzYd": "pro",
 };
 
+// Price ID to interval mapping
+const PRICE_TO_INTERVAL: Record<string, "monthly" | "yearly"> = {
+  "price_1SnLhgHsPR7NolTlCZJY5r3T": "monthly",
+  "price_1SnLhuHsPR7NolTlBBcZ6KLo": "yearly",
+  "price_1SnLi9HsPR7NolTlFihKief9": "monthly",
+  "price_1SnLiLHsPR7NolTlo2WwBzYd": "yearly",
+};
+
 // Tier to priority mapping
 const TIER_PRIORITIES: Record<string, { min: number; max: number } | number> = {
   elite: { min: 1, max: 3 },
@@ -82,6 +90,9 @@ serve(async (req) => {
           subscribed: false,
           subscription_tier: "free",
           subscription_end: null,
+          subscription_start: null,
+          billing_interval: null,
+          payment_method: null,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
@@ -116,6 +127,9 @@ serve(async (req) => {
           subscribed: false,
           subscription_tier: "free",
           subscription_end: null,
+          subscription_start: null,
+          billing_interval: null,
+          payment_method: null,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
@@ -124,9 +138,36 @@ serve(async (req) => {
     const subscription = subscriptions.data[0];
     const priceId = subscription.items.data[0].price.id;
     const tier = PRICE_TO_TIER[priceId] || "free";
+    const billingInterval = PRICE_TO_INTERVAL[priceId] || "monthly";
     const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+    const subscriptionStart = new Date(subscription.start_date * 1000).toISOString();
 
-    logStep("Active subscription found", { subscriptionId: subscription.id, priceId, tier, subscriptionEnd });
+    logStep("Active subscription found", { subscriptionId: subscription.id, priceId, tier, subscriptionEnd, subscriptionStart, billingInterval });
+
+    // Get payment method info
+    let paymentMethod = null;
+    try {
+      const paymentMethods = await stripe.paymentMethods.list({
+        customer: customerId,
+        type: "card",
+        limit: 1,
+      });
+
+      if (paymentMethods.data.length > 0) {
+        const card = paymentMethods.data[0].card;
+        if (card) {
+          paymentMethod = {
+            last4: card.last4,
+            brand: card.brand,
+            exp_month: card.exp_month,
+            exp_year: card.exp_year,
+          };
+          logStep("Payment method found", { brand: card.brand, last4: card.last4 });
+        }
+      }
+    } catch (pmError) {
+      logStep("Could not fetch payment method", { error: pmError });
+    }
 
     // Calculate display priority
     const priorityConfig = TIER_PRIORITIES[tier];
@@ -163,6 +204,9 @@ serve(async (req) => {
         subscribed: true,
         subscription_tier: tier,
         subscription_end: subscriptionEnd,
+        subscription_start: subscriptionStart,
+        billing_interval: billingInterval,
+        payment_method: paymentMethod,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );

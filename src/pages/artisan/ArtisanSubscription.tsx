@@ -4,6 +4,7 @@ import Navbar from "@/components/layout/Navbar";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { PricingCard } from "@/components/subscription/PricingCard";
+import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -13,14 +14,23 @@ import { toast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { SUBSCRIPTION_PLANS, STRIPE_PRICES, getPlanById } from "@/config/subscriptionPlans";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
-import { Crown, Calendar, Settings, CheckCircle2, XCircle } from "lucide-react";
+import { Crown, Calendar, Settings, CreditCard } from "lucide-react";
 import type { BillingInterval } from "@/config/subscriptionPlans";
 
 const ArtisanSubscription = () => {
   const [searchParams] = useSearchParams();
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
   const [isLoading, setIsLoading] = useState(false);
-  const { tier, subscriptionEnd, checkSubscription, createCheckout, openCustomerPortal } = useSubscription();
+  const {
+    tier,
+    subscriptionEnd,
+    subscriptionStart,
+    billingInterval: currentBillingInterval,
+    paymentMethod,
+    checkSubscription,
+    createCheckout,
+    openCustomerPortal,
+  } = useSubscription();
 
   const currentPlan = getPlanById(tier);
 
@@ -100,69 +110,123 @@ const ArtisanSubscription = () => {
             subtitle="Gérez votre abonnement et accédez à plus de fonctionnalités"
           />
 
-          {/* Current Plan Summary */}
+          {/* Current Plan Summary - Only show if subscribed */}
           {tier !== "free" && currentPlan && (
-            <Card className="mb-8 border-primary">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Crown className="w-8 h-8 text-primary" />
-                  <div>
-                    <CardTitle>Votre abonnement actuel</CardTitle>
-                    <p className="text-muted-foreground">Plan {currentPlan.name}</p>
-                  </div>
-                </div>
-                <SubscriptionBadge tier={tier} size="lg" />
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap items-center gap-6">
-                  {subscriptionEnd && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="w-4 h-4 text-muted-foreground" />
-                      <span>
-                        Prochain renouvellement :{" "}
-                        {new Date(subscriptionEnd).toLocaleDateString("fr-FR", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </span>
+            <Card className="mb-8 border-primary/50">
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Crown className="w-6 h-6 text-primary" />
                     </div>
-                  )}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-xl">Plan {currentPlan.name}</CardTitle>
+                        <SubscriptionBadge tier={tier} size="md" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Facturation {currentBillingInterval === "yearly" ? "annuelle" : "mensuelle"}
+                      </p>
+                    </div>
+                  </div>
                   <Button variant="outline" onClick={handleManageSubscription} disabled={isLoading}>
                     <Settings className="w-4 h-4 mr-2" />
                     Gérer mon abonnement
                   </Button>
                 </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Dates */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {subscriptionStart && (
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                      <Calendar className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Date de souscription</p>
+                        <p className="font-medium">
+                          {new Date(subscriptionStart).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {subscriptionEnd && (
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                      <Calendar className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Prochain renouvellement</p>
+                        <p className="font-medium">
+                          {new Date(subscriptionEnd).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Payment Method */}
+                {paymentMethod && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <CreditCard className="w-4 h-4 text-muted-foreground" />
+                      <p className="text-sm font-medium text-muted-foreground">Moyen de paiement</p>
+                    </div>
+                    <PaymentMethodCard
+                      last4={paymentMethod.last4}
+                      brand={paymentMethod.brand}
+                      expMonth={paymentMethod.exp_month}
+                      expYear={paymentMethod.exp_year}
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
 
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <Label
-              htmlFor="billing-toggle"
-              className={billingInterval === "monthly" ? "font-semibold" : "text-muted-foreground"}
-            >
-              Mensuel
-            </Label>
-            <Switch
-              id="billing-toggle"
-              checked={billingInterval === "yearly"}
-              onCheckedChange={(checked) => setBillingInterval(checked ? "yearly" : "monthly")}
-            />
-            <Label
-              htmlFor="billing-toggle"
-              className={billingInterval === "yearly" ? "font-semibold" : "text-muted-foreground"}
-            >
-              Annuel
-              <Badge variant="secondary" className="ml-2">
-                -17%
-              </Badge>
-            </Label>
+          {/* Change Plan Section */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-2">
+              {tier === "free" ? "Choisir un forfait" : "Changer de forfait"}
+            </h2>
+            <p className="text-muted-foreground text-sm mb-6">
+              {tier === "free"
+                ? "Débloquez plus de fonctionnalités en passant à un plan payant"
+                : "Passez à un forfait supérieur pour plus d'avantages"}
+            </p>
+
+            {/* Billing Toggle */}
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <Label
+                htmlFor="billing-toggle"
+                className={billingInterval === "monthly" ? "font-semibold" : "text-muted-foreground"}
+              >
+                Mensuel
+              </Label>
+              <Switch
+                id="billing-toggle"
+                checked={billingInterval === "yearly"}
+                onCheckedChange={(checked) => setBillingInterval(checked ? "yearly" : "monthly")}
+              />
+              <Label
+                htmlFor="billing-toggle"
+                className={billingInterval === "yearly" ? "font-semibold" : "text-muted-foreground"}
+              >
+                Annuel
+                <Badge variant="secondary" className="ml-2">
+                  -17%
+                </Badge>
+              </Label>
+            </div>
           </div>
 
-          {/* Pricing Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {/* Pricing Cards - Vertical Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
             {SUBSCRIPTION_PLANS.map((plan) => (
               <PricingCard
                 key={plan.id}
@@ -175,97 +239,6 @@ const ArtisanSubscription = () => {
               />
             ))}
           </div>
-
-          {/* Features Comparison */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Comparaison des fonctionnalités</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4">Fonctionnalité</th>
-                      {SUBSCRIPTION_PLANS.map((plan) => (
-                        <th key={plan.id} className="text-center py-3 px-4">
-                          {plan.name}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b">
-                      <td className="py-3 px-4">Missions postulées</td>
-                      {SUBSCRIPTION_PLANS.map((plan) => (
-                        <td key={plan.id} className="text-center py-3 px-4">
-                          {plan.features.missionsPerMonth === "unlimited"
-                            ? "Illimitées"
-                            : `${plan.features.missionsPerMonth}/mois`}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr className="border-b">
-                      <td className="py-3 px-4">Badge</td>
-                      {SUBSCRIPTION_PLANS.map((plan) => (
-                        <td key={plan.id} className="text-center py-3 px-4">
-                          {plan.features.badge ? (
-                            <SubscriptionBadge tier={plan.id} size="sm" />
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr className="border-b">
-                      <td className="py-3 px-4">Devis IA</td>
-                      {SUBSCRIPTION_PLANS.map((plan) => (
-                        <td key={plan.id} className="text-center py-3 px-4">
-                          {plan.features.devisAI ? (
-                            <CheckCircle2 className="w-5 h-5 text-success mx-auto" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-muted-foreground mx-auto" />
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr className="border-b">
-                      <td className="py-3 px-4">Statistiques avancées</td>
-                      {SUBSCRIPTION_PLANS.map((plan) => (
-                        <td key={plan.id} className="text-center py-3 px-4">
-                          {plan.features.statistics ? (
-                            <CheckCircle2 className="w-5 h-5 text-success mx-auto" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-muted-foreground mx-auto" />
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr className="border-b">
-                      <td className="py-3 px-4">Support</td>
-                      {SUBSCRIPTION_PLANS.map((plan) => (
-                        <td key={plan.id} className="text-center py-3 px-4 capitalize">
-                          {plan.features.support === "vip" ? "VIP Dédié" : plan.features.support}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-4">Accès bêta</td>
-                      {SUBSCRIPTION_PLANS.map((plan) => (
-                        <td key={plan.id} className="text-center py-3 px-4">
-                          {plan.features.betaAccess ? (
-                            <CheckCircle2 className="w-5 h-5 text-success mx-auto" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-muted-foreground mx-auto" />
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
         </main>
       </div>
     </div>
