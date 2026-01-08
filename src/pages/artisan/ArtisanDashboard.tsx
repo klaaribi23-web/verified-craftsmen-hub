@@ -316,51 +316,73 @@ export const ArtisanDashboard = () => {
               />
             </div>
 
-            {/* Stories Stats Card */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                    <Video className="w-5 h-5 text-accent" />
+            {/* Stories Stats Card - Only for paid tiers */}
+            {tier !== "free" ? (
+              <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                      <Video className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">Mes Stories</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {storiesStats?.active || 0} story active sur {storiesStats?.total || 0} total
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">Mes Stories</h3>
+                  <Link to="/artisan/stories">
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                      Gérer <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </Link>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 md:gap-4">
+                  <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-primary/10 rounded-lg text-center md:text-left">
+                    <Video className="w-5 h-5 text-primary hidden md:block" />
+                    <div>
+                      <p className="text-lg md:text-2xl font-bold text-primary">{storiesStats?.active || 0}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">Actives (24h)</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-accent/10 rounded-lg text-center md:text-left">
+                    <Eye className="w-5 h-5 text-accent hidden md:block" />
+                    <div>
+                      <p className="text-lg md:text-2xl font-bold text-accent">{storiesStats?.views || 0}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">Vues totales</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-success/10 rounded-lg text-center md:text-left">
+                    <Users className="w-5 h-5 text-success hidden md:block" />
+                    <div>
+                      <p className="text-lg md:text-2xl font-bold text-success">{storiesStats?.uniqueViewers || 0}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">Visiteurs uniques</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-card rounded-xl border-2 border-dashed border-muted p-4 md:p-6 mb-6 md:mb-8">
+                <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                  <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                    <Video className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground mb-1">Stories Live</h3>
                     <p className="text-sm text-muted-foreground">
-                      {storiesStats?.active || 0} story active sur {storiesStats?.total || 0} total
+                      Filmez vos réalisations en direct et attirez plus de clients. Disponible à partir de l'abonnement Essentiel.
                     </p>
                   </div>
-                </div>
-                <Link to="/artisan/stories">
-                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                    Gérer <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </Link>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-2 md:gap-4">
-                <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-primary/10 rounded-lg text-center md:text-left">
-                  <Video className="w-5 h-5 text-primary hidden md:block" />
-                  <div>
-                    <p className="text-lg md:text-2xl font-bold text-primary">{storiesStats?.active || 0}</p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground">Actives (24h)</p>
-                  </div>
-                </div>
-                <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-accent/10 rounded-lg text-center md:text-left">
-                  <Eye className="w-5 h-5 text-accent hidden md:block" />
-                  <div>
-                    <p className="text-lg md:text-2xl font-bold text-accent">{storiesStats?.views || 0}</p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground">Vues totales</p>
-                  </div>
-                </div>
-                <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-success/10 rounded-lg text-center md:text-left">
-                  <Users className="w-5 h-5 text-success hidden md:block" />
-                  <div>
-                    <p className="text-lg md:text-2xl font-bold text-success">{storiesStats?.uniqueViewers || 0}</p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground">Visiteurs uniques</p>
-                  </div>
+                  <Link to="/artisan/abonnement">
+                    <Button className="gap-2 w-full sm:w-auto">
+                      <Crown className="w-4 h-4" />
+                      Débloquer
+                    </Button>
+                  </Link>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Documents Status Card */}
             <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8">
