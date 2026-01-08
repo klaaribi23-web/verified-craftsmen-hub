@@ -99,6 +99,7 @@ export const ArtisanProfile = () => {
   const [primaryCategory, setPrimaryCategory] = useState<string>("");
   const [primaryCategoryName, setPrimaryCategoryName] = useState<string>("");
   const [secondaryCategories, setSecondaryCategories] = useState<string[]>([]);
+  const [categoriesInitialized, setCategoriesInitialized] = useState(false);
   
   // Working hours state
   const defaultWorkingHours: WorkingHours = {
@@ -155,18 +156,16 @@ export const ArtisanProfile = () => {
     }
   }, [profile, artisan]);
 
-  // Populate categories from artisan data
+  // Populate categories from artisan data - only once at initial load
   useEffect(() => {
-    if (artisan?.category_id) {
+    if (!categoriesInitialized && artisan?.category_id) {
       setPrimaryCategory(artisan.category_id);
-    }
-    // Load secondary categories (exclude primary)
-    if (artisanCategories.length > 0 && artisan?.category_id) {
       setSecondaryCategories(
         artisanCategories.filter(id => id !== artisan.category_id)
       );
+      setCategoriesInitialized(true);
     }
-  }, [artisanCategories, artisan?.category_id]);
+  }, [artisanCategories, artisan?.category_id, categoriesInitialized]);
 
   // Update primary category mutation (real-time save)
   const updatePrimaryCategoryMutation = useMutation({
@@ -201,7 +200,6 @@ export const ArtisanProfile = () => {
     },
     onSuccess: () => {
       toast.success("Catégorie principale enregistrée");
-      queryClient.invalidateQueries({ queryKey: ["artisan-categories"] });
       queryClient.invalidateQueries({ queryKey: ["artisan-profile"] });
     },
     onError: (error) => {
@@ -239,7 +237,6 @@ export const ArtisanProfile = () => {
     },
     onSuccess: () => {
       toast.success("Compétences secondaires enregistrées");
-      queryClient.invalidateQueries({ queryKey: ["artisan-categories"] });
     },
     onError: (error) => {
       console.error("Erreur:", error);
