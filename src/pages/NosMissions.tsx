@@ -50,6 +50,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useDemoMissions } from "@/hooks/usePublicData";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
+import { CategorySelect } from "@/components/categories/CategorySelect";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -364,22 +365,15 @@ const NosMissions = () => {
                     {/* Category Filter */}
                     <div className="space-y-3">
                       <Label className="text-sm font-medium">Catégorie</Label>
-                      <Select value={categoryFilter} onValueChange={(value) => { setCategoryFilter(value); setCurrentPage(1); }}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Toutes les catégories" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Toutes les catégories</SelectItem>
-                          {categories?.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.name}>
-                              <div className="flex items-center gap-2">
-                                <CategoryIcon iconName={cat.icon} className="w-4 h-4 text-gold" />
-                                {cat.name}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <CategorySelect 
+                    value={categoryFilter === "all" ? "" : categoryFilter}
+                    onValueChange={(id, name) => { 
+                      setCategoryFilter(name || "all"); 
+                      setCurrentPage(1); 
+                    }} 
+                    placeholder="Toutes les catégories"
+                    allowParentSelection={true}
+                  />
                     </div>
 
                     {/* Location Filter with Autocomplete API */}
