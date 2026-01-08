@@ -3,13 +3,16 @@ import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useSubscription } from "@/hooks/useSubscription";
+import { FeatureGate } from "@/components/subscription/FeatureGate";
 import { 
   Gift, 
   Percent, 
   ExternalLink,
   Tag,
   Building2,
-  Wrench
+  Wrench,
+  Loader2
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
@@ -97,113 +100,134 @@ const partnerOffers = [
 ];
 
 export const ArtisanPartnerOffers = () => {
+  const { tier, isLoading: isLoadingSubscription } = useSubscription();
+  
+  // Check if user has access to Partner Offers (Essential+ tier)
+  const hasPartnerOffersAccess = tier !== "free";
+
   return (
     <>
       <Navbar />
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <ArtisanSidebar />
       
-      <div className="flex-1 flex flex-col">
-        <DashboardHeader 
-          title="Offres Partenaires" 
-          subtitle="Profitez de réductions exclusives chez nos partenaires"
-        />
+        <div className="flex-1 flex flex-col">
+          <DashboardHeader 
+            title="Offres Partenaires" 
+            subtitle="Profitez de réductions exclusives chez nos partenaires"
+          />
 
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="max-w-6xl mx-auto">
-            {/* Introduction */}
-            <Card className="mb-8 bg-gradient-to-r from-primary/10 to-accent/10 border-0">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-accent/20">
-                    <Gift className="w-8 h-8 text-accent" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-foreground mb-2">
-                      Vos avantages exclusifs
-                    </h2>
-                    <p className="text-muted-foreground">
-                      En tant qu'artisan validé sur notre plateforme, vous bénéficiez de réductions 
-                      exclusives chez nos partenaires. Utilisez les codes promo ci-dessous lors de 
-                      vos achats en magasin ou en ligne.
-                    </p>
-                  </div>
+          <main className="flex-1 p-6 overflow-auto">
+            <div className="max-w-6xl mx-auto">
+              {/* Feature Gate for free users */}
+              {isLoadingSubscription ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
-              </CardContent>
-            </Card>
+              ) : !hasPartnerOffersAccess ? (
+                <FeatureGate 
+                  requiredTier="essential" 
+                  feature="Offres Partenaires"
+                >
+                  <div />
+                </FeatureGate>
+              ) : (
+                <>
+                  {/* Introduction */}
+                  <Card className="mb-8 bg-gradient-to-r from-primary/10 to-accent/10 border-0">
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 rounded-xl bg-accent/20">
+                          <Gift className="w-8 h-8 text-accent" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-foreground mb-2">
+                            Vos avantages exclusifs
+                          </h2>
+                          <p className="text-muted-foreground">
+                            En tant qu'artisan validé sur notre plateforme, vous bénéficiez de réductions 
+                            exclusives chez nos partenaires. Utilisez les codes promo ci-dessous lors de 
+                            vos achats en magasin ou en ligne.
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-            {/* Partner Offers Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {partnerOffers.map((offer) => (
-                <Card key={offer.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="h-12 flex items-center">
-                        <img 
-                          src={offer.logo} 
-                          alt={offer.partner}
-                          className="h-8 object-contain max-w-[120px]"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                          }}
-                        />
-                        <span className="hidden font-bold text-lg">{offer.partner}</span>
-                      </div>
-                      <Badge className="bg-accent text-accent-foreground font-bold text-lg px-3 py-1">
-                        {offer.discount}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <Badge variant="secondary" className="mb-2">
-                          <Tag className="w-3 h-3 mr-1" />
-                          {offer.category}
-                        </Badge>
-                        <p className="text-sm text-muted-foreground">
-                          {offer.description}
-                        </p>
-                      </div>
-                      
-                      <div className="p-3 bg-muted rounded-lg">
-                        <p className="text-xs text-muted-foreground mb-1">Code promo</p>
-                        <p className="font-mono font-bold text-foreground">{offer.code}</p>
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Valide jusqu'au {offer.validUntil}</span>
-                        <Button variant="ghost" size="sm" className="text-primary">
-                          <ExternalLink className="w-4 h-4 mr-1" />
-                          Voir l'offre
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  {/* Partner Offers Grid */}
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {partnerOffers.map((offer) => (
+                      <Card key={offer.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <div className="h-12 flex items-center">
+                              <img 
+                                src={offer.logo} 
+                                alt={offer.partner}
+                                className="h-8 object-contain max-w-[120px]"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                }}
+                              />
+                              <span className="hidden font-bold text-lg">{offer.partner}</span>
+                            </div>
+                            <Badge className="bg-accent text-accent-foreground font-bold text-lg px-3 py-1">
+                              {offer.discount}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div>
+                              <Badge variant="secondary" className="mb-2">
+                                <Tag className="w-3 h-3 mr-1" />
+                                {offer.category}
+                              </Badge>
+                              <p className="text-sm text-muted-foreground">
+                                {offer.description}
+                              </p>
+                            </div>
+                            
+                            <div className="p-3 bg-muted rounded-lg">
+                              <p className="text-xs text-muted-foreground mb-1">Code promo</p>
+                              <p className="font-mono font-bold text-foreground">{offer.code}</p>
+                            </div>
+                            
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>Valide jusqu'au {offer.validUntil}</span>
+                              <Button variant="ghost" size="sm" className="text-primary">
+                                <ExternalLink className="w-4 h-4 mr-1" />
+                                Voir l'offre
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
 
-            {/* Bottom Info */}
-            <Card className="mt-8">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-5 h-5" />
-                    <span>{partnerOffers.length} partenaires</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Percent className="w-5 h-5" />
-                    <span>Jusqu'à 30% de réduction</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Wrench className="w-5 h-5" />
-                    <span>Offres réservées aux artisans validés</span>
-                  </div>
-                </div>
-              </CardContent>
-              </Card>
+                  {/* Bottom Info */}
+                  <Card className="mt-8">
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-5 h-5" />
+                          <span>{partnerOffers.length} partenaires</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Percent className="w-5 h-5" />
+                          <span>Jusqu'à 30% de réduction</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Wrench className="w-5 h-5" />
+                          <span>Offres réservées aux artisans validés</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
             </div>
           </main>
         </div>
