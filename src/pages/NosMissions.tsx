@@ -57,7 +57,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import MissionDetailModal from "@/components/missions/MissionDetailModal";
-import { calculateDistance, getCityCoordinates } from "@/lib/geoDistance";
+import { calculateDistance } from "@/lib/geoDistance";
+import { useCityCoordinatesCache } from "@/hooks/useCityCoordinatesCache";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -94,6 +95,14 @@ const NosMissions = () => {
   const { data: missions, isLoading: missionsLoading } = useDemoMissions();
   const { data: categories } = useCategoriesHierarchy();
 
+  // Extract mission cities for preloading coordinates
+  const missionCities = useMemo(() => {
+    return missions?.map(m => m.city).filter(Boolean) || [];
+  }, [missions]);
+
+  // Use the coordinates cache hook
+  const { getCoordinates, isLoading: coordinatesLoading } = useCityCoordinatesCache(missionCities);
+
   // Filter missions with distance calculation
   const { filteredMissions, missionDistances } = useMemo(() => {
     if (!missions) return { filteredMissions: [], missionDistances: new Map<string, number>() };
@@ -109,7 +118,7 @@ const NosMissions = () => {
       // Location filter with radius
       if (selectedCity && searchCoordinates) {
         const missionCity = mission.city || "";
-        const missionCoords = getCityCoordinates(missionCity);
+        const missionCoords = getCoordinates(missionCity);
         
         if (missionCoords) {
           const distance = calculateDistance(
@@ -132,7 +141,7 @@ const NosMissions = () => {
     });
     
     return { filteredMissions: filtered, missionDistances: distances };
-  }, [missions, categoryFilter, selectedCity, searchCoordinates, radiusFilter]);
+  }, [missions, categoryFilter, selectedCity, searchCoordinates, radiusFilter, getCoordinates]);
 
   const totalPages = Math.ceil(filteredMissions.length / ITEMS_PER_PAGE);
   const paginatedMissions = filteredMissions.slice(
