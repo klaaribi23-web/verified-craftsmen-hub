@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight, Heart, Crown } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,6 +22,7 @@ interface ArtisanCardProps {
   profileImage?: string;
   portfolio?: string[];
   distance?: number | null;
+  subscriptionTier?: string | null;
 }
 
 // Default logo for artisans without photos
@@ -39,7 +40,8 @@ const ArtisanCard = ({
   experience,
   profileImage,
   portfolio,
-  distance
+  distance,
+  subscriptionTier
 }: ArtisanCardProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -170,10 +172,25 @@ const ArtisanCard = ({
     setCurrentSlide(prev => (prev - 1 + portfolioImages.length) % portfolioImages.length);
   };
 
+  const isElite = subscriptionTier === "elite";
+
   return (
-    <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
+    <div className={cn(
+      "bg-card rounded-2xl shadow-soft border hover:shadow-elevated transition-shadow overflow-hidden relative",
+      isElite ? "border-yellow-500/50 ring-2 ring-yellow-500/30 animate-glow-pulse" : "border-border"
+    )}>
       {/* Portfolio Carousel */}
       <div className="relative h-44 md:h-48 overflow-hidden group">
+        {/* Elite Badge */}
+        {isElite && (
+          <div className="absolute top-2 left-2 z-20">
+            <div className="relative flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 text-white text-xs font-semibold shadow-lg overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
+              <Crown className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">Elite</span>
+            </div>
+          </div>
+        )}
         <img 
           src={portfolioImages[currentSlide]} 
           alt={`Réalisation de ${name} - Photo ${currentSlide + 1}`} 
