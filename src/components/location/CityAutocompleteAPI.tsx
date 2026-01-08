@@ -24,7 +24,7 @@ export const CityAutocompleteAPI = ({
   const [suggestions, setSuggestions] = useState<CommuneSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const [hasJustSelected, setHasJustSelected] = useState(false);
+  const hasJustSelectedRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -89,7 +89,7 @@ export const CityAutocompleteAPI = ({
   };
 
   const handleSelect = (suggestion: CommuneSearchResult) => {
-    setHasJustSelected(true);
+    hasJustSelectedRef.current = true;
     const displayValue = `${suggestion.nom} (${suggestion.codeDepartement})`;
     setInputValue(displayValue);
     
@@ -141,8 +141,8 @@ export const CityAutocompleteAPI = ({
     // Petit délai pour permettre le clic sur une suggestion
     setTimeout(() => {
       // Ne pas interférer si une sélection vient d'être faite
-      if (hasJustSelected) {
-        setHasJustSelected(false);
+      if (hasJustSelectedRef.current) {
+        hasJustSelectedRef.current = false;
         return;
       }
       if (inputValue && inputValue !== value) {
