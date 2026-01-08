@@ -8,11 +8,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Upload, X, Plus, Trash2, Save } from "lucide-react";
+import { CategorySelect } from "@/components/categories/CategorySelect";
+import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
 
 interface ArtisanData {
   id: string;
@@ -65,7 +66,8 @@ const DAYS_FR = [
 export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEditArtisanDialogProps) => {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<Partial<ArtisanData> & { category_id?: string | null }>({});
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [primaryCategoryId, setPrimaryCategoryId] = useState<string | null>(null);
+  const [secondaryCategoryIds, setSecondaryCategoryIds] = useState<string[]>([]);
   const [newQualification, setNewQualification] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [availability, setAvailability] = useState<Record<string, { start: string; end: string; enabled: boolean }>>({});
@@ -126,12 +128,15 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   useEffect(() => {
     if (!open || !artisan?.id) return;
     
+    // Catégorie principale = category_id de l'artisan
+    setPrimaryCategoryId(artisan?.category_id || null);
+    
+    // Compétences secondaires = artisan_categories (exclure la principale)
     if (artisanCategoriesData && artisanCategoriesData.length > 0) {
-      setSelectedCategoryIds(artisanCategoriesData);
-    } else if (artisan?.category_id) {
-      setSelectedCategoryIds([artisan.category_id]);
+      const secondaries = artisanCategoriesData.filter(id => id !== artisan?.category_id);
+      setSecondaryCategoryIds(secondaries);
     } else {
-      setSelectedCategoryIds([]);
+      setSecondaryCategoryIds([]);
     }
   }, [open, artisan?.id, artisan?.category_id, JSON.stringify(artisanCategoriesData)]);
 
@@ -189,16 +194,16 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   }, [artisan]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: Partial<ArtisanData> & { working_hours: Record<string, { start: string; end: string; enabled: boolean }>, category_id?: string | null, categoryIds: string[] }) => {
+    mutationFn: async (data: Partial<ArtisanData> & { working_hours: Record<string, { start: string; end: string; enabled: boolean }>, primaryCategoryId: string | null, secondaryCategoryIds: string[] }) => {
       if (!artisan?.id) throw new Error("No artisan ID");
       
-      // Update artisan main data (keep first category as primary)
+      // Update artisan main data with primary category
       const { error } = await supabase
         .from('artisans')
         .update({
           business_name: data.business_name,
           description: data.description,
-          category_id: data.categoryIds[0] || null,
+          category_id: data.primaryCategoryId,
           city: data.city,
           region: data.region,
           department: data.department,
@@ -220,19 +225,22 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
 
       if (error) throw error;
 
-      // Update junction table for multiple categories
-      // First delete existing categories
+      // Update junction table: delete existing and insert all categories (primary + secondary)
       await supabase
         .from('artisan_categories')
         .delete()
         .eq('artisan_id', artisan.id);
 
-      // Insert new categories
-      if (data.categoryIds.length > 0) {
+      // Build list of all categories (primary first, then secondaries, no duplicates)
+      const allCategoryIds = data.primaryCategoryId 
+        ? [data.primaryCategoryId, ...data.secondaryCategoryIds.filter(id => id !== data.primaryCategoryId)]
+        : data.secondaryCategoryIds;
+
+      if (allCategoryIds.length > 0) {
         const { error: catError } = await supabase
           .from('artisan_categories')
           .insert(
-            data.categoryIds.map(catId => ({
+            allCategoryIds.map(catId => ({
               artisan_id: artisan.id,
               category_id: catId
             }))
@@ -258,7 +266,8 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
     updateMutation.mutate({
       ...formData,
       working_hours: availability,
-      categoryIds: selectedCategoryIds,
+      primaryCategoryId,
+      secondaryCategoryIds,
     });
   };
 
@@ -470,9 +479,10 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
 
         <ScrollArea className="h-[70vh] pr-4">
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="general">Général</TabsTrigger>
               <TabsTrigger value="category">Catégorie</TabsTrigger>
+              <TabsTrigger value="skills">Compétences</TabsTrigger>
               <TabsTrigger value="services">Services</TabsTrigger>
               <TabsTrigger value="photos">Photos</TabsTrigger>
               <TabsTrigger value="videos">Vidéos</TabsTrigger>
@@ -615,74 +625,53 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
 
             <TabsContent value="category" className="space-y-4 mt-4">
               <div className="space-y-3">
-                <Label className="text-base font-semibold">Catégories (sélection multiple)</Label>
+                <Label className="text-base font-semibold">Catégorie principale</Label>
                 <p className="text-sm text-muted-foreground">
-                  Sélectionnez toutes les catégories qui correspondent aux compétences de l'artisan
+                  Sélectionnez la catégorie principale de l'artisan (obligatoire)
                 </p>
-                
-                <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto">
-                  {parentCategories.map(parent => (
-                    <div key={parent.id} className="space-y-2">
-                      <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
-                        <input
-                          type="checkbox"
-                          id={`cat-${parent.id}`}
-                          checked={selectedCategoryIds.includes(parent.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedCategoryIds(prev => [...prev, parent.id]);
-                            } else {
-                              setSelectedCategoryIds(prev => prev.filter(id => id !== parent.id));
-                            }
-                          }}
-                          className="h-4 w-4 rounded border-input"
-                        />
-                        <label htmlFor={`cat-${parent.id}`} className="font-semibold cursor-pointer">
-                          {parent.name}
-                        </label>
-                      </div>
-                      <div className="pl-6 space-y-1">
-                        {getSubcategories(parent.id).map(sub => (
-                          <div key={sub.id} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded">
-                            <input
-                              type="checkbox"
-                              id={`cat-${sub.id}`}
-                              checked={selectedCategoryIds.includes(sub.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedCategoryIds(prev => [...prev, sub.id]);
-                                } else {
-                                  setSelectedCategoryIds(prev => prev.filter(id => id !== sub.id));
-                                }
-                              }}
-                              className="h-4 w-4 rounded border-input"
-                            />
-                            <label htmlFor={`cat-${sub.id}`} className="text-sm cursor-pointer">
-                              {sub.name}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <CategorySelect
+                  value={primaryCategoryId || ""}
+                  onValueChange={(value) => setPrimaryCategoryId(value || null)}
+                  placeholder="Sélectionnez une catégorie..."
+                />
+                {primaryCategoryId && (
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <p className="text-sm font-medium text-primary">
+                      Catégorie principale : {categories.find(c => c.id === primaryCategoryId)?.name}
+                    </p>
+                  </div>
+                )}
               </div>
+            </TabsContent>
 
+            <TabsContent value="skills" className="space-y-4 mt-4">
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Compétences secondaires</Label>
+                <p className="text-sm text-muted-foreground">
+                  Sélectionnez les compétences additionnelles de l'artisan (optionnel)
+                </p>
+                <CategoryMultiSelect
+                  selectedIds={secondaryCategoryIds}
+                  onChange={setSecondaryCategoryIds}
+                  placeholder="Sélectionnez des compétences..."
+                />
+              </div>
+              
               <div className="p-4 bg-muted rounded-lg">
                 <p className="text-sm font-medium mb-2">
-                  Catégories sélectionnées ({selectedCategoryIds.length}):
+                  Compétences sélectionnées ({secondaryCategoryIds.length}):
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {selectedCategoryIds.map(catId => {
+                  {secondaryCategoryIds.map(catId => {
                     const cat = categories.find(c => c.id === catId);
                     return cat ? (
-                      <span key={catId} className="px-2 py-1 bg-primary/10 text-primary rounded text-sm">
+                      <span key={catId} className="px-2 py-1 bg-secondary text-secondary-foreground rounded text-sm">
                         {cat.name}
                       </span>
                     ) : null;
                   })}
-                  {selectedCategoryIds.length === 0 && (
-                    <span className="text-muted-foreground text-sm">Aucune catégorie sélectionnée</span>
+                  {secondaryCategoryIds.length === 0 && (
+                    <span className="text-muted-foreground text-sm">Aucune compétence secondaire</span>
                   )}
                 </div>
               </div>

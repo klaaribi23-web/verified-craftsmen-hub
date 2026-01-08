@@ -365,8 +365,11 @@ const AdminBulkImport = () => {
     );
   };
 
-  const findCategoryId = (services: string[]): string | null => {
-    if (!categories || services.length === 0) return null;
+  // Find ALL category IDs from services (first = principal, others = secondary skills)
+  const findAllCategoryIds = (services: string[]): string[] => {
+    if (!categories || services.length === 0) return [];
+
+    const foundIds: string[] = [];
 
     for (const service of services) {
       const normalizedService = service.toLowerCase().trim();
@@ -374,17 +377,21 @@ const AdminBulkImport = () => {
 
       if (mappedCategory) {
         const category = categories.find((c) => c.name.toLowerCase() === mappedCategory.toLowerCase());
-        if (category) return category.id;
+        if (category && !foundIds.includes(category.id)) {
+          foundIds.push(category.id);
+        }
+      } else {
+        // Try direct match
+        const directMatch = categories.find(
+          (c) => c.name.toLowerCase().includes(normalizedService) || normalizedService.includes(c.name.toLowerCase()),
+        );
+        if (directMatch && !foundIds.includes(directMatch.id)) {
+          foundIds.push(directMatch.id);
+        }
       }
-
-      // Try direct match
-      const directMatch = categories.find(
-        (c) => c.name.toLowerCase().includes(normalizedService) || normalizedService.includes(c.name.toLowerCase()),
-      );
-      if (directMatch) return directMatch.id;
     }
 
-    return null;
+    return foundIds;
   };
 
   const handleImport = async () => {
@@ -497,10 +504,10 @@ const AdminBulkImport = () => {
             artisanData.portfolio_images = artisan.portfolioImages;
           }
 
-          // Find category from services
-          const categoryId = findCategoryId(artisan.services);
-          if (categoryId) {
-            artisanData.category_id = categoryId;
+          // Find ALL categories from services (first = principal, rest = secondary skills)
+          const categoryIds = findAllCategoryIds(artisan.services);
+          if (categoryIds.length > 0) {
+            artisanData.category_id = categoryIds[0]; // First category = principal
           }
 
           // Insert artisan
@@ -512,23 +519,17 @@ const AdminBulkImport = () => {
 
           if (artisanError) throw artisanError;
 
-          // Insert into artisan_categories if category found
-          if (categoryId && insertedArtisan) {
-            await supabase.from("artisan_categories").insert({
+          // Insert ALL categories into artisan_categories (primary + secondary skills)
+          if (categoryIds.length > 0 && insertedArtisan) {
+            const categoryInserts = categoryIds.map(catId => ({
               artisan_id: insertedArtisan.id,
-              category_id: categoryId,
-            });
-          }
-
-          // Insert services if enabled
-          if (enabledColumns.includes("services") && artisan.services.length > 0 && insertedArtisan) {
-            const serviceInserts = artisan.services.slice(0, 10).map((service) => ({
-              artisan_id: insertedArtisan.id,
-              title: service,
+              category_id: catId,
             }));
-
-            await supabase.from("artisan_services").insert(serviceInserts);
+            await supabase.from("artisan_categories").insert(categoryInserts);
           }
+
+          // NOTE: We no longer insert categories as services
+          // Services (prestations) will be filled by the artisan themselves when they claim their profile
 
           // Process Portfolio Images if enabled and present
           if (enabledColumns.includes("portfolioImages") && artisan.portfolioImages.length > 0 && insertedArtisan) {
