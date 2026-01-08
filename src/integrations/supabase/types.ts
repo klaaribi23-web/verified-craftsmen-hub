@@ -230,7 +230,9 @@ export type Database = {
           instagram_url: string | null
           insurance_number: string | null
           is_verified: boolean | null
+          latitude: number | null
           linkedin_url: string | null
+          longitude: number | null
           missions_completed: number | null
           phone: string | null
           photo_url: string | null
@@ -272,7 +274,9 @@ export type Database = {
           instagram_url?: string | null
           insurance_number?: string | null
           is_verified?: boolean | null
+          latitude?: number | null
           linkedin_url?: string | null
+          longitude?: number | null
           missions_completed?: number | null
           phone?: string | null
           photo_url?: string | null
@@ -314,7 +318,9 @@ export type Database = {
           instagram_url?: string | null
           insurance_number?: string | null
           is_verified?: boolean | null
+          latitude?: number | null
           linkedin_url?: string | null
+          longitude?: number | null
           missions_completed?: number | null
           phone?: string | null
           photo_url?: string | null

@@ -15,6 +15,7 @@ import { useCategoriesHierarchy } from "@/hooks/useCategories";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { cities } from "@/data/frenchLocations";
+import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { 
   User, 
   Camera, 
@@ -520,46 +521,11 @@ export const ArtisanProfile = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="city">Ville</Label>
-                  <div className="relative">
-                    <Input 
-                      id="city"
-                      value={city}
-                      onChange={(e) => {
-                        setCity(e.target.value);
-                        setCitySearch(e.target.value);
-                        setCityOpen(e.target.value.length >= 2);
-                      }}
-                      onFocus={() => {
-                        if (city.length >= 2) setCityOpen(true);
-                      }}
-                      onBlur={() => {
-                        // Delay to allow click on suggestion
-                        setTimeout(() => setCityOpen(false), 200);
-                      }}
-                      placeholder="Tapez pour rechercher une ville..."
-                      autoComplete="off"
-                    />
-                    {cityOpen && filteredCities.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        {filteredCities.map((c) => (
-                          <button
-                            key={`${c.name}-${c.department}`}
-                            type="button"
-                            className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors first:rounded-t-lg last:rounded-b-lg"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setCity(`${c.name} (${c.department})`);
-                              setCityOpen(false);
-                              setCitySearch("");
-                            }}
-                          >
-                            <span className="font-medium">{c.name}</span>
-                            <span className="text-muted-foreground ml-1">({c.department})</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <CityAutocompleteAPI
+                    value={city}
+                    onChange={(value) => setCity(value)}
+                    placeholder="Tapez pour rechercher une ville..."
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Adresse professionnelle</Label>

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CityAutocomplete } from "@/components/location/CityAutocomplete";
+import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { 
   UserPlus,
   Save,
@@ -528,7 +528,7 @@ const AdminAddArtisan = () => {
                       <MapPin className="h-4 w-4" />
                       Ville *
                     </Label>
-                    <CityAutocomplete
+                    <CityAutocompleteAPI
                       value={formData.city}
                       onChange={(value) => handleChange("city", value)}
                       placeholder="Rechercher une ville française..."
