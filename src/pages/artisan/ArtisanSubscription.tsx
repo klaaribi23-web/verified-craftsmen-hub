@@ -103,11 +103,12 @@ const ArtisanSubscription = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-16 lg:pt-20">
+    <>
       <Navbar />
-      <div className="flex">
-        <ArtisanSidebar />
-        <main className="flex-1 p-4 lg:p-8">
+      <div className="min-h-screen bg-background pt-16 lg:pt-20">
+        <div className="flex">
+          <ArtisanSidebar />
+          <main className="flex-1 p-4 lg:p-8">
           <div className="max-w-4xl mx-auto">
             <DashboardHeader
               title="Mon abonnement"
@@ -245,7 +246,8 @@ const ArtisanSubscription = () => {
           </div>
         </main>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
