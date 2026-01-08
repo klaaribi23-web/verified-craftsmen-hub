@@ -56,14 +56,23 @@ const ArtisanSubscription = () => {
 
     setIsLoading(true);
     try {
-      const priceId =
-        planId === "essential"
-          ? billingInterval === "monthly"
-            ? STRIPE_PRICES.essential.monthly
-            : STRIPE_PRICES.essential.yearly
-          : billingInterval === "monthly"
-            ? STRIPE_PRICES.pro.monthly
-            : STRIPE_PRICES.pro.yearly;
+      let priceId: string;
+      
+      if (planId === "essential") {
+        priceId = billingInterval === "monthly"
+          ? STRIPE_PRICES.essential.monthly
+          : STRIPE_PRICES.essential.yearly;
+      } else if (planId === "pro") {
+        priceId = billingInterval === "monthly"
+          ? STRIPE_PRICES.pro.monthly
+          : STRIPE_PRICES.pro.yearly;
+      } else if (planId === "elite") {
+        priceId = billingInterval === "monthly"
+          ? STRIPE_PRICES.elite.monthly
+          : STRIPE_PRICES.elite.yearly;
+      } else {
+        throw new Error("Plan inconnu");
+      }
 
       await createCheckout(priceId);
     } catch (error) {
@@ -77,12 +86,6 @@ const ArtisanSubscription = () => {
     }
   };
 
-  const handleContactSupport = () => {
-    toast({
-      title: "Contact Elite",
-      description: "Cette fonctionnalité sera disponible prochainement.",
-    });
-  };
 
   const handleManageSubscription = async () => {
     setIsLoading(true);
@@ -235,7 +238,6 @@ const ArtisanSubscription = () => {
                   billingInterval={billingInterval}
                   isCurrentPlan={tier === plan.id}
                   onSubscribe={() => handleSubscribe(plan.id)}
-                  onContact={handleContactSupport}
                   isLoading={isLoading}
                 />
               ))}

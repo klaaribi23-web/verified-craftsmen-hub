@@ -20,6 +20,9 @@ const PRICE_TO_TIER: Record<string, string> = {
   // Pro
   "price_1SnLi9HsPR7NolTlFihKief9": "pro",
   "price_1SnLiLHsPR7NolTlo2WwBzYd": "pro",
+  // Elite
+  "price_1SnMvzHsPR7NolTlvlCq5LTo": "elite",
+  "price_1SnMwfHsPR7NolTlpskUuvfB": "elite",
 };
 
 // Price ID to interval mapping
@@ -28,6 +31,8 @@ const PRICE_TO_INTERVAL: Record<string, "monthly" | "yearly"> = {
   "price_1SnLhuHsPR7NolTlBBcZ6KLo": "yearly",
   "price_1SnLi9HsPR7NolTlFihKief9": "monthly",
   "price_1SnLiLHsPR7NolTlo2WwBzYd": "yearly",
+  "price_1SnMvzHsPR7NolTlvlCq5LTo": "monthly",
+  "price_1SnMwfHsPR7NolTlpskUuvfB": "yearly",
 };
 
 // Tier to priority mapping

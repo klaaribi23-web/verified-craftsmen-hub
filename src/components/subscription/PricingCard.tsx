@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Crown, Award, Medal, Phone, TrendingUp } from "lucide-react";
+import { Check, Crown, Award, Medal, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SubscriptionPlan, BillingInterval } from "@/config/subscriptionPlans";
 
@@ -9,7 +9,6 @@ interface PricingCardProps {
   billingInterval: BillingInterval;
   isCurrentPlan: boolean;
   onSubscribe: () => void;
-  onContact?: () => void;
   isLoading?: boolean;
 }
 
@@ -31,7 +30,6 @@ export const PricingCard = ({
   billingInterval,
   isCurrentPlan,
   onSubscribe,
-  onContact,
   isLoading,
 }: PricingCardProps) => {
   const price = billingInterval === "monthly" ? plan.prices.monthly : plan.prices.yearly;
@@ -146,17 +144,7 @@ export const PricingCard = ({
       </CardContent>
 
       <CardFooter className="pt-4">
-        {plan.isContactSales ? (
-          <Button
-            className="w-full"
-            variant="outline"
-            onClick={onContact}
-            disabled={isLoading}
-          >
-            <Phone className="w-4 h-4 mr-2" />
-            Contacter le support
-          </Button>
-        ) : isCurrentPlan ? (
+        {isCurrentPlan ? (
           <Button className="w-full" variant="secondary" disabled>
             Plan actuel
           </Button>
@@ -166,8 +154,11 @@ export const PricingCard = ({
           </Button>
         ) : (
           <Button
-            className="w-full"
-            variant={isPopular ? "default" : "outline"}
+            className={cn(
+              "w-full",
+              plan.id === "elite" && "bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0"
+            )}
+            variant={isPopular ? "default" : plan.id === "elite" ? "default" : "outline"}
             onClick={onSubscribe}
             disabled={isLoading}
           >

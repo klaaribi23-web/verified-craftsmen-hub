@@ -8,6 +8,10 @@ export const STRIPE_PRICES = {
     monthly: "price_1SnLi9HsPR7NolTlFihKief9",
     yearly: "price_1SnLiLHsPR7NolTlo2WwBzYd",
   },
+  elite: {
+    monthly: "price_1SnMvzHsPR7NolTlvlCq5LTo",
+    yearly: "price_1SnMwfHsPR7NolTlpskUuvfB",
+  },
 };
 
 export type SubscriptionTier = "free" | "essential" | "pro" | "elite";
@@ -122,7 +126,6 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       badge: "gold",
       badgeLabel: "Elite",
     },
-    isContactSales: true,
   },
 ];
 
