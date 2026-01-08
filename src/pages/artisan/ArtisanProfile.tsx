@@ -6,16 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useArtisanPortfolio } from "@/hooks/useArtisanPortfolio";
 import { useArtisanProfile, WorkingHours } from "@/hooks/useArtisanProfile";
-import { useCategoriesHierarchy } from "@/hooks/useCategories";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { cities } from "@/data/frenchLocations";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
+import { CategorySelect } from "@/components/categories/CategorySelect";
+import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
+import { useCategoriesHierarchy } from "@/hooks/useCategories";
 import { 
   User, 
   Camera, 
@@ -34,15 +35,9 @@ import {
   Link as LinkIcon,
   Upload,
   Loader2,
-  ChevronDown,
   Clock
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 
 export const ArtisanProfile = () => {
   const queryClient = useQueryClient();
@@ -101,7 +96,9 @@ export const ArtisanProfile = () => {
   const [facebookUrl, setFacebookUrl] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [primaryCategory, setPrimaryCategory] = useState<string>("");
+  const [primaryCategoryName, setPrimaryCategoryName] = useState<string>("");
+  const [secondaryCategories, setSecondaryCategories] = useState<string[]>([]);
   
   // Working hours state
   const defaultWorkingHours: WorkingHours = {
@@ -158,29 +155,44 @@ export const ArtisanProfile = () => {
     }
   }, [profile, artisan]);
 
-  // Populate selected categories
+  // Populate categories from artisan data
   useEffect(() => {
-    if (artisanCategories.length > 0) {
-      setSelectedCategories(artisanCategories);
+    if (artisan?.category_id) {
+      setPrimaryCategory(artisan.category_id);
     }
-  }, [artisanCategories]);
+    // Load secondary categories (exclude primary)
+    if (artisanCategories.length > 0 && artisan?.category_id) {
+      setSecondaryCategories(
+        artisanCategories.filter(id => id !== artisan.category_id)
+      );
+    }
+  }, [artisanCategories, artisan?.category_id]);
 
-  // Update categories mutation
-  const updateCategoriesMutation = useMutation({
-    mutationFn: async (categoryIds: string[]) => {
+  // Update primary category mutation (real-time save)
+  const updatePrimaryCategoryMutation = useMutation({
+    mutationFn: async (categoryId: string) => {
       if (!artisan?.id) throw new Error("Artisan non trouvé");
       
-      // Delete existing categories
+      // Update category_id in artisans table
+      const { error: updateError } = await supabase
+        .from("artisans")
+        .update({ category_id: categoryId })
+        .eq("id", artisan.id);
+      
+      if (updateError) throw updateError;
+      
+      // Ensure this category is in artisan_categories
+      // First delete all, then insert all (primary + secondaries)
       await supabase
         .from("artisan_categories")
         .delete()
         .eq("artisan_id", artisan.id);
       
-      // Insert new categories
-      if (categoryIds.length > 0) {
+      const allCategories = [categoryId, ...secondaryCategories.filter(id => id !== categoryId)];
+      if (allCategories.length > 0) {
         const { error } = await supabase
           .from("artisan_categories")
-          .insert(categoryIds.map(catId => ({
+          .insert(allCategories.map(catId => ({
             artisan_id: artisan.id,
             category_id: catId
           })));
@@ -188,12 +200,75 @@ export const ArtisanProfile = () => {
       }
     },
     onSuccess: () => {
+      toast.success("Catégorie principale enregistrée");
       queryClient.invalidateQueries({ queryKey: ["artisan-categories"] });
+      queryClient.invalidateQueries({ queryKey: ["artisan-profile"] });
+    },
+    onError: (error) => {
+      console.error("Erreur:", error);
+      toast.error("Erreur lors de l'enregistrement");
     }
   });
 
+  // Update secondary categories mutation (real-time save)
+  const updateSecondaryCategoriesMutation = useMutation({
+    mutationFn: async (categoryIds: string[]) => {
+      if (!artisan?.id) throw new Error("Artisan non trouvé");
+      
+      // Combine primary + secondaries
+      const allCategories = primaryCategory 
+        ? [primaryCategory, ...categoryIds.filter(id => id !== primaryCategory)]
+        : categoryIds;
+      
+      // Delete all existing categories
+      await supabase
+        .from("artisan_categories")
+        .delete()
+        .eq("artisan_id", artisan.id);
+      
+      // Insert all categories
+      if (allCategories.length > 0) {
+        const { error } = await supabase
+          .from("artisan_categories")
+          .insert(allCategories.map(catId => ({
+            artisan_id: artisan.id,
+            category_id: catId
+          })));
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Compétences secondaires enregistrées");
+      queryClient.invalidateQueries({ queryKey: ["artisan-categories"] });
+    },
+    onError: (error) => {
+      console.error("Erreur:", error);
+      toast.error("Erreur lors de l'enregistrement");
+    }
+  });
+
+  // Handlers for real-time category saving
+  const handlePrimaryCategoryChange = (id: string, name: string) => {
+    setPrimaryCategory(id);
+    setPrimaryCategoryName(name);
+    // Remove from secondaries if present
+    setSecondaryCategories(prev => prev.filter(catId => catId !== id));
+    // Save immediately
+    if (id) {
+      updatePrimaryCategoryMutation.mutate(id);
+    }
+  };
+
+  const handleSecondaryCategoriesChange = (ids: string[]) => {
+    // Exclude primary category
+    const filteredIds = ids.filter(id => id !== primaryCategory);
+    setSecondaryCategories(filteredIds);
+    // Save immediately
+    updateSecondaryCategoriesMutation.mutate(filteredIds);
+  };
+
   const handleSave = async () => {
-    const success = await updateProfile({
+    await updateProfile({
       firstName,
       lastName,
       phone,
@@ -207,11 +282,7 @@ export const ArtisanProfile = () => {
       instagramUrl,
       linkedinUrl,
     });
-    
-    // Also update categories
-    if (success) {
-      await updateCategoriesMutation.mutateAsync(selectedCategories);
-    }
+    // Categories are saved in real-time, no need to save here
   };
 
   const handleProfilePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -272,14 +343,6 @@ export const ArtisanProfile = () => {
     return url.includes("artisan-portfolios");
   };
 
-  const toggleCategory = (categoryId: string) => {
-    setSelectedCategories(prev => 
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
-  };
-
   const handleWorkingHoursChange = (
     day: string, 
     field: "enabled" | "start" | "end", 
@@ -298,20 +361,10 @@ export const ArtisanProfile = () => {
     await updateWorkingHours(workingHours);
   };
 
-  const getCategoryNames = () => {
-    const names: string[] = [];
-    categoriesHierarchy.forEach(parent => {
-      parent.children.forEach(child => {
-        if (selectedCategories.includes(child.id)) {
-          names.push(child.name);
-        }
-      });
-    });
-    return names;
-  };
-
   const isLoading = profileLoading || portfolioLoading;
-  const isSaving = profileSaving || portfolioSaving || updateCategoriesMutation.isPending;
+  const isSaving = profileSaving || portfolioSaving || 
+    updatePrimaryCategoryMutation.isPending || 
+    updateSecondaryCategoriesMutation.isPending;
 
   if (isLoading) {
     return (
@@ -425,44 +478,47 @@ export const ArtisanProfile = () => {
 
             {/* Categories Selection */}
             <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Catégories de services</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Sélectionnez les catégories qui correspondent à vos compétences (choix multiple)
-              </p>
+              <h3 className="text-lg font-semibold text-foreground mb-6">Catégories de services</h3>
               
-              {selectedCategories.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {getCategoryNames().map((name, i) => (
-                    <Badge key={i} variant="secondary" className="bg-accent/20 text-accent">
-                      {name}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-              
-              <div className="space-y-2 max-h-80 overflow-y-auto border border-border rounded-lg p-4">
-                {categoriesHierarchy.map((parent) => (
-                  <Collapsible key={parent.id}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted/50 rounded-lg">
-                      <span className="font-medium text-foreground">{parent.name}</span>
-                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pl-4 space-y-1">
-                      {parent.children.map((child) => (
-                        <label 
-                          key={child.id}
-                          className="flex items-center gap-2 p-2 hover:bg-muted/50 rounded-lg cursor-pointer"
-                        >
-                          <Checkbox 
-                            checked={selectedCategories.includes(child.id)}
-                            onCheckedChange={() => toggleCategory(child.id)}
-                          />
-                          <span className="text-sm text-foreground">{child.name}</span>
-                        </label>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                ))}
+              {/* Primary Category */}
+              <div className="mb-6">
+                <Label className="text-base font-medium">Catégorie principale *</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Sélectionnez votre spécialité principale (obligatoire)
+                </p>
+                <CategorySelect
+                  value={primaryCategory}
+                  onValueChange={handlePrimaryCategoryChange}
+                  placeholder="Sélectionner votre catégorie principale"
+                  allowParentSelection={false}
+                />
+                {updatePrimaryCategoryMutation.isPending && (
+                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Enregistrement...
+                  </p>
+                )}
+              </div>
+
+              <div className="border-t border-border pt-6">
+                {/* Secondary Skills */}
+                <Label className="text-base font-medium">Compétences secondaires</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Ajoutez d'autres compétences pour être trouvé sur plus de recherches (optionnel)
+                </p>
+                <CategoryMultiSelect
+                  selectedIds={secondaryCategories}
+                  onChange={handleSecondaryCategoriesChange}
+                  placeholder="Ajouter des compétences secondaires..."
+                  maxDisplay={4}
+                />
+                {updateSecondaryCategoriesMutation.isPending && (
+                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Enregistrement...
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground mt-2">
+                  Les clients pourront vous trouver en recherchant ces compétences
+                </p>
               </div>
             </div>
 
