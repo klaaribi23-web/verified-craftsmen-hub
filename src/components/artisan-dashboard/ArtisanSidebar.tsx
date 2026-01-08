@@ -46,7 +46,7 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
     { icon: Camera, label: "Mes Stories", path: "/artisan/stories", requiresPro: !hasStoriesAccess },
     { icon: FileText, label: "Documents", path: "/artisan/documents" },
     { icon: Briefcase, label: "Mes prestations", path: "/artisan/prestations" },
-    { icon: MessageSquare, label: "Demandes reçues", path: "/artisan/demandes" },
+    { icon: ClipboardList, label: "Missions postulées", path: "/artisan/demandes" },
     { icon: MessageSquare, label: "Messagerie", path: "/artisan/messagerie" },
     { icon: ClipboardList, label: "Mes devis", path: "/artisan/devis" },
     { icon: Crown, label: "Mon abonnement", path: "/artisan/abonnement" },
