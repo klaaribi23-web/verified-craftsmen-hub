@@ -14,6 +14,7 @@ interface ArtisanFiltersProps {
     category: string;
     categoryName: string;
     city: string;
+    cityInput: string;
     radius: number;
     coordinates: { lat: number; lng: number } | null;
   }) => void;
@@ -23,6 +24,8 @@ const FiltersContent = ({
   category,
   categoryName,
   selectedCity,
+  locationInput,
+  setLocationInput,
   setSelectedCity,
   setCoordinates,
   radius,
@@ -33,10 +36,12 @@ const FiltersContent = ({
   category: string;
   categoryName: string;
   selectedCity: string;
+  locationInput: string;
+  setLocationInput: (v: string) => void;
   setSelectedCity: (v: string) => void;
   setCoordinates: (v: { lat: number; lng: number } | null) => void;
-  radius: number;
   setRadius: (v: number) => void;
+  radius: number;
   handleReset: () => void;
   handleCategoryChange: (value: string, name: string) => void;
 }) => {
@@ -64,10 +69,19 @@ const FiltersContent = ({
           Ville
         </Label>
         <CityAutocompleteAPI
-          value={selectedCity}
+          value={locationInput}
           onChange={(value, coords) => {
-            setSelectedCity(value);
-            setCoordinates(coords || null);
+            setLocationInput(value);
+            if (coords) {
+              // Ville sélectionnée depuis la liste
+              setSelectedCity(value);
+              setCoordinates(coords);
+            } else {
+              // Texte tapé sans sélection
+              setSelectedCity("");
+              setCoordinates(null);
+              setRadius(0);
+            }
           }}
           placeholder="Rechercher une ville..."
         />
@@ -112,19 +126,21 @@ const FiltersContent = ({
 const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   const [category, setCategory] = useState<string>("");
   const [categoryName, setCategoryName] = useState<string>("");
-  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [locationInput, setLocationInput] = useState<string>(""); // Texte tapé
+  const [selectedCity, setSelectedCity] = useState<string>(""); // Ville confirmée
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [radius, setRadius] = useState<number>(0);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Count active filters
-  const activeFiltersCount = [category, selectedCity, radius > 0].filter(Boolean).length;
+  const activeFiltersCount = [category, selectedCity || locationInput, radius > 0].filter(Boolean).length;
 
   const notifyFiltersChange = () => {
     onFiltersChange({
       category,
       categoryName,
       city: selectedCity,
+      cityInput: locationInput,
       radius,
       coordinates
     });
@@ -132,11 +148,12 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
 
   useEffect(() => {
     notifyFiltersChange();
-  }, [category, categoryName, selectedCity, radius, coordinates]);
+  }, [category, categoryName, selectedCity, locationInput, radius, coordinates]);
 
   const handleReset = () => {
     setCategory("");
     setCategoryName("");
+    setLocationInput("");
     setSelectedCity("");
     setCoordinates(null);
     setRadius(0);
@@ -151,10 +168,12 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
     category,
     categoryName,
     selectedCity,
+    locationInput,
+    setLocationInput,
     setSelectedCity,
     setCoordinates,
-    radius,
     setRadius,
+    radius,
     handleReset,
     handleCategoryChange,
   };
