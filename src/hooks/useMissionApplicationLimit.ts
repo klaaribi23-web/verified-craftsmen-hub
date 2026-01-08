@@ -38,7 +38,7 @@ export const useMissionApplicationLimit = () => {
       // Get artisan data
       const { data: artisan, error } = await supabase
         .from("artisans")
-        .select("subscription_tier, missions_applied_this_month, last_mission_reset")
+        .select("id, subscription_tier, missions_applied_this_month, last_mission_reset")
         .eq("user_id", user.id)
         .single();
 
@@ -47,15 +47,35 @@ export const useMissionApplicationLimit = () => {
         return;
       }
 
+      // Check if we need to reset the monthly counter
+      const lastReset = artisan.last_mission_reset ? new Date(artisan.last_mission_reset) : null;
+      const now = new Date();
+      const isNewMonth = !lastReset || 
+        lastReset.getMonth() !== now.getMonth() || 
+        lastReset.getFullYear() !== now.getFullYear();
+
+      let appliedCount = artisan.missions_applied_this_month || 0;
+
+      // Reset counter if it's a new month
+      if (isNewMonth) {
+        await supabase
+          .from("artisans")
+          .update({
+            missions_applied_this_month: 0,
+            last_mission_reset: now.toISOString(),
+          })
+          .eq("id", artisan.id);
+        appliedCount = 0;
+      }
+
       const tier = (artisan.subscription_tier || "free") as SubscriptionTier;
       const plan = SUBSCRIPTION_PLANS.find((p) => p.id === tier);
       const limit = plan?.features.missionsPerMonth || 1;
-      const applied = artisan.missions_applied_this_month || 0;
 
-      const canApply = limit === "unlimited" || applied < limit;
+      const canApply = limit === "unlimited" || appliedCount < limit;
 
       setState({
-        appliedThisMonth: applied,
+        appliedThisMonth: appliedCount,
         limit,
         canApply,
         tier,

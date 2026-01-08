@@ -60,6 +60,9 @@ import { useQuery } from "@tanstack/react-query";
 import MissionDetailModal from "@/components/missions/MissionDetailModal";
 import { calculateDistance } from "@/lib/geoDistance";
 import { useCityCoordinatesCache } from "@/hooks/useCityCoordinatesCache";
+import { useMissionApplicationLimit } from "@/hooks/useMissionApplicationLimit";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -74,6 +77,15 @@ const NosMissions = () => {
   const [selectedMission, setSelectedMission] = useState<any>(null);
   const [detailMission, setDetailMission] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Mission application limit hook
+  const { 
+    canApply: canApplyLimit, 
+    appliedThisMonth, 
+    limit: missionLimit, 
+    incrementApplicationCount,
+    isLoading: limitLoading 
+  } = useMissionApplicationLimit();
 
   // Fetch artisan profile for logged-in artisan
   const { data: artisanProfile } = useQuery({
@@ -222,6 +234,16 @@ const NosMissions = () => {
       return;
     }
 
+    // Check mission application limit
+    if (!canApplyLimit) {
+      toast({
+        title: "Limite atteinte",
+        description: `Vous avez atteint votre limite de ${missionLimit} mission(s) ce mois-ci. Passez à un abonnement supérieur pour postuler à plus de missions.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -247,6 +269,9 @@ const NosMissions = () => {
         }
         throw error;
       }
+
+      // Increment the application count
+      await incrementApplicationCount();
 
       // Send notification to client using secure RPC
       if (mission.client_id) {
@@ -291,7 +316,11 @@ const NosMissions = () => {
     return format(new Date(dateString), "dd/MM/yyyy", { locale: fr });
   };
 
-  const canApply = isAuthenticated && role === "artisan" && !!artisanProfile?.id;
+  const canApply = isAuthenticated && role === "artisan" && !!artisanProfile?.id && canApplyLimit;
+
+  // Display limit info for artisans
+  const showLimitWarning = isAuthenticated && role === "artisan" && artisanProfile?.id && !canApplyLimit;
+  const showLimitCounter = isAuthenticated && role === "artisan" && artisanProfile?.id && missionLimit !== "unlimited";
 
   return (
     <div className="min-h-screen bg-background">
@@ -337,11 +366,40 @@ const NosMissions = () => {
         {/* Missions List with Filters */}
         <section className="py-16 bg-card">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-foreground">Toutes les missions disponibles</h2>
-              <Badge variant="secondary" className="text-lg px-4 py-2">
-                {filteredMissions.length} mission{filteredMissions.length > 1 ? "s" : ""}
-              </Badge>
+            <div className="flex flex-col gap-4 mb-8">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-foreground">Toutes les missions disponibles</h2>
+                <Badge variant="secondary" className="text-lg px-4 py-2">
+                  {filteredMissions.length} mission{filteredMissions.length > 1 ? "s" : ""}
+                </Badge>
+              </div>
+              
+              {/* Mission limit counter for artisans */}
+              {showLimitCounter && !limitLoading && (
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-sm px-3 py-1">
+                    Candidatures ce mois : {appliedThisMonth}/{missionLimit}
+                  </Badge>
+                  {!canApplyLimit && (
+                    <Badge variant="destructive" className="text-sm px-3 py-1">
+                      Limite atteinte
+                    </Badge>
+                  )}
+                </div>
+              )}
+              
+              {/* Warning when limit reached */}
+              {showLimitWarning && (
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    Vous avez atteint votre limite de {missionLimit} candidature(s) ce mois-ci. 
+                    <a href="/artisan/abonnement" className="underline ml-1 font-medium">
+                      Passez à un abonnement supérieur
+                    </a> pour postuler à plus de missions.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
             
             <div className="flex flex-col lg:flex-row gap-8">
