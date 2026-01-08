@@ -7,10 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import { 
   Plus, 
   Pencil, 
@@ -20,7 +23,10 @@ import {
   GripVertical,
   CheckCircle,
   Loader2,
-  Wrench
+  Wrench,
+  Lock,
+  Crown,
+  AlertCircle
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
@@ -33,8 +39,11 @@ interface Service {
   artisan_id: string;
 }
 
+const FREE_TIER_SERVICE_LIMIT = 3;
+
 export const ArtisanServices = () => {
   const { user } = useAuth();
+  const { tier } = useSubscription();
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -72,6 +81,11 @@ export const ArtisanServices = () => {
     },
     enabled: !!artisan?.id
   });
+
+  // Subscription limit logic (must be after services query)
+  const isFreeTier = tier === "free";
+  const hasReachedLimit = isFreeTier && services.length >= FREE_TIER_SERVICE_LIMIT;
+  const remainingServices = Math.max(0, FREE_TIER_SERVICE_LIMIT - services.length);
 
   // Add service mutation
   const addServiceMutation = useMutation({
@@ -206,12 +220,54 @@ export const ArtisanServices = () => {
               </div>
             </div>
 
+            {/* Free Tier Limit Warning */}
+            {isFreeTier && (
+              <Card className="border-amber-500/30 bg-amber-500/5">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-amber-500/10 rounded-lg">
+                      <Lock className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold text-foreground">Abonnement Gratuit</h4>
+                        <Badge variant="outline" className="text-amber-600 border-amber-500/30">
+                          PRO 🔒
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {hasReachedLimit ? (
+                          <>Vous avez atteint la limite de {FREE_TIER_SERVICE_LIMIT} prestations. Passez à un abonnement supérieur pour en ajouter davantage.</>
+                        ) : (
+                          <>Il vous reste <span className="font-semibold text-foreground">{remainingServices}</span> prestation{remainingServices > 1 ? 's' : ''} disponible{remainingServices > 1 ? 's' : ''} sur {FREE_TIER_SERVICE_LIMIT}.</>
+                        )}
+                      </p>
+                      {hasReachedLimit && (
+                        <Link to="/artisan/abonnement">
+                          <Button variant="gold" size="sm" className="mt-3">
+                            <Crown className="w-4 h-4 mr-2" />
+                            Mettre à niveau
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Add Service Button */}
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold text-foreground">Liste des prestations</h3>
-              <Button variant="gold" onClick={() => setIsAdding(true)}>
-                <Plus className="w-4 h-4 mr-2" /> Ajouter une prestation
-              </Button>
+              {hasReachedLimit ? (
+                <Button variant="gold" disabled className="opacity-50 cursor-not-allowed">
+                  <Lock className="w-4 h-4 mr-2" /> Limite atteinte
+                </Button>
+              ) : (
+                <Button variant="gold" onClick={() => setIsAdding(true)}>
+                  <Plus className="w-4 h-4 mr-2" /> Ajouter une prestation
+                </Button>
+              )}
             </div>
 
             {/* Add Service Form */}
