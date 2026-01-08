@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
+import { CategorySelect } from "@/components/categories/CategorySelect";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { 
   ArrowRight, 
@@ -80,7 +80,7 @@ const DevenirArtisan = () => {
   const claimSlug = searchParams.get('claim');
   const [isLoading, setIsLoading] = useState(false);
   const [claimArtisan, setClaimArtisan] = useState<{ id: string; email: string | null; business_name: string } | null>(null);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -148,10 +148,10 @@ const DevenirArtisan = () => {
       }
 
       // Check categories (only for new registrations, not claims)
-      if (!claimSlug && selectedCategoryIds.length === 0) {
+      if (!claimSlug && !selectedCategoryId) {
         toast({
           title: "Métier requis",
-          description: "Veuillez sélectionner au moins un métier",
+          description: "Veuillez sélectionner votre métier principal",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -203,7 +203,7 @@ const DevenirArtisan = () => {
         if (profile) {
           // Only create new artisan profile if NOT claiming an existing one
           if (!claimSlug) {
-            // Create minimal artisan profile
+            // Create minimal artisan profile with primary category
             const { data: artisanData, error: artisanError } = await supabase
               .from("artisans")
               .insert([{
@@ -212,6 +212,7 @@ const DevenirArtisan = () => {
                 business_name: "Non renseigné",
                 city: formData.city || "Non renseigné",
                 status: "pending",
+                category_id: selectedCategoryId || null,
                 description: null,
                 photo_url: null,
                 portfolio_images: null,
@@ -227,19 +228,17 @@ const DevenirArtisan = () => {
 
             if (artisanError) {
               console.error("Error creating artisan:", artisanError);
-            } else if (artisanData && selectedCategoryIds.length > 0) {
-              // Insert artisan categories
-              const categoryInserts = selectedCategoryIds.map(categoryId => ({
-                artisan_id: artisanData.id,
-                category_id: categoryId,
-              }));
-              
+            } else if (artisanData && selectedCategoryId) {
+              // Insert primary category into artisan_categories
               const { error: catError } = await supabase
                 .from("artisan_categories")
-                .insert(categoryInserts);
+                .insert([{
+                  artisan_id: artisanData.id,
+                  category_id: selectedCategoryId,
+                }]);
               
               if (catError) {
-                console.error("Error inserting categories:", catError);
+                console.error("Error inserting category:", catError);
               }
             }
           }
@@ -430,16 +429,17 @@ const DevenirArtisan = () => {
                     </div>
 
                     <div>
-                      <Label className="text-navy">Métiers / Spécialités *</Label>
+                      <Label className="text-navy">Métier principal *</Label>
                       <div className="mt-1.5">
-                        <CategoryMultiSelect
-                          selectedIds={selectedCategoryIds}
-                          onChange={setSelectedCategoryIds}
-                          placeholder="Sélectionnez vos métiers..."
+                        <CategorySelect
+                          value={selectedCategoryId}
+                          onValueChange={(id) => setSelectedCategoryId(id)}
+                          placeholder="Sélectionnez votre métier..."
+                          allowParentSelection={false}
                         />
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Vous pouvez sélectionner plusieurs catégories
+                        Vous pourrez ajouter des compétences secondaires dans votre tableau de bord
                       </p>
                     </div>
 
