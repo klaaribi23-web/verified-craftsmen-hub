@@ -33,6 +33,9 @@ interface ArtisanProfile {
   category_id: string | null;
   status: string;
   working_hours: WorkingHours | null;
+  latitude: number | null;
+  longitude: number | null;
+  intervention_radius: number | null;
 }
 
 interface UserProfile {
@@ -140,6 +143,9 @@ export const useArtisanProfile = () => {
     instagramUrl?: string;
     linkedinUrl?: string;
     categoryId?: string;
+    latitude?: number | null;
+    longitude?: number | null;
+    interventionRadius?: number | null;
   }) => {
     console.log("updateProfile called with:", updates);
     console.log("Current artisan:", artisan);
@@ -188,6 +194,9 @@ export const useArtisanProfile = () => {
       if (updates.instagramUrl !== undefined) artisanUpdates.instagram_url = updates.instagramUrl;
       if (updates.linkedinUrl !== undefined) artisanUpdates.linkedin_url = updates.linkedinUrl;
       if (updates.categoryId !== undefined) artisanUpdates.category_id = updates.categoryId;
+      if (updates.latitude !== undefined) artisanUpdates.latitude = updates.latitude;
+      if (updates.longitude !== undefined) artisanUpdates.longitude = updates.longitude;
+      if (updates.interventionRadius !== undefined) artisanUpdates.intervention_radius = updates.interventionRadius;
 
       // Also update business_name if names changed
       if (updates.firstName !== undefined || updates.lastName !== undefined) {
