@@ -17,6 +17,7 @@ import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { CategorySelect } from "@/components/categories/CategorySelect";
 import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
+import { Slider } from "@/components/ui/slider";
 import { 
   User, 
   Camera, 
@@ -88,8 +89,9 @@ export const ArtisanProfile = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
-  const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [interventionRadius, setInterventionRadius] = useState<number>(50);
   const [siret, setSiret] = useState("");
   const [experienceYears, setExperienceYears] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
@@ -141,7 +143,6 @@ export const ArtisanProfile = () => {
     }
     if (artisan) {
       setDescription(artisan.description || "");
-      setAddress(artisan.address || "");
       setCity(artisan.city === "Non renseigné" ? "" : artisan.city || "");
       setSiret(artisan.siret || "");
       setExperienceYears(artisan.experience_years?.toString() || "");
@@ -149,6 +150,11 @@ export const ArtisanProfile = () => {
       setFacebookUrl(artisan.facebook_url || "");
       setInstagramUrl(artisan.instagram_url || "");
       setLinkedinUrl(artisan.linkedin_url || "");
+      // Load coordinates and intervention radius
+      if (artisan.latitude && artisan.longitude) {
+        setCoordinates({ lat: artisan.latitude, lng: artisan.longitude });
+      }
+      setInterventionRadius(artisan.intervention_radius ?? 50);
       // Load working hours from artisan data
       if (artisan.working_hours && typeof artisan.working_hours === 'object') {
         setWorkingHours(artisan.working_hours as WorkingHours);
@@ -271,13 +277,15 @@ export const ArtisanProfile = () => {
       phone,
       description,
       city: city || "Non renseigné",
-      address,
       siret,
       experienceYears: experienceYears ? parseInt(experienceYears) : undefined,
       websiteUrl,
       facebookUrl,
       instagramUrl,
       linkedinUrl,
+      latitude: coordinates?.lat ?? null,
+      longitude: coordinates?.lng ?? null,
+      interventionRadius,
     });
     // Categories are saved in real-time, no need to save here
   };
@@ -576,18 +584,32 @@ export const ArtisanProfile = () => {
                   <Label htmlFor="city">Ville</Label>
                   <CityAutocompleteAPI
                     value={city}
-                    onChange={(value) => setCity(value)}
+                    onChange={(value, coords) => {
+                      setCity(value);
+                      setCoordinates(coords ?? null);
+                    }}
                     placeholder="Tapez pour rechercher une ville..."
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address">Adresse professionnelle</Label>
-                  <Input 
-                    id="address" 
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="123 rue de votre activité"
-                  />
+                <div className="space-y-2 md:col-span-2">
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Vous acceptez de travailler dans un rayon de : {interventionRadius} km
+                  </Label>
+                  <div className="flex items-center gap-4">
+                    <Slider
+                      value={[interventionRadius]}
+                      onValueChange={(value) => setInterventionRadius(value[0])}
+                      min={0}
+                      max={200}
+                      step={5}
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-medium w-16 text-right">{interventionRadius} km</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    0 km = uniquement dans votre ville | 200 km = zone étendue
+                  </p>
                 </div>
               </div>
             </div>
