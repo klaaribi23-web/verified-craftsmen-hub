@@ -283,14 +283,28 @@ const AdminApprovals = () => {
     }
   });
 
-  // Fetch total count of claimed artisans
+  // Fetch total count of claimed artisans WITHOUT documents (they move to Approbation Artisans once they upload docs)
   const { data: totalClaimed = 0 } = useQuery({
     queryKey: ["claimed-artisans-count", claimedSearch],
     queryFn: async () => {
+      // 1. Get all artisan IDs that have documents
+      const { data: artisansWithDocs } = await supabase
+        .from("artisan_documents")
+        .select("artisan_id");
+      
+      const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
+      
+      // 2. Count pending artisans with user_id but WITHOUT documents
       let query = supabase
         .from("artisans")
         .select("*", { count: "exact", head: true })
-        .not("user_id", "is", null);
+        .not("user_id", "is", null)
+        .eq("status", "pending");
+      
+      // Exclude those who have documents
+      if (artisanIdsWithDocs.length > 0) {
+        query = query.not("id", "in", `(${artisanIdsWithDocs.join(",")})`);
+      }
       
       if (claimedSearch.trim()) {
         query = query.or(`business_name.ilike.%${claimedSearch}%,city.ilike.%${claimedSearch}%,email.ilike.%${claimedSearch}%`);
@@ -302,10 +316,18 @@ const AdminApprovals = () => {
     }
   });
 
-  // Fetch claimed artisans with pagination and document counts
+  // Fetch claimed artisans WITHOUT documents (once they upload docs, they go to Approbation Artisans)
   const { data: claimedArtisans = [], isLoading: isLoadingClaimed } = useQuery({
     queryKey: ["claimed-artisans", claimedPage, claimedPerPage, claimedSearch],
     queryFn: async () => {
+      // 1. Get all artisan IDs that have documents
+      const { data: artisansWithDocs } = await supabase
+        .from("artisan_documents")
+        .select("artisan_id");
+      
+      const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
+      
+      // 2. Fetch pending artisans with user_id but WITHOUT documents
       let query = supabase
         .from("artisans")
         .select(`
@@ -324,7 +346,12 @@ const AdminApprovals = () => {
           profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
         `)
         .not("user_id", "is", null)
-        .eq("status", "pending"); // Only show pending claimed artisans
+        .eq("status", "pending");
+      
+      // Exclude those who have documents
+      if (artisanIdsWithDocs.length > 0) {
+        query = query.not("id", "in", `(${artisanIdsWithDocs.join(",")})`);
+      }
       
       if (claimedSearch.trim()) {
         query = query.or(`business_name.ilike.%${claimedSearch}%,city.ilike.%${claimedSearch}%,email.ilike.%${claimedSearch}%`);
@@ -336,32 +363,14 @@ const AdminApprovals = () => {
 
       if (error) throw error;
       
-      // Fetch document counts for each artisan
-      const artisanIds = data?.map(a => a.id) || [];
-      if (artisanIds.length === 0) return [] as ClaimedArtisan[];
+      if (!data || data.length === 0) return [] as ClaimedArtisan[];
       
-      const { data: allDocs } = await supabase
-        .from("artisan_documents")
-        .select("artisan_id, status")
-        .in("artisan_id", artisanIds);
-      
-      // Build a map of document counts per artisan
-      const docCounts: Record<string, { total: number; pending: number; approved: number }> = {};
-      allDocs?.forEach(doc => {
-        if (!docCounts[doc.artisan_id]) {
-          docCounts[doc.artisan_id] = { total: 0, pending: 0, approved: 0 };
-        }
-        docCounts[doc.artisan_id].total++;
-        if (doc.status === 'pending') docCounts[doc.artisan_id].pending++;
-        if (doc.status === 'approved') docCounts[doc.artisan_id].approved++;
-      });
-      
-      // Merge document counts into artisan data
+      // No documents for these artisans by definition, but keep structure for consistency
       const enrichedData = data?.map(artisan => ({
         ...artisan,
-        documents_count: docCounts[artisan.id]?.total || 0,
-        documents_pending: docCounts[artisan.id]?.pending || 0,
-        documents_approved: docCounts[artisan.id]?.approved || 0,
+        documents_count: 0,
+        documents_pending: 0,
+        documents_approved: 0,
       })) as ClaimedArtisan[];
       
       return enrichedData;
