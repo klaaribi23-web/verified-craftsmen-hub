@@ -38,19 +38,19 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
 
   const displayName = profile?.first_name || artisan?.business_name || "Artisan";
   const isVerified = artisan?.status === "active";
-  const hasStoriesAccess = tier !== "free";
+  const hasProAccess = tier !== "free";
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Tableau de bord", path: "/artisan/dashboard" },
     { icon: User, label: "Mon profil", path: "/artisan/profil" },
-    { icon: Camera, label: "Mes Stories", path: "/artisan/stories", requiresPro: !hasStoriesAccess },
+    { icon: Camera, label: "Mes Stories", path: "/artisan/stories", requiresPro: !hasProAccess },
     { icon: FileText, label: "Documents", path: "/artisan/documents" },
     { icon: Briefcase, label: "Mes prestations", path: "/artisan/prestations" },
     { icon: ClipboardList, label: "Missions postulées", path: "/artisan/demandes" },
     { icon: MessageSquare, label: "Messagerie", path: "/artisan/messagerie" },
     { icon: ClipboardList, label: "Mes devis", path: "/artisan/devis" },
     { icon: Crown, label: "Mon abonnement", path: "/artisan/abonnement" },
-    { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires" },
+    { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires", requiresPro: !hasProAccess },
     { icon: Settings, label: "Paramètres", path: "/artisan/parametres" },
   ];
 
