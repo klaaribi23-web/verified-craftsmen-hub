@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { CityAutocomplete } from "@/components/location/CityAutocomplete";
+import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { 
   User,
   Mail,
@@ -223,7 +223,7 @@ export const ClientSettings = () => {
                       <MapPin className="w-4 h-4 inline mr-2" />
                       Ville
                     </Label>
-                    <CityAutocomplete
+                    <CityAutocompleteAPI
                       value={formData.city}
                       onChange={(value) => setFormData({ ...formData, city: value })}
                       placeholder="Rechercher votre ville..."

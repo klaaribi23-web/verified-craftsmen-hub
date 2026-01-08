@@ -14,7 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
 import MissionPhotoUpload from "@/components/missions/MissionPhotoUpload";
-import { CityAutocomplete } from "@/components/location/CityAutocomplete";
+import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import {
   Select,
   SelectContent,
@@ -530,7 +530,7 @@ const DemandeDevis = () => {
                           <Label htmlFor="city" className="text-navy mb-2 block">
                             Ville *
                           </Label>
-                          <CityAutocomplete
+                          <CityAutocompleteAPI
                             value={formData.city}
                             onChange={(value) => updateForm("city", value)}
                             placeholder="Rechercher votre ville..."
