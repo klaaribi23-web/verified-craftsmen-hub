@@ -221,18 +221,19 @@ const ArtisanPublicProfile = () => {
             
             {/* Mobile Contact Card - Sticky at top on mobile */}
             <div className="lg:hidden sticky top-16 z-30 -mx-3 px-3 py-2 bg-background/95 backdrop-blur-sm border-b">
-              {artisan.status === 'prospect' ? (
-                <div className="flex items-center justify-center gap-2">
+              <div className="space-y-2">
+                {/* Bouton revendication si prospect */}
+                {artisan.status === 'prospect' && (
                   <Button 
-                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-white" 
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
                     size="sm" 
                     onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
                     Revendiquer cette fiche
                   </Button>
-                </div>
-              ) : (
+                )}
+                {/* Boutons contact - toujours visibles */}
                 <div className="flex items-center justify-between gap-2">
                   <Button className="flex-1" size="sm" onClick={() => setChatOpen(true)}>
                     <MessageSquare className="h-4 w-4 mr-2" />
@@ -242,7 +243,7 @@ const ArtisanPublicProfile = () => {
                     <Phone className="h-4 w-4" />
                   </Button>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Left Column - Main Content */}
@@ -681,45 +682,42 @@ const ArtisanPublicProfile = () => {
             <div className="hidden lg:block lg:col-span-1 space-y-6">
               <Card className="border-0 shadow-xl bg-card">
                 <CardContent className="p-6 space-y-4">
-                  {artisan.status === 'prospect' ? (
-                    <>
-                      <div className="text-center mb-2">
+                  {/* Encart Revendication - Uniquement pour prospect */}
+                  {artisan.status === 'prospect' && (
+                    <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-4">
+                      <div className="text-center mb-3">
                         <p className="text-sm text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
-                        <p className="text-2xl font-bold text-amber-600">Revendiquez votre fiche</p>
+                        <p className="text-lg font-bold text-amber-600">Revendiquez votre fiche</p>
                       </div>
-                      
-                      <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                        <p className="text-sm text-muted-foreground text-center mb-3">
-                          Cette fiche a été créée pour vous. Réclamez-la pour gérer votre profil et recevoir des demandes de clients.
-                        </p>
-                        <Button 
-                          className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
-                          size="lg" 
-                          onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
-                        >
-                          <UserPlus className="h-4 w-4 mr-2" />
-                          Revendiquer cette fiche
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-center mb-2">
-                        <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>
-                        <p className="text-2xl font-bold text-primary">Contactez-moi</p>
-                      </div>
-                      
-                      <Button className="w-full" size="lg" onClick={() => setChatOpen(true)}>
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Demander un devis
+                      <p className="text-sm text-muted-foreground text-center mb-3">
+                        Cette fiche a été créée pour vous. Réclamez-la pour gérer votre profil et recevoir des demandes de clients.
+                      </p>
+                      <Button 
+                        className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
+                        size="lg" 
+                        onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
+                      >
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Revendiquer cette fiche
                       </Button>
-                      
-                      <Button variant="outline" className="w-full" size="lg" onClick={() => setShowContactInfo(!showContactInfo)}>
-                        <Phone className="h-4 w-4 mr-2" />
-                        {showContactInfo ? "Masquer les contacts" : "Voir le téléphone"}
-                      </Button>
-                    </>
+                    </div>
                   )}
+
+                  {/* Boutons Contact - Pour TOUS les artisans (prospect + active + pending) */}
+                  <div className="text-center mb-2">
+                    <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>
+                    <p className="text-2xl font-bold text-primary">Contactez-moi</p>
+                  </div>
+                  
+                  <Button className="w-full" size="lg" onClick={() => setChatOpen(true)}>
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Demander un devis
+                  </Button>
+                  
+                  <Button variant="outline" className="w-full" size="lg" onClick={() => setShowContactInfo(!showContactInfo)}>
+                    <Phone className="h-4 w-4 mr-2" />
+                    {showContactInfo ? "Masquer les contacts" : "Voir le téléphone"}
+                  </Button>
 
                   {/* Contact Info revealed */}
                   {showContactInfo && (
