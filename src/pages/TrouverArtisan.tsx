@@ -28,6 +28,7 @@ const TrouverArtisan = () => {
     category: "",
     categoryName: "",
     city: "",
+    cityInput: "",
     radius: 0,
     coordinates: null as { lat: number; lng: number } | null
   });
@@ -86,6 +87,7 @@ const TrouverArtisan = () => {
     category: string;
     categoryName: string;
     city: string;
+    cityInput: string;
     radius: number;
     coordinates: { lat: number; lng: number } | null;
   }) => {
@@ -118,15 +120,21 @@ const TrouverArtisan = () => {
   // Use the coordinates cache hook
   const { getCoordinates } = useCityCoordinatesCache(artisanCities);
 
+  // Normalize city name for comparison
+  const normalizeCity = (city: string): string => {
+    return city
+      .split("(")[0]
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  };
+
   // Filter artisans based on filters + hero search and calculate distances
   const { filteredArtisans, artisanDistances } = useMemo(() => {
     if (!artisansData) return { filteredArtisans: [], artisanDistances: new Map<string, number>() };
     
     const distances = new Map<string, number>();
-    const searchCity = filters.city || locationSearch;
-    
-    // Use coordinates from filter (from CityAutocompleteAPI) - these are precise GPS coords
-    const searchCoords = filters.coordinates || (searchCity ? getCoordinates(searchCity.split(" ")[0]) : null);
     
     const filtered = artisansData.filter(artisan => {
       // Filter by category from hero search or sidebar - use categoryName (not ID) for comparison
@@ -144,27 +152,47 @@ const TrouverArtisan = () => {
         }
       }
 
-      // Filter by city from hero search or sidebar with radius support
-      const cityFilter = filters.city || locationSearch;
-      if (cityFilter && searchCoords) {
-        const artisanCity = artisan.city || "";
-        
-        // Get artisan coordinates from cache
+      const artisanCity = artisan.city || "";
+
+      // Ville sélectionnée avec coordonnées GPS
+      if (filters.city && filters.coordinates) {
         const artisanCoords = getCoordinates(artisanCity);
         
-        if (artisanCoords) {
+        if (filters.radius === 0) {
+          // Rayon 0 = correspondance stricte par nom de ville
+          const normalizedArtisanCity = normalizeCity(artisanCity);
+          const normalizedSelectedCity = normalizeCity(filters.city);
+          
+          if (normalizedArtisanCity !== normalizedSelectedCity) {
+            return false;
+          }
+          
+          // Calculer la distance pour l'affichage
+          if (artisanCoords) {
+            const distance = calculateDistance(
+              filters.coordinates.lat, filters.coordinates.lng,
+              artisanCoords.lat, artisanCoords.lng
+            );
+            distances.set(artisan.id, distance);
+          }
+        } else {
+          // Rayon > 0 = filtrage par distance
+          if (!artisanCoords) return false;
+          
           const distance = calculateDistance(
-            searchCoords.lat, searchCoords.lng, 
+            filters.coordinates.lat, filters.coordinates.lng,
             artisanCoords.lat, artisanCoords.lng
           );
           distances.set(artisan.id, distance);
           
-          // If radius is set, filter by distance
-          if (filters.radius > 0 && distance > filters.radius) {
-            return false;
-          }
-        } else if (filters.radius > 0) {
-          // No coordinates available and radius filter active, exclude
+          if (distance > filters.radius) return false;
+        }
+      } else if (filters.cityInput && filters.cityInput.length >= 2 && !filters.city) {
+        // Texte tapé sans sélection = filtrage dynamique par texte
+        const normalizedArtisanCity = normalizeCity(artisanCity);
+        const normalizedFilter = normalizeCity(filters.cityInput);
+        
+        if (!normalizedArtisanCity.includes(normalizedFilter)) {
           return false;
         }
       }
@@ -173,7 +201,7 @@ const TrouverArtisan = () => {
     });
     
     return { filteredArtisans: filtered, artisanDistances: distances };
-  }, [artisansData, filters, searchQuery, locationSearch, getCoordinates]);
+  }, [artisansData, filters, searchQuery, getCoordinates]);
 
   // Paginate filtered artisans
   const totalPages = Math.ceil(filteredArtisans.length / ITEMS_PER_PAGE);
