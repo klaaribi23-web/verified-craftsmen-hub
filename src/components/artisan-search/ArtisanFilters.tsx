@@ -15,6 +15,7 @@ interface ArtisanFiltersProps {
     categoryName: string;
     city: string;
     radius: number;
+    coordinates: { lat: number; lng: number } | null;
   }) => void;
 }
 
@@ -23,6 +24,7 @@ const FiltersContent = ({
   categoryName,
   selectedCity,
   setSelectedCity,
+  setCoordinates,
   radius,
   setRadius,
   handleReset,
@@ -32,6 +34,7 @@ const FiltersContent = ({
   categoryName: string;
   selectedCity: string;
   setSelectedCity: (v: string) => void;
+  setCoordinates: (v: { lat: number; lng: number } | null) => void;
   radius: number;
   setRadius: (v: number) => void;
   handleReset: () => void;
@@ -62,7 +65,10 @@ const FiltersContent = ({
         </Label>
         <CityAutocompleteAPI
           value={selectedCity}
-          onChange={(value) => setSelectedCity(value)}
+          onChange={(value, coords) => {
+            setSelectedCity(value);
+            setCoordinates(coords || null);
+          }}
           placeholder="Rechercher une ville..."
         />
       </div>
@@ -107,6 +113,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   const [category, setCategory] = useState<string>("");
   const [categoryName, setCategoryName] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [radius, setRadius] = useState<number>(0);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -118,18 +125,20 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
       category,
       categoryName,
       city: selectedCity,
-      radius
+      radius,
+      coordinates
     });
   };
 
   useEffect(() => {
     notifyFiltersChange();
-  }, [category, categoryName, selectedCity, radius]);
+  }, [category, categoryName, selectedCity, radius, coordinates]);
 
   const handleReset = () => {
     setCategory("");
     setCategoryName("");
     setSelectedCity("");
+    setCoordinates(null);
     setRadius(0);
   };
 
@@ -143,6 +152,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
     categoryName,
     selectedCity,
     setSelectedCity,
+    setCoordinates,
     radius,
     setRadius,
     handleReset,

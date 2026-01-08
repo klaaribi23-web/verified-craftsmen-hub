@@ -13,11 +13,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Search, MapPin, Droplets, Zap, Flame, Paintbrush, Key, Construction, Hammer, Wrench, ArrowRight } from "lucide-react";
-import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocations";
 import { usePublicArtisans } from "@/hooks/usePublicData";
 import { useCategoriesHierarchy, CategoryWithChildren } from "@/hooks/useCategories";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
-import { isWithinRadius, calculateDistance, getCityCoordinates } from "@/lib/geoDistance";
+import { calculateDistance } from "@/lib/geoDistance";
+import { useCityCoordinatesCache } from "@/hooks/useCityCoordinatesCache";
 
 const ITEMS_PER_PAGE = 21;
 const TrouverArtisan = () => {
@@ -28,7 +28,8 @@ const TrouverArtisan = () => {
     category: "",
     categoryName: "",
     city: "",
-    radius: 0
+    radius: 0,
+    coordinates: null as { lat: number; lng: number } | null
   });
 
   // Suggestions state
@@ -86,6 +87,7 @@ const TrouverArtisan = () => {
     categoryName: string;
     city: string;
     radius: number;
+    coordinates: { lat: number; lng: number } | null;
   }) => {
     setFilters(newFilters);
     setCurrentPage(1);
@@ -108,13 +110,23 @@ const TrouverArtisan = () => {
     }, 100);
   };
 
+  // Extract artisan cities for preloading coordinates
+  const artisanCities = useMemo(() => {
+    return artisansData?.map(a => a.city).filter(Boolean) || [];
+  }, [artisansData]);
+
+  // Use the coordinates cache hook
+  const { getCoordinates } = useCityCoordinatesCache(artisanCities);
+
   // Filter artisans based on filters + hero search and calculate distances
   const { filteredArtisans, artisanDistances } = useMemo(() => {
     if (!artisansData) return { filteredArtisans: [], artisanDistances: new Map<string, number>() };
     
     const distances = new Map<string, number>();
     const searchCity = filters.city || locationSearch;
-    const searchCoords = searchCity ? getCityCoordinates(searchCity.split(" ")[0]) : null;
+    
+    // Use coordinates from filter (from CityAutocompleteAPI) - these are precise GPS coords
+    const searchCoords = filters.coordinates || (searchCity ? getCoordinates(searchCity.split(" ")[0]) : null);
     
     const filtered = artisansData.filter(artisan => {
       // Filter by category from hero search or sidebar - use categoryName (not ID) for comparison
@@ -134,39 +146,34 @@ const TrouverArtisan = () => {
 
       // Filter by city from hero search or sidebar with radius support
       const cityFilter = filters.city || locationSearch;
-      if (cityFilter) {
+      if (cityFilter && searchCoords) {
         const artisanCity = artisan.city || "";
         
-        // Calculate distance if we have coordinates for both cities
-        if (searchCoords) {
-          const artisanCoords = getCityCoordinates(artisanCity);
-          if (artisanCoords) {
-            const distance = calculateDistance(searchCoords.lat, searchCoords.lng, artisanCoords.lat, artisanCoords.lng);
-            distances.set(artisan.id, distance);
-            
-            // If radius is set, filter by distance
-            if (filters.radius > 0 && distance > filters.radius) {
-              return false;
-            }
-          }
-        }
+        // Get artisan coordinates from cache
+        const artisanCoords = getCoordinates(artisanCity);
         
-        // If no coordinates or radius not set, use text matching
-        if (!searchCoords || filters.radius === 0) {
-          const cityName = cityFilter.split(" ")[0].toLowerCase();
-          const artisanCityLower = artisanCity.toLowerCase();
-          const artisanDept = artisan.department?.toLowerCase() || "";
-          const artisanRegion = artisan.region?.toLowerCase() || "";
-          if (!artisanCityLower.includes(cityName) && !artisanDept.includes(cityName) && !artisanRegion.includes(cityName)) {
+        if (artisanCoords) {
+          const distance = calculateDistance(
+            searchCoords.lat, searchCoords.lng, 
+            artisanCoords.lat, artisanCoords.lng
+          );
+          distances.set(artisan.id, distance);
+          
+          // If radius is set, filter by distance
+          if (filters.radius > 0 && distance > filters.radius) {
             return false;
           }
+        } else if (filters.radius > 0) {
+          // No coordinates available and radius filter active, exclude
+          return false;
         }
       }
+      
       return true;
     });
     
     return { filteredArtisans: filtered, artisanDistances: distances };
-  }, [artisansData, filters, searchQuery, locationSearch]);
+  }, [artisansData, filters, searchQuery, locationSearch, getCoordinates]);
 
   // Paginate filtered artisans
   const totalPages = Math.ceil(filteredArtisans.length / ITEMS_PER_PAGE);
