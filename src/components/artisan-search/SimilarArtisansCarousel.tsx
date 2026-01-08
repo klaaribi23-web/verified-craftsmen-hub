@@ -5,8 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, MapPin, ChevronLeft, ChevronRight, Shield } from "lucide-react";
+import { Star, MapPin, ChevronLeft, ChevronRight, Shield, Crown, Award, Medal } from "lucide-react";
 import { useSimilarArtisans } from "@/hooks/usePublicData";
+import { cn } from "@/lib/utils";
 
 interface SimilarArtisansCarouselProps {
   currentArtisanId: string;
@@ -127,50 +128,106 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
                 key={artisan.id} 
                 className="flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-6"
               >
-                <Card 
-                  className="overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full"
-                  onClick={() => handleViewProfile(artisan.slug || artisan.id)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="relative">
-                        <Avatar className="h-14 w-14 ring-2 ring-primary/20">
-                          <AvatarImage src={artisan.photo_url || "/favicon.png"} alt={artisan.business_name} />
-                          <AvatarFallback className="bg-muted">
-                            <img src="/favicon.png" alt="Artisans Validés" className="h-full w-full object-contain" />
-                          </AvatarFallback>
-                        </Avatar>
-                        {artisan.is_verified && (
-                          <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5">
-                            <Shield className="h-3 w-3" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground truncate">{artisan.business_name}</h3>
-                        <Badge variant="secondary" className="text-xs mt-1">
-                          {artisan.category?.name || trade}
-                        </Badge>
-                      </div>
-                    </div>
+                {(() => {
+                  const isElite = artisan.subscription_tier === "elite";
+                  const isPro = artisan.subscription_tier === "pro";
+                  const isEssential = artisan.subscription_tier === "essential";
 
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                      <MapPin className="h-3 w-3" />
-                      <span className="truncate">{artisan.city}</span>
-                    </div>
+                  const getBadgeConfig = () => {
+                    if (isElite) {
+                      return {
+                        show: true,
+                        icon: Crown,
+                        label: "Elite",
+                        gradient: "from-yellow-500 via-amber-400 to-yellow-500",
+                        borderClass: "border-yellow-500/50 ring-2 ring-yellow-500/30 animate-glow-pulse"
+                      };
+                    }
+                    if (isPro) {
+                      return {
+                        show: true,
+                        icon: Award,
+                        label: "Premium",
+                        gradient: "from-slate-400 via-slate-300 to-slate-400",
+                        borderClass: "border-slate-400/50 ring-1 ring-slate-400/20"
+                      };
+                    }
+                    if (isEssential) {
+                      return {
+                        show: true,
+                        icon: Medal,
+                        label: "Pro",
+                        gradient: "from-amber-700 via-amber-600 to-amber-700",
+                        borderClass: "border-amber-600/50 ring-1 ring-amber-600/20"
+                      };
+                    }
+                    return { show: false, borderClass: "" };
+                  };
 
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        {renderStars(artisan.rating || 0)}
-                        <span className="text-sm font-medium ml-1">{artisan.rating?.toFixed(1) || "0.0"}</span>
-                        <span className="text-xs text-muted-foreground">({artisan.review_count || 0})</span>
-                      </div>
-                      {artisan.hourly_rate && (
-                        <span className="text-sm font-semibold text-primary">{artisan.hourly_rate}€/h</span>
+                  const badgeConfig = getBadgeConfig();
+                  const BadgeIcon = badgeConfig.icon;
+
+                  return (
+                    <Card 
+                      className={cn(
+                        "overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full",
+                        badgeConfig.borderClass
                       )}
-                    </div>
-                  </CardContent>
-                </Card>
+                      onClick={() => handleViewProfile(artisan.slug || artisan.id)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="relative">
+                            <Avatar className="h-14 w-14 ring-2 ring-primary/20">
+                              <AvatarImage src={artisan.photo_url || "/favicon.png"} alt={artisan.business_name} />
+                              <AvatarFallback className="bg-muted">
+                                <img src="/favicon.png" alt="Artisans Validés" className="h-full w-full object-contain" />
+                              </AvatarFallback>
+                            </Avatar>
+                            {artisan.is_verified && (
+                              <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5">
+                                <Shield className="h-3 w-3" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-foreground truncate">{artisan.business_name}</h3>
+                              {badgeConfig.show && BadgeIcon && (
+                                <div className={cn(
+                                  "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-white text-[10px] font-semibold bg-gradient-to-r",
+                                  badgeConfig.gradient
+                                )}>
+                                  <BadgeIcon className="w-2.5 h-2.5" />
+                                  <span>{badgeConfig.label}</span>
+                                </div>
+                              )}
+                            </div>
+                            <Badge variant="secondary" className="text-xs mt-1">
+                              {artisan.category?.name || trade}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                          <MapPin className="h-3 w-3" />
+                          <span className="truncate">{artisan.city}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            {renderStars(artisan.rating || 0)}
+                            <span className="text-sm font-medium ml-1">{artisan.rating?.toFixed(1) || "0.0"}</span>
+                            <span className="text-xs text-muted-foreground">({artisan.review_count || 0})</span>
+                          </div>
+                          {artisan.hourly_rate && (
+                            <span className="text-sm font-semibold text-primary">{artisan.hourly_rate}€/h</span>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
               </div>
             ))}
           </div>
