@@ -1027,6 +1027,7 @@ export type Database = {
           created_at: string | null
           department: string | null
           description: string | null
+          display_priority: number | null
           email: string | null
           experience_years: number | null
           facebook_url: string | null
@@ -1037,8 +1038,11 @@ export type Database = {
           hourly_rate: number | null
           id: string | null
           instagram_url: string | null
+          intervention_radius: number | null
           is_verified: boolean | null
+          latitude: number | null
           linkedin_url: string | null
+          longitude: number | null
           missions_completed: number | null
           phone: string | null
           photo_url: string | null
@@ -1051,6 +1055,7 @@ export type Database = {
           review_count: number | null
           slug: string | null
           status: Database["public"]["Enums"]["artisan_status"] | null
+          subscription_tier: string | null
           updated_at: string | null
           website_url: string | null
           working_hours: Json | null
@@ -1063,6 +1068,7 @@ export type Database = {
           created_at?: string | null
           department?: string | null
           description?: string | null
+          display_priority?: number | null
           email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
@@ -1073,8 +1079,11 @@ export type Database = {
           hourly_rate?: number | null
           id?: string | null
           instagram_url?: string | null
+          intervention_radius?: number | null
           is_verified?: boolean | null
+          latitude?: number | null
           linkedin_url?: string | null
+          longitude?: number | null
           missions_completed?: number | null
           phone?: string | null
           photo_url?: string | null
@@ -1087,6 +1096,7 @@ export type Database = {
           review_count?: number | null
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
+          subscription_tier?: string | null
           updated_at?: string | null
           website_url?: string | null
           working_hours?: Json | null
@@ -1099,6 +1109,7 @@ export type Database = {
           created_at?: string | null
           department?: string | null
           description?: string | null
+          display_priority?: number | null
           email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
@@ -1109,8 +1120,11 @@ export type Database = {
           hourly_rate?: number | null
           id?: string | null
           instagram_url?: string | null
+          intervention_radius?: number | null
           is_verified?: boolean | null
+          latitude?: number | null
           linkedin_url?: string | null
+          longitude?: number | null
           missions_completed?: number | null
           phone?: string | null
           photo_url?: string | null
@@ -1123,6 +1137,7 @@ export type Database = {
           review_count?: number | null
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
+          subscription_tier?: string | null
           updated_at?: string | null
           website_url?: string | null
           working_hours?: Json | null
