@@ -620,8 +620,10 @@ const NosMissions = () => {
                                   </Button>
                                   <Button 
                                     size="sm" 
-                                    onClick={() => setSelectedMission(mission)}
+                                    onClick={() => canApply ? setSelectedMission(mission) : null}
+                                    disabled={!canApplyLimit && role === "artisan" && isAuthenticated}
                                     className="flex-1 gap-1"
+                                    title={!canApplyLimit && role === "artisan" ? "Limite de candidatures atteinte" : ""}
                                   >
                                     <Send className="w-4 h-4" />
                                     Postuler
@@ -777,6 +779,19 @@ const NosMissions = () => {
               </p>
               <Link to="/devenir-artisan">
                 <Button variant="outline">Devenir artisan</Button>
+              </Link>
+            </div>
+          ) : !canApplyLimit ? (
+            <div className="py-6 text-center">
+              <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
+              <p className="text-foreground font-medium mb-2">
+                Limite de candidatures atteinte
+              </p>
+              <p className="text-muted-foreground mb-4">
+                Vous avez utilisé vos {missionLimit} candidature(s) ce mois-ci.
+              </p>
+              <Link to="/artisan/abonnement">
+                <Button>Passer à un abonnement supérieur</Button>
               </Link>
             </div>
           ) : (

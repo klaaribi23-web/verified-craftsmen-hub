@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useMissionApplicationLimit } from "@/hooks/useMissionApplicationLimit";
 import { 
   Search, 
   MapPin, 
@@ -17,7 +21,9 @@ import {
   XCircle,
   UserCheck,
   Inbox,
-  Loader2
+  Loader2,
+  Send,
+  TrendingUp
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
@@ -100,6 +106,14 @@ export const ArtisanRequests = () => {
   const { user } = useAuth();
   const [filter, setFilter] = useState<"all" | "pending" | "accepted" | "not_selected">("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Mission application limit hook
+  const { 
+    appliedThisMonth, 
+    limit: missionLimit, 
+    canApply,
+    isLoading: limitLoading 
+  } = useMissionApplicationLimit();
 
   // Fetch artisan profile
   const { data: artisan } = useQuery({
@@ -214,6 +228,58 @@ export const ArtisanRequests = () => {
 
         <main className="flex-1 p-3 md:p-6 overflow-auto">
           <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
+            {/* Mission Application Counter */}
+            {!limitLoading && (
+              <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Send className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Candidatures ce mois</p>
+                        <p className="text-2xl font-bold text-foreground">
+                          {appliedThisMonth} / {missionLimit === "unlimited" ? "∞" : missionLimit}
+                        </p>
+                        {missionLimit !== "unlimited" && (
+                          <p className="text-sm text-muted-foreground">
+                            {canApply 
+                              ? `${(missionLimit as number) - appliedThisMonth} restante(s)` 
+                              : "Limite atteinte ce mois"
+                            }
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {missionLimit !== "unlimited" && (
+                      <div className="flex-1 max-w-xs space-y-2">
+                        <Progress 
+                          value={(appliedThisMonth / (missionLimit as number)) * 100} 
+                          className="h-2"
+                        />
+                        {!canApply && (
+                          <Button asChild size="sm" className="w-full md:w-auto">
+                            <Link to="/artisan/abonnement">
+                              <TrendingUp className="w-4 h-4 mr-2" />
+                              Augmenter ma limite
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    
+                    {missionLimit === "unlimited" && (
+                      <Badge variant="secondary" className="text-primary bg-primary/10">
+                        Candidatures illimitées
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Filters */}
             <div className="flex flex-col gap-3 md:gap-4">
               <div className="relative">
