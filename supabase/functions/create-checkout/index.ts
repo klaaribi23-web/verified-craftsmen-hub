@@ -65,7 +65,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/artisan/abonnement?success=true`,
+      success_url: `${origin}/artisan/dashboard?subscription_success=true`,
       cancel_url: `${origin}/artisan/abonnement?canceled=true`,
       metadata: {
         user_id: user.id,

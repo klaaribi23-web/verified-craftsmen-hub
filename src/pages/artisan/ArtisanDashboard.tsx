@@ -29,12 +29,26 @@ import { SubscriptionDashboardCard } from "@/components/subscription/Subscriptio
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
 
 export const ArtisanDashboard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { tier, subscriptionEnd } = useSubscription();
+  const { tier, subscriptionEnd, checkSubscription } = useSubscription();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Handle subscription success redirect from Stripe
+  useEffect(() => {
+    if (searchParams.get("subscription_success") === "true") {
+      toast.success("Félicitations ! Votre abonnement est maintenant actif. Profitez de vos nouveaux avantages !");
+      // Clean URL
+      searchParams.delete("subscription_success");
+      setSearchParams(searchParams, { replace: true });
+      // Refresh subscription data
+      checkSubscription();
+    }
+  }, [searchParams, setSearchParams, checkSubscription]);
 
   // Fetch artisan profile
   const { data: artisanProfile, isLoading: isLoadingProfile } = useQuery({
