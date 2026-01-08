@@ -100,19 +100,20 @@ const ArtisanSubscription = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-16 lg:pt-20">
       <Navbar />
       <div className="flex">
         <ArtisanSidebar />
         <main className="flex-1 p-4 lg:p-8">
-          <DashboardHeader
-            title="Mon abonnement"
-            subtitle="Gérez votre abonnement et accédez à plus de fonctionnalités"
-          />
+          <div className="max-w-4xl mx-auto">
+            <DashboardHeader
+              title="Mon abonnement"
+              subtitle="Gérez votre abonnement et accédez à plus de fonctionnalités"
+            />
 
-          {/* Current Plan Summary - Only show if subscribed */}
-          {tier !== "free" && currentPlan && (
-            <Card className="mb-8 border-primary/50">
+            {/* Current Plan Summary - Only show if subscribed */}
+            {tier !== "free" && currentPlan && (
+              <Card className="mb-8 border-primary/50">
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
@@ -189,8 +190,8 @@ const ArtisanSubscription = () => {
             </Card>
           )}
 
-          {/* Change Plan Section */}
-          <div className="mb-6">
+            {/* Change Plan Section */}
+            <div className="mb-8 text-center">
             <h2 className="text-xl font-semibold mb-2">
               {tier === "free" ? "Choisir un forfait" : "Changer de forfait"}
             </h2>
@@ -225,19 +226,20 @@ const ArtisanSubscription = () => {
             </div>
           </div>
 
-          {/* Pricing Cards - Vertical Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-            {SUBSCRIPTION_PLANS.map((plan) => (
-              <PricingCard
-                key={plan.id}
-                plan={plan}
-                billingInterval={billingInterval}
-                isCurrentPlan={tier === plan.id}
-                onSubscribe={() => handleSubscribe(plan.id)}
-                onContact={handleContactSupport}
-                isLoading={isLoading}
-              />
-            ))}
+            {/* Pricing Cards - Vertical Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {SUBSCRIPTION_PLANS.map((plan) => (
+                <PricingCard
+                  key={plan.id}
+                  plan={plan}
+                  billingInterval={billingInterval}
+                  isCurrentPlan={tier === plan.id}
+                  onSubscribe={() => handleSubscribe(plan.id)}
+                  onContact={handleContactSupport}
+                  isLoading={isLoading}
+                />
+              ))}
+            </div>
           </div>
         </main>
       </div>
