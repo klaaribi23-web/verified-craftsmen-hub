@@ -2,9 +2,10 @@ import { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2, Crown } from "lucide-react";
 import { useFeaturedArtisans } from "@/hooks/usePublicData";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface FeaturedArtisan {
   id: string;
@@ -18,6 +19,7 @@ interface FeaturedArtisan {
   experience: string;
   profileImage: string;
   portfolio: string[];
+  subscriptionTier: string | null;
 }
 
 const FeaturedArtisansCarousel = () => {
@@ -45,7 +47,8 @@ const FeaturedArtisansCarousel = () => {
     verified: artisan.is_verified || false,
     experience: artisan.experience_years ? `${artisan.experience_years} ans` : "N/A",
     profileImage: artisan.photo_url || "/favicon.png",
-    portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : ["/favicon.png"]
+    portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : ["/favicon.png"],
+    subscriptionTier: artisan.subscription_tier || null
   }));
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
@@ -182,10 +185,25 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
     };
   }, [emblaApi, onSelect]);
 
+  const isElite = artisan.subscriptionTier === "elite";
+
   return (
-    <div className="bg-card rounded-2xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
+    <div className={cn(
+      "bg-card rounded-2xl shadow-soft border hover:shadow-elevated transition-shadow overflow-hidden relative",
+      isElite ? "border-yellow-500/50 ring-2 ring-yellow-500/30 animate-glow-pulse" : "border-border"
+    )}>
       {/* Portfolio Carousel with swipe */}
       <div className="relative h-48 overflow-hidden group" ref={emblaRef}>
+        {/* Elite Badge */}
+        {isElite && (
+          <div className="absolute top-2 left-2 z-20">
+            <div className="relative flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 text-white text-xs font-semibold shadow-lg overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
+              <Crown className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">Elite</span>
+            </div>
+          </div>
+        )}
         <div className="flex h-full">
           {artisan.portfolio.map((img, index) => (
             <div key={index} className="flex-[0_0_100%] min-w-0 h-full">
