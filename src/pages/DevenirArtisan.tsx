@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
+import { cn } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
@@ -79,7 +80,14 @@ const DevenirArtisan = () => {
   const [searchParams] = useSearchParams();
   const claimSlug = searchParams.get('claim');
   const [isLoading, setIsLoading] = useState(false);
-  const [claimArtisan, setClaimArtisan] = useState<{ id: string; email: string | null; business_name: string } | null>(null);
+  const [claimArtisan, setClaimArtisan] = useState<{ 
+    id: string; 
+    email: string | null; 
+    business_name: string;
+    phone: string | null;
+    city: string | null;
+    category_id: string | null;
+  } | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [formData, setFormData] = useState({
     firstName: "",
@@ -97,15 +105,22 @@ const DevenirArtisan = () => {
       
       const { data, error } = await supabase
         .from('artisans')
-        .select('id, email, business_name')
+        .select('id, email, business_name, phone, city, category_id')
         .eq('slug', claimSlug)
         .eq('status', 'prospect')
         .maybeSingle();
       
       if (!error && data) {
         setClaimArtisan(data);
-        if (data.email) {
-          setFormData(prev => ({ ...prev, email: data.email || '' }));
+        // Pre-fill form with prospect data
+        setFormData(prev => ({ 
+          ...prev, 
+          email: data.email || '',
+          phone: data.phone || '',
+          city: data.city || '',
+        }));
+        if (data.category_id) {
+          setSelectedCategoryId(data.category_id);
         }
       }
     };
@@ -395,9 +410,15 @@ const DevenirArtisan = () => {
                         placeholder="contact@monentreprise.fr"
                         value={formData.email}
                         onChange={(e) => updateForm("email", e.target.value)}
-                        className="mt-1.5"
+                        className={cn("mt-1.5", claimArtisan?.email && "bg-muted cursor-not-allowed")}
                         required
+                        disabled={!!claimArtisan?.email}
                       />
+                      {claimArtisan?.email && (
+                        <p className="text-xs text-amber-600 mt-1">
+                          Email pré-rempli depuis votre fiche vitrine
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -423,9 +444,15 @@ const DevenirArtisan = () => {
                         placeholder="06 12 34 56 78"
                         value={formData.phone}
                         onChange={(e) => updateForm("phone", e.target.value)}
-                        className="mt-1.5"
+                        className={cn("mt-1.5", claimArtisan?.phone && "bg-muted cursor-not-allowed")}
                         required
+                        disabled={!!claimArtisan?.phone}
                       />
+                      {claimArtisan?.phone && (
+                        <p className="text-xs text-amber-600 mt-1">
+                          Téléphone pré-rempli depuis votre fiche vitrine
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -436,11 +463,18 @@ const DevenirArtisan = () => {
                           onValueChange={(id) => setSelectedCategoryId(id)}
                           placeholder="Sélectionnez votre métier..."
                           allowParentSelection={false}
+                          disabled={!!claimArtisan?.category_id}
                         />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Vous pourrez ajouter des compétences secondaires dans votre tableau de bord
-                      </p>
+                      {claimArtisan?.category_id ? (
+                        <p className="text-xs text-amber-600 mt-1">
+                          Métier pré-rempli depuis votre fiche vitrine
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Vous pourrez ajouter des compétences secondaires dans votre tableau de bord
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -451,8 +485,14 @@ const DevenirArtisan = () => {
                           onChange={(value) => updateForm("city", value)}
                           placeholder="Tapez votre ville..."
                           required
+                          disabled={!!claimArtisan?.city}
                         />
                       </div>
+                      {claimArtisan?.city && (
+                        <p className="text-xs text-amber-600 mt-1">
+                          Ville pré-remplie depuis votre fiche vitrine
+                        </p>
+                      )}
                     </div>
 
                     <Button 

@@ -17,6 +17,7 @@ interface CategorySelectProps {
   placeholder?: string;
   allowParentSelection?: boolean;
   className?: string;
+  disabled?: boolean;
 }
 
 export const CategorySelect = ({
@@ -24,7 +25,8 @@ export const CategorySelect = ({
   onValueChange,
   placeholder = "Sélectionner une catégorie",
   allowParentSelection = false,
-  className
+  className,
+  disabled = false
 }: CategorySelectProps) => {
   const [open, setOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
@@ -62,15 +64,17 @@ export const CategorySelect = ({
   const selectedName = getSelectedCategoryName();
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={disabled ? undefined : setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          disabled={disabled}
           className={cn(
             "w-full justify-between font-normal",
             !value && "text-muted-foreground",
+            disabled && "bg-muted cursor-not-allowed",
             className
           )}
         >
