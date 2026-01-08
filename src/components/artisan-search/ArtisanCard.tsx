@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight, Heart, Crown } from "lucide-react";
+import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight, Heart, Crown, Award, Medal } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -173,21 +173,61 @@ const ArtisanCard = ({
   };
 
   const isElite = subscriptionTier === "elite";
+  const isPro = subscriptionTier === "pro";
+  const isEssential = subscriptionTier === "essential";
+
+  const getBadgeConfig = () => {
+    if (isElite) {
+      return {
+        show: true,
+        icon: Crown,
+        label: "Elite",
+        gradient: "from-yellow-500 via-amber-400 to-yellow-500",
+        borderClass: "border-yellow-500/50 ring-2 ring-yellow-500/30 animate-glow-pulse"
+      };
+    }
+    if (isPro) {
+      return {
+        show: true,
+        icon: Award,
+        label: "Premium",
+        gradient: "from-slate-400 via-slate-300 to-slate-400",
+        borderClass: "border-slate-400/50 ring-1 ring-slate-400/20"
+      };
+    }
+    if (isEssential) {
+      return {
+        show: true,
+        icon: Medal,
+        label: "Pro",
+        gradient: "from-amber-700 via-amber-600 to-amber-700",
+        borderClass: "border-amber-600/50 ring-1 ring-amber-600/20"
+      };
+    }
+    return { show: false, borderClass: "border-border" };
+  };
+
+  const badgeConfig = getBadgeConfig();
 
   return (
     <div className={cn(
       "bg-card rounded-2xl shadow-soft border hover:shadow-elevated transition-shadow overflow-hidden relative",
-      isElite ? "border-yellow-500/50 ring-2 ring-yellow-500/30 animate-glow-pulse" : "border-border"
+      badgeConfig.borderClass
     )}>
       {/* Portfolio Carousel */}
       <div className="relative h-44 md:h-48 overflow-hidden group">
-        {/* Elite Badge */}
-        {isElite && (
+        {/* Subscription Badge */}
+        {badgeConfig.show && badgeConfig.icon && (
           <div className="absolute top-2 left-2 z-20">
-            <div className="relative flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 text-white text-xs font-semibold shadow-lg overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
-              <Crown className="w-3.5 h-3.5 relative z-10" />
-              <span className="relative z-10">Elite</span>
+            <div className={cn(
+              "relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-white text-xs font-semibold shadow-lg overflow-hidden bg-gradient-to-r",
+              badgeConfig.gradient
+            )}>
+              {isElite && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
+              )}
+              <badgeConfig.icon className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">{badgeConfig.label}</span>
             </div>
           </div>
         )}
