@@ -105,17 +105,17 @@ const ArtisanSubscription = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-background pt-16 lg:pt-20">
-        <div className="flex">
-          <ArtisanSidebar />
-          <main className="flex-1 p-4 lg:p-8">
-          <div className="max-w-4xl mx-auto">
-            <DashboardHeader
-              title="Mon abonnement"
-              subtitle="Gérez votre abonnement et accédez à plus de fonctionnalités"
-            />
+      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <ArtisanSidebar />
+        
+        <div className="flex-1 flex flex-col">
+          <DashboardHeader
+            title="Mon abonnement"
+            subtitle="Gérez votre abonnement et accédez à plus de fonctionnalités"
+          />
 
-            {/* Current Plan Summary - Only show if subscribed */}
+          <main className="flex-1 p-4 lg:p-8 overflow-auto">
+            <div className="max-w-4xl mx-auto">
             {tier !== "free" && currentPlan && (
               <Card className="mb-8 border-primary/50">
               <CardHeader>
@@ -243,9 +243,9 @@ const ArtisanSubscription = () => {
                 />
               ))}
             </div>
-          </div>
-        </main>
-      </div>
+            </div>
+          </main>
+        </div>
       </div>
     </>
   );
