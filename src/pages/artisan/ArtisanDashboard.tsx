@@ -21,8 +21,11 @@ import {
   XCircle,
   Video,
   Eye,
-  Users
+  Users,
+  Crown
 } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { SubscriptionDashboardCard } from "@/components/subscription/SubscriptionDashboardCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
@@ -31,6 +34,7 @@ import { Link } from "react-router-dom";
 export const ArtisanDashboard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { tier, subscriptionEnd } = useSubscription();
 
   // Fetch artisan profile
   const { data: artisanProfile, isLoading: isLoadingProfile } = useQuery({
@@ -249,6 +253,9 @@ export const ArtisanDashboard = () => {
             <div className="mb-4 md:mb-6">
               <ApprovalNotifications />
             </div>
+
+            {/* Subscription Card */}
+            <SubscriptionDashboardCard tier={tier} subscriptionEnd={subscriptionEnd} />
 
             {/* Profile Completion Card */}
             {artisanProfile && artisanProfile.status !== "active" && (

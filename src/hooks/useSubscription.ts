@@ -1,11 +1,21 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import type { SubscriptionTier } from "@/config/subscriptionPlans";
+import type { SubscriptionTier, BillingInterval } from "@/config/subscriptionPlans";
+
+interface PaymentMethod {
+  last4: string;
+  brand: string;
+  exp_month: number;
+  exp_year: number;
+}
 
 interface SubscriptionState {
   tier: SubscriptionTier;
   subscriptionEnd: string | null;
+  subscriptionStart: string | null;
+  billingInterval: BillingInterval | null;
+  paymentMethod: PaymentMethod | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -15,6 +25,9 @@ export const useSubscription = () => {
   const [state, setState] = useState<SubscriptionState>({
     tier: "free",
     subscriptionEnd: null,
+    subscriptionStart: null,
+    billingInterval: null,
+    paymentMethod: null,
     isLoading: true,
     error: null,
   });
@@ -24,6 +37,9 @@ export const useSubscription = () => {
       setState({
         tier: "free",
         subscriptionEnd: null,
+        subscriptionStart: null,
+        billingInterval: null,
+        paymentMethod: null,
         isLoading: false,
         error: null,
       });
@@ -49,6 +65,9 @@ export const useSubscription = () => {
       setState({
         tier: data?.subscription_tier || "free",
         subscriptionEnd: data?.subscription_end || null,
+        subscriptionStart: data?.subscription_start || null,
+        billingInterval: data?.billing_interval || null,
+        paymentMethod: data?.payment_method || null,
         isLoading: false,
         error: null,
       });
