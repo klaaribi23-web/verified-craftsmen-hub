@@ -56,6 +56,8 @@ export interface ArtisanPublic {
   google_maps_url: string | null;
   google_rating: number | null;
   google_review_count: number | null;
+  subscription_tier?: string | null;
+  display_priority?: number | null;
   category?: {
     id: string;
     name: string;
@@ -109,6 +111,7 @@ export const usePublicArtisans = () => {
           category:categories(id, name)
         `)
         .in("status", ["active", "prospect"])
+        .order("display_priority", { ascending: true, nullsFirst: false })
         .order("rating", { ascending: false });
 
       if (artisansError) throw artisansError;
@@ -149,6 +152,7 @@ export const useFeaturedArtisans = () => {
           category:categories(id, name)
         `)
         .in("status", ["active", "prospect"])
+        .order("display_priority", { ascending: true, nullsFirst: false })
         .order("rating", { ascending: false })
         .limit(12);
 

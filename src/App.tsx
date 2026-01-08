@@ -24,6 +24,7 @@ import { ArtisanSettings } from "./pages/artisan/ArtisanSettings";
 import { ArtisanPartnerOffers } from "./pages/artisan/ArtisanPartnerOffers";
 import { ArtisanQuotes } from "./pages/artisan/ArtisanQuotes";
 import { ArtisanStories } from "./pages/artisan/ArtisanStories";
+import ArtisanSubscription from "./pages/artisan/ArtisanSubscription";
 import ArtisanPublicProfile from "./pages/ArtisanPublicProfile";
 import { ClientDashboard } from "./pages/client/ClientDashboard";
 import { ClientMissions } from "./pages/client/ClientMissions";
@@ -139,6 +140,11 @@ const App = () => (
           <Route path="/artisan/stories" element={
             <ProtectedRoute allowedRoles={["artisan"]}>
               <ArtisanStories />
+            </ProtectedRoute>
+          } />
+          <Route path="/artisan/abonnement" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanSubscription />
             </ProtectedRoute>
           } />
           

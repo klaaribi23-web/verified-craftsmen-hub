@@ -15,6 +15,7 @@ import {
   Camera,
   Menu,
   X,
+  Crown,
 } from "lucide-react";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,7 +32,7 @@ const menuItems = [
   { icon: MessageSquare, label: "Demandes reçues", path: "/artisan/demandes" },
   { icon: MessageSquare, label: "Messagerie", path: "/artisan/messagerie" },
   { icon: ClipboardList, label: "Mes devis", path: "/artisan/devis" },
-  
+  { icon: Crown, label: "Mon abonnement", path: "/artisan/abonnement" },
   { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires" },
   { icon: Settings, label: "Paramètres", path: "/artisan/parametres" },
 ];

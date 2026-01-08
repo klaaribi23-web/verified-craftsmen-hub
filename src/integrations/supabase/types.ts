@@ -218,6 +218,7 @@ export type Database = {
           created_at: string
           department: string | null
           description: string | null
+          display_priority: number | null
           email: string | null
           experience_years: number | null
           facebook_url: string | null
@@ -231,9 +232,11 @@ export type Database = {
           insurance_number: string | null
           intervention_radius: number | null
           is_verified: boolean | null
+          last_mission_reset: string | null
           latitude: number | null
           linkedin_url: string | null
           longitude: number | null
+          missions_applied_this_month: number | null
           missions_completed: number | null
           phone: string | null
           photo_url: string | null
@@ -248,6 +251,9 @@ export type Database = {
           siret: string | null
           slug: string | null
           status: Database["public"]["Enums"]["artisan_status"]
+          stripe_customer_id: string | null
+          subscription_end: string | null
+          subscription_tier: string | null
           updated_at: string
           user_id: string | null
           website_url: string | null
@@ -263,6 +269,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           description?: string | null
+          display_priority?: number | null
           email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
@@ -276,9 +283,11 @@ export type Database = {
           insurance_number?: string | null
           intervention_radius?: number | null
           is_verified?: boolean | null
+          last_mission_reset?: string | null
           latitude?: number | null
           linkedin_url?: string | null
           longitude?: number | null
+          missions_applied_this_month?: number | null
           missions_completed?: number | null
           phone?: string | null
           photo_url?: string | null
@@ -293,6 +302,9 @@ export type Database = {
           siret?: string | null
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"]
+          stripe_customer_id?: string | null
+          subscription_end?: string | null
+          subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
           website_url?: string | null
@@ -308,6 +320,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           description?: string | null
+          display_priority?: number | null
           email?: string | null
           experience_years?: number | null
           facebook_url?: string | null
@@ -321,9 +334,11 @@ export type Database = {
           insurance_number?: string | null
           intervention_radius?: number | null
           is_verified?: boolean | null
+          last_mission_reset?: string | null
           latitude?: number | null
           linkedin_url?: string | null
           longitude?: number | null
+          missions_applied_this_month?: number | null
           missions_completed?: number | null
           phone?: string | null
           photo_url?: string | null
@@ -338,6 +353,9 @@ export type Database = {
           siret?: string | null
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"]
+          stripe_customer_id?: string | null
+          subscription_end?: string | null
+          subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
           website_url?: string | null
