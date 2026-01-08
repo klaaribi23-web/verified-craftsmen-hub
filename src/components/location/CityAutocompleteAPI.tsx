@@ -10,6 +10,7 @@ interface CityAutocompleteAPIProps {
   placeholder?: string;
   className?: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 export const CityAutocompleteAPI = ({
@@ -18,6 +19,7 @@ export const CityAutocompleteAPI = ({
   placeholder = "Rechercher une ville...",
   className,
   required = false,
+  disabled = false,
 }: CityAutocompleteAPIProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
@@ -170,12 +172,13 @@ export const CityAutocompleteAPI = ({
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => inputValue.length >= 2 && suggestions.length > 0 && setIsOpen(true)}
+          onFocus={() => !disabled && inputValue.length >= 2 && suggestions.length > 0 && setIsOpen(true)}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="pl-9 pr-8"
+          className={cn("pl-9 pr-8", disabled && "bg-muted cursor-not-allowed")}
           required={required}
           autoComplete="off"
+          disabled={disabled}
         />
         {isLoading ? (
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
