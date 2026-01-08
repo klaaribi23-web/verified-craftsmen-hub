@@ -17,6 +17,7 @@ export interface PlanFeatures {
   missionsPerMonth: number | "unlimited";
   statistics: boolean;
   devisAI: boolean;
+  storiesLive: boolean;
   support: "standard" | "priority" | "dedicated" | "vip";
   betaAccess: boolean;
   badge: "bronze" | "silver" | "gold" | null;
@@ -28,6 +29,7 @@ export interface SubscriptionPlan {
   name: string;
   description: string;
   priority: { min: number; max: number } | number;
+  priorityLabel: string;
   prices: {
     monthly: number;
     yearly: number;
@@ -42,6 +44,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: "Gratuit",
     description: "Pour démarrer sur la plateforme",
     priority: 100,
+    priorityLabel: "Standard",
     prices: {
       monthly: 0,
       yearly: 0,
@@ -50,6 +53,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       missionsPerMonth: 1,
       statistics: false,
       devisAI: false,
+      storiesLive: false,
       support: "standard",
       betaAccess: false,
       badge: null,
@@ -61,6 +65,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: "Essentiel",
     description: "Pour les artisans actifs",
     priority: { min: 11, max: 20 },
+    priorityLabel: "Top 11-20",
     prices: {
       monthly: 29.90,
       yearly: 299,
@@ -69,6 +74,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       missionsPerMonth: 30,
       statistics: true,
       devisAI: false,
+      storiesLive: true,
       support: "priority",
       betaAccess: false,
       badge: "bronze",
@@ -80,6 +86,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: "Pro",
     description: "Pour maximiser votre visibilité",
     priority: { min: 4, max: 10 },
+    priorityLabel: "Top 4-10",
     prices: {
       monthly: 59.90,
       yearly: 599,
@@ -88,6 +95,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       missionsPerMonth: "unlimited",
       statistics: true,
       devisAI: true,
+      storiesLive: true,
       support: "dedicated",
       betaAccess: false,
       badge: "silver",
@@ -99,6 +107,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: "Elite",
     description: "L'excellence pour votre entreprise",
     priority: { min: 1, max: 3 },
+    priorityLabel: "Top 1-3",
     prices: {
       monthly: 99.90,
       yearly: 999,
@@ -107,6 +116,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       missionsPerMonth: "unlimited",
       statistics: true,
       devisAI: true,
+      storiesLive: true,
       support: "vip",
       betaAccess: true,
       badge: "gold",

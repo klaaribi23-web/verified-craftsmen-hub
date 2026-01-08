@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Crown, Award, Medal, Phone } from "lucide-react";
+import { Check, Crown, Award, Medal, Phone, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SubscriptionPlan, BillingInterval } from "@/config/subscriptionPlans";
 
@@ -19,6 +19,13 @@ const badgeIcons = {
   bronze: Medal,
 };
 
+const borderStyles = {
+  free: "border-muted hover:border-muted-foreground/30",
+  essential: "border-amber-500/50 hover:border-amber-500",
+  pro: "border-slate-400/50 hover:border-slate-400 shadow-lg",
+  elite: "border-yellow-500/70 hover:border-yellow-500 shadow-lg shadow-yellow-500/10",
+};
+
 export const PricingCard = ({
   plan,
   billingInterval,
@@ -34,9 +41,10 @@ export const PricingCard = ({
   const features = [
     { label: "Accès à la plateforme", included: true },
     {
-      label: `${plan.features.missionsPerMonth === "unlimited" ? "Missions illimitées" : `${plan.features.missionsPerMonth} mission${plan.features.missionsPerMonth > 1 ? "s" : ""}/mois`}`,
+      label: `${plan.features.missionsPerMonth === "unlimited" ? "Missions illimitées" : `${plan.features.missionsPerMonth} mission${typeof plan.features.missionsPerMonth === "number" && plan.features.missionsPerMonth > 1 ? "s" : ""}/mois`}`,
       included: true,
     },
+    { label: "Stories Live", included: plan.features.storiesLive },
     {
       label: plan.features.badge ? `Badge ${plan.features.badgeLabel}` : "Pas de badge",
       included: !!plan.features.badge,
@@ -50,14 +58,14 @@ export const PricingCard = ({
   return (
     <Card
       className={cn(
-        "relative flex flex-col h-full transition-all duration-300",
-        isPopular && "border-primary shadow-lg scale-105",
+        "relative flex flex-col h-full transition-all duration-300 border-2",
+        borderStyles[plan.id],
         isCurrentPlan && "ring-2 ring-primary"
       )}
     >
       {isPopular && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
-          Populaire
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-md">
+          ⭐ Populaire
         </div>
       )}
       
@@ -67,17 +75,24 @@ export const PricingCard = ({
         </div>
       )}
 
-      <CardHeader className="text-center pb-2">
+      <CardHeader className="text-center pb-2 pt-6">
         {BadgeIcon && (
           <div className="flex justify-center mb-2">
-            <BadgeIcon
-              className={cn(
-                "w-8 h-8",
-                plan.features.badge === "gold" && "text-yellow-500",
-                plan.features.badge === "silver" && "text-slate-400",
-                plan.features.badge === "bronze" && "text-amber-600"
-              )}
-            />
+            <div className={cn(
+              "p-2 rounded-full",
+              plan.features.badge === "gold" && "bg-yellow-500/20",
+              plan.features.badge === "silver" && "bg-slate-400/20",
+              plan.features.badge === "bronze" && "bg-amber-600/20"
+            )}>
+              <BadgeIcon
+                className={cn(
+                  "w-8 h-8",
+                  plan.features.badge === "gold" && "text-yellow-500",
+                  plan.features.badge === "silver" && "text-slate-400",
+                  plan.features.badge === "bronze" && "text-amber-600"
+                )}
+              />
+            </div>
           </div>
         )}
         <CardTitle className="text-2xl">{plan.name}</CardTitle>
@@ -85,7 +100,7 @@ export const PricingCard = ({
       </CardHeader>
 
       <CardContent className="flex-1">
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <span className="text-4xl font-bold">{price}€</span>
           <span className="text-muted-foreground">
             /{billingInterval === "monthly" ? "mois" : "an"}
@@ -95,6 +110,18 @@ export const PricingCard = ({
               Économisez {Math.round((1 - plan.prices.yearly / (plan.prices.monthly * 12)) * 100)}%
             </p>
           )}
+        </div>
+
+        {/* Priority/Positioning info */}
+        <div className={cn(
+          "flex items-center justify-center gap-2 mb-4 py-2 px-3 rounded-lg text-sm",
+          plan.id === "elite" && "bg-yellow-500/10 text-yellow-600",
+          plan.id === "pro" && "bg-slate-400/10 text-slate-600",
+          plan.id === "essential" && "bg-amber-500/10 text-amber-600",
+          plan.id === "free" && "bg-muted text-muted-foreground"
+        )}>
+          <TrendingUp className="w-4 h-4" />
+          <span className="font-medium">Positionnement: {plan.priorityLabel}</span>
         </div>
 
         <ul className="space-y-3">
@@ -118,7 +145,7 @@ export const PricingCard = ({
         </ul>
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="pt-4">
         {plan.isContactSales ? (
           <Button
             className="w-full"
