@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -28,12 +28,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -42,7 +36,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  MapPin, 
+  MapPin,
   Euro,
   Calendar,
   Users,
@@ -51,7 +45,8 @@ import {
   User,
   Eye
 } from "lucide-react";
-import { regions, departments, getCitiesByDepartment } from "@/data/frenchLocations";
+import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useDemoMissions } from "@/hooks/usePublicData";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
@@ -94,30 +89,16 @@ const NosMissions = () => {
     enabled: !!user?.id && role === "artisan",
   });
 
-  const [showLocationAccordion, setShowLocationAccordion] = useState(false);
-  
-  const locationRef = useRef<HTMLDivElement>(null);
+  const [searchCoordinates, setSearchCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
   const { data: missions, isLoading: missionsLoading } = useDemoMissions();
   const { data: categories } = useCategoriesHierarchy();
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (locationRef.current && !locationRef.current.contains(event.target as Node)) {
-        setShowLocationAccordion(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // Filter missions with distance calculation
   const { filteredMissions, missionDistances } = useMemo(() => {
     if (!missions) return { filteredMissions: [], missionDistances: new Map<string, number>() };
     
     const distances = new Map<string, number>();
-    const searchCoords = selectedCity ? getCityCoordinates(selectedCity) : null;
     
     const filtered = missions.filter(mission => {
       // Category filter
@@ -126,37 +107,24 @@ const NosMissions = () => {
       }
       
       // Location filter with radius
-      if (locationFilter || selectedCity) {
+      if (selectedCity && searchCoordinates) {
         const missionCity = mission.city || "";
+        const missionCoords = getCityCoordinates(missionCity);
         
-        // If we have a selected city with coordinates
-        if (searchCoords && selectedCity) {
-          const missionCoords = getCityCoordinates(missionCity);
-          if (missionCoords) {
-            const distance = calculateDistance(
-              searchCoords.lat, searchCoords.lng,
-              missionCoords.lat, missionCoords.lng
-            );
-            distances.set(mission.id, distance);
-            
-            // If radius is set, filter by distance
-            if (radiusFilter > 0 && distance > radiusFilter) {
-              return false;
-            }
-          } else {
-            // No coordinates for mission city, fallback to text search
-            if (radiusFilter > 0) {
-              return false; // Can't calculate distance, exclude if radius filter active
-            }
-          }
-        }
-        
-        // If no selected city or radius = 0, filter by text
-        if (!selectedCity || radiusFilter === 0) {
-          const searchLower = locationFilter.toLowerCase();
-          if (!missionCity.toLowerCase().includes(searchLower)) {
+        if (missionCoords) {
+          const distance = calculateDistance(
+            searchCoordinates.lat, searchCoordinates.lng,
+            missionCoords.lat, missionCoords.lng
+          );
+          distances.set(mission.id, distance);
+          
+          // If radius is set, filter by distance
+          if (radiusFilter > 0 && distance > radiusFilter) {
             return false;
           }
+        } else if (radiusFilter > 0) {
+          // No coordinates for mission city, exclude if radius filter active
+          return false;
         }
       }
       
@@ -164,7 +132,7 @@ const NosMissions = () => {
     });
     
     return { filteredMissions: filtered, missionDistances: distances };
-  }, [missions, categoryFilter, locationFilter, selectedCity, radiusFilter]);
+  }, [missions, categoryFilter, selectedCity, searchCoordinates, radiusFilter]);
 
   const totalPages = Math.ceil(filteredMissions.length / ITEMS_PER_PAGE);
   const paginatedMissions = filteredMissions.slice(
@@ -266,6 +234,7 @@ const NosMissions = () => {
     setCategoryFilter("");
     setLocationFilter("");
     setSelectedCity("");
+    setSearchCoordinates(null);
     setRadiusFilter(0);
     setCurrentPage(1);
   };
@@ -366,108 +335,50 @@ const NosMissions = () => {
                       </Select>
                     </div>
 
-                    {/* Location Filter */}
-                    <div className="space-y-3" ref={locationRef}>
+                    {/* Location Filter with Autocomplete API */}
+                    <div className="space-y-3">
                       <Label className="text-sm font-medium">Localisation</Label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Région, département ou ville"
-                          value={locationFilter}
-                          onChange={(e) => { setLocationFilter(e.target.value); setCurrentPage(1); }}
-                          onFocus={() => setShowLocationAccordion(true)}
-                          className="pl-10"
-                        />
-                        
-                        {/* Location Accordion Dropdown */}
-                        {showLocationAccordion && (
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 max-h-80 overflow-auto">
-                            <Accordion type="multiple" className="w-full">
-                              {regions.map((region) => {
-                                const regionDepts = departments.filter(d => d.region === region.id);
-                                return (
-                                  <AccordionItem key={region.id} value={region.id} className="border-b border-border last:border-0">
-                                    <AccordionTrigger className="px-4 py-2 hover:bg-muted text-foreground text-sm">
-                                      {region.name}
-                                    </AccordionTrigger>
-                                    <AccordionContent className="pb-0">
-                                      <div className="pl-4 pb-2">
-                                        {regionDepts.map((dept) => {
-                                          const deptCities = getCitiesByDepartment(dept.code);
-                                          return (
-                                            <div key={dept.code} className="mb-1">
-                                              <button
-                                                onClick={() => {
-                                                  setLocationFilter(`${dept.name} (${dept.code})`);
-                                                  setSelectedCity("");
-                                                  setRadiusFilter(0);
-                                                  setShowLocationAccordion(false);
-                                                  setCurrentPage(1);
-                                                }}
-                                                className="w-full text-left px-3 py-1.5 hover:bg-muted rounded text-sm font-medium text-foreground"
-                                              >
-                                                {dept.name} ({dept.code})
-                                              </button>
-                                              {deptCities.length > 0 && (
-                                                <div className="pl-4">
-                                                  {deptCities.slice(0, 3).map((city) => (
-                                                    <button
-                                                      key={city.name}
-                                                      onClick={() => {
-                                                        setLocationFilter(city.name);
-                                                        setSelectedCity(city.name);
-                                                        setShowLocationAccordion(false);
-                                                        setCurrentPage(1);
-                                                      }}
-                                                      className="w-full text-left px-3 py-1 hover:bg-muted rounded text-xs text-muted-foreground"
-                                                    >
-                                                      {city.name}
-                                                    </button>
-                                                  ))}
-                                                </div>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    </AccordionContent>
-                                  </AccordionItem>
-                                );
-                              })}
-                            </Accordion>
-                          </div>
-                        )}
-                      </div>
+                      <CityAutocompleteAPI
+                        value={locationFilter}
+                        onChange={(value, coordinates) => {
+                          setLocationFilter(value);
+                          setSelectedCity(value);
+                          setSearchCoordinates(coordinates || null);
+                          setCurrentPage(1);
+                        }}
+                        placeholder="Rechercher une ville..."
+                      />
                     </div>
 
                     {/* Radius Filter */}
                     <div className="space-y-3">
                       <Label className="text-sm font-medium">Rayon d'intervention</Label>
-                      <Slider
-                        value={[radiusFilter]}
-                        onValueChange={(values) => { setRadiusFilter(values[0]); setCurrentPage(1); }}
-                        max={200}
-                        min={0}
-                        step={5}
-                        disabled={!selectedCity}
-                        className={!selectedCity ? "opacity-50" : ""}
-                      />
-                      <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>0 km</span>
-                        <span className={`font-medium px-3 py-1 rounded-full ${
-                          radiusFilter > 0 && selectedCity 
-                            ? "bg-primary/10 text-primary" 
-                            : "bg-muted text-muted-foreground"
-                        }`}>
-                          {radiusFilter} km
-                        </span>
-                        <span>200 km</span>
+                      <div className="space-y-4">
+                        <Slider
+                          value={[radiusFilter]}
+                          onValueChange={(values) => { setRadiusFilter(values[0]); setCurrentPage(1); }}
+                          max={200}
+                          min={0}
+                          step={5}
+                          className="w-full"
+                          disabled={!selectedCity}
+                        />
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground">0 km</span>
+                          <span className={cn(
+                            "font-medium px-3 py-1 rounded-full",
+                            selectedCity ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                          )}>
+                            {radiusFilter} km
+                          </span>
+                          <span className="text-muted-foreground">200 km</span>
+                        </div>
+                        {!selectedCity && (
+                          <p className="text-xs text-muted-foreground italic">
+                            Sélectionnez une ville pour activer le rayon
+                          </p>
+                        )}
                       </div>
-                      {!selectedCity && (
-                        <p className="text-xs text-muted-foreground italic">
-                          Sélectionnez une ville pour activer le rayon
-                        </p>
-                      )}
                     </div>
 
                     {/* Active filters summary */}
