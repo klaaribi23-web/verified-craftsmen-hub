@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { 
   UserPlus,
@@ -67,7 +68,6 @@ const AdminAddArtisan = () => {
     email: "",
     phone: "",
     city: "",
-    address: "",
     description: "",
     siret: "",
     experienceYears: "",
@@ -76,6 +76,10 @@ const AdminAddArtisan = () => {
     linkedin: "",
     website: "",
   });
+
+  // Coordinates and intervention radius
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [interventionRadius, setInterventionRadius] = useState<number>(50);
 
   // Multi-category selection
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -317,6 +321,9 @@ const AdminAddArtisan = () => {
           city: formData.city,
           department: selectedDept?.name || null,
           region: selectedRegion?.name || null,
+          latitude: coordinates?.lat || null,
+          longitude: coordinates?.lng || null,
+          intervention_radius: interventionRadius,
           siret: formData.siret || null,
           experience_years: formData.experienceYears ? parseInt(formData.experienceYears) : null,
           photo_url: profilePhotoUrl || null,
@@ -530,19 +537,34 @@ const AdminAddArtisan = () => {
                     </Label>
                     <CityAutocompleteAPI
                       value={formData.city}
-                      onChange={(value) => handleChange("city", value)}
+                      onChange={(value, coords) => {
+                        handleChange("city", value);
+                        setCoordinates(coords);
+                      }}
                       placeholder="Rechercher une ville française..."
                       required
                     />
                   </div>
 
                   <div>
-                    <Label>Adresse complète</Label>
-                    <Input
-                      placeholder="Adresse"
-                      value={formData.address}
-                      onChange={(e) => handleChange("address", e.target.value)}
-                    />
+                    <Label className="flex items-center gap-2 mb-2">
+                      <MapPin className="h-4 w-4" />
+                      L'artisan accepte de travailler dans un rayon de : {interventionRadius} km
+                    </Label>
+                    <div className="flex items-center gap-4">
+                      <Slider
+                        value={[interventionRadius]}
+                        onValueChange={(value) => setInterventionRadius(value[0])}
+                        min={0}
+                        max={200}
+                        step={5}
+                        className="flex-1"
+                      />
+                      <span className="text-sm font-medium w-16 text-right">{interventionRadius} km</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      0 km = uniquement dans sa ville | 200 km = zone étendue
+                    </p>
                   </div>
 
                   <div>
