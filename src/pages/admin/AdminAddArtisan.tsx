@@ -28,7 +28,8 @@ import {
   Upload
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useCategories } from "@/hooks/useAdminData";
+import { CategorySelect } from "@/components/categories/CategorySelect";
+import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,7 +57,6 @@ interface ServiceItem {
 
 const AdminAddArtisan = () => {
   const navigate = useNavigate();
-  const { data: categories } = useCategories();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
@@ -81,8 +81,10 @@ const AdminAddArtisan = () => {
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [interventionRadius, setInterventionRadius] = useState<number>(50);
 
-  // Multi-category selection
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  // Category selection - primary + secondary
+  const [primaryCategory, setPrimaryCategory] = useState<string>("");
+  const [primaryCategoryName, setPrimaryCategoryName] = useState<string>("");
+  const [secondaryCategories, setSecondaryCategories] = useState<string[]>([]);
   
   // Photo and video management
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
@@ -113,13 +115,6 @@ const AdminAddArtisan = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleCategoryToggle = (categoryId: string) => {
-    setSelectedCategories((prev) => 
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
-    );
-  };
 
   const handleAddVideoUrl = () => {
     if (!newVideoUrl) return;
@@ -293,7 +288,7 @@ const AdminAddArtisan = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.businessName || selectedCategories.length === 0 || !formData.city) {
+    if (!formData.businessName || !primaryCategory || !formData.city) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs obligatoires (nom, catégorie, ville).",
@@ -317,7 +312,7 @@ const AdminAddArtisan = () => {
           business_name: formData.businessName,
           email: formData.email || null,
           description: formData.description || null,
-          category_id: selectedCategories[0], // Primary category
+          category_id: primaryCategory,
           city: formData.city,
           department: selectedDept?.name || null,
           region: selectedRegion?.name || null,
@@ -343,9 +338,11 @@ const AdminAddArtisan = () => {
 
       if (artisanError) throw artisanError;
 
-      // Add multiple categories to junction table
-      if (selectedCategories.length > 0 && artisan) {
-        const categoriesData = selectedCategories.map((catId) => ({
+      // Add all categories to junction table (primary + secondary, no duplicates)
+      const allCategoryIds = [primaryCategory, ...secondaryCategories.filter(id => id !== primaryCategory)];
+      
+      if (allCategoryIds.length > 0 && artisan) {
+        const categoriesData = allCategoryIds.map((catId) => ({
           artisan_id: artisan.id,
           category_id: catId,
         }));
@@ -396,8 +393,6 @@ const AdminAddArtisan = () => {
     }
   };
 
-  // Get all categories
-  const allCategories = categories || [];
   
   return (
     <>
@@ -501,33 +496,40 @@ const AdminAddArtisan = () => {
                   <CardTitle>Informations professionnelles</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Catégorie principale - Single Select */}
                   <div>
-                    <Label>Catégories * (sélection multiple)</Label>
-                    <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2 mt-1 bg-background">
-                      {allCategories.map((cat) => (
-                        <div key={cat.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={cat.id}
-                            checked={selectedCategories.includes(cat.id)}
-                            onCheckedChange={() => handleCategoryToggle(cat.id)}
-                          />
-                          <label htmlFor={cat.id} className="text-sm cursor-pointer">{cat.name}</label>
-                        </div>
-                      ))}
-                    </div>
-                    {selectedCategories.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {selectedCategories.map((id) => {
-                          const cat = categories?.find((c) => c.id === id);
-                          return cat ? (
-                            <Badge key={id} variant="secondary" className="text-xs">
-                              {cat.name}
-                              <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => handleCategoryToggle(id)} />
-                            </Badge>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
+                    <Label>Catégorie principale *</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Sélectionnez la spécialité principale de l'artisan
+                    </p>
+                    <CategorySelect
+                      value={primaryCategory}
+                      onValueChange={(id, name) => {
+                        setPrimaryCategory(id);
+                        setPrimaryCategoryName(name);
+                        // Remove from secondary if it was selected there
+                        setSecondaryCategories(prev => prev.filter(catId => catId !== id));
+                      }}
+                      placeholder="Sélectionner la catégorie principale"
+                      allowParentSelection={false}
+                    />
+                  </div>
+
+                  {/* Compétences secondaires - Multi Select */}
+                  <div>
+                    <Label>Compétences secondaires</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Ajoutez d'autres spécialités (optionnel)
+                    </p>
+                    <CategoryMultiSelect
+                      selectedIds={secondaryCategories}
+                      onChange={(ids) => {
+                        // Exclure la catégorie principale des sélections secondaires
+                        setSecondaryCategories(ids.filter(id => id !== primaryCategory));
+                      }}
+                      placeholder="Ajouter des compétences secondaires..."
+                      maxDisplay={3}
+                    />
                   </div>
 
                   <div>
