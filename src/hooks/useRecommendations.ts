@@ -412,3 +412,32 @@ export const usePendingRecommendationsCount = () => {
     },
   });
 };
+
+// Get all recommendations counts by status for admin stats
+export const useRecommendationsCounts = () => {
+  return useQuery({
+    queryKey: ["recommendations", "admin", "counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("recommendations")
+        .select("status");
+
+      if (error) throw error;
+
+      const counts = {
+        pending: 0,
+        approved: 0,
+        rejected: 0,
+        total: data?.length || 0,
+      };
+
+      data?.forEach((rec) => {
+        if (rec.status === "pending") counts.pending++;
+        else if (rec.status === "approved") counts.approved++;
+        else if (rec.status === "rejected") counts.rejected++;
+      });
+
+      return counts;
+    },
+  });
+};

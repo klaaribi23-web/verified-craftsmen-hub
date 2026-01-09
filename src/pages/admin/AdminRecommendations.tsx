@@ -26,7 +26,7 @@ import {
   useAdminRecommendations,
   useApproveRecommendation,
   useRejectRecommendation,
-  usePendingRecommendationsCount,
+  useRecommendationsCounts,
   Recommendation,
 } from "@/hooks/useRecommendations";
 
@@ -38,13 +38,13 @@ const ratingLabels = [
 ] as const;
 
 const AdminRecommendations = () => {
-  const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected" | "all">("pending");
+  const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected" | "all">("all");
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
   const [rejectReason, setRejectReason] = useState("");
 
   const { data: recommendations = [], isLoading } = useAdminRecommendations(activeTab);
-  const { data: pendingCount = 0 } = usePendingRecommendationsCount();
+  const { data: counts = { pending: 0, approved: 0, rejected: 0, total: 0 } } = useRecommendationsCounts();
   const approveMutation = useApproveRecommendation();
   const rejectMutation = useRejectRecommendation();
 
@@ -118,7 +118,7 @@ const AdminRecommendations = () => {
                   <Clock className="h-6 w-6 text-amber-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{pendingCount}</p>
+                  <p className="text-2xl font-bold">{counts.pending}</p>
                   <p className="text-sm text-muted-foreground">En attente</p>
                 </div>
               </CardContent>
@@ -129,9 +129,7 @@ const AdminRecommendations = () => {
                   <CheckCircle className="h-6 w-6 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">
-                    {recommendations.filter((r) => r.status === "approved").length}
-                  </p>
+                  <p className="text-2xl font-bold">{counts.approved}</p>
                   <p className="text-sm text-muted-foreground">Approuvées</p>
                 </div>
               </CardContent>
@@ -142,9 +140,7 @@ const AdminRecommendations = () => {
                   <XCircle className="h-6 w-6 text-red-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">
-                    {recommendations.filter((r) => r.status === "rejected").length}
-                  </p>
+                  <p className="text-2xl font-bold">{counts.rejected}</p>
                   <p className="text-sm text-muted-foreground">Rejetées</p>
                 </div>
               </CardContent>
@@ -154,15 +150,15 @@ const AdminRecommendations = () => {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
             <TabsList className="mb-4">
+              <TabsTrigger value="all">Toutes</TabsTrigger>
+              <TabsTrigger value="approved">Approuvées</TabsTrigger>
               <TabsTrigger value="pending" className="gap-2">
                 En attente
-                {pendingCount > 0 && (
-                  <Badge variant="secondary" className="ml-1">{pendingCount}</Badge>
+                {counts.pending > 0 && (
+                  <Badge variant="secondary" className="ml-1">{counts.pending}</Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="approved">Approuvées</TabsTrigger>
               <TabsTrigger value="rejected">Rejetées</TabsTrigger>
-              <TabsTrigger value="all">Toutes</TabsTrigger>
             </TabsList>
 
             <TabsContent value={activeTab}>
