@@ -203,7 +203,7 @@ const AdminArtisans = () => {
                     <th className="text-left p-4 font-medium">Catégorie</th>
                     <th className="text-left p-4 font-medium">Ville</th>
                     <th className="text-left p-4 font-medium">Inscrit le</th>
-                    <th className="text-left p-4 font-medium">Stats</th>
+                    <th className="text-left p-4 font-medium">Statut</th>
                     <th className="text-left p-4 font-medium">Actions</th>
                   </tr>
                 </thead>
@@ -256,16 +256,24 @@ const AdminArtisans = () => {
                           </span>
                         </td>
                         <td className="p-4">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-1 text-sm">
-                              <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                              {artisan.rating?.toFixed(1) || "N/A"}
-                            </div>
-                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                              <Briefcase className="h-3 w-3" />
-                              {artisan.missions_completed || 0} missions
-                            </div>
-                          </div>
+                          <Badge className={
+                            artisan.status === "active" 
+                              ? "bg-green-500/10 text-green-500" 
+                              : artisan.status === "suspended"
+                              ? "bg-destructive/10 text-destructive"
+                              : "bg-yellow-500/10 text-yellow-500"
+                          }>
+                            {artisan.status === "active" 
+                              ? "Actif" 
+                              : artisan.status === "suspended" 
+                              ? "Suspendu" 
+                              : (artisan.status as string) === "prospect"
+                              ? "Vitrine"
+                              : "En attente"}
+                          </Badge>
+                          {artisan.is_verified && (
+                            <CheckCircle className="h-4 w-4 text-green-500 ml-2 inline" />
+                          )}
                         </td>
                         <td className="p-4">
                           <div className="flex items-center gap-2">
