@@ -352,8 +352,8 @@ const ArtisanPublicProfile = () => {
 
               {/* Le mot de l'artisan */}
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <MessageSquare className="h-5 w-5 text-primary" />
                     Le mot de l'artisan
                   </CardTitle>
