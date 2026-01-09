@@ -122,7 +122,7 @@ const GlobalMobileNavbar = () => {
           id: "notifications",
           label: "Notifs",
           icon: <Bell className="h-5 w-5" />,
-          onClick: () => setNotifOpen(true),
+          onClick: () => setNotifOpen(!notifOpen),
           path: null,
         },
       ];
@@ -155,7 +155,7 @@ const GlobalMobileNavbar = () => {
         id: "notifications",
         label: "Notifs",
         icon: <Bell className="h-5 w-5" />,
-        onClick: () => setNotifOpen(true),
+        onClick: () => setNotifOpen(!notifOpen),
         path: null,
       },
     ];
