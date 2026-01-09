@@ -45,6 +45,7 @@ const AdminArtisans = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [selectedCity, setSelectedCity] = useState("Toutes");
+  const [selectedStatus, setSelectedStatus] = useState("Tous");
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedArtisan, setSelectedArtisan] = useState<any>(null);
@@ -66,7 +67,12 @@ const AdminArtisans = () => {
     const matchesSearch = artisan.business_name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "Tous" || artisan.category?.name === selectedCategory;
     const matchesCity = selectedCity === "Toutes" || artisan.city === selectedCity;
-    return matchesSearch && matchesCategory && matchesCity;
+    const matchesStatus = selectedStatus === "Tous" || 
+      (selectedStatus === "Actif" && artisan.status === "active") ||
+      (selectedStatus === "Vitrine" && (artisan.status as string) === "prospect") ||
+      (selectedStatus === "En attente" && artisan.status === "pending") ||
+      (selectedStatus === "Suspendu" && artisan.status === "suspended");
+    return matchesSearch && matchesCategory && matchesCity && matchesStatus;
   }) || [];
 
   const handleRevoke = (artisan: any) => {
@@ -127,7 +133,7 @@ const AdminArtisans = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
               <div className="relative sm:col-span-2 lg:col-span-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -157,7 +163,19 @@ const AdminArtisans = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <Button variant="outline" onClick={() => { setSearchTerm(""); setSelectedCategory("Tous"); setSelectedCity("Toutes"); }} className="w-full">
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Tous">Tous les statuts</SelectItem>
+                  <SelectItem value="Actif">Actif</SelectItem>
+                  <SelectItem value="Vitrine">Vitrine</SelectItem>
+                  <SelectItem value="En attente">En attente</SelectItem>
+                  <SelectItem value="Suspendu">Suspendu</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" onClick={() => { setSearchTerm(""); setSelectedCategory("Tous"); setSelectedCity("Toutes"); setSelectedStatus("Tous"); }} className="w-full">
                 Réinitialiser
               </Button>
             </div>
