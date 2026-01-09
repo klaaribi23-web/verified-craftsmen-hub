@@ -4,10 +4,10 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, MapPin, ChevronLeft, ChevronRight, Shield, Crown, Award, Medal } from "lucide-react";
+import { Star, MapPin, ChevronLeft, ChevronRight, Shield, Crown, Award, Gem } from "lucide-react";
 import { useSimilarArtisans } from "@/hooks/usePublicData";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SimilarArtisansCarouselProps {
   currentArtisanId: string;
@@ -21,10 +21,6 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
     loop: true,
     align: "start",
     slidesToScroll: 1,
-    breakpoints: {
-      '(min-width: 640px)': { slidesToScroll: 2 },
-      '(min-width: 1024px)': { slidesToScroll: 4 }
-    }
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
@@ -59,26 +55,63 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`h-3 w-3 ${
+        className={cn(
+          "h-3 w-3",
           i < Math.floor(rating)
             ? "fill-amber-400 text-amber-400"
             : "text-muted-foreground/30"
-        }`}
+        )}
       />
     ));
   };
 
+  const getSubscriptionBadge = (tier: string | null) => {
+    switch (tier) {
+      case 'elite':
+        return { 
+          show: true, 
+          label: 'Elite', 
+          icon: Crown, 
+          gradient: 'from-amber-500 to-yellow-400',
+          borderClass: 'ring-2 ring-amber-400/50'
+        };
+      case 'pro':
+        return { 
+          show: true, 
+          label: 'Pro', 
+          icon: Award, 
+          gradient: 'from-blue-600 to-blue-400',
+          borderClass: 'ring-2 ring-blue-400/50'
+        };
+      case 'essential':
+        return { 
+          show: true, 
+          label: 'Essentiel', 
+          icon: Gem, 
+          gradient: 'from-emerald-600 to-emerald-400',
+          borderClass: 'ring-2 ring-emerald-400/50'
+        };
+      default:
+        return { show: false, label: '', icon: null, gradient: '', borderClass: '' };
+    }
+  };
+
   if (isLoading) {
     return (
-      <section className="py-12 bg-muted/30">
+      <section className="py-6 md:py-12 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-4 md:mb-6">
             Artisans similaires
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Card key={i} className="animate-pulse">
-                <CardContent className="p-4 h-40 bg-muted" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i} className="overflow-hidden">
+                <Skeleton className="h-32 sm:h-40 w-full" />
+                <CardContent className="p-3 sm:p-4">
+                  <Skeleton className="h-4 w-3/4 mb-2" />
+                  <Skeleton className="h-3 w-1/2 mb-2" />
+                  <Skeleton className="h-3 w-full" />
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -92,10 +125,10 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
   }
 
   return (
-    <section className="py-12 bg-muted/30">
+    <section className="py-6 md:py-12 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">
             Artisans similaires
           </h2>
           {similarArtisans.length > 1 && (
@@ -104,145 +137,113 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
                 variant="outline"
                 size="icon"
                 onClick={scrollPrev}
-                className="h-10 w-10 rounded-full touch-manipulation"
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-full touch-manipulation"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <Button
                 variant="outline"
                 size="icon"
                 onClick={scrollNext}
-                className="h-10 w-10 rounded-full touch-manipulation"
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-full touch-manipulation"
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </div>
           )}
         </div>
 
-        {/* Embla Carousel with swipe */}
+        {/* Embla Carousel - 1x1 mobile, 3x3 tablet, 4x4 desktop */}
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex -ml-6">
-            {similarArtisans.map((artisan) => (
-              <div 
-                key={artisan.id} 
-                className="flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-6"
-              >
-                {(() => {
-                  const isElite = artisan.subscription_tier === "elite";
-                  const isPro = artisan.subscription_tier === "pro";
-                  const isEssential = artisan.subscription_tier === "essential";
+          <div className="flex -ml-4">
+            {similarArtisans.map((artisan) => {
+              const badgeConfig = getSubscriptionBadge(artisan.subscription_tier);
+              const BadgeIcon = badgeConfig.icon;
 
-                  const getBadgeConfig = () => {
-                    if (isElite) {
-                      return {
-                        show: true,
-                        icon: Crown,
-                        label: "Elite",
-                        gradient: "from-yellow-500 via-amber-400 to-yellow-500",
-                        borderClass: "border-yellow-500/50 ring-2 ring-yellow-500/30 animate-glow-pulse"
-                      };
-                    }
-                    if (isPro) {
-                      return {
-                        show: true,
-                        icon: Award,
-                        label: "Premium",
-                        gradient: "from-slate-400 via-slate-300 to-slate-400",
-                        borderClass: "border-slate-400/50 ring-1 ring-slate-400/20"
-                      };
-                    }
-                    if (isEssential) {
-                      return {
-                        show: true,
-                        icon: Medal,
-                        label: "Pro",
-                        gradient: "from-amber-700 via-amber-600 to-amber-700",
-                        borderClass: "border-amber-600/50 ring-1 ring-amber-600/20"
-                      };
-                    }
-                    return { show: false, borderClass: "" };
-                  };
-
-                  const badgeConfig = getBadgeConfig();
-                  const BadgeIcon = badgeConfig.icon;
-
-                  return (
-                    <Card 
-                      className={cn(
-                        "overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full",
-                        badgeConfig.borderClass
+              return (
+                <div 
+                  key={artisan.id} 
+                  className="flex-[0_0_100%] sm:flex-[0_0_33.333%] lg:flex-[0_0_25%] min-w-0 pl-4"
+                >
+                  <Card 
+                    className={cn(
+                      "overflow-hidden hover:shadow-xl transition-all cursor-pointer h-full",
+                      badgeConfig.borderClass
+                    )}
+                    onClick={() => handleViewProfile(artisan.slug || artisan.id)}
+                  >
+                    {/* Photo en haut de la card */}
+                    <div className="relative h-32 sm:h-36 lg:h-40 overflow-hidden bg-muted">
+                      <img 
+                        src={artisan.photo_url || "/placeholder.svg"} 
+                        alt={artisan.business_name || "Artisan"}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      {/* Badge abonnement en overlay */}
+                      {badgeConfig.show && BadgeIcon && (
+                        <div className={cn(
+                          "absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-semibold bg-gradient-to-r shadow-lg",
+                          badgeConfig.gradient
+                        )}>
+                          <BadgeIcon className="w-3 h-3" />
+                          <span className="hidden sm:inline">{badgeConfig.label}</span>
+                        </div>
                       )}
-                      onClick={() => handleViewProfile(artisan.slug || artisan.id)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="relative">
-                            <Avatar className="h-14 w-14 ring-2 ring-primary/20">
-                              <AvatarImage src={artisan.photo_url || "/favicon.png"} alt={artisan.business_name} />
-                              <AvatarFallback className="bg-muted">
-                                <img src="/favicon.png" alt="Artisans Validés" className="h-full w-full object-contain" />
-                              </AvatarFallback>
-                            </Avatar>
-                            {artisan.is_verified && (
-                              <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5">
-                                <Shield className="h-3 w-3" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-semibold text-foreground truncate">{artisan.business_name}</h3>
-                              {badgeConfig.show && BadgeIcon && (
-                                <div className={cn(
-                                  "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-white text-[10px] font-semibold bg-gradient-to-r",
-                                  badgeConfig.gradient
-                                )}>
-                                  <BadgeIcon className="w-2.5 h-2.5" />
-                                  <span>{badgeConfig.label}</span>
-                                </div>
-                              )}
-                            </div>
-                            <Badge variant="secondary" className="text-xs mt-1">
-                              {artisan.category?.name || trade}
-                            </Badge>
-                          </div>
+                      {/* Badge vérifié */}
+                      {artisan.is_verified && (
+                        <div className="absolute bottom-2 left-2 bg-emerald-500 text-white rounded-full p-1.5 shadow-lg">
+                          <Shield className="h-3 w-3" />
                         </div>
-
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                          <MapPin className="h-3 w-3" />
-                          <span className="truncate">{artisan.city}</span>
+                      )}
+                    </div>
+                    
+                    <CardContent className="p-3 sm:p-4">
+                      <h3 className="font-semibold text-sm sm:text-base truncate mb-1">
+                        {artisan.business_name}
+                      </h3>
+                      
+                      <Badge variant="secondary" className="text-xs mb-2">
+                        {artisan.category?.name || trade}
+                      </Badge>
+                      
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{artisan.city}</span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-0.5">
+                          {renderStars(artisan.rating || 0)}
+                          <span className="text-xs font-medium ml-1">
+                            {artisan.rating?.toFixed(1) || "0.0"}
+                          </span>
                         </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1">
-                            {renderStars(artisan.rating || 0)}
-                            <span className="text-sm font-medium ml-1">{artisan.rating?.toFixed(1) || "0.0"}</span>
-                            <span className="text-xs text-muted-foreground">({artisan.review_count || 0})</span>
-                          </div>
-                          {artisan.hourly_rate && (
-                            <span className="text-sm font-semibold text-primary">{artisan.hourly_rate}€/h</span>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })()}
-              </div>
-            ))}
+                        {artisan.hourly_rate && (
+                          <span className="text-xs font-semibold text-primary">
+                            {artisan.hourly_rate}€/h
+                          </span>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Dots */}
+        {/* Dots pagination - visible on mobile */}
         {scrollSnaps.length > 1 && (
-          <div className="flex justify-center gap-2 mt-6">
-            {scrollSnaps.map((_, idx) => (
+          <div className="flex justify-center gap-1.5 mt-4 sm:mt-6">
+            {scrollSnaps.slice(0, Math.min(8, scrollSnaps.length)).map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => scrollTo(idx)}
-                className={`w-2 h-2 rounded-full transition-colors touch-manipulation ${
+                className={cn(
+                  "w-2 h-2 rounded-full transition-colors touch-manipulation",
                   idx === selectedIndex ? "bg-primary" : "bg-muted-foreground/30"
-                }`}
+                )}
               />
             ))}
           </div>
