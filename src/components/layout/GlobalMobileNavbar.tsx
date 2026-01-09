@@ -1,32 +1,29 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Home, LayoutDashboard, MessageSquare, Bell, X, CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info as InfoIcon, Mail } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Home, LayoutDashboard, MessageSquare, Bell, CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info as InfoIcon, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useAllNotifications } from "@/hooks/useAllNotifications";
+import { useAuth } from "@/hooks/useAuth";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
-interface MobileBottomNavbarProps {
-  isAuthenticated: boolean;
-  userRole: string | null;
-  chatOpen?: boolean;
-  onChatClick: () => void;
-}
-
-const MobileBottomNavbar = ({
-  isAuthenticated,
-  userRole,
-  chatOpen = false,
-  onChatClick,
-}: MobileBottomNavbarProps) => {
+const GlobalMobileNavbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
   
-  // Only show for authenticated clients OR artisans
-  if (!isAuthenticated || (userRole !== 'client' && userRole !== 'artisan')) {
+  const { user, role, isLoading: authLoading } = useAuth();
+  
+  // Don't show while loading auth or if not authenticated
+  if (authLoading || !user) {
+    return null;
+  }
+  
+  // Only show for clients and artisans (not admins)
+  if (role !== 'client' && role !== 'artisan') {
     return null;
   }
 
@@ -56,9 +53,8 @@ const MobileBottomNavbar = ({
     }
   };
 
-  // Different routes based on user role
   const getNotificationRoute = (type: string, relatedId: string | null) => {
-    const isArtisan = userRole === 'artisan';
+    const isArtisan = role === 'artisan';
     
     switch (type) {
       case "new_quote":
@@ -70,7 +66,7 @@ const MobileBottomNavbar = ({
       case "mission_assigned":
       case "mission_application":
         return isArtisan 
-          ? "/artisan/missions-postulees" 
+          ? "/artisan/demandes" 
           : (relatedId ? `/client/missions/${relatedId}` : "/client/missions");
       case "approval":
       case "rejection":
@@ -92,37 +88,40 @@ const MobileBottomNavbar = ({
     navigate(route);
   };
 
+  // Check if current path matches
+  const isActive = (path: string) => location.pathname === path;
+
   // Different nav items based on role
   const getNavItems = () => {
-    if (userRole === 'artisan') {
+    if (role === 'artisan') {
       return [
         {
           id: "home",
           label: "Accueil",
           icon: <Home className="h-5 w-5" />,
           onClick: () => navigate("/"),
-          className: "text-muted-foreground",
+          path: "/",
         },
         {
           id: "dashboard",
           label: "Dashboard",
           icon: <LayoutDashboard className="h-5 w-5" />,
           onClick: () => navigate("/artisan/dashboard"),
-          className: "text-primary",
+          path: "/artisan/dashboard",
         },
         {
           id: "messagerie",
           label: "Messages",
           icon: <Mail className="h-5 w-5" />,
           onClick: () => navigate("/artisan/messagerie"),
-          className: "text-blue-600",
+          path: "/artisan/messagerie",
         },
         {
           id: "notifications",
           label: "Notifs",
           icon: <Bell className="h-5 w-5" />,
           onClick: () => setNotifOpen(true),
-          className: "text-amber-600",
+          path: null,
         },
       ];
     }
@@ -134,28 +133,28 @@ const MobileBottomNavbar = ({
         label: "Accueil",
         icon: <Home className="h-5 w-5" />,
         onClick: () => navigate("/"),
-        className: "text-muted-foreground",
+        path: "/",
       },
       {
         id: "dashboard",
         label: "Dashboard",
         icon: <LayoutDashboard className="h-5 w-5" />,
         onClick: () => navigate("/client/dashboard"),
-        className: "text-primary",
+        path: "/client/dashboard",
       },
       {
-        id: "chat",
-        label: chatOpen ? "Fermer" : "Tchat",
-        icon: chatOpen ? <X className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />,
-        onClick: onChatClick,
-        className: chatOpen ? "text-red-600" : "text-blue-600",
+        id: "messagerie",
+        label: "Messages",
+        icon: <MessageSquare className="h-5 w-5" />,
+        onClick: () => navigate("/client/messagerie"),
+        path: "/client/messagerie",
       },
       {
         id: "notifications",
         label: "Notifs",
         icon: <Bell className="h-5 w-5" />,
         onClick: () => setNotifOpen(true),
-        className: "text-amber-600",
+        path: null,
       },
     ];
   };
@@ -166,29 +165,34 @@ const MobileBottomNavbar = ({
     <>
       <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-[60] bg-background border-t shadow-lg">
         <div className="flex items-center justify-around py-2 px-2 safe-area-pb">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={item.onClick}
-              className={cn(
-                "relative flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-all active:scale-95",
-                "hover:bg-muted",
-                item.className,
-                item.id === "chat" && chatOpen && "bg-red-100 ring-2 ring-red-500"
-              )}
-            >
-              {item.icon}
-              <span className="text-xs font-medium">{item.label}</span>
-              {/* Badge for notifications */}
-              {item.id === "notifications" && unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 min-w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
-              )}
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const active = item.path && isActive(item.path);
+            return (
+              <button
+                key={item.id}
+                onClick={item.onClick}
+                className={cn(
+                  "relative flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-all active:scale-95",
+                  "hover:bg-muted",
+                  active ? "text-primary bg-primary/10" : "text-muted-foreground"
+                )}
+              >
+                {item.icon}
+                <span className="text-xs font-medium">{item.label}</span>
+                {/* Badge for notifications */}
+                {item.id === "notifications" && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 min-w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </nav>
+
+      {/* Bottom spacer for mobile screens - prevents content from being hidden behind navbar */}
+      <div className="xl:hidden h-20" />
 
       {/* Notifications Sheet */}
       <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
@@ -262,4 +266,4 @@ const MobileBottomNavbar = ({
   );
 };
 
-export default MobileBottomNavbar;
+export default GlobalMobileNavbar;

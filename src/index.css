@@ -191,3 +191,16 @@
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+
+/* Safe area for mobile bottom navbar */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Add bottom padding to body when mobile navbar is present - handled by GlobalMobileNavbar */
+body:has(.mobile-navbar-active) main,
+body:has(.mobile-navbar-active) footer {
+  @media (max-width: 1279px) {
+    padding-bottom: 5rem;
+  }
+}
