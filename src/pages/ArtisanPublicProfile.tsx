@@ -393,6 +393,42 @@ const ArtisanPublicProfile = () => {
                 </CardContent>
               </Card>
 
+              {/* Pourquoi cet artisan est validé */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-emerald-500" />
+                    Pourquoi cet artisan est validé ?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                      <span className="text-foreground">Identité et entreprise vérifiées</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                      <span className="text-foreground">SIRET & assurance décennale contrôlés</span>
+                    </li>
+                    {artisan.experience_years && artisan.experience_years > 0 && (
+                      <li className="flex items-center gap-3">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                        <span className="text-foreground">{artisan.experience_years} ans d'expérience métier</span>
+                      </li>
+                    )}
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                      <span className="text-foreground">Avis clients authentifiés</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                      <span className="text-foreground">Charte qualité Artisans Validés signée</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+
               {/* Compétences secondaires - liste verticale avec coches vertes */}
               {(() => {
                 const secondarySkills = (artisan as any).categories?.filter(
