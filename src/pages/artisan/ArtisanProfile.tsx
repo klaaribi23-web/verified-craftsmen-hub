@@ -430,79 +430,88 @@ export const ArtisanProfile = () => {
         />
 
         <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
-          <div className="max-w-4xl mx-auto space-y-6">
-            {/* Profile Header */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <div className="flex flex-col md:flex-row items-start gap-6">
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
-                    {artisan?.photo_url ? (
-                      <img 
-                        src={artisan.photo_url} 
-                        alt="Photo de profil" 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="w-16 h-16 text-muted-foreground" />
-                    )}
+          <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+            {/* Profile Header - Mobile optimized */}
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
+              <div className="flex flex-col gap-4">
+                {/* Photo + Infos - Stack vertical on mobile */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                  {/* Profile photo - Centered on mobile */}
+                  <div className="relative mx-auto sm:mx-0 flex-shrink-0">
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
+                      {artisan?.photo_url ? (
+                        <img 
+                          src={artisan.photo_url} 
+                          alt="Photo de profil" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground" />
+                      )}
+                    </div>
+                    <input
+                      ref={profilePhotoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleProfilePhotoChange}
+                      className="hidden"
+                    />
+                    <button 
+                      onClick={() => profilePhotoInputRef.current?.click()}
+                      disabled={isSaving}
+                      className="absolute -bottom-2 -right-2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform disabled:opacity-50"
+                    >
+                      {isSaving ? (
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                      ) : (
+                        <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
+                      )}
+                    </button>
                   </div>
-                  <input
-                    ref={profilePhotoInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    onChange={handleProfilePhotoChange}
-                    className="hidden"
-                  />
-                  <button 
-                    onClick={() => profilePhotoInputRef.current?.click()}
-                    disabled={isSaving}
-                    className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform disabled:opacity-50"
-                  >
-                    {isSaving ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Camera className="w-5 h-5" />
-                    )}
-                  </button>
+                  
+                  {/* Infos - Centered on mobile */}
+                  <div className="flex-1 text-center sm:text-left min-w-0">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+                      <h2 className="text-xl sm:text-2xl font-bold text-foreground truncate">
+                        {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Nouveau profil"}
+                      </h2>
+                      {artisan?.status === "active" && (
+                        <Badge className="bg-success/20 text-success border-0 gap-1 text-xs">
+                          <BadgeCheck className="w-3 h-3 sm:w-4 sm:h-4" /> Validé
+                        </Badge>
+                      )}
+                      {artisan?.status === "pending" && (
+                        <Badge className="bg-warning/20 text-warning border-0 text-xs">
+                          En attente
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      {description || "Complétez votre profil pour être visible par les clients"}
+                    </p>
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
+                      {city && city !== "Non renseigné" && (
+                        <span className="flex items-center justify-center sm:justify-start gap-1 text-muted-foreground">
+                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4" /> {city}
+                        </span>
+                      )}
+                      {phone && (
+                        <span className="flex items-center justify-center sm:justify-start gap-1 text-muted-foreground">
+                          <Phone className="w-3 h-3 sm:w-4 sm:h-4" /> {phone}
+                        </span>
+                      )}
+                      {email && (
+                        <span className="flex items-center justify-center sm:justify-start gap-1 text-muted-foreground truncate">
+                          <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" /> 
+                          <span className="truncate">{email}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h2 className="text-2xl font-bold text-foreground">
-                      {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Nouveau profil"}
-                    </h2>
-                    {artisan?.status === "active" && (
-                      <Badge className="bg-success/20 text-success border-0 gap-1">
-                        <BadgeCheck className="w-4 h-4" /> Artisan Validé
-                      </Badge>
-                    )}
-                    {artisan?.status === "pending" && (
-                      <Badge className="bg-warning/20 text-warning border-0">
-                        En attente de validation
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground mb-4">
-                    {description || "Complétez votre profil pour être visible par les clients"}
-                  </p>
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    {city && city !== "Non renseigné" && (
-                      <span className="flex items-center gap-1 text-muted-foreground">
-                        <MapPin className="w-4 h-4" /> {city}
-                      </span>
-                    )}
-                    {phone && (
-                      <span className="flex items-center gap-1 text-muted-foreground">
-                        <Phone className="w-4 h-4" /> {phone}
-                      </span>
-                    )}
-                    {email && (
-                      <span className="flex items-center gap-1 text-muted-foreground">
-                        <Mail className="w-4 h-4" /> {email}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <Button variant="gold" disabled={isSaving} onClick={handleSave}>
+                
+                {/* Save button - Full width on mobile */}
+                <Button variant="gold" disabled={isSaving} onClick={handleSave} className="w-full sm:w-auto sm:self-end">
                   {isSaving ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
@@ -514,13 +523,13 @@ export const ArtisanProfile = () => {
             </div>
 
             {/* Categories Selection */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-6">Catégories de services</h3>
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6">Catégories de services</h3>
               
               {/* Primary Category */}
-              <div className="mb-6">
-                <Label className="text-base font-medium">Catégorie principale *</Label>
-                <p className="text-sm text-muted-foreground mb-3">
+              <div className="mb-4 sm:mb-6">
+                <Label className="text-sm sm:text-base font-medium">Catégorie principale *</Label>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                   Sélectionnez votre spécialité principale (obligatoire)
                 </p>
                 <CategorySelect
@@ -536,10 +545,10 @@ export const ArtisanProfile = () => {
                 )}
               </div>
 
-              <div className="border-t border-border pt-6">
+              <div className="border-t border-border pt-4 sm:pt-6">
                 {/* Secondary Skills */}
-                <Label className="text-base font-medium">Compétences secondaires</Label>
-                <p className="text-sm text-muted-foreground mb-3">
+                <Label className="text-sm sm:text-base font-medium">Compétences secondaires</Label>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                   Ajoutez d'autres compétences pour être trouvé sur plus de recherches (optionnel)
                 </p>
                 <CategoryMultiSelect
@@ -560,14 +569,14 @@ export const ArtisanProfile = () => {
             </div>
 
             {/* Personal Information */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-6">Informations personnelles</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6">Informations personnelles</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="bio">Le mot de l'artisan (320 caractères max)</Label>
+                  <Label htmlFor="bio" className="text-sm">Le mot de l'artisan (320 caractères max)</Label>
                   <Textarea 
                     id="bio" 
-                    rows={4}
+                    rows={3}
                     value={description}
                     onChange={(e) => {
                       const value = e.target.value;
@@ -581,7 +590,7 @@ export const ArtisanProfile = () => {
                       }
                     }}
                     placeholder="Décrivez votre activité, vos spécialités, votre expérience... (pas de liens)"
-                    className={description.length > 300 ? "border-amber-500" : ""}
+                    className={`text-sm ${description.length > 300 ? "border-amber-500" : ""}`}
                   />
                   <div className="flex justify-between items-center">
                     <p className="text-xs text-muted-foreground">
@@ -593,36 +602,38 @@ export const ArtisanProfile = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">Prénom</Label>
+                  <Label htmlFor="firstName" className="text-sm">Prénom</Label>
                   <Input 
                     id="firstName" 
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Votre prénom"
+                    className="text-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Nom</Label>
+                  <Label htmlFor="lastName" className="text-sm">Nom</Label>
                   <Input 
                     id="lastName" 
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Votre nom"
+                    className="text-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-sm">Email</Label>
                   <Input 
                     id="email" 
                     type="email" 
                     value={email}
                     disabled
-                    className="bg-muted"
+                    className="bg-muted text-sm"
                   />
                   <p className="text-xs text-muted-foreground">L'email ne peut pas être modifié</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Téléphone (format français)</Label>
+                  <Label htmlFor="phone" className="text-sm">Téléphone (format français)</Label>
                   <FrenchPhoneInput
                     id="phone" 
                     value={phone}
@@ -630,7 +641,7 @@ export const ArtisanProfile = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="city">Ville</Label>
+                  <Label htmlFor="city" className="text-sm">Ville</Label>
                   <CityAutocompleteAPI
                     value={city}
                     onChange={(value, coords) => {
@@ -641,11 +652,11 @@ export const ArtisanProfile = () => {
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label className="flex items-center gap-2">
+                  <Label className="flex items-center gap-2 text-sm">
                     <MapPin className="h-4 w-4" />
-                    Vous acceptez de travailler dans un rayon de : {interventionRadius} km
+                    Rayon d'intervention : {interventionRadius} km
                   </Label>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <Slider
                       value={[interventionRadius]}
                       onValueChange={(value) => setInterventionRadius(value[0])}
@@ -654,7 +665,7 @@ export const ArtisanProfile = () => {
                       step={5}
                       className="flex-1"
                     />
-                    <span className="text-sm font-medium w-16 text-right">{interventionRadius} km</span>
+                    <span className="text-xs sm:text-sm font-medium w-14 sm:w-16 text-right">{interventionRadius} km</span>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     0 km = uniquement dans votre ville | 200 km = zone étendue
@@ -664,11 +675,11 @@ export const ArtisanProfile = () => {
             </div>
 
             {/* Professional Information */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-6">Informations professionnelles</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6">Informations professionnelles</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="siret">
+                  <Label htmlFor="siret" className="text-sm">
                     Numéro SIRET <span className="text-destructive">*</span>
                   </Label>
                   <Input 
@@ -676,7 +687,7 @@ export const ArtisanProfile = () => {
                     value={siret}
                     onChange={(e) => handleSiretChange(e.target.value)}
                     placeholder="12345678900012"
-                    className={siretError ? "border-destructive" : ""}
+                    className={`text-sm ${siretError ? "border-destructive" : ""}`}
                     maxLength={17}
                   />
                   {siretError ? (
@@ -686,22 +697,23 @@ export const ArtisanProfile = () => {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="experience">Années d'expérience</Label>
+                  <Label htmlFor="experience" className="text-sm">Années d'expérience</Label>
                   <Input 
                     id="experience" 
                     type="number" 
                     value={experienceYears}
                     onChange={(e) => setExperienceYears(e.target.value)}
                     placeholder="5"
+                    className="text-sm"
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="companyWebsite">Site web entreprise</Label>
+                  <Label htmlFor="companyWebsite" className="text-sm">Site web entreprise</Label>
                   <div className="relative">
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input 
                       id="companyWebsite" 
-                      className="pl-10" 
+                      className="pl-10 text-sm" 
                       value={websiteUrl}
                       onChange={(e) => setWebsiteUrl(e.target.value)}
                       placeholder="https://votre-site.fr"
@@ -712,17 +724,17 @@ export const ArtisanProfile = () => {
             </div>
 
             {/* Social Links */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-6">Réseaux sociaux (facultatif)</h3>
-              <p className="text-sm text-muted-foreground mb-4">Ces liens seront affichés sur votre profil public pour permettre aux clients de vous suivre.</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6">Réseaux sociaux (facultatif)</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4">Ces liens seront affichés sur votre profil public.</p>
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="facebook">Facebook</Label>
+                  <Label htmlFor="facebook" className="text-sm">Facebook</Label>
                   <div className="relative">
                     <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input 
                       id="facebook" 
-                      className="pl-10" 
+                      className="pl-10 text-sm" 
                       placeholder="https://facebook.com/votre-page"
                       value={facebookUrl}
                       onChange={(e) => setFacebookUrl(e.target.value)}
@@ -730,12 +742,12 @@ export const ArtisanProfile = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="instagram">Instagram</Label>
+                  <Label htmlFor="instagram" className="text-sm">Instagram</Label>
                   <div className="relative">
                     <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input 
                       id="instagram" 
-                      className="pl-10" 
+                      className="pl-10 text-sm" 
                       placeholder="https://instagram.com/votre-compte"
                       value={instagramUrl}
                       onChange={(e) => setInstagramUrl(e.target.value)}
@@ -743,12 +755,12 @@ export const ArtisanProfile = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="linkedin">LinkedIn</Label>
+                  <Label htmlFor="linkedin" className="text-sm">LinkedIn</Label>
                   <div className="relative">
                     <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input 
                       id="linkedin" 
-                      className="pl-10" 
+                      className="pl-10 text-sm" 
                       placeholder="https://linkedin.com/in/votre-profil"
                       value={linkedinUrl}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
@@ -758,18 +770,19 @@ export const ArtisanProfile = () => {
               </div>
             </div>
 
-            {/* Working Hours */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <div className="flex items-center justify-between mb-6">
+            {/* Working Hours - Completely redesigned for mobile */}
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-accent" />
-                  <h3 className="text-lg font-semibold text-foreground">Horaires de travail</h3>
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground">Horaires de travail</h3>
                 </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={handleSaveWorkingHours}
                   disabled={isSaving}
+                  className="w-full sm:w-auto"
                 >
                   {isSaving ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -779,8 +792,8 @@ export const ArtisanProfile = () => {
                   Enregistrer
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Définissez vos horaires d'ouverture pour chaque jour de la semaine.
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+                Définissez vos horaires d'ouverture pour chaque jour.
               </p>
               <div className="space-y-3">
                 {[
@@ -792,33 +805,38 @@ export const ArtisanProfile = () => {
                   { key: "samedi", label: "Samedi" },
                   { key: "dimanche", label: "Dimanche" },
                 ].map(({ key, label }) => (
-                  <div key={key} className="flex items-center gap-4 p-3 border border-border rounded-lg bg-muted/30">
-                    <div className="flex items-center gap-3 min-w-[140px]">
-                      <Switch
-                        checked={workingHours[key]?.enabled ?? false}
-                        onCheckedChange={(checked) => handleWorkingHoursChange(key, "enabled", checked)}
-                      />
-                      <span className="font-medium text-foreground">{label}</span>
+                  <div key={key} className="p-3 border border-border rounded-lg bg-muted/30">
+                    {/* Row 1: Switch + Day name + Closed status */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Switch
+                          checked={workingHours[key]?.enabled ?? false}
+                          onCheckedChange={(checked) => handleWorkingHoursChange(key, "enabled", checked)}
+                        />
+                        <span className="font-medium text-sm sm:text-base text-foreground">{label}</span>
+                      </div>
+                      {!workingHours[key]?.enabled && (
+                        <span className="text-muted-foreground text-xs sm:text-sm">Fermé</span>
+                      )}
                     </div>
+                    
+                    {/* Row 2: Time inputs (only if enabled) */}
                     {workingHours[key]?.enabled && (
-                      <div className="flex items-center gap-2 flex-1">
+                      <div className="flex items-center gap-2 mt-3 pl-0 sm:pl-10">
                         <Input
                           type="time"
                           value={workingHours[key]?.start || "08:00"}
                           onChange={(e) => handleWorkingHoursChange(key, "start", e.target.value)}
-                          className="w-28"
+                          className="flex-1 sm:w-24 sm:flex-initial text-sm"
                         />
-                        <span className="text-muted-foreground">à</span>
+                        <span className="text-muted-foreground text-xs sm:text-sm">à</span>
                         <Input
                           type="time"
                           value={workingHours[key]?.end || "18:00"}
                           onChange={(e) => handleWorkingHoursChange(key, "end", e.target.value)}
-                          className="w-28"
+                          className="flex-1 sm:w-24 sm:flex-initial text-sm"
                         />
                       </div>
-                    )}
-                    {!workingHours[key]?.enabled && (
-                      <span className="text-muted-foreground text-sm">Fermé</span>
                     )}
                   </div>
                 ))}
@@ -826,15 +844,15 @@ export const ArtisanProfile = () => {
             </div>
 
             {/* Portfolio Photos */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-foreground">Portfolio / Réalisations (Photos)</h3>
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground">Portfolio photos</h3>
                 <Badge variant="outline" className="text-xs">
-                  {photos.length}/{maxPhotos} photos
+                  {photos.length}/{maxPhotos}
                 </Badge>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
                 {photos.map((photo, i) => (
                   <div key={i} className="aspect-square bg-muted rounded-lg overflow-hidden relative group">
                     <img 
@@ -845,7 +863,7 @@ export const ArtisanProfile = () => {
                     <button 
                       onClick={() => removePhoto(i)}
                       disabled={isSaving}
-                      className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                      className="absolute top-1.5 right-1.5 w-7 h-7 sm:w-6 sm:h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity disabled:opacity-50"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -868,11 +886,11 @@ export const ArtisanProfile = () => {
                       className="aspect-square bg-muted/50 rounded-lg border-2 border-dashed border-border hover:border-accent hover:bg-accent/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-accent disabled:opacity-50"
                     >
                       {isSaving ? (
-                        <Loader2 className="w-8 h-8 animate-spin" />
+                        <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin" />
                       ) : (
                         <>
-                          <Upload className="w-8 h-8" />
-                          <span className="text-sm">Ajouter</span>
+                          <Upload className="w-6 h-6 sm:w-8 sm:h-8" />
+                          <span className="text-xs sm:text-sm">Ajouter</span>
                         </>
                       )}
                     </button>
@@ -882,26 +900,26 @@ export const ArtisanProfile = () => {
             </div>
 
             {/* Portfolio Videos */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold text-foreground">Mes vidéos</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-foreground">Mes vidéos</h3>
                 <Badge variant="outline" className="text-xs">
-                  {videos.length}/{maxVideos} vidéos
+                  {videos.length}/{maxVideos}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground mb-6">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
                 Ajoutez des liens YouTube/Vimeo ou téléchargez des vidéos MP4
               </p>
               
-              {/* Add video options */}
-              <div className="space-y-3 mb-6">
+              {/* Add video options - Stack on mobile */}
+              <div className="space-y-3 mb-4 sm:mb-6">
                 {/* YouTube/Vimeo URL */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <div className="flex-1 relative">
                     <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                      placeholder="https://www.youtube.com/watch?v=... ou https://vimeo.com/..."
-                      className="pl-10"
+                      placeholder="https://youtube.com/... ou https://vimeo.com/..."
+                      className="pl-10 text-sm"
                       value={newVideoUrl}
                       onChange={(e) => setNewVideoUrl(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && handleAddVideoUrl()}
@@ -912,12 +930,13 @@ export const ArtisanProfile = () => {
                     onClick={handleAddVideoUrl} 
                     variant="outline" 
                     disabled={videos.length >= maxVideos || isSaving}
+                    className="w-full sm:w-auto"
                   >
                     {isSaving ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <>
-                        <Plus className="w-4 h-4 mr-1" /> Lien
+                        <Plus className="w-4 h-4 mr-1" /> Ajouter lien
                       </>
                     )}
                   </Button>
@@ -951,7 +970,7 @@ export const ArtisanProfile = () => {
               </div>
 
               {/* Video grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 {videos.map((videoUrl, index) => {
                   const thumbnail = getVideoThumbnail(videoUrl);
                   const isStorage = isStorageUrl(videoUrl);
@@ -985,7 +1004,7 @@ export const ArtisanProfile = () => {
                       <button 
                         onClick={() => removeVideo(index)}
                         disabled={isSaving}
-                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                        className="absolute top-1.5 right-1.5 w-7 h-7 sm:w-6 sm:h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity disabled:opacity-50"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -993,9 +1012,9 @@ export const ArtisanProfile = () => {
                   );
                 })}
                 {videos.length === 0 && (
-                  <div className="aspect-video bg-muted/50 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground md:col-span-3">
-                    <Video className="w-8 h-8" />
-                    <span className="text-sm">Aucune vidéo ajoutée</span>
+                  <div className="aspect-video bg-muted/50 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground sm:col-span-2 md:col-span-3">
+                    <Video className="w-6 h-6 sm:w-8 sm:h-8" />
+                    <span className="text-xs sm:text-sm">Aucune vidéo ajoutée</span>
                     <span className="text-xs">Lien YouTube/Vimeo ou fichier MP4</span>
                   </div>
                 )}
