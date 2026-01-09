@@ -59,13 +59,16 @@ export interface ArtisanPublic {
   google_review_count: number | null;
   subscription_tier?: string | null;
   display_priority?: number | null;
+  intervention_radius?: number | null;
   category?: {
     id: string;
     name: string;
+    icon?: string | null;
   } | null;
   categories?: {
     id: string;
     name: string;
+    icon?: string | null;
   }[];
 }
 
@@ -252,7 +255,7 @@ export const useArtisanBySlug = (slugOrId: string) => {
         .from("public_artisans")
         .select(`
           *,
-          category:categories(id, name)
+          category:categories(id, name, icon)
         `)
         .eq("slug", slugOrId)
         .maybeSingle();
@@ -263,7 +266,7 @@ export const useArtisanBySlug = (slugOrId: string) => {
           .from("public_artisans")
           .select(`
             *,
-            category:categories(id, name)
+            category:categories(id, name, icon)
           `)
           .eq("id", slugOrId)
           .maybeSingle();
@@ -278,14 +281,14 @@ export const useArtisanBySlug = (slugOrId: string) => {
       const { data: artisanCategories } = await supabase
         .from("artisan_categories")
         .select(`
-          category:categories(id, name)
+          category:categories(id, name, icon)
         `)
         .eq("artisan_id", data.id);
 
       return {
         ...data,
         categories: artisanCategories?.map(ac => ac.category).filter(Boolean) || []
-      } as ArtisanPublic & { categories: { id: string; name: string }[] };
+      } as ArtisanPublic & { categories: { id: string; name: string; icon?: string | null }[] };
     },
     enabled: !!slugOrId,
   });
