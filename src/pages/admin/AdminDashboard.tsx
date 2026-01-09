@@ -5,6 +5,7 @@ import { AdminStatsCard } from "@/components/admin-dashboard/AdminStatsCard";
 import { AdminNotifications } from "@/components/admin-dashboard/AdminNotifications";
 import { NewArtisansList } from "@/components/admin-dashboard/NewArtisansList";
 import { TopArtisansList } from "@/components/admin-dashboard/TopArtisansList";
+import { GeocodeMissingArtisans } from "@/components/admin-dashboard/GeocodeMissingArtisans";
 import { Button } from "@/components/ui/button";
 import { useAdminStats } from "@/hooks/useAdminData";
 import { 
@@ -114,9 +115,10 @@ const AdminDashboard = () => {
             <TopArtisansList />
           </div>
 
-          {/* Right Column - Notifications */}
-          <div>
+          {/* Right Column - Notifications & Tools */}
+          <div className="space-y-4 md:space-y-6">
             <AdminNotifications />
+            <GeocodeMissingArtisans onComplete={handleRefresh} />
           </div>
         </div>
       </main>
