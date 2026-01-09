@@ -106,7 +106,7 @@ const NosMissions = () => {
 
   const [searchCoordinates, setSearchCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
-  const { data: missions, isLoading: missionsLoading } = useDemoMissions();
+  const { data: missions, isLoading: missionsLoading } = useDemoMissions(user?.id, role);
   const { data: categories } = useCategoriesHierarchy();
 
   // Extract mission cities for preloading coordinates
