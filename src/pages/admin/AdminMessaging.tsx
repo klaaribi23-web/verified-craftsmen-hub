@@ -21,7 +21,26 @@ import {
   Users,
   Briefcase,
   MessageCircle,
+  MoreVertical,
+  Archive,
+  Trash2,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
@@ -57,6 +76,10 @@ const AdminMessaging = () => {
     useConversationMessages,
     sendMessage,
     markAsRead,
+    archivedConversationIds,
+    archiveConversation,
+    unarchiveConversation,
+    deleteConversation,
   } = useMessaging();
 
   const [activeTab, setActiveTab] = useState<"artisans" | "clients">("artisans");
@@ -64,6 +87,8 @@ const AdminMessaging = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [selectedContactInfo, setSelectedContactInfo] = useState<{ name: string; photo: string | null; role: string } | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch all active artisans
@@ -194,6 +219,25 @@ const AdminMessaging = () => {
     }
   };
 
+  const handleArchiveToggle = () => {
+    if (selectedConversationId) {
+      if (archivedConversationIds.includes(selectedConversationId)) {
+        unarchiveConversation.mutate(selectedConversationId);
+      } else {
+        archiveConversation.mutate(selectedConversationId);
+      }
+    }
+  };
+
+  const handleDeleteConversation = () => {
+    if (selectedConversationId) {
+      deleteConversation.mutate(selectedConversationId);
+      setSelectedConversationId(null);
+      setSelectedContactInfo(null);
+      setDeleteDialogOpen(false);
+    }
+  };
+
   const renderMessage = (message: { 
     id: string; 
     sender_id: string; 
@@ -309,7 +353,7 @@ const AdminMessaging = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <div className="px-4 pb-3">
+              <div className="px-4 pb-3 space-y-3">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -319,6 +363,15 @@ const AdminMessaging = () => {
                     className="pl-10"
                   />
                 </div>
+                <Button
+                  variant={showArchived ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setShowArchived(!showArchived)}
+                  className="w-full justify-start gap-2"
+                >
+                  <Archive className="w-4 h-4" />
+                  {showArchived ? "Conversations actives" : "Conversations archivées"}
+                </Button>
               </div>
 
               <TabsContent value="artisans" className="flex-1 m-0 overflow-hidden">
@@ -489,10 +542,34 @@ const AdminMessaging = () => {
                       </p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
-                    <Phone className="h-4 w-4 mr-2" />
-                    Appeler
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm">
+                      <Phone className="h-4 w-4 mr-2" />
+                      Appeler
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-popover">
+                        <DropdownMenuItem onClick={handleArchiveToggle}>
+                          <Archive className="w-4 h-4 mr-2" />
+                          {archivedConversationIds.includes(selectedConversationId!) 
+                            ? "Désarchiver" 
+                            : "Archiver"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setDeleteDialogOpen(true)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
 
                 {/* Messages */}
@@ -554,6 +631,24 @@ const AdminMessaging = () => {
             )}
           </Card>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer la conversation ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Cette action est irréversible. Tous les messages seront définitivement supprimés.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConversation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
       </div>
     </>
