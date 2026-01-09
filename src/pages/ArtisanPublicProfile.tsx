@@ -30,6 +30,7 @@ import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
 import { InterventionMap } from "@/components/artisan-profile/InterventionMap";
 import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
+import MobileBottomNavbar from "@/components/artisan-profile/MobileBottomNavbar";
 
 const ArtisanPublicProfile = () => {
   const {
@@ -238,32 +239,7 @@ const ArtisanPublicProfile = () => {
         <div className="container mx-auto px-3 md:px-4">
           <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-8">
             
-            {/* Mobile Contact Card - Sticky at top on mobile */}
-            <div className="lg:hidden sticky top-16 z-30 -mx-3 px-3 py-2 bg-background/95 backdrop-blur-sm border-b">
-              <div className="space-y-2">
-                {/* Bouton revendication si prospect */}
-                {artisan.status === 'prospect' && (
-                  <Button 
-                    className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
-                    size="sm" 
-                    onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Revendiquer cette fiche
-                  </Button>
-                )}
-                {/* Boutons contact - toujours visibles */}
-                <div className="flex items-center justify-between gap-2">
-                  <Button className="flex-1" size="sm" onClick={() => setChatOpen(true)}>
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Demander un devis
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setShowContactInfo(!showContactInfo)}>
-                    <Phone className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            {/* Mobile Contact Card - REMOVED: Now using MobileBottomNavbar */}
 
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-4 md:space-y-8">
@@ -1034,8 +1010,35 @@ const ArtisanPublicProfile = () => {
         </div>
       </section>
 
-      {/* Chat Widget */}
-      <ChatWidget defaultOpen={chatOpen} defaultArtisanId={artisan.id || undefined} defaultArtisanName={artisan.business_name} defaultArtisanPhoto={artisan.photo_url || undefined} />
+      {/* Chat Widget - Shows on desktop always, shows on mobile only when open */}
+      <div className={chatOpen ? "block" : "hidden lg:block"}>
+        <ChatWidget 
+          defaultOpen={chatOpen} 
+          defaultArtisanId={artisan.id || undefined} 
+          defaultArtisanName={artisan.business_name} 
+          defaultArtisanPhoto={artisan.photo_url || undefined} 
+        />
+      </div>
+
+      {/* Mobile Bottom Navbar */}
+      <MobileBottomNavbar
+        showClaim={artisan.status === 'prospect'}
+        onClaimClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
+        onQuoteClick={() => setChatOpen(true)}
+        onPhoneClick={() => {
+          if (artisanContact.phone) {
+            window.location.href = `tel:${artisanContact.phone}`;
+          } else {
+            setShowContactInfo(true);
+            toast.info("Connectez-vous pour voir le numéro de téléphone");
+          }
+        }}
+        onChatClick={() => setChatOpen(true)}
+        phoneNumber={artisanContact.phone}
+      />
+
+      {/* Bottom padding for mobile navbar */}
+      <div className="h-20 lg:hidden" />
 
       {/* Story Viewer */}
       <StoryViewer
