@@ -614,18 +614,18 @@ const ArtisanPublicProfile = () => {
                         </div>
                       </div>
 
-                      {/* SIRET */}
-                      {(artisan as any).siret && (
-                        <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-                          <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
-                            <FileCheck className="h-5 w-5 text-emerald-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">N° SIRET</p>
-                            <p className="font-semibold font-mono tracking-wide">{(artisan as any).siret}</p>
-                          </div>
+                      {/* SIRET - always visible */}
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                        <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+                          <FileCheck className="h-5 w-5 text-emerald-600" />
                         </div>
-                      )}
+                        <div>
+                          <p className="text-sm text-muted-foreground">N° SIRET</p>
+                          <p className="font-semibold font-mono tracking-wide">
+                            {(artisan as any).siret || <span className="text-muted-foreground italic">En attente</span>}
+                          </p>
+                        </div>
+                      </div>
 
                       {/* Dernière vérification - only for active artisans */}
                       {artisan.status === 'active' && artisan.updated_at && (
@@ -641,6 +641,17 @@ const ArtisanPublicProfile = () => {
                           </div>
                         </div>
                       )}
+
+                      {/* Documents vérifiés */}
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                        <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0">
+                          <Shield className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Documents légaux</p>
+                          <p className="font-semibold">Vérifiés par la plateforme</p>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
