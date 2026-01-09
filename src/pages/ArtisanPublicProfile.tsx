@@ -228,6 +228,20 @@ const ArtisanPublicProfile = () => {
       {/* Spacer for navbar - smaller on mobile/tablet */}
       <div className="pt-16 lg:pt-20" />
 
+      {/* Mobile Back Button - Full width, minimalist */}
+      <div className="lg:hidden border-b bg-muted/30">
+        <div className="container mx-auto px-3">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-muted-foreground hover:text-foreground py-2 px-0 h-auto text-sm"
+            onClick={() => navigate('/trouver-artisan')}
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Voir tous les artisans
+          </Button>
+        </div>
+      </div>
+
       {/* Profile Navigation - Desktop only (lg and up), sticky */}
       <div className="hidden lg:block sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b py-4">
         <div className="container mx-auto px-4">
@@ -496,16 +510,16 @@ const ArtisanPublicProfile = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-col gap-2">
-                        {secondarySkills.map((skill: { id: string; name: string }) => (
-                          <Link 
-                            key={skill.id} 
-                            to={`/trouver-artisan?category=${encodeURIComponent(skill.name.toLowerCase())}`}
-                            className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
-                          >
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                            <span className="font-medium">{skill.name}</span>
-                          </Link>
-                        ))}
+                      {secondarySkills.map((skill: { id: string; name: string }) => (
+                        <Link 
+                          key={skill.id} 
+                          to={`/trouver-artisan?category=${encodeURIComponent(skill.name.toLowerCase())}`}
+                          className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+                        >
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <span className="text-sm md:text-base font-medium">{skill.name}</span>
+                        </Link>
+                      ))}
                       </div>
                     </CardContent>
                   </Card>
@@ -608,18 +622,18 @@ const ArtisanPublicProfile = () => {
                             : "Fermé";
                           
                           return (
-                            <div 
-                              key={day.key} 
-                              className="flex items-center justify-between py-2"
-                            >
-                              <span className="font-medium">{day.label}</span>
-                              <span className={cn(
-                                "text-sm font-semibold",
-                                isEnabled ? "text-primary" : "text-red-500"
-                              )}>
-                                {displayTime}
-                              </span>
-                            </div>
+                          <div 
+                            key={day.key} 
+                            className="flex items-center justify-between py-2"
+                          >
+                            <span className="text-sm md:text-base font-medium">{day.label}</span>
+                            <span className={cn(
+                              "text-xs md:text-sm font-semibold",
+                              isEnabled ? "text-primary" : "text-red-500"
+                            )}>
+                              {displayTime}
+                            </span>
+                          </div>
                           );
                         })}
                       </div>
