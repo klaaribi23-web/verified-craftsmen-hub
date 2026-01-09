@@ -456,6 +456,42 @@ export type Database = {
           },
         ]
       }
+      conversation_archives: {
+        Row: {
+          archived_at: string
+          id: string
+          participant_id: string
+          user_profile_id: string
+        }
+        Insert: {
+          archived_at?: string
+          id?: string
+          participant_id: string
+          user_profile_id: string
+        }
+        Update: {
+          archived_at?: string
+          id?: string
+          participant_id?: string
+          user_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_archives_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_archives_user_profile_id_fkey"
+            columns: ["user_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_missions: {
         Row: {
           applicants_count: number | null

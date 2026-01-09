@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
-
+import { toast } from "sonner";
 interface Message {
   id: string;
   sender_id: string;
@@ -368,6 +368,101 @@ export const useMessaging = () => {
     },
   });
 
+  // Fetch archived conversation IDs
+  const { data: archivedConversationIds = [] } = useQuery({
+    queryKey: ["archived-conversations", currentProfileId],
+    queryFn: async () => {
+      if (!currentProfileId) return [];
+
+      const { data, error } = await supabase
+        .from("conversation_archives")
+        .select("participant_id")
+        .eq("user_profile_id", currentProfileId);
+
+      if (error) throw error;
+      return data.map(d => d.participant_id);
+    },
+    enabled: !!currentProfileId,
+  });
+
+  // Archive conversation mutation
+  const archiveConversation = useMutation({
+    mutationFn: async (participantId: string) => {
+      if (!currentProfileId) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from("conversation_archives")
+        .insert({
+          user_profile_id: currentProfileId,
+          participant_id: participantId,
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["archived-conversations"] });
+      toast.success("Conversation archivée");
+    },
+    onError: () => {
+      toast.error("Erreur lors de l'archivage");
+    },
+  });
+
+  // Unarchive conversation mutation
+  const unarchiveConversation = useMutation({
+    mutationFn: async (participantId: string) => {
+      if (!currentProfileId) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from("conversation_archives")
+        .delete()
+        .eq("user_profile_id", currentProfileId)
+        .eq("participant_id", participantId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["archived-conversations"] });
+      toast.success("Conversation désarchivée");
+    },
+    onError: () => {
+      toast.error("Erreur lors du désarchivage");
+    },
+  });
+
+  // Delete conversation mutation
+  const deleteConversation = useMutation({
+    mutationFn: async (participantId: string) => {
+      if (!currentProfileId) throw new Error("Not authenticated");
+
+      // Delete all messages between current user and participant
+      const { error } = await supabase
+        .from("messages")
+        .delete()
+        .or(
+          `and(sender_id.eq.${currentProfileId},receiver_id.eq.${participantId}),and(sender_id.eq.${participantId},receiver_id.eq.${currentProfileId})`
+        );
+
+      if (error) throw error;
+
+      // Also remove from archives if exists
+      await supabase
+        .from("conversation_archives")
+        .delete()
+        .eq("user_profile_id", currentProfileId)
+        .eq("participant_id", participantId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.invalidateQueries({ queryKey: ["archived-conversations"] });
+      toast.success("Conversation supprimée");
+    },
+    onError: () => {
+      toast.error("Erreur lors de la suppression");
+    },
+  });
+
   // Real-time subscription
   useEffect(() => {
     if (!currentProfileId) return;
@@ -431,6 +526,10 @@ export const useMessaging = () => {
     markAsRead,
     uploadFile,
     uploadVoiceMessage,
+    archivedConversationIds,
+    archiveConversation,
+    unarchiveConversation,
+    deleteConversation,
   };
 };
 
