@@ -394,39 +394,60 @@ const ArtisanPublicProfile = () => {
                 </CardContent>
               </Card>
 
-              {/* Pourquoi cet artisan est validé */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-emerald-500" />
+              {/* Pourquoi cet artisan est validé - Colorful design */}
+              <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 dark:from-emerald-950/30 dark:via-blue-950/30 dark:to-purple-950/30">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                      <Shield className="h-4 w-4 text-white" />
+                    </div>
                     Pourquoi cet artisan est validé ?
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                      <span className="text-foreground">Identité et entreprise vérifiées</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                      <span className="text-foreground">SIRET & assurance décennale contrôlés</span>
-                    </li>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {/* Identité vérifiée */}
+                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-emerald-200 dark:border-emerald-500/30 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-2">
+                        <CheckCircle2 className="h-5 w-5 text-white" />
+                      </div>
+                      <span className="text-xs font-medium text-foreground leading-tight">Identité vérifiée</span>
+                    </div>
+
+                    {/* SIRET contrôlé */}
+                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-blue-200 dark:border-blue-500/30 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mb-2">
+                        <FileCheck className="h-5 w-5 text-white" />
+                      </div>
+                      <span className="text-xs font-medium text-foreground leading-tight">SIRET & assurances</span>
+                    </div>
+
+                    {/* Expérience */}
                     {artisan.experience_years && artisan.experience_years > 0 && (
-                      <li className="flex items-center gap-3">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                        <span className="text-foreground">{artisan.experience_years} ans d'expérience métier</span>
-                      </li>
+                      <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-amber-200 dark:border-amber-500/30 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-2">
+                          <Award className="h-5 w-5 text-white" />
+                        </div>
+                        <span className="text-xs font-medium text-foreground leading-tight">{artisan.experience_years} ans d'expérience</span>
+                      </div>
                     )}
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                      <span className="text-foreground">Avis clients authentifiés</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                      <span className="text-foreground">Charte qualité Artisans Validés signée</span>
-                    </li>
-                  </ul>
+
+                    {/* Avis authentifiés */}
+                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-purple-200 dark:border-purple-500/30 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mb-2">
+                        <Star className="h-5 w-5 text-white" />
+                      </div>
+                      <span className="text-xs font-medium text-foreground leading-tight">Avis authentifiés</span>
+                    </div>
+
+                    {/* Charte qualité */}
+                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-rose-200 dark:border-rose-500/30 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center mb-2">
+                        <ThumbsUp className="h-5 w-5 text-white" />
+                      </div>
+                      <span className="text-xs font-medium text-foreground leading-tight">Charte qualité signée</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
