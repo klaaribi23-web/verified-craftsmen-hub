@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -327,9 +328,8 @@ const AdminAddArtisan = () => {
       return;
     }
 
-    // Validation format téléphone français (10 chiffres commençant par 0)
-    const phoneClean = formData.phone.replace(/[\s.-]/g, "");
-    if (!/^0[1-9]\d{8}$/.test(phoneClean)) {
+    // Validation format téléphone français
+    if (!validateFrenchPhone(formData.phone)) {
       toast({
         title: "Erreur",
         description: "Le téléphone doit être un numéro français valide (10 chiffres commençant par 0).",
@@ -512,12 +512,10 @@ const AdminAddArtisan = () => {
                   </div>
 
                   <div>
-                    <Label>Téléphone *</Label>
-                    <Input
-                      placeholder="06 12 34 56 78"
+                    <Label>Téléphone * (format français)</Label>
+                    <FrenchPhoneInput
                       value={formData.phone}
-                      onChange={(e) => handleChange("phone", e.target.value)}
-                      required
+                      onChange={(value) => handleChange("phone", value)}
                     />
                   </div>
 

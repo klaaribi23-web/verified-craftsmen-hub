@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,7 +72,10 @@ const artisanSignupSchema = z.object({
   firstName: z.string().trim().min(2, "Prénom requis (min 2 caractères)").max(50, "Prénom trop long"),
   lastName: z.string().trim().min(2, "Nom requis (min 2 caractères)").max(50, "Nom trop long"),
   email: z.string().trim().email("Email invalide").max(255, "Email trop long"),
-  phone: z.string().trim().min(10, "Numéro de téléphone invalide").max(20, "Numéro trop long"),
+  phone: z.string().trim().refine(
+    (val) => validateFrenchPhone(val),
+    { message: "Numéro français invalide (10 chiffres commençant par 0)" }
+  ),
   city: z.string().trim().min(2, "Ville requise").max(100, "Ville trop longue"),
 });
 
@@ -437,17 +441,15 @@ const DevenirArtisan = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="phone" className="text-navy">Téléphone *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="06 12 34 56 78"
-                        value={formData.phone}
-                        onChange={(e) => updateForm("phone", e.target.value)}
-                        className={cn("mt-1.5", claimArtisan?.phone && "bg-muted cursor-not-allowed")}
-                        required
-                        disabled={!!claimArtisan?.phone}
-                      />
+                      <Label htmlFor="phone" className="text-navy">Téléphone * (format français)</Label>
+                      <div className="mt-1.5">
+                        <FrenchPhoneInput
+                          id="phone"
+                          value={formData.phone}
+                          onChange={(value) => updateForm("phone", value)}
+                          disabled={!!claimArtisan?.phone}
+                        />
+                      </div>
                       {claimArtisan?.phone && (
                         <p className="text-xs text-amber-600 mt-1">
                           Téléphone pré-rempli depuis votre fiche vitrine

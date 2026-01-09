@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
@@ -52,7 +53,10 @@ const contactSchema = z.object({
   firstName: z.string().trim().min(2, "Prénom requis").max(50, "Prénom trop long"),
   lastName: z.string().trim().min(2, "Nom requis").max(50, "Nom trop long"),
   email: z.string().trim().email("Email invalide").max(255, "Email trop long"),
-  phone: z.string().trim().min(10, "Téléphone invalide").max(20, "Téléphone trop long"),
+  phone: z.string().trim().refine(
+    (val) => validateFrenchPhone(val),
+    { message: "Numéro français invalide (10 chiffres commençant par 0)" }
+  ),
 });
 
 const DemandeDevis = () => {
@@ -618,15 +622,12 @@ const DemandeDevis = () => {
                       <div>
                         <Label htmlFor="phone" className="text-navy mb-2 block">
                           <Phone className="w-4 h-4 inline-block mr-2" />
-                          Téléphone *
+                          Téléphone * (format français)
                         </Label>
-                        <Input
+                        <FrenchPhoneInput
                           id="phone"
-                          type="tel"
-                          placeholder="06 12 34 56 78"
                           value={formData.phone}
-                          onChange={(e) => updateForm("phone", e.target.value)}
-                          className="h-12"
+                          onChange={(value) => updateForm("phone", value)}
                         />
                       </div>
 

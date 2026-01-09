@@ -4,6 +4,7 @@ import { ClientSidebar } from "@/components/client-dashboard/ClientSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -209,13 +210,12 @@ export const ClientSettings = () => {
                   <div className="space-y-2">
                     <Label htmlFor="phone">
                       <Phone className="w-4 h-4 inline mr-2" />
-                      Téléphone
+                      Téléphone (format français)
                     </Label>
-                    <Input 
+                    <FrenchPhoneInput
                       id="phone" 
-                      type="tel" 
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(value) => setFormData({ ...formData, phone: value })}
                     />
                   </div>
                   <div className="space-y-2">
