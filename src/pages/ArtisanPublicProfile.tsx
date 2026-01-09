@@ -235,6 +235,11 @@ const ArtisanPublicProfile = () => {
         </div>
       </section>
 
+      {/* Profile Navigation - Full width above the grid */}
+      <div className="container mx-auto px-3 md:px-4 pt-4">
+        <ProfileNavigation visibleSections={visibleSections} />
+      </div>
+
       {/* Main Content */}
       <section className="py-4 md:py-8">
         <div className="container mx-auto px-3 md:px-4">
@@ -368,9 +373,6 @@ const ArtisanPublicProfile = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Profile Navigation - Inside content after header */}
-              <ProfileNavigation visibleSections={visibleSections} />
 
               {/* Le mot de l'artisan */}
               <Card id="description">
