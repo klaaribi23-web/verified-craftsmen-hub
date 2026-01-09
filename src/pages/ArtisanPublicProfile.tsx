@@ -68,6 +68,26 @@ const ArtisanPublicProfile = () => {
   // Check for active stories
   const { stories, hasActiveStories } = usePublicArtisanStories(artisanId);
   
+  // Determine which sections are visible for navigation (must be before early returns)
+  const secondarySkills = (artisan as any)?.categories?.filter(
+    (cat: { id: string }) => cat.id !== artisan?.category?.id
+  ) || [];
+  const hasWorkingHours = (artisan as any)?.working_hours && Object.keys((artisan as any).working_hours).length > 0;
+  const portfolio = artisan?.portfolio_images || [];
+  
+  const visibleSections = useMemo(() => {
+    if (!artisan) return [];
+    const sections: string[] = ["description"]; // Always show description
+    if (secondarySkills.length > 0) sections.push("competences");
+    sections.push("prestations"); // Always show prestations
+    if (portfolio.length > 0) sections.push("realisations");
+    if (artisan.portfolio_videos && artisan.portfolio_videos.length > 0) sections.push("videos");
+    if (hasWorkingHours) sections.push("horaires");
+    sections.push("avis"); // Always show avis
+    sections.push("recommandations"); // Always show
+    return sections;
+  }, [artisan, secondarySkills.length, portfolio.length, hasWorkingHours]);
+  
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
   const handleShare = (platform: string) => {
     if (!artisan) return;
@@ -176,27 +196,8 @@ const ArtisanPublicProfile = () => {
         <Footer />
       </div>;
   }
-  const portfolio = artisan.portfolio_images || [];
   const rating = artisan.rating || 0;
   const reviewCount = artisan.review_count || 0;
-  
-  // Determine which sections are visible for navigation
-  const secondarySkills = (artisan as any).categories?.filter(
-    (cat: { id: string }) => cat.id !== artisan.category?.id
-  ) || [];
-  const hasWorkingHours = (artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0;
-  
-  const visibleSections = useMemo(() => {
-    const sections: string[] = ["description"]; // Always show description
-    if (secondarySkills.length > 0) sections.push("competences");
-    sections.push("prestations"); // Always show prestations
-    if (portfolio.length > 0) sections.push("realisations");
-    if (artisan.portfolio_videos && artisan.portfolio_videos.length > 0) sections.push("videos");
-    if (hasWorkingHours) sections.push("horaires");
-    sections.push("avis"); // Always show avis
-    sections.push("recommandations"); // Always show (will be implemented later)
-    return sections;
-  }, [secondarySkills.length, portfolio.length, artisan.portfolio_videos, hasWorkingHours]);
   
   // Dynamic SEO meta for artisan profile
   const seoTitle = `${artisan.business_name} - ${artisan.category?.name || "Artisan"} à ${artisan.city}`;
