@@ -304,7 +304,13 @@ const ArtisanPublicProfile = () => {
                       {/* Ville + Rayon d'intervention */}
                       <div className="flex items-center justify-center md:justify-start gap-1 text-muted-foreground mb-4 flex-wrap text-sm">
                         <MapPin className="h-3.5 w-3.5" />
-                        <span>{artisan.city}{artisan.region ? `, ${artisan.region}` : ""}</span>
+                        <span>
+                          {artisan.city}
+                          {artisan.postal_code && !artisan.city?.includes(artisan.postal_code) && (
+                            <> ({artisan.postal_code})</>
+                          )}
+                          {artisan.region ? `, ${artisan.region}` : ""}
+                        </span>
                         {artisan.intervention_radius && artisan.intervention_radius > 0 && (
                           <>
                             <span className="text-muted-foreground/50 mx-1">•</span>
