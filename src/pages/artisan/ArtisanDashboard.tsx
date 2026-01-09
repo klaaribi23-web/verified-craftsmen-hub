@@ -93,28 +93,36 @@ export const ArtisanDashboard = () => {
     enabled: !!artisanProfile?.id
   });
 
-  // Fetch documents stats
+  // Fetch documents stats with mandatory document count
+  const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis", "identite"];
+  const TOTAL_MANDATORY_DOCS = 4;
+
   const { data: documentStats } = useQuery({
     queryKey: ["artisan-documents-stats", artisanProfile?.id],
     queryFn: async () => {
-      if (!artisanProfile?.id) return { total: 0, verified: 0, pending: 0, rejected: 0 };
+      if (!artisanProfile?.id) return { total: 0, verified: 0, pending: 0, rejected: 0, mandatoryUploaded: 0 };
       
       const { data, error } = await supabase
         .from("artisan_documents")
-        .select("status")
+        .select("name, status")
         .eq("artisan_id", artisanProfile.id);
 
       if (error) {
         console.error("Error fetching documents:", error);
-        return { total: 0, verified: 0, pending: 0, rejected: 0 };
+        return { total: 0, verified: 0, pending: 0, rejected: 0, mandatoryUploaded: 0 };
       }
 
       const docs = data || [];
+      const mandatoryUploaded = MANDATORY_DOC_IDS.filter(docId => 
+        docs.some(d => d.name === docId)
+      ).length;
+
       return {
         total: docs.length,
         verified: docs.filter(d => d.status === "verified").length,
         pending: docs.filter(d => d.status === "pending").length,
-        rejected: docs.filter(d => d.status === "rejected").length
+        rejected: docs.filter(d => d.status === "rejected").length,
+        mandatoryUploaded
       };
     },
     enabled: !!artisanProfile?.id
@@ -286,6 +294,8 @@ export const ArtisanDashboard = () => {
                   }}
                   onRequestApproval={() => requestApprovalMutation.mutate()}
                   isRequestingApproval={requestApprovalMutation.isPending}
+                  mandatoryDocumentsUploaded={documentStats?.mandatoryUploaded || 0}
+                  totalMandatoryDocuments={TOTAL_MANDATORY_DOCS}
                 />
               </div>
             )}

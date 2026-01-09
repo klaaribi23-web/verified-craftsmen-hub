@@ -13,11 +13,14 @@ import {
   CheckCircle, 
   Clock, 
   XCircle,
-  Download,
   Eye,
   Trash2,
   AlertTriangle,
-  Loader2
+  Loader2,
+  Shield,
+  Building,
+  CreditCard,
+  Award
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
@@ -32,12 +35,42 @@ interface DocumentRecord {
   created_at: string;
 }
 
-const requiredDocuments = [
-  { name: "Attestation d'assurance RC Pro", required: true },
-  { name: "Garantie décennale", required: true },
-  { name: "Extrait Kbis ou INSEE", required: true },
-  { name: "Pièce d'identité", required: true },
-  { name: "Qualifications / Certifications", required: false },
+const REQUIRED_DOCUMENTS = [
+  { 
+    id: "rc_pro", 
+    name: "Attestation d'assurance RC Pro", 
+    description: "Responsabilité civile professionnelle en cours de validité",
+    required: true,
+    icon: Shield
+  },
+  { 
+    id: "decennale", 
+    name: "Garantie décennale", 
+    description: "Attestation de garantie décennale en cours de validité",
+    required: true,
+    icon: Shield
+  },
+  { 
+    id: "kbis", 
+    name: "Extrait KBIS ou INSEE", 
+    description: "Document de moins de 3 mois",
+    required: true,
+    icon: Building
+  },
+  { 
+    id: "identite", 
+    name: "Pièce d'identité (recto/verso)", 
+    description: "Carte d'identité ou passeport valide",
+    required: true,
+    icon: CreditCard
+  },
+  { 
+    id: "certifications", 
+    name: "Qualifications / Certifications", 
+    description: "RGE, Qualibat, ou autres certifications professionnelles",
+    required: false,
+    icon: Award
+  },
 ];
 
 const getStatusConfig = (status: string) => {
@@ -50,14 +83,14 @@ const getStatusConfig = (status: string) => {
       };
     case "pending":
       return { 
-        label: "En cours", 
+        label: "En attente de vérification", 
         icon: Clock, 
         className: "bg-accent/20 text-accent border-0" 
       };
-    case "expired":
+    case "rejected":
       return { 
-        label: "Expiré", 
-        icon: AlertTriangle, 
+        label: "Refusé", 
+        icon: XCircle, 
         className: "bg-destructive/20 text-destructive border-0" 
       };
     default:
@@ -72,9 +105,8 @@ const getStatusConfig = (status: string) => {
 export const ArtisanDocuments = () => {
   const queryClient = useQueryClient();
   const { artisan } = useArtisanProfile();
-  const [isUploading, setIsUploading] = useState(false);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   // Fetch documents from database
   const { data: documents = [], isLoading } = useQuery({
@@ -94,7 +126,7 @@ export const ArtisanDocuments = () => {
 
   // Upload mutation
   const uploadMutation = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async ({ file, documentType, documentName }: { file: File; documentType: string; documentName: string }) => {
       if (!artisan?.id) throw new Error("Artisan non trouvé");
       
       const { data: { user } } = await supabase.auth.getUser();
@@ -111,12 +143,12 @@ export const ArtisanDocuments = () => {
 
       if (uploadError) throw uploadError;
 
-      // Insert document record
+      // Insert document record with document type as name
       const { data: insertedDoc, error: insertError } = await supabase
         .from("artisan_documents")
         .insert({
           artisan_id: artisan.id,
-          name: file.name.replace(/\.[^/.]+$/, ""),
+          name: documentType,
           file_name: file.name,
           file_path: filePath,
           file_size: file.size,
@@ -139,7 +171,7 @@ export const ArtisanDocuments = () => {
             p_user_id: admin.user_id,
             p_type: "new_document",
             p_title: "Nouveau document à vérifier",
-            p_message: `L'artisan ${artisan.business_name} a soumis un document : ${file.name}`,
+            p_message: `L'artisan ${artisan.business_name} a soumis : ${documentName}`,
             p_related_id: insertedDoc?.id || null
           });
         }
@@ -182,7 +214,7 @@ export const ArtisanDocuments = () => {
     }
   });
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, docType: typeof REQUIRED_DOCUMENTS[0]) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -199,12 +231,18 @@ export const ArtisanDocuments = () => {
       return;
     }
 
-    setIsUploading(true);
-    await uploadMutation.mutateAsync(file);
-    setIsUploading(false);
+    setUploadingDocType(docType.id);
+    await uploadMutation.mutateAsync({ 
+      file, 
+      documentType: docType.id,
+      documentName: docType.name 
+    });
+    setUploadingDocType(null);
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    // Reset file input
+    const inputRef = fileInputRefs.current[docType.id];
+    if (inputRef) {
+      inputRef.value = "";
     }
   };
 
@@ -227,45 +265,17 @@ export const ArtisanDocuments = () => {
     }
   };
 
-  const handleDownload = async (doc: DocumentRecord) => {
-    setDownloadingId(doc.id);
-    try {
-      const { data, error } = await supabase.storage
-        .from("artisan-documents")
-        .createSignedUrl(doc.file_path, 3600, {
-          download: doc.file_name
-        });
-
-      if (error || !data?.signedUrl) {
-        console.error("Download error:", error);
-        toast.error("Impossible de télécharger le document");
-        return;
-      }
-
-      // Fetch as blob for reliable cross-origin download
-      const response = await fetch(data.signedUrl);
-      if (!response.ok) throw new Error("Erreur de téléchargement");
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = doc.file_name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      toast.success("Document téléchargé");
-    } catch (error) {
-      console.error("Download error:", error);
-      toast.error("Erreur lors du téléchargement");
-    } finally {
-      setDownloadingId(null);
-    }
+  // Get document for a specific type
+  const getDocumentForType = (typeId: string): DocumentRecord | undefined => {
+    return documents.find(d => d.name === typeId);
   };
 
-  const uploadedDocNames = documents.map(d => d.name.toLowerCase());
+  // Calculate mandatory documents count
+  const mandatoryDocs = REQUIRED_DOCUMENTS.filter(d => d.required);
+  const uploadedMandatoryCount = mandatoryDocs.filter(docType => 
+    documents.some(d => d.name === docType.id)
+  ).length;
+  const allMandatoryUploaded = uploadedMandatoryCount === mandatoryDocs.length;
 
   return (
     <>
@@ -273,194 +283,169 @@ export const ArtisanDocuments = () => {
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <ArtisanSidebar />
       
-      <div className="flex-1 flex flex-col">
-        <DashboardHeader 
-          title="Documents" 
-          subtitle="Gérez vos documents professionnels et certifications"
-        />
+        <div className="flex-1 flex flex-col">
+          <DashboardHeader 
+            title="Documents" 
+            subtitle="Téléchargez vos documents professionnels pour valider votre profil"
+          />
 
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="max-w-5xl mx-auto space-y-6">
-            {/* Document Checklist */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Documents requis pour la validation</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {requiredDocuments.map((doc, index) => {
-                  const isUploaded = uploadedDocNames.some(name => 
-                    doc.name.toLowerCase().includes(name) || name.includes(doc.name.toLowerCase().split(" ")[0])
-                  );
-                  return (
-                    <div 
-                      key={index}
-                      className={`p-4 rounded-lg border ${
-                        isUploaded 
-                          ? "border-success/30 bg-success/5" 
-                          : "border-border bg-muted/30"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                          isUploaded ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"
-                        }`}>
-                          {isUploaded ? (
-                            <CheckCircle className="w-4 h-4" />
-                          ) : (
-                            <span className="text-xs font-bold">{index + 1}</span>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-foreground">{doc.name}</p>
-                          {doc.required && (
-                            <p className="text-xs text-muted-foreground">Obligatoire</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+          <main className="flex-1 p-6 overflow-auto">
+            <div className="max-w-5xl mx-auto space-y-6">
+              {/* Progress Alert */}
+              <div className={`rounded-xl border p-4 ${
+                allMandatoryUploaded 
+                  ? "bg-success/10 border-success/30" 
+                  : "bg-amber-500/10 border-amber-500/30"
+              }`}>
+                <div className="flex items-start gap-3">
+                  {allMandatoryUploaded ? (
+                    <CheckCircle className="w-5 h-5 text-success mt-0.5 shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                  )}
+                  <div>
+                    <p className={`font-medium ${allMandatoryUploaded ? "text-success" : "text-amber-700"}`}>
+                      {allMandatoryUploaded 
+                        ? "Tous les documents obligatoires ont été téléchargés !" 
+                        : `Documents obligatoires : ${uploadedMandatoryCount}/${mandatoryDocs.length} téléchargés`
+                      }
+                    </p>
+                    <p className={`text-sm ${allMandatoryUploaded ? "text-success/80" : "text-amber-600"}`}>
+                      {allMandatoryUploaded 
+                        ? "Vos documents sont en cours de vérification par notre équipe."
+                        : "Vous devez télécharger les 4 documents obligatoires pour pouvoir demander l'approbation de votre profil."
+                      }
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* Upload Button */}
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-foreground">Mes documents</h3>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png,.webp"
-                onChange={handleUpload}
-                className="hidden"
-              />
-              <Button 
-                variant="gold" 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-              >
-                {isUploading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4 mr-2" />
-                )}
-                Ajouter un document
-              </Button>
-            </div>
-
-            {/* Documents List */}
-            <div className="bg-card rounded-xl border border-border shadow-soft overflow-hidden">
+              {/* Document Cards Grid */}
               {isLoading ? (
                 <div className="p-12 flex items-center justify-center">
                   <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                 </div>
-              ) : documents.length === 0 ? (
-                <div className="p-12 text-center">
-                  <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="font-semibold text-foreground mb-2">Aucun document</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Téléchargez vos documents professionnels pour compléter votre profil
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="w-4 h-4 mr-2" /> Ajouter un document
-                  </Button>
-                </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left p-4 font-medium text-muted-foreground">Document</th>
-                        <th className="text-left p-4 font-medium text-muted-foreground">Statut</th>
-                        <th className="text-left p-4 font-medium text-muted-foreground">Date d'ajout</th>
-                        <th className="text-left p-4 font-medium text-muted-foreground">Taille</th>
-                        <th className="text-right p-4 font-medium text-muted-foreground">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {documents.map((doc) => {
-                        const statusConfig = getStatusConfig(doc.status);
-                        const StatusIcon = statusConfig.icon;
-                        const sizeInKB = doc.file_size ? Math.round(doc.file_size / 1024) : 0;
-                        const sizeDisplay = sizeInKB > 1024 
-                          ? `${(sizeInKB / 1024).toFixed(1)} Mo` 
-                          : `${sizeInKB} Ko`;
-                        
-                        return (
-                          <tr key={doc.id} className="hover:bg-muted/30 transition-colors">
-                            <td className="p-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                  <FileText className="w-5 h-5 text-primary" />
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">{doc.name}</p>
-                                  <p className="text-sm text-muted-foreground">{doc.file_name}</p>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <Badge className={statusConfig.className}>
-                                <StatusIcon className="w-3 h-3 mr-1" />
-                                {statusConfig.label}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {REQUIRED_DOCUMENTS.map((docType) => {
+                    const uploadedDoc = getDocumentForType(docType.id);
+                    const hasDocument = !!uploadedDoc;
+                    const statusConfig = hasDocument ? getStatusConfig(uploadedDoc.status) : null;
+                    const StatusIcon = statusConfig?.icon;
+                    const DocIcon = docType.icon;
+                    const isUploading = uploadingDocType === docType.id;
+
+                    return (
+                      <div 
+                        key={docType.id} 
+                        className={`bg-card rounded-xl border p-5 transition-all ${
+                          hasDocument 
+                            ? "border-border" 
+                            : docType.required 
+                              ? "border-amber-500/30 border-dashed" 
+                              : "border-border border-dashed"
+                        }`}
+                      >
+                        {/* Header */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-start gap-3">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                              hasDocument ? "bg-primary/10" : "bg-muted"
+                            }`}>
+                              <DocIcon className={`w-5 h-5 ${hasDocument ? "text-primary" : "text-muted-foreground"}`} />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-foreground">{docType.name}</h4>
+                              <p className="text-sm text-muted-foreground">{docType.description}</p>
+                            </div>
+                          </div>
+                          <Badge variant={docType.required ? "destructive" : "secondary"} className="shrink-0">
+                            {docType.required ? "Obligatoire" : "Facultatif"}
+                          </Badge>
+                        </div>
+
+                        {/* Content based on state */}
+                        {hasDocument ? (
+                          <div className="space-y-3">
+                            {/* Status */}
+                            <div className="flex items-center gap-2">
+                              <Badge className={statusConfig?.className}>
+                                {StatusIcon && <StatusIcon className="w-3 h-3 mr-1" />}
+                                {statusConfig?.label}
                               </Badge>
-                            </td>
-                            <td className="p-4 text-muted-foreground">
-                              {new Date(doc.created_at).toLocaleDateString("fr-FR")}
-                            </td>
-                            <td className="p-4 text-muted-foreground">
-                              {sizeDisplay}
-                            </td>
-                            <td className="p-4">
-                              <div className="flex items-center justify-end gap-2">
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-8 w-8"
-                                  onClick={() => handleView(doc)}
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-8 w-8"
-                                  onClick={() => handleDownload(doc)}
-                                  disabled={downloadingId === doc.id}
-                                >
-                                  {downloadingId === doc.id ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    <Download className="w-4 h-4" />
-                                  )}
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-8 w-8 text-destructive hover:text-destructive"
-                                  onClick={() => deleteMutation.mutate(doc)}
-                                  disabled={deleteMutation.isPending}
-                                >
-                                  {deleteMutation.isPending ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    <Trash2 className="w-4 h-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(uploadedDoc.created_at).toLocaleDateString("fr-FR")}
+                              </span>
+                            </div>
+
+                            {/* File info */}
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <FileText className="w-4 h-4" />
+                              <span className="truncate">{uploadedDoc.file_name}</span>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-2 pt-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleView(uploadedDoc)}
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                Voir
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="text-destructive hover:text-destructive"
+                                onClick={() => deleteMutation.mutate(uploadedDoc)}
+                                disabled={deleteMutation.isPending}
+                              >
+                                {deleteMutation.isPending ? (
+                                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4 mr-1" />
+                                )}
+                                Supprimer
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <input
+                              ref={(el) => { fileInputRefs.current[docType.id] = el; }}
+                              type="file"
+                              accept=".pdf,.jpg,.jpeg,.png,.webp"
+                              onChange={(e) => handleUpload(e, docType)}
+                              className="hidden"
+                            />
+                            <Button 
+                              variant={docType.required ? "gold" : "outline"}
+                              className="w-full"
+                              onClick={() => fileInputRefs.current[docType.id]?.click()}
+                              disabled={isUploading}
+                            >
+                              {isUploading ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              ) : (
+                                <Upload className="w-4 h-4 mr-2" />
+                              )}
+                              Télécharger
+                            </Button>
+                            <p className="text-xs text-muted-foreground text-center mt-2">
+                              PDF, JPG ou PNG (max 10 Mo)
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
     </>
   );
 };
