@@ -35,7 +35,7 @@ export const AdminStatsCard = ({
             <p className="text-3xl font-bold text-foreground">{value}</p>
             {trend && (
               <p className={`text-sm mt-2 ${trend.isPositive ? 'text-green-500' : 'text-destructive'}`}>
-                {trend.isPositive ? '+' : ''}{trend.value}% ce mois
+                {trend.isPositive ? '+' : '-'}{trend.value}% vs mois dernier
               </p>
             )}
           </div>

@@ -146,36 +146,108 @@ export const useMissions = () => {
   });
 };
 
-// Fetch dashboard stats
+// Helper function to calculate trend percentage
+const calculateTrend = (current: number, previous: number) => {
+  if (previous === 0) {
+    return current > 0 ? { value: 100, isPositive: true } : { value: 0, isPositive: true };
+  }
+  const percentChange = Math.round(((current - previous) / previous) * 100);
+  return {
+    value: Math.abs(percentChange),
+    isPositive: percentChange >= 0
+  };
+};
+
+// Fetch dashboard stats with real trends
 export const useAdminStats = () => {
   return useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
-      // Get artisans count
+      // Define date ranges
+      const now = new Date();
+      const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+      // === ARTISANS ===
+      // Total artisans
       const { count: artisansCount } = await supabase
         .from("artisans")
         .select("*", { count: "exact", head: true });
 
-      // Get actual clients count (only users with 'client' role)
+      // Artisans created this month
+      const { count: artisansThisMonth } = await supabase
+        .from("artisans")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", startOfCurrentMonth.toISOString());
+
+      // Artisans created last month
+      const { count: artisansLastMonth } = await supabase
+        .from("artisans")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", startOfPreviousMonth.toISOString())
+        .lt("created_at", startOfCurrentMonth.toISOString());
+
+      // === CLIENTS ===
+      // Total clients
       const { count: clientsCount } = await supabase
         .from("user_roles")
         .select("*", { count: "exact", head: true })
         .eq("role", "client");
 
-      // Get missions counts
+      // Get client user_ids for date filtering
+      const { data: clientRoles } = await supabase
+        .from("user_roles")
+        .select("user_id, created_at")
+        .eq("role", "client");
+
+      const clientsThisMonth = clientRoles?.filter(
+        (r) => new Date(r.created_at) >= startOfCurrentMonth
+      ).length || 0;
+
+      const clientsLastMonth = clientRoles?.filter(
+        (r) => new Date(r.created_at) >= startOfPreviousMonth && new Date(r.created_at) < startOfCurrentMonth
+      ).length || 0;
+
+      // === MISSIONS ===
       const { data: missions } = await supabase
         .from("missions")
-        .select("status");
+        .select("status, created_at");
 
       const activeMissions = missions?.filter((m) => m.status === "pending" || m.status === "assigned").length || 0;
       const completedMissions = missions?.filter((m) => m.status === "completed").length || 0;
       const cancelledMissions = missions?.filter((m) => m.status === "cancelled").length || 0;
 
+      // Active missions trends
+      const activeMissionsThisMonth = missions?.filter(
+        (m) => (m.status === "pending" || m.status === "assigned") && new Date(m.created_at) >= startOfCurrentMonth
+      ).length || 0;
+
+      const activeMissionsLastMonth = missions?.filter(
+        (m) => (m.status === "pending" || m.status === "assigned") && 
+               new Date(m.created_at) >= startOfPreviousMonth && 
+               new Date(m.created_at) < startOfCurrentMonth
+      ).length || 0;
+
+      // Completed missions trends
+      const completedThisMonth = missions?.filter(
+        (m) => m.status === "completed" && new Date(m.created_at) >= startOfCurrentMonth
+      ).length || 0;
+
+      const completedLastMonth = missions?.filter(
+        (m) => m.status === "completed" && 
+               new Date(m.created_at) >= startOfPreviousMonth && 
+               new Date(m.created_at) < startOfCurrentMonth
+      ).length || 0;
+
       return {
         totalArtisans: artisansCount || 0,
+        artisansTrend: calculateTrend(artisansThisMonth || 0, artisansLastMonth || 0),
         totalClients: clientsCount || 0,
+        clientsTrend: calculateTrend(clientsThisMonth, clientsLastMonth),
         activeMissions,
+        activeMissionsTrend: calculateTrend(activeMissionsThisMonth, activeMissionsLastMonth),
         completedMissions,
+        completedMissionsTrend: calculateTrend(completedThisMonth, completedLastMonth),
         cancelledMissions,
         totalMissions: missions?.length || 0,
       };
