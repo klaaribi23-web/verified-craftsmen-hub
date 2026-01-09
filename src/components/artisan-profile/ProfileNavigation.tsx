@@ -80,27 +80,23 @@ const ProfileNavigation = ({ visibleSections }: ProfileNavigationProps) => {
   if (filteredNavItems.length === 0) return null;
 
   return (
-    <div className="bg-transparent">
-      <div className="px-2 md:px-4">
-        <nav className="flex items-center justify-center gap-4 md:gap-6 overflow-x-auto py-3 scrollbar-hide">
-          {filteredNavItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => scrollToSection(item.id)}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all",
-                activeSection === item.id
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              {item.icon}
-              <span className="hidden sm:inline">{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
-    </div>
+    <nav className="flex items-center justify-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide">
+      {filteredNavItems.map((item) => (
+        <button
+          key={item.id}
+          onClick={() => scrollToSection(item.id)}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all",
+            activeSection === item.id
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          )}
+        >
+          {item.icon}
+          <span className="hidden sm:inline">{item.label}</span>
+        </button>
+      ))}
+    </nav>
   );
 };
 
