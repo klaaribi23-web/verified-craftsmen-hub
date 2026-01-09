@@ -46,7 +46,7 @@ import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { VoiceMessage } from "@/components/chat/VoiceMessage";
+import { SecureVoiceMessage } from "@/components/chat/SecureVoiceMessage";
 
 interface ArtisanContact {
   id: string;
@@ -262,7 +262,7 @@ const AdminMessaging = () => {
           className={cn("flex", isOwn ? "justify-end" : "justify-start")}
         >
           <div className="flex flex-col">
-            <VoiceMessage 
+            <SecureVoiceMessage 
               audioUrl={message.attachment_url} 
               duration={duration}
               isOwn={isOwn} 

@@ -291,9 +291,16 @@ export const useMessaging = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      // Generate signed URL for the uploaded file
+      const { data: signedData, error: signError } = await supabase.storage
         .from("message-attachments")
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 3600);
+
+      if (signError || !signedData?.signedUrl) {
+        throw new Error("Impossible de générer l'URL signée");
+      }
+      
+      const attachmentUrl = signedData.signedUrl;
 
       // Determine if it's an image or audio
       const isImage = file.type.startsWith('image/');
@@ -311,7 +318,7 @@ export const useMessaging = () => {
         receiverId,
         content: messageContent,
         attachment: {
-          url: publicUrl,
+          url: attachmentUrl,
           name: file.name,
           type: file.type,
         },
@@ -332,16 +339,23 @@ export const useMessaging = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      // Generate signed URL for the voice message
+      const { data: signedData, error: signError } = await supabase.storage
         .from("message-attachments")
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 3600);
+
+      if (signError || !signedData?.signedUrl) {
+        throw new Error("Impossible de générer l'URL signée pour le message vocal");
+      }
+
+      const attachmentUrl = signedData.signedUrl;
 
       // Send message with voice attachment
       return sendMessage.mutateAsync({
         receiverId,
         content: `🎤 Message vocal • ${duration}s`,
         attachment: {
-          url: publicUrl,
+          url: attachmentUrl,
           name: `voice-${duration}s.webm`,
           type: 'audio/webm',
         },

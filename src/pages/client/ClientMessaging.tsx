@@ -52,7 +52,8 @@ import { QuoteMessageCard, parseQuoteFromMessage } from "@/components/chat/Quote
 import { useQuotes } from "@/hooks/useQuotes";
 import { toast } from "sonner";
 import { VoiceRecorder } from "@/components/chat/VoiceRecorder";
-import { VoiceMessage } from "@/components/chat/VoiceMessage";
+import { SecureVoiceMessage } from "@/components/chat/SecureVoiceMessage";
+import { SecureAttachment } from "@/components/chat/SecureAttachment";
 
 export const ClientMessaging = () => {
   const [searchParams] = useSearchParams();
@@ -277,7 +278,7 @@ export const ClientMessaging = () => {
           className={cn("flex", isOwn ? "justify-end" : "justify-start")}
         >
           <div className="flex flex-col">
-            <VoiceMessage 
+            <SecureVoiceMessage 
               audioUrl={message.attachment_url} 
               duration={duration}
               isOwn={isOwn} 
@@ -369,29 +370,19 @@ export const ClientMessaging = () => {
             )}
           >
             {isImage ? (
-              <a href={message.attachment_url || "#"} target="_blank" rel="noopener noreferrer">
-                <img 
-                  src={message.attachment_url || ""} 
-                  alt={message.attachment_name || "Image"} 
-                  className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
-                />
-              </a>
+              <SecureAttachment 
+                url={message.attachment_url}
+                name={message.attachment_name}
+                type={message.attachment_type}
+                isOwn={isOwn}
+              />
             ) : (
-              <a 
-                href={message.attachment_url || "#"} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className={cn(
-                  "flex items-center gap-2 p-2 rounded-lg mb-2",
-                  isOwn ? "bg-primary-foreground/10" : "bg-card"
-                )}
-              >
-                <FileText className="w-8 h-8 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{message.attachment_name}</p>
-                </div>
-                <Download className="w-4 h-4 flex-shrink-0" />
-              </a>
+              <SecureAttachment 
+                url={message.attachment_url}
+                name={message.attachment_name}
+                type={message.attachment_type}
+                isOwn={isOwn}
+              />
             )}
             <p className="whitespace-pre-wrap">{message.content}</p>
             <div className={cn(
