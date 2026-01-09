@@ -483,7 +483,7 @@ const ArtisanPublicProfile = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="max-w-md space-y-2">
                       {[
                         { key: "lundi", label: "Lundi" },
                         { key: "mardi", label: "Mardi" },
@@ -504,17 +504,12 @@ const ArtisanPublicProfile = () => {
                         return (
                           <div 
                             key={day.key} 
-                            className={cn(
-                              "flex items-center justify-between p-3 rounded-lg border",
-                              isEnabled 
-                                ? "bg-primary/5 border-primary/20" 
-                                : "bg-muted/50 border-muted"
-                            )}
+                            className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20"
                           >
                             <span className="font-medium">{day.label}</span>
                             <span className={cn(
-                              "text-sm",
-                              isEnabled ? "text-primary font-semibold" : "text-muted-foreground"
+                              "text-sm font-semibold",
+                              isEnabled ? "text-primary" : "text-red-500"
                             )}>
                               {displayTime}
                             </span>
