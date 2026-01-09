@@ -224,12 +224,12 @@ const ArtisanPublicProfile = () => {
       />
       <Navbar />
       
-      {/* Spacer for navbar */}
-      <div className="pt-20" />
+      {/* Spacer for navbar - smaller on mobile/tablet */}
+      <div className="pt-16 lg:pt-20" />
 
-      {/* Profile Navigation - Full width, sticky */}
-      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b py-4">
-        <div className="container mx-auto px-3 md:px-4">
+      {/* Profile Navigation - Desktop only (lg and up), sticky */}
+      <div className="hidden lg:block sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b py-4">
+        <div className="container mx-auto px-4">
           <ProfileNavigation visibleSections={visibleSections} />
         </div>
       </div>
@@ -1010,8 +1010,8 @@ const ArtisanPublicProfile = () => {
         </div>
       </section>
 
-      {/* Chat Widget - Shows on desktop always, shows on mobile only when open */}
-      <div className={chatOpen ? "block" : "hidden lg:block"}>
+      {/* Chat Widget - Shows on desktop (xl+) always, shows on mobile/tablet only when open */}
+      <div className={chatOpen ? "block" : "hidden xl:block"}>
         <ChatWidget 
           defaultOpen={chatOpen} 
           defaultArtisanId={artisan.id || undefined} 
@@ -1037,8 +1037,8 @@ const ArtisanPublicProfile = () => {
         phoneNumber={artisanContact.phone}
       />
 
-      {/* Bottom padding for mobile navbar */}
-      <div className="h-20 lg:hidden" />
+      {/* Bottom padding for mobile/tablet navbar */}
+      <div className="h-20 xl:hidden" />
 
       {/* Story Viewer */}
       <StoryViewer
