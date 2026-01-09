@@ -357,6 +357,21 @@ const ArtisanPublicProfile = () => {
                 <Card>
                   <CardContent className="p-3 md:p-4">
                     <div className="flex flex-col gap-2">
+                      {/* Bouton Revendiquer pour les prospects */}
+                      {artisan.status === 'prospect' && (
+                        <div className="text-center mb-2 pb-3 border-b">
+                          <p className="text-xs text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
+                          <p className="text-sm font-bold text-amber-600 mb-2">Revendiquez votre fiche</p>
+                          <Button 
+                            className="w-full bg-amber-500 hover:bg-amber-600 text-white gap-2" 
+                            onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
+                          >
+                            <UserPlus className="h-4 w-4" />
+                            Revendiquer cette fiche
+                          </Button>
+                        </div>
+                      )}
+                      
                       <Button 
                         className="w-full gap-2" 
                         onClick={() => {
