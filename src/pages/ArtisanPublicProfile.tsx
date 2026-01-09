@@ -226,18 +226,8 @@ const ArtisanPublicProfile = () => {
       <div className="pt-20" />
 
       {/* Profile Navigation - Full width, sticky */}
-      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-y">
+      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b">
         <div className="container mx-auto px-3 md:px-4">
-          <div className="flex items-center justify-between py-2">
-            {/* Breadcrumb - Left side */}
-            <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Link to="/" className="hover:text-foreground transition-colors">Accueil</Link>
-              <span>/</span>
-              <Link to="/trouver-artisan" className="hover:text-foreground transition-colors">Artisans</Link>
-              <span>/</span>
-              <span className="text-foreground font-semibold italic">{artisan.business_name}</span>
-            </nav>
-          </div>
           <ProfileNavigation visibleSections={visibleSections} />
         </div>
       </div>
@@ -1039,6 +1029,17 @@ const ArtisanPublicProfile = () => {
 
       {/* Similar Artisans Carousel */}
       <SimilarArtisansCarousel currentArtisanId={artisan.id} categoryId={artisan.category_id} trade={artisan.category?.name || ""} />
+
+      {/* Breadcrumb - Bottom of page */}
+      <div className="container mx-auto px-4 py-6">
+        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Link to="/" className="hover:text-foreground transition-colors">Accueil</Link>
+          <span>/</span>
+          <Link to="/trouver-artisan" className="hover:text-foreground transition-colors">Artisans</Link>
+          <span>/</span>
+          <span className="text-foreground font-semibold italic">{artisan.business_name}</span>
+        </nav>
+      </div>
 
       {/* CTA Section */}
       <section className="py-12 bg-primary/5">
