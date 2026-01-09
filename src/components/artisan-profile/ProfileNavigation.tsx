@@ -80,7 +80,7 @@ const ProfileNavigation = ({ visibleSections }: ProfileNavigationProps) => {
   if (filteredNavItems.length === 0) return null;
 
   return (
-    <div className="sticky top-20 z-20 bg-background/95 backdrop-blur-sm border rounded-lg shadow-sm">
+    <div className="bg-transparent">
       <div className="px-2 md:px-4">
         <nav className="flex items-center justify-center gap-4 md:gap-6 overflow-x-auto py-3 scrollbar-hide">
           {filteredNavItems.map((item) => (
