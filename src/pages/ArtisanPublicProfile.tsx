@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus, Hash } from "lucide-react";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
 import { Video } from "lucide-react";
@@ -287,22 +287,17 @@ const ArtisanPublicProfile = () => {
                         
                       </div>
                       
-                      {/* Quick category badges in header - show first 2 only */}
-                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
-                        {((artisan as any).categories?.slice(0, 2) || (artisan.category ? [artisan.category] : [])).map((cat: { id: string; name: string }) => (
-                          <Link key={cat.id} to={`/trouver-artisan?category=${encodeURIComponent(cat.name.toLowerCase())}`}>
-                            <Badge variant="secondary" className="text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
-                              <Wrench className="h-3 w-3 mr-1" />
-                              {cat.name}
-                            </Badge>
-                          </Link>
-                        ))}
-                        {(artisan as any).categories?.length > 2 && (
-                          <Badge variant="outline" className="text-sm">
-                            +{(artisan as any).categories.length - 2} autres
-                          </Badge>
-                        )}
-                      </div>
+                      {/* Catégorie principale - une seule */}
+                      {artisan.category?.name && (
+                        <Link 
+                          to={`/trouver-artisan?category=${encodeURIComponent(artisan.category.name.toLowerCase())}`}
+                          className="mb-3 block"
+                        >
+                          <p className="text-lg text-primary font-medium hover:underline text-center md:text-left">
+                            {artisan.category.name}
+                          </p>
+                        </Link>
+                      )}
 
                       <div className="flex items-center justify-center md:justify-start gap-1 text-muted-foreground mb-4">
                         <MapPin className="h-4 w-4" />
@@ -365,48 +360,38 @@ const ArtisanPublicProfile = () => {
                 </CardContent>
               </Card>
 
-              {/* Categories Section */}
-              {((artisan as any).categories?.length > 0 || artisan.category) && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Wrench className="h-5 w-5 text-primary" />
-                      Catégories de l'artisan
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {/* Show multiple categories if available */}
-                      {(artisan as any).categories?.length > 0 ? (
-                        (artisan as any).categories.map((cat: { id: string; name: string }) => (
+              {/* Compétences secondaires - affichées en hashtags */}
+              {(() => {
+                const secondarySkills = (artisan as any).categories?.filter(
+                  (cat: { id: string }) => cat.id !== artisan.category?.id
+                ) || [];
+                
+                if (secondarySkills.length === 0) return null;
+                
+                return (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Hash className="h-5 w-5 text-primary" />
+                        Compétences secondaires
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-3">
+                        {secondarySkills.map((skill: { id: string; name: string }) => (
                           <Link 
-                            key={cat.id} 
-                            to={`/trouver-artisan?category=${encodeURIComponent(cat.name.toLowerCase())}`}
+                            key={skill.id} 
+                            to={`/trouver-artisan?category=${encodeURIComponent(skill.name.toLowerCase())}`}
+                            className="text-primary font-medium text-sm hover:underline"
                           >
-                            <Badge 
-                              variant="secondary" 
-                              className="text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors py-1.5 px-3"
-                            >
-                              <Wrench className="h-3 w-3 mr-1.5" />
-                              {cat.name}
-                            </Badge>
+                            #{skill.name}
                           </Link>
-                        ))
-                      ) : artisan.category?.name ? (
-                        <Link to={`/trouver-artisan?category=${encodeURIComponent(artisan.category.name.toLowerCase())}`}>
-                          <Badge 
-                            variant="secondary" 
-                            className="text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors py-1.5 px-3"
-                          >
-                            <Wrench className="h-3 w-3 mr-1.5" />
-                            {artisan.category.name}
-                          </Badge>
-                        </Link>
-                      ) : null}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
 
               {/* Services Section - Collapsible on mobile */}
               <Collapsible defaultOpen className="md:block">
@@ -480,66 +465,47 @@ const ArtisanPublicProfile = () => {
                   </CardContent>
                 </Card>}
 
-              {/* Zones & Working Hours */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+              {/* Working Hours Card */}
+              {(artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0 && (
                 <Card>
                   <CardHeader className="pb-2 md:pb-4">
                     <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                      <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                      Zone d'intervention
+                      <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                      Heures de travail
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <div className="flex flex-wrap gap-1.5 md:gap-2">
-                      <Badge variant="outline" className="py-1 md:py-1.5 text-xs md:text-sm">{artisan.city}</Badge>
-                      {artisan.department && <Badge variant="outline" className="py-1 md:py-1.5 text-xs md:text-sm">{artisan.department}</Badge>}
-                      {artisan.region && <Badge variant="outline" className="py-1 md:py-1.5 text-xs md:text-sm">{artisan.region}</Badge>}
+                    <div className="space-y-1.5">
+                      {[
+                        { key: "lundi", label: "Lundi" },
+                        { key: "mardi", label: "Mardi" },
+                        { key: "mercredi", label: "Mercredi" },
+                        { key: "jeudi", label: "Jeudi" },
+                        { key: "vendredi", label: "Vendredi" },
+                        { key: "samedi", label: "Samedi" },
+                        { key: "dimanche", label: "Dimanche" },
+                      ].map(day => {
+                        const hours = (artisan as any).working_hours?.[day.key];
+                        if (!hours) return null;
+                        
+                        const isEnabled = hours.enabled !== false;
+                        const displayTime = isEnabled 
+                          ? `${hours.start || "08:00"} - ${hours.end || "18:00"}`
+                          : "Fermé";
+                        
+                        return (
+                          <div key={day.key} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{day.label}</span>
+                            <span className={isEnabled ? "font-medium" : "text-muted-foreground"}>
+                              {displayTime}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Working Hours Card */}
-                {(artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0 && (
-                  <Card>
-                    <CardHeader className="pb-2 md:pb-4">
-                      <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                        <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                        Heures de travail
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="space-y-1.5">
-                        {[
-                          { key: "lundi", label: "Lundi" },
-                          { key: "mardi", label: "Mardi" },
-                          { key: "mercredi", label: "Mercredi" },
-                          { key: "jeudi", label: "Jeudi" },
-                          { key: "vendredi", label: "Vendredi" },
-                          { key: "samedi", label: "Samedi" },
-                          { key: "dimanche", label: "Dimanche" },
-                        ].map(day => {
-                          const hours = (artisan as any).working_hours?.[day.key];
-                          if (!hours) return null;
-                          
-                          const isEnabled = hours.enabled !== false;
-                          const displayTime = isEnabled 
-                            ? `${hours.start || "08:00"} - ${hours.end || "18:00"}`
-                            : "Fermé";
-                          
-                          return (
-                            <div key={day.key} className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{day.label}</span>
-                              <span className={isEnabled ? "font-medium" : "text-muted-foreground"}>
-                                {displayTime}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
+              )}
 
               {/* Certifications & Legal */}
               <div className="grid md:grid-cols-2 gap-6">
