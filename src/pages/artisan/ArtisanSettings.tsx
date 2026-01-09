@@ -11,9 +11,6 @@ import {
   Bell, 
   Mail, 
   Lock, 
-  Smartphone,
-  Globe,
-  Shield,
   Trash2,
   Eye,
   EyeOff,
@@ -185,13 +182,6 @@ export const ArtisanSettings = () => {
                   </div>
                   <Switch defaultChecked />
                 </div>
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <div>
-                    <p className="font-medium text-foreground">Rappels de rendez-vous</p>
-                    <p className="text-sm text-muted-foreground">Rappel 24h avant chaque rendez-vous</p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
                 <div className="flex items-center justify-between py-3">
                   <div>
                     <p className="font-medium text-foreground">Newsletter</p>
@@ -243,13 +233,6 @@ export const ArtisanSettings = () => {
                     Modifier
                   </Button>
                 </div>
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <div>
-                    <p className="font-medium text-foreground">Authentification à deux facteurs</p>
-                    <p className="text-sm text-muted-foreground">Ajoutez une couche de sécurité supplémentaire</p>
-                  </div>
-                  <Switch />
-                </div>
                 <div className="flex items-center justify-between py-3">
                   <div>
                     <p className="font-medium text-foreground">Sessions actives</p>
@@ -269,33 +252,6 @@ export const ArtisanSettings = () => {
               </div>
             </div>
 
-            {/* Language & Region */}
-            <div className="bg-card rounded-xl border border-border shadow-soft p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Langue & Région</h3>
-                  <p className="text-sm text-muted-foreground">Préférences régionales</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Langue</Label>
-                  <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
-                    <option value="fr">Français</option>
-                    <option value="en">English</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Fuseau horaire</Label>
-                  <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm">
-                    <option value="europe/paris">Europe/Paris (UTC+1)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
 
             {/* Danger Zone */}
             <div className="bg-destructive/5 rounded-xl border border-destructive/30 p-6">
