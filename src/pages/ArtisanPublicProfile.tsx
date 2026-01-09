@@ -476,14 +476,14 @@ const ArtisanPublicProfile = () => {
               {/* Working Hours Card */}
               {(artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0 && (
                 <Card>
-                  <CardHeader className="pb-2 md:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                      <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-primary" />
                       Heures de travail
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-1.5">
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {[
                         { key: "lundi", label: "Lundi" },
                         { key: "mardi", label: "Mardi" },
@@ -502,9 +502,20 @@ const ArtisanPublicProfile = () => {
                           : "Fermé";
                         
                         return (
-                          <div key={day.key} className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">{day.label}</span>
-                            <span className={isEnabled ? "font-medium" : "text-muted-foreground"}>
+                          <div 
+                            key={day.key} 
+                            className={cn(
+                              "flex items-center justify-between p-3 rounded-lg border",
+                              isEnabled 
+                                ? "bg-primary/5 border-primary/20" 
+                                : "bg-muted/50 border-muted"
+                            )}
+                          >
+                            <span className="font-medium">{day.label}</span>
+                            <span className={cn(
+                              "text-sm",
+                              isEnabled ? "text-primary font-semibold" : "text-muted-foreground"
+                            )}>
                               {displayTime}
                             </span>
                           </div>
@@ -515,43 +526,29 @@ const ArtisanPublicProfile = () => {
                 </Card>
               )}
 
-              {/* Certifications & Legal */}
-              <div className="grid md:grid-cols-2 gap-6">
-                {artisan.qualifications && artisan.qualifications.length > 0 && <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Award className="h-5 w-5 text-primary" />
-                        Certifications & Labels
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {artisan.qualifications.map((cert, index) => <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-                            <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                              <Award className="h-5 w-5 text-emerald-600" />
-                            </div>
-                            <span className="font-medium">{cert}</span>
-                          </div>)}
-                      </div>
-                    </CardContent>
-                  </Card>}
-
+              {/* Certifications */}
+              {artisan.qualifications && artisan.qualifications.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Shield className="h-5 w-5 text-primary" />
-                      Informations légales
+                      <Award className="h-5 w-5 text-primary" />
+                      Certifications & Labels
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* SIRET and insurance_number are now protected and not exposed in public view */}
-                    {artisan.is_verified && <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                        <span className="text-sm">Documents vérifiés par notre équipe</span>
-                      </div>}
+                  <CardContent>
+                    <div className="space-y-3">
+                      {artisan.qualifications.map((cert, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                          <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                            <Award className="h-5 w-5 text-emerald-600" />
+                          </div>
+                          <span className="font-medium">{cert}</span>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
-              </div>
+              )}
 
               {/* Google Reviews Section */}
               {(artisan as any).google_rating && (artisan as any).google_rating > 0 && (
