@@ -93,6 +93,7 @@ export const ArtisanProfile = () => {
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [interventionRadius, setInterventionRadius] = useState<number>(50);
   const [siret, setSiret] = useState("");
+  const [siretError, setSiretError] = useState("");
   const [experienceYears, setExperienceYears] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
@@ -270,14 +271,44 @@ export const ArtisanProfile = () => {
     updateSecondaryCategoriesMutation.mutate(filteredIds);
   };
 
+  // Validate SIRET format (14 digits)
+  const validateSiret = (value: string): boolean => {
+    const cleanedSiret = value.replace(/\s/g, "");
+    if (!cleanedSiret) return true; // Empty is allowed, validation happens on save
+    if (!/^\d{14}$/.test(cleanedSiret)) {
+      setSiretError("Le SIRET doit contenir exactement 14 chiffres");
+      return false;
+    }
+    setSiretError("");
+    return true;
+  };
+
+  const handleSiretChange = (value: string) => {
+    setSiret(value);
+    validateSiret(value);
+  };
+
   const handleSave = async () => {
+    // Validate SIRET before saving
+    const cleanedSiret = siret.replace(/\s/g, "");
+    if (!cleanedSiret) {
+      toast.error("Le numéro SIRET est obligatoire");
+      setSiretError("Le numéro SIRET est obligatoire");
+      return;
+    }
+    if (!/^\d{14}$/.test(cleanedSiret)) {
+      toast.error("Le SIRET doit contenir exactement 14 chiffres");
+      setSiretError("Le SIRET doit contenir exactement 14 chiffres");
+      return;
+    }
+
     await updateProfile({
       firstName,
       lastName,
       phone,
       description,
       city: city || "Non renseigné",
-      siret,
+      siret: cleanedSiret,
       experienceYears: experienceYears ? parseInt(experienceYears) : undefined,
       websiteUrl,
       facebookUrl,
@@ -619,13 +650,22 @@ export const ArtisanProfile = () => {
               <h3 className="text-lg font-semibold text-foreground mb-6">Informations professionnelles</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="siret">Numéro SIRET</Label>
+                  <Label htmlFor="siret">
+                    Numéro SIRET <span className="text-destructive">*</span>
+                  </Label>
                   <Input 
                     id="siret" 
                     value={siret}
-                    onChange={(e) => setSiret(e.target.value)}
-                    placeholder="123 456 789 00012"
+                    onChange={(e) => handleSiretChange(e.target.value)}
+                    placeholder="12345678900012"
+                    className={siretError ? "border-destructive" : ""}
+                    maxLength={17}
                   />
+                  {siretError ? (
+                    <p className="text-xs text-destructive">{siretError}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">14 chiffres sans espaces</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="experience">Années d'expérience</Label>
