@@ -288,10 +288,69 @@ const AdminAddArtisan = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation des champs obligatoires
     if (!formData.businessName || !primaryCategory || !formData.city) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs obligatoires (nom, catégorie, ville).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.email) {
+      toast({
+        title: "Erreur",
+        description: "L'email est obligatoire.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validation email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez entrer une adresse email valide.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.phone) {
+      toast({
+        title: "Erreur",
+        description: "Le téléphone est obligatoire.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.experienceYears) {
+      toast({
+        title: "Erreur",
+        description: "Les années d'expérience sont obligatoires.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.siret) {
+      toast({
+        title: "Erreur",
+        description: "Le numéro SIRET est obligatoire.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validation SIRET français (14 chiffres)
+    const siretClean = formData.siret.replace(/\s/g, "");
+    if (!/^\d{14}$/.test(siretClean)) {
+      toast({
+        title: "Erreur",
+        description: "Le numéro SIRET doit contenir exactement 14 chiffres.",
         variant: "destructive",
       });
       return;
@@ -305,12 +364,16 @@ const AdminAddArtisan = () => {
     const selectedRegion = selectedDept ? frenchRegions.find(r => r.id === selectedDept.region) : null;
 
     try {
+      // Clean SIRET (remove spaces)
+      const cleanedSiret = formData.siret.replace(/\s/g, "");
+
       // Create artisan
       const { data: artisan, error: artisanError } = await supabase
         .from("artisans")
         .insert([{
           business_name: formData.businessName,
-          email: formData.email || null,
+          email: formData.email,
+          phone: formData.phone,
           description: formData.description || null,
           category_id: primaryCategory,
           city: formData.city,
@@ -319,8 +382,8 @@ const AdminAddArtisan = () => {
           latitude: coordinates?.lat || null,
           longitude: coordinates?.lng || null,
           intervention_radius: interventionRadius,
-          siret: formData.siret || null,
-          experience_years: formData.experienceYears ? parseInt(formData.experienceYears) : null,
+          siret: cleanedSiret,
+          experience_years: parseInt(formData.experienceYears),
           photo_url: profilePhotoUrl || null,
           portfolio_images: photoUrls.length > 0 ? photoUrls : null,
           portfolio_videos: videoUrls.length > 0 ? videoUrls : null,
@@ -427,21 +490,23 @@ const AdminAddArtisan = () => {
                   </div>
 
                   <div>
-                    <Label>Email</Label>
+                    <Label>Email *</Label>
                     <Input
                       type="email"
                       placeholder="email@example.com"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
+                      required
                     />
                   </div>
 
                   <div>
-                    <Label>Téléphone</Label>
+                    <Label>Téléphone *</Label>
                     <Input
                       placeholder="06 12 34 56 78"
                       value={formData.phone}
                       onChange={(e) => handleChange("phone", e.target.value)}
+                      required
                     />
                   </div>
 
@@ -570,21 +635,24 @@ const AdminAddArtisan = () => {
                   </div>
 
                   <div>
-                    <Label>Années d'expérience</Label>
+                    <Label>Années d'expérience *</Label>
                     <Input
                       type="number"
                       placeholder="5"
+                      min="0"
                       value={formData.experienceYears}
                       onChange={(e) => handleChange("experienceYears", e.target.value)}
+                      required
                     />
                   </div>
 
                   <div>
-                    <Label>Numéro SIRET</Label>
+                    <Label>Numéro SIRET * (14 chiffres)</Label>
                     <Input
                       placeholder="123 456 789 00012"
                       value={formData.siret}
                       onChange={(e) => handleChange("siret", e.target.value)}
+                      required
                     />
                   </div>
                 </CardContent>
