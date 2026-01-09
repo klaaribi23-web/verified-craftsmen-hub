@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { MessageSquare, Phone, FileText, UserPlus } from "lucide-react";
+import { MessageSquare, Phone, FileText, UserPlus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MobileBottomNavbarProps {
@@ -9,6 +8,7 @@ interface MobileBottomNavbarProps {
   onPhoneClick: () => void;
   onChatClick: () => void;
   phoneNumber?: string | null;
+  chatOpen?: boolean;
 }
 
 const MobileBottomNavbar = ({
@@ -18,6 +18,7 @@ const MobileBottomNavbar = ({
   onPhoneClick,
   onChatClick,
   phoneNumber,
+  chatOpen = false,
 }: MobileBottomNavbarProps) => {
   const navItems = [
     ...(showClaim
@@ -47,15 +48,15 @@ const MobileBottomNavbar = ({
     },
     {
       id: "chat",
-      label: "Tchat",
-      icon: <MessageSquare className="h-5 w-5" />,
+      label: chatOpen ? "Fermer" : "Tchat",
+      icon: chatOpen ? <X className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />,
       onClick: onChatClick,
-      className: "text-blue-600",
+      className: chatOpen ? "text-red-600" : "text-blue-600",
     },
   ];
 
   return (
-    <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-lg">
+    <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-[60] bg-background border-t shadow-lg">
       <div className="flex items-center justify-around py-2 px-2 safe-area-pb">
         {navItems.map((item) => (
           <button
@@ -64,7 +65,8 @@ const MobileBottomNavbar = ({
             className={cn(
               "flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-all active:scale-95",
               "hover:bg-muted",
-              item.className
+              item.className,
+              item.id === "chat" && chatOpen && "bg-red-100 ring-2 ring-red-500"
             )}
           >
             {item.icon}

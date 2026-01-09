@@ -172,10 +172,10 @@ export const ChatWidget = ({
   if (!authLoading && !user) {
     return (
       <>
-        {/* Floating button */}
+        {/* Floating button - hidden on mobile/tablet */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105 flex items-center justify-center z-50"
+          className="hidden xl:flex fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105 items-center justify-center z-50"
         >
           {isOpen ? <X className="h-6 w-6" /> : <MessageSquare className="h-6 w-6" />}
           {totalUnread > 0 && (
@@ -185,16 +185,16 @@ export const ChatWidget = ({
           )}
         </button>
 
-        {/* Login prompt */}
+        {/* Login prompt - full screen on mobile/tablet */}
         {isOpen && (
-          <div className="fixed bottom-24 right-6 w-80 bg-card border border-border rounded-2xl shadow-2xl z-50 overflow-hidden">
+          <div className="fixed inset-0 xl:inset-auto xl:bottom-24 xl:right-6 xl:w-80 bg-card border border-border xl:rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col">
             <div className="bg-primary p-4 flex items-center justify-between text-primary-foreground">
               <span className="font-semibold">Messages</span>
               <button onClick={() => setIsOpen(false)}>
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-6 text-center">
+            <div className="p-6 text-center flex-1 flex flex-col justify-center">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="font-semibold mb-2">Connectez-vous pour discuter</h3>
               <p className="text-sm text-muted-foreground mb-4">
@@ -212,10 +212,10 @@ export const ChatWidget = ({
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button - hidden on mobile/tablet */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105 flex items-center justify-center z-50"
+        className="hidden xl:flex fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105 items-center justify-center z-50"
       >
         {isOpen ? (
           <X className="h-6 w-6" />
@@ -231,9 +231,9 @@ export const ChatWidget = ({
         )}
       </button>
 
-      {/* Chat window */}
+      {/* Chat window - full screen on mobile/tablet */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-card border border-border rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden">
+        <div className="fixed inset-0 xl:inset-auto xl:bottom-24 xl:right-6 xl:w-96 xl:h-[500px] xl:rounded-2xl bg-card border border-border shadow-2xl z-50 flex flex-col overflow-hidden">
           {/* Header */}
           <div className="bg-primary p-4 flex items-center gap-3 text-primary-foreground">
             {selectedConversation && selectedParticipant ? (
