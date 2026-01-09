@@ -235,9 +235,11 @@ const ArtisanPublicProfile = () => {
         </div>
       </section>
 
-      {/* Profile Navigation - Full width above the grid */}
-      <div className="container mx-auto px-3 md:px-4 pt-4">
-        <ProfileNavigation visibleSections={visibleSections} />
+      {/* Profile Navigation - Full width above the grid, sticky */}
+      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b">
+        <div className="container mx-auto px-3 md:px-4 py-2">
+          <ProfileNavigation visibleSections={visibleSections} />
+        </div>
       </div>
 
       {/* Main Content */}
