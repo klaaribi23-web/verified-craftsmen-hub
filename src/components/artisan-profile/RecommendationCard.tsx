@@ -49,19 +49,19 @@ const RecommendationCard = ({ recommendation }: RecommendationCardProps) => {
   };
 
   return (
-    <div className="bg-card rounded-xl p-5 border shadow-sm">
+    <div className="bg-card rounded-xl p-3 sm:p-5 border shadow-sm">
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
+      <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Avatar className="h-8 w-8 sm:h-10 sm:w-10 shrink-0">
             <AvatarImage src={client?.avatar_url || undefined} />
-            <AvatarFallback className="bg-primary/10 text-primary text-sm">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs sm:text-sm">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <p className="font-medium text-sm">{displayName}.</p>
-            <p className="text-xs text-muted-foreground">
+          <div className="min-w-0">
+            <p className="font-medium text-xs sm:text-sm truncate">{displayName}.</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(recommendation.created_at), {
                 addSuffix: true,
                 locale: fr,
@@ -69,17 +69,17 @@ const RecommendationCard = ({ recommendation }: RecommendationCardProps) => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 bg-primary/5 px-2.5 py-1 rounded-full">
-          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-          <span className="font-semibold text-sm">{averageRating.toFixed(1)}</span>
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-primary/5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shrink-0">
+          <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-amber-400 text-amber-400" />
+          <span className="font-semibold text-xs sm:text-sm">{averageRating.toFixed(1)}</span>
         </div>
       </div>
 
       {/* Ratings Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
         {ratingLabels.map(({ key, label }) => (
-          <div key={key} className="flex items-center justify-between gap-2 bg-muted/30 rounded-lg px-3 py-2">
-            <span className="text-xs text-muted-foreground">{label}</span>
+          <div key={key} className="flex items-center justify-between gap-1 bg-muted/30 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2">
+            <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{label}</span>
             {renderStars(recommendation[key] as number, true)}
           </div>
         ))}
@@ -87,7 +87,7 @@ const RecommendationCard = ({ recommendation }: RecommendationCardProps) => {
 
       {/* Comment */}
       {recommendation.comment && (
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
           "{recommendation.comment}"
         </p>
       )}
