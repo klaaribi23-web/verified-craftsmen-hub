@@ -255,8 +255,8 @@ const TrouverArtisan = () => {
         {/* Featured Artisans Carousel */}
         <section className="py-10 md:py-16 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="flex items-center justify-between mb-6 md:mb-8">
-              <h2 className="text-xl md:text-2xl font-bold text-foreground">Artisans recommandés</h2>
+            <div className="mb-6 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-bold text-foreground text-center md:text-left">Artisans recommandés</h2>
             </div>
             <FeaturedArtisansCarousel />
           </div>
