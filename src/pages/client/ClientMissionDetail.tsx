@@ -198,23 +198,23 @@ export const ClientMissionDetail = () => {
           subtitle="Consultez les candidatures reçues"
         />
 
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="max-w-5xl mx-auto space-y-6">
+        <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
             {/* Back button */}
-            <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Retour aux missions
+            <Button variant="ghost" onClick={() => navigate(-1)} className="mb-2 sm:mb-4 -ml-2 text-sm">
+              <ArrowLeft className="w-4 h-4 mr-1.5 sm:mr-2" />
+              Retour
             </Button>
 
             {isLoading ? (
               <div className="space-y-4">
-                <Skeleton className="h-32 w-full" />
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-28 sm:h-32 w-full" />
+                <Skeleton className="h-40 sm:h-48 w-full" />
+                <Skeleton className="h-40 sm:h-48 w-full" />
               </div>
             ) : !mission ? (
               <Card>
-                <CardContent className="p-12 text-center">
+                <CardContent className="p-8 sm:p-12 text-center">
                   <p className="text-muted-foreground">Mission non trouvée</p>
                 </CardContent>
               </Card>
@@ -222,36 +222,36 @@ export const ClientMissionDetail = () => {
               <>
                 {/* Mission Summary */}
                 <Card>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-xl">{mission.title}</CardTitle>
-                        <p className="text-muted-foreground mt-1">{mission.description}</p>
+                  <CardHeader className="pb-3 sm:pb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-lg sm:text-xl">{mission.title}</CardTitle>
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2 sm:line-clamp-none">{mission.description}</p>
                       </div>
                       {mission.category?.name && (
-                        <Badge variant="secondary">{mission.category.name}</Badge>
+                        <Badge variant="secondary" className="w-fit text-xs">{mission.category.name}</Badge>
                       )}
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-wrap gap-4 text-sm">
+                    <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
                       {mission.budget && (
                         <span className="flex items-center gap-1 text-gold font-semibold">
-                          <Euro className="w-4 h-4" />
-                          Budget : {mission.budget} €
+                          <Euro className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          {mission.budget} €
                         </span>
                       )}
                       <span className="flex items-center gap-1 text-muted-foreground">
-                        <MapPin className="w-4 h-4" />
+                        <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         {mission.city}
                       </span>
                       <span className="flex items-center gap-1 text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        {format(new Date(mission.created_at), "d MMMM yyyy", { locale: fr })}
+                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        {format(new Date(mission.created_at), "d MMM yyyy", { locale: fr })}
                       </span>
                       <span className="flex items-center gap-1 text-muted-foreground">
-                        <Users className="w-4 h-4" />
-                        {applications?.length || 0} candidature{(applications?.length || 0) > 1 ? "s" : ""}
+                        <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        {applications?.length || 0} candidat{(applications?.length || 0) > 1 ? "s" : ""}
                       </span>
                     </div>
                   </CardContent>
@@ -259,46 +259,46 @@ export const ClientMissionDetail = () => {
 
                 {/* Applicants */}
                 <div>
-                  <h2 className="text-lg font-semibold mb-4">
+                  <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
                     Artisans ayant postulé ({pendingApplicants.length})
                   </h2>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {pendingApplicants.map((applicant) => (
                       <Card key={applicant.id} className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-6">
-                          <div className="flex flex-col lg:flex-row gap-6">
+                        <CardContent className="p-4 sm:p-6">
+                          <div className="flex flex-col gap-4">
                             {/* Artisan info */}
-                            <div className="flex items-start gap-4 flex-1">
-                              <Avatar className="w-16 h-16">
+                            <div className="flex items-start gap-3 sm:gap-4">
+                              <Avatar className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
                                 <AvatarImage src={applicant.artisan.photo_url || DEFAULT_AVATAR} alt={applicant.artisan.business_name} />
                                 <AvatarFallback>
                                   <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                                 </AvatarFallback>
                               </Avatar>
                               
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-1">
-                                  <h3 className="font-semibold text-lg">{applicant.artisan.business_name}</h3>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                                  <h3 className="font-semibold text-sm sm:text-lg truncate">{applicant.artisan.business_name}</h3>
                                   {applicant.artisan.category?.name && (
-                                    <Badge variant="outline">{applicant.artisan.category.name}</Badge>
+                                    <Badge variant="outline" className="w-fit text-xs">{applicant.artisan.category.name}</Badge>
                                   )}
                                 </div>
                                 
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                                   <span className="flex items-center gap-1">
-                                    <Star className="w-4 h-4 text-gold fill-gold" />
-                                    {applicant.artisan.rating?.toFixed(1) || "N/A"} ({applicant.artisan.review_count || 0} avis)
+                                    <Star className="w-3 h-3 sm:w-4 sm:h-4 text-gold fill-gold" />
+                                    {applicant.artisan.rating?.toFixed(1) || "N/A"} ({applicant.artisan.review_count || 0})
                                   </span>
                                   {applicant.artisan.experience_years && (
-                                    <span>{applicant.artisan.experience_years} ans d'expérience</span>
+                                    <span className="hidden sm:inline">{applicant.artisan.experience_years} ans d'exp.</span>
                                   )}
-                                  <span>Postulé le {format(new Date(applicant.created_at), "d MMMM yyyy", { locale: fr })}</span>
+                                  <span className="hidden sm:inline">Postulé le {format(new Date(applicant.created_at), "d MMM yyyy", { locale: fr })}</span>
                                 </div>
                                 
                                 {applicant.motivation_message && (
-                                  <div className="bg-muted rounded-lg p-4">
-                                    <p className="text-sm text-foreground italic">
+                                  <div className="bg-muted rounded-lg p-3 sm:p-4">
+                                    <p className="text-xs sm:text-sm text-foreground italic line-clamp-3 sm:line-clamp-none">
                                       "{applicant.motivation_message}"
                                     </p>
                                   </div>
@@ -306,29 +306,31 @@ export const ClientMissionDetail = () => {
                               </div>
                             </div>
                             
-                            {/* Actions */}
-                            <div className="flex flex-col gap-2 lg:w-48">
-                              <Link to={`/artisan/${applicant.artisan.slug || applicant.artisan.id}`}>
-                                <Button variant="outline" className="w-full">
-                                  <ExternalLink className="w-4 h-4 mr-2" />
-                                  Voir le profil
+                            {/* Actions - Grid 3 cols on mobile */}
+                            <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2">
+                              <Link to={`/artisan/${applicant.artisan.slug || applicant.artisan.id}`} className="contents sm:block">
+                                <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm h-9 sm:h-10">
+                                  <ExternalLink className="w-3.5 h-3.5 sm:mr-2" />
+                                  <span className="hidden sm:inline">Voir le profil</span>
                                 </Button>
                               </Link>
                               <Button 
                                 variant="gold" 
-                                className="w-full"
+                                size="sm"
+                                className="w-full text-xs sm:text-sm h-9 sm:h-10"
                                 onClick={() => handleContact(applicant)}
                               >
-                                <MessageSquare className="w-4 h-4 mr-2" />
-                                Contacter
+                                <MessageSquare className="w-3.5 h-3.5 sm:mr-2" />
+                                <span className="hidden sm:inline">Contacter</span>
                               </Button>
                               <Button 
                                 variant="destructive" 
-                                className="w-full"
+                                size="sm"
+                                className="w-full text-xs sm:text-sm h-9 sm:h-10"
                                 onClick={() => handleDecline(applicant)}
                               >
-                                <X className="w-4 h-4 mr-2" />
-                                Décliner
+                                <X className="w-3.5 h-3.5 sm:mr-2" />
+                                <span className="hidden sm:inline">Décliner</span>
                               </Button>
                             </div>
                           </div>
@@ -338,8 +340,8 @@ export const ClientMissionDetail = () => {
 
                     {pendingApplicants.length === 0 && (
                       <Card>
-                        <CardContent className="p-12 text-center">
-                          <p className="text-muted-foreground">Aucune candidature en attente</p>
+                        <CardContent className="p-8 sm:p-12 text-center">
+                          <p className="text-sm text-muted-foreground">Aucune candidature en attente</p>
                         </CardContent>
                       </Card>
                     )}

@@ -164,38 +164,40 @@ export const ClientSettings = () => {
             subtitle="Gérez votre compte et vos préférences"
           />
 
-          <main className="flex-1 p-6 overflow-auto">
-            <div className="max-w-3xl mx-auto space-y-6">
+          <main className="flex-1 p-4 md:p-6 overflow-auto">
+            <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
               {/* Personal Information */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="w-5 h-5" />
+                <CardHeader className="pb-3 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
                     Informations personnelles
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">Prénom</Label>
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="firstName" className="text-sm">Prénom</Label>
                       <Input 
                         id="firstName" 
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                        className="h-9 sm:h-10"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Nom</Label>
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="lastName" className="text-sm">Nom</Label>
                       <Input 
                         id="lastName" 
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                        className="h-9 sm:h-10"
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">
-                      <Mail className="w-4 h-4 inline mr-2" />
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="email" className="text-sm">
+                      <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1.5 sm:mr-2" />
                       Email
                     </Label>
                     <Input 
@@ -203,13 +205,13 @@ export const ClientSettings = () => {
                       type="email" 
                       value={formData.email}
                       disabled
-                      className="bg-muted"
+                      className="bg-muted h-9 sm:h-10"
                     />
                     <p className="text-xs text-muted-foreground">L'email ne peut pas être modifié</p>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">
-                      <Phone className="w-4 h-4 inline mr-2" />
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="phone" className="text-sm">
+                      <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1.5 sm:mr-2" />
                       Téléphone (format français)
                     </Label>
                     <FrenchPhoneInput
@@ -218,9 +220,9 @@ export const ClientSettings = () => {
                       onChange={(value) => setFormData({ ...formData, phone: value })}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">
-                      <MapPin className="w-4 h-4 inline mr-2" />
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="city" className="text-sm">
+                      <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1.5 sm:mr-2" />
                       Ville
                     </Label>
                     <CityAutocompleteAPI
@@ -233,31 +235,32 @@ export const ClientSettings = () => {
                     variant="gold" 
                     onClick={handleSaveProfile}
                     disabled={updateProfileMutation.isPending}
+                    className="w-full sm:w-auto"
                   >
                     {updateProfileMutation.isPending ? (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     ) : (
                       <Save className="w-4 h-4 mr-2" />
                     )}
-                    Enregistrer les modifications
+                    Enregistrer
                   </Button>
                 </CardContent>
               </Card>
 
               {/* Notifications */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Bell className="w-5 h-5" />
+                <CardHeader className="pb-3 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                     Notifications
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Nouvelles réponses d'artisans</p>
-                      <p className="text-sm text-muted-foreground">
-                        Recevez une notification quand un artisan répond à votre mission
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="flex items-start sm:items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm sm:text-base">Nouvelles réponses d'artisans</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Notification quand un artisan répond
                       </p>
                     </div>
                     <Switch 
@@ -266,11 +269,11 @@ export const ClientSettings = () => {
                     />
                   </div>
                   <Separator />
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Messages</p>
-                      <p className="text-sm text-muted-foreground">
-                        Recevez une notification pour les nouveaux messages
+                  <div className="flex items-start sm:items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm sm:text-base">Messages</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Notification pour les nouveaux messages
                       </p>
                     </div>
                     <Switch 
@@ -279,11 +282,11 @@ export const ClientSettings = () => {
                     />
                   </div>
                   <Separator />
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Promotions et actualités</p>
-                      <p className="text-sm text-muted-foreground">
-                        Recevez nos offres spéciales et actualités
+                  <div className="flex items-start sm:items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm sm:text-base">Promotions et actualités</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Offres spéciales et actualités
                       </p>
                     </div>
                     <Switch 
@@ -296,35 +299,40 @@ export const ClientSettings = () => {
 
               {/* Security */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lock className="w-5 h-5" />
+                <CardHeader className="pb-3 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                     Sécurité
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-                    <Input 
-                      id="newPassword" 
-                      type="password"
-                      value={passwordForm.newPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                    <Input 
-                      id="confirmPassword" 
-                      type="password"
-                      value={passwordForm.confirmPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                    />
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="newPassword" className="text-sm">Nouveau mot de passe</Label>
+                      <Input 
+                        id="newPassword" 
+                        type="password"
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                        className="h-9 sm:h-10"
+                      />
+                    </div>
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <Label htmlFor="confirmPassword" className="text-sm">Confirmer le mot de passe</Label>
+                      <Input 
+                        id="confirmPassword" 
+                        type="password"
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                        className="h-9 sm:h-10"
+                      />
+                    </div>
                   </div>
                   <Button 
                     variant="outline"
                     onClick={handleChangePassword}
                     disabled={changePasswordMutation.isPending || !passwordForm.newPassword || !passwordForm.confirmPassword}
+                    className="w-full sm:w-auto"
                   >
                     {changePasswordMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     Modifier le mot de passe
@@ -334,14 +342,14 @@ export const ClientSettings = () => {
 
               {/* Danger Zone */}
               <Card className="border-destructive/50">
-                <CardHeader>
-                  <CardTitle className="text-destructive">Zone de danger</CardTitle>
+                <CardHeader className="pb-3 sm:pb-4">
+                  <CardTitle className="text-destructive text-base sm:text-lg">Zone de danger</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                     La suppression de votre compte est irréversible. Toutes vos données seront définitivement effacées.
                   </p>
-                  <Button variant="destructive">
+                  <Button variant="destructive" className="w-full sm:w-auto">
                     Supprimer mon compte
                   </Button>
                 </CardContent>
