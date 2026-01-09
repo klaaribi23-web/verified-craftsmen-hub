@@ -27,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
+import { InterventionMap } from "@/components/artisan-profile/InterventionMap";
 
 const ArtisanPublicProfile = () => {
   const {
@@ -792,6 +793,16 @@ const ArtisanPublicProfile = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Mini-carte zone d'intervention */}
+              {artisan.latitude && artisan.longitude && artisan.intervention_radius && artisan.intervention_radius > 0 && (
+                <InterventionMap
+                  latitude={artisan.latitude}
+                  longitude={artisan.longitude}
+                  interventionRadius={artisan.intervention_radius}
+                  city={artisan.city || ""}
+                />
+              )}
 
             </div>
           </div>
