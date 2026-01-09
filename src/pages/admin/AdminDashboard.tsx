@@ -81,28 +81,28 @@ const AdminDashboard = () => {
             title="Total Artisans"
             value={isLoading ? 0 : stats?.totalArtisans || 0}
             icon={Users}
-            trend={{ value: 12, isPositive: true }}
+            trend={stats?.artisansTrend}
             color="primary"
           />
           <AdminStatsCard
             title="Total Clients"
             value={isLoading ? 0 : stats?.totalClients || 0}
             icon={UserCheck}
-            trend={{ value: 8, isPositive: true }}
+            trend={stats?.clientsTrend}
             color="success"
           />
           <AdminStatsCard
             title="Missions actives"
             value={isLoading ? 0 : stats?.activeMissions || 0}
             icon={Briefcase}
-            trend={{ value: 15, isPositive: true }}
+            trend={stats?.activeMissionsTrend}
             color="warning"
           />
           <AdminStatsCard
             title="Terminées"
             value={isLoading ? 0 : stats?.completedMissions || 0}
             icon={TrendingUp}
-            trend={{ value: 23, isPositive: true }}
+            trend={stats?.completedMissionsTrend}
             color="primary"
           />
         </div>
