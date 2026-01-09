@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, LayoutDashboard, MessageSquare, Bell, X, CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info as InfoIcon } from "lucide-react";
+import { Home, LayoutDashboard, MessageSquare, Bell, X, CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info as InfoIcon, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,8 +25,8 @@ const MobileBottomNavbar = ({
   const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
   
-  // Only show for authenticated clients
-  if (!isAuthenticated || userRole !== 'client') {
+  // Only show for authenticated clients OR artisans
+  if (!isAuthenticated || (userRole !== 'client' && userRole !== 'artisan')) {
     return null;
   }
 
@@ -49,24 +49,37 @@ const MobileBottomNavbar = ({
       case "mission_assigned":
       case "mission_application":
         return <Briefcase className="h-5 w-5 text-amber-500" />;
+      case "new_message":
+        return <MessageSquare className="h-5 w-5 text-blue-500" />;
       default:
         return <InfoIcon className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
+  // Different routes based on user role
   const getNotificationRoute = (type: string, relatedId: string | null) => {
+    const isArtisan = userRole === 'artisan';
+    
     switch (type) {
       case "new_quote":
       case "quote_accepted":
       case "quote_refused":
-        return "/client/devis";
+        return isArtisan ? "/artisan/devis" : "/client/devis";
       case "new_message":
-        return "/client/messagerie";
+        return isArtisan ? "/artisan/messagerie" : "/client/messagerie";
       case "mission_assigned":
       case "mission_application":
-        return relatedId ? `/client/missions/${relatedId}` : "/client/missions";
+        return isArtisan 
+          ? "/artisan/missions-postulees" 
+          : (relatedId ? `/client/missions/${relatedId}` : "/client/missions");
+      case "approval":
+      case "rejection":
+        return isArtisan ? "/artisan/dashboard" : "/client/dashboard";
+      case "document_verified":
+      case "document_rejected":
+        return isArtisan ? "/artisan/documents" : "/client/dashboard";
       default:
-        return "/client/dashboard";
+        return isArtisan ? "/artisan/dashboard" : "/client/dashboard";
     }
   };
 
@@ -79,36 +92,75 @@ const MobileBottomNavbar = ({
     navigate(route);
   };
 
-  const navItems = [
-    {
-      id: "home",
-      label: "Accueil",
-      icon: <Home className="h-5 w-5" />,
-      onClick: () => navigate("/"),
-      className: "text-muted-foreground",
-    },
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: <LayoutDashboard className="h-5 w-5" />,
-      onClick: () => navigate("/client/dashboard"),
-      className: "text-primary",
-    },
-    {
-      id: "chat",
-      label: chatOpen ? "Fermer" : "Tchat",
-      icon: chatOpen ? <X className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />,
-      onClick: onChatClick,
-      className: chatOpen ? "text-red-600" : "text-blue-600",
-    },
-    {
-      id: "notifications",
-      label: "Notifs",
-      icon: <Bell className="h-5 w-5" />,
-      onClick: () => setNotifOpen(true),
-      className: "text-amber-600",
-    },
-  ];
+  // Different nav items based on role
+  const getNavItems = () => {
+    if (userRole === 'artisan') {
+      return [
+        {
+          id: "home",
+          label: "Accueil",
+          icon: <Home className="h-5 w-5" />,
+          onClick: () => navigate("/"),
+          className: "text-muted-foreground",
+        },
+        {
+          id: "dashboard",
+          label: "Dashboard",
+          icon: <LayoutDashboard className="h-5 w-5" />,
+          onClick: () => navigate("/artisan/dashboard"),
+          className: "text-primary",
+        },
+        {
+          id: "messagerie",
+          label: "Messages",
+          icon: <Mail className="h-5 w-5" />,
+          onClick: () => navigate("/artisan/messagerie"),
+          className: "text-blue-600",
+        },
+        {
+          id: "notifications",
+          label: "Notifs",
+          icon: <Bell className="h-5 w-5" />,
+          onClick: () => setNotifOpen(true),
+          className: "text-amber-600",
+        },
+      ];
+    }
+    
+    // Client nav items
+    return [
+      {
+        id: "home",
+        label: "Accueil",
+        icon: <Home className="h-5 w-5" />,
+        onClick: () => navigate("/"),
+        className: "text-muted-foreground",
+      },
+      {
+        id: "dashboard",
+        label: "Dashboard",
+        icon: <LayoutDashboard className="h-5 w-5" />,
+        onClick: () => navigate("/client/dashboard"),
+        className: "text-primary",
+      },
+      {
+        id: "chat",
+        label: chatOpen ? "Fermer" : "Tchat",
+        icon: chatOpen ? <X className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />,
+        onClick: onChatClick,
+        className: chatOpen ? "text-red-600" : "text-blue-600",
+      },
+      {
+        id: "notifications",
+        label: "Notifs",
+        icon: <Bell className="h-5 w-5" />,
+        onClick: () => setNotifOpen(true),
+        className: "text-amber-600",
+      },
+    ];
+  };
+
+  const navItems = getNavItems();
 
   return (
     <>
