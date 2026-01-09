@@ -13,7 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus, Info, ShieldCheck, ArrowUp } from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus, Info, ShieldCheck, ArrowUp, FileText } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import CategoryIcon from "@/components/categories/CategoryIcon";
 import RecommendationsSection from "@/components/artisan-profile/RecommendationsSection";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
@@ -24,7 +25,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { useArtisanBySlug, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
 import ChatWidget from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
-import { useMessaging } from "@/hooks/useMessaging";
+
 import { supabase } from "@/integrations/supabase/client";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
@@ -40,7 +41,7 @@ const ArtisanPublicProfile = () => {
     slug: string;
   }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, role } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -49,10 +50,7 @@ const ArtisanPublicProfile = () => {
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [artisanContact, setArtisanContact] = useState<{ phone: string | null; email: string | null }>({ phone: null, email: null });
   const [storyViewerOpen, setStoryViewerOpen] = useState(false);
-
-  // Get unread message count for mobile navbar badge
-  const { conversations } = useMessaging();
-  const totalUnreadMessages = conversations.reduce((sum, c) => sum + c.unread_count, 0);
+  const [showMobileContactDialog, setShowMobileContactDialog] = useState(false);
 
   const {
     data: artisan,
@@ -354,6 +352,45 @@ const ArtisanPublicProfile = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Mobile Contact Section - Visible on mobile/tablet */}
+              <div className="xl:hidden">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex gap-3">
+                      <Button 
+                        className="flex-1 gap-2" 
+                        onClick={() => {
+                          if (!isAuthenticated) {
+                            toast.info("Connectez-vous pour demander un devis");
+                            navigate("/auth");
+                            return;
+                          }
+                          setChatOpen(true);
+                        }}
+                      >
+                        <FileText className="h-4 w-4" />
+                        Demander un devis
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 gap-2"
+                        onClick={() => {
+                          if (!isAuthenticated) {
+                            toast.info("Connectez-vous pour voir les coordonnées");
+                            navigate("/auth");
+                            return;
+                          }
+                          setShowMobileContactDialog(true);
+                        }}
+                      >
+                        <Phone className="h-4 w-4" />
+                        Voir les coordonnées
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
               {/* Le mot de l'artisan */}
               <Card id="description">
@@ -1014,41 +1051,78 @@ const ArtisanPublicProfile = () => {
         </div>
       </section>
 
-      {/* Chat Widget - Shows on desktop (xl+) always, shows on mobile/tablet only when open */}
-      <div className={chatOpen ? "block" : "hidden xl:block"}>
-        <ChatWidget 
-          defaultOpen={chatOpen} 
-          defaultArtisanId={artisan.id || undefined} 
-          defaultArtisanName={artisan.business_name} 
-          defaultArtisanPhoto={artisan.photo_url || undefined} 
-        />
-      </div>
+      {/* Chat Widget Logic:
+          - Non-authenticated: Show widget (it will invite to login)
+          - Authenticated: Show on desktop always, on mobile only when chatOpen 
+      */}
+      {!isAuthenticated ? (
+        // Non-connected: Widget visible with login invitation
+        <div className="xl:hidden">
+          <ChatWidget />
+        </div>
+      ) : (
+        // Connected: Widget controlled by navbar on mobile, always visible on desktop
+        <div className={chatOpen ? "block" : "hidden xl:block"}>
+          <ChatWidget 
+            defaultOpen={chatOpen} 
+            defaultArtisanId={artisan.id || undefined} 
+            defaultArtisanName={artisan.business_name} 
+            defaultArtisanPhoto={artisan.photo_url || undefined} 
+          />
+        </div>
+      )}
 
-      {/* Mobile Bottom Navbar */}
+      {/* Mobile Contact Dialog - For authenticated users */}
+      <Dialog open={showMobileContactDialog} onOpenChange={setShowMobileContactDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Coordonnées de {artisan.business_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {artisanContact.phone ? (
+              <a 
+                href={`tel:${artisanContact.phone}`} 
+                className="flex items-center gap-3 p-4 rounded-lg bg-emerald-50 hover:bg-emerald-100 transition-colors text-emerald-700"
+              >
+                <Phone className="h-5 w-5" />
+                <span className="font-medium">{artisanContact.phone}</span>
+              </a>
+            ) : (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted text-muted-foreground">
+                <Phone className="h-5 w-5" />
+                <span>Téléphone non renseigné</span>
+              </div>
+            )}
+            {artisanContact.email ? (
+              <a 
+                href={`mailto:${artisanContact.email}`} 
+                className="flex items-center gap-3 p-4 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors text-blue-700"
+              >
+                <Mail className="h-5 w-5" />
+                <span className="font-medium">{artisanContact.email}</span>
+              </a>
+            ) : (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted text-muted-foreground">
+                <Mail className="h-5 w-5" />
+                <span>Email non renseigné</span>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mobile Bottom Navbar - Only for authenticated clients */}
       <MobileBottomNavbar
-        showClaim={artisan.status === 'prospect'}
-        onClaimClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
-        onQuoteClick={() => setChatOpen(true)}
-        onPhoneClick={() => {
-          if (!isAuthenticated) {
-            toast.info("Connectez-vous pour voir le numéro de téléphone");
-            navigate("/auth");
-            return;
-          }
-          if (artisanContact.phone) {
-            window.location.href = `tel:${artisanContact.phone}`;
-          } else {
-            toast.info("Numéro de téléphone non disponible");
-          }
-        }}
-        onChatClick={() => setChatOpen(!chatOpen)}
-        phoneNumber={artisanContact.phone}
+        isAuthenticated={isAuthenticated}
+        userRole={role}
         chatOpen={chatOpen}
-        unreadCount={totalUnreadMessages}
+        onChatClick={() => setChatOpen(!chatOpen)}
       />
 
-      {/* Bottom padding for mobile/tablet navbar */}
-      <div className="h-20 xl:hidden" />
+      {/* Bottom padding for mobile/tablet navbar - Only for authenticated clients */}
+      {isAuthenticated && role === 'client' && (
+        <div className="h-20 xl:hidden" />
+      )}
 
       {/* Story Viewer */}
       <StoryViewer

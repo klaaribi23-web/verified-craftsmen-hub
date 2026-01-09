@@ -1,52 +1,98 @@
-import { MessageSquare, Phone, FileText, UserPlus, X } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Home, LayoutDashboard, MessageSquare, Bell, X, CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info as InfoIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { useAllNotifications } from "@/hooks/useAllNotifications";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface MobileBottomNavbarProps {
-  showClaim: boolean;
-  onClaimClick: () => void;
-  onQuoteClick: () => void;
-  onPhoneClick: () => void;
-  onChatClick: () => void;
-  phoneNumber?: string | null;
+  isAuthenticated: boolean;
+  userRole: string | null;
   chatOpen?: boolean;
-  unreadCount?: number;
+  onChatClick: () => void;
 }
 
 const MobileBottomNavbar = ({
-  showClaim,
-  onClaimClick,
-  onQuoteClick,
-  onPhoneClick,
-  onChatClick,
-  phoneNumber,
+  isAuthenticated,
+  userRole,
   chatOpen = false,
-  unreadCount = 0,
+  onChatClick,
 }: MobileBottomNavbarProps) => {
+  const navigate = useNavigate();
+  const [notifOpen, setNotifOpen] = useState(false);
+  
+  // Only show for authenticated clients
+  if (!isAuthenticated || userRole !== 'client') {
+    return null;
+  }
+
+  const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useAllNotifications();
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "quote_accepted":
+      case "approval":
+      case "document_verified":
+        return <CheckCircle className="h-5 w-5 text-emerald-500" />;
+      case "quote_refused":
+      case "rejection":
+      case "document_rejected":
+        return <XCircle className="h-5 w-5 text-destructive" />;
+      case "new_quote":
+        return <FileText className="h-5 w-5 text-primary" />;
+      case "new_artisan":
+        return <UserPlus className="h-5 w-5 text-blue-500" />;
+      case "mission_assigned":
+      case "mission_application":
+        return <Briefcase className="h-5 w-5 text-amber-500" />;
+      default:
+        return <InfoIcon className="h-5 w-5 text-muted-foreground" />;
+    }
+  };
+
+  const getNotificationRoute = (type: string, relatedId: string | null) => {
+    switch (type) {
+      case "new_quote":
+      case "quote_accepted":
+      case "quote_refused":
+        return "/client/devis";
+      case "new_message":
+        return "/client/messagerie";
+      case "mission_assigned":
+      case "mission_application":
+        return relatedId ? `/client/missions/${relatedId}` : "/client/missions";
+      default:
+        return "/client/dashboard";
+    }
+  };
+
+  const handleNotificationClick = (notif: { id: string; is_read: boolean; type: string; related_id: string | null }) => {
+    if (!notif.is_read) {
+      markAsRead.mutate(notif.id);
+    }
+    const route = getNotificationRoute(notif.type, notif.related_id);
+    setNotifOpen(false);
+    navigate(route);
+  };
+
   const navItems = [
-    ...(showClaim
-      ? [
-          {
-            id: "claim",
-            label: "Revendiquer",
-            icon: <UserPlus className="h-5 w-5" />,
-            onClick: onClaimClick,
-            className: "text-amber-600",
-          },
-        ]
-      : []),
     {
-      id: "quote",
-      label: "Devis",
-      icon: <FileText className="h-5 w-5" />,
-      onClick: onQuoteClick,
-      className: "text-primary",
+      id: "home",
+      label: "Accueil",
+      icon: <Home className="h-5 w-5" />,
+      onClick: () => navigate("/"),
+      className: "text-muted-foreground",
     },
     {
-      id: "phone",
-      label: "Téléphone",
-      icon: <Phone className="h-5 w-5" />,
-      onClick: onPhoneClick,
-      className: "text-emerald-600",
+      id: "dashboard",
+      label: "Dashboard",
+      icon: <LayoutDashboard className="h-5 w-5" />,
+      onClick: () => navigate("/client/dashboard"),
+      className: "text-primary",
     },
     {
       id: "chat",
@@ -55,34 +101,112 @@ const MobileBottomNavbar = ({
       onClick: onChatClick,
       className: chatOpen ? "text-red-600" : "text-blue-600",
     },
+    {
+      id: "notifications",
+      label: "Notifs",
+      icon: <Bell className="h-5 w-5" />,
+      onClick: () => setNotifOpen(true),
+      className: "text-amber-600",
+    },
   ];
 
   return (
-    <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-[60] bg-background border-t shadow-lg">
-      <div className="flex items-center justify-around py-2 px-2 safe-area-pb">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={item.onClick}
-            className={cn(
-              "relative flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-all active:scale-95",
-              "hover:bg-muted",
-              item.className,
-              item.id === "chat" && chatOpen && "bg-red-100 ring-2 ring-red-500"
+    <>
+      <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-[60] bg-background border-t shadow-lg">
+        <div className="flex items-center justify-around py-2 px-2 safe-area-pb">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={item.onClick}
+              className={cn(
+                "relative flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-all active:scale-95",
+                "hover:bg-muted",
+                item.className,
+                item.id === "chat" && chatOpen && "bg-red-100 ring-2 ring-red-500"
+              )}
+            >
+              {item.icon}
+              <span className="text-xs font-medium">{item.label}</span>
+              {/* Badge for notifications */}
+              {item.id === "notifications" && unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 min-w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Notifications Sheet */}
+      <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
+        <SheetContent side="bottom" className="h-[70vh] rounded-t-xl">
+          <SheetHeader className="pb-4 border-b">
+            <div className="flex items-center justify-between">
+              <SheetTitle>Notifications</SheetTitle>
+              {unreadCount > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => markAllAsRead.mutate()}
+                  className="text-xs"
+                >
+                  Tout marquer comme lu
+                </Button>
+              )}
+            </div>
+          </SheetHeader>
+          <ScrollArea className="h-[calc(70vh-80px)] mt-4">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <Bell className="h-12 w-12 mb-4 opacity-20" />
+                <p>Aucune notification</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {notifications.map((notif) => (
+                  <button
+                    key={notif.id}
+                    onClick={() => handleNotificationClick(notif)}
+                    className={cn(
+                      "w-full p-4 rounded-lg text-left transition-colors flex gap-3",
+                      notif.is_read 
+                        ? "bg-muted/30 hover:bg-muted/50" 
+                        : "bg-primary/5 hover:bg-primary/10 border-l-2 border-primary"
+                    )}
+                  >
+                    <div className="shrink-0 mt-0.5">
+                      {getNotificationIcon(notif.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "text-sm",
+                        !notif.is_read && "font-semibold"
+                      )}>
+                        {notif.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                        {notif.message}
+                      </p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">
+                        {formatDistanceToNow(new Date(notif.created_at), {
+                          addSuffix: true,
+                          locale: fr,
+                        })}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
             )}
-          >
-            {item.icon}
-            <span className="text-xs font-medium">{item.label}</span>
-            {/* Badge for unread messages */}
-            {item.id === "chat" && !chatOpen && unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 min-w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-    </nav>
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 };
 
