@@ -174,12 +174,17 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
                   >
                     {/* Photo en haut de la card */}
                     <div className="relative h-32 sm:h-36 lg:h-40 overflow-hidden bg-muted">
-                      <img 
-                        src={artisan.photo_url || "/placeholder.svg"} 
-                        alt={artisan.business_name || "Artisan"}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
+                    <img 
+                      src={
+                        artisan.photo_url || 
+                        (artisan.portfolio_images && artisan.portfolio_images.length > 0 
+                          ? artisan.portfolio_images[0] 
+                          : "/placeholder.svg")
+                      } 
+                      alt={artisan.business_name || "Artisan"}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
                       {/* Badge abonnement en overlay */}
                       {badgeConfig.show && BadgeIcon && (
                         <div className={cn(
