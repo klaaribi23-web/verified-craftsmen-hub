@@ -133,55 +133,95 @@ const Navbar = () => {
     return "Mon espace client";
   };
 
-  // Get dashboard menu items based on role (5 items max for mobile sidebar)
+  // Get dashboard menu items based on role - COMPLETE MENU for mobile sidebar
   const getDashboardMenuItems = () => {
     if (role === "admin") {
-      return [
-        { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
-        { icon: User, label: "Artisans", href: "/admin/artisans" },
-        { icon: Settings, label: "Approbations", href: "/admin/approbations" },
-        { icon: MessageCircle, label: "Messagerie", href: "/admin/messagerie" },
-      ];
+      return {
+        main: [
+          { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
+          { icon: User, label: "Artisans", href: "/admin/artisans" },
+          { icon: ClipboardList, label: "Clients", href: "/admin/clients" },
+          { icon: Settings, label: "Approbations", href: "/admin/approbations" },
+          { icon: FileText, label: "Documents", href: "/admin/documents" },
+        ],
+        secondary: [
+          { icon: MessageCircle, label: "Messagerie", href: "/admin/messagerie" },
+          { icon: Settings, label: "Paramètres", href: "/admin/parametres" },
+        ],
+      };
     }
     if (role === "artisan") {
-      return [
-        { icon: LayoutDashboard, label: "Tableau de bord", href: "/artisan/dashboard" },
-        { icon: MessageCircle, label: "Messagerie", href: "/artisan/messagerie" },
-        { icon: FileText, label: "Mes devis", href: "/artisan/devis" },
-        { icon: Settings, label: "Paramètres", href: "/artisan/parametres" },
-      ];
+      return {
+        main: [
+          { icon: LayoutDashboard, label: "Tableau de bord", href: "/artisan/dashboard" },
+          { icon: User, label: "Mon profil", href: "/artisan/profil" },
+          { icon: Camera, label: "Mes Stories", href: "/artisan/stories" },
+          { icon: FileText, label: "Documents", href: "/artisan/documents" },
+          { icon: Briefcase, label: "Mes prestations", href: "/artisan/prestations" },
+          { icon: ClipboardList, label: "Missions postulées", href: "/artisan/demandes" },
+        ],
+        secondary: [
+          { icon: MessageCircle, label: "Messagerie", href: "/artisan/messagerie" },
+          { icon: FileText, label: "Mes devis", href: "/artisan/devis" },
+          { icon: Crown, label: "Mon abonnement", href: "/artisan/abonnement" },
+          { icon: Gift, label: "Offres partenaires", href: "/artisan/offres-partenaires" },
+          { icon: Settings, label: "Paramètres", href: "/artisan/parametres" },
+        ],
+      };
     }
     // Client
-    return [
-      { icon: LayoutDashboard, label: "Tableau de bord", href: "/client/dashboard" },
-      { icon: ClipboardList, label: "Mes missions", href: "/client/missions" },
-      { icon: MessageCircle, label: "Messagerie", href: "/client/messagerie" },
-      { icon: Settings, label: "Paramètres", href: "/client/parametres" },
-    ];
+    return {
+      main: [
+        { icon: LayoutDashboard, label: "Tableau de bord", href: "/client/dashboard" },
+        { icon: ClipboardList, label: "Mes missions", href: "/client/missions" },
+        { icon: FileText, label: "Mes devis", href: "/client/devis" },
+        { icon: Heart, label: "Mes favoris", href: "/client/favoris" },
+      ],
+      secondary: [
+        { icon: MessageCircle, label: "Messagerie", href: "/client/messagerie" },
+        { icon: Settings, label: "Paramètres", href: "/client/parametres" },
+      ],
+    };
   };
+
+  // Render a single menu item
+  const renderMenuItem = (item: { icon: any; label: string; href: string }) => (
+    <Link
+      key={item.href}
+      to={item.href}
+      onClick={() => setIsDashboardSidebarOpen(false)}
+      className={cn(
+        "flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors",
+        location.pathname === item.href
+          ? "bg-gold/10 text-navy font-medium"
+          : "hover:bg-muted"
+      )}
+    >
+      <item.icon className="h-4 w-4 text-muted-foreground" />
+      <span className="text-sm">{item.label}</span>
+    </Link>
+  );
 
   // Render dashboard menu items for mobile sidebar
   const renderDashboardMenuItems = () => {
-    const menuItems = getDashboardMenuItems();
+    const { main, secondary } = getDashboardMenuItems();
 
     return (
       <>
-        {menuItems.map((item) => (
-          <Link
-            key={item.href}
-            to={item.href}
-            onClick={() => setIsDashboardSidebarOpen(false)}
-            className={cn(
-              "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-              location.pathname === item.href
-                ? "bg-gold/10 text-navy font-medium"
-                : "hover:bg-muted"
-            )}
-          >
-            <item.icon className="h-5 w-5 text-muted-foreground" />
-            <span>{item.label}</span>
-          </Link>
-        ))}
+        {/* Groupe principal */}
+        <div className="space-y-0.5">
+          {main.map(renderMenuItem)}
+        </div>
+        
+        {/* Séparateur + groupe secondaire */}
+        {secondary.length > 0 && (
+          <>
+            <div className="border-t border-border my-3" />
+            <div className="space-y-0.5">
+              {secondary.map(renderMenuItem)}
+            </div>
+          </>
+        )}
         
         {/* Bouton déconnexion */}
         <div className="border-t border-border mt-4 pt-4">
@@ -190,10 +230,10 @@ const Navbar = () => {
               handleSignOut();
               setIsDashboardSidebarOpen(false);
             }}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-destructive/10 transition-colors w-full text-left text-destructive"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-destructive/10 transition-colors w-full text-left text-destructive"
           >
-            <LogOut className="h-5 w-5" />
-            <span className="font-medium">Déconnexion</span>
+            <LogOut className="h-4 w-4" />
+            <span className="text-sm font-medium">Déconnexion</span>
           </button>
         </div>
       </>
