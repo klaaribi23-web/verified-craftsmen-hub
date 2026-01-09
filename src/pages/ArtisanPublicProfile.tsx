@@ -12,7 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus, Hash } from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
+import CategoryIcon from "@/components/categories/CategoryIcon";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
 import { Video } from "lucide-react";
@@ -287,21 +288,29 @@ const ArtisanPublicProfile = () => {
                         
                       </div>
                       
-                      {/* Catégorie principale - une seule */}
+                      {/* Catégorie principale - avec badge stylé */}
                       {artisan.category?.name && (
                         <Link 
                           to={`/trouver-artisan?category=${encodeURIComponent(artisan.category.name.toLowerCase())}`}
-                          className="mb-3 block"
+                          className="mb-3 inline-flex justify-center md:justify-start w-full"
                         >
-                          <p className="text-lg text-primary font-medium hover:underline text-center md:text-left">
-                            {artisan.category.name}
-                          </p>
+                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors">
+                            <CategoryIcon iconName={artisan.category?.icon} size={18} className="text-primary" />
+                            <span className="font-semibold text-primary">{artisan.category.name}</span>
+                          </div>
                         </Link>
                       )}
 
-                      <div className="flex items-center justify-center md:justify-start gap-1 text-muted-foreground mb-4">
+                      {/* Ville + Rayon d'intervention */}
+                      <div className="flex items-center justify-center md:justify-start gap-1 text-muted-foreground mb-4 flex-wrap">
                         <MapPin className="h-4 w-4" />
                         <span>{artisan.city}{artisan.region ? `, ${artisan.region}` : ""}</span>
+                        {artisan.intervention_radius && artisan.intervention_radius > 0 && (
+                          <>
+                            <span className="text-muted-foreground/50 mx-1">•</span>
+                            <span className="text-sm">Intervient dans un rayon de {artisan.intervention_radius} km</span>
+                          </>
+                        )}
                       </div>
 
                       {/* Stats Row */}
@@ -360,7 +369,7 @@ const ArtisanPublicProfile = () => {
                 </CardContent>
               </Card>
 
-              {/* Compétences secondaires - affichées en hashtags */}
+              {/* Compétences secondaires - liste verticale avec coches vertes */}
               {(() => {
                 const secondarySkills = (artisan as any).categories?.filter(
                   (cat: { id: string }) => cat.id !== artisan.category?.id
@@ -372,19 +381,20 @@ const ArtisanPublicProfile = () => {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Hash className="h-5 w-5 text-primary" />
+                        <Award className="h-5 w-5 text-primary" />
                         Compétences secondaires
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex flex-wrap gap-3">
+                      <div className="flex flex-col gap-2">
                         {secondarySkills.map((skill: { id: string; name: string }) => (
                           <Link 
                             key={skill.id} 
                             to={`/trouver-artisan?category=${encodeURIComponent(skill.name.toLowerCase())}`}
-                            className="text-primary font-medium text-sm hover:underline"
+                            className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
                           >
-                            #{skill.name}
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            <span className="font-medium">{skill.name}</span>
                           </Link>
                         ))}
                       </div>
