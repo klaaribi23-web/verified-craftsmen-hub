@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 export interface Mission {
   id: string;
@@ -72,6 +73,30 @@ export interface ArtisanPublic {
 // Fetch all pending missions (real data) with dynamic applicant count and user's application status
 export const useDemoMissions = () => {
   const { user, role } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Subscribe to realtime updates on mission_applications
+  useEffect(() => {
+    const channel = supabase
+      .channel('mission-applications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'mission_applications',
+        },
+        () => {
+          // Invalidate the query to refetch data when applications change
+          queryClient.invalidateQueries({ queryKey: ["public-missions"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   return useQuery({
     queryKey: ["public-missions", user?.id],
