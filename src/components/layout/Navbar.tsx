@@ -133,30 +133,21 @@ const Navbar = () => {
     return "Mon espace client";
   };
 
-  // Get dashboard menu items based on role
+  // Get dashboard menu items based on role (5 items max for mobile sidebar)
   const getDashboardMenuItems = () => {
     if (role === "admin") {
       return [
-        { icon: LayoutDashboard, label: "Admin Dashboard", href: "/admin/dashboard" },
-        { icon: User, label: "Gestion artisans", href: "/admin/artisans" },
-        { icon: User, label: "Gestion clients", href: "/admin/clients" },
+        { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
+        { icon: User, label: "Artisans", href: "/admin/artisans" },
         { icon: Settings, label: "Approbations", href: "/admin/approbations" },
-        { icon: FileText, label: "Documents", href: "/admin/documents" },
         { icon: MessageCircle, label: "Messagerie", href: "/admin/messagerie" },
       ];
     }
     if (role === "artisan") {
       return [
         { icon: LayoutDashboard, label: "Tableau de bord", href: "/artisan/dashboard" },
-        { icon: User, label: "Mon profil", href: "/artisan/profil" },
-        { icon: Camera, label: "Mes Stories", href: "/artisan/stories" },
-        { icon: FileText, label: "Documents", href: "/artisan/documents" },
-        { icon: Briefcase, label: "Mes prestations", href: "/artisan/prestations" },
-        { icon: ClipboardList, label: "Missions postulées", href: "/artisan/demandes" },
         { icon: MessageCircle, label: "Messagerie", href: "/artisan/messagerie" },
         { icon: FileText, label: "Mes devis", href: "/artisan/devis" },
-        { icon: Crown, label: "Mon abonnement", href: "/artisan/abonnement" },
-        { icon: Gift, label: "Offres partenaires", href: "/artisan/offres-partenaires" },
         { icon: Settings, label: "Paramètres", href: "/artisan/parametres" },
       ];
     }
@@ -164,8 +155,6 @@ const Navbar = () => {
     return [
       { icon: LayoutDashboard, label: "Tableau de bord", href: "/client/dashboard" },
       { icon: ClipboardList, label: "Mes missions", href: "/client/missions" },
-      { icon: FileText, label: "Mes devis", href: "/client/devis" },
-      { icon: Heart, label: "Mes favoris", href: "/client/favoris" },
       { icon: MessageCircle, label: "Messagerie", href: "/client/messagerie" },
       { icon: Settings, label: "Paramètres", href: "/client/parametres" },
     ];
