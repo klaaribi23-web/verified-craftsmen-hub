@@ -1,10 +1,11 @@
-import { ThumbsUp, LogIn, Star, Loader2 } from "lucide-react";
+import { ThumbsUp, LogIn, Star, Loader2, ShieldAlert, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { useArtisanRecommendations, useHasRecommended, useMyRecommendation } from "@/hooks/useRecommendations";
 import RecommendationCard from "./RecommendationCard";
 import RecommendationForm from "./RecommendationForm";
+import { useAuth, UserRole } from "@/hooks/useAuth";
 
 interface RecommendationsSectionProps {
   artisanId: string;
@@ -13,6 +14,10 @@ interface RecommendationsSectionProps {
 }
 
 const RecommendationsSection = ({ artisanId, artisanName, isLoggedIn }: RecommendationsSectionProps) => {
+  const { role } = useAuth();
+  const isClient = role === "client";
+  const isAdmin = role === "admin";
+  const isArtisan = role === "artisan";
   const { data: recommendations = [], isLoading } = useArtisanRecommendations(artisanId);
   const { data: hasRecommended } = useHasRecommended(artisanId);
   const { data: myRecommendation } = useMyRecommendation(artisanId);
@@ -54,6 +59,9 @@ const RecommendationsSection = ({ artisanId, artisanName, isLoggedIn }: Recommen
     );
   }
 
+  // Determine if user can leave a recommendation (only clients)
+  const canRecommend = isClient && !isAdmin && !isArtisan;
+
   // Logged in - show recommendations and form
   return (
     <div className="space-y-6">
@@ -71,17 +79,30 @@ const RecommendationsSection = ({ artisanId, artisanName, isLoggedIn }: Recommen
           </div>
         </div>
         
-        <RecommendationForm
-          artisanId={artisanId}
-          artisanName={artisanName}
-          existingRecommendation={myRecommendation}
-          trigger={
-            <Button variant={hasRecommended ? "outline" : "default"} className="gap-2">
-              <Star className="h-4 w-4" />
-              {hasRecommended ? "Modifier ma recommandation" : "Laisser une recommandation"}
-            </Button>
-          }
-        />
+        {/* Only show form for clients */}
+        {canRecommend ? (
+          <RecommendationForm
+            artisanId={artisanId}
+            artisanName={artisanName}
+            existingRecommendation={myRecommendation}
+            trigger={
+              <Button variant={hasRecommended ? "outline" : "default"} className="gap-2">
+                <Star className="h-4 w-4" />
+                {hasRecommended ? "Modifier ma recommandation" : "Laisser une recommandation"}
+              </Button>
+            }
+          />
+        ) : isAdmin ? (
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            <ShieldAlert className="h-4 w-4" />
+            <span>Admin : lecture seule</span>
+          </div>
+        ) : isArtisan ? (
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            <UserX className="h-4 w-4" />
+            <span>Les artisans ne peuvent pas recommander</span>
+          </div>
+        ) : null}
       </div>
 
       {/* Loading state */}
@@ -98,7 +119,7 @@ const RecommendationsSection = ({ artisanId, artisanName, isLoggedIn }: Recommen
             <ThumbsUp className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
             <h4 className="font-medium text-lg mb-2">Aucune recommandation</h4>
             <p className="text-muted-foreground mb-4">
-              Soyez le premier à recommander {artisanName} !
+              {canRecommend ? `Soyez le premier à recommander ${artisanName} !` : "Aucune recommandation pour le moment."}
             </p>
           </CardContent>
         </Card>
