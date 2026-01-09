@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ThumbsUp, Star, Trash2, Pencil, ExternalLink, Loader2 } from "lucide-react";
+import { ThumbsUp, Star, Trash2, Pencil, ExternalLink, Loader2, Clock, CheckCircle, XCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import SEOHead from "@/components/seo/SEOHead";
@@ -7,6 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import { ClientSidebar } from "@/components/client-dashboard/ClientSidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AlertDialog,
@@ -28,6 +29,19 @@ const ratingLabels = [
   { key: "work_quality_rating", label: "Qualité" },
   { key: "communication_rating", label: "Communication" },
 ] as const;
+
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case "pending":
+      return <Badge variant="outline" className="gap-1 text-amber-600 border-amber-300"><Clock className="h-3 w-3" /> En attente de validation</Badge>;
+    case "approved":
+      return <Badge className="gap-1 bg-green-500"><CheckCircle className="h-3 w-3" /> Publiée</Badge>;
+    case "rejected":
+      return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" /> Rejetée</Badge>;
+    default:
+      return null;
+  }
+};
 
 const ClientRecommendations = () => {
   const { data: recommendations = [], isLoading } = useClientRecommendations();
@@ -127,10 +141,13 @@ const ClientRecommendations = () => {
                           </div>
                         </div>
 
-                        {/* Average rating */}
-                        <div className="flex items-center gap-2 bg-primary/5 px-3 py-1.5 rounded-full">
-                          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                          <span className="font-semibold">{avgRating.toFixed(1)}</span>
+                        {/* Status & Average rating */}
+                        <div className="flex flex-col items-end gap-2">
+                          {getStatusBadge(rec.status)}
+                          <div className="flex items-center gap-2 bg-primary/5 px-3 py-1.5 rounded-full">
+                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                            <span className="font-semibold">{avgRating.toFixed(1)}</span>
+                          </div>
                         </div>
                       </div>
 
@@ -152,6 +169,13 @@ const ClientRecommendations = () => {
                         <p className="text-sm text-muted-foreground mt-4 bg-muted/20 rounded-lg p-3">
                           "{rec.comment}"
                         </p>
+                      )}
+
+                      {/* Rejection reason */}
+                      {rec.status === "rejected" && rec.rejection_reason && (
+                        <div className="text-sm bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 rounded-lg p-3 mt-3">
+                          <span className="font-medium">Raison du rejet :</span> {rec.rejection_reason}
+                        </div>
                       )}
 
                       {/* Actions */}

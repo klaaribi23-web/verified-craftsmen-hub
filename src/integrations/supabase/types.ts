@@ -908,6 +908,8 @@ export type Database = {
           id: string
           presentation_rating: number
           punctuality_rating: number
+          rejection_reason: string | null
+          status: string
           updated_at: string
           work_quality_rating: number
         }
@@ -920,6 +922,8 @@ export type Database = {
           id?: string
           presentation_rating: number
           punctuality_rating: number
+          rejection_reason?: string | null
+          status?: string
           updated_at?: string
           work_quality_rating: number
         }
@@ -932,6 +936,8 @@ export type Database = {
           id?: string
           presentation_rating?: number
           punctuality_rating?: number
+          rejection_reason?: string | null
+          status?: string
           updated_at?: string
           work_quality_rating?: number
         }

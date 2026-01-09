@@ -44,6 +44,7 @@ import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminDocuments from "./pages/admin/AdminDocuments";
 import AdminBulkImport from "./pages/admin/AdminBulkImport";
+import AdminRecommendations from "./pages/admin/AdminRecommendations";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -240,6 +241,11 @@ const App = () => (
           <Route path="/admin/import-massif" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminBulkImport />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/recommandations" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminRecommendations />
             </ProtectedRoute>
           } />
           
