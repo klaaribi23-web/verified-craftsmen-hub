@@ -13,7 +13,8 @@ import {
   Settings,
   FileText,
   Menu,
-  Upload
+  Upload,
+  ThumbsUp,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,11 +23,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAllNotifications } from "@/hooks/useAllNotifications";
 import { useApprovalCounts } from "@/hooks/useApprovalCounts";
+import { usePendingRecommendationsCount } from "@/hooks/useRecommendations";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin/dashboard" },
   { icon: UserCheck, label: "Approbations", path: "/admin/approbations", badge: "approvals" },
   { icon: FileText, label: "Documents", path: "/admin/documents", badge: "documents" },
+  { icon: ThumbsUp, label: "Recommandations", path: "/admin/recommandations", badge: "recommendations" },
   { icon: Users, label: "Artisans", path: "/admin/artisans" },
   { icon: UserCheck, label: "Clients", path: "/admin/clients" },
   { icon: BarChart3, label: "Statistiques", path: "/admin/statistiques" },
@@ -43,6 +46,7 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
   const { profile, isLoading } = useUserProfile();
   const { notifications } = useAllNotifications();
   const { data: approvalCounts } = useApprovalCounts();
+  const { data: pendingRecommendationsCount = 0 } = usePendingRecommendationsCount();
   
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
   const pendingApprovalsCount = approvalCounts?.totalApprovals || 0;
@@ -122,6 +126,11 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
               {item.badge === "documents" && pendingDocumentsCount > 0 && (
                 <Badge className="ml-auto bg-destructive text-destructive-foreground text-xs px-2">
                   {pendingDocumentsCount}
+                </Badge>
+              )}
+              {item.badge === "recommendations" && pendingRecommendationsCount > 0 && (
+                <Badge className="ml-auto bg-destructive text-destructive-foreground text-xs px-2">
+                  {pendingRecommendationsCount}
                 </Badge>
               )}
             </NavLink>

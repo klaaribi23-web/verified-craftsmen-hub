@@ -11,6 +11,8 @@ export interface Recommendation {
   work_quality_rating: number;
   communication_rating: number;
   comment: string | null;
+  status: "pending" | "approved" | "rejected";
+  rejection_reason: string | null;
   created_at: string;
   updated_at: string;
   client?: {
@@ -37,7 +39,7 @@ export interface CreateRecommendationData {
   comment?: string;
 }
 
-// Get all recommendations for an artisan
+// Get approved recommendations for an artisan (public view)
 export const useArtisanRecommendations = (artisanId: string | undefined) => {
   return useQuery({
     queryKey: ["recommendations", "artisan", artisanId],
@@ -55,6 +57,7 @@ export const useArtisanRecommendations = (artisanId: string | undefined) => {
           )
         `)
         .eq("artisan_id", artisanId)
+        .eq("status", "approved")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -203,9 +206,10 @@ export const useCreateRecommendation = () => {
       queryClient.invalidateQueries({ queryKey: ["recommendations", "hasRecommended", variables.artisan_id] });
       queryClient.invalidateQueries({ queryKey: ["recommendations", "my", variables.artisan_id] });
       queryClient.invalidateQueries({ queryKey: ["recommendations", "client"] });
+      queryClient.invalidateQueries({ queryKey: ["recommendations", "admin"] });
       toast({
-        title: "Recommandation publiée !",
-        description: "Merci d'avoir partagé votre expérience.",
+        title: "Recommandation envoyée !",
+        description: "Votre recommandation sera visible après validation par notre équipe.",
       });
     },
     onError: (error: Error) => {
@@ -285,6 +289,126 @@ export const useDeleteRecommendation = () => {
         description: error.message || "Impossible de supprimer la recommandation.",
         variant: "destructive",
       });
+    },
+  });
+};
+
+// ========== ADMIN HOOKS ==========
+
+// Get all recommendations for admin (all statuses)
+export const useAdminRecommendations = (statusFilter?: "pending" | "approved" | "rejected" | "all") => {
+  return useQuery({
+    queryKey: ["recommendations", "admin", statusFilter],
+    queryFn: async () => {
+      let query = supabase
+        .from("recommendations")
+        .select(`
+          *,
+          client:profiles!recommendations_client_id_fkey(
+            first_name,
+            last_name,
+            avatar_url,
+            email
+          ),
+          artisan:artisans!recommendations_artisan_id_fkey(
+            business_name,
+            photo_url,
+            slug
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (statusFilter && statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as Recommendation[];
+    },
+  });
+};
+
+// Approve a recommendation
+export const useApproveRecommendation = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from("recommendations")
+        .update({ status: "approved", rejection_reason: null })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["recommendations"] });
+      toast({
+        title: "Recommandation approuvée",
+        description: "La recommandation est maintenant visible publiquement.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible d'approuver la recommandation.",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+// Reject a recommendation
+export const useRejectRecommendation = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
+      const { data, error } = await supabase
+        .from("recommendations")
+        .update({ status: "rejected", rejection_reason: reason || null })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recommendations"] });
+      toast({
+        title: "Recommandation rejetée",
+        description: "La recommandation a été rejetée.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de rejeter la recommandation.",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+// Get pending recommendations count for admin badge
+export const usePendingRecommendationsCount = () => {
+  return useQuery({
+    queryKey: ["recommendations", "admin", "pendingCount"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("recommendations")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+
+      if (error) throw error;
+      return count || 0;
     },
   });
 };
