@@ -798,42 +798,34 @@ const ArtisanPublicProfile = () => {
 
             {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
             <div className="hidden lg:block lg:col-span-1 space-y-6">
-              {/* Mini-carte zone d'intervention - EN PREMIER (non-sticky) */}
-              {artisan.latitude && artisan.longitude && artisan.intervention_radius && artisan.intervention_radius > 0 && (
-                <InterventionMap
-                  latitude={artisan.latitude}
-                  longitude={artisan.longitude}
-                  interventionRadius={artisan.intervention_radius}
-                  city={artisan.city || ""}
-                />
+              
+              {/* 1. SECTION REVENDICATION - Séparée, non-sticky (uniquement prospect) */}
+              {artisan.status === 'prospect' && (
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="text-center mb-3">
+                      <p className="text-sm text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
+                      <p className="text-lg font-bold text-amber-600">Revendiquez votre fiche</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground text-center mb-3">
+                      Cette fiche a été créée pour vous. Réclamez-la pour gérer votre profil et recevoir des demandes de clients.
+                    </p>
+                    <Button 
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
+                      size="lg" 
+                      onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Revendiquer cette fiche
+                    </Button>
+                  </CardContent>
+                </Card>
               )}
 
-              {/* Carte Contact - STICKY */}
+              {/* 2. SECTION CONTACT - STICKY */}
               <div className="sticky top-28">
                 <Card>
                   <CardContent className="p-6 space-y-4">
-                    {/* Encart Revendication - Uniquement pour prospect */}
-                    {artisan.status === 'prospect' && (
-                      <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-4">
-                        <div className="text-center mb-3">
-                          <p className="text-sm text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
-                          <p className="text-lg font-bold text-amber-600">Revendiquez votre fiche</p>
-                        </div>
-                        <p className="text-sm text-muted-foreground text-center mb-3">
-                          Cette fiche a été créée pour vous. Réclamez-la pour gérer votre profil et recevoir des demandes de clients.
-                        </p>
-                        <Button 
-                          className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
-                          size="lg" 
-                          onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
-                        >
-                          <UserPlus className="h-4 w-4 mr-2" />
-                          Revendiquer cette fiche
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* Boutons Contact - Pour TOUS les artisans (prospect + active + pending) */}
                     <div className="text-center mb-2">
                       <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>
                       <p className="text-2xl font-bold text-primary">Contactez-moi</p>
@@ -890,7 +882,6 @@ const ArtisanPublicProfile = () => {
                       </div>
                     )}
 
-
                     {/* Share Section */}
                     <div className="pt-4 border-t">
                       <p className="text-sm text-muted-foreground mb-3 flex items-center justify-center gap-2">
@@ -920,6 +911,16 @@ const ArtisanPublicProfile = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* 3. SECTION ZONE D'INTERVENTION - Non-sticky, EN DERNIER */}
+              {artisan.latitude && artisan.longitude && artisan.intervention_radius && artisan.intervention_radius > 0 && (
+                <InterventionMap
+                  latitude={artisan.latitude}
+                  longitude={artisan.longitude}
+                  interventionRadius={artisan.intervention_radius}
+                  city={artisan.city || ""}
+                />
+              )}
 
             </div>
           </div>
