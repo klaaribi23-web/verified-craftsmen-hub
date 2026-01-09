@@ -73,6 +73,19 @@ const Navbar = () => {
     };
   }, [isAuthenticated, role, user]);
 
+  // Bloquer le scroll du body quand la sidebar dashboard est ouverte
+  useEffect(() => {
+    if (isDashboardSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isDashboardSidebarOpen]);
+
   // Get messaging link based on role
   const getMessagingLink = () => {
     if (role === "admin") return "/admin/messagerie";
