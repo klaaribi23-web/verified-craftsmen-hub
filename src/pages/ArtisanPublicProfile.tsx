@@ -504,7 +504,7 @@ const ArtisanPublicProfile = () => {
                         return (
                           <div 
                             key={day.key} 
-                            className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20"
+                            className="flex items-center justify-between py-2"
                           >
                             <span className="font-medium">{day.label}</span>
                             <span className={cn(
