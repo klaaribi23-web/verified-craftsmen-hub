@@ -226,7 +226,7 @@ const ArtisanPublicProfile = () => {
       <div className="pt-20" />
 
       {/* Profile Navigation - Full width, sticky */}
-      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b py-2">
+      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b py-3">
         <div className="container mx-auto px-3 md:px-4">
           <ProfileNavigation visibleSections={visibleSections} />
         </div>
