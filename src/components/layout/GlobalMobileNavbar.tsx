@@ -17,6 +17,10 @@ const GlobalMobileNavbar = () => {
   
   const { user, role, isLoading: authLoading } = useAuth();
   
+  // IMPORTANT: All hooks must be called unconditionally before any return statements
+  // to comply with React's Rules of Hooks
+  const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useAllNotifications();
+  
   // Don't show while loading auth or if not authenticated
   if (authLoading || !user) {
     return null;
@@ -26,8 +30,6 @@ const GlobalMobileNavbar = () => {
   if (role !== 'client' && role !== 'artisan') {
     return null;
   }
-
-  const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useAllNotifications();
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
