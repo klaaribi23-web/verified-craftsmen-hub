@@ -355,10 +355,10 @@ const ArtisanPublicProfile = () => {
               {/* Mobile Contact Section - Visible on mobile/tablet */}
               <div className="xl:hidden">
                 <Card>
-                  <CardContent className="p-4">
-                    <div className="flex gap-3">
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex flex-col gap-2">
                       <Button 
-                        className="flex-1 gap-2" 
+                        className="w-full gap-2" 
                         onClick={() => {
                           if (!isAuthenticated) {
                             toast.info("Connectez-vous pour demander un devis");
@@ -373,7 +373,7 @@ const ArtisanPublicProfile = () => {
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="flex-1 gap-2"
+                        className="w-full gap-2"
                         onClick={() => {
                           if (!isAuthenticated) {
                             toast.info("Connectez-vous pour voir les coordonnées");
@@ -393,9 +393,9 @@ const ArtisanPublicProfile = () => {
 
               {/* Le mot de l'artisan */}
               <Card id="description">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-primary" />
+                <CardHeader className="p-4 md:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                    <MessageSquare className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     Le mot de l'artisan
                   </CardTitle>
                 </CardHeader>
@@ -410,14 +410,14 @@ const ArtisanPublicProfile = () => {
 
               {/* Pourquoi cet artisan est validé - Colorful badges */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-primary" />
+                <CardHeader className="p-4 md:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                    <Shield className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     Pourquoi cet artisan est validé ?
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
                     {/* Identité vérifiée */}
                     <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-emerald-200 dark:border-emerald-500/30 shadow-sm hover:shadow-md transition-shadow">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-2">
@@ -473,9 +473,9 @@ const ArtisanPublicProfile = () => {
                 
                 return (
                   <Card id="competences">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Award className="h-5 w-5 text-primary" />
+                    <CardHeader className="p-4 md:p-6">
+                      <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                        <Award className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                         Compétences secondaires
                       </CardTitle>
                     </CardHeader>
@@ -497,54 +497,47 @@ const ArtisanPublicProfile = () => {
                 );
               })()}
 
-              {/* Services Section - Collapsible on mobile */}
-              <Collapsible defaultOpen className="md:block">
-                <Card id="prestations">
-                  <CollapsibleTrigger className="w-full md:cursor-default">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <Wrench className="h-5 w-5 text-primary" />
-                        Prestations proposées
-                      </CardTitle>
-                      <ChevronDown className="h-5 w-5 text-muted-foreground md:hidden transition-transform data-[state=open]:rotate-180" />
-                    </CardHeader>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <CardContent className="pt-0 md:pt-0">
-                      {servicesLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
-                          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-16 md:h-20 rounded-lg" />)}
-                        </div> : services && services.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
-                          {services.map(service => <div key={service.id} className="flex items-center justify-between p-3 md:p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                              <div className="min-w-0 flex-1">
-                                <p className="font-medium text-sm md:text-base truncate">{service.title}</p>
-                                {service.duration && <p className="text-xs md:text-sm text-muted-foreground">
-                                    <Clock className="h-3 w-3 inline mr-1" />
-                                    {service.duration}
-                                  </p>}
-                              </div>
-                              {service.price ? (
-                                <Badge variant="secondary" className="font-semibold shrink-0 ml-2 text-xs md:text-sm">
-                                  {service.price}€
-                                </Badge>
-                              ) : (
-                                <Badge className="bg-accent/10 text-accent border-accent/20 font-semibold shrink-0 ml-2 text-xs md:text-sm">
-                                  Sur Devis
-                                </Badge>
-                              )}
-                            </div>)}
-                        </div> : <p className="text-muted-foreground text-center py-4">
-                          Aucune prestation renseignée
-                        </p>}
-                    </CardContent>
-                  </CollapsibleContent>
-                </Card>
-              </Collapsible>
+              {/* Services Section - Always visible (no accordion) */}
+              <Card id="prestations">
+                <CardHeader className="p-4 md:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                    <Wrench className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                    Prestations proposées
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+                  {servicesLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                      {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-16 md:h-20 rounded-lg" />)}
+                    </div> : services && services.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                      {services.map(service => <div key={service.id} className="flex items-center justify-between p-3 md:p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm md:text-base truncate">{service.title}</p>
+                            {service.duration && <p className="text-xs md:text-sm text-muted-foreground">
+                                <Clock className="h-3 w-3 inline mr-1" />
+                                {service.duration}
+                              </p>}
+                          </div>
+                          {service.price ? (
+                            <Badge variant="secondary" className="font-semibold shrink-0 ml-2 text-xs md:text-sm">
+                              {service.price}€
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-accent/10 text-accent border-accent/20 font-semibold shrink-0 ml-2 text-xs md:text-sm">
+                              Sur Devis
+                            </Badge>
+                          )}
+                        </div>)}
+                    </div> : <p className="text-muted-foreground text-center py-4">
+                      Aucune prestation renseignée
+                    </p>}
+                </CardContent>
+              </Card>
 
               {/* Portfolio Section - Photos */}
               {portfolio.length > 0 && <Card id="realisations">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileCheck className="h-5 w-5 text-primary" />
+                  <CardHeader className="p-4 md:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                      <FileCheck className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                       Mes réalisations
                     </CardTitle>
                   </CardHeader>
@@ -558,9 +551,9 @@ const ArtisanPublicProfile = () => {
 
               {/* Portfolio Section - Videos */}
               {artisan.portfolio_videos && artisan.portfolio_videos.length > 0 && <Card id="videos">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Video className="h-5 w-5 text-primary" />
+                  <CardHeader className="p-4 md:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                      <Video className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                       Mes vidéos
                     </CardTitle>
                   </CardHeader>
@@ -574,9 +567,9 @@ const ArtisanPublicProfile = () => {
                 {/* Working Hours Card */}
                 {(artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0 && (
                   <Card id="horaires">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-primary" />
+                    <CardHeader className="p-4 md:p-6">
+                      <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                        <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                         Heures de travail
                       </CardTitle>
                     </CardHeader>
@@ -621,9 +614,9 @@ const ArtisanPublicProfile = () => {
 
                 {/* Infos pratiques Card */}
                 <Card id="infos-pratiques" className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-background">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Info className="h-5 w-5 text-primary" />
+                  <CardHeader className="p-4 md:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                      <Info className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                       Infos pratiques
                     </CardTitle>
                   </CardHeader>
@@ -748,16 +741,16 @@ const ArtisanPublicProfile = () => {
 
               {/* Reviews Section */}
               <Card id="avis">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Star className="h-5 w-5 text-primary" />
+                <CardHeader className="p-4 md:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                      <Star className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                       Avis clients
                     </CardTitle>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       {renderStars(rating)}
-                      <span className="font-bold text-lg">{rating.toFixed(1)}</span>
-                      <span className="text-muted-foreground">/ 5</span>
+                      <span className="font-bold text-base md:text-lg">{rating.toFixed(1)}</span>
+                      <span className="text-muted-foreground text-sm">/ 5</span>
                     </div>
                   </div>
                 </CardHeader>
@@ -1014,19 +1007,19 @@ const ArtisanPublicProfile = () => {
 
       {/* Breadcrumb - Bottom of page */}
       <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
-          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <nav className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground transition-colors">Accueil</Link>
             <span>/</span>
             <Link to="/trouver-artisan" className="hover:text-foreground transition-colors">Artisans</Link>
             <span>/</span>
-            <span className="text-foreground font-semibold italic">{artisan.business_name}</span>
+            <span className="text-foreground font-semibold italic truncate max-w-[200px] sm:max-w-none">{artisan.business_name}</span>
           </nav>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="gap-2"
+            className="w-full sm:w-auto gap-2"
           >
             <ArrowUp className="h-4 w-4" />
             Retour en haut

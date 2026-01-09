@@ -66,14 +66,14 @@ const RecommendationsSection = ({ artisanId, artisanName, isLoggedIn }: Recommen
   return (
     <div className="space-y-6">
       {/* Header with action button */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <ThumbsUp className="h-5 w-5 text-primary" />
+          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <ThumbsUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-lg">Recommandations</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="font-semibold text-base md:text-lg">Recommandations</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {recommendations.length} recommandation{recommendations.length !== 1 ? "s" : ""}
             </p>
           </div>
@@ -127,7 +127,7 @@ const RecommendationsSection = ({ artisanId, artisanName, isLoggedIn }: Recommen
 
       {/* Recommendations list */}
       {!isLoading && recommendations.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
           {recommendations.map((rec) => (
             <RecommendationCard key={rec.id} recommendation={rec} />
           ))}
