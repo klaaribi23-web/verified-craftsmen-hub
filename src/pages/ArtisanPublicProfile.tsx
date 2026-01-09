@@ -32,7 +32,6 @@ import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
 import { InterventionMap } from "@/components/artisan-profile/InterventionMap";
 import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
-import MobileBottomNavbar from "@/components/artisan-profile/MobileBottomNavbar";
 
 const ArtisanPublicProfile = () => {
   const {
@@ -1111,18 +1110,6 @@ const ArtisanPublicProfile = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Mobile Bottom Navbar - For authenticated clients and artisans */}
-      <MobileBottomNavbar
-        isAuthenticated={isAuthenticated}
-        userRole={role}
-        chatOpen={chatOpen}
-        onChatClick={() => setChatOpen(!chatOpen)}
-      />
-
-      {/* Bottom padding for mobile/tablet navbar - For authenticated clients and artisans */}
-      {isAuthenticated && (role === 'client' || role === 'artisan') && (
-        <div className="h-20 xl:hidden" />
-      )}
 
       {/* Story Viewer */}
       <StoryViewer

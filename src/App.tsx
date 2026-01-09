@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { QuoteNotificationListener } from "@/components/notifications/QuoteNotificationListener";
+import GlobalMobileNavbar from "@/components/layout/GlobalMobileNavbar";
 import Index from "./pages/Index";
 import TrouverArtisan from "./pages/TrouverArtisan";
 import NosMissions from "./pages/NosMissions";
@@ -252,6 +253,9 @@ const App = () => (
           {/* Catch-all Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        
+        {/* Global Mobile Navbar for authenticated clients & artisans */}
+        <GlobalMobileNavbar />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
