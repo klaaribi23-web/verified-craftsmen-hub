@@ -29,13 +29,19 @@ interface ProfileCompletionCardProps {
   profile: ProfileData;
   onRequestApproval: () => void;
   isRequestingApproval?: boolean;
+  mandatoryDocumentsUploaded: number;
+  totalMandatoryDocuments: number;
 }
 
 export const ProfileCompletionCard = ({
   profile,
   onRequestApproval,
-  isRequestingApproval = false
+  isRequestingApproval = false,
+  mandatoryDocumentsUploaded,
+  totalMandatoryDocuments
 }: ProfileCompletionCardProps) => {
+  const allDocumentsUploaded = mandatoryDocumentsUploaded === totalMandatoryDocuments;
+
   const checklistItems = useMemo(() => [
     {
       id: "photo",
@@ -78,8 +84,15 @@ export const ProfileCompletionCard = ({
       icon: Briefcase,
       completed: !!profile.experience_years && profile.experience_years > 0,
       link: "/artisan/profil"
+    },
+    {
+      id: "documents",
+      label: `Documents obligatoires (${mandatoryDocumentsUploaded}/${totalMandatoryDocuments})`,
+      icon: FileText,
+      completed: allDocumentsUploaded,
+      link: "/artisan/documents"
     }
-  ], [profile]);
+  ], [profile, mandatoryDocumentsUploaded, totalMandatoryDocuments, allDocumentsUploaded]);
 
   const completedCount = checklistItems.filter(item => item.completed).length;
   const totalCount = checklistItems.length;
@@ -167,7 +180,7 @@ export const ProfileCompletionCard = ({
               L'administrateur vérifiera votre profil prochainement.
             </p>
           </div>
-        ) : isComplete ? (
+        ) : isComplete && allDocumentsUploaded ? (
           <Button 
             className="w-full" 
             onClick={onRequestApproval}
