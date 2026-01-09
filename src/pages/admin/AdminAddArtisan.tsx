@@ -327,6 +327,17 @@ const AdminAddArtisan = () => {
       return;
     }
 
+    // Validation format téléphone français (10 chiffres commençant par 0)
+    const phoneClean = formData.phone.replace(/[\s.-]/g, "");
+    if (!/^0[1-9]\d{8}$/.test(phoneClean)) {
+      toast({
+        title: "Erreur",
+        description: "Le téléphone doit être un numéro français valide (10 chiffres commençant par 0).",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!formData.experienceYears) {
       toast({
         title: "Erreur",
