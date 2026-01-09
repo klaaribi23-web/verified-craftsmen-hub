@@ -294,21 +294,21 @@ const ArtisanPublicProfile = () => {
                           to={`/trouver-artisan?category=${encodeURIComponent(artisan.category.name.toLowerCase())}`}
                           className="mb-3 inline-flex justify-center md:justify-start w-full"
                         >
-                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors">
-                            <CategoryIcon iconName={artisan.category?.icon} size={18} className="text-primary" />
-                            <span className="font-semibold text-primary">{artisan.category.name}</span>
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors">
+                            <CategoryIcon iconName={artisan.category?.icon} size={14} className="text-primary" />
+                            <span className="text-sm font-medium text-primary">{artisan.category.name}</span>
                           </div>
                         </Link>
                       )}
 
                       {/* Ville + Rayon d'intervention */}
-                      <div className="flex items-center justify-center md:justify-start gap-1 text-muted-foreground mb-4 flex-wrap">
-                        <MapPin className="h-4 w-4" />
+                      <div className="flex items-center justify-center md:justify-start gap-1 text-muted-foreground mb-4 flex-wrap text-sm">
+                        <MapPin className="h-3.5 w-3.5" />
                         <span>{artisan.city}{artisan.region ? `, ${artisan.region}` : ""}</span>
                         {artisan.intervention_radius && artisan.intervention_radius > 0 && (
                           <>
                             <span className="text-muted-foreground/50 mx-1">•</span>
-                            <span className="text-sm">Intervient dans un rayon de {artisan.intervention_radius} km</span>
+                            <span>Intervient dans un rayon de {artisan.intervention_radius} km</span>
                           </>
                         )}
                       </div>
