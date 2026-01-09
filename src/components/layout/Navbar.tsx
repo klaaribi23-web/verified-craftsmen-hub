@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, LogOut, LayoutDashboard, FileText, Settings, MessageCircle } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, FileText, Settings, MessageCircle, ChevronDown, Heart, Briefcase, Camera, ClipboardList, Crown, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,11 +15,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import NotificationBell from "@/components/notifications/NotificationBell";
-import { DEFAULT_AVATAR } from "@/lib/utils";
+import { DEFAULT_AVATAR, cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDashboardSidebarOpen, setIsDashboardSidebarOpen] = useState(false);
   const [artisanPhotoUrl, setArtisanPhotoUrl] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -125,7 +126,92 @@ const Navbar = () => {
     return "/client/parametres";
   };
 
-  // Render user menu for authenticated users
+  // Get role label for display
+  const getRoleLabel = () => {
+    if (role === "admin") return "Admin";
+    if (role === "artisan") return "Mon espace artisan";
+    return "Mon espace client";
+  };
+
+  // Get dashboard menu items based on role
+  const getDashboardMenuItems = () => {
+    if (role === "admin") {
+      return [
+        { icon: LayoutDashboard, label: "Admin Dashboard", href: "/admin/dashboard" },
+        { icon: User, label: "Gestion artisans", href: "/admin/artisans" },
+        { icon: User, label: "Gestion clients", href: "/admin/clients" },
+        { icon: Settings, label: "Approbations", href: "/admin/approbations" },
+        { icon: FileText, label: "Documents", href: "/admin/documents" },
+        { icon: MessageCircle, label: "Messagerie", href: "/admin/messagerie" },
+      ];
+    }
+    if (role === "artisan") {
+      return [
+        { icon: LayoutDashboard, label: "Tableau de bord", href: "/artisan/dashboard" },
+        { icon: User, label: "Mon profil", href: "/artisan/profil" },
+        { icon: Camera, label: "Mes Stories", href: "/artisan/stories" },
+        { icon: FileText, label: "Documents", href: "/artisan/documents" },
+        { icon: Briefcase, label: "Mes prestations", href: "/artisan/prestations" },
+        { icon: ClipboardList, label: "Missions postulées", href: "/artisan/demandes" },
+        { icon: MessageCircle, label: "Messagerie", href: "/artisan/messagerie" },
+        { icon: FileText, label: "Mes devis", href: "/artisan/devis" },
+        { icon: Crown, label: "Mon abonnement", href: "/artisan/abonnement" },
+        { icon: Gift, label: "Offres partenaires", href: "/artisan/offres-partenaires" },
+        { icon: Settings, label: "Paramètres", href: "/artisan/parametres" },
+      ];
+    }
+    // Client
+    return [
+      { icon: LayoutDashboard, label: "Tableau de bord", href: "/client/dashboard" },
+      { icon: ClipboardList, label: "Mes missions", href: "/client/missions" },
+      { icon: FileText, label: "Mes devis", href: "/client/devis" },
+      { icon: Heart, label: "Mes favoris", href: "/client/favoris" },
+      { icon: MessageCircle, label: "Messagerie", href: "/client/messagerie" },
+      { icon: Settings, label: "Paramètres", href: "/client/parametres" },
+    ];
+  };
+
+  // Render dashboard menu items for mobile sidebar
+  const renderDashboardMenuItems = () => {
+    const menuItems = getDashboardMenuItems();
+
+    return (
+      <>
+        {menuItems.map((item) => (
+          <Link
+            key={item.href}
+            to={item.href}
+            onClick={() => setIsDashboardSidebarOpen(false)}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+              location.pathname === item.href
+                ? "bg-gold/10 text-navy font-medium"
+                : "hover:bg-muted"
+            )}
+          >
+            <item.icon className="h-5 w-5 text-muted-foreground" />
+            <span>{item.label}</span>
+          </Link>
+        ))}
+        
+        {/* Bouton déconnexion */}
+        <div className="border-t border-border mt-4 pt-4">
+          <button
+            onClick={() => {
+              handleSignOut();
+              setIsDashboardSidebarOpen(false);
+            }}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-destructive/10 transition-colors w-full text-left text-destructive"
+          >
+            <LogOut className="h-5 w-5" />
+            <span className="font-medium">Déconnexion</span>
+          </button>
+        </div>
+      </>
+    );
+  };
+
+  // Render user menu for authenticated users (Desktop)
   const renderUserMenu = () => {
     if (isLoading) {
       return (
@@ -247,171 +333,223 @@ const Navbar = () => {
     );
   };
 
-  // Render mobile menu items for authenticated users
-  const renderMobileAuthMenu = () => {
-    if (isLoading) {
-      return <div className="h-12 bg-muted animate-pulse rounded-lg" />;
-    }
-
-    if (!isAuthenticated) {
-      return (
-        <>
-          <Button variant="outline" className="w-full" asChild>
-            <Link to="/auth" onClick={() => setIsOpen(false)}>
-              Connexion
-            </Link>
-          </Button>
-          <Button variant="gold" className="w-full" asChild>
-            <Link to="/demande-devis" onClick={() => setIsOpen(false)}>
-              Demander un devis
-            </Link>
-          </Button>
-        </>
-      );
-    }
-
-    return (
-      <div className="space-y-2">
-        <div className="px-4 py-2 bg-muted/50 rounded-lg">
-          <p className="text-sm font-medium">{role === "admin" ? "Admin" : role === "artisan" ? "Artisan" : "Client"}</p>
-          <p className="text-xs text-muted-foreground">{user?.email}</p>
-        </div>
-        <Link
-          to={getDashboardLink()}
-          onClick={() => setIsOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
-        >
-          <LayoutDashboard className="h-4 w-4" />
-          Mon tableau de bord
-        </Link>
-        <Link
-          to={getQuotesLink()}
-          onClick={() => setIsOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
-        >
-          <FileText className="h-4 w-4" />
-          Mes devis
-        </Link>
-        <Link
-          to={getSettingsLink()}
-          onClick={() => setIsOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
-        >
-          <Settings className="h-4 w-4" />
-          Mon compte
-        </Link>
-        <button
-          onClick={() => {
-            handleSignOut();
-            setIsOpen(false);
-          }}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors w-full text-left text-destructive"
-        >
-          <LogOut className="h-4 w-4" />
-          Déconnexion
-        </button>
-      </div>
-    );
-  };
-
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-border">
-      <nav className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform" />
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-navy leading-tight">ARTISANS</span>
-              <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={`text-sm font-medium transition-colors relative py-2 ${
-                  isActive(link.href)
-                    ? "text-navy"
-                    : "text-muted-foreground hover:text-navy"
-                }`}
+    <>
+      {/* Mobile/Tablet Top Bar for authenticated users */}
+      {isAuthenticated && !isLoading && (
+        <div className="fixed top-0 left-0 right-0 z-[55] bg-navy lg:hidden">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-12">
+              {/* Avatar + Label */}
+              <button
+                onClick={() => setIsDashboardSidebarOpen(true)}
+                className="flex items-center gap-2"
               >
-                {link.label}
-                {isActive(link.href) && (
-                  <motion.div
-                    layoutId="navbar-indicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-full"
+                <Avatar className="h-8 w-8 border-2 border-gold">
+                  <AvatarImage 
+                    src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR} 
+                    alt="Avatar" 
                   />
-                )}
-              </Link>
-            ))}
-          </div>
+                  <AvatarFallback className="bg-gold/20 text-white text-sm">
+                    {getUserInitials()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-white text-sm font-medium">
+                  {getRoleLabel()}
+                </span>
+                <ChevronDown className="h-4 w-4 text-white/70" />
+              </button>
 
-          {/* Desktop CTA / User Menu */}
-          <div className="hidden lg:flex items-center gap-3">
-            {isAuthenticated && (
-              <>
-                <Link to={getMessagingLink()} className="relative">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <MessageCircle className="w-5 h-5" />
-                    {unreadMessagesCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-medium">
-                        {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
-                      </span>
-                    )}
-                  </Button>
+              {/* Quick actions (messages + notifications) */}
+              <div className="flex items-center gap-1">
+                <Link to={getMessagingLink()} className="relative text-white p-2 hover:bg-white/10 rounded-lg transition-colors">
+                  <MessageCircle className="w-5 h-5" />
+                  {unreadMessagesCount > 0 && (
+                    <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-destructive text-[10px] text-white rounded-full flex items-center justify-center font-medium">
+                      {unreadMessagesCount > 9 ? "9+" : unreadMessagesCount}
+                    </span>
+                  )}
                 </Link>
-                <NotificationBell />
-              </>
-            )}
-            {renderUserMenu()}
+                <NotificationBell variant="light" />
+              </div>
+            </div>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 text-navy"
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
+      )}
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isOpen && (
+      {/* Mobile Dashboard Sidebar - Full Width */}
+      <AnimatePresence>
+        {isDashboardSidebarOpen && (
+          <>
+            {/* Backdrop */}
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-[60] lg:hidden"
+              onClick={() => setIsDashboardSidebarOpen(false)}
+            />
+            
+            {/* Sidebar Panel */}
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed inset-y-0 left-0 w-full max-w-sm bg-white z-[65] lg:hidden shadow-2xl overflow-y-auto"
             >
-              <div className="py-4 space-y-3">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      isActive(link.href)
-                        ? "bg-gold/10 text-navy"
-                        : "text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <div className="pt-3 space-y-2 border-t border-border">
-                  {renderMobileAuthMenu()}
+              {/* Header */}
+              <div className="bg-navy p-4 flex items-center justify-between sticky top-0">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-12 w-12 border-2 border-gold">
+                    <AvatarImage 
+                      src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR} 
+                      alt="Avatar"
+                    />
+                    <AvatarFallback className="bg-gold/20 text-white">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-white font-semibold">
+                      {role === "admin" ? "Administrateur" : role === "artisan" ? "Artisan" : "Client"}
+                    </p>
+                    <p className="text-white/70 text-sm truncate max-w-[180px]">{user?.email}</p>
+                  </div>
                 </div>
+                <button 
+                  onClick={() => setIsDashboardSidebarOpen(false)}
+                  className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              {/* Menu Items */}
+              <div className="p-4 space-y-1">
+                {renderDashboardMenuItems()}
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
-    </header>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main Header */}
+      <header className={cn(
+        "fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-border",
+        // Shift down when top bar is visible (mobile + authenticated)
+        isAuthenticated && !isLoading ? "top-12 lg:top-0" : "top-0"
+      )}>
+        <nav className="container mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 group">
+              <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform" />
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-navy leading-tight">ARTISANS</span>
+                <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={`text-sm font-medium transition-colors relative py-2 ${
+                    isActive(link.href)
+                      ? "text-navy"
+                      : "text-muted-foreground hover:text-navy"
+                  }`}
+                >
+                  {link.label}
+                  {isActive(link.href) && (
+                    <motion.div
+                      layoutId="navbar-indicator"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-full"
+                    />
+                  )}
+                </Link>
+              ))}
+            </div>
+
+            {/* Desktop CTA / User Menu */}
+            <div className="hidden lg:flex items-center gap-3">
+              {isAuthenticated && (
+                <>
+                  <Link to={getMessagingLink()} className="relative">
+                    <Button variant="ghost" size="icon" className="relative">
+                      <MessageCircle className="w-5 h-5" />
+                      {unreadMessagesCount > 0 && (
+                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-medium">
+                          {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
+                        </span>
+                      )}
+                    </Button>
+                  </Link>
+                  <NotificationBell />
+                </>
+              )}
+              {renderUserMenu()}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="lg:hidden p-2 text-navy"
+            >
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+
+          {/* Mobile Menu - Site navigation only */}
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="lg:hidden overflow-hidden"
+              >
+                <div className="py-4 space-y-3">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                        isActive(link.href)
+                          ? "bg-gold/10 text-navy"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                  
+                  {/* Show login buttons only if not authenticated */}
+                  {!isAuthenticated && !isLoading && (
+                    <div className="pt-3 space-y-2 border-t border-border">
+                      <Button variant="outline" className="w-full" asChild>
+                        <Link to="/auth" onClick={() => setIsOpen(false)}>
+                          Connexion
+                        </Link>
+                      </Button>
+                      <Button variant="gold" className="w-full" asChild>
+                        <Link to="/demande-devis" onClick={() => setIsOpen(false)}>
+                          Demander un devis
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </nav>
+      </header>
+    </>
   );
 };
 

@@ -15,7 +15,11 @@ import { CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info, MessageCircl
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-const NotificationBell = () => {
+interface NotificationBellProps {
+  variant?: "default" | "light";
+}
+
+const NotificationBell = ({ variant = "default" }: NotificationBellProps) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { role } = useAuth();
@@ -88,10 +92,19 @@ const NotificationBell = () => {
     }
   };
 
+  const isLight = variant === "light";
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className={cn(
+            "relative",
+            isLight && "text-white hover:bg-white/10"
+          )}
+        >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
