@@ -104,17 +104,10 @@ const AdminRecommendations = () => {
       <Navbar />
       <div className="flex min-h-screen pt-16 bg-background">
         <AdminSidebar />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 md:ml-64">
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <ThumbsUp className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">Modération des Recommandations</h1>
-                <p className="text-muted-foreground">Validez ou rejetez les recommandations clients</p>
-              </div>
-            </div>
+        <main className="flex-1 p-4 md:p-8">
+          <div className="mb-4 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Modération des Recommandations</h1>
+            <p className="text-sm md:text-base text-muted-foreground mt-1">Validez ou rejetez les recommandations clients</p>
           </div>
 
           {/* Stats */}
