@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { useMessaging } from "@/hooks/useMessaging";
 
 const GlobalMobileNavbar = () => {
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ const GlobalMobileNavbar = () => {
   // IMPORTANT: All hooks must be called unconditionally before any return statements
   // to comply with React's Rules of Hooks
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useAllNotifications();
+  const { conversations } = useMessaging();
+  
+  // Calculate total unread messages
+  const unreadMessagesCount = conversations?.reduce((sum, c) => sum + c.unread_count, 0) || 0;
   
   // Don't show while loading auth or if not authenticated
   if (authLoading || !user) {
@@ -302,6 +307,12 @@ const GlobalMobileNavbar = () => {
                 {item.id === "notifications" && unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 min-w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
                     {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+                {/* Badge for messages */}
+                {item.id === "messagerie" && unreadMessagesCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 min-w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
+                    {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
                   </span>
                 )}
               </button>
