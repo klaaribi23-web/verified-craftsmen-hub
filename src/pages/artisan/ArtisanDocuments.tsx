@@ -176,10 +176,30 @@ export const ArtisanDocuments = () => {
           });
         }
       }
+
+      // Return info about the upload for post-processing
+      return { documentType };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
       toast.success("Document téléchargé avec succès");
+      
+      // Check if all mandatory documents are now uploaded
+      const currentDocs = queryClient.getQueryData<DocumentRecord[]>(["artisan-documents", artisan?.id]) || [];
+      const mandatoryDocIds = REQUIRED_DOCUMENTS.filter(d => d.required).map(d => d.id);
+      const uploadedMandatoryIds = currentDocs.map(d => d.name).filter(name => mandatoryDocIds.includes(name));
+      
+      // Add the just-uploaded document if it's mandatory and not yet in the cache
+      if (data?.documentType && mandatoryDocIds.includes(data.documentType) && !uploadedMandatoryIds.includes(data.documentType)) {
+        uploadedMandatoryIds.push(data.documentType);
+      }
+      
+      if (uploadedMandatoryIds.length === mandatoryDocIds.length) {
+        toast.success(
+          "🎉 Tous vos documents obligatoires sont téléchargés ! Rendez-vous sur votre Tableau de bord pour demander l'approbation.",
+          { duration: 8000 }
+        );
+      }
     },
     onError: (error) => {
       console.error("Upload error:", error);
