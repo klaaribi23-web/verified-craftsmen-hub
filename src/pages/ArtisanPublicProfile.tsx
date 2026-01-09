@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus, Info, ShieldCheck, ArrowUp } from "lucide-react";
 import CategoryIcon from "@/components/categories/CategoryIcon";
-import ReviewForm from "@/components/artisan-profile/ReviewForm";
+import RecommendationsSection from "@/components/artisan-profile/RecommendationsSection";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
 import { Video } from "lucide-react";
 import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisansCarousel";
@@ -813,25 +813,14 @@ const ArtisanPublicProfile = () => {
                 </CardContent>
               </Card>
 
-              {/* Leave Review */}
-              <ReviewForm artisanName={artisan.business_name} isLoggedIn={false} onSubmit={review => {
-              console.log("Nouvel avis:", review);
-            }} />
-
-              {/* Recommandations Section - Placeholder */}
-              <Card id="recommandations">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ThumbsUp className="h-5 w-5 text-primary" />
-                    Recommandations
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-center text-muted-foreground py-8">
-                    Les recommandations seront bientôt disponibles
-                  </p>
-                </CardContent>
-              </Card>
+              {/* Recommandations Section */}
+              <div id="recommandations">
+                <RecommendationsSection
+                  artisanId={artisan.id}
+                  artisanName={artisan.business_name}
+                  isLoggedIn={isAuthenticated}
+                />
+              </div>
             </div>
 
             {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}

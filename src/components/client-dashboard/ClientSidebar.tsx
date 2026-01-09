@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   Menu,
+  ThumbsUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +24,7 @@ const menuItems = [
   { icon: Briefcase, label: "Mes missions", path: "/client/missions" },
   { icon: ClipboardList, label: "Mes devis", path: "/client/devis" },
   { icon: Heart, label: "Artisans favoris", path: "/client/favoris" },
+  { icon: ThumbsUp, label: "Recommandations", path: "/client/recommandations" },
   { icon: MessageSquare, label: "Messagerie", path: "/client/messagerie" },
   { icon: Settings, label: "Paramètres", path: "/client/parametres" },
 ];
