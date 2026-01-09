@@ -79,9 +79,9 @@ const ProfileNavigation = ({ visibleSections }: ProfileNavigationProps) => {
 
   if (filteredNavItems.length === 0) return null;
 
-  // Hide on mobile - only show on desktop
+  // Component is always rendered, visibility controlled by parent container
   return (
-    <nav className="hidden md:flex items-center justify-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide">
+    <nav className="flex items-center justify-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide">
       {filteredNavItems.map((item) => (
         <button
           key={item.id}

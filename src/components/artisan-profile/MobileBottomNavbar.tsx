@@ -55,7 +55,7 @@ const MobileBottomNavbar = ({
   ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-lg">
+    <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-lg">
       <div className="flex items-center justify-around py-2 px-2 safe-area-pb">
         {navItems.map((item) => (
           <button
