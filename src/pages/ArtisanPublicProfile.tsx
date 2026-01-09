@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -28,6 +28,7 @@ import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
 import { InterventionMap } from "@/components/artisan-profile/InterventionMap";
+import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
 
 const ArtisanPublicProfile = () => {
   const {
@@ -178,6 +179,24 @@ const ArtisanPublicProfile = () => {
   const rating = artisan.rating || 0;
   const reviewCount = artisan.review_count || 0;
   
+  // Determine which sections are visible for navigation
+  const secondarySkills = (artisan as any).categories?.filter(
+    (cat: { id: string }) => cat.id !== artisan.category?.id
+  ) || [];
+  const hasWorkingHours = (artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0;
+  
+  const visibleSections = useMemo(() => {
+    const sections: string[] = ["description"]; // Always show description
+    if (secondarySkills.length > 0) sections.push("competences");
+    sections.push("prestations"); // Always show prestations
+    if (portfolio.length > 0) sections.push("realisations");
+    if (artisan.portfolio_videos && artisan.portfolio_videos.length > 0) sections.push("videos");
+    if (hasWorkingHours) sections.push("horaires");
+    sections.push("avis"); // Always show avis
+    sections.push("recommandations"); // Always show (will be implemented later)
+    return sections;
+  }, [secondarySkills.length, portfolio.length, artisan.portfolio_videos, hasWorkingHours]);
+  
   // Dynamic SEO meta for artisan profile
   const seoTitle = `${artisan.business_name} - ${artisan.category?.name || "Artisan"} à ${artisan.city}`;
   const seoDescription = `Découvrez ${artisan.business_name}, ${artisan.category?.name || "artisan"} à ${artisan.city}. ${rating.toFixed(1)}/5 (${reviewCount} avis). Demandez un devis gratuit.`;
@@ -215,6 +234,9 @@ const ArtisanPublicProfile = () => {
           </div>
         </div>
       </section>
+
+      {/* Profile Navigation */}
+      <ProfileNavigation visibleSections={visibleSections} />
 
       {/* Main Content */}
       <section className="py-4 md:py-8">
@@ -351,7 +373,7 @@ const ArtisanPublicProfile = () => {
               </Card>
 
               {/* Le mot de l'artisan */}
-              <Card>
+              <Card id="description">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MessageSquare className="h-5 w-5 text-primary" />
@@ -376,7 +398,7 @@ const ArtisanPublicProfile = () => {
                 if (secondarySkills.length === 0) return null;
                 
                 return (
-                  <Card>
+                  <Card id="competences">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-primary" />
@@ -403,7 +425,7 @@ const ArtisanPublicProfile = () => {
 
               {/* Services Section - Collapsible on mobile */}
               <Collapsible defaultOpen className="md:block">
-                <Card>
+                <Card id="prestations">
                   <CollapsibleTrigger className="w-full md:cursor-default">
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
@@ -445,7 +467,7 @@ const ArtisanPublicProfile = () => {
               </Collapsible>
 
               {/* Portfolio Section - Photos */}
-              {portfolio.length > 0 && <Card>
+              {portfolio.length > 0 && <Card id="realisations">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <FileCheck className="h-5 w-5 text-primary" />
@@ -461,7 +483,7 @@ const ArtisanPublicProfile = () => {
                 </Card>}
 
               {/* Portfolio Section - Videos */}
-              {artisan.portfolio_videos && artisan.portfolio_videos.length > 0 && <Card>
+              {artisan.portfolio_videos && artisan.portfolio_videos.length > 0 && <Card id="videos">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Video className="h-5 w-5 text-primary" />
@@ -475,7 +497,7 @@ const ArtisanPublicProfile = () => {
 
               {/* Working Hours Card */}
               {(artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0 && (
-                <Card>
+                <Card id="horaires">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Clock className="h-5 w-5 text-primary" />
@@ -583,7 +605,7 @@ const ArtisanPublicProfile = () => {
               )}
 
               {/* Reviews Section */}
-              <Card>
+              <Card id="avis">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
@@ -642,6 +664,21 @@ const ArtisanPublicProfile = () => {
               <ReviewForm artisanName={artisan.business_name} isLoggedIn={false} onSubmit={review => {
               console.log("Nouvel avis:", review);
             }} />
+
+              {/* Recommandations Section - Placeholder */}
+              <Card id="recommandations">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ThumbsUp className="h-5 w-5 text-primary" />
+                    Recommandations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-center text-muted-foreground py-8">
+                    Les recommandations seront bientôt disponibles
+                  </p>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
