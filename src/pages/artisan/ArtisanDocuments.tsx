@@ -300,7 +300,7 @@ export const ArtisanDocuments = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <ArtisanSidebar />
       
         <div className="flex-1 flex flex-col">
@@ -309,7 +309,7 @@ export const ArtisanDocuments = () => {
             subtitle="Téléchargez vos documents professionnels pour valider votre profil"
           />
 
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             <div className="max-w-5xl mx-auto space-y-6">
               {/* Progress Alert */}
               <div className={`rounded-xl border p-4 ${

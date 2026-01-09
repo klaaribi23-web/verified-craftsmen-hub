@@ -407,7 +407,7 @@ export const ArtisanProfile = () => {
     return (
       <>
         <Navbar />
-        <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
           <ArtisanSidebar />
           <div className="flex-1 flex items-center justify-center">
             <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -420,7 +420,7 @@ export const ArtisanProfile = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <ArtisanSidebar />
         
         <div className="flex-1 flex flex-col">
@@ -429,7 +429,7 @@ export const ArtisanProfile = () => {
           subtitle="Gérez vos informations professionnelles"
         />
 
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
           <div className="max-w-4xl mx-auto space-y-6">
             {/* Profile Header */}
             <div className="bg-card rounded-xl border border-border shadow-soft p-6">

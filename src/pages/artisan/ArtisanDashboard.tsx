@@ -243,7 +243,7 @@ export const ArtisanDashboard = () => {
     return (
       <>
         <Navbar />
-        <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+        <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
           <ArtisanSidebar />
           <div className="flex-1 flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -261,7 +261,7 @@ export const ArtisanDashboard = () => {
         noIndex={true}
       />
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <ArtisanSidebar />
         
         <div className="flex-1 flex flex-col">
@@ -270,7 +270,7 @@ export const ArtisanDashboard = () => {
             subtitle={`Bienvenue${artisanProfile?.business_name ? `, ${artisanProfile.business_name}` : ''} ! Voici un aperçu de votre activité.`}
           />
 
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             {/* Approval Notifications */}
             <div className="mb-4 md:mb-6">
               <ApprovalNotifications />
