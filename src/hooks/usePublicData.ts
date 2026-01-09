@@ -68,12 +68,13 @@ export interface ArtisanPublic {
   }[];
 }
 
-// Fetch all pending missions (real data)
+// Fetch all pending missions (real data) with dynamic applicant count
 export const useDemoMissions = () => {
   return useQuery({
     queryKey: ["public-missions"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // 1. Fetch missions
+      const { data: missions, error } = await supabase
         .from("missions")
         .select(`
           *,
@@ -84,16 +85,33 @@ export const useDemoMissions = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      
-      // Transform data to match expected format
-      return data?.map(mission => ({
+      if (!missions || missions.length === 0) return [];
+
+      // 2. Fetch applicant counts from mission_applications
+      const missionIds = missions.map(m => m.id);
+      const { data: applicationsData, error: appError } = await supabase
+        .from("mission_applications")
+        .select("mission_id")
+        .in("mission_id", missionIds);
+
+      if (appError) throw appError;
+
+      // 3. Count applicants per mission
+      const applicantsCounts = new Map<string, number>();
+      applicationsData?.forEach(app => {
+        const count = applicantsCounts.get(app.mission_id) || 0;
+        applicantsCounts.set(app.mission_id, count + 1);
+      });
+
+      // 4. Transform data with real applicant count
+      return missions.map(mission => ({
         ...mission,
         client_name: mission.client 
           ? `${mission.client.first_name || ""} ${mission.client.last_name || ""}`.trim() || "Client"
           : "Client",
         client_city: mission.client?.city || mission.city,
-        applicants_count: 0, // TODO: Count from mission_applications table
-      })) || [];
+        applicants_count: applicantsCounts.get(mission.id) || 0,
+      }));
     },
   });
 };
