@@ -103,7 +103,8 @@ const AdminArtisans = () => {
 
   const activeCount = artisans?.filter(a => a.status === "active").length || 0;
   const suspendedCount = artisans?.filter(a => a.status === "suspended").length || 0;
-  const pendingCount = artisans?.filter(a => a.status === "pending").length || 0;
+  // En attente = pending + prospect (vitrines importées massivement)
+  const pendingCount = artisans?.filter(a => a.status === "pending" || (a.status as string) === "prospect").length || 0;
 
   return (
     <>
@@ -272,11 +273,17 @@ const AdminArtisans = () => {
                           <Badge className={
                             artisan.status === "active" 
                               ? "bg-green-500/10 text-green-500" 
-                              : artisan.status === "pending"
-                              ? "bg-yellow-500/10 text-yellow-500"
-                              : "bg-destructive/10 text-destructive"
+                              : artisan.status === "suspended"
+                              ? "bg-destructive/10 text-destructive"
+                              : "bg-yellow-500/10 text-yellow-500" // pending ET prospect = jaune
                           }>
-                            {artisan.status === "active" ? "Actif" : artisan.status === "pending" ? "En attente" : "Suspendu"}
+                            {artisan.status === "active" 
+                              ? "Actif" 
+                              : artisan.status === "suspended" 
+                              ? "Suspendu" 
+                              : (artisan.status as string) === "prospect"
+                              ? "Vitrine"
+                              : "En attente"}
                           </Badge>
                           {artisan.is_verified && (
                             <CheckCircle className="h-4 w-4 text-green-500 ml-2 inline" />
