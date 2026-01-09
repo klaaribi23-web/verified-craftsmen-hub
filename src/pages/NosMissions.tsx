@@ -44,7 +44,9 @@ import {
   RotateCcw,
   User,
   Eye,
-  CheckCircle2
+  CheckCircle2,
+  LogIn,
+  UserPlus
 } from "lucide-react";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { cn } from "@/lib/utils";
@@ -78,6 +80,7 @@ const NosMissions = () => {
   const [selectedMission, setSelectedMission] = useState<any>(null);
   const [detailMission, setDetailMission] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Mission application limit hook
   const { 
@@ -621,7 +624,15 @@ const NosMissions = () => {
                                   <Button 
                                     variant="outline"
                                     size="sm" 
-                                    onClick={() => setDetailMission(mission)}
+                                    onClick={() => {
+                                      // Non connecté = modal d'invitation
+                                      if (!isAuthenticated) {
+                                        setShowAuthModal(true);
+                                      } else {
+                                        // Client ou Artisan connecté = accès aux détails
+                                        setDetailMission(mission);
+                                      }
+                                    }}
                                     className="flex-1 gap-1"
                                   >
                                     <Eye className="w-4 h-4" />
@@ -629,14 +640,40 @@ const NosMissions = () => {
                                   </Button>
                                   <Button 
                                     size="sm" 
-                                    onClick={() => canApply && !mission.has_applied ? setSelectedMission(mission) : null}
-                                    disabled={mission.has_applied || (!canApplyLimit && role === "artisan" && isAuthenticated)}
+                                    onClick={() => {
+                                      // Non connecté = modal d'invitation
+                                      if (!isAuthenticated) {
+                                        setShowAuthModal(true);
+                                        return;
+                                      }
+                                      // Client = pas d'action (bouton désactivé)
+                                      if (role === "client") {
+                                        return;
+                                      }
+                                      // Artisan = comportement normal
+                                      if (canApply && !mission.has_applied) {
+                                        setSelectedMission(mission);
+                                      }
+                                    }}
+                                    disabled={
+                                      mission.has_applied || 
+                                      role === "client" ||
+                                      (!canApplyLimit && role === "artisan" && isAuthenticated)
+                                    }
                                     variant={mission.has_applied ? "secondary" : "default"}
                                     className={cn(
                                       "flex-1 gap-1",
                                       mission.has_applied && "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400"
                                     )}
-                                    title={mission.has_applied ? "Vous avez déjà postulé" : (!canApplyLimit && role === "artisan" ? "Limite de candidatures atteinte" : "")}
+                                    title={
+                                      mission.has_applied 
+                                        ? "Vous avez déjà postulé" 
+                                        : role === "client" 
+                                          ? "Réservé aux artisans"
+                                          : !canApplyLimit && role === "artisan" 
+                                            ? "Limite de candidatures atteinte" 
+                                            : ""
+                                    }
                                   >
                                     {mission.has_applied ? (
                                       <>
@@ -840,6 +877,42 @@ const NosMissions = () => {
               </DialogFooter>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Auth Required Modal - For non-authenticated users */}
+      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <LogIn className="w-5 h-5" />
+              Accès réservé aux artisans
+            </DialogTitle>
+            <DialogDescription>
+              Pour consulter les détails des missions et postuler, vous devez être connecté en tant qu'artisan.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6 space-y-4">
+            <p className="text-center text-muted-foreground">
+              Vous avez déjà un compte ? Connectez-vous. Sinon, créez votre profil artisan gratuitement.
+            </p>
+            
+            <div className="flex flex-col gap-3">
+              <Link to="/auth" className="w-full" onClick={() => setShowAuthModal(false)}>
+                <Button className="w-full gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Se connecter
+                </Button>
+              </Link>
+              <Link to="/devenir-artisan" className="w-full" onClick={() => setShowAuthModal(false)}>
+                <Button variant="outline" className="w-full gap-2">
+                  <UserPlus className="w-4 h-4" />
+                  Créer un compte artisan
+                </Button>
+              </Link>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
