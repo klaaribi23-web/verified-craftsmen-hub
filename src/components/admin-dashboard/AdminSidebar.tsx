@@ -86,20 +86,6 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
         </div>
       </div>
 
-      {/* Notifications */}
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
-          <div className="flex items-center gap-2">
-            <Bell className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">Notifications</span>
-          </div>
-          {unreadCount > 0 && (
-            <Badge className="bg-destructive text-destructive-foreground">
-              {unreadCount}
-            </Badge>
-          )}
-        </div>
-      </div>
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
