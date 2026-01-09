@@ -196,6 +196,15 @@ export const ArtisanServices = () => {
               <p className="text-2xl font-bold text-foreground">{services.length}</p>
             </div>
 
+            {/* Message explicatif */}
+            <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <p className="text-sm text-blue-700 dark:text-blue-300 italic">
+                💡 <strong>Bon à savoir :</strong> Toutes vos prestations sont automatiquement affichées "Sur devis". 
+                Vous pouvez discuter et fixer les tarifs directement avec vos clients via la messagerie 
+                ou lors de la création d'un devis personnalisé.
+              </p>
+            </div>
+
             {/* Free Tier Limit Warning */}
             {isFreeTier && (
               <Card className="border-amber-500/30 bg-amber-500/5">
