@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 
 export interface Mission {
@@ -70,12 +69,10 @@ export interface ArtisanPublic {
   }[];
 }
 
-// Fetch all pending missions (real data) with dynamic applicant count and user's application status
-export const useDemoMissions = () => {
-  const { user, role } = useAuth();
+// Hook for realtime subscription to mission applications
+export const useMissionApplicationsRealtime = () => {
   const queryClient = useQueryClient();
 
-  // Subscribe to realtime updates on mission_applications
   useEffect(() => {
     const channel = supabase
       .channel('mission-applications-changes')
@@ -97,9 +94,16 @@ export const useDemoMissions = () => {
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
+};
+
+// Fetch all pending missions (real data) with dynamic applicant count and user's application status
+// userId and userRole are passed as parameters to avoid hook dependency issues
+export const useDemoMissions = (userId?: string, userRole?: string) => {
+  // Subscribe to realtime updates
+  useMissionApplicationsRealtime();
 
   return useQuery({
-    queryKey: ["public-missions", user?.id],
+    queryKey: ["public-missions", userId],
     queryFn: async () => {
       // 1. Fetch missions
       const { data: missions, error } = await supabase
@@ -134,11 +138,11 @@ export const useDemoMissions = () => {
 
       // 4. Fetch artisan's own applications if logged in as artisan
       let myAppliedMissions = new Set<string>();
-      if (user?.id && role === "artisan") {
+      if (userId && userRole === "artisan") {
         const { data: artisanData } = await supabase
           .from("artisans")
           .select("id")
-          .eq("user_id", user.id)
+          .eq("user_id", userId)
           .single();
 
         if (artisanData?.id) {
