@@ -119,11 +119,11 @@ const ArtisanPublicProfile = () => {
   };
 
 
-  // Fetch artisan contact info when authenticated and showContactInfo is true
+  // Fetch artisan contact info when authenticated - load immediately, not on click
   // Priority: artisans.phone/email (imported data) > profiles.phone/email (user updated)
   useEffect(() => {
     const fetchArtisanContact = async () => {
-      if (!isAuthenticated || !artisan?.id || !showContactInfo) return;
+      if (!isAuthenticated || !artisan?.id) return;
       
       // Get the artisan's direct contact info (phone, email) and profile_id
       const { data: artisanData, error: artisanError } = await supabase
@@ -156,7 +156,7 @@ const ArtisanPublicProfile = () => {
     };
     
     fetchArtisanContact();
-  }, [isAuthenticated, artisan?.id, showContactInfo]);
+  }, [isAuthenticated, artisan?.id]);
 
   // Loading state
   if (artisanLoading) {
@@ -1026,15 +1026,20 @@ const ArtisanPublicProfile = () => {
         onClaimClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
         onQuoteClick={() => setChatOpen(true)}
         onPhoneClick={() => {
+          if (!isAuthenticated) {
+            toast.info("Connectez-vous pour voir le numéro de téléphone");
+            navigate("/auth");
+            return;
+          }
           if (artisanContact.phone) {
             window.location.href = `tel:${artisanContact.phone}`;
           } else {
-            setShowContactInfo(true);
-            toast.info("Connectez-vous pour voir le numéro de téléphone");
+            toast.info("Numéro de téléphone non disponible");
           }
         }}
-        onChatClick={() => setChatOpen(true)}
+        onChatClick={() => setChatOpen(!chatOpen)}
         phoneNumber={artisanContact.phone}
+        chatOpen={chatOpen}
       />
 
       {/* Bottom padding for mobile/tablet navbar */}
