@@ -349,24 +349,24 @@ const ArtisanPublicProfile = () => {
 
                       {/* Social Links */}
                       <div className="flex items-center justify-center md:justify-start gap-3 mt-4">
-                        {artisan.facebook_url && <a href={artisan.facebook_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors" title="Facebook">
-                            <Facebook className="h-5 w-5" />
+                        {artisan.facebook_url && <a href={artisan.facebook_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-[#1877F2]/10 flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors group" title="Facebook">
+                            <Facebook className="h-5 w-5 text-[#1877F2] group-hover:text-white" />
                           </a>}
-                        {artisan.instagram_url && <a href={artisan.instagram_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors" title="Instagram">
-                            <Instagram className="h-5 w-5" />
+                        {artisan.instagram_url && <a href={artisan.instagram_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-gradient-to-br from-[#F58529]/10 via-[#DD2A7B]/10 to-[#8134AF]/10 flex items-center justify-center hover:bg-gradient-to-br hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF] hover:text-white transition-colors group" title="Instagram">
+                            <Instagram className="h-5 w-5 text-[#DD2A7B] group-hover:text-white" />
                           </a>}
-                        {artisan.linkedin_url && <a href={artisan.linkedin_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors" title="LinkedIn">
-                            <Linkedin className="h-5 w-5" />
+                        {artisan.linkedin_url && <a href={artisan.linkedin_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-[#0A66C2]/10 flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors group" title="LinkedIn">
+                            <Linkedin className="h-5 w-5 text-[#0A66C2] group-hover:text-white" />
                           </a>}
                         {artisan.website_url && <a href={artisan.website_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors" title="Site web">
                             <Globe className="h-5 w-5" />
                           </a>}
-                        {(artisan as any).google_maps_url && <a href={(artisan as any).google_maps_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors" title="Voir sur Google Maps">
-                            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        {(artisan as any).google_maps_url && <a href={(artisan as any).google_maps_url} target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-[#4285F4] hover:text-white transition-colors group" title="Voir sur Google Maps">
+                            <svg className="h-5 w-5" viewBox="0 0 24 24">
+                              <path fill="#4285F4" className="group-hover:fill-white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                              <path fill="#34A853" className="group-hover:fill-white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                              <path fill="#FBBC05" className="group-hover:fill-white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                              <path fill="#EA4335" className="group-hover:fill-white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                             </svg>
                           </a>}
                       </div>
