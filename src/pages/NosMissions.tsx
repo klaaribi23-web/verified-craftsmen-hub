@@ -43,7 +43,8 @@ import {
   Send,
   RotateCcw,
   User,
-  Eye
+  Eye,
+  CheckCircle2
 } from "lucide-react";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { cn } from "@/lib/utils";
@@ -601,10 +602,18 @@ const NosMissions = () => {
                                 {/* Spacer */}
                                 <div className="flex-1" />
 
-                                {/* Applicants count */}
-                                <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
-                                  <Users className="w-4 h-4" />
-                                  <span>{mission.applicants_count || 0} postulant{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
+                                {/* Applicants count & Applied status */}
+                                <div className="flex items-center justify-between mb-4">
+                                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                    <Users className="w-4 h-4" />
+                                    <span>{mission.applicants_count || 0} postulant{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
+                                  </div>
+                                  {mission.has_applied && (
+                                    <Badge variant="secondary" className="gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      Déjà postulé
+                                    </Badge>
+                                  )}
                                 </div>
 
                                 {/* Action buttons */}
@@ -620,13 +629,26 @@ const NosMissions = () => {
                                   </Button>
                                   <Button 
                                     size="sm" 
-                                    onClick={() => canApply ? setSelectedMission(mission) : null}
-                                    disabled={!canApplyLimit && role === "artisan" && isAuthenticated}
-                                    className="flex-1 gap-1"
-                                    title={!canApplyLimit && role === "artisan" ? "Limite de candidatures atteinte" : ""}
+                                    onClick={() => canApply && !mission.has_applied ? setSelectedMission(mission) : null}
+                                    disabled={mission.has_applied || (!canApplyLimit && role === "artisan" && isAuthenticated)}
+                                    variant={mission.has_applied ? "secondary" : "default"}
+                                    className={cn(
+                                      "flex-1 gap-1",
+                                      mission.has_applied && "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400"
+                                    )}
+                                    title={mission.has_applied ? "Vous avez déjà postulé" : (!canApplyLimit && role === "artisan" ? "Limite de candidatures atteinte" : "")}
                                   >
-                                    <Send className="w-4 h-4" />
-                                    Postuler
+                                    {mission.has_applied ? (
+                                      <>
+                                        <CheckCircle2 className="w-4 h-4" />
+                                        Postulé
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Send className="w-4 h-4" />
+                                        Postuler
+                                      </>
+                                    )}
                                   </Button>
                                 </div>
                               </CardContent>
