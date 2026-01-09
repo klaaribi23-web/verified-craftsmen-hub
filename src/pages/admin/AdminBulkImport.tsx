@@ -506,6 +506,17 @@ const AdminBulkImport = () => {
             artisanData.portfolio_images = artisan.portfolioImages;
           }
 
+          // Horaires par défaut : 8h-18h du lundi au samedi
+          artisanData.working_hours = {
+            lundi: { start: "08:00", end: "18:00", enabled: true },
+            mardi: { start: "08:00", end: "18:00", enabled: true },
+            mercredi: { start: "08:00", end: "18:00", enabled: true },
+            jeudi: { start: "08:00", end: "18:00", enabled: true },
+            vendredi: { start: "08:00", end: "18:00", enabled: true },
+            samedi: { start: "08:00", end: "18:00", enabled: true },
+            dimanche: { start: "08:00", end: "18:00", enabled: false },
+          };
+
           // Find ALL categories from services (first = principal, rest = secondary skills)
           const categoryIds = findAllCategoryIds(artisan.services);
           if (categoryIds.length > 0) {
