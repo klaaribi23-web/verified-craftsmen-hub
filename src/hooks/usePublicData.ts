@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface Mission {
   id: string;
@@ -68,10 +69,12 @@ export interface ArtisanPublic {
   }[];
 }
 
-// Fetch all pending missions (real data) with dynamic applicant count
+// Fetch all pending missions (real data) with dynamic applicant count and user's application status
 export const useDemoMissions = () => {
+  const { user, role } = useAuth();
+
   return useQuery({
-    queryKey: ["public-missions"],
+    queryKey: ["public-missions", user?.id],
     queryFn: async () => {
       // 1. Fetch missions
       const { data: missions, error } = await supabase
@@ -87,8 +90,9 @@ export const useDemoMissions = () => {
       if (error) throw error;
       if (!missions || missions.length === 0) return [];
 
-      // 2. Fetch applicant counts from mission_applications
       const missionIds = missions.map(m => m.id);
+
+      // 2. Fetch applicant counts from mission_applications
       const { data: applicationsData, error: appError } = await supabase
         .from("mission_applications")
         .select("mission_id")
@@ -103,7 +107,29 @@ export const useDemoMissions = () => {
         applicantsCounts.set(app.mission_id, count + 1);
       });
 
-      // 4. Transform data with real applicant count
+      // 4. Fetch artisan's own applications if logged in as artisan
+      let myAppliedMissions = new Set<string>();
+      if (user?.id && role === "artisan") {
+        const { data: artisanData } = await supabase
+          .from("artisans")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+
+        if (artisanData?.id) {
+          const { data: myApplications } = await supabase
+            .from("mission_applications")
+            .select("mission_id")
+            .eq("artisan_id", artisanData.id)
+            .in("mission_id", missionIds);
+
+          myApplications?.forEach(app => {
+            myAppliedMissions.add(app.mission_id);
+          });
+        }
+      }
+
+      // 5. Transform data with real applicant count and application status
       return missions.map(mission => ({
         ...mission,
         client_name: mission.client 
@@ -111,6 +137,7 @@ export const useDemoMissions = () => {
           : "Client",
         client_city: mission.client?.city || mission.city,
         applicants_count: applicantsCounts.get(mission.id) || 0,
+        has_applied: myAppliedMissions.has(mission.id),
       }));
     },
   });
