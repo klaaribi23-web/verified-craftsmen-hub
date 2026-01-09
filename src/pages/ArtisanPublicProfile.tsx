@@ -1111,7 +1111,7 @@ const ArtisanPublicProfile = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Mobile Bottom Navbar - Only for authenticated clients */}
+      {/* Mobile Bottom Navbar - For authenticated clients and artisans */}
       <MobileBottomNavbar
         isAuthenticated={isAuthenticated}
         userRole={role}
@@ -1119,8 +1119,8 @@ const ArtisanPublicProfile = () => {
         onChatClick={() => setChatOpen(!chatOpen)}
       />
 
-      {/* Bottom padding for mobile/tablet navbar - Only for authenticated clients */}
-      {isAuthenticated && role === 'client' && (
+      {/* Bottom padding for mobile/tablet navbar - For authenticated clients and artisans */}
+      {isAuthenticated && (role === 'client' || role === 'artisan') && (
         <div className="h-20 xl:hidden" />
       )}
 
