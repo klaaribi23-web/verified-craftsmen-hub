@@ -799,9 +799,9 @@ const ArtisanPublicProfile = () => {
             {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
             <div className="hidden lg:block lg:col-span-1 space-y-6">
               
-              {/* 1. SECTION REVENDICATION - Séparée, non-sticky (uniquement prospect) */}
+              {/* 1. SECTION REVENDICATION - Alignée avec le header profil (uniquement prospect) */}
               {artisan.status === 'prospect' && (
-                <Card>
+                <Card className="min-h-[280px] flex flex-col justify-center">
                   <CardContent className="p-6">
                     <div className="text-center mb-3">
                       <p className="text-sm text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
@@ -822,8 +822,8 @@ const ArtisanPublicProfile = () => {
                 </Card>
               )}
 
-              {/* 2. SECTION CONTACT - STICKY */}
-              <div className="sticky top-28">
+              {/* 2. SECTION CONTACT */}
+              <div>
                 <Card>
                   <CardContent className="p-6 space-y-4">
                     <div className="text-center mb-2">
