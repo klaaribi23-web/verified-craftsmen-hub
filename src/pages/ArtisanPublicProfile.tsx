@@ -394,13 +394,11 @@ const ArtisanPublicProfile = () => {
                 </CardContent>
               </Card>
 
-              {/* Pourquoi cet artisan est validé - Colorful design */}
-              <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 dark:from-emerald-950/30 dark:via-blue-950/30 dark:to-purple-950/30">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-                      <Shield className="h-4 w-4 text-white" />
-                    </div>
+              {/* Pourquoi cet artisan est validé - Colorful badges */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary" />
                     Pourquoi cet artisan est validé ?
                   </CardTitle>
                 </CardHeader>
