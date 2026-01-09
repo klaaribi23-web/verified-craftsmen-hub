@@ -11,9 +11,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload, X, Plus, Trash2, Save } from "lucide-react";
+import { Loader2, Upload, X, Plus } from "lucide-react";
 import { CategorySelect } from "@/components/categories/CategorySelect";
 import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
+import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 
 interface ArtisanData {
   id: string;
@@ -21,14 +22,12 @@ interface ArtisanData {
   description: string | null;
   category_id: string | null;
   city: string;
-  region: string | null;
-  department: string | null;
   postal_code: string | null;
-  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   photo_url: string | null;
   portfolio_images: string[] | null;
   portfolio_videos: string[] | null;
-  qualifications: string[] | null;
   experience_years: number | null;
   is_verified: boolean | null;
   facebook_url: string | null;
@@ -36,15 +35,6 @@ interface ArtisanData {
   linkedin_url: string | null;
   website_url: string | null;
   working_hours: Record<string, unknown> | null;
-}
-
-interface Service {
-  id: string;
-  artisan_id: string;
-  title: string;
-  description: string | null;
-  price: number | null;
-  duration: string | null;
 }
 
 interface AdminEditArtisanDialogProps {
@@ -68,11 +58,9 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   const [formData, setFormData] = useState<Partial<ArtisanData> & { category_id?: string | null }>({});
   const [primaryCategoryId, setPrimaryCategoryId] = useState<string | null>(null);
   const [secondaryCategoryIds, setSecondaryCategoryIds] = useState<string[]>([]);
-  const [newQualification, setNewQualification] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [availability, setAvailability] = useState<Record<string, { start: string; end: string; enabled: boolean }>>({});
-  const [services, setServices] = useState<Service[]>([]);
-  const [newService, setNewService] = useState({ title: "", description: "", price: "", duration: "" });
+  const [cityCoordinates, setCityCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -102,28 +90,6 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
     enabled: !!artisan?.id && open,
   });
 
-  // Fetch services for this artisan
-  const { data: existingServices = [], refetch: refetchServices } = useQuery({
-    queryKey: ["artisan-services-admin", artisan?.id],
-    queryFn: async () => {
-      if (!artisan?.id) return [];
-      const { data, error } = await supabase
-        .from("artisan_services")
-        .select("*")
-        .eq("artisan_id", artisan.id)
-        .order("created_at");
-      if (error) throw error;
-      return data as Service[];
-    },
-    enabled: !!artisan?.id && open,
-  });
-
-  useEffect(() => {
-    if (existingServices && existingServices.length > 0) {
-      setServices(existingServices);
-    }
-  }, [existingServices]);
-
   // Load artisan's categories when data is fetched - only run once per artisan
   useEffect(() => {
     if (!open || !artisan?.id) return;
@@ -147,14 +113,12 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
         description: artisan.description,
         category_id: artisan.category_id,
         city: artisan.city,
-        region: artisan.region,
-        department: artisan.department,
         postal_code: artisan.postal_code,
-        address: artisan.address,
+        latitude: artisan.latitude,
+        longitude: artisan.longitude,
         photo_url: artisan.photo_url,
         portfolio_images: artisan.portfolio_images || [],
         portfolio_videos: artisan.portfolio_videos || [],
-        qualifications: artisan.qualifications || [],
         experience_years: artisan.experience_years,
         is_verified: artisan.is_verified,
         facebook_url: artisan.facebook_url,
@@ -162,6 +126,11 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
         linkedin_url: artisan.linkedin_url,
         website_url: artisan.website_url,
       });
+
+      // Set initial coordinates if available
+      if (artisan.latitude && artisan.longitude) {
+        setCityCoordinates({ lat: artisan.latitude, lng: artisan.longitude });
+      }
 
       // Parse working_hours
       const defaultAvailability: Record<string, { start: string; end: string; enabled: boolean }> = {};
@@ -194,7 +163,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   }, [artisan]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: Partial<ArtisanData> & { working_hours: Record<string, { start: string; end: string; enabled: boolean }>, primaryCategoryId: string | null, secondaryCategoryIds: string[] }) => {
+    mutationFn: async (data: Partial<ArtisanData> & { working_hours: Record<string, { start: string; end: string; enabled: boolean }>, primaryCategoryId: string | null, secondaryCategoryIds: string[], coordinates: { lat: number; lng: number } | null }) => {
       if (!artisan?.id) throw new Error("No artisan ID");
       
       // Update artisan main data with primary category
@@ -205,14 +174,12 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
           description: data.description,
           category_id: data.primaryCategoryId,
           city: data.city,
-          region: data.region,
-          department: data.department,
           postal_code: data.postal_code,
-          address: data.address,
+          latitude: data.coordinates?.lat || data.latitude || null,
+          longitude: data.coordinates?.lng || data.longitude || null,
           photo_url: data.photo_url,
           portfolio_images: data.portfolio_images,
           portfolio_videos: data.portfolio_videos,
-          qualifications: data.qualifications,
           experience_years: data.experience_years,
           is_verified: data.is_verified,
           facebook_url: data.facebook_url,
@@ -268,95 +235,8 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
       working_hours: availability,
       primaryCategoryId,
       secondaryCategoryIds,
+      coordinates: cityCoordinates,
     });
-  };
-
-  // Service mutations
-  const addServiceMutation = useMutation({
-    mutationFn: async (service: { title: string; description: string; price: number | null; duration: string }) => {
-      if (!artisan?.id) throw new Error("No artisan ID");
-      const { data, error } = await supabase
-        .from("artisan_services")
-        .insert({
-          artisan_id: artisan.id,
-          title: service.title,
-          description: service.description || null,
-          price: service.price,
-          duration: service.duration || null,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      refetchServices();
-      setNewService({ title: "", description: "", price: "", duration: "" });
-      toast.success("Service ajouté");
-    },
-    onError: () => {
-      toast.error("Erreur lors de l'ajout du service");
-    },
-  });
-
-  const updateServiceMutation = useMutation({
-    mutationFn: async (service: Service) => {
-      const { error } = await supabase
-        .from("artisan_services")
-        .update({
-          title: service.title,
-          description: service.description,
-          price: service.price,
-          duration: service.duration,
-        })
-        .eq("id", service.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      refetchServices();
-      toast.success("Service mis à jour");
-    },
-    onError: () => {
-      toast.error("Erreur lors de la mise à jour");
-    },
-  });
-
-  const deleteServiceMutation = useMutation({
-    mutationFn: async (serviceId: string) => {
-      const { error } = await supabase
-        .from("artisan_services")
-        .delete()
-        .eq("id", serviceId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      refetchServices();
-      toast.success("Service supprimé");
-    },
-    onError: () => {
-      toast.error("Erreur lors de la suppression");
-    },
-  });
-
-  const handleAddService = () => {
-    if (!newService.title.trim()) {
-      toast.error("Le titre du service est requis");
-      return;
-    }
-    addServiceMutation.mutate({
-      title: newService.title,
-      description: newService.description,
-      price: newService.price ? parseFloat(newService.price) : null,
-      duration: newService.duration,
-    });
-  };
-
-  const handleUpdateService = (service: Service) => {
-    updateServiceMutation.mutate(service);
-  };
-
-  const handleDeleteService = (serviceId: string) => {
-    deleteServiceMutation.mutate(serviceId);
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -422,23 +302,6 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
     }));
   };
 
-  const addQualification = () => {
-    if (newQualification.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        qualifications: [...(prev.qualifications || []), newQualification.trim()],
-      }));
-      setNewQualification("");
-    }
-  };
-
-  const removeQualification = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      qualifications: prev.qualifications?.filter((_, i) => i !== index) || [],
-    }));
-  };
-
   const addVideo = () => {
     if (newVideoUrl.trim()) {
       const currentVideos = formData.portfolio_videos || [];
@@ -461,9 +324,16 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
     }));
   };
 
-  // Group categories by parent
-  const parentCategories = categories.filter(c => !c.parent_id);
-  const getSubcategories = (parentId: string) => categories.filter(c => c.parent_id === parentId);
+  const handleCityChange = (value: string, coordinates?: { lat: number; lng: number } | null, postalCode?: string) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      city: value,
+      postal_code: postalCode || prev.postal_code
+    }));
+    if (coordinates) {
+      setCityCoordinates(coordinates);
+    }
+  };
 
   if (!artisan) return null;
 
@@ -479,15 +349,13 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
 
         <ScrollArea className="h-[70vh] pr-4">
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-8">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="general">Général</TabsTrigger>
               <TabsTrigger value="category">Catégorie</TabsTrigger>
               <TabsTrigger value="skills">Compétences</TabsTrigger>
-              <TabsTrigger value="services">Services</TabsTrigger>
               <TabsTrigger value="photos">Photos</TabsTrigger>
               <TabsTrigger value="videos">Vidéos</TabsTrigger>
               <TabsTrigger value="horaires">Horaires</TabsTrigger>
-              <TabsTrigger value="qualifications">Certifs</TabsTrigger>
             </TabsList>
 
             <TabsContent value="general" className="space-y-4 mt-4">
@@ -542,41 +410,23 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Ville</Label>
-                  <Input
+                  <Label>Ville *</Label>
+                  <CityAutocompleteAPI
                     value={formData.city || ""}
-                    onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                    onChange={handleCityChange}
+                    placeholder="Rechercher une ville..."
+                    required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Code postal</Label>
                   <Input
                     value={formData.postal_code || ""}
-                    onChange={(e) => setFormData(prev => ({ ...prev, postal_code: e.target.value }))}
+                    readOnly
+                    className="bg-muted"
+                    placeholder="Rempli automatiquement"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Département</Label>
-                  <Input
-                    value={formData.department || ""}
-                    onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Région</Label>
-                  <Input
-                    value={formData.region || ""}
-                    onChange={(e) => setFormData(prev => ({ ...prev, region: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Adresse complète</Label>
-                <Input
-                  value={formData.address || ""}
-                  onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                />
               </div>
 
               <div className="flex items-center gap-3 p-4 rounded-lg bg-muted">
@@ -674,113 +524,6 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                     <span className="text-muted-foreground text-sm">Aucune compétence secondaire</span>
                   )}
                 </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="services" className="space-y-4 mt-4">
-              <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-                <Label className="text-base font-semibold">Ajouter un nouveau service</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    value={newService.title}
-                    onChange={(e) => setNewService(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Titre du service *"
-                  />
-                  <Input
-                    value={newService.price}
-                    onChange={(e) => setNewService(prev => ({ ...prev, price: e.target.value }))}
-                    placeholder="Prix (€)"
-                    type="number"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    value={newService.duration}
-                    onChange={(e) => setNewService(prev => ({ ...prev, duration: e.target.value }))}
-                    placeholder="Durée (ex: 2h, 1 jour)"
-                  />
-                  <Input
-                    value={newService.description}
-                    onChange={(e) => setNewService(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Description"
-                  />
-                </div>
-                <Button onClick={handleAddService} disabled={addServiceMutation.isPending}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ajouter le service
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Services existants ({services.length})</Label>
-                {services.map((service, index) => (
-                  <div key={service.id} className="p-4 border rounded-lg space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        value={service.title}
-                        onChange={(e) => {
-                          const updated = [...services];
-                          updated[index] = { ...service, title: e.target.value };
-                          setServices(updated);
-                        }}
-                        placeholder="Titre"
-                      />
-                      <Input
-                        value={service.price || ""}
-                        onChange={(e) => {
-                          const updated = [...services];
-                          updated[index] = { ...service, price: e.target.value ? parseFloat(e.target.value) : null };
-                          setServices(updated);
-                        }}
-                        placeholder="Prix (€)"
-                        type="number"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        value={service.duration || ""}
-                        onChange={(e) => {
-                          const updated = [...services];
-                          updated[index] = { ...service, duration: e.target.value };
-                          setServices(updated);
-                        }}
-                        placeholder="Durée"
-                      />
-                      <Input
-                        value={service.description || ""}
-                        onChange={(e) => {
-                          const updated = [...services];
-                          updated[index] = { ...service, description: e.target.value };
-                          setServices(updated);
-                        }}
-                        placeholder="Description"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleUpdateService(service)}
-                        disabled={updateServiceMutation.isPending}
-                      >
-                        <Save className="h-4 w-4 mr-1" />
-                        Sauvegarder
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDeleteService(service.id)}
-                        disabled={deleteServiceMutation.isPending}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Supprimer
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                {services.length === 0 && (
-                  <p className="text-muted-foreground text-center py-4">Aucun service configuré</p>
-                )}
               </div>
             </TabsContent>
 
@@ -892,32 +635,6 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                   )}
                 </div>
               ))}
-            </TabsContent>
-
-            <TabsContent value="qualifications" className="space-y-4 mt-4">
-              <div className="flex gap-2">
-                <Input
-                  value={newQualification}
-                  onChange={(e) => setNewQualification(e.target.value)}
-                  placeholder="Nouvelle qualification ou certification"
-                  onKeyPress={(e) => e.key === 'Enter' && addQualification()}
-                />
-                <Button onClick={addQualification}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ajouter
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                {formData.qualifications?.map((qual, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <span>{qual}</span>
-                    <Button variant="ghost" size="sm" onClick={() => removeQualification(index)}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
             </TabsContent>
           </Tabs>
         </ScrollArea>
