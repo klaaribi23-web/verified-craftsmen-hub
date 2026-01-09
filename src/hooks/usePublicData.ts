@@ -60,6 +60,8 @@ export interface ArtisanPublic {
   subscription_tier?: string | null;
   display_priority?: number | null;
   intervention_radius?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
   category?: {
     id: string;
     name: string;
