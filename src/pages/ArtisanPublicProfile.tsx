@@ -12,14 +12,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus, Info, ShieldCheck } from "lucide-react";
 import CategoryIcon from "@/components/categories/CategoryIcon";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
 import { Video } from "lucide-react";
 import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisansCarousel";
 import { fr } from "date-fns/locale";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { useArtisanBySlug, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
 import ChatWidget from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
@@ -535,53 +535,116 @@ const ArtisanPublicProfile = () => {
                   </CardContent>
                 </Card>}
 
-              {/* Working Hours Card */}
-              {(artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0 && (
-                <Card id="horaires">
+              {/* Working Hours & Infos pratiques - Side by side layout */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                {/* Working Hours Card */}
+                {(artisan as any).working_hours && Object.keys((artisan as any).working_hours).length > 0 && (
+                  <Card id="horaires">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-primary" />
+                        Heures de travail
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {[
+                          { key: "lundi", label: "Lundi" },
+                          { key: "mardi", label: "Mardi" },
+                          { key: "mercredi", label: "Mercredi" },
+                          { key: "jeudi", label: "Jeudi" },
+                          { key: "vendredi", label: "Vendredi" },
+                          { key: "samedi", label: "Samedi" },
+                          { key: "dimanche", label: "Dimanche" },
+                        ].map(day => {
+                          const hours = (artisan as any).working_hours?.[day.key];
+                          if (!hours) return null;
+                          
+                          const isEnabled = hours.enabled !== false;
+                          const displayTime = isEnabled 
+                            ? `${hours.start || "08:00"} - ${hours.end || "18:00"}`
+                            : "Fermé";
+                          
+                          return (
+                            <div 
+                              key={day.key} 
+                              className="flex items-center justify-between py-2"
+                            >
+                              <span className="font-medium">{day.label}</span>
+                              <span className={cn(
+                                "text-sm font-semibold",
+                                isEnabled ? "text-primary" : "text-red-500"
+                              )}>
+                                {displayTime}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Infos pratiques Card */}
+                <Card id="infos-pratiques" className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-background">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-primary" />
-                      Heures de travail
+                      <Info className="h-5 w-5 text-primary" />
+                      Infos pratiques
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="max-w-md space-y-2">
-                      {[
-                        { key: "lundi", label: "Lundi" },
-                        { key: "mardi", label: "Mardi" },
-                        { key: "mercredi", label: "Mercredi" },
-                        { key: "jeudi", label: "Jeudi" },
-                        { key: "vendredi", label: "Vendredi" },
-                        { key: "samedi", label: "Samedi" },
-                        { key: "dimanche", label: "Dimanche" },
-                      ].map(day => {
-                        const hours = (artisan as any).working_hours?.[day.key];
-                        if (!hours) return null;
-                        
-                        const isEnabled = hours.enabled !== false;
-                        const displayTime = isEnabled 
-                          ? `${hours.start || "08:00"} - ${hours.end || "18:00"}`
-                          : "Fermé";
-                        
-                        return (
-                          <div 
-                            key={day.key} 
-                            className="flex items-center justify-between py-2"
-                          >
-                            <span className="font-medium">{day.label}</span>
-                            <span className={cn(
-                              "text-sm font-semibold",
-                              isEnabled ? "text-primary" : "text-red-500"
-                            )}>
-                              {displayTime}
-                            </span>
+                    <div className="space-y-4">
+                      {/* Zone d'intervention */}
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                        <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
+                          <MapPin className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Zone d'intervention</p>
+                          <p className="font-semibold">
+                            {artisan.city}
+                            {artisan.postal_code && ` (${artisan.postal_code})`}
+                            {artisan.intervention_radius && artisan.intervention_radius > 0 && (
+                              <span className="text-primary ml-1">
+                                + {artisan.intervention_radius} km
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* SIRET */}
+                      {(artisan as any).siret && (
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                          <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+                            <FileCheck className="h-5 w-5 text-emerald-600" />
                           </div>
-                        );
-                      })}
+                          <div>
+                            <p className="text-sm text-muted-foreground">N° SIRET</p>
+                            <p className="font-semibold font-mono tracking-wide">{(artisan as any).siret}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Dernière vérification - only for active artisans */}
+                      {artisan.status === 'active' && artisan.updated_at && (
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                            <ShieldCheck className="h-5 w-5 text-amber-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Dernière vérification Artisan Validé</p>
+                            <p className="font-semibold">
+                              {format(new Date(artisan.updated_at), "MMMM yyyy", { locale: fr })}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-              )}
+              </div>
 
               {/* Certifications */}
               {artisan.qualifications && artisan.qualifications.length > 0 && (
