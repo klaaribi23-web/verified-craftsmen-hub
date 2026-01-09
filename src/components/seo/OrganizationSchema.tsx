@@ -10,12 +10,14 @@ const OrganizationSchema = () => {
     "description": "La plateforme de confiance pour trouver des artisans vérifiés et qualifiés en France",
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": "Paris",
+      "streetAddress": "77 rue de la Monnaie",
+      "postalCode": "59800",
+      "addressLocality": "Lille",
       "addressCountry": "FR"
     },
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+33123456789",
+      "telephone": "+33353632999",
       "email": "contact@artisansvalides.fr",
       "contactType": "customer service"
     },
