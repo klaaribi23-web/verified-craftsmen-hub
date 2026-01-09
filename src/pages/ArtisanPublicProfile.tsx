@@ -222,23 +222,22 @@ const ArtisanPublicProfile = () => {
       />
       <Navbar />
       
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/5 via-background to-primary/10 pt-24 pb-8">
-        <div className="container mx-auto px-4">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-white/90 bg-navy rounded-lg px-4 py-2.5 w-fit mt-8">
-            <Link to="/" className="hover:text-white transition-colors">Accueil</Link>
-            <span className="text-white/60">/</span>
-            <Link to="/trouver-artisan" className="hover:text-white transition-colors">Artisans</Link>
-            <span className="text-white/60">/</span>
-            <span className="text-white font-medium">{artisan.business_name}</span>
-          </div>
-        </div>
-      </section>
+      {/* Spacer for navbar */}
+      <div className="pt-20" />
 
-      {/* Profile Navigation - Full width above the grid, sticky */}
-      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b">
-        <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
+      {/* Profile Navigation - Full width, sticky */}
+      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-y">
+        <div className="container mx-auto px-3 md:px-4">
+          <div className="flex items-center justify-between py-2">
+            {/* Breadcrumb - Left side */}
+            <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Link to="/" className="hover:text-foreground transition-colors">Accueil</Link>
+              <span>/</span>
+              <Link to="/trouver-artisan" className="hover:text-foreground transition-colors">Artisans</Link>
+              <span>/</span>
+              <span className="text-foreground font-semibold italic">{artisan.business_name}</span>
+            </nav>
+          </div>
           <ProfileNavigation visibleSections={visibleSections} />
         </div>
       </div>
