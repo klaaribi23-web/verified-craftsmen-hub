@@ -803,27 +803,6 @@ const ArtisanPublicProfile = () => {
                     </div>
                   )}
 
-                  <div className="pt-4 border-t space-y-3">
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <CheckCircle2 className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{artisan.missions_completed || 0} interventions</p>
-                        <p className="text-muted-foreground text-xs">réalisées sur la plateforme</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Award className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{artisan.experience_years || 0} ans d'expérience</p>
-                        <p className="text-muted-foreground text-xs">dans le métier</p>
-                      </div>
-                    </div>
-                    {artisan.hourly_rate}
-                  </div>
 
                   {/* Share Section */}
                   <div className="pt-4 border-t">
