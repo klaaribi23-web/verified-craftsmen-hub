@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,15 +17,13 @@ import {
   Plus, 
   Pencil, 
   Trash2, 
-  Euro,
-  Clock,
   GripVertical,
   CheckCircle,
   Loader2,
   Wrench,
   Lock,
   Crown,
-  AlertCircle
+  FileText
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
@@ -47,8 +44,8 @@ export const ArtisanServices = () => {
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ title: "", price: 0, description: "", duration: "", surDevis: false });
-  const [newService, setNewService] = useState({ title: "", price: "", description: "", duration: "", surDevis: false });
+  const [editForm, setEditForm] = useState({ title: "", description: "" });
+  const [newService, setNewService] = useState({ title: "", description: "" });
 
   // Fetch artisan profile
   const { data: artisan } = useQuery({
@@ -89,7 +86,7 @@ export const ArtisanServices = () => {
 
   // Add service mutation
   const addServiceMutation = useMutation({
-    mutationFn: async (service: Omit<Service, "id" | "artisan_id">) => {
+    mutationFn: async (service: { title: string; description: string | null }) => {
       if (!artisan?.id) throw new Error("Artisan non trouvé");
       const { error } = await supabase
         .from("artisan_services")
@@ -97,8 +94,8 @@ export const ArtisanServices = () => {
           artisan_id: artisan.id,
           title: service.title,
           description: service.description || null,
-          price: service.price || null,
-          duration: service.duration || null
+          price: null,
+          duration: null
         });
       if (error) throw error;
     },
@@ -106,7 +103,7 @@ export const ArtisanServices = () => {
       queryClient.invalidateQueries({ queryKey: ["artisan-services"] });
       toast.success("Prestation ajoutée");
       setIsAdding(false);
-      setNewService({ title: "", price: "", description: "", duration: "", surDevis: false });
+      setNewService({ title: "", description: "" });
     },
     onError: () => {
       toast.error("Erreur lors de l'ajout");
@@ -115,10 +112,10 @@ export const ArtisanServices = () => {
 
   // Update service mutation
   const updateServiceMutation = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Service> & { id: string }) => {
+    mutationFn: async ({ id, title, description }: { id: string; title: string; description: string | null }) => {
       const { error } = await supabase
         .from("artisan_services")
-        .update(updates)
+        .update({ title, description, price: null, duration: null })
         .eq("id", id);
       if (error) throw error;
     },
@@ -154,10 +151,7 @@ export const ArtisanServices = () => {
     setEditingId(service.id);
     setEditForm({
       title: service.title,
-      price: service.price || 0,
-      description: service.description || "",
-      duration: service.duration || "",
-      surDevis: service.price === null
+      description: service.description || ""
     });
   };
 
@@ -166,9 +160,7 @@ export const ArtisanServices = () => {
       updateServiceMutation.mutate({
         id: editingId,
         title: editForm.title,
-        price: editForm.surDevis ? null : (editForm.price || null),
-        description: editForm.description || null,
-        duration: editForm.duration || null
+        description: editForm.description || null
       });
     }
   };
@@ -180,15 +172,9 @@ export const ArtisanServices = () => {
     }
     addServiceMutation.mutate({
       title: newService.title,
-      description: newService.description || null,
-      price: newService.surDevis ? null : (newService.price ? parseFloat(newService.price) : null),
-      duration: newService.duration || null
+      description: newService.description || null
     });
   };
-
-  const avgPrice = services.filter(s => s.price).length > 0
-    ? Math.round(services.filter(s => s.price).reduce((acc, s) => acc + (s.price || 0), 0) / services.filter(s => s.price).length)
-    : 0;
 
   return (
     <>
@@ -199,25 +185,15 @@ export const ArtisanServices = () => {
       <div className="flex-1 flex flex-col">
         <DashboardHeader 
           title="Mes prestations" 
-          subtitle="Définissez les services que vous proposez et vos tarifs"
+          subtitle="Définissez les services que vous proposez"
         />
 
         <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-4xl mx-auto space-y-6">
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-card rounded-xl border border-border shadow-soft p-4">
-                <p className="text-sm text-muted-foreground">Services actifs</p>
-                <p className="text-2xl font-bold text-foreground">{services.length}</p>
-              </div>
-              <div className="bg-card rounded-xl border border-border shadow-soft p-4">
-                <p className="text-sm text-muted-foreground">Prix moyen</p>
-                <p className="text-2xl font-bold text-foreground">{avgPrice}€</p>
-              </div>
-              <div className="bg-card rounded-xl border border-border shadow-soft p-4">
-                <p className="text-sm text-muted-foreground">Services avec prix</p>
-                <p className="text-2xl font-bold text-accent">{services.filter(s => s.price).length}</p>
-              </div>
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4">
+              <p className="text-sm text-muted-foreground">Services actifs</p>
+              <p className="text-2xl font-bold text-foreground">{services.length}</p>
             </div>
 
             {/* Free Tier Limit Warning */}
@@ -274,7 +250,7 @@ export const ArtisanServices = () => {
             {isAdding && (
               <div className="bg-card rounded-xl border border-accent/30 shadow-soft p-6 animate-fade-in">
                 <h4 className="font-semibold text-foreground mb-4">Nouvelle prestation</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Nom de la prestation *</Label>
                     <Input 
@@ -284,36 +260,6 @@ export const ArtisanServices = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Prix</Label>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <Switch 
-                          id="new-sur-devis"
-                          checked={newService.surDevis}
-                          onCheckedChange={(checked) => setNewService({...newService, surDevis: checked, price: checked ? "" : newService.price})}
-                        />
-                        <Label htmlFor="new-sur-devis" className="text-sm font-normal cursor-pointer">Sur Devis</Label>
-                      </div>
-                      {!newService.surDevis && (
-                        <Input 
-                          type="number" 
-                          placeholder="60€" 
-                          value={newService.price}
-                          onChange={(e) => setNewService({...newService, price: e.target.value})}
-                          className="flex-1"
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Durée estimée</Label>
-                    <Input 
-                      placeholder="Ex: 1-2h" 
-                      value={newService.duration}
-                      onChange={(e) => setNewService({...newService, duration: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
                     <Label>Description</Label>
                     <Textarea 
                       placeholder="Décrivez votre prestation..." 
@@ -369,7 +315,7 @@ export const ArtisanServices = () => {
                     {editingId === service.id ? (
                       /* Edit Mode */
                       <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-4">
                           <div className="space-y-2">
                             <Label>Nom de la prestation</Label>
                             <Input 
@@ -378,35 +324,6 @@ export const ArtisanServices = () => {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label>Prix</Label>
-                            <div className="flex items-center gap-3">
-                              <div className="flex items-center gap-2">
-                                <Switch 
-                                  id="edit-sur-devis"
-                                  checked={editForm.surDevis}
-                                  onCheckedChange={(checked) => setEditForm({...editForm, surDevis: checked, price: checked ? 0 : editForm.price})}
-                                />
-                                <Label htmlFor="edit-sur-devis" className="text-sm font-normal cursor-pointer">Sur Devis</Label>
-                              </div>
-                              {!editForm.surDevis && (
-                                <Input 
-                                  type="number"
-                                  placeholder="60€"
-                                  value={editForm.price}
-                                  onChange={(e) => setEditForm({...editForm, price: Number(e.target.value)})}
-                                  className="flex-1"
-                                />
-                              )}
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Durée estimée</Label>
-                            <Input 
-                              value={editForm.duration}
-                              onChange={(e) => setEditForm({...editForm, duration: e.target.value})}
-                            />
-                          </div>
-                          <div className="space-y-2 md:col-span-2">
                             <Label>Description</Label>
                             <Textarea 
                               value={editForm.description}
@@ -448,21 +365,11 @@ export const ArtisanServices = () => {
                             </p>
                           )}
                           
-                          <div className="flex flex-wrap items-center gap-4 mt-4">
-                            <div className="flex items-center gap-1 text-sm">
-                              <Euro className="w-4 h-4 text-accent" />
-                              {service.price ? (
-                                <span className="text-foreground">{service.price}€</span>
-                              ) : (
-                                <span className="text-muted-foreground">Sur devis</span>
-                              )}
-                            </div>
-                            {service.duration && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <Clock className="w-4 h-4" />
-                                <span>{service.duration}</span>
-                              </div>
-                            )}
+                          <div className="flex items-center gap-1 mt-4">
+                            <Badge variant="secondary" className="text-xs">
+                              <FileText className="w-3 h-3 mr-1" />
+                              Sur devis
+                            </Badge>
                           </div>
                         </div>
 
