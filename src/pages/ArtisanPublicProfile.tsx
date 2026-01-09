@@ -225,8 +225,8 @@ const ArtisanPublicProfile = () => {
       />
       <Navbar />
       
-      {/* Spacer for navbar - smaller on mobile/tablet */}
-      <div className="pt-16 lg:pt-20" />
+      {/* Spacer for navbar - includes top bar on mobile when authenticated */}
+      <div className="pt-28 lg:pt-20" />
 
       {/* Mobile Back Button - Full width, minimalist */}
       <div className="lg:hidden border-b bg-muted/30">

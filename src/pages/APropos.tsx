@@ -37,7 +37,7 @@ const APropos = () => {
       
       <Navbar />
       
-      <main className="min-h-screen">
+      <main className="min-h-screen pt-12 lg:pt-0">
         {/* Hero Section */}
         <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0">

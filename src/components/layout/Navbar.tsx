@@ -339,11 +339,11 @@ const Navbar = () => {
       {isAuthenticated && !isLoading && (
         <div className="fixed top-0 left-0 right-0 z-[55] bg-navy lg:hidden">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-12">
-              {/* Avatar + Label */}
+            <div className="flex items-center justify-end h-12">
+              {/* Avatar only - on the right */}
               <button
                 onClick={() => setIsDashboardSidebarOpen(true)}
-                className="flex items-center gap-2"
+                className="p-1"
               >
                 <Avatar className="h-8 w-8 border-2 border-gold">
                   <AvatarImage 
@@ -354,24 +354,7 @@ const Navbar = () => {
                     {getUserInitials()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-white text-sm font-medium">
-                  {getRoleLabel()}
-                </span>
-                <ChevronDown className="h-4 w-4 text-white/70" />
               </button>
-
-              {/* Quick actions (messages + notifications) */}
-              <div className="flex items-center gap-1">
-                <Link to={getMessagingLink()} className="relative text-white p-2 hover:bg-white/10 rounded-lg transition-colors">
-                  <MessageCircle className="w-5 h-5" />
-                  {unreadMessagesCount > 0 && (
-                    <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-destructive text-[10px] text-white rounded-full flex items-center justify-center font-medium">
-                      {unreadMessagesCount > 9 ? "9+" : unreadMessagesCount}
-                    </span>
-                  )}
-                </Link>
-                <NotificationBell variant="light" />
-              </div>
             </div>
           </div>
         </div>
@@ -392,11 +375,11 @@ const Navbar = () => {
             
             {/* Sidebar Panel */}
             <motion.div
-              initial={{ x: "-100%" }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
+              exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed inset-y-0 left-0 w-full max-w-sm bg-white z-[65] lg:hidden shadow-2xl overflow-y-auto"
+              className="fixed inset-y-0 right-0 w-full max-w-sm bg-white z-[65] lg:hidden shadow-2xl overflow-y-auto"
             >
               {/* Header */}
               <div className="bg-navy p-4 flex items-center justify-between sticky top-0">
