@@ -9,6 +9,7 @@ interface MobileBottomNavbarProps {
   onChatClick: () => void;
   phoneNumber?: string | null;
   chatOpen?: boolean;
+  unreadCount?: number;
 }
 
 const MobileBottomNavbar = ({
@@ -19,6 +20,7 @@ const MobileBottomNavbar = ({
   onChatClick,
   phoneNumber,
   chatOpen = false,
+  unreadCount = 0,
 }: MobileBottomNavbarProps) => {
   const navItems = [
     ...(showClaim
@@ -63,7 +65,7 @@ const MobileBottomNavbar = ({
             key={item.id}
             onClick={item.onClick}
             className={cn(
-              "flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-all active:scale-95",
+              "relative flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-all active:scale-95",
               "hover:bg-muted",
               item.className,
               item.id === "chat" && chatOpen && "bg-red-100 ring-2 ring-red-500"
@@ -71,6 +73,12 @@ const MobileBottomNavbar = ({
           >
             {item.icon}
             <span className="text-xs font-medium">{item.label}</span>
+            {/* Badge for unread messages */}
+            {item.id === "chat" && !chatOpen && unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 min-w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </button>
         ))}
       </div>

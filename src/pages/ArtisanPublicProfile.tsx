@@ -24,6 +24,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { useArtisanBySlug, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
 import ChatWidget from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
+import { useMessaging } from "@/hooks/useMessaging";
 import { supabase } from "@/integrations/supabase/client";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
@@ -49,7 +50,10 @@ const ArtisanPublicProfile = () => {
   const [artisanContact, setArtisanContact] = useState<{ phone: string | null; email: string | null }>({ phone: null, email: null });
   const [storyViewerOpen, setStoryViewerOpen] = useState(false);
 
-  // Fetch dynamic data using slug
+  // Get unread message count for mobile navbar badge
+  const { conversations } = useMessaging();
+  const totalUnreadMessages = conversations.reduce((sum, c) => sum + c.unread_count, 0);
+
   const {
     data: artisan,
     isLoading: artisanLoading
@@ -1040,6 +1044,7 @@ const ArtisanPublicProfile = () => {
         onChatClick={() => setChatOpen(!chatOpen)}
         phoneNumber={artisanContact.phone}
         chatOpen={chatOpen}
+        unreadCount={totalUnreadMessages}
       />
 
       {/* Bottom padding for mobile/tablet navbar */}
