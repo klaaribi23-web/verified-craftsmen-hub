@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { useAuth } from "@/hooks/useAuth";
-import { DEFAULT_AVATAR } from "@/lib/utils";
+import { DEFAULT_AVATAR, cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   MessageSquare, 
@@ -32,17 +32,33 @@ interface ChatWidgetProps {
   defaultArtisanId?: string; // This is the artisan.id, not profile_id
   defaultArtisanName?: string;
   defaultArtisanPhoto?: string;
+  isOpen?: boolean; // External control for open state
+  onClose?: () => void; // Callback when chat should close
+  hideFloatingButton?: boolean; // Hide the floating button when used from navbar
 }
 
 export const ChatWidget = ({ 
   defaultOpen = false, 
   defaultArtisanId,
   defaultArtisanName,
-  defaultArtisanPhoto
+  defaultArtisanPhoto,
+  isOpen: externalIsOpen,
+  onClose,
+  hideFloatingButton = false,
 }: ChatWidgetProps) => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [internalIsOpen, setInternalIsOpen] = useState(defaultOpen);
+  
+  // Use external control if provided, otherwise use internal state
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = (value: boolean) => {
+    if (externalIsOpen !== undefined && onClose && !value) {
+      onClose();
+    } else {
+      setInternalIsOpen(value);
+    }
+  };
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [selectedParticipant, setSelectedParticipant] = useState<{
     id: string;
@@ -172,18 +188,20 @@ export const ChatWidget = ({
   if (!authLoading && !user) {
     return (
       <>
-        {/* Floating button - hidden on mobile/tablet */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="hidden xl:flex fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105 items-center justify-center z-50"
-        >
-          {isOpen ? <X className="h-6 w-6" /> : <MessageSquare className="h-6 w-6" />}
-          {totalUnread > 0 && (
-            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
-              {totalUnread}
-            </span>
-          )}
-        </button>
+        {/* Floating button - hidden on mobile/tablet, hidden if hideFloatingButton */}
+        {!hideFloatingButton && (
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="hidden xl:flex fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105 items-center justify-center z-50"
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <MessageSquare className="h-6 w-6" />}
+            {totalUnread > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
+                {totalUnread}
+              </span>
+            )}
+          </button>
+        )}
 
         {/* Login prompt - full screen on mobile/tablet */}
         {isOpen && (
@@ -212,28 +230,35 @@ export const ChatWidget = ({
 
   return (
     <>
-      {/* Floating button - hidden on mobile/tablet */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="hidden xl:flex fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105 items-center justify-center z-50"
-      >
-        {isOpen ? (
-          <X className="h-6 w-6" />
-        ) : (
-          <>
-            <MessageSquare className="h-6 w-6" />
-            {totalUnread > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
-                {totalUnread}
-              </span>
-            )}
-          </>
-        )}
-      </button>
+      {/* Floating button - hidden on mobile/tablet, hidden if hideFloatingButton */}
+      {!hideFloatingButton && (
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="hidden xl:flex fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105 items-center justify-center z-50"
+        >
+          {isOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <>
+              <MessageSquare className="h-6 w-6" />
+              {totalUnread > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
+                  {totalUnread}
+                </span>
+              )}
+            </>
+          )}
+        </button>
+      )}
 
-      {/* Chat window - full screen on mobile/tablet */}
+      {/* Chat window - full screen on mobile/tablet, adjust for navbar when used externally */}
       {isOpen && (
-        <div className="fixed inset-0 xl:inset-auto xl:bottom-24 xl:right-6 xl:w-96 xl:h-[500px] xl:rounded-2xl bg-card border border-border shadow-2xl z-50 flex flex-col overflow-hidden">
+        <div className={cn(
+          "fixed bg-card border border-border shadow-2xl flex flex-col overflow-hidden",
+          hideFloatingButton 
+            ? "inset-0 pb-20 z-[64]" // Full screen with bottom padding for navbar when used from GlobalMobileNavbar
+            : "inset-0 xl:inset-auto xl:bottom-24 xl:right-6 xl:w-96 xl:h-[500px] xl:rounded-2xl z-50"
+        )}>
           {/* Header */}
           <div className="bg-primary p-4 flex items-center gap-3 text-primary-foreground">
             {selectedConversation && selectedParticipant ? (

@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, LayoutDashboard, MessageSquare, Bell, CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info as InfoIcon, Mail } from "lucide-react";
+import { Home, LayoutDashboard, MessageSquare, Bell, CheckCircle, XCircle, FileText, UserPlus, Briefcase, Info as InfoIcon, Mail, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useAllNotifications } from "@/hooks/useAllNotifications";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 
 const GlobalMobileNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   
   const { user, role, isLoading: authLoading } = useAuth();
   
@@ -93,6 +94,28 @@ const GlobalMobileNavbar = () => {
   // Check if current path matches
   const isActive = (path: string) => location.pathname === path;
 
+  // Handle message icon click - toggle chat
+  const handleMessageClick = () => {
+    if (chatOpen) {
+      setChatOpen(false);
+    } else {
+      // Close notifs if open
+      setNotifOpen(false);
+      setChatOpen(true);
+    }
+  };
+
+  // Handle notification icon click - toggle notifs
+  const handleNotifClick = () => {
+    if (notifOpen) {
+      setNotifOpen(false);
+    } else {
+      // Close chat if open
+      setChatOpen(false);
+      setNotifOpen(true);
+    }
+  };
+
   // Different nav items based on role
   const getNavItems = () => {
     if (role === 'artisan') {
@@ -115,15 +138,17 @@ const GlobalMobileNavbar = () => {
           id: "messagerie",
           label: "Messages",
           icon: <Mail className="h-5 w-5" />,
-          onClick: () => navigate("/artisan/messagerie"),
-          path: "/artisan/messagerie",
+          onClick: handleMessageClick,
+          path: null,
+          isActive: chatOpen,
         },
         {
           id: "notifications",
           label: "Notifs",
           icon: <Bell className="h-5 w-5" />,
-          onClick: () => setNotifOpen(!notifOpen),
+          onClick: handleNotifClick,
           path: null,
+          isActive: notifOpen,
         },
       ];
     }
@@ -148,15 +173,17 @@ const GlobalMobileNavbar = () => {
         id: "messagerie",
         label: "Messages",
         icon: <MessageSquare className="h-5 w-5" />,
-        onClick: () => navigate("/client/messagerie"),
-        path: "/client/messagerie",
+        onClick: handleMessageClick,
+        path: null,
+        isActive: chatOpen,
       },
       {
         id: "notifications",
         label: "Notifs",
         icon: <Bell className="h-5 w-5" />,
-        onClick: () => setNotifOpen(!notifOpen),
+        onClick: handleNotifClick,
         path: null,
+        isActive: notifOpen,
       },
     ];
   };
@@ -165,56 +192,29 @@ const GlobalMobileNavbar = () => {
 
   return (
     <>
-      <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-[60] bg-background border-t shadow-lg">
-        <div className="flex items-center justify-around py-2 px-2 safe-area-pb">
-          {navItems.map((item) => {
-            const active = item.path && isActive(item.path);
-            return (
-              <button
-                key={item.id}
-                onClick={item.onClick}
-                className={cn(
-                  "relative flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-all active:scale-95",
-                  "hover:bg-muted",
-                  active ? "text-primary bg-primary/10" : "text-muted-foreground"
-                )}
-              >
-                {item.icon}
-                <span className="text-xs font-medium">{item.label}</span>
-                {/* Badge for notifications */}
-                {item.id === "notifications" && unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 min-w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-
-      {/* Bottom spacer for mobile screens - prevents content from being hidden behind navbar */}
-      <div className="xl:hidden h-20" />
-
-      {/* Notifications Sheet */}
-      <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
-        <SheetContent side="bottom" className="h-[70vh] rounded-t-xl">
-          <SheetHeader className="pb-4 border-b">
-            <div className="flex items-center justify-between">
-              <SheetTitle>Notifications</SheetTitle>
-              {unreadCount > 0 && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => markAllAsRead.mutate()}
-                  className="text-xs"
-                >
-                  Tout marquer comme lu
-                </Button>
-              )}
+      {/* Full-width Notifications Panel */}
+      {notifOpen && (
+        <div className="xl:hidden fixed inset-0 z-[65] bg-background flex flex-col animate-fade-in">
+          {/* Header */}
+          <div className="p-4 border-b flex items-center justify-between bg-primary text-primary-foreground">
+            <div className="flex items-center gap-3">
+              <Bell className="h-5 w-5" />
+              <h2 className="font-semibold text-lg">Notifications</h2>
             </div>
-          </SheetHeader>
-          <ScrollArea className="h-[calc(70vh-80px)] mt-4">
+            {unreadCount > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => markAllAsRead.mutate()}
+                className="text-xs text-primary-foreground hover:bg-white/10"
+              >
+                Tout marquer comme lu
+              </Button>
+            )}
+          </div>
+          
+          {/* Content */}
+          <ScrollArea className="flex-1">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -225,7 +225,7 @@ const GlobalMobileNavbar = () => {
                 <p>Aucune notification</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="p-4 space-y-2">
                 {notifications.map((notif) => (
                   <button
                     key={notif.id}
@@ -262,8 +262,56 @@ const GlobalMobileNavbar = () => {
               </div>
             )}
           </ScrollArea>
-        </SheetContent>
-      </Sheet>
+          
+          {/* Bottom spacer for navbar */}
+          <div className="h-20" />
+        </div>
+      )}
+
+      {/* Full-width Chat Panel */}
+      {chatOpen && (
+        <div className="xl:hidden fixed inset-0 z-[65] bg-background animate-fade-in">
+          <ChatWidget 
+            isOpen={true} 
+            onClose={() => setChatOpen(false)}
+            hideFloatingButton={true}
+          />
+          {/* Bottom spacer for navbar */}
+          <div className="h-20" />
+        </div>
+      )}
+
+      {/* Bottom Navigation Bar */}
+      <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-[70] bg-background border-t shadow-lg">
+        <div className="flex items-center justify-around py-2 px-2 safe-area-pb">
+          {navItems.map((item) => {
+            const active = item.path ? isActive(item.path) : item.isActive;
+            return (
+              <button
+                key={item.id}
+                onClick={item.onClick}
+                className={cn(
+                  "relative flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-all active:scale-95",
+                  "hover:bg-muted",
+                  active ? "text-primary bg-primary/10" : "text-muted-foreground"
+                )}
+              >
+                {item.icon}
+                <span className="text-xs font-medium">{item.label}</span>
+                {/* Badge for notifications */}
+                {item.id === "notifications" && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 min-w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Bottom spacer for mobile screens - prevents content from being hidden behind navbar */}
+      <div className="xl:hidden h-20" />
     </>
   );
 };
