@@ -94,12 +94,13 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   useEffect(() => {
     if (!open || !artisan?.id) return;
     
-    // Catégorie principale = category_id de l'artisan
-    setPrimaryCategoryId(artisan?.category_id || null);
+    // Catégorie principale = category_id de l'artisan OU première catégorie de artisan_categories si null
+    const primaryId = artisan?.category_id || (artisanCategoriesData.length > 0 ? artisanCategoriesData[0] : null);
+    setPrimaryCategoryId(primaryId);
     
     // Compétences secondaires = artisan_categories (exclure la principale)
     if (artisanCategoriesData && artisanCategoriesData.length > 0) {
-      const secondaries = artisanCategoriesData.filter(id => id !== artisan?.category_id);
+      const secondaries = artisanCategoriesData.filter(id => id !== primaryId);
       setSecondaryCategoryIds(secondaries);
     } else {
       setSecondaryCategoryIds([]);

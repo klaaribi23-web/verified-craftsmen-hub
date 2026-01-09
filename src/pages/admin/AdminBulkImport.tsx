@@ -63,36 +63,92 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: "portfolioImages", label: "Images Portfolio", enabled: true, required: false },
 ];
 
-// Map common service names to category names
+// Map common service names to category names (doit correspondre aux vrais noms en base)
 const SERVICE_TO_CATEGORY_MAP: Record<string, string> = {
-  plomberie: "Plombier",
-  plombier: "Plombier",
-  chauffage: "Chauffagiste",
-  chauffagiste: "Chauffagiste",
-  électricité: "Électricien",
-  electricite: "Électricien",
-  électricien: "Électricien",
-  electricien: "Électricien",
+  // Plomberie
+  plomberie: "Dépannage plomberie",
+  plombier: "Dépannage plomberie",
+  "dépannage plomberie": "Dépannage plomberie",
+  // Électricité
+  électricité: "Dépannage électricité",
+  electricite: "Dépannage électricité",
+  électricien: "Dépannage électricité",
+  electricien: "Dépannage électricité",
+  "dépannage électricité": "Dépannage électricité",
+  // Chauffage
+  chauffage: "Chauffage / chaudière / gaz",
+  chauffagiste: "Chauffage / chaudière / gaz",
+  chaudière: "Chauffage / chaudière / gaz",
+  chaudiere: "Chauffage / chaudière / gaz",
+  gaz: "Chauffage / chaudière / gaz",
+  // Peinture
   peinture: "Peintre",
   peintre: "Peintre",
+  // Maçonnerie
   maçonnerie: "Maçon",
   maconnerie: "Maçon",
   maçon: "Maçon",
   macon: "Maçon",
+  // Carrelage
   carrelage: "Carreleur",
   carreleur: "Carreleur",
+  // Menuiserie
   menuiserie: "Menuisier",
   menuisier: "Menuisier",
-  couverture: "Couvreur",
-  couvreur: "Couvreur",
-  toiture: "Couvreur",
-  serrurerie: "Serrurier",
+  // Couverture
+  couverture: "Couvreur / Zingueur",
+  couvreur: "Couvreur / Zingueur",
+  toiture: "Couvreur / Zingueur",
+  zingueur: "Couvreur / Zingueur",
+  // Serrurerie
+  serrurerie: "Serrurerie / ouverture de portes",
+  "ouverture de portes": "Serrurerie / ouverture de portes",
   serrurier: "Serrurier",
-  climatisation: "Climaticien",
-  climaticien: "Climaticien",
-  isolation: "Isolation thermique",
+  // Climatisation
+  climatisation: "Climatisation / Ventilation",
+  climaticien: "Climatisation / Ventilation",
+  ventilation: "Climatisation / Ventilation",
+  // Isolation
+  isolation: "Isolation thermique / phonique",
+  "isolation thermique": "Isolation thermique / phonique",
+  "isolation phonique": "Isolation thermique / phonique",
+  // Rénovation
   rénovation: "Rénovation complète",
   renovation: "Rénovation complète",
+  "rénovation complète": "Rénovation complète",
+  // Pompe à chaleur
+  "pompe à chaleur": "Pompe à chaleur",
+  "pompe a chaleur": "Pompe à chaleur",
+  pac: "Pompe à chaleur",
+  // Plâtrerie
+  plâtrier: "Plâtrier / Plaquiste",
+  platrier: "Plâtrier / Plaquiste",
+  plaquiste: "Plâtrier / Plaquiste",
+  // Charpente
+  charpentier: "Charpentier",
+  charpente: "Charpentier",
+  // Terrassement
+  terrassier: "Terrassier",
+  terrassement: "Terrassier",
+  // Jardin
+  jardinier: "Jardinier / Paysagiste",
+  paysagiste: "Jardinier / Paysagiste",
+  jardin: "Jardinier / Paysagiste",
+  // Vitrier
+  vitrier: "Vitrier",
+  vitrerie: "Vitrier",
+  // Ramonage
+  ramoneur: "Ramoneur",
+  ramonage: "Ramoneur",
+  // Panneaux solaires
+  solaire: "Panneaux solaires / photovoltaïque",
+  photovoltaïque: "Panneaux solaires / photovoltaïque",
+  photovoltaique: "Panneaux solaires / photovoltaïque",
+  // Poêles
+  poêle: "Poêles & cheminées",
+  poele: "Poêles & cheminées",
+  cheminée: "Poêles & cheminées",
+  cheminee: "Poêles & cheminées",
 };
 
 const AdminBulkImport = () => {
