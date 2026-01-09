@@ -6,7 +6,7 @@ import { searchCommunes, type CommuneSearchResult } from "@/lib/communesApi";
 
 interface CityAutocompleteAPIProps {
   value: string;
-  onChange: (value: string, coordinates?: { lat: number; lng: number } | null) => void;
+  onChange: (value: string, coordinates?: { lat: number; lng: number } | null, postalCode?: string) => void;
   placeholder?: string;
   className?: string;
   required?: boolean;
@@ -99,7 +99,7 @@ export const CityAutocompleteAPI = ({
       ? { lat: suggestion.latitude, lng: suggestion.longitude }
       : null;
     
-    onChange(displayValue, coordinates);
+    onChange(displayValue, coordinates, suggestion.codePostal);
     setIsOpen(false);
     setHighlightedIndex(-1);
     setSuggestions([]);
