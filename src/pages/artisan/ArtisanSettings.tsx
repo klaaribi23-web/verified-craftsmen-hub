@@ -145,7 +145,7 @@ export const ArtisanSettings = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <ArtisanSidebar />
       
       <div className="flex-1 flex flex-col">
@@ -154,7 +154,7 @@ export const ArtisanSettings = () => {
           subtitle="Gérez les préférences de votre compte"
         />
 
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
           <div className="max-w-3xl mx-auto space-y-6">
             {/* Notifications */}
             <div className="bg-card rounded-xl border border-border shadow-soft p-6">

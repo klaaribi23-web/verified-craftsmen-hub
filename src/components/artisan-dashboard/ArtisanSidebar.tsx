@@ -141,33 +141,12 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
 };
 
 export const ArtisanSidebar = () => {
-  const [open, setOpen] = useState(false);
+  // Mobile navigation is now handled by GlobalMobileNavbar + avatar sidebar
+  // Desktop sidebar is the only one rendered here
 
   return (
-    <>
-      {/* Mobile Menu Button */}
-      <div className="lg:hidden fixed bottom-4 left-4 z-50">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button 
-              size="icon" 
-              className="h-14 w-14 rounded-full shadow-lg bg-primary text-primary-foreground"
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[280px] p-0 bg-primary text-primary-foreground">
-            <div className="flex flex-col h-full">
-              <SidebarContent onItemClick={() => setOpen(false)} />
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 min-h-screen bg-primary text-primary-foreground flex-col">
-        <SidebarContent />
-      </aside>
-    </>
+    <aside className="hidden lg:flex w-64 min-h-screen bg-primary text-primary-foreground flex-col">
+      <SidebarContent />
+    </aside>
   );
 };

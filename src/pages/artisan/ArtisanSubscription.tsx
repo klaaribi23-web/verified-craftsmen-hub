@@ -105,7 +105,7 @@ const ArtisanSubscription = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <ArtisanSidebar />
         
         <div className="flex-1 flex flex-col">
@@ -114,7 +114,7 @@ const ArtisanSubscription = () => {
             subtitle="Gérez votre abonnement et accédez à plus de fonctionnalités"
           />
 
-          <main className="flex-1 p-4 lg:p-8 overflow-auto">
+          <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             <div className="max-w-4xl mx-auto">
             {tier !== "free" && currentPlan && (
               <Card className="mb-8 border-primary/50">

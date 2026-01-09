@@ -199,7 +199,7 @@ const GlobalMobileNavbar = () => {
     <>
       {/* Full-width Notifications Panel */}
       {notifOpen && (
-        <div className="xl:hidden fixed inset-0 z-[65] bg-background flex flex-col animate-fade-in">
+        <div className="lg:hidden fixed inset-0 z-[65] bg-background flex flex-col animate-fade-in">
           {/* Header */}
           <div className="p-4 border-b flex items-center justify-between bg-primary text-primary-foreground">
             <div className="flex items-center gap-3">
@@ -275,7 +275,7 @@ const GlobalMobileNavbar = () => {
 
       {/* Full-width Chat Panel */}
       {chatOpen && (
-        <div className="xl:hidden fixed inset-0 z-[65] bg-background animate-fade-in">
+        <div className="lg:hidden fixed inset-0 z-[65] bg-background animate-fade-in">
           <ChatWidget 
             isOpen={true} 
             onClose={() => setChatOpen(false)}
@@ -287,7 +287,7 @@ const GlobalMobileNavbar = () => {
       )}
 
       {/* Bottom Navigation Bar */}
-      <nav className="xl:hidden fixed bottom-0 left-0 right-0 z-[70] bg-background border-t shadow-lg">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[70] bg-background border-t shadow-lg">
         <div className="flex items-center justify-around py-2 px-2 safe-area-pb">
           {navItems.map((item) => {
             const active = item.path ? isActive(item.path) : item.isActive;
@@ -322,7 +322,7 @@ const GlobalMobileNavbar = () => {
       </nav>
 
       {/* Bottom spacer for mobile screens - prevents content from being hidden behind navbar */}
-      <div className="xl:hidden h-20" />
+      <div className="lg:hidden h-20" />
     </>
   );
 };
