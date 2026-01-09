@@ -94,7 +94,7 @@ const CommentCaMarche = () => {
       />
       <Navbar />
       
-      <main className="pt-20">
+      <main className="pt-32 lg:pt-20">
         {/* Hero */}
         <section className="py-16 lg:py-24 bg-gradient-hero">
           <div className="container mx-auto px-4 lg:px-8">

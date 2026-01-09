@@ -335,7 +335,7 @@ const NosMissions = () => {
       />
       <Navbar />
       
-      <main className="pt-20">
+      <main className="pt-32 lg:pt-20">
         {/* Hero Search */}
         <section className="bg-navy py-16 lg:py-24">
           <div className="container mx-auto px-4 lg:px-8">

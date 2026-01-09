@@ -15,7 +15,7 @@ const HeroSection = () => {
     label: "Note moyenne"
   }];
   const badges = ["Vérification SIRET", "Assurances validées", "Avis certifiés"];
-  return <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+  return <section className="relative min-h-screen flex items-center pt-32 lg:pt-20 overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
         <img src={heroBackground} alt="Artisan professionnel qualifié au travail sur un chantier" width={1920} height={1080} className="w-full h-full object-cover" />

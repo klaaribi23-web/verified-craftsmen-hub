@@ -48,7 +48,7 @@ const Contact = () => {
       <Navbar />
       
       {/* Hero Section with Image */}
-      <section className="relative h-[400px] overflow-hidden">
+      <section className="relative h-[400px] overflow-hidden pt-28 lg:pt-20">
         <img 
           src={contactHeroImage} 
           alt="Équipe d'artisans professionnels" 

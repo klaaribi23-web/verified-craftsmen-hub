@@ -298,7 +298,7 @@ const DevenirArtisan = () => {
       />
       <Navbar />
       
-      <main className="pt-20">
+      <main className="pt-32 lg:pt-20">
         {/* Hero */}
         <section className="bg-navy py-20 lg:py-32 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
