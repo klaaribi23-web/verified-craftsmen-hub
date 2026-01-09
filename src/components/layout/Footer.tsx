@@ -68,17 +68,17 @@ const Footer = () => {
               La plateforme de confiance qui vous connecte avec des artisans vérifiés et qualifiés dans toute la France.
             </p>
             <div className="space-y-3">
-              <a href="tel:+33123456789" className="flex items-center gap-3 text-white/70 hover:text-gold transition-colors">
+              <a href="tel:+33353632999" className="flex items-center gap-3 text-white/70 hover:text-gold transition-colors">
                 <Phone className="w-4 h-4" />
-                <span className="text-sm">01 23 45 67 89</span>
+                <span className="text-sm">03 53 63 29 99</span>
               </a>
-              <a href="mailto:contact@artisans-valides.fr" className="flex items-center gap-3 text-white/70 hover:text-gold transition-colors">
+              <a href="mailto:contact@artisansvalides.fr" className="flex items-center gap-3 text-white/70 hover:text-gold transition-colors">
                 <Mail className="w-4 h-4" />
                 <span className="text-sm">contact@artisansvalides.fr</span>
               </a>
               <div className="flex items-center gap-3 text-white/70">
                 <MapPin className="w-4 h-4" />
-                <span className="text-sm">Paris, France</span>
+                <span className="text-sm">77 rue de la Monnaie, 59800 Lille</span>
               </div>
             </div>
           </div>

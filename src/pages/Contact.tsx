@@ -83,7 +83,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">Email</h3>
-                    <p className="text-muted-foreground">contact@artisans-valides.fr</p>
+                    <p className="text-muted-foreground">contact@artisansvalides.fr</p>
                     <p className="text-sm text-muted-foreground mt-1">Réponse sous 24h</p>
                   </div>
                 </CardContent>
@@ -96,7 +96,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">Téléphone</h3>
-                    <p className="text-muted-foreground">01 23 45 67 89</p>
+                    <p className="text-muted-foreground">03 53 63 29 99</p>
                     <p className="text-sm text-muted-foreground mt-1">Du lundi au vendredi</p>
                   </div>
                 </CardContent>
@@ -109,8 +109,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">Adresse</h3>
-                    <p className="text-muted-foreground">123 Avenue des Artisans</p>
-                    <p className="text-muted-foreground">75001 Paris, France</p>
+                    <p className="text-muted-foreground">77 rue de la Monnaie</p>
+                    <p className="text-muted-foreground">59800 Lille, France</p>
                   </div>
                 </CardContent>
               </Card>
