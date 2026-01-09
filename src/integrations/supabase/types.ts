@@ -898,6 +898,67 @@ export type Database = {
           },
         ]
       }
+      recommendations: {
+        Row: {
+          artisan_id: string
+          client_id: string
+          comment: string | null
+          communication_rating: number
+          created_at: string
+          id: string
+          presentation_rating: number
+          punctuality_rating: number
+          updated_at: string
+          work_quality_rating: number
+        }
+        Insert: {
+          artisan_id: string
+          client_id: string
+          comment?: string | null
+          communication_rating: number
+          created_at?: string
+          id?: string
+          presentation_rating: number
+          punctuality_rating: number
+          updated_at?: string
+          work_quality_rating: number
+        }
+        Update: {
+          artisan_id?: string
+          client_id?: string
+          comment?: string | null
+          communication_rating?: number
+          created_at?: string
+          id?: string
+          presentation_rating?: number
+          punctuality_rating?: number
+          updated_at?: string
+          work_quality_rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendations_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           artisan_id: string

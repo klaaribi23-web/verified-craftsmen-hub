@@ -33,6 +33,7 @@ import { ClientFavorites } from "./pages/client/ClientFavorites";
 import { ClientMessaging } from "./pages/client/ClientMessaging";
 import { ClientSettings } from "./pages/client/ClientSettings";
 import { ClientQuotes } from "./pages/client/ClientQuotes";
+import ClientRecommendations from "./pages/client/ClientRecommendations";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminArtisans from "./pages/admin/AdminArtisans";
 import AdminClients from "./pages/admin/AdminClients";
@@ -182,6 +183,11 @@ const App = () => (
           <Route path="/client/devis" element={
             <ProtectedRoute allowedRoles={["client"]}>
               <ClientQuotes />
+            </ProtectedRoute>
+          } />
+          <Route path="/client/recommandations" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientRecommendations />
             </ProtectedRoute>
           } />
           
