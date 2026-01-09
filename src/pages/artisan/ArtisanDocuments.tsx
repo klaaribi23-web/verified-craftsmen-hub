@@ -414,20 +414,51 @@ export const ArtisanDocuments = () => {
                                 <Eye className="w-4 h-4 mr-1" />
                                 Voir
                               </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                className="text-destructive hover:text-destructive"
-                                onClick={() => deleteMutation.mutate(uploadedDoc)}
-                                disabled={deleteMutation.isPending}
-                              >
-                                {deleteMutation.isPending ? (
-                                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                                ) : (
-                                  <Trash2 className="w-4 h-4 mr-1" />
-                                )}
-                                Supprimer
-                              </Button>
+                              {uploadedDoc.status === "rejected" ? (
+                                <>
+                                  <input
+                                    ref={(el) => { fileInputRefs.current[`replace_${docType.id}`] = el; }}
+                                    type="file"
+                                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                    onChange={async (e) => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+                                      // Delete old document first, then upload new one
+                                      await deleteMutation.mutateAsync(uploadedDoc);
+                                      await handleUpload(e, docType);
+                                    }}
+                                    className="hidden"
+                                  />
+                                  <Button 
+                                    variant="gold" 
+                                    size="sm"
+                                    onClick={() => fileInputRefs.current[`replace_${docType.id}`]?.click()}
+                                    disabled={isUploading || deleteMutation.isPending}
+                                  >
+                                    {isUploading ? (
+                                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                    ) : (
+                                      <Upload className="w-4 h-4 mr-1" />
+                                    )}
+                                    Remplacer
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive"
+                                  onClick={() => deleteMutation.mutate(uploadedDoc)}
+                                  disabled={deleteMutation.isPending}
+                                >
+                                  {deleteMutation.isPending ? (
+                                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="w-4 h-4 mr-1" />
+                                  )}
+                                  Supprimer
+                                </Button>
+                              )}
                             </div>
                           </div>
                         ) : (
