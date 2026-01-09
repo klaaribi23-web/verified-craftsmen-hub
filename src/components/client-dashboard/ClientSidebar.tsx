@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   User,
@@ -10,14 +9,11 @@ import {
   Heart,
   LayoutDashboard,
   ClipboardList,
-  Menu,
   ThumbsUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/client/dashboard" },
@@ -117,33 +113,11 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
 };
 
 export const ClientSidebar = () => {
-  const [open, setOpen] = useState(false);
-
+  // Mobile navigation is now handled by GlobalMobileNavbar + avatar sidebar
+  // Desktop sidebar is the only one rendered here
   return (
-    <>
-      {/* Mobile Menu Button */}
-      <div className="lg:hidden fixed bottom-4 left-4 z-50">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button 
-              size="icon" 
-              className="h-14 w-14 rounded-full shadow-lg bg-primary text-primary-foreground"
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[280px] p-0 bg-primary text-primary-foreground">
-            <div className="flex flex-col h-full">
-              <SidebarContent onItemClick={() => setOpen(false)} />
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 min-h-screen bg-primary text-primary-foreground flex-col">
-        <SidebarContent />
-      </aside>
-    </>
+    <aside className="hidden lg:flex w-64 min-h-screen bg-primary text-primary-foreground flex-col">
+      <SidebarContent />
+    </aside>
   );
 };

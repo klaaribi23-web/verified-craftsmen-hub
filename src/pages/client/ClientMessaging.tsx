@@ -465,7 +465,7 @@ export const ClientMessaging = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <ClientSidebar />
       
       <div className="flex-1 flex flex-col">

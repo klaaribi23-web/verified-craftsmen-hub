@@ -93,7 +93,7 @@ export const ClientFavorites = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <ClientSidebar />
       
         <div className="flex-1 flex flex-col">
@@ -196,7 +196,9 @@ export const ClientFavorites = () => {
           </main>
         </div>
       </div>
-      <ChatWidget />
+      <div className="hidden lg:block">
+        <ChatWidget />
+      </div>
     </>
   );
 };
