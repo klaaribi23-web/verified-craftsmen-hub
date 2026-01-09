@@ -3,6 +3,7 @@ import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -621,13 +622,11 @@ export const ArtisanProfile = () => {
                   <p className="text-xs text-muted-foreground">L'email ne peut pas être modifié</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Téléphone</Label>
-                  <Input 
+                  <Label htmlFor="phone">Téléphone (format français)</Label>
+                  <FrenchPhoneInput
                     id="phone" 
-                    type="tel" 
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="06 12 34 56 78"
+                    onChange={setPhone}
                   />
                 </div>
                 <div className="space-y-2">
