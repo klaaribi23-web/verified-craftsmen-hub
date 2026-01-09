@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCategories } from "@/hooks/useAdminData";
+import { geocodeCity } from "@/lib/communesApi";
 import {
   Upload,
   FileJson,
@@ -19,6 +20,7 @@ import {
   Download,
   Trash2,
   FileSpreadsheet,
+  MapPin,
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -508,6 +510,21 @@ const AdminBulkImport = () => {
           const categoryIds = findAllCategoryIds(artisan.services);
           if (categoryIds.length > 0) {
             artisanData.category_id = categoryIds[0]; // First category = principal
+          }
+
+          // Géocodage automatique de la ville
+          if (artisan.city && artisan.city !== "À compléter") {
+            try {
+              const geoResult = await geocodeCity(artisan.city, artisan.postalCode);
+              if (geoResult) {
+                artisanData.latitude = geoResult.lat;
+                artisanData.longitude = geoResult.lng;
+                artisanData.intervention_radius = 50; // 50 km par défaut
+              }
+            } catch (geoError) {
+              console.warn(`Géocodage échoué pour ${artisan.city}:`, geoError);
+              // Continuer sans coordonnées - pas bloquant
+            }
           }
 
           // Insert artisan

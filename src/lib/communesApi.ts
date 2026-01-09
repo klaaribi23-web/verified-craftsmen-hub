@@ -259,6 +259,99 @@ export async function getCommuneCoordinates(
 }
 
 /**
+ * Géocode une ville par son nom et code postal (optimisé pour import en masse)
+ * Retourne les coordonnées GPS ou null si non trouvé
+ */
+export async function geocodeCity(
+  cityName: string,
+  postalCode?: string
+): Promise<{ lat: number; lng: number; codeInsee: string } | null> {
+  if (!cityName || cityName.length < 2) return null;
+
+  try {
+    const params = new URLSearchParams({
+      nom: cityName.trim(),
+      fields: "nom,code,centre",
+      limit: "5",
+    });
+
+    // Si on a un code postal, on peut filtrer par département
+    if (postalCode && postalCode.length >= 2) {
+      const deptCode = postalCode.substring(0, 2);
+      // Gérer les cas spéciaux (Corse, DOM-TOM)
+      if (deptCode === "20") {
+        // Corse - ne pas filtrer, laisser l'API décider
+      } else if (parseInt(deptCode) >= 97) {
+        params.append("codeDepartement", postalCode.substring(0, 3));
+      } else {
+        params.append("codeDepartement", deptCode);
+      }
+    }
+
+    const response = await fetch(`${API_BASE_URL}/communes?${params}`);
+    
+    if (!response.ok) return null;
+
+    const communes: Commune[] = await response.json();
+    
+    if (communes.length === 0) return null;
+
+    // Trouver la meilleure correspondance
+    let bestMatch = communes[0];
+    
+    // Si on a un code postal, chercher une correspondance exacte
+    if (postalCode) {
+      const exactMatch = communes.find(c => 
+        c.codesPostaux?.includes(postalCode)
+      );
+      if (exactMatch) bestMatch = exactMatch;
+    }
+
+    if (bestMatch.centre?.coordinates) {
+      return {
+        lat: bestMatch.centre.coordinates[1],
+        lng: bestMatch.centre.coordinates[0],
+        codeInsee: bestMatch.code,
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Erreur géocodage:", error);
+    return null;
+  }
+}
+
+/**
+ * Géocode plusieurs villes en parallèle avec rate limiting
+ */
+export async function geocodeCitiesBatch(
+  cities: Array<{ cityName: string; postalCode?: string }>
+): Promise<Map<string, { lat: number; lng: number; codeInsee: string } | null>> {
+  const results = new Map<string, { lat: number; lng: number; codeInsee: string } | null>();
+  const batchSize = 10; // Limiter les requêtes parallèles
+  
+  for (let i = 0; i < cities.length; i += batchSize) {
+    const batch = cities.slice(i, i + batchSize);
+    const promises = batch.map(async ({ cityName, postalCode }) => {
+      const key = `${cityName}|${postalCode || ""}`;
+      const coords = await geocodeCity(cityName, postalCode);
+      return { key, coords };
+    });
+    
+    const batchResults = await Promise.all(promises);
+    batchResults.forEach(({ key, coords }) => results.set(key, coords));
+    
+    // Petit délai entre les batches pour éviter le rate limiting
+    if (i + batchSize < cities.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+  
+  return results;
+}
+
+/**
  * Nettoie le cache
  */
 export function clearCommunesCache(): void {
