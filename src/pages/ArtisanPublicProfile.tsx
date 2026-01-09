@@ -252,7 +252,7 @@ const ArtisanPublicProfile = () => {
             <div className="lg:col-span-2 space-y-4 md:space-y-8">
               
               {/* Profile Header */}
-              <Card className="border-0 shadow-lg md:shadow-xl bg-card/80 backdrop-blur-sm">
+              <Card>
                 <CardContent className="p-6 md:p-8">
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Photo & Badge */}
@@ -654,7 +654,7 @@ const ArtisanPublicProfile = () => {
 
             {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
             <div className="hidden lg:block lg:col-span-1 space-y-6">
-              <Card className="border-0 shadow-xl bg-card">
+              <Card>
                 <CardContent className="p-6 space-y-4">
                   {/* Encart Revendication - Uniquement pour prospect */}
                   {artisan.status === 'prospect' && (
