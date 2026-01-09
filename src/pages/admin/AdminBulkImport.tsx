@@ -26,25 +26,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 interface ParsedArtisan {
   businessName: string;
-  description: string;
   email: string;
   phone: string;
   city: string;
-  postalCode: string;
-  address: string;
   siret: string;
-  services: string[];
-  rating: number;
-  reviewsCount: number;
+  services: string[]; // Catégories (1ère = principale, reste = secondaires)
   linkedinUrl: string;
   facebookUrl: string;
   websiteUrl: string;
   googleId: string;
   googleMapsUrl: string;
-  googleRating: number;
-  googleReviewCount: number;
   portfolioImages: string[];
 }
+
+const DEFAULT_DESCRIPTION = "Professionnel qualifié à votre service. N'hésitez pas à me contacter pour discuter de votre projet et obtenir un devis personnalisé.";
 
 interface ColumnConfig {
   key: keyof ParsedArtisan;
@@ -55,21 +50,16 @@ interface ColumnConfig {
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: "businessName", label: "Nom de l'entreprise", enabled: true, required: true },
-  { key: "description", label: "Description", enabled: true, required: false },
   { key: "email", label: "Email", enabled: true, required: false },
   { key: "phone", label: "Téléphone", enabled: true, required: false },
-  { key: "city", label: "Ville", enabled: true, required: true },
-  { key: "postalCode", label: "Code postal", enabled: true, required: false },
-  { key: "address", label: "Adresse", enabled: true, required: false },
+  { key: "city", label: "Ville (géocodage auto)", enabled: true, required: true },
   { key: "siret", label: "SIRET", enabled: true, required: false },
-  { key: "services", label: "Services", enabled: true, required: false },
+  { key: "services", label: "Catégories (métiers)", enabled: true, required: false },
   { key: "linkedinUrl", label: "LinkedIn", enabled: true, required: false },
   { key: "facebookUrl", label: "Facebook", enabled: true, required: false },
   { key: "websiteUrl", label: "Site Web", enabled: true, required: false },
   { key: "googleId", label: "Google ID", enabled: true, required: false },
   { key: "googleMapsUrl", label: "Lien Google Maps", enabled: true, required: false },
-  { key: "googleRating", label: "Note Google", enabled: true, required: false },
-  { key: "googleReviewCount", label: "Avis Google", enabled: true, required: false },
   { key: "portfolioImages", label: "Images Portfolio", enabled: true, required: false },
 ];
 
@@ -124,25 +114,16 @@ const AdminBulkImport = () => {
   const parseJsonFile = (jsonData: any[]): ParsedArtisan[] => {
     return jsonData.map((item) => ({
       businessName: item.businessName || item.business_name || item.name || "",
-      description: item.about || item.description || "",
       email: item.contact?.email || item.email || "",
       phone: item.contact?.telephone || item.contact?.phone || item.phone || "",
       city: item.contact?.address?.city || item.city || "",
-      postalCode: item.contact?.address?.postalCode || item.postal_code || item.postalCode || "",
-      address: item.contact?.address?.street || item.address || "",
       siret: item.contact?.vatID || item.siret || "",
       services: Array.isArray(item.services) ? item.services : [],
-      // Platform ratings (not Google)
-      rating: 0,
-      reviewsCount: 0,
       linkedinUrl: item.linkedin_url || item.linkedinUrl || item.contact?.linkedin || "",
       facebookUrl: item.facebook_url || item.facebookUrl || item.contact?.facebook || "",
       websiteUrl: item.website_url || item.websiteUrl || item.contact?.website || item.website || "",
-      // Google data
       googleId: item.google_id || item.googleId || "",
       googleMapsUrl: item.link || item.google_maps_url || item.googleMapsUrl || "",
-      googleRating: item.rating || 0,
-      googleReviewCount: item.review_count || item.reviews_count || item.reviewsCount || 0,
       portfolioImages: item.portfolio_images || item.portfolioImages || [],
     }));
   };
@@ -162,8 +143,6 @@ const AdminBulkImport = () => {
       businessname: "businessName",
       entreprise: "businessName",
       "raison sociale": "businessName",
-      description: "description",
-      about: "description",
       email: "email",
       mail: "email",
       telephone: "phone",
@@ -172,12 +151,6 @@ const AdminBulkImport = () => {
       tel: "phone",
       ville: "city",
       city: "city",
-      "code postal": "postalCode",
-      code_postal: "postalCode",
-      postal_code: "postalCode",
-      cp: "postalCode",
-      adresse: "address",
-      address: "address",
       siret: "siret",
       siren: "siret",
       services: "services",
@@ -199,15 +172,6 @@ const AdminBulkImport = () => {
       google_maps_url: "googleMapsUrl",
       "google maps": "googleMapsUrl",
       "lien google": "googleMapsUrl",
-      rating: "googleRating",
-      note: "googleRating",
-      "note google": "googleRating",
-      google_rating: "googleRating",
-      review_count: "googleReviewCount",
-      reviews_count: "googleReviewCount",
-      avis: "googleReviewCount",
-      "avis google": "googleReviewCount",
-      google_review_count: "googleReviewCount",
     };
 
     const columnIndexes: Partial<Record<keyof ParsedArtisan, number>> = {};
@@ -254,24 +218,17 @@ const AdminBulkImport = () => {
 
         return {
           businessName: getValue("businessName"),
-          description: getValue("description"),
           email: getValue("email"),
           phone: getValue("phone"),
           city: getValue("city"),
-          postalCode: getValue("postalCode"),
-          address: getValue("address"),
           siret: getValue("siret"),
           services,
-          rating: 0,
-          reviewsCount: 0,
           linkedinUrl: getValue("linkedinUrl"),
           facebookUrl: getValue("facebookUrl"),
           websiteUrl: getValue("websiteUrl"),
           googleId: getValue("googleId"),
           googleMapsUrl: getValue("googleMapsUrl"),
-          googleRating: parseFloat(getValue("googleRating")) || 0,
-          googleReviewCount: parseInt(getValue("googleReviewCount")) || 0,
-          portfolioImages: [], // CSV support for arrays is complex, skipping for now or handle string split if needed
+          portfolioImages: [], // CSV support for arrays is complex, skipping for now
         };
       })
       .filter((a) => a.businessName || a.city);
@@ -460,22 +417,14 @@ const AdminBulkImport = () => {
             city: artisan.city || "À compléter",
             status: "prospect" as const,
             is_verified: false,
+            description: DEFAULT_DESCRIPTION, // Description générique par défaut
           };
 
-          if (enabledColumns.includes("description")) {
-            artisanData.description = artisan.description;
-          }
           if (enabledColumns.includes("email")) {
             artisanData.email = artisan.email;
           }
           if (enabledColumns.includes("phone")) {
             artisanData.phone = artisan.phone;
-          }
-          if (enabledColumns.includes("postalCode")) {
-            artisanData.postal_code = artisan.postalCode;
-          }
-          if (enabledColumns.includes("address")) {
-            artisanData.address = artisan.address;
           }
           if (enabledColumns.includes("siret")) {
             artisanData.siret = artisan.siret;
@@ -495,12 +444,6 @@ const AdminBulkImport = () => {
           }
           if (enabledColumns.includes("googleMapsUrl") && artisan.googleMapsUrl) {
             artisanData.google_maps_url = artisan.googleMapsUrl;
-          }
-          if (enabledColumns.includes("googleRating") && artisan.googleRating > 0) {
-            artisanData.google_rating = artisan.googleRating;
-          }
-          if (enabledColumns.includes("googleReviewCount") && artisan.googleReviewCount > 0) {
-            artisanData.google_review_count = artisan.googleReviewCount;
           }
           if (enabledColumns.includes("portfolioImages") && artisan.portfolioImages.length > 0) {
             artisanData.portfolio_images = artisan.portfolioImages;
@@ -526,7 +469,7 @@ const AdminBulkImport = () => {
           // Géocodage automatique de la ville
           if (artisan.city && artisan.city !== "À compléter") {
             try {
-              const geoResult = await geocodeCity(artisan.city, artisan.postalCode);
+              const geoResult = await geocodeCity(artisan.city);
               if (geoResult) {
                 artisanData.latitude = geoResult.lat;
                 artisanData.longitude = geoResult.lng;
