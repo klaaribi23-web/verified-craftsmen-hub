@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus, Info, ShieldCheck } from "lucide-react";
+import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus, Info, ShieldCheck, ArrowUp } from "lucide-react";
 import CategoryIcon from "@/components/categories/CategoryIcon";
 import ReviewForm from "@/components/artisan-profile/ReviewForm";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
@@ -1032,13 +1032,24 @@ const ArtisanPublicProfile = () => {
 
       {/* Breadcrumb - Bottom of page */}
       <div className="container mx-auto px-4 py-6">
-        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-foreground transition-colors">Accueil</Link>
-          <span>/</span>
-          <Link to="/trouver-artisan" className="hover:text-foreground transition-colors">Artisans</Link>
-          <span>/</span>
-          <span className="text-foreground font-semibold italic">{artisan.business_name}</span>
-        </nav>
+        <div className="flex items-center justify-between">
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Link to="/" className="hover:text-foreground transition-colors">Accueil</Link>
+            <span>/</span>
+            <Link to="/trouver-artisan" className="hover:text-foreground transition-colors">Artisans</Link>
+            <span>/</span>
+            <span className="text-foreground font-semibold italic">{artisan.business_name}</span>
+          </nav>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="gap-2"
+          >
+            <ArrowUp className="h-4 w-4" />
+            Retour en haut
+          </Button>
+        </div>
       </div>
 
       {/* CTA Section */}
