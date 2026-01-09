@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut, LayoutDashboard, FileText, Settings, MessageCircle } from "lucide-react";
@@ -16,13 +16,61 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { DEFAULT_AVATAR } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [artisanPhotoUrl, setArtisanPhotoUrl] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, role, user, signOut, isLoading } = useAuth();
   const { unreadCount: unreadMessagesCount } = useUnreadMessages();
+
+  // Fetch artisan photo dynamically
+  useEffect(() => {
+    const fetchArtisanPhoto = async () => {
+      if (isAuthenticated && role === "artisan" && user) {
+        const { data } = await supabase
+          .from("artisans")
+          .select("photo_url")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        
+        if (data?.photo_url) {
+          setArtisanPhotoUrl(data.photo_url);
+        }
+      }
+    };
+    
+    fetchArtisanPhoto();
+  }, [isAuthenticated, role, user]);
+
+  // Subscribe to realtime updates for artisan photo
+  useEffect(() => {
+    if (!isAuthenticated || role !== "artisan" || !user) return;
+
+    const channel = supabase
+      .channel('artisan-photo-navbar')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'artisans',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload: any) => {
+          if (payload.new?.photo_url) {
+            setArtisanPhotoUrl(payload.new.photo_url);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAuthenticated, role, user]);
 
   // Get messaging link based on role
   const getMessagingLink = () => {
@@ -154,9 +202,9 @@ const Navbar = () => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar className="h-10 w-10 border-2 border-gold">
-              <AvatarImage src={DEFAULT_AVATAR} alt="Avatar" />
+              <AvatarImage src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR} alt="Avatar" />
               <AvatarFallback className="bg-gold/20 text-navy font-semibold">
-                <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
+                {getUserInitials()}
               </AvatarFallback>
             </Avatar>
           </Button>
