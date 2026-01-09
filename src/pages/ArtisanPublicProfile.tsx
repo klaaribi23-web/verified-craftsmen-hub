@@ -329,32 +329,6 @@ const ArtisanPublicProfile = () => {
                         </div>
                       </div>
 
-                      {artisan.description && (
-                        <div className="mt-4">
-                          <p className="text-muted-foreground leading-relaxed">
-                            {descriptionExpanded || artisan.description.length <= 200
-                              ? artisan.description
-                              : `${artisan.description.slice(0, 200)}...`}
-                          </p>
-                          {artisan.description.length > 200 && (
-                            <Button 
-                              variant="link" 
-                              className="px-0 h-auto text-primary"
-                              onClick={() => setDescriptionExpanded(!descriptionExpanded)}
-                            >
-                              {descriptionExpanded ? (
-                                <>
-                                  Voir moins <ChevronUp className="h-4 w-4 ml-1" />
-                                </>
-                              ) : (
-                                <>
-                                  Voir plus <ChevronDown className="h-4 w-4 ml-1" />
-                                </>
-                              )}
-                            </Button>
-                          )}
-                        </div>
-                      )}
 
                       {/* Social Links */}
                       <div className="flex items-center justify-center md:justify-start gap-3 mt-4">
@@ -372,6 +346,23 @@ const ArtisanPublicProfile = () => {
                           </a>}
                       </div>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Le mot de l'artisan */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                    Le mot de l'artisan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-muted/30 rounded-lg p-4">
+                    <p className="text-muted-foreground italic leading-relaxed text-sm md:text-base">
+                      "{artisan.description || "Artisan passionné par mon métier, je mets tout mon savoir-faire au service de mes clients. Qualité, ponctualité et satisfaction sont mes priorités. N'hésitez pas à me contacter pour discuter de votre projet et obtenir un devis personnalisé adapté à vos besoins."}"
+                    </p>
                   </div>
                 </CardContent>
               </Card>

@@ -563,14 +563,33 @@ export const ArtisanProfile = () => {
               <h3 className="text-lg font-semibold text-foreground mb-6">Informations personnelles</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="bio">Description / Présentation</Label>
+                  <Label htmlFor="bio">Le mot de l'artisan (320 caractères max)</Label>
                   <Textarea 
                     id="bio" 
                     rows={4}
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Décrivez votre activité, vos spécialités, votre expérience..."
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Check for URLs
+                      const urlPattern = /(https?:\/\/|www\.|\.com|\.fr|\.net|\.org|\.io)/i;
+                      if (urlPattern.test(value)) {
+                        return; // Block URL input
+                      }
+                      if (value.length <= 320) {
+                        setDescription(value);
+                      }
+                    }}
+                    placeholder="Décrivez votre activité, vos spécialités, votre expérience... (pas de liens)"
+                    className={description.length > 300 ? "border-amber-500" : ""}
                   />
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-muted-foreground">
+                      Les liens ne sont pas autorisés
+                    </p>
+                    <p className={`text-xs ${description.length > 300 ? "text-amber-500 font-medium" : "text-muted-foreground"}`}>
+                      {description.length}/320
+                    </p>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Prénom</Label>
