@@ -61,6 +61,9 @@ import {
   Calendar,
   UserCheck,
   FileText,
+  Download,
+  File,
+
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -142,6 +145,19 @@ interface PendingMission {
   } | null;
 }
 
+interface ArtisanDocument {
+  id: string;
+  artisan_id: string;
+  name: string;
+  file_name: string;
+  file_path: string;
+  file_size: number | null;
+  status: string;
+  expiry_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 const AdminApprovals = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -154,6 +170,12 @@ const AdminApprovals = () => {
   const [prospectToDelete, setProspectToDelete] = useState<ProspectArtisan | null>(null);
   const [editProspect, setEditProspect] = useState<ProspectArtisan | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  
+  // Documents dialog state
+  const [showDocumentsDialog, setShowDocumentsDialog] = useState(false);
+  const [documentsArtisan, setDocumentsArtisan] = useState<PendingArtisan | null>(null);
+  const [artisanDocuments, setArtisanDocuments] = useState<ArtisanDocument[]>([]);
+  const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
   
   // Pagination state for prospects
   const [prospectPage, setProspectPage] = useState(0);
@@ -696,6 +718,89 @@ const AdminApprovals = () => {
     return { score, total, percentage: Math.round((score / total) * 100) };
   };
 
+  // Load documents for an artisan
+  const loadArtisanDocuments = async (artisan: PendingArtisan) => {
+    setIsLoadingDocuments(true);
+    setDocumentsArtisan(artisan);
+    setShowDocumentsDialog(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from("artisan_documents")
+        .select("*")
+        .eq("artisan_id", artisan.id)
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      setArtisanDocuments(data || []);
+    } catch (error) {
+      console.error("Error loading documents:", error);
+      toast.error("Erreur lors du chargement des documents");
+    } finally {
+      setIsLoadingDocuments(false);
+    }
+  };
+
+  // Get signed URL for document download
+  const getDocumentUrl = async (filePath: string) => {
+    const { data, error } = await supabase.storage
+      .from("artisan-documents")
+      .createSignedUrl(filePath, 3600);
+    
+    if (error) {
+      toast.error("Erreur lors de l'accès au document");
+      return null;
+    }
+    return data.signedUrl;
+  };
+
+  // Approve artisan with email notification
+  const handleApproveArtisan = async (artisan: PendingArtisan) => {
+    try {
+      await approveArtisanMutation.mutateAsync(artisan.id);
+      
+      // Send approval email
+      if (artisan.profile?.email) {
+        await supabase.functions.invoke("send-notification-email", {
+          body: {
+            email: artisan.profile.email,
+            firstName: artisan.profile.first_name || "Artisan",
+            notificationType: "artisan_approved",
+            data: {
+              businessName: artisan.business_name
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error approving artisan:", error);
+    }
+  };
+
+  // Reject artisan with email notification
+  const handleRejectArtisan = async (artisan: PendingArtisan, reason: string) => {
+    try {
+      await rejectArtisanMutation.mutateAsync({ artisanId: artisan.id, reason });
+      
+      // Send rejection email
+      if (artisan.profile?.email) {
+        await supabase.functions.invoke("send-notification-email", {
+          body: {
+            email: artisan.profile.email,
+            firstName: artisan.profile.first_name || "Artisan",
+            notificationType: "artisan_rejected",
+            data: {
+              businessName: artisan.business_name,
+              reason: reason
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error rejecting artisan:", error);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -918,19 +1023,21 @@ const AdminApprovals = () => {
 
                               {/* Actions - Mobile optimized */}
                               <div className="flex flex-wrap gap-1.5 md:gap-2">
-                                <Button variant="outline" size="sm" className="flex-1 min-w-[60px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => setSelectedArtisan(artisan)}>
+                                <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => setSelectedArtisan(artisan)}>
                                   <Eye className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
-                                  <span className="hidden sm:inline">Voir</span>
+                                  <span className="hidden sm:inline">Profil</span>
                                 </Button>
-                                <Button size="sm" className="flex-1 min-w-[60px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => approveArtisanMutation.mutate(artisan.id)} disabled={approveArtisanMutation.isPending}>
+                                <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => loadArtisanDocuments(artisan)}>
+                                  <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                  <span className="hidden sm:inline">Documents</span>
+                                </Button>
+                                <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => handleApproveArtisan(artisan)} disabled={approveArtisanMutation.isPending}>
                                   <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
-                                  <span className="hidden sm:inline">Approuver</span>
-                                  <span className="sm:hidden">OK</span>
+                                  <span className="hidden sm:inline">Accepter</span>
                                 </Button>
-                                <Button variant="destructive" size="sm" className="flex-1 min-w-[60px] text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => { setSelectedArtisan(artisan); setShowRejectDialog(true); }}>
+                                <Button variant="destructive" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => { setSelectedArtisan(artisan); setShowRejectDialog(true); }}>
                                   <XCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
                                   <span className="hidden sm:inline">Refuser</span>
-                                  <span className="sm:hidden">Non</span>
                                 </Button>
                               </div>
                             </div>
@@ -1797,6 +1904,72 @@ const AdminApprovals = () => {
             }}
             artisan={editProspect as any}
           />
+
+          {/* Documents Dialog */}
+          <Dialog open={showDocumentsDialog} onOpenChange={setShowDocumentsDialog}>
+            <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Documents de {documentsArtisan?.business_name}</DialogTitle>
+                <DialogDescription>
+                  Vérifiez les documents soumis par l'artisan
+                </DialogDescription>
+              </DialogHeader>
+              
+              {isLoadingDocuments ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : artisanDocuments.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                  <p className="text-muted-foreground">Aucun document soumis</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {artisanDocuments.map((doc) => (
+                    <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-muted rounded">
+                          <File className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{doc.name}</p>
+                          <p className="text-xs text-muted-foreground">{doc.file_name}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant={doc.status === 'approved' ? 'default' : doc.status === 'rejected' ? 'destructive' : 'secondary'} className="text-xs">
+                              {doc.status === 'approved' ? 'Approuvé' : doc.status === 'rejected' ? 'Refusé' : 'En attente'}
+                            </Badge>
+                            {doc.expiry_date && (
+                              <span className="text-xs text-muted-foreground">
+                                Expire: {new Date(doc.expiry_date).toLocaleDateString('fr-FR')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          const url = await getDocumentUrl(doc.file_path);
+                          if (url) window.open(url, '_blank');
+                        }}
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Voir
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <DialogFooter className="mt-4">
+                <Button variant="outline" onClick={() => setShowDocumentsDialog(false)}>
+                  Fermer
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </>
