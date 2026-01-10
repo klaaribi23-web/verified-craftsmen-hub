@@ -247,6 +247,8 @@ export type Database = {
           qualifications: string[] | null
           rating: number | null
           region: string | null
+          reminder_count: number | null
+          reminder_sent_at: string | null
           review_count: number | null
           siret: string | null
           slug: string | null
@@ -298,6 +300,8 @@ export type Database = {
           qualifications?: string[] | null
           rating?: number | null
           region?: string | null
+          reminder_count?: number | null
+          reminder_sent_at?: string | null
           review_count?: number | null
           siret?: string | null
           slug?: string | null
@@ -349,6 +353,8 @@ export type Database = {
           qualifications?: string[] | null
           rating?: number | null
           region?: string | null
+          reminder_count?: number | null
+          reminder_sent_at?: string | null
           review_count?: number | null
           siret?: string | null
           slug?: string | null
