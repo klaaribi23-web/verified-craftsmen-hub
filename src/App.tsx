@@ -54,6 +54,7 @@ import Contact from "./pages/Contact";
 import APropos from "./pages/APropos";
 import Blog from "./pages/Blog";
 import BlogArticle from "./pages/BlogArticle";
+import MentionsLegales from "./pages/MentionsLegales";
 
 
 const queryClient = new QueryClient();
@@ -85,6 +86,7 @@ const App = () => (
           <Route path="/a-propos" element={<APropos />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogArticle />} />
+          <Route path="/mentions-legales" element={<MentionsLegales />} />
           
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           
