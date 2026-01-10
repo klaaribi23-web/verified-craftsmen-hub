@@ -6,6 +6,7 @@ interface FrenchPhoneInputProps extends Omit<React.InputHTMLAttributes<HTMLInput
   value: string;
   onChange: (value: string) => void;
   error?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -57,8 +58,9 @@ export const fromInternationalFormat = (phone: string): string => {
 };
 
 export const FrenchPhoneInput = forwardRef<HTMLInputElement, FrenchPhoneInputProps>(
-  ({ value, onChange, error, className, ...props }, ref) => {
+  ({ value, onChange, error, disabled, className, ...props }, ref) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (disabled) return;
       // Get only digits from input
       const inputValue = e.target.value;
       const digitsOnly = inputValue.replace(/[^\d]/g, "");
@@ -72,10 +74,11 @@ export const FrenchPhoneInput = forwardRef<HTMLInputElement, FrenchPhoneInputPro
     };
 
     return (
-      <div className="relative flex">
+      <div className={cn("relative flex", disabled && "opacity-60")}>
         {/* French flag and +33 prefix */}
         <div className={cn(
-          "flex items-center gap-1.5 px-3 border border-r-0 rounded-l-md bg-muted/50",
+          "flex items-center gap-1.5 px-3 border border-r-0 rounded-l-md",
+          disabled ? "bg-muted cursor-not-allowed" : "bg-muted/50",
           "border-input text-sm text-muted-foreground",
           error && "border-destructive"
         )}>
@@ -90,9 +93,11 @@ export const FrenchPhoneInput = forwardRef<HTMLInputElement, FrenchPhoneInputPro
           value={value}
           onChange={handleChange}
           placeholder="06 12 34 56 78"
+          disabled={disabled}
           className={cn(
             "rounded-l-none",
             error && "border-destructive focus-visible:ring-destructive",
+            disabled && "bg-muted cursor-not-allowed",
             className
           )}
           {...props}

@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
+import { FrenchPhoneInput, validateFrenchPhone, fromInternationalFormat } from "@/components/ui/french-phone-input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -116,11 +116,11 @@ const DevenirArtisan = () => {
       
       if (!error && data) {
         setClaimArtisan(data);
-        // Pre-fill form with prospect data
+        // Pre-fill form with prospect data (convert phone to local format for display)
         setFormData(prev => ({ 
           ...prev, 
           email: data.email || '',
-          phone: data.phone || '',
+          phone: data.phone ? fromInternationalFormat(data.phone) : '',
           city: data.city || '',
         }));
         if (data.category_id) {
