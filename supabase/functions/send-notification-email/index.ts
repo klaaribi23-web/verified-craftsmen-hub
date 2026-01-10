@@ -12,7 +12,9 @@ type NotificationType =
   | "new_message" 
   | "quote_received" 
   | "quote_accepted" 
-  | "quote_refused";
+  | "quote_refused"
+  | "artisan_approved"
+  | "artisan_rejected";
 
 interface NotificationEmailRequest {
   type: NotificationType;
@@ -24,6 +26,8 @@ interface NotificationEmailRequest {
   quoteAmount?: number;
   // For messages
   messagePreview?: string;
+  // For artisan approval/rejection
+  rejectionReason?: string;
 }
 
 const getEmailContent = (
@@ -32,8 +36,9 @@ const getEmailContent = (
   senderName: string,
   quoteDescription?: string,
   quoteAmount?: number,
-  messagePreview?: string
-): { subject: string; heading: string; message: string; ctaText: string; ctaUrl: string; icon: string; accentColor: string } => {
+  messagePreview?: string,
+  rejectionReason?: string
+): { subject: string; heading: string; message: string; ctaText: string; ctaUrl: string; icon: string; accentColor: string; tipMessage?: string } => {
   const baseUrl = "https://artisansvalides.fr";
   
   switch (type) {
@@ -79,6 +84,30 @@ const getEmailContent = (
         ctaUrl: `${baseUrl}/artisan/missions`,
         icon: "📊",
         accentColor: "#EF4444",
+      };
+
+    case "artisan_approved":
+      return {
+        subject: `🎉 Félicitations ! Votre profil artisan a été validé`,
+        heading: "Bienvenue parmi les Artisans Validés !",
+        message: `<strong>Excellente nouvelle !</strong><br><br>Votre profil a été vérifié et approuvé par notre équipe. Vous êtes désormais un <strong style="color: #16A34A;">Artisan Validé</strong> sur notre plateforme !<br><br>✅ Votre profil est maintenant visible par tous les clients<br>✅ Vous pouvez recevoir des demandes de devis<br>✅ Vous avez accès à toutes les missions disponibles<br><br>Nous vous souhaitons beaucoup de succès !`,
+        ctaText: "Accéder à mon dashboard",
+        ctaUrl: `${baseUrl}/artisan/dashboard`,
+        icon: "🏆",
+        accentColor: "#16A34A",
+        tipMessage: "Complétez votre profil à 100% pour maximiser votre visibilité auprès des clients !",
+      };
+
+    case "artisan_rejected":
+      return {
+        subject: `⚠️ Votre demande de validation nécessite des corrections`,
+        heading: "Des corrections sont nécessaires",
+        message: `Nous avons examiné votre dossier et certains éléments nécessitent des modifications avant de pouvoir valider votre profil.<br><br><strong>Raison du refus :</strong><br><div style="background-color: #FEF2F2; border-left: 4px solid #EF4444; padding: 12px 16px; margin: 12px 0; border-radius: 4px;"><em>${rejectionReason || "Veuillez vérifier vos documents et informations."}</em></div><br>Pas d'inquiétude ! Vous pouvez corriger ces éléments et soumettre à nouveau votre dossier.`,
+        ctaText: "Modifier mon dossier",
+        ctaUrl: `${baseUrl}/artisan/documents`,
+        icon: "📝",
+        accentColor: "#F59E0B",
+        tipMessage: "Besoin d'aide ? Contactez notre équipe support qui vous guidera dans les corrections à apporter.",
       };
     
     default:
@@ -176,7 +205,7 @@ const getEmailTemplate = (
                 <tr>
                   <td style="padding: 16px 20px;">
                     <p style="margin: 0; font-size: 13px; color: #666666; text-align: center;">
-                      💡 <strong>Astuce :</strong> Répondez rapidement pour maximiser vos chances de succès !
+                      💡 <strong>Astuce :</strong> ${content.tipMessage || "Répondez rapidement pour maximiser vos chances de succès !"}
                     </p>
                   </td>
                 </tr>
@@ -243,7 +272,8 @@ const handler = async (req: Request): Promise<Response> => {
       senderName,
       quoteDescription,
       quoteAmount,
-      messagePreview 
+      messagePreview,
+      rejectionReason
     }: NotificationEmailRequest = await req.json();
 
     console.log("Sending notification email:", { type, recipientEmail, senderName });
@@ -254,7 +284,8 @@ const handler = async (req: Request): Promise<Response> => {
       senderName, 
       quoteDescription, 
       quoteAmount, 
-      messagePreview
+      messagePreview,
+      rejectionReason
     );
     
     const html = getEmailTemplate(recipientFirstName, content);
