@@ -43,6 +43,77 @@ const TIER_PRIORITIES: Record<string, { min: number; max: number } | number> = {
   free: 100,
 };
 
+// Plan names for notifications
+const PLAN_NAMES: Record<string, string> = {
+  free: "Gratuit",
+  essential: "Essentiel",
+  pro: "Pro",
+  elite: "Elite",
+};
+
+// Plan prices for notifications
+const PLAN_PRICES: Record<string, Record<string, string>> = {
+  essential: { monthly: "29,90", yearly: "299" },
+  pro: { monthly: "59,90", yearly: "599" },
+  elite: { monthly: "99,90", yearly: "999" },
+};
+
+// Tier priority for comparison (lower = higher tier)
+const TIER_ORDER: Record<string, number> = {
+  elite: 1,
+  pro: 2,
+  essential: 3,
+  free: 4,
+};
+
+type SubscriptionNotificationType =
+  | "subscription_started"
+  | "subscription_upgraded"
+  | "subscription_downgraded"
+  | "subscription_canceled";
+
+const sendSubscriptionNotification = async (
+  userId: string,
+  type: SubscriptionNotificationType,
+  planDetails: {
+    previousTier?: string;
+    newTier: string;
+    planName: string;
+    previousPlanName?: string;
+    price?: string;
+    interval?: string;
+    subscriptionEnd?: string;
+  }
+) => {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (!supabaseUrl || !serviceRoleKey) {
+      logStep("Missing environment variables for notification");
+      return;
+    }
+
+    const response = await fetch(`${supabaseUrl}/functions/v1/send-subscription-notification`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${serviceRoleKey}`,
+      },
+      body: JSON.stringify({ userId, type, planDetails }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logStep("Notification failed", { status: response.status, error: errorText });
+    } else {
+      logStep("Notification sent successfully", { type, newTier: planDetails.newTier });
+    }
+  } catch (error) {
+    logStep("Error sending notification", { error: error instanceof Error ? error.message : error });
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -106,6 +177,16 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Get current artisan data to detect changes
+    const { data: currentArtisan } = await supabaseClient
+      .from("artisans")
+      .select("subscription_tier")
+      .eq("user_id", user.id)
+      .single();
+
+    const previousTier = currentArtisan?.subscription_tier || "free";
+    logStep("Current artisan tier", { previousTier });
+
     // Get active subscriptions
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
@@ -115,6 +196,19 @@ serve(async (req) => {
 
     if (subscriptions.data.length === 0) {
       logStep("No active subscription found");
+      
+      // Check if this is a cancellation (was paying, now free)
+      if (previousTier !== "free") {
+        logStep("Subscription canceled detected", { previousTier });
+        
+        // Send cancellation notification
+        await sendSubscriptionNotification(user.id, "subscription_canceled", {
+          previousTier,
+          newTier: "free",
+          planName: PLAN_NAMES["free"],
+          previousPlanName: PLAN_NAMES[previousTier] || previousTier,
+        });
+      }
       
       // Update artisan to free tier
       await supabaseClient
@@ -148,6 +242,41 @@ serve(async (req) => {
     const subscriptionStart = new Date(subscription.start_date * 1000).toISOString();
 
     logStep("Active subscription found", { subscriptionId: subscription.id, priceId, tier, subscriptionEnd, subscriptionStart, billingInterval });
+
+    // Detect subscription changes and send notifications
+    if (previousTier !== tier) {
+      logStep("Subscription tier changed", { previousTier, newTier: tier });
+      
+      const planPrice = PLAN_PRICES[tier]?.[billingInterval];
+      const planDetails = {
+        previousTier,
+        newTier: tier,
+        planName: PLAN_NAMES[tier] || tier,
+        previousPlanName: PLAN_NAMES[previousTier] || previousTier,
+        price: planPrice,
+        interval: billingInterval,
+        subscriptionEnd,
+      };
+
+      let notificationType: SubscriptionNotificationType;
+
+      if (previousTier === "free" && tier !== "free") {
+        // New subscription
+        notificationType = "subscription_started";
+        logStep("New subscription detected");
+      } else if (TIER_ORDER[tier] < TIER_ORDER[previousTier]) {
+        // Upgrade (lower order = higher tier)
+        notificationType = "subscription_upgraded";
+        logStep("Upgrade detected");
+      } else {
+        // Downgrade (but not to free, that's handled above)
+        notificationType = "subscription_downgraded";
+        logStep("Downgrade detected");
+      }
+
+      // Send notification asynchronously (don't block the response)
+      sendSubscriptionNotification(user.id, notificationType, planDetails);
+    }
 
     // Get payment method info
     let paymentMethod = null;
