@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useEffect, useState } from "react";
 import { createQuoteNotification } from "./useQuoteNotifications";
+import { sendNotificationEmail, getUserEmailInfo, getArtisanName, getClientName } from "@/lib/notificationEmails";
 
 export interface Quote {
   id: string;
@@ -183,6 +184,19 @@ export const useQuotes = () => {
           `${artisanData?.business_name || "Un artisan"} vous a envoyé un devis de ${priceTtc.toFixed(2)}€`,
           quote.id
         );
+
+        // Send email notification
+        const clientEmailInfo = await getUserEmailInfo(clientId);
+        if (clientEmailInfo) {
+          sendNotificationEmail({
+            type: "quote_received",
+            recipientEmail: clientEmailInfo.email,
+            recipientFirstName: clientEmailInfo.firstName,
+            senderName: artisanData?.business_name || "Un artisan",
+            quoteDescription: description,
+            quoteAmount: priceTtc,
+          }).catch(err => console.error("Quote email notification error:", err));
+        }
       }
 
       return quote;
@@ -260,6 +274,28 @@ export const useQuotes = () => {
             : `${clientName} a refusé votre devis`,
           quoteId
         );
+
+        // Send email notification to artisan
+        // Get artisan's profile to find email
+        const { data: artisanProfile } = await supabase
+          .from("artisans")
+          .select("profile_id")
+          .eq("id", quoteData?.artisan_id)
+          .single();
+
+        if (artisanProfile?.profile_id) {
+          const artisanEmailInfo = await getUserEmailInfo(artisanProfile.profile_id);
+          if (artisanEmailInfo) {
+            sendNotificationEmail({
+              type: status === "accepted" ? "quote_accepted" : "quote_refused",
+              recipientEmail: artisanEmailInfo.email,
+              recipientFirstName: artisanEmailInfo.firstName,
+              senderName: clientName,
+              quoteDescription: undefined, // Could fetch if needed
+              quoteAmount: quoteData?.price_ttc || undefined,
+            }).catch(err => console.error("Quote status email notification error:", err));
+          }
+        }
       }
 
       return data;

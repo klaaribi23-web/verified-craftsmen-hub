@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
+import { sendNotificationEmail, getUserEmailInfo } from "@/lib/notificationEmails";
+
 interface Message {
   id: string;
   sender_id: string;
@@ -267,6 +269,18 @@ export const useMessaging = () => {
             : `Vous avez reçu un nouveau message de ${senderName}`,
           p_related_id: data.id,
         });
+
+        // Send email notification (async, don't wait)
+        const receiverEmailInfo = await getUserEmailInfo(receiverId);
+        if (receiverEmailInfo) {
+          sendNotificationEmail({
+            type: "new_message",
+            recipientEmail: receiverEmailInfo.email,
+            recipientFirstName: receiverEmailInfo.firstName,
+            senderName,
+            messagePreview: attachment ? `📎 ${attachment.name}` : content,
+          }).catch(err => console.error("Email notification error:", err));
+        }
       }
 
       return data;
