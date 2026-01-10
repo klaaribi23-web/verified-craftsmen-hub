@@ -4,7 +4,9 @@ type NotificationType =
   | "new_message" 
   | "quote_received" 
   | "quote_accepted" 
-  | "quote_refused";
+  | "quote_refused"
+  | "artisan_approved"
+  | "artisan_rejected";
 
 interface SendNotificationEmailParams {
   type: NotificationType;
@@ -14,6 +16,7 @@ interface SendNotificationEmailParams {
   quoteDescription?: string;
   quoteAmount?: number;
   messagePreview?: string;
+  rejectionReason?: string;
 }
 
 export const sendNotificationEmail = async (params: SendNotificationEmailParams): Promise<boolean> => {
