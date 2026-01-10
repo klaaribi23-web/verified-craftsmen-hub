@@ -40,5 +40,5 @@ Disallow: /accueil-old/
 Disallow: /artisansvalides
 Disallow: /artisansvalides/
 
-# Sitemap
-Sitemap: https://artisansvalides.fr/sitemap.xml
+# Sitemap dynamique (inclut tous les profils artisans)
+Sitemap: https://nkeodfivjnhawzrezuqp.supabase.co/functions/v1/sitemap
