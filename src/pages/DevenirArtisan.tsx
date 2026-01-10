@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { cn } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FrenchPhoneInput, validateFrenchPhone, fromInternationalFormat } from "@/components/ui/french-phone-input";
+import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,17 +80,7 @@ const artisanSignupSchema = z.object({
 
 const DevenirArtisan = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const claimSlug = searchParams.get('claim');
   const [isLoading, setIsLoading] = useState(false);
-  const [claimArtisan, setClaimArtisan] = useState<{ 
-    id: string; 
-    email: string | null; 
-    business_name: string;
-    phone: string | null;
-    city: string | null;
-    category_id: string | null;
-  } | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [formData, setFormData] = useState({
     firstName: "",
@@ -101,36 +90,6 @@ const DevenirArtisan = () => {
     city: "",
     password: "",
   });
-
-  // Fetch artisan data if claiming
-  useEffect(() => {
-    const fetchClaimArtisan = async () => {
-      if (!claimSlug) return;
-      
-      const { data, error } = await supabase
-        .from('artisans')
-        .select('id, email, business_name, phone, city, category_id')
-        .eq('slug', claimSlug)
-        .eq('status', 'prospect')
-        .maybeSingle();
-      
-      if (!error && data) {
-        setClaimArtisan(data);
-        // Pre-fill form with prospect data (convert phone to local format for display)
-        setFormData(prev => ({ 
-          ...prev, 
-          email: data.email || '',
-          phone: data.phone ? fromInternationalFormat(data.phone) : '',
-          city: data.city || '',
-        }));
-        if (data.category_id) {
-          setSelectedCategoryId(data.category_id);
-        }
-      }
-    };
-    
-    fetchClaimArtisan();
-  }, [claimSlug]);
 
   const updateForm = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -166,8 +125,8 @@ const DevenirArtisan = () => {
         return;
       }
 
-      // Check categories (only for new registrations, not claims)
-      if (!claimSlug && !selectedCategoryId) {
+      // Check categories
+      if (!selectedCategoryId) {
         toast({
           title: "Métier requis",
           description: "Veuillez sélectionner votre métier principal",
@@ -205,11 +164,6 @@ const DevenirArtisan = () => {
           return;
         }
 
-        // If claiming, store the claim slug for AuthCallback to handle
-        if (claimSlug) {
-          localStorage.setItem('artisan_claim_slug', claimSlug);
-        }
-
         // Wait for profile to be created by trigger
         await new Promise(resolve => setTimeout(resolve, 1000));
         
@@ -220,45 +174,41 @@ const DevenirArtisan = () => {
           .single();
 
         if (profile) {
-          // Only create new artisan profile if NOT claiming an existing one
-          if (!claimSlug) {
-            // Create minimal artisan profile with primary category
-            const { data: artisanData, error: artisanError } = await supabase
-              .from("artisans")
-              .insert([{
-                user_id: data.user.id,
-                profile_id: profile.id,
-                business_name: "Non renseigné",
-                city: formData.city || "Non renseigné",
-                status: "pending",
-                category_id: selectedCategoryId || null,
-                description: null,
-                photo_url: null,
-                portfolio_images: null,
-                portfolio_videos: null,
-                experience_years: 0,
-                rating: 0,
-                review_count: 0,
-                missions_completed: 0,
-                availability: {},
-              }])
-              .select("id")
-              .single();
+          // Create minimal artisan profile with primary category
+          const { data: artisanData, error: artisanError } = await supabase
+            .from("artisans")
+            .insert([{
+              user_id: data.user.id,
+              profile_id: profile.id,
+              business_name: "Non renseigné",
+              city: formData.city || "Non renseigné",
+              status: "pending",
+              category_id: selectedCategoryId || null,
+              description: null,
+              photo_url: null,
+              portfolio_images: null,
+              portfolio_videos: null,
+              experience_years: 0,
+              rating: 0,
+              review_count: 0,
+              missions_completed: 0,
+            }])
+            .select("id")
+            .single();
 
-            if (artisanError) {
-              console.error("Error creating artisan:", artisanError);
-            } else if (artisanData && selectedCategoryId) {
-              // Insert primary category into artisan_categories
-              const { error: catError } = await supabase
-                .from("artisan_categories")
-                .insert([{
-                  artisan_id: artisanData.id,
-                  category_id: selectedCategoryId,
-                }]);
-              
-              if (catError) {
-                console.error("Error inserting category:", catError);
-              }
+          if (artisanError) {
+            console.error("Error creating artisan:", artisanError);
+          } else if (artisanData && selectedCategoryId) {
+            // Insert primary category into artisan_categories
+            const { error: catError } = await supabase
+              .from("artisan_categories")
+              .insert([{
+                artisan_id: artisanData.id,
+                category_id: selectedCategoryId,
+              }]);
+            
+            if (catError) {
+              console.error("Error inserting category:", catError);
             }
           }
 
@@ -282,7 +232,6 @@ const DevenirArtisan = () => {
           });
         } catch (emailError) {
           console.error("Error sending custom email:", emailError);
-          // Continue anyway, Supabase will send default email
         }
 
         // Show confirmation message
@@ -373,26 +322,12 @@ const DevenirArtisan = () => {
                 transition={{ delay: 0.2 }}
               >
                 <div className="bg-white rounded-2xl p-8 shadow-floating">
-                  {claimArtisan && (
-                    <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                      <p className="text-sm font-medium text-amber-800 mb-1">
-                        Vous revendiquez la fiche :
-                      </p>
-                      <p className="text-lg font-bold text-amber-900">
-                        {claimArtisan.business_name}
-                      </p>
-                      <p className="text-xs text-amber-700 mt-1">
-                        Créez votre compte pour gérer cette fiche.
-                      </p>
-                    </div>
-                  )}
-                  
                   <div className="text-center mb-6">
                     <h2 className="text-xl font-bold text-navy mb-2">
-                      {claimSlug ? "Revendiquer ma fiche" : "Créer mon compte artisan"}
+                      Créer mon compte artisan
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      {claimSlug ? "Finalisez votre inscription" : "Inscription rapide en 2 minutes"}
+                      Inscription rapide en 2 minutes
                     </p>
                   </div>
 
@@ -430,15 +365,9 @@ const DevenirArtisan = () => {
                         placeholder="contact@monentreprise.fr"
                         value={formData.email}
                         onChange={(e) => updateForm("email", e.target.value)}
-                        className={cn("mt-1.5", claimArtisan?.email && "bg-muted cursor-not-allowed")}
+                        className="mt-1.5"
                         required
-                        disabled={!!claimArtisan?.email}
                       />
-                      {claimArtisan?.email && (
-                        <p className="text-xs text-amber-600 mt-1">
-                          Email pré-rempli depuis votre fiche vitrine
-                        </p>
-                      )}
                     </div>
 
                     <div>
@@ -463,14 +392,8 @@ const DevenirArtisan = () => {
                           id="phone"
                           value={formData.phone}
                           onChange={(value) => updateForm("phone", value)}
-                          disabled={!!claimArtisan?.phone}
                         />
                       </div>
-                      {claimArtisan?.phone && (
-                        <p className="text-xs text-amber-600 mt-1">
-                          Téléphone pré-rempli depuis votre fiche vitrine
-                        </p>
-                      )}
                     </div>
 
                     <div>
@@ -481,18 +404,11 @@ const DevenirArtisan = () => {
                           onValueChange={(id) => setSelectedCategoryId(id)}
                           placeholder="Sélectionnez votre métier..."
                           allowParentSelection={false}
-                          disabled={!!claimArtisan?.category_id}
                         />
                       </div>
-                      {claimArtisan?.category_id ? (
-                        <p className="text-xs text-amber-600 mt-1">
-                          Métier pré-rempli depuis votre fiche vitrine
-                        </p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Vous pourrez ajouter des compétences secondaires dans votre tableau de bord
-                        </p>
-                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Vous pourrez ajouter des compétences secondaires dans votre tableau de bord
+                      </p>
                     </div>
 
                     <div>
@@ -503,14 +419,8 @@ const DevenirArtisan = () => {
                           onChange={(value) => updateForm("city", value)}
                           placeholder="Tapez votre ville..."
                           required
-                          disabled={!!claimArtisan?.city}
                         />
                       </div>
-                      {claimArtisan?.city && (
-                        <p className="text-xs text-amber-600 mt-1">
-                          Ville pré-remplie depuis votre fiche vitrine
-                        </p>
-                      )}
                     </div>
 
                     <Button 
