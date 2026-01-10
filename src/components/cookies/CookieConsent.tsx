@@ -33,6 +33,7 @@ const STORAGE_KEY = "artisans-valides-cookie-preferences";
 export const CookieConsent = () => {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [hasConsented, setHasConsented] = useState(false);
   const [preferences, setPreferences] = useState<CookiePreferences>(DEFAULT_PREFERENCES);
 
   useEffect(() => {
@@ -41,7 +42,9 @@ export const CookieConsent = () => {
       try {
         const parsed = JSON.parse(stored) as CookiePreferences;
         setPreferences(parsed);
-        if (!parsed.consented) {
+        if (parsed.consented) {
+          setHasConsented(true);
+        } else {
           setShowBanner(true);
         }
       } catch {
@@ -62,6 +65,7 @@ export const CookieConsent = () => {
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     setPreferences(toSave);
+    setHasConsented(true);
     setShowBanner(false);
     setShowSettings(false);
   };
@@ -90,10 +94,30 @@ export const CookieConsent = () => {
     savePreferences(preferences);
   };
 
-  if (!showBanner && !showSettings) return null;
+  const openSettingsFromButton = () => {
+    setShowSettings(true);
+  };
 
   return (
     <>
+      {/* Discrete Cookie Settings Button - shown after consent */}
+      <AnimatePresence>
+        {hasConsented && !showBanner && !showSettings && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            onClick={openSettingsFromButton}
+            className="fixed bottom-4 left-4 z-40 p-3 bg-card border border-border rounded-full shadow-lg hover:shadow-xl hover:bg-muted transition-all group"
+            aria-label="Gérer les cookies"
+            title="Gérer les cookies"
+          >
+            <Cookie className="w-5 h-5 text-muted-foreground group-hover:text-navy transition-colors" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       {/* Cookie Banner */}
       <AnimatePresence>
         {showBanner && !showSettings && (
