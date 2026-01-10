@@ -7,22 +7,22 @@ const Footer = () => {
   const footerLinks = {
     services: [{
       label: "Plombier",
-      href: "/artisans/plombier"
+      href: "/trouver-artisan"
     }, {
       label: "Électricien",
-      href: "/artisans/electricien"
+      href: "/trouver-artisan"
     }, {
       label: "Chauffagiste",
-      href: "/artisans/chauffagiste"
+      href: "/trouver-artisan"
     }, {
       label: "Peintre",
-      href: "/artisans/peintre"
+      href: "/trouver-artisan"
     }, {
       label: "Serrurier",
-      href: "/artisans/serrurier"
+      href: "/trouver-artisan"
     }, {
       label: "Maçon",
-      href: "/artisans/macon"
+      href: "/trouver-artisan"
     }],
     company: [{
       label: "À propos",
