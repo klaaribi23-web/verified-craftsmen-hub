@@ -177,6 +177,11 @@ const AdminApprovals = () => {
   const [artisanDocuments, setArtisanDocuments] = useState<ArtisanDocument[]>([]);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
   
+  // Pre-registration confirmation dialog state
+  const [showPreregistrationDialog, setShowPreregistrationDialog] = useState(false);
+  const [preregistrationProspect, setPreregistrationProspect] = useState<{ prospect: ProspectArtisan; email: string } | null>(null);
+  const [isSendingPreregistration, setIsSendingPreregistration] = useState(false);
+  
   // Pagination state for prospects
   const [prospectPage, setProspectPage] = useState(0);
   const [prospectsPerPage, setProspectsPerPage] = useState(PROSPECTS_PER_PAGE);
@@ -1325,30 +1330,9 @@ const AdminApprovals = () => {
                                           return;
                                         }
                                         
-                                        if (!confirm(`Envoyer un mail de pré-inscription à ${prospect.business_name} (${artisanData.email}) ?\n\nCette action passera la vitrine en "Vitrine en attente".`)) {
-                                          return;
-                                        }
-                                        
-                                        try {
-                                          const { error } = await supabase.functions.invoke('send-preregistration-email', {
-                                            body: {
-                                              artisanId: prospect.id,
-                                              artisanEmail: artisanData.email,
-                                              artisanName: prospect.business_name,
-                                            }
-                                          });
-                                          
-                                          if (error) throw error;
-                                          
-                                          toast.success(`Email de pré-inscription envoyé à ${prospect.business_name}`);
-                                          queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
-                                          queryClient.invalidateQueries({ queryKey: ["prospect-artisans-count"] });
-                                          queryClient.invalidateQueries({ queryKey: ["claimed-artisans"] });
-                                          queryClient.invalidateQueries({ queryKey: ["claimed-artisans-count"] });
-                                        } catch (err: any) {
-                                          console.error('Error sending pre-registration email:', err);
-                                          toast.error("Erreur lors de l'envoi de l'email");
-                                        }
+                                        // Show confirmation dialog instead of native confirm()
+                                        setPreregistrationProspect({ prospect, email: artisanData.email });
+                                        setShowPreregistrationDialog(true);
                                       }}
                                     >
                                       <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
@@ -1966,6 +1950,77 @@ const AdminApprovals = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          {/* Pre-registration Confirmation AlertDialog */}
+          <AlertDialog open={showPreregistrationDialog} onOpenChange={setShowPreregistrationDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-amber-500" />
+                  Confirmer l'envoi de pré-inscription
+                </AlertDialogTitle>
+                <AlertDialogDescription className="space-y-2">
+                  <p>
+                    Vous allez envoyer un email de pré-inscription à <strong>{preregistrationProspect?.prospect.business_name}</strong> ({preregistrationProspect?.email}).
+                  </p>
+                  <p className="text-amber-600 font-medium">
+                    Cette action passera la vitrine en "Vitrine en attente".
+                  </p>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isSendingPreregistration}>
+                  Annuler
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-amber-500 hover:bg-amber-600"
+                  disabled={isSendingPreregistration}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!preregistrationProspect) return;
+                    
+                    setIsSendingPreregistration(true);
+                    try {
+                      const { error } = await supabase.functions.invoke('send-preregistration-email', {
+                        body: {
+                          artisanId: preregistrationProspect.prospect.id,
+                          artisanEmail: preregistrationProspect.email,
+                          artisanName: preregistrationProspect.prospect.business_name,
+                        }
+                      });
+                      
+                      if (error) throw error;
+                      
+                      toast.success(`Email de pré-inscription envoyé à ${preregistrationProspect.prospect.business_name}`);
+                      queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+                      queryClient.invalidateQueries({ queryKey: ["prospect-artisans-count"] });
+                      queryClient.invalidateQueries({ queryKey: ["claimed-artisans"] });
+                      queryClient.invalidateQueries({ queryKey: ["claimed-artisans-count"] });
+                      setShowPreregistrationDialog(false);
+                      setPreregistrationProspect(null);
+                    } catch (err: any) {
+                      console.error('Error sending pre-registration email:', err);
+                      toast.error("Erreur lors de l'envoi de l'email");
+                    } finally {
+                      setIsSendingPreregistration(false);
+                    }
+                  }}
+                >
+                  {isSendingPreregistration ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="h-4 w-4 mr-2" />
+                      Envoyer l'email
+                    </>
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </main>
       </div>
     </>
