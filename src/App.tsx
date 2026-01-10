@@ -57,7 +57,7 @@ import BlogArticle from "./pages/BlogArticle";
 import MentionsLegales from "./pages/MentionsLegales";
 import CGU from "./pages/CGU";
 import Confidentialite from "./pages/Confidentialite";
-
+import CookieConsent from "./components/cookies/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -262,6 +262,9 @@ const App = () => (
         
         {/* Global Mobile Navbar for authenticated clients & artisans */}
         <GlobalMobileNavbar />
+        
+        {/* GDPR Cookie Consent Banner */}
+        <CookieConsent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
