@@ -44,11 +44,11 @@ import AdminMessaging from "./pages/admin/AdminMessaging";
 import AdminAddArtisan from "./pages/admin/AdminAddArtisan";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminSettings from "./pages/admin/AdminSettings";
-import AdminDocuments from "./pages/admin/AdminDocuments";
 import AdminBulkImport from "./pages/admin/AdminBulkImport";
 import AdminRecommendations from "./pages/admin/AdminRecommendations";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
+import ActivateAccount from "./pages/ActivateAccount";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Contact from "./pages/Contact";
@@ -87,6 +87,7 @@ const App = () => (
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/activer-compte" element={<ActivateAccount />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/contact" element={<Contact />} />
@@ -246,9 +247,9 @@ const App = () => (
               <AdminSettings />
             </ProtectedRoute>
           } />
-          <Route path="/admin/documents" element={
+          <Route path="/admin/import-massif" element={
             <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminDocuments />
+              <AdminBulkImport />
             </ProtectedRoute>
           } />
           <Route path="/admin/import-massif" element={

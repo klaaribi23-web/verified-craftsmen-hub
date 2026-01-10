@@ -28,7 +28,6 @@ import { usePendingRecommendationsCount } from "@/hooks/useRecommendations";
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin/dashboard" },
   { icon: UserCheck, label: "Approbations", path: "/admin/approbations", badge: "approvals" },
-  { icon: FileText, label: "Documents", path: "/admin/documents", badge: "documents" },
   { icon: ThumbsUp, label: "Recommandations", path: "/admin/recommandations", badge: "recommendations" },
   { icon: Users, label: "Artisans", path: "/admin/artisans" },
   { icon: UserCheck, label: "Clients", path: "/admin/clients" },
@@ -107,11 +106,6 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
               {item.badge === "approvals" && pendingApprovalsCount > 0 && (
                 <Badge className="ml-auto bg-destructive text-destructive-foreground text-xs px-2">
                   {pendingApprovalsCount}
-                </Badge>
-              )}
-              {item.badge === "documents" && pendingDocumentsCount > 0 && (
-                <Badge className="ml-auto bg-destructive text-destructive-foreground text-xs px-2">
-                  {pendingDocumentsCount}
                 </Badge>
               )}
               {item.badge === "recommendations" && pendingRecommendationsCount > 0 && (

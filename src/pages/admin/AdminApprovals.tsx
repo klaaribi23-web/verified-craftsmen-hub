@@ -1067,7 +1067,7 @@ const AdminApprovals = () => {
                   </TabsTrigger>
                   <TabsTrigger value="revendiquees" className="gap-1.5">
                     <UserCheck className="h-4 w-4" />
-                    Revendiquées
+                    Vitrine en attente
                     <Badge variant="secondary" className="ml-1 text-xs">{totalClaimed}</Badge>
                   </TabsTrigger>
                 </TabsList>
@@ -1183,7 +1183,7 @@ const AdminApprovals = () => {
                                     )}
                                   </div>
 
-                                  <div className="grid grid-cols-3 gap-2">
+                                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     <Button 
                                       variant="outline" 
                                       size="sm" 
@@ -1204,6 +1204,52 @@ const AdminApprovals = () => {
                                     >
                                       <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                       <span className="hidden sm:inline">Modifier</span>
+                                    </Button>
+                                    <Button
+                                      variant="default" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 bg-amber-500 hover:bg-amber-600"
+                                      onClick={async () => {
+                                        // Get artisan email first
+                                        const { data: artisanData } = await supabase
+                                          .from('artisans')
+                                          .select('email')
+                                          .eq('id', prospect.id)
+                                          .single();
+                                        
+                                        if (!artisanData?.email) {
+                                          toast.error("Cet artisan n'a pas d'email. Ajoutez un email avant d'envoyer l'invitation.");
+                                          return;
+                                        }
+                                        
+                                        if (!confirm(`Envoyer un mail de pré-inscription à ${prospect.business_name} (${artisanData.email}) ?\n\nCette action passera la vitrine en "Vitrine en attente".`)) {
+                                          return;
+                                        }
+                                        
+                                        try {
+                                          const { error } = await supabase.functions.invoke('send-preregistration-email', {
+                                            body: {
+                                              artisanId: prospect.id,
+                                              artisanEmail: artisanData.email,
+                                              artisanName: prospect.business_name,
+                                            }
+                                          });
+                                          
+                                          if (error) throw error;
+                                          
+                                          toast.success(`Email de pré-inscription envoyé à ${prospect.business_name}`);
+                                          queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+                                          queryClient.invalidateQueries({ queryKey: ["prospect-artisans-count"] });
+                                          queryClient.invalidateQueries({ queryKey: ["claimed-artisans"] });
+                                          queryClient.invalidateQueries({ queryKey: ["claimed-artisans-count"] });
+                                        } catch (err: any) {
+                                          console.error('Error sending pre-registration email:', err);
+                                          toast.error("Erreur lors de l'envoi de l'email");
+                                        }
+                                      }}
+                                    >
+                                      <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                      <span className="hidden sm:inline">Pré-inscription</span>
                                     </Button>
                                     <Button
                                       variant="destructive" 

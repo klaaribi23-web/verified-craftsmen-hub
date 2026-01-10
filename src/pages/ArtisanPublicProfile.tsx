@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MapPin, Phone, Mail, Star, Shield, Clock, CheckCircle2, FileCheck, MessageSquare, Wrench, Award, ThumbsUp, Facebook, Instagram, Linkedin, Globe, ExternalLink, Share2, Copy, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, UserPlus, Info, ShieldCheck, ArrowUp, FileText } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import CategoryIcon from "@/components/categories/CategoryIcon";
 import RecommendationsSection from "@/components/artisan-profile/RecommendationsSection";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
@@ -371,19 +371,57 @@ const ArtisanPublicProfile = () => {
                 <Card>
                   <CardContent className="p-3 md:p-4">
                     <div className="flex flex-col gap-2">
-                      {/* Bouton Revendiquer pour les prospects */}
+                      {/* Bouton Revendiquer pour les prospects - Affiche un pop-up contact */}
                       {artisan.status === 'prospect' && (
-                        <div className="text-center mb-2 pb-3 border-b">
-                          <p className="text-xs text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
-                          <p className="text-sm font-bold text-amber-600 mb-2">Revendiquez votre fiche</p>
-                          <Button 
-                            className="w-full bg-amber-500 hover:bg-amber-600 text-white gap-2" 
-                            onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
-                          >
-                            <UserPlus className="h-4 w-4" />
-                            Revendiquer cette fiche
-                          </Button>
-                        </div>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <div className="text-center mb-2 pb-3 border-b cursor-pointer">
+                              <p className="text-xs text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
+                              <p className="text-sm font-bold text-amber-600 mb-2">Revendiquez votre fiche</p>
+                              <Button 
+                                className="w-full bg-amber-500 hover:bg-amber-600 text-white gap-2" 
+                              >
+                                <UserPlus className="h-4 w-4" />
+                                Revendiquer cette fiche
+                              </Button>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle className="flex items-center gap-2">
+                                <Info className="h-5 w-5 text-amber-500" />
+                                Revendiquer cette fiche
+                              </DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <p className="text-muted-foreground">
+                                Vous êtes <strong>{artisan.business_name}</strong> ? C'est votre entreprise ?
+                              </p>
+                              <p className="text-muted-foreground">
+                                Pour activer votre fiche et gérer votre profil, contactez-nous directement :
+                              </p>
+                              <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                                <a 
+                                  href="tel:+33123456789" 
+                                  className="flex items-center gap-3 text-primary hover:underline font-medium"
+                                >
+                                  <Phone className="h-5 w-5" />
+                                  01 23 45 67 89
+                                </a>
+                                <a 
+                                  href="mailto:contact@artisansvalides.fr" 
+                                  className="flex items-center gap-3 text-primary hover:underline font-medium"
+                                >
+                                  <Mail className="h-5 w-5" />
+                                  contact@artisansvalides.fr
+                                </a>
+                              </div>
+                              <p className="text-xs text-muted-foreground text-center">
+                                Notre équipe vérifiera votre identité et activera votre compte.
+                              </p>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       )}
                       
                       <Button 
@@ -837,27 +875,65 @@ const ArtisanPublicProfile = () => {
             {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
             <div className="hidden lg:block lg:col-span-1 space-y-6">
               
-              {/* 1. SECTION REVENDICATION - Alignée avec le header profil (uniquement prospect) */}
+              {/* 1. SECTION REVENDICATION - Pop-up contact (uniquement prospect) */}
               {artisan.status === 'prospect' && (
-                <Card className="min-h-[280px] flex flex-col justify-center">
-                  <CardContent className="p-6">
-                    <div className="text-center mb-3">
-                      <p className="text-sm text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
-                      <p className="text-lg font-bold text-amber-600">Revendiquez votre fiche</p>
+                <Dialog>
+                  <Card className="min-h-[280px] flex flex-col justify-center">
+                    <CardContent className="p-6">
+                      <div className="text-center mb-3">
+                        <p className="text-sm text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
+                        <p className="text-lg font-bold text-amber-600">Revendiquez votre fiche</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground text-center mb-3">
+                        Cette fiche a été créée pour vous. Réclamez-la pour gérer votre profil et recevoir des demandes de clients.
+                      </p>
+                      <DialogTrigger asChild>
+                        <Button 
+                          className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
+                          size="lg" 
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Revendiquer cette fiche
+                        </Button>
+                      </DialogTrigger>
+                    </CardContent>
+                  </Card>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Info className="h-5 w-5 text-amber-500" />
+                        Revendiquer cette fiche
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <p className="text-muted-foreground">
+                        Vous êtes <strong>{artisan.business_name}</strong> ? C'est votre entreprise ?
+                      </p>
+                      <p className="text-muted-foreground">
+                        Pour activer votre fiche et gérer votre profil, contactez-nous directement :
+                      </p>
+                      <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                        <a 
+                          href="tel:+33123456789" 
+                          className="flex items-center gap-3 text-primary hover:underline font-medium"
+                        >
+                          <Phone className="h-5 w-5" />
+                          01 23 45 67 89
+                        </a>
+                        <a 
+                          href="mailto:contact@artisansvalides.fr" 
+                          className="flex items-center gap-3 text-primary hover:underline font-medium"
+                        >
+                          <Mail className="h-5 w-5" />
+                          contact@artisansvalides.fr
+                        </a>
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Notre équipe vérifiera votre identité et activera votre compte.
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground text-center mb-3">
-                      Cette fiche a été créée pour vous. Réclamez-la pour gérer votre profil et recevoir des demandes de clients.
-                    </p>
-                    <Button 
-                      className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
-                      size="lg" 
-                      onClick={() => navigate(`/devenir-artisan?claim=${artisan.slug}`)}
-                    >
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Revendiquer cette fiche
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </DialogContent>
+                </Dialog>
               )}
 
               {/* 2. SECTION CONTACT */}
