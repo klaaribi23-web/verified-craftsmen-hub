@@ -55,6 +55,7 @@ import APropos from "./pages/APropos";
 import Blog from "./pages/Blog";
 import BlogArticle from "./pages/BlogArticle";
 import MentionsLegales from "./pages/MentionsLegales";
+import CGU from "./pages/CGU";
 
 
 const queryClient = new QueryClient();
@@ -87,6 +88,7 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogArticle />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />
+          <Route path="/cgu" element={<CGU />} />
           
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           
