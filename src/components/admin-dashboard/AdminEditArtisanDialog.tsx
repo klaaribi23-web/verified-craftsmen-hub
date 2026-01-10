@@ -340,24 +340,26 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle>Modifier l'artisan</DialogTitle>
-          <DialogDescription>
-            Modifiez les informations de {artisan.business_name}
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle className="truncate">Modifier l'artisan</DialogTitle>
+          <DialogDescription className="truncate">
+            {artisan.business_name}
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="h-[70vh] pr-4">
-          <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="general">Général</TabsTrigger>
-              <TabsTrigger value="category">Catégorie</TabsTrigger>
-              <TabsTrigger value="skills">Compétences</TabsTrigger>
-              <TabsTrigger value="photos">Photos</TabsTrigger>
-              <TabsTrigger value="videos">Vidéos</TabsTrigger>
-              <TabsTrigger value="horaires">Horaires</TabsTrigger>
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <Tabs defaultValue="general" className="h-full flex flex-col">
+            <TabsList className="flex-shrink-0 w-full h-auto flex-wrap gap-1 p-1 bg-muted">
+              <TabsTrigger value="general" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Général</TabsTrigger>
+              <TabsTrigger value="category" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Catégorie</TabsTrigger>
+              <TabsTrigger value="skills" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Compétences</TabsTrigger>
+              <TabsTrigger value="photos" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Photos</TabsTrigger>
+              <TabsTrigger value="videos" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Vidéos</TabsTrigger>
+              <TabsTrigger value="horaires" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Horaires</TabsTrigger>
             </TabsList>
+
+            <ScrollArea className="flex-1 mt-2 pr-4">
 
             <TabsContent value="general" className="space-y-4 mt-4">
               {/* Profile Photo */}
@@ -637,14 +639,15 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                 </div>
               ))}
             </TabsContent>
+            </ScrollArea>
           </Tabs>
-        </ScrollArea>
+        </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <div className="flex-shrink-0 flex justify-end gap-2 pt-3 border-t mt-2">
+          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="px-4">
             Annuler
           </Button>
-          <Button onClick={handleSave} disabled={updateMutation.isPending}>
+          <Button size="sm" onClick={handleSave} disabled={updateMutation.isPending} className="px-4">
             {updateMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Enregistrer
           </Button>
