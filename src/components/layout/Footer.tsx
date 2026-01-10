@@ -47,6 +47,9 @@ const Footer = () => {
       label: "CGU",
       href: "/cgu"
     }, {
+      label: "CGV",
+      href: "/cgv"
+    }, {
       label: "Politique de confidentialité",
       href: "/confidentialite"
     }]
