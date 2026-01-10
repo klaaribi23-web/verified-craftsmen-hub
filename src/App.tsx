@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { QuoteNotificationListener } from "@/components/notifications/QuoteNotificationListener";
 import GlobalMobileNavbar from "@/components/layout/GlobalMobileNavbar";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import Index from "./pages/Index";
 import TrouverArtisan from "./pages/TrouverArtisan";
 import NosMissions from "./pages/NosMissions";
@@ -67,6 +68,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        {/* Scroll to top on route change */}
+        <ScrollToTop />
+        
         {/* Initialize real-time quote notifications */}
         <QuoteNotificationListener />
         
