@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -340,28 +340,28 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="truncate">Modifier l'artisan</DialogTitle>
-          <DialogDescription className="truncate">
+      <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0">
+        <DialogHeader className="flex-shrink-0 px-6 pt-6 pb-4 border-b">
+          <DialogTitle className="truncate text-lg">Modifier l'artisan</DialogTitle>
+          <DialogDescription className="truncate text-sm">
             {artisan.business_name}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 overflow-hidden">
-          <Tabs defaultValue="general" className="h-full flex flex-col">
-            <TabsList className="flex-shrink-0 w-full h-auto flex-wrap gap-1 p-1 bg-muted">
-              <TabsTrigger value="general" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Général</TabsTrigger>
-              <TabsTrigger value="category" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Catégorie</TabsTrigger>
-              <TabsTrigger value="skills" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Compétences</TabsTrigger>
-              <TabsTrigger value="photos" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Photos</TabsTrigger>
-              <TabsTrigger value="videos" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Vidéos</TabsTrigger>
-              <TabsTrigger value="horaires" className="flex-1 min-w-[70px] text-xs sm:text-sm px-2 py-1.5">Horaires</TabsTrigger>
+        <Tabs defaultValue="general" className="flex-1 flex flex-col min-h-0">
+          <div className="flex-shrink-0 px-6 pt-4">
+            <TabsList className="w-full h-auto flex flex-wrap gap-1 p-1 bg-muted">
+              <TabsTrigger value="general" className="flex-1 min-w-[65px] text-xs px-2 py-1.5">Général</TabsTrigger>
+              <TabsTrigger value="category" className="flex-1 min-w-[65px] text-xs px-2 py-1.5">Catégorie</TabsTrigger>
+              <TabsTrigger value="skills" className="flex-1 min-w-[65px] text-xs px-2 py-1.5">Compétences</TabsTrigger>
+              <TabsTrigger value="photos" className="flex-1 min-w-[65px] text-xs px-2 py-1.5">Photos</TabsTrigger>
+              <TabsTrigger value="videos" className="flex-1 min-w-[65px] text-xs px-2 py-1.5">Vidéos</TabsTrigger>
+              <TabsTrigger value="horaires" className="flex-1 min-w-[65px] text-xs px-2 py-1.5">Horaires</TabsTrigger>
             </TabsList>
+          </div>
 
-            <ScrollArea className="flex-1 mt-2 pr-4">
-
-            <TabsContent value="general" className="space-y-4 mt-4">
+          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4">
+            <TabsContent value="general" className="space-y-4 mt-0 data-[state=active]:block">
               {/* Profile Photo */}
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
@@ -384,7 +384,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Nom de l'entreprise</Label>
                   <Input
@@ -411,7 +411,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Ville *</Label>
                   <CityAutocompleteAPI
@@ -440,7 +440,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                 <Label>Artisan vérifié</Label>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Facebook URL</Label>
                   <Input
@@ -476,7 +476,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
               </div>
             </TabsContent>
 
-            <TabsContent value="category" className="space-y-4 mt-4">
+            <TabsContent value="category" className="space-y-4 mt-0">
               <div className="space-y-3">
                 <Label className="text-base font-semibold">Catégorie principale</Label>
                 <p className="text-sm text-muted-foreground">
@@ -497,7 +497,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
               </div>
             </TabsContent>
 
-            <TabsContent value="skills" className="space-y-4 mt-4">
+            <TabsContent value="skills" className="space-y-4 mt-0">
               <div className="space-y-3">
                 <Label className="text-base font-semibold">Compétences secondaires</Label>
                 <p className="text-sm text-muted-foreground">
@@ -530,7 +530,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
               </div>
             </TabsContent>
 
-            <TabsContent value="photos" className="space-y-4 mt-4">
+            <TabsContent value="photos" className="space-y-4 mt-0">
               <div className="flex items-center justify-between">
                 <Label>Portfolio photos ({formData.portfolio_images?.length || 0}/12)</Label>
                 <Label htmlFor="portfolio-upload" className="cursor-pointer">
@@ -563,7 +563,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
               </div>
             </TabsContent>
 
-            <TabsContent value="videos" className="space-y-4 mt-4">
+            <TabsContent value="videos" className="space-y-4 mt-0">
               <div className="flex gap-2">
                 <Input
                   value={newVideoUrl}
@@ -589,13 +589,13 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
               </div>
             </TabsContent>
 
-            <TabsContent value="horaires" className="space-y-4 mt-4">
+            <TabsContent value="horaires" className="space-y-3 mt-0">
               <p className="text-sm text-muted-foreground">Définissez les heures de travail pour chaque jour</p>
               
               {DAYS_FR.map(day => (
-                <div key={day.key} className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
-                  <div className="w-32">
-                    <span className="font-medium">{day.label}</span>
+                <div key={day.key} className="flex flex-wrap items-center gap-2 sm:gap-4 p-2 sm:p-3 rounded-lg bg-muted/50">
+                  <div className="w-20 sm:w-28 flex-shrink-0">
+                    <span className="font-medium text-sm">{day.label}</span>
                   </div>
                   <Switch
                     checked={availability[day.key]?.enabled || false}
@@ -607,7 +607,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                     }
                   />
                   {availability[day.key]?.enabled && (
-                    <>
+                    <div className="flex items-center gap-1 sm:gap-2">
                       <Input
                         type="time"
                         value={availability[day.key]?.start || "08:00"}
@@ -617,9 +617,9 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                             [day.key]: { ...prev[day.key], start: e.target.value }
                           }))
                         }
-                        className="w-32"
+                        className="w-24 sm:w-28 text-sm"
                       />
-                      <span>à</span>
+                      <span className="text-sm">à</span>
                       <Input
                         type="time"
                         value={availability[day.key]?.end || "18:00"}
@@ -629,21 +629,20 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                             [day.key]: { ...prev[day.key], end: e.target.value }
                           }))
                         }
-                        className="w-32"
+                        className="w-24 sm:w-28 text-sm"
                       />
-                    </>
+                    </div>
                   )}
                   {!availability[day.key]?.enabled && (
-                    <span className="text-muted-foreground">Fermé</span>
+                    <span className="text-muted-foreground text-sm">Fermé</span>
                   )}
                 </div>
               ))}
             </TabsContent>
-            </ScrollArea>
-          </Tabs>
-        </div>
+          </div>
+        </Tabs>
 
-        <div className="flex-shrink-0 flex justify-end gap-2 pt-3 border-t mt-2">
+        <div className="flex-shrink-0 flex justify-end gap-2 px-6 py-4 border-t bg-background">
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="px-4">
             Annuler
           </Button>
