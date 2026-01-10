@@ -16,9 +16,14 @@ const staticPages = [
   { loc: '/a-propos', priority: '0.7', changefreq: 'monthly' },
   { loc: '/contact', priority: '0.7', changefreq: 'monthly' },
   { loc: '/blog', priority: '0.8', changefreq: 'weekly' },
-  { loc: '/blog/comment-choisir-artisan-qualifie', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/blog/renovation-energetique-aides-2024', priority: '0.7', changefreq: 'monthly' },
-  { loc: '/blog/trouver-artisan-plombier-electricien-macon', priority: '0.7', changefreq: 'monthly' },
+]
+
+// Blog articles - synchronized with src/data/blogArticles.tsx
+// To add a new article: add its slug and publication date here
+const blogArticles = [
+  { slug: 'comment-choisir-artisan-qualifie', date: '2024-12-20' },
+  { slug: 'renovation-energetique-aides-2024', date: '2024-12-15' },
+  { slug: 'plombier-electricien-maçon-trouver-artisan', date: '2024-12-10' },
 ]
 
 const BASE_URL = 'https://artisansvalides.fr'
@@ -59,6 +64,16 @@ Deno.serve(async (req) => {
       xml += `    <lastmod>${today}</lastmod>\n`
       xml += `    <changefreq>${page.changefreq}</changefreq>\n`
       xml += `    <priority>${page.priority}</priority>\n`
+      xml += '  </url>\n'
+    }
+
+    // Add blog articles
+    for (const article of blogArticles) {
+      xml += '  <url>\n'
+      xml += `    <loc>${BASE_URL}/blog/${article.slug}</loc>\n`
+      xml += `    <lastmod>${article.date}</lastmod>\n`
+      xml += `    <changefreq>monthly</changefreq>\n`
+      xml += `    <priority>0.7</priority>\n`
       xml += '  </url>\n'
     }
 
