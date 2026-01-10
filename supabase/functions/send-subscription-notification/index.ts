@@ -134,7 +134,7 @@ const getEmailContent = (
                 ` : ""}
 
                 <div style="text-align: center;">
-                  <a href="https://nkeodfivjnhawzrezuqp.lovableproject.com/artisan/dashboard" class="cta-button" style="background: #10b981; color: white;">
+                  <a href="https://artisansvalides.fr/artisan/dashboard" class="cta-button" style="background: #10b981; color: white;">
                     Accéder à mon tableau de bord
                   </a>
                 </div>
@@ -184,7 +184,7 @@ const getEmailContent = (
                 ` : ""}
 
                 <div style="text-align: center;">
-                  <a href="https://nkeodfivjnhawzrezuqp.lovableproject.com/artisan/dashboard" class="cta-button" style="background: #3b82f6; color: white;">
+                  <a href="https://artisansvalides.fr/artisan/dashboard" class="cta-button" style="background: #3b82f6; color: white;">
                     Découvrir mes nouvelles fonctionnalités
                   </a>
                 </div>
@@ -238,7 +238,7 @@ const getEmailContent = (
                 <p style="margin-top: 20px;">Si vous souhaitez à nouveau accéder à toutes les fonctionnalités premium, vous pouvez upgrader votre abonnement à tout moment.</p>
 
                 <div style="text-align: center;">
-                  <a href="https://nkeodfivjnhawzrezuqp.lovableproject.com/artisan/abonnement" class="cta-button" style="background: #f59e0b; color: white;">
+                  <a href="https://artisansvalides.fr/artisan/abonnement" class="cta-button" style="background: #f59e0b; color: white;">
                     Voir les plans disponibles
                   </a>
                 </div>
@@ -284,7 +284,7 @@ const getEmailContent = (
                 <p>Vous pouvez réactiver votre abonnement à tout moment pour retrouver tous vos avantages premium.</p>
 
                 <div style="text-align: center;">
-                  <a href="https://nkeodfivjnhawzrezuqp.lovableproject.com/artisan/abonnement" class="cta-button" style="background: #10b981; color: white;">
+                  <a href="https://artisansvalides.fr/artisan/abonnement" class="cta-button" style="background: #10b981; color: white;">
                     Réactiver mon abonnement
                   </a>
                 </div>
