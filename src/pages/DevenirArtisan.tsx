@@ -269,7 +269,23 @@ const DevenirArtisan = () => {
             .eq("id", profile.id);
         }
 
-        // Show confirmation message - email link will be sent by Supabase
+        // Send custom branded confirmation email
+        try {
+          await supabase.functions.invoke("send-confirmation-email", {
+            body: {
+              email: formData.email,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              userType: "artisan",
+              confirmationUrl: `${window.location.origin}/auth/callback`,
+            },
+          });
+        } catch (emailError) {
+          console.error("Error sending custom email:", emailError);
+          // Continue anyway, Supabase will send default email
+        }
+
+        // Show confirmation message
         toast({
           title: "Email de confirmation envoyé",
           description: "Veuillez cliquer sur le lien dans l'email pour activer votre compte.",

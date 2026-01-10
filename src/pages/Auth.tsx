@@ -44,6 +44,7 @@ const Auth = () => {
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [emailSent, setEmailSent] = useState(false);
   const [sentEmail, setSentEmail] = useState("");
+  const [sentFirstName, setSentFirstName] = useState("");
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   
@@ -190,8 +191,25 @@ const Auth = () => {
           }
         }
 
+        // Send custom branded confirmation email
+        try {
+          await supabase.functions.invoke("send-confirmation-email", {
+            body: {
+              email: validatedData.email,
+              firstName: validatedData.firstName,
+              lastName: validatedData.lastName,
+              userType,
+              confirmationUrl: `${window.location.origin}/auth/callback`,
+            },
+          });
+        } catch (emailError) {
+          console.error("Error sending custom email:", emailError);
+          // Continue anyway, Supabase will send default email
+        }
+
         // Show full-page confirmation instead of toast
         setSentEmail(validatedData.email);
+        setSentFirstName(validatedData.firstName);
         setEmailSent(true);
       }
     } catch (error: any) {
@@ -266,6 +284,7 @@ const Auth = () => {
     
     setIsResending(true);
     try {
+      // Resend via Supabase Auth (for the confirmation link)
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: sentEmail,
@@ -275,6 +294,20 @@ const Auth = () => {
       });
 
       if (error) throw error;
+
+      // Also send our branded email
+      try {
+        await supabase.functions.invoke("send-confirmation-email", {
+          body: {
+            email: sentEmail,
+            firstName: sentFirstName || "Utilisateur",
+            userType,
+            confirmationUrl: `${window.location.origin}/auth/callback`,
+          },
+        });
+      } catch (emailError) {
+        console.error("Error sending custom email:", emailError);
+      }
 
       toast({
         title: "Email renvoyé !",
