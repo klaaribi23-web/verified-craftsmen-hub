@@ -763,12 +763,10 @@ const AdminApprovals = () => {
       if (artisan.profile?.email) {
         await supabase.functions.invoke("send-notification-email", {
           body: {
-            email: artisan.profile.email,
-            firstName: artisan.profile.first_name || "Artisan",
-            notificationType: "artisan_approved",
-            data: {
-              businessName: artisan.business_name
-            }
+            type: "artisan_approved",
+            recipientEmail: artisan.profile.email,
+            recipientFirstName: artisan.profile.first_name || "Artisan",
+            senderName: "Artisans Validés",
           }
         });
       }
@@ -786,13 +784,11 @@ const AdminApprovals = () => {
       if (artisan.profile?.email) {
         await supabase.functions.invoke("send-notification-email", {
           body: {
-            email: artisan.profile.email,
-            firstName: artisan.profile.first_name || "Artisan",
-            notificationType: "artisan_rejected",
-            data: {
-              businessName: artisan.business_name,
-              reason: reason
-            }
+            type: "artisan_rejected",
+            recipientEmail: artisan.profile.email,
+            recipientFirstName: artisan.profile.first_name || "Artisan",
+            senderName: "Artisans Validés",
+            rejectionReason: reason,
           }
         });
       }
