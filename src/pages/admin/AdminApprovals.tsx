@@ -105,6 +105,22 @@ interface ProspectArtisan {
   category: { name: string } | null;
 }
 
+interface WaitingArtisan {
+  id: string;
+  business_name: string;
+  city: string;
+  email: string | null;
+  phone: string | null;
+  description: string | null;
+  photo_url: string | null;
+  created_at: string;
+  activation_sent_at: string | null;
+  reminder_count: number | null;
+  reminder_sent_at: string | null;
+  slug: string | null;
+  category: { name: string } | null;
+}
+
 interface ClaimedArtisan {
   id: string;
   business_name: string;
@@ -194,6 +210,11 @@ const AdminApprovals = () => {
   
   // Sub-tab state for vitrines
   const [vitrineSubTab, setVitrineSubTab] = useState("actives");
+  
+  // Pagination state for waiting artisans (email sent, no account)
+  const [waitingPage, setWaitingPage] = useState(0);
+  const [waitingPerPage, setWaitingPerPage] = useState(50);
+  const [waitingSearch, setWaitingSearch] = useState("");
   
   // Pagination state for claimed artisans
   const [claimedPage, setClaimedPage] = useState(0);
@@ -293,6 +314,65 @@ const AdminApprovals = () => {
 
       if (error) throw error;
       return data as ProspectArtisan[];
+    }
+  });
+
+  // Fetch total count of WAITING artisans (email sent, no account yet)
+  const { data: totalWaiting = 0 } = useQuery({
+    queryKey: ["waiting-artisans-count", waitingSearch],
+    queryFn: async () => {
+      let query = supabase
+        .from("artisans")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending")
+        .is("user_id", null)
+        .not("activation_sent_at", "is", null);
+      
+      if (waitingSearch.trim()) {
+        query = query.or(`business_name.ilike.%${waitingSearch}%,city.ilike.%${waitingSearch}%,email.ilike.%${waitingSearch}%`);
+      }
+
+      const { count, error } = await query;
+      if (error) throw error;
+      return count || 0;
+    }
+  });
+
+  // Fetch WAITING artisans (email sent, account not created yet)
+  const { data: waitingArtisans = [], isLoading: isLoadingWaiting } = useQuery({
+    queryKey: ["waiting-artisans", waitingPage, waitingPerPage, waitingSearch],
+    queryFn: async () => {
+      let query = supabase
+        .from("artisans")
+        .select(`
+          id,
+          business_name,
+          city,
+          email,
+          phone,
+          description,
+          photo_url,
+          created_at,
+          activation_sent_at,
+          reminder_count,
+          reminder_sent_at,
+          slug,
+          category:categories(name)
+        `)
+        .eq("status", "pending")
+        .is("user_id", null)
+        .not("activation_sent_at", "is", null);
+      
+      if (waitingSearch.trim()) {
+        query = query.or(`business_name.ilike.%${waitingSearch}%,city.ilike.%${waitingSearch}%,email.ilike.%${waitingSearch}%`);
+      }
+      
+      const { data, error } = await query
+        .order("activation_sent_at", { ascending: false })
+        .range(waitingPage * waitingPerPage, (waitingPage + 1) * waitingPerPage - 1);
+
+      if (error) throw error;
+      return data || [];
     }
   });
 
@@ -679,10 +759,15 @@ const AdminApprovals = () => {
   const startIndex = prospectPage * prospectsPerPage + 1;
   const endIndex = Math.min((prospectPage + 1) * prospectsPerPage, totalProspects);
 
-  // Pagination helpers for claimed
+  // Pagination helpers for claimed (confirmées)
   const totalClaimedPages = Math.ceil(totalClaimed / claimedPerPage);
   const claimedStartIndex = claimedPage * claimedPerPage + 1;
   const claimedEndIndex = Math.min((claimedPage + 1) * claimedPerPage, totalClaimed);
+
+  // Pagination helpers for waiting (en attente)
+  const totalWaitingPages = Math.ceil(totalWaiting / waitingPerPage);
+  const waitingStartIndex = waitingPage * waitingPerPage + 1;
+  const waitingEndIndex = Math.min((waitingPage + 1) * waitingPerPage, totalWaiting);
 
   const handleProspectSearchChange = (value: string) => {
     setProspectSearch(value);
@@ -702,6 +787,16 @@ const AdminApprovals = () => {
   const handleClaimedPerPageChange = (value: string) => {
     setClaimedPerPage(parseInt(value));
     setClaimedPage(0);
+  };
+
+  const handleWaitingSearchChange = (value: string) => {
+    setWaitingSearch(value);
+    setWaitingPage(0);
+  };
+
+  const handleWaitingPerPageChange = (value: string) => {
+    setWaitingPerPage(parseInt(value));
+    setWaitingPage(0);
   };
 
   const formatDate = (dateString: string) => {
@@ -1172,15 +1267,20 @@ const AdminApprovals = () => {
 
               {/* Sub-tabs for Vitrines */}
               <Tabs value={vitrineSubTab} onValueChange={setVitrineSubTab} className="mt-4">
-                <TabsList className="mb-4">
+                <TabsList className="mb-4 flex-wrap">
                   <TabsTrigger value="actives" className="gap-1.5">
                     <Store className="h-4 w-4" />
-                    Vitrines actives
+                    <span className="hidden sm:inline">Vitrines</span> actives
                     <Badge variant="secondary" className="ml-1 text-xs">{totalProspects.toLocaleString('fr-FR')}</Badge>
                   </TabsTrigger>
-                  <TabsTrigger value="revendiquees" className="gap-1.5">
+                  <TabsTrigger value="en-attente" className="gap-1.5">
+                    <Mail className="h-4 w-4" />
+                    <span className="hidden sm:inline">Vitrines</span> en attente
+                    <Badge variant="secondary" className="ml-1 text-xs">{totalWaiting}</Badge>
+                  </TabsTrigger>
+                  <TabsTrigger value="confirmees" className="gap-1.5">
                     <UserCheck className="h-4 w-4" />
-                    Vitrine en attente
+                    <span className="hidden sm:inline">Vitrines</span> confirmées
                     <Badge variant="secondary" className="ml-1 text-xs">{totalClaimed}</Badge>
                   </TabsTrigger>
                 </TabsList>
@@ -1413,16 +1513,16 @@ const AdminApprovals = () => {
                   )}
                 </TabsContent>
 
-                {/* REVENDIQUEES SUB-TAB */}
-                <TabsContent value="revendiquees">
+                {/* VITRINES EN ATTENTE SUB-TAB (email envoyé, compte pas créé) */}
+                <TabsContent value="en-attente">
                   {/* Search and pagination controls with reminder button */}
                   <div className="flex flex-col sm:flex-row gap-3 mb-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         placeholder="Rechercher par nom, ville ou email..."
-                        value={claimedSearch}
-                        onChange={(e) => handleClaimedSearchChange(e.target.value)}
+                        value={waitingSearch}
+                        onChange={(e) => handleWaitingSearchChange(e.target.value)}
                         className="pl-9"
                       />
                     </div>
@@ -1434,8 +1534,225 @@ const AdminApprovals = () => {
                         onClick={() => setShowReminderDialog(true)}
                       >
                         <RefreshCw className="h-4 w-4" />
-                        <span className="hidden sm:inline">Relancer</span>
+                        <span className="hidden sm:inline">Relancer tous</span>
                       </Button>
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
+                      <Select value={waitingPerPage.toString()} onValueChange={handleWaitingPerPageChange}>
+                        <SelectTrigger className="w-20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="25">25</SelectItem>
+                          <SelectItem value="50">50</SelectItem>
+                          <SelectItem value="100">100</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Pagination info */}
+                  {totalWaiting > 0 && (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
+                      <span>
+                        Affichage {waitingStartIndex} - {waitingEndIndex} sur {totalWaiting.toLocaleString('fr-FR')} artisans en attente
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setWaitingPage(p => Math.max(0, p - 1))}
+                          disabled={waitingPage === 0}
+                        >
+                          <ChevronLeft className="h-4 w-4 mr-1" />
+                          Précédent
+                        </Button>
+                        <span className="text-sm font-medium px-2">
+                          Page {waitingPage + 1} / {totalWaitingPages || 1}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setWaitingPage(p => Math.min(totalWaitingPages - 1, p + 1))}
+                          disabled={waitingPage >= totalWaitingPages - 1}
+                        >
+                          Suivant
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {isLoadingWaiting ? (
+                    <div className="flex items-center justify-center py-12 md:py-20">
+                      <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
+                    </div>
+                  ) : waitingArtisans.length > 0 ? (
+                    <>
+                      <div className="grid gap-3 md:gap-4">
+                        {waitingArtisans.map((artisan) => (
+                          <Card key={artisan.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                            <CardContent className="p-3 md:p-6">
+                              <div className="flex flex-col sm:flex-row gap-3 md:gap-6">
+                                <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0 self-start">
+                                  <AvatarImage src={artisan.photo_url || DEFAULT_AVATAR} />
+                                  <AvatarFallback className="text-lg md:text-xl bg-primary text-primary-foreground">
+                                    {artisan.business_name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+
+                                <div className="flex-1 min-w-0 overflow-hidden">
+                                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                                    <div className="min-w-0 flex-1">
+                                      <h3 className="text-base md:text-xl font-bold truncate">{artisan.business_name}</h3>
+                                      <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm mt-1">
+                                        <span className="flex items-center gap-1">
+                                          <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
+                                          <span className="truncate">{artisan.city}</span>
+                                        </span>
+                                        {artisan.category && (
+                                          <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{artisan.category.name}</Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <Badge 
+                                      variant="outline" 
+                                      className="gap-1 text-xs shrink-0 self-start bg-amber-500/10 text-amber-600 border-amber-500/30"
+                                    >
+                                      <Mail className="h-2.5 w-2.5" />
+                                      Email envoyé
+                                    </Badge>
+                                  </div>
+
+                                  {/* Artisan contact info */}
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3 text-xs md:text-sm">
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                      <Mail className="h-3.5 w-3.5 shrink-0" />
+                                      <span className="truncate">{artisan.email || 'Non renseigné'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                      <Phone className="h-3.5 w-3.5 shrink-0" />
+                                      <span>{artisan.phone || 'Non renseigné'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                      <Calendar className="h-3.5 w-3.5 shrink-0" />
+                                      <span>Email envoyé le {artisan.activation_sent_at ? formatDate(artisan.activation_sent_at) : 'N/A'}</span>
+                                    </div>
+                                    {(artisan.reminder_count || 0) > 0 && (
+                                      <div className="flex items-center gap-2 text-muted-foreground">
+                                        <RefreshCw className="h-3.5 w-3.5 shrink-0" />
+                                        <span>{artisan.reminder_count} relance(s) envoyée(s)</span>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {artisan.description && (
+                                    <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-3">
+                                      {artisan.description}
+                                    </p>
+                                  )}
+
+                                  <div className="flex flex-wrap gap-2">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-3"
+                                      onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}
+                                    >
+                                      <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                      Voir la fiche
+                                    </Button>
+                                    <Button 
+                                      variant="outline"
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-3 border-amber-500 text-amber-600 hover:bg-amber-50"
+                                      onClick={async () => {
+                                        try {
+                                          const { error } = await supabase.functions.invoke("send-reminder-emails", {
+                                            body: { artisanIds: [artisan.id] }
+                                          });
+                                          if (error) throw error;
+                                          toast.success("Email de relance envoyé");
+                                          queryClient.invalidateQueries({ queryKey: ["waiting-artisans"] });
+                                        } catch (error) {
+                                          console.error("Error sending reminder:", error);
+                                          toast.error("Erreur lors de l'envoi du rappel");
+                                        }
+                                      }}
+                                    >
+                                      <RefreshCw className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                      Relancer
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+
+                      {/* Bottom pagination */}
+                      {totalWaitingPages > 1 && (
+                        <div className="flex items-center justify-center gap-2 mt-6">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setWaitingPage(p => Math.max(0, p - 1))}
+                            disabled={waitingPage === 0}
+                          >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Précédent
+                          </Button>
+                          <span className="text-sm font-medium px-4">
+                            Page {waitingPage + 1} / {totalWaitingPages}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setWaitingPage(p => Math.min(totalWaitingPages - 1, p + 1))}
+                            disabled={waitingPage >= totalWaitingPages - 1}
+                          >
+                            Suivant
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Card>
+                      <CardContent className="py-12 md:py-20 text-center">
+                        <Mail className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
+                        <h3 className="text-lg md:text-xl font-semibold mb-2">
+                          {waitingSearch ? "Aucun résultat" : "Aucun artisan en attente"}
+                        </h3>
+                        <p className="text-muted-foreground text-sm md:text-base mb-4">
+                          {waitingSearch 
+                            ? `Aucun artisan trouvé pour "${waitingSearch}"`
+                            : "Tous les artisans prospectés ont créé leur compte."}
+                        </p>
+                        {waitingSearch && (
+                          <Button variant="outline" onClick={() => setWaitingSearch("")}>
+                            Effacer la recherche
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </TabsContent>
+
+                {/* VITRINES CONFIRMÉES SUB-TAB (compte créé, pas de documents) */}
+                <TabsContent value="confirmees">
+                  {/* Search and pagination controls */}
+                  <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Rechercher par nom, ville ou email..."
+                        value={claimedSearch}
+                        onChange={(e) => handleClaimedSearchChange(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
                       <Select value={claimedPerPage.toString()} onValueChange={handleClaimedPerPageChange}>
                         <SelectTrigger className="w-20">
@@ -1454,7 +1771,7 @@ const AdminApprovals = () => {
                   {totalClaimed > 0 && (
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
                       <span>
-                        Affichage {claimedStartIndex} - {claimedEndIndex} sur {totalClaimed.toLocaleString('fr-FR')} artisans revendiqués
+                        Affichage {claimedStartIndex} - {claimedEndIndex} sur {totalClaimed.toLocaleString('fr-FR')} artisans confirmés
                       </span>
                       <div className="flex items-center gap-2">
                         <Button
@@ -1516,10 +1833,10 @@ const AdminApprovals = () => {
                                     </div>
                                     <Badge 
                                       variant="outline" 
-                                      className="gap-1 text-xs shrink-0 self-start bg-amber-500/10 text-amber-600 border-amber-500/30"
+                                      className="gap-1 text-xs shrink-0 self-start bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
                                     >
-                                      <Clock className="h-2.5 w-2.5" />
-                                      En attente d'approbation
+                                      <UserCheck className="h-2.5 w-2.5" />
+                                      Compte créé
                                     </Badge>
                                   </div>
 
@@ -1543,36 +1860,19 @@ const AdminApprovals = () => {
                                     </div>
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                       <Calendar className="h-3.5 w-3.5 shrink-0" />
-                                      <span>Revendiquée le {formatDate(artisan.updated_at)}</span>
+                                      <span>Compte créé le {formatDate(artisan.updated_at)}</span>
                                     </div>
                                   </div>
                                   
-                                  {/* Documents status */}
+                                  {/* Documents status - always 0 for this tab */}
                                   <div className="mb-3">
                                     <Badge 
                                       variant="outline"
-                                      className={`gap-1.5 text-xs ${
-                                        artisan.documents_count === 0 
-                                          ? 'bg-red-500/10 text-red-600 border-red-500/30' 
-                                          : artisan.documents_approved && artisan.documents_approved > 0
-                                            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
-                                            : 'bg-amber-500/10 text-amber-600 border-amber-500/30'
-                                      }`}
+                                      className="gap-1.5 text-xs bg-amber-500/10 text-amber-600 border-amber-500/30"
                                     >
                                       <FileText className="h-3 w-3" />
-                                      {artisan.documents_count === 0 ? (
-                                        '0 document'
-                                      ) : artisan.documents_approved && artisan.documents_approved > 0 ? (
-                                        `${artisan.documents_approved} document(s) validé(s)`
-                                      ) : (
-                                        `${artisan.documents_pending || 0} document(s) en attente`
-                                      )}
+                                      0 document - En attente d'upload
                                     </Badge>
-                                    {artisan.documents_count === 0 && artisan.status === 'pending' && (
-                                      <span className="text-xs text-muted-foreground ml-2">
-                                        ⚠️ Doit soumettre ses documents
-                                      </span>
-                                    )}
                                   </div>
 
                                   {artisan.description && (
@@ -1589,18 +1889,8 @@ const AdminApprovals = () => {
                                       onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}
                                     >
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
-                                      Voir la fiche
+                                      Voir le profil
                                     </Button>
-                                    {artisan.status === 'pending' && (
-                                      <Button 
-                                        size="sm" 
-                                        className="text-xs md:text-sm h-8 md:h-9 px-3"
-                                        onClick={() => navigate('/admin/approbations')}
-                                      >
-                                        <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
-                                        Aller aux approbations
-                                      </Button>
-                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -1641,12 +1931,12 @@ const AdminApprovals = () => {
                       <CardContent className="py-12 md:py-20 text-center">
                         <UserCheck className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
                         <h3 className="text-lg md:text-xl font-semibold mb-2">
-                          {claimedSearch ? "Aucun résultat" : "Aucune fiche revendiquée"}
+                          {claimedSearch ? "Aucun résultat" : "Aucun artisan confirmé"}
                         </h3>
                         <p className="text-muted-foreground text-sm md:text-base mb-4">
                           {claimedSearch 
                             ? `Aucun artisan trouvé pour "${claimedSearch}"`
-                            : "Aucun artisan n'a encore revendiqué sa fiche vitrine."}
+                            : "Aucun artisan n'a encore créé son compte depuis l'email de pré-inscription."}
                         </p>
                         {claimedSearch && (
                           <Button variant="outline" onClick={() => setClaimedSearch("")}>
