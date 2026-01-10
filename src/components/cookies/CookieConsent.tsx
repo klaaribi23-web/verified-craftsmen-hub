@@ -191,82 +191,83 @@ export const CookieConsent = () => {
 
       {/* Settings Dialog */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto z-[110]">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto z-[110] w-[calc(100vw-2rem)]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5 text-navy" />
+              <Settings className="w-5 h-5 text-navy flex-shrink-0" />
               Paramètres des cookies
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-left">
               Personnalisez vos préférences de cookies. Les cookies essentiels sont 
               nécessaires au fonctionnement du site et ne peuvent pas être désactivés.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-4 py-4">
             {/* Essential Cookies */}
-            <div className="flex items-start justify-between gap-4 pb-4 border-b">
-              <div className="space-y-1">
-                <Label className="text-base font-semibold flex items-center gap-2">
+            <div className="pb-4 border-b space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <Label className="text-sm font-semibold flex items-center gap-2 flex-1 min-w-0">
                   Cookies essentiels
-                  <span className="text-xs bg-navy/10 text-navy px-2 py-0.5 rounded">
+                  <span className="text-xs bg-navy/10 text-navy px-2 py-0.5 rounded whitespace-nowrap">
                     Obligatoires
                   </span>
                 </Label>
-                <p className="text-sm text-muted-foreground">
-                  Nécessaires au fonctionnement du site (authentification, sécurité, 
-                  préférences de session). Ces cookies ne collectent pas de données personnelles.
-                </p>
+                <Switch checked disabled className="data-[state=checked]:bg-navy flex-shrink-0" />
               </div>
-              <Switch checked disabled className="data-[state=checked]:bg-navy" />
+              <p className="text-xs text-muted-foreground">
+                Nécessaires au fonctionnement du site (authentification, sécurité, 
+                préférences de session). Ces cookies ne collectent pas de données personnelles.
+              </p>
             </div>
 
             {/* Performance Cookies */}
-            <div className="flex items-start justify-between gap-4 pb-4 border-b">
-              <div className="space-y-1">
-                <Label htmlFor="performance" className="text-base font-semibold">
+            <div className="pb-4 border-b space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="performance" className="text-sm font-semibold flex-1 min-w-0">
                   Cookies de performance
                 </Label>
-                <p className="text-sm text-muted-foreground">
-                  Permettent de mesurer l'audience et d'analyser le comportement des 
-                  visiteurs pour améliorer le site. Les données sont anonymisées.
-                </p>
+                <Switch
+                  id="performance"
+                  checked={preferences.performance}
+                  onCheckedChange={(checked) =>
+                    setPreferences({ ...preferences, performance: checked })
+                  }
+                  className="data-[state=checked]:bg-navy flex-shrink-0"
+                />
               </div>
-              <Switch
-                id="performance"
-                checked={preferences.performance}
-                onCheckedChange={(checked) =>
-                  setPreferences({ ...preferences, performance: checked })
-                }
-                className="data-[state=checked]:bg-navy"
-              />
+              <p className="text-xs text-muted-foreground">
+                Permettent de mesurer l'audience et d'analyser le comportement des 
+                visiteurs pour améliorer le site. Les données sont anonymisées.
+              </p>
             </div>
 
             {/* Functional Cookies */}
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1">
-                <Label htmlFor="functional" className="text-base font-semibold">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="functional" className="text-sm font-semibold flex-1 min-w-0">
                   Cookies fonctionnels
                 </Label>
-                <p className="text-sm text-muted-foreground">
-                  Permettent de mémoriser vos préférences (langue, région, paramètres 
-                  d'affichage) pour personnaliser votre expérience.
-                </p>
+                <Switch
+                  id="functional"
+                  checked={preferences.functional}
+                  onCheckedChange={(checked) =>
+                    setPreferences({ ...preferences, functional: checked })
+                  }
+                  className="data-[state=checked]:bg-navy flex-shrink-0"
+                />
               </div>
-              <Switch
-                id="functional"
-                checked={preferences.functional}
-                onCheckedChange={(checked) =>
-                  setPreferences({ ...preferences, functional: checked })
-                }
-                className="data-[state=checked]:bg-navy"
-              />
+              <p className="text-xs text-muted-foreground">
+                Permettent de mémoriser vos préférences (langue, région, paramètres 
+                d'affichage) pour personnaliser votre expérience.
+              </p>
             </div>
           </div>
 
-          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t">
+          <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
             <Button
               variant="outline"
+              size="sm"
               onClick={rejectNonEssential}
               className="flex-1"
             >
@@ -274,12 +275,14 @@ export const CookieConsent = () => {
             </Button>
             <Button
               variant="outline"
+              size="sm"
               onClick={acceptAll}
               className="flex-1"
             >
               Tout accepter
             </Button>
             <Button
+              size="sm"
               onClick={saveCustomPreferences}
               className="flex-1 bg-navy hover:bg-navy/90"
             >
