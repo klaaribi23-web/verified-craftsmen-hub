@@ -125,57 +125,59 @@ export const CookieConsent = () => {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6"
+            transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
+            className="fixed bottom-0 left-0 right-0 z-[100] p-4 md:p-6 pointer-events-none"
           >
-            <div className="container mx-auto max-w-5xl">
-              <div className="bg-card border border-border rounded-xl shadow-2xl p-6 md:p-8">
-                <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                  {/* Icon and Text */}
-                  <div className="flex gap-4 flex-1">
-                    <div className="hidden md:flex w-12 h-12 bg-navy/10 rounded-xl items-center justify-center flex-shrink-0">
+            <div className="container mx-auto max-w-4xl pointer-events-auto">
+              <div className="bg-white border border-border rounded-2xl shadow-2xl p-5 md:p-6">
+                <div className="flex flex-col gap-5">
+                  {/* Header with icon and text */}
+                  <div className="flex gap-4">
+                    <div className="hidden sm:flex w-12 h-12 bg-navy/10 rounded-xl items-center justify-center flex-shrink-0">
                       <Cookie className="w-6 h-6 text-navy" />
                     </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-foreground flex items-center gap-2">
-                        <Cookie className="w-5 h-5 md:hidden text-navy" />
+                    <div className="space-y-2 flex-1">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2 text-base">
+                        <Cookie className="w-5 h-5 sm:hidden text-navy flex-shrink-0" />
                         Nous utilisons des cookies
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         Ce site utilise des cookies pour améliorer votre expérience de navigation, 
-                        analyser le trafic et personnaliser le contenu. Vous pouvez accepter tous 
-                        les cookies ou personnaliser vos préférences.
+                        analyser le trafic et personnaliser le contenu.
                       </p>
                       <a 
                         href="/confidentialite" 
                         className="text-sm text-primary hover:underline inline-flex items-center gap-1"
                       >
                         <Shield className="w-3 h-3" />
-                        En savoir plus sur notre politique de confidentialité
+                        Politique de confidentialité
                       </a>
                     </div>
                   </div>
 
-                  {/* Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                  {/* Buttons - stacked on mobile, row on desktop */}
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
                     <Button
                       variant="outline"
+                      size="sm"
                       onClick={rejectNonEssential}
-                      className="order-3 sm:order-1"
+                      className="sm:order-1"
                     >
                       Refuser
                     </Button>
                     <Button
                       variant="outline"
+                      size="sm"
                       onClick={() => setShowSettings(true)}
-                      className="order-2 gap-2"
+                      className="sm:order-2 gap-2"
                     >
                       <Settings className="w-4 h-4" />
                       Personnaliser
                     </Button>
                     <Button
+                      size="sm"
                       onClick={acceptAll}
-                      className="order-1 sm:order-3 bg-navy hover:bg-navy/90"
+                      className="sm:order-3 bg-navy hover:bg-navy/90"
                     >
                       Tout accepter
                     </Button>
@@ -189,7 +191,7 @@ export const CookieConsent = () => {
 
       {/* Settings Dialog */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto z-[110]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5 text-navy" />
