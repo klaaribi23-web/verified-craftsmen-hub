@@ -50,7 +50,7 @@ const TrustSection = () => {
           <h2 className="text-xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
             Pourquoi nous faire <span className="text-gradient-gold">confiance</span> ?
           </h2>
-          <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto\n">
+          <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto text-center\n">
             Artisans Validés applique un processus de vérification rigoureux 
             pour garantir la qualité et la fiabilité de chaque professionnel.
           </p>
