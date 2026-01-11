@@ -16,6 +16,8 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
+import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
+import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 
 const AdminSettings = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -101,16 +103,18 @@ const AdminSettings = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <AdminTopBar />
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
         
-        <main className="flex-1 p-8">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-foreground">Paramètres administrateur</h1>
-            <p className="text-muted-foreground mt-1">Gérez la sécurité de votre compte</p>
-          </div>
+        <main className="flex-1">
+          <DashboardHeader 
+            title="Paramètres administrateur" 
+            subtitle="Gérez la sécurité de votre compte" 
+          />
 
-          <div className="max-w-2xl space-y-6">
+          <div className="p-4 md:p-8">
+            <div className="max-w-2xl space-y-6">
             {/* Change Password */}
             <Card>
               <CardHeader>
@@ -221,6 +225,7 @@ const AdminSettings = () => {
                 </form>
               </CardContent>
             </Card>
+          </div>
           </div>
         </main>
       </div>

@@ -44,6 +44,8 @@ import {
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
+import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
+import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { SecureVoiceMessage } from "@/components/chat/SecureVoiceMessage";
@@ -329,16 +331,18 @@ const AdminMessaging = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <AdminTopBar />
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
       
-      <main className="flex-1 p-4 md:p-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground">Messagerie</h1>
-          <p className="text-muted-foreground mt-1">Communiquez avec les artisans et clients</p>
-        </div>
+        <main className="flex-1">
+          <DashboardHeader 
+            title="Messagerie" 
+            subtitle="Communiquez avec les artisans et clients" 
+          />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+          <div className="p-4 md:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 h-[calc(100vh-280px)] lg:h-[calc(100vh-220px)]">
           {/* Contacts List with Tabs */}
           <Card className="col-span-1 flex flex-col">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "artisans" | "clients")} className="flex flex-col h-full">
@@ -649,7 +653,8 @@ const AdminMessaging = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </main>
+          </div>
+        </main>
       </div>
     </>
   );

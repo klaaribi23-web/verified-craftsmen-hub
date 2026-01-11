@@ -133,33 +133,11 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
 };
 
 export const AdminSidebar = () => {
-  const [open, setOpen] = useState(false);
-
+  // Mobile navigation is handled by AdminTopBar
+  // Desktop sidebar only
   return (
-    <>
-      {/* Mobile Menu Button */}
-      <div className="lg:hidden fixed bottom-4 left-4 z-50">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button 
-              size="icon" 
-              className="h-14 w-14 rounded-full shadow-lg bg-primary text-primary-foreground"
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[280px] p-0 bg-card">
-            <div className="flex flex-col h-full">
-              <SidebarContent onItemClick={() => setOpen(false)} />
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-card border-r border-border min-h-screen flex-col">
-        <SidebarContent />
-      </aside>
-    </>
+    <aside className="hidden lg:flex w-64 bg-card border-r border-border min-h-screen flex-col">
+      <SidebarContent />
+    </aside>
   );
 };

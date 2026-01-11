@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
+import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { AdminStatsCard } from "@/components/admin-dashboard/AdminStatsCard";
 import { AdminNotifications } from "@/components/admin-dashboard/AdminNotifications";
 import { NewArtisansList } from "@/components/admin-dashboard/NewArtisansList";
 import { TopArtisansList } from "@/components/admin-dashboard/TopArtisansList";
 import { GeocodeMissingArtisans } from "@/components/admin-dashboard/GeocodeMissingArtisans";
+import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { useAdminStats } from "@/hooks/useAdminData";
 import { 
@@ -47,33 +49,34 @@ const AdminDashboard = () => {
         noIndex={true}
       />
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <AdminTopBar />
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
         
-        <main className="flex-1 p-4 md:p-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Tableau de bord</h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-1">Bienvenue sur votre espace administrateur</p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4">
-            <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span className="hidden sm:inline">Mis à jour</span> {formatTime(lastUpdated)}
+        <main className="flex-1">
+          <DashboardHeader 
+            title="Tableau de bord" 
+            subtitle="Bienvenue sur votre espace administrateur" 
+          />
+
+          {/* Content wrapper with padding */}
+          <div className="p-4 md:p-8">
+            {/* Refresh button */}
+            <div className="flex flex-wrap items-center justify-end gap-2 mb-4 md:mb-6">
+              <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span className="hidden sm:inline">Mis à jour</span> {formatTime(lastUpdated)}
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Actualiser</span>
+              </Button>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="w-full sm:w-auto"
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Actualiser
-            </Button>
-          </div>
-        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
@@ -121,6 +124,7 @@ const AdminDashboard = () => {
             <GeocodeMissingArtisans onComplete={handleRefresh} />
           </div>
         </div>
+      </div>
       </main>
       </div>
     </>

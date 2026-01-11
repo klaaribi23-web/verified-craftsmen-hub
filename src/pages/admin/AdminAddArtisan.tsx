@@ -33,6 +33,8 @@ import { CategorySelect } from "@/components/categories/CategorySelect";
 import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
+import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
+import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   cities as frenchCities, 
@@ -471,14 +473,17 @@ const AdminAddArtisan = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <AdminTopBar />
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
       
-        <main className="flex-1 p-8 overflow-auto">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-foreground">Ajouter un artisan</h1>
-            <p className="text-muted-foreground mt-1">Créez un nouveau profil artisan complet sur la plateforme</p>
-          </div>
+        <main className="flex-1">
+          <DashboardHeader 
+            title="Ajouter un artisan" 
+            subtitle="Créez un nouveau profil artisan complet sur la plateforme" 
+          />
+
+          <div className="p-4 md:p-8 overflow-auto">
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -976,6 +981,7 @@ const AdminAddArtisan = () => {
               </Button>
             </div>
           </form>
+          </div>
         </main>
       </div>
     </>

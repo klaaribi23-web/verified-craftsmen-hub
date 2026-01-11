@@ -36,6 +36,8 @@ import {
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
+import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
+import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 
 // Hook for real dynamic stats
 const useRealAdminStats = () => {
@@ -228,19 +230,21 @@ const AdminStatistics = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <AdminTopBar />
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
       
-        <main className="flex-1 p-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Statistiques en temps réel</h1>
-              <p className="text-muted-foreground mt-1">Données dynamiques de votre plateforme</p>
-            </div>
-            <div className="flex items-center gap-4">
+        <main className="flex-1">
+          <DashboardHeader 
+            title="Statistiques en temps réel" 
+            subtitle="Données dynamiques de votre plateforme" 
+          />
+
+          <div className="p-4 md:p-8">
+            {/* Actions Row */}
+            <div className="flex flex-wrap items-center justify-end gap-2 md:gap-4 mb-6">
               <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-32 md:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -250,7 +254,7 @@ const AdminStatistics = () => {
                   <SelectItem value="year">Cette année</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="h-4 w-4" />
                 Mis à jour à {formatTime(lastUpdated)}
               </div>
@@ -261,10 +265,9 @@ const AdminStatistics = () => {
                 disabled={isRefreshing}
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                Actualiser
+                <span className="hidden sm:inline">Actualiser</span>
               </Button>
             </div>
-          </div>
 
           {/* Main Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
@@ -494,6 +497,7 @@ const AdminStatistics = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
           </div>
         </main>
       </div>
