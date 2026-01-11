@@ -14,14 +14,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/seo/SEOHead";
 import OrganizationSchema from "@/components/seo/OrganizationSchema";
-
 const Index = () => {
   return <div className="min-h-screen">
-      <SEOHead 
-        title="Trouvez des artisans de confiance"
-        description="Mise en relation rapide avec des artisans qualifiés et vérifiés en France. Devis gratuit, qualité et expertise garantie pour tous vos projets de travaux."
-        canonical="https://artisansvalides.fr"
-      />
+      <SEOHead title="Trouvez des artisans de confiance" description="Mise en relation rapide avec des artisans qualifiés et vérifiés en France. Devis gratuit, qualité et expertise garantie pour tous vos projets de travaux." canonical="https://artisansvalides.fr" />
       <OrganizationSchema />
       <Navbar />
       <main>
@@ -46,10 +41,10 @@ const Index = () => {
                 <Star className="h-4 w-4 text-gold fill-gold" />
                 <span className="text-sm font-medium text-gold">Top artisans</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-xl md:text-4xl font-bold text-foreground mb-4">
                 Nos artisans recommandés
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
                 Découvrez nos artisans les mieux notés, vérifiés et prêts à réaliser vos projets
               </p>
             </motion.div>
