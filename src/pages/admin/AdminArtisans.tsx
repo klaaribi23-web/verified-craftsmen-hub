@@ -39,7 +39,6 @@ import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/layout/Navbar";
-import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
 
@@ -113,7 +112,6 @@ const AdminArtisans = () => {
   return (
     <>
       <Navbar />
-      <AdminTopBar />
       <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
       

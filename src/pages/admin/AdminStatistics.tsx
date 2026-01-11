@@ -36,7 +36,6 @@ import {
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
-import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 
 // Hook for real dynamic stats
@@ -230,7 +229,6 @@ const AdminStatistics = () => {
   return (
     <>
       <Navbar />
-      <AdminTopBar />
       <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
       

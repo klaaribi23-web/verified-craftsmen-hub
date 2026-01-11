@@ -15,7 +15,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { DEFAULT_AVATAR } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -792,7 +791,6 @@ const AdminApprovals = () => {
   };
   return <>
       <Navbar />
-      <AdminTopBar />
       <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
       

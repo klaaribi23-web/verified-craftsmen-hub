@@ -75,15 +75,7 @@ const Navbar = () => {
 
   // Bloquer le scroll du body quand la sidebar dashboard est ouverte
   useEffect(() => {
-    const shouldDisableDashboardSidebar =
-      role === "admin" && location.pathname.startsWith("/admin");
-
-    // Sur les pages admin, la navigation mobile est gérée par AdminTopBar.
-    if (shouldDisableDashboardSidebar && isDashboardSidebarOpen) {
-      setIsDashboardSidebarOpen(false);
-    }
-
-    if (isDashboardSidebarOpen && !shouldDisableDashboardSidebar) {
+    if (isDashboardSidebarOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -92,7 +84,7 @@ const Navbar = () => {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isDashboardSidebarOpen, role, location.pathname]);
+  }, [isDashboardSidebarOpen]);
 
   // Get messaging link based on role
   const getMessagingLink = () => {
@@ -111,13 +103,8 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const isAdminDashboardRoute =
-    role === "admin" && location.pathname.startsWith("/admin");
-
-  // Sur mobile, on garde le drawer global (avatar) pour les clients/artisans.
-  // Sur les pages admin, on le masque (AdminTopBar gère le menu) pour éviter les doublons.
-  const showMobileDashboardNav =
-    isAuthenticated && !isLoading && !isAdminDashboardRoute;
+  // Show mobile top bar for all authenticated users (admin, artisan, client)
+  const showMobileDashboardNav = isAuthenticated && !isLoading;
 
   const handleSignOut = async () => {
     await signOut();
