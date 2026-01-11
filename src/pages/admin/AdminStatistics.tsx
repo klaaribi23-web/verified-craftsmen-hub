@@ -268,93 +268,93 @@ const AdminStatistics = () => {
             </div>
 
           {/* Main Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-4 mb-6 md:mb-8">
             <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Users className="h-5 w-5 text-primary" />
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 rounded-lg bg-primary/10">
+                    <Users className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="min-w-0">
+                    <p className="text-lg md:text-2xl font-bold text-foreground truncate">
                       {isLoading ? "..." : stats?.totalArtisans || 0}
                     </p>
-                    <p className="text-xs text-muted-foreground">Total Artisans</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground truncate">Artisans</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <UserCheck className="h-5 w-5 text-green-500" />
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 rounded-lg bg-green-500/10">
+                    <UserCheck className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="min-w-0">
+                    <p className="text-lg md:text-2xl font-bold text-foreground truncate">
                       {isLoading ? "..." : stats?.totalClients || 0}
                     </p>
-                    <p className="text-xs text-muted-foreground">Total Clients</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground truncate">Clients</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-yellow-500/10">
-                    <Briefcase className="h-5 w-5 text-yellow-500" />
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 rounded-lg bg-yellow-500/10">
+                    <Briefcase className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="min-w-0">
+                    <p className="text-lg md:text-2xl font-bold text-foreground truncate">
                       {isLoading ? "..." : stats?.totalMissions || 0}
                     </p>
-                    <p className="text-xs text-muted-foreground">Total Missions</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground truncate">Missions</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 rounded-lg bg-green-500/10">
+                    <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="min-w-0">
+                    <p className="text-lg md:text-2xl font-bold text-foreground truncate">
                       {isLoading ? "..." : stats?.completedMissions || 0}
                     </p>
-                    <p className="text-xs text-muted-foreground">Terminées</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground truncate">Terminées</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-destructive/10">
-                    <XCircle className="h-5 w-5 text-destructive" />
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 rounded-lg bg-destructive/10">
+                    <XCircle className="h-4 w-4 md:h-5 md:w-5 text-destructive" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="min-w-0">
+                    <p className="text-lg md:text-2xl font-bold text-foreground truncate">
                       {isLoading ? "..." : stats?.cancelledMissions || 0}
                     </p>
-                    <p className="text-xs text-muted-foreground">Annulées</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground truncate">Annulées</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-500/10">
-                    <FileText className="h-5 w-5 text-blue-500" />
+              <CardContent className="p-3 md:p-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
+                    <FileText className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="min-w-0">
+                    <p className="text-lg md:text-2xl font-bold text-foreground truncate">
                       {isLoading ? "..." : stats?.totalQuotes || 0}
                     </p>
-                    <p className="text-xs text-muted-foreground">Total Devis</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground truncate">Devis</p>
                   </div>
                 </div>
               </CardContent>
@@ -362,29 +362,30 @@ const AdminStatistics = () => {
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
             {/* Inscriptions Chart */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  Évolution des inscriptions ({new Date().getFullYear()})
+              <CardHeader className="pb-2 md:pb-4">
+                <CardTitle className="flex items-center gap-2 text-sm md:text-base">
+                  <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                  <span className="truncate">Inscriptions ({new Date().getFullYear()})</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="p-2 md:p-6">
+                <ResponsiveContainer width="100%" height={200} className="md:!h-[300px]">
                   <LineChart data={trends?.monthlyData || []}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} width={30} />
                     <Tooltip 
                       contentStyle={{ 
                         backgroundColor: "hsl(var(--card))", 
                         border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px"
+                        borderRadius: "8px",
+                        fontSize: "12px"
                       }} 
                     />
-                    <Legend />
+                    <Legend wrapperStyle={{ fontSize: "12px" }} />
                     <Line 
                       type="monotone" 
                       dataKey="artisans" 
@@ -406,26 +407,27 @@ const AdminStatistics = () => {
 
             {/* Missions Chart */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Briefcase className="h-5 w-5 text-yellow-500" />
-                  Missions par mois ({new Date().getFullYear()})
+              <CardHeader className="pb-2 md:pb-4">
+                <CardTitle className="flex items-center gap-2 text-sm md:text-base">
+                  <Briefcase className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
+                  <span className="truncate">Missions ({new Date().getFullYear()})</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="p-2 md:p-6">
+                <ResponsiveContainer width="100%" height={200} className="md:!h-[300px]">
                   <BarChart data={trends?.missionStats || []}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} width={30} />
                     <Tooltip 
                       contentStyle={{ 
                         backgroundColor: "hsl(var(--card))", 
                         border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px"
+                        borderRadius: "8px",
+                        fontSize: "12px"
                       }} 
                     />
-                    <Legend />
+                    <Legend wrapperStyle={{ fontSize: "12px" }} />
                     <Bar dataKey="completed" fill="#22c55e" name="Terminées" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="cancelled" fill="hsl(var(--destructive))" name="Annulées" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -435,63 +437,61 @@ const AdminStatistics = () => {
           </div>
 
           {/* Additional Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mt-6 md:mt-8">
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Taux de conversion missions</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm md:text-lg truncate">Conversion missions</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-primary mb-2">{conversionRate}%</div>
-                <p className="text-sm text-muted-foreground">Missions terminées avec succès</p>
-                <div className="flex items-center gap-1 mt-2 text-green-500">
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-sm">Données en temps réel</span>
+              <CardContent className="pt-0">
+                <div className="text-2xl md:text-4xl font-bold text-primary mb-1 md:mb-2">{conversionRate}%</div>
+                <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">Missions terminées</p>
+                <div className="flex items-center gap-1 mt-1 md:mt-2 text-green-500">
+                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="text-xs md:text-sm">Temps réel</span>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Taux de conversion devis</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm md:text-lg truncate">Conversion devis</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-primary mb-2">{quoteConversionRate}%</div>
-                <p className="text-sm text-muted-foreground">Devis acceptés</p>
-                <div className="flex items-center gap-1 mt-2 text-green-500">
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-sm">{stats?.acceptedQuotes || 0} sur {stats?.totalQuotes || 0}</span>
+              <CardContent className="pt-0">
+                <div className="text-2xl md:text-4xl font-bold text-primary mb-1 md:mb-2">{quoteConversionRate}%</div>
+                <p className="text-xs md:text-sm text-muted-foreground">Devis acceptés</p>
+                <div className="flex items-center gap-1 mt-1 md:mt-2 text-green-500">
+                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="text-xs md:text-sm">{stats?.acceptedQuotes || 0}/{stats?.totalQuotes || 0}</span>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Artisans actifs</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm md:text-lg truncate">Artisans actifs</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-primary mb-2">
+              <CardContent className="pt-0">
+                <div className="text-2xl md:text-4xl font-bold text-primary mb-1 md:mb-2">
                   {isLoading ? "..." : stats?.activeArtisans || 0}
                 </div>
-                <p className="text-sm text-muted-foreground">Artisans disponibles sur la plateforme</p>
-                <div className="flex items-center gap-1 mt-2 text-green-500">
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-sm">
-                    {stats?.verifiedArtisans || 0} vérifiés
-                  </span>
+                <p className="text-xs md:text-sm text-muted-foreground">Sur la plateforme</p>
+                <div className="flex items-center gap-1 mt-1 md:mt-2 text-green-500">
+                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="text-xs md:text-sm">{stats?.verifiedArtisans || 0} vérifiés</span>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500" />
-                  Note moyenne artisans
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm md:text-lg flex items-center gap-1">
+                  <Star className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
+                  <span className="truncate">Note moyenne</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-primary mb-2">{stats?.avgRating || "N/A"}/5</div>
-                <p className="text-sm text-muted-foreground">Basée sur {stats?.totalReviews?.toLocaleString() || 0} avis</p>
-                <div className="flex items-center gap-1 mt-2 text-green-500">
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-sm">Données en temps réel</span>
+              <CardContent className="pt-0">
+                <div className="text-2xl md:text-4xl font-bold text-primary mb-1 md:mb-2">{stats?.avgRating || "N/A"}/5</div>
+                <p className="text-xs md:text-sm text-muted-foreground">{stats?.totalReviews?.toLocaleString() || 0} avis</p>
+                <div className="flex items-center gap-1 mt-1 md:mt-2 text-green-500">
+                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="text-xs md:text-sm">Temps réel</span>
                 </div>
               </CardContent>
             </Card>

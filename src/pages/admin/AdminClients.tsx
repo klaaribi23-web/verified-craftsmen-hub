@@ -185,12 +185,72 @@ const AdminClients = () => {
         {/* Clients List */}
         <Card>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            {/* Mobile: cards */}
+            <div className="md:hidden p-3 space-y-3">
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="rounded-lg border border-border bg-card p-3">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-3 w-56 mt-2" />
+                    <div className="mt-3 flex gap-2">
+                      <Skeleton className="h-6 w-10" />
+                      <Skeleton className="h-6 w-10" />
+                    </div>
+                  </div>
+                ))
+              ) : filteredClients.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  Aucun client trouvé
+                </div>
+              ) : (
+                filteredClients.map((client) => (
+                  <div key={client.id} className="rounded-lg border border-border bg-card p-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground truncate">
+                        {client.first_name || ""} {client.last_name || ""}
+                        {!client.first_name && !client.last_name && "Client"}
+                      </p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 truncate mt-1">
+                        <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span className="truncate">{client.email}</span>
+                      </p>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1 min-w-0">
+                        <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span className="truncate">{client.phone || "Non renseigné"}</span>
+                      </div>
+                      <div className="flex items-center gap-1 min-w-0">
+                        <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span className="truncate">{client.city || "Non renseigné"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                        {formatDate(client.created_at)}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex gap-1">
+                      <Badge variant="secondary" title="Postées">
+                        {client.missionsPosted} postée{client.missionsPosted > 1 ? "s" : ""}
+                      </Badge>
+                      <Badge variant="secondary" title="Terminées">
+                        {client.missionsCompleted} terminée{client.missionsCompleted > 1 ? "s" : ""}
+                      </Badge>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
                     <th className="text-left p-4 font-medium">Client</th>
-                    <th className="text-left p-4 font-medium hidden md:table-cell">Téléphone</th>
+                    <th className="text-left p-4 font-medium">Téléphone</th>
                     <th className="text-left p-4 font-medium hidden lg:table-cell">Ville</th>
                     <th className="text-left p-4 font-medium hidden lg:table-cell">Inscrit le</th>
                     <th className="text-left p-4 font-medium">Missions</th>
@@ -201,7 +261,7 @@ const AdminClients = () => {
                     Array.from({ length: 5 }).map((_, i) => (
                       <tr key={i} className="border-t border-border">
                         <td className="p-4"><Skeleton className="h-10 w-40" /></td>
-                        <td className="p-4 hidden md:table-cell"><Skeleton className="h-4 w-24" /></td>
+                        <td className="p-4"><Skeleton className="h-4 w-24" /></td>
                         <td className="p-4 hidden lg:table-cell"><Skeleton className="h-4 w-24" /></td>
                         <td className="p-4 hidden lg:table-cell"><Skeleton className="h-4 w-24" /></td>
                         <td className="p-4"><Skeleton className="h-6 w-12" /></td>
@@ -217,22 +277,18 @@ const AdminClients = () => {
                     filteredClients.map((client) => (
                       <tr key={client.id} className="border-t border-border hover:bg-muted/30">
                         <td className="p-4">
-                          <div>
-                            <p className="font-medium text-foreground">
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground truncate">
                               {client.first_name || ""} {client.last_name || ""}
                               {!client.first_name && !client.last_name && "Client"}
                             </p>
-                            <p className="text-sm text-muted-foreground flex items-center gap-1">
-                              <Mail className="h-3 w-3" />
-                              {client.email}
-                            </p>
-                            <p className="text-sm text-muted-foreground flex items-center gap-1 md:hidden">
-                              <Phone className="h-3 w-3" />
-                              {client.phone || "Non renseigné"}
+                            <p className="text-sm text-muted-foreground flex items-center gap-1 min-w-0">
+                              <Mail className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate">{client.email}</span>
                             </p>
                           </div>
                         </td>
-                        <td className="p-4 hidden md:table-cell">
+                        <td className="p-4">
                           <span className="flex items-center gap-1 text-muted-foreground">
                             <Phone className="h-4 w-4" />
                             {client.phone || "Non renseigné"}
@@ -253,7 +309,7 @@ const AdminClients = () => {
                         <td className="p-4">
                           <div className="flex gap-1">
                             <Badge variant="secondary" title="Postées">{client.missionsPosted}</Badge>
-                            <Badge className="bg-green-500/10 text-green-500" title="Terminées">{client.missionsCompleted}</Badge>
+                            <Badge variant="secondary" title="Terminées">{client.missionsCompleted}</Badge>
                           </div>
                         </td>
                       </tr>
@@ -262,8 +318,8 @@ const AdminClients = () => {
                 </tbody>
               </table>
             </div>
-            </CardContent>
-          </Card>
+          </CardContent>
+        </Card>
           </div>
         </main>
       </div>
