@@ -69,8 +69,6 @@ const AdminArtisans = () => {
     const matchesCity = selectedCity === "Toutes" || artisan.city === selectedCity;
     const matchesStatus = selectedStatus === "Tous" || 
       (selectedStatus === "Actif" && artisan.status === "active") ||
-      (selectedStatus === "Vitrine" && (artisan.status as string) === "prospect") ||
-      (selectedStatus === "En attente" && artisan.status === "pending") ||
       (selectedStatus === "Suspendu" && artisan.status === "suspended");
     return matchesSearch && matchesCategory && matchesCity && matchesStatus;
   }) || [];
@@ -109,8 +107,6 @@ const AdminArtisans = () => {
 
   const activeCount = artisans?.filter(a => a.status === "active").length || 0;
   const suspendedCount = artisans?.filter(a => a.status === "suspended").length || 0;
-  // En attente = pending + prospect (vitrines importées massivement)
-  const pendingCount = artisans?.filter(a => a.status === "pending" || (a.status as string) === "prospect").length || 0;
 
   return (
     <>
@@ -170,8 +166,6 @@ const AdminArtisans = () => {
                 <SelectContent>
                   <SelectItem value="Tous">Tous les statuts</SelectItem>
                   <SelectItem value="Actif">Actif</SelectItem>
-                  <SelectItem value="Vitrine">Vitrine</SelectItem>
-                  <SelectItem value="En attente">En attente</SelectItem>
                   <SelectItem value="Suspendu">Suspendu</SelectItem>
                 </SelectContent>
               </Select>
@@ -183,7 +177,7 @@ const AdminArtisans = () => {
         </Card>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
+        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
           <Card>
             <CardContent className="p-3 md:p-4 text-center">
               <p className="text-xl md:text-2xl font-bold text-foreground">{artisans?.length || 0}</p>
@@ -194,12 +188,6 @@ const AdminArtisans = () => {
             <CardContent className="p-3 md:p-4 text-center">
               <p className="text-xl md:text-2xl font-bold text-green-500">{activeCount}</p>
               <p className="text-xs md:text-sm text-muted-foreground">Actifs</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-3 md:p-4 text-center">
-              <p className="text-xl md:text-2xl font-bold text-yellow-500">{pendingCount}</p>
-              <p className="text-xs md:text-sm text-muted-foreground">Attente</p>
             </CardContent>
           </Card>
           <Card>
@@ -277,17 +265,9 @@ const AdminArtisans = () => {
                           <Badge className={
                             artisan.status === "active" 
                               ? "bg-green-500/10 text-green-500" 
-                              : artisan.status === "suspended"
-                              ? "bg-destructive/10 text-destructive"
-                              : "bg-yellow-500/10 text-yellow-500"
+                              : "bg-destructive/10 text-destructive"
                           }>
-                            {artisan.status === "active" 
-                              ? "Actif" 
-                              : artisan.status === "suspended" 
-                              ? "Suspendu" 
-                              : (artisan.status as string) === "prospect"
-                              ? "Vitrine"
-                              : "En attente"}
+                            {artisan.status === "active" ? "Actif" : "Suspendu"}
                           </Badge>
                           {artisan.is_verified && (
                             <CheckCircle className="h-4 w-4 text-green-500 ml-2 inline" />
