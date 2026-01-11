@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import Navbar from "@/components/layout/Navbar";
-import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -632,7 +631,6 @@ const AdminBulkImport = () => {
   return (
     <>
       <Navbar />
-      <AdminTopBar />
       <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
 

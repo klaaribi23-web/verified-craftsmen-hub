@@ -5,7 +5,6 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import SEOHead from "@/components/seo/SEOHead";
 import Navbar from "@/components/layout/Navbar";
-import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -104,7 +103,6 @@ const AdminRecommendations = () => {
         description="Gérez et modérez les recommandations clients"
       />
       <Navbar />
-      <AdminTopBar />
       <div className="flex min-h-screen pt-28 lg:pt-20 bg-background">
         <AdminSidebar />
         <main className="flex-1">

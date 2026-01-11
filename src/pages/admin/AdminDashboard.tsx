@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
-import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { AdminStatsCard } from "@/components/admin-dashboard/AdminStatsCard";
 import { AdminNotifications } from "@/components/admin-dashboard/AdminNotifications";
@@ -49,7 +48,6 @@ const AdminDashboard = () => {
         noIndex={true}
       />
       <Navbar />
-      <AdminTopBar />
       <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
         

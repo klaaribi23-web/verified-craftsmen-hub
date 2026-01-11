@@ -44,7 +44,6 @@ import {
 import { useMessaging, formatMessageTime } from "@/hooks/useMessaging";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
-import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -331,7 +330,6 @@ const AdminMessaging = () => {
   return (
     <>
       <Navbar />
-      <AdminTopBar />
       <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
       
