@@ -373,25 +373,6 @@ const AdminApprovals = () => {
     }
   });
 
-  // Count recently claimed (prospects that became pending this month)
-  const { data: claimedThisMonth = 0 } = useQuery({
-    queryKey: ["claimed-this-month"],
-    queryFn: async () => {
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-      
-      const { count, error } = await supabase
-        .from("artisans")
-        .select("*", { count: "exact", head: true })
-        .not("user_id", "is", null)
-        .gte("updated_at", startOfMonth.toISOString());
-
-      if (error) throw error;
-      return count || 0;
-    }
-  });
-
   // Fetch total count of claimed artisans WITHOUT documents (they move to Approbation Artisans once they upload docs)
   const { data: totalClaimed = 0 } = useQuery({
     queryKey: ["claimed-artisans-count", claimedSearch],
@@ -498,56 +479,6 @@ const AdminApprovals = () => {
 
       if (error) throw error;
       return count || 0;
-    }
-  });
-
-  // Count pending claimed artisans without documents
-  const { data: claimedWithoutDocsCount = 0 } = useQuery({
-    queryKey: ["claimed-without-docs-count"],
-    queryFn: async () => {
-      // Get all pending claimed artisans
-      const { data: claimedArtisans } = await supabase
-        .from("artisans")
-        .select("id")
-        .eq("status", "pending")
-        .not("user_id", "is", null);
-      
-      if (!claimedArtisans || claimedArtisans.length === 0) return 0;
-      
-      // Get artisans that have documents
-      const { data: artisansWithDocs } = await supabase
-        .from("artisan_documents")
-        .select("artisan_id");
-      
-      const artisanIdsWithDocs = new Set(artisansWithDocs?.map(d => d.artisan_id) || []);
-      
-      // Count pending claimed artisans without documents
-      return claimedArtisans.filter(a => !artisanIdsWithDocs.has(a.id)).length;
-    }
-  });
-
-  // Count claimed artisans with documents
-  const { data: claimedWithDocsCount = 0 } = useQuery({
-    queryKey: ["claimed-with-docs-count"],
-    queryFn: async () => {
-      // Get all pending artisans with user_id
-      const { data: pendingArtisans } = await supabase
-        .from("artisans")
-        .select("id")
-        .eq("status", "pending")
-        .not("user_id", "is", null);
-      
-      if (!pendingArtisans || pendingArtisans.length === 0) return 0;
-      
-      // Get artisans that have documents
-      const { data: artisansWithDocs } = await supabase
-        .from("artisan_documents")
-        .select("artisan_id");
-      
-      const artisanIdsWithDocs = new Set(artisansWithDocs?.map(d => d.artisan_id) || []);
-      
-      // Count pending artisans with documents
-      return pendingArtisans.filter(a => artisanIdsWithDocs.has(a.id)).length;
     }
   });
 
