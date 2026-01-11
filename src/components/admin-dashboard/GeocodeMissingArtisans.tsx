@@ -108,27 +108,27 @@ export function GeocodeMissingArtisans({ onComplete }: GeocodeMissingArtisansPro
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MapPin className="h-5 w-5" />
-          Géocoder les artisans sans coordonnées
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+          <MapPin className="h-4 w-4 md:h-5 md:w-5" />
+          <span className="text-sm md:text-base">Géocoder artisans</span>
         </CardTitle>
-        <CardDescription>
-          Ajoute automatiquement les coordonnées GPS aux artisans importés pour afficher leur zone d'intervention sur la carte.
+        <CardDescription className="text-xs md:text-sm">
+          Ajoute les coordonnées GPS aux artisans pour la carte.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 pt-0">
         {!isProcessing && !results && (
-          <Button onClick={handleGeocode} className="w-full">
+          <Button onClick={handleGeocode} className="w-full text-sm" size="sm">
             <MapPin className="mr-2 h-4 w-4" />
             Lancer le géocodage
           </Button>
         )}
 
         {isProcessing && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin shrink-0" />
               Géocodage en cours...
             </div>
             <Progress value={progress} className="h-2" />
@@ -137,23 +137,23 @@ export function GeocodeMissingArtisans({ onComplete }: GeocodeMissingArtisansPro
         )}
 
         {results && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-center gap-4">
-              <Badge variant="outline" className="flex items-center gap-1">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Badge variant="outline" className="flex items-center gap-1 text-xs">
                 <CheckCircle2 className="h-3 w-3 text-green-500" />
                 {results.success} réussis
               </Badge>
               {results.failed > 0 && (
-                <Badge variant="outline" className="flex items-center gap-1">
+                <Badge variant="outline" className="flex items-center gap-1 text-xs">
                   <AlertTriangle className="h-3 w-3 text-amber-500" />
                   {results.failed} échoués
                 </Badge>
               )}
             </div>
-            <p className="text-xs text-muted-foreground text-center">
-              {results.success} artisans sur {results.total} ont maintenant des coordonnées GPS
+            <p className="text-[10px] md:text-xs text-muted-foreground text-center">
+              {results.success}/{results.total} artisans géocodés
             </p>
-            <Button onClick={handleGeocode} variant="outline" className="w-full">
+            <Button onClick={handleGeocode} variant="outline" className="w-full text-sm" size="sm">
               Relancer
             </Button>
           </div>

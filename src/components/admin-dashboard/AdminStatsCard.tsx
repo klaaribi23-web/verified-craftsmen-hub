@@ -28,19 +28,19 @@ export const AdminStatsCard = ({
 
   return (
     <Card className="border-border">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">{title}</p>
-            <p className="text-3xl font-bold text-foreground">{value}</p>
+      <CardContent className="p-3 md:p-6">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs md:text-sm text-muted-foreground mb-1 truncate">{title}</p>
+            <p className="text-xl md:text-3xl font-bold text-foreground">{value}</p>
             {trend && (
-              <p className={`text-sm mt-2 ${trend.isPositive ? 'text-green-500' : 'text-destructive'}`}>
-                {trend.isPositive ? '+' : '-'}{trend.value}% vs mois dernier
+              <p className={`text-[10px] md:text-sm mt-1 md:mt-2 ${trend.isPositive ? 'text-green-500' : 'text-destructive'}`}>
+                {trend.isPositive ? '+' : '-'}{trend.value}% <span className="hidden sm:inline">vs mois dernier</span>
               </p>
             )}
           </div>
-          <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
-            <Icon className="h-6 w-6" />
+          <div className={`p-2 md:p-3 rounded-lg shrink-0 ${colorClasses[color]}`}>
+            <Icon className="h-4 w-4 md:h-6 md:w-6" />
           </div>
         </div>
       </CardContent>
