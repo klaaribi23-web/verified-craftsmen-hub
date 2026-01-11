@@ -13,8 +13,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, TrendingUp, Users, ShoppingBag, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
+import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
+import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { DEFAULT_AVATAR } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
@@ -790,16 +792,17 @@ const AdminApprovals = () => {
   };
   return <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <AdminTopBar />
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
       
-        <main className="flex-1 p-4 md:p-8">
-          <div className="mb-4 md:mb-8">
-            <h1 className="text-xl md:text-3xl font-bold text-foreground">Demandes d'approbation</h1>
-            <p className="text-muted-foreground text-sm md:text-base mt-1">
-              Vérifiez et approuvez les profils artisans et les missions
-            </p>
-          </div>
+        <main className="flex-1">
+          <DashboardHeader 
+            title="Demandes d'approbation" 
+            subtitle="Vérifiez et approuvez les profils artisans et les missions" 
+          />
+
+          <div className="p-4 md:p-8">
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
             <TabsList className="w-full flex h-auto gap-1 p-1">
@@ -1797,7 +1800,7 @@ const AdminApprovals = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-
+          </div>
         </main>
       </div>
     </>;

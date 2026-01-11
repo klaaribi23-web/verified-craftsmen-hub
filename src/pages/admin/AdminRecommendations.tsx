@@ -5,6 +5,8 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import SEOHead from "@/components/seo/SEOHead";
 import Navbar from "@/components/layout/Navbar";
+import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
+import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -102,13 +104,16 @@ const AdminRecommendations = () => {
         description="Gérez et modérez les recommandations clients"
       />
       <Navbar />
-      <div className="flex min-h-screen pt-16 bg-background">
+      <AdminTopBar />
+      <div className="flex min-h-screen pt-28 lg:pt-20 bg-background">
         <AdminSidebar />
-        <main className="flex-1 p-4 md:p-8">
-          <div className="mb-4 md:mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Modération des Recommandations</h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-1">Validez ou rejetez les recommandations clients</p>
-          </div>
+        <main className="flex-1">
+          <DashboardHeader 
+            title="Modération des Recommandations" 
+            subtitle="Validez ou rejetez les recommandations clients" 
+          />
+
+          <div className="p-4 md:p-8">
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -328,6 +333,7 @@ const AdminRecommendations = () => {
               )}
             </TabsContent>
           </Tabs>
+          </div>
         </main>
       </div>
 

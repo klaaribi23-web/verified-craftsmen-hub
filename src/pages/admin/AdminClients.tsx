@@ -17,6 +17,8 @@ import {
   Phone
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
+import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
+import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { useProfiles, useMissions } from "@/hooks/useAdminData";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -85,14 +87,17 @@ const AdminClients = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <AdminTopBar />
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
       
-      <main className="flex-1 p-4 md:p-8">
-        <div className="mb-4 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Gestion des Clients</h1>
-          <p className="text-sm md:text-base text-muted-foreground mt-1">Consultez la liste des clients inscrits</p>
-        </div>
+        <main className="flex-1">
+          <DashboardHeader 
+            title="Gestion des Clients" 
+            subtitle="Consultez la liste des clients inscrits" 
+          />
+
+          <div className="p-4 md:p-8">
 
         {/* Filters */}
         <Card className="mb-4 md:mb-6">
@@ -261,6 +266,7 @@ const AdminClients = () => {
             </div>
             </CardContent>
           </Card>
+          </div>
         </main>
       </div>
     </>

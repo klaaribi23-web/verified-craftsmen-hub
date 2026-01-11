@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import Navbar from "@/components/layout/Navbar";
+import { AdminTopBar } from "@/components/admin-dashboard/AdminTopBar";
+import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -630,14 +632,17 @@ const AdminBulkImport = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
+      <AdminTopBar />
+      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <AdminSidebar />
 
-        <main className="flex-1 p-4 md:p-8">
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Import massif d'artisans</h1>
-            <p className="text-muted-foreground mt-1">Importez des artisans VITRINE depuis un fichier JSON ou CSV</p>
-          </div>
+        <main className="flex-1">
+          <DashboardHeader 
+            title="Import massif d'artisans" 
+            subtitle="Importez des artisans VITRINE depuis un fichier JSON ou CSV" 
+          />
+
+          <div className="p-4 md:p-8">
 
           {/* Upload Zone */}
           {!file && (
@@ -843,6 +848,7 @@ const AdminBulkImport = () => {
               </Button>
             </div>
           )}
+          </div>
         </main>
       </div>
     </>
