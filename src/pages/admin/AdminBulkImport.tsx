@@ -752,7 +752,33 @@ const AdminBulkImport = () => {
                 <CardDescription>10 premiers artisans sur {parsedData.length}</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="overflow-x-auto">
+                {/* Mobile: cards */}
+                <div className="md:hidden p-4 space-y-3">
+                  {parsedData.slice(0, 10).map((artisan, index) => (
+                    <div key={index} className="rounded-lg border border-border bg-card p-3">
+                      <div className="grid gap-2">
+                        {columns
+                          .filter((c) => c.enabled)
+                          .map((col) => (
+                            <div key={col.key} className="flex items-start justify-between gap-3">
+                              <span className="text-xs text-muted-foreground">{col.label}</span>
+                              <span className="text-xs font-medium text-right line-clamp-2">
+                                {col.key === "services"
+                                  ? artisan.services.slice(0, 2).join(", ") +
+                                    (artisan.services.length > 2 ? "..." : "")
+                                  : col.key === "portfolioImages"
+                                    ? `${artisan.portfolioImages.length} photos`
+                                    : String(artisan[col.key] || "-")}
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop: table */}
+                <div className="hidden md:block overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -771,7 +797,8 @@ const AdminBulkImport = () => {
                             .map((col) => (
                               <TableCell key={col.key} className="max-w-[200px] truncate">
                                 {col.key === "services"
-                                  ? artisan.services.slice(0, 2).join(", ") + (artisan.services.length > 2 ? "..." : "")
+                                  ? artisan.services.slice(0, 2).join(", ") +
+                                    (artisan.services.length > 2 ? "..." : "")
                                   : col.key === "portfolioImages"
                                     ? `${artisan.portfolioImages.length} photos`
                                     : String(artisan[col.key] || "-")}
