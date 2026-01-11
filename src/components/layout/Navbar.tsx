@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, LogOut, LayoutDashboard, FileText, Settings, MessageCircle, ChevronDown, Heart, Briefcase, Camera, ClipboardList, Crown, Gift } from "lucide-react";
+import { Menu, X, User, Users, UserCheck, UserPlus, Upload, LogOut, LayoutDashboard, BarChart3, FileText, Settings, MessageCircle, ThumbsUp, ChevronDown, Heart, Briefcase, Camera, ClipboardList, Crown, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -75,16 +75,24 @@ const Navbar = () => {
 
   // Bloquer le scroll du body quand la sidebar dashboard est ouverte
   useEffect(() => {
-    if (isDashboardSidebarOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+    const shouldDisableDashboardSidebar =
+      role === "admin" && location.pathname.startsWith("/admin");
+
+    // Sur les pages admin, la navigation mobile est gérée par AdminTopBar.
+    if (shouldDisableDashboardSidebar && isDashboardSidebarOpen) {
+      setIsDashboardSidebarOpen(false);
     }
-    
+
+    if (isDashboardSidebarOpen && !shouldDisableDashboardSidebar) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
-  }, [isDashboardSidebarOpen]);
+  }, [isDashboardSidebarOpen, role, location.pathname]);
 
   // Get messaging link based on role
   const getMessagingLink = () => {
@@ -102,6 +110,14 @@ const Navbar = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const isAdminDashboardRoute =
+    role === "admin" && location.pathname.startsWith("/admin");
+
+  // Sur mobile, on garde le drawer global (avatar) pour les clients/artisans.
+  // Sur les pages admin, on le masque (AdminTopBar gère le menu) pour éviter les doublons.
+  const showMobileDashboardNav =
+    isAuthenticated && !isLoading && !isAdminDashboardRoute;
 
   const handleSignOut = async () => {
     await signOut();
@@ -134,7 +150,7 @@ const Navbar = () => {
 
   // Get settings link based on role
   const getSettingsLink = () => {
-    if (role === "admin") return "/admin/dashboard";
+    if (role === "admin") return "/admin/parametres";
     if (role === "artisan") return "/artisan/parametres";
     return "/client/parametres";
   };
@@ -151,14 +167,17 @@ const Navbar = () => {
     if (role === "admin") {
       return {
         main: [
-          { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
-          { icon: User, label: "Artisans", href: "/admin/artisans" },
-          { icon: ClipboardList, label: "Clients", href: "/admin/clients" },
+          { icon: LayoutDashboard, label: "Tableau de bord", href: "/admin/dashboard" },
           { icon: Settings, label: "Approbations", href: "/admin/approbations" },
-          { icon: FileText, label: "Documents", href: "/admin/documents" },
+          { icon: ThumbsUp, label: "Recommandations", href: "/admin/recommandations" },
+          { icon: Users, label: "Artisans", href: "/admin/artisans" },
+          { icon: UserCheck, label: "Clients", href: "/admin/clients" },
+          { icon: BarChart3, label: "Statistiques", href: "/admin/statistiques" },
         ],
         secondary: [
           { icon: MessageCircle, label: "Messagerie", href: "/admin/messagerie" },
+          { icon: UserPlus, label: "Ajouter artisan", href: "/admin/ajouter-artisan" },
+          { icon: Upload, label: "Import massif", href: "/admin/import-massif" },
           { icon: Settings, label: "Paramètres", href: "/admin/parametres" },
         ],
       };
@@ -378,7 +397,7 @@ const Navbar = () => {
   return (
     <>
       {/* Mobile/Tablet Top Bar for authenticated users */}
-      {isAuthenticated && !isLoading && (
+      {showMobileDashboardNav && (
         <div className="fixed top-0 left-0 right-0 z-[55] bg-navy lg:hidden">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-end h-12">
@@ -388,9 +407,9 @@ const Navbar = () => {
                 className="p-1"
               >
                 <Avatar className="h-8 w-8 border-2 border-gold">
-                  <AvatarImage 
-                    src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR} 
-                    alt="Avatar" 
+                  <AvatarImage
+                    src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR}
+                    alt="Avatar"
                   />
                   <AvatarFallback className="bg-gold/20 text-white text-sm">
                     {getUserInitials()}
@@ -404,7 +423,7 @@ const Navbar = () => {
 
       {/* Mobile Dashboard Sidebar - Full Width */}
       <AnimatePresence>
-        {isDashboardSidebarOpen && (
+        {showMobileDashboardNav && isDashboardSidebarOpen && (
           <>
             {/* Backdrop */}
             <motion.div
@@ -414,7 +433,7 @@ const Navbar = () => {
               className="fixed inset-0 bg-black/50 z-[60] lg:hidden"
               onClick={() => setIsDashboardSidebarOpen(false)}
             />
-            
+
             {/* Sidebar Panel */}
             <motion.div
               initial={{ x: "100%" }}
@@ -427,8 +446,8 @@ const Navbar = () => {
               <div className="bg-navy p-4 flex items-center justify-between sticky top-0">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12 border-2 border-gold">
-                    <AvatarImage 
-                      src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR} 
+                    <AvatarImage
+                      src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR}
                       alt="Avatar"
                     />
                     <AvatarFallback className="bg-gold/20 text-white">
@@ -442,7 +461,7 @@ const Navbar = () => {
                     <p className="text-white/70 text-sm truncate max-w-[180px]">{user?.email}</p>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setIsDashboardSidebarOpen(false)}
                   className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
                 >
@@ -460,11 +479,13 @@ const Navbar = () => {
       </AnimatePresence>
 
       {/* Main Header */}
-      <header className={cn(
-        "fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-border",
-        // Shift down when top bar is visible (mobile + authenticated)
-        isAuthenticated && !isLoading ? "top-12 lg:top-0" : "top-0"
-      )}>
+      <header
+        className={cn(
+          "fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-border",
+          // Shift down when top bar is visible (mobile + authenticated)
+          showMobileDashboardNav ? "top-12 lg:top-0" : "top-0",
+        )}
+      >
         <nav className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}

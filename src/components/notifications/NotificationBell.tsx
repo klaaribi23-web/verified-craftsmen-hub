@@ -74,7 +74,8 @@ const NotificationBell = ({ variant = "default" }: NotificationBellProps) => {
       case "rejection":
         return "/artisan/dashboard";
       case "new_document":
-        return "/admin/documents";
+        // Les documents sont modérés dans l'onglet Approbations
+        return "/admin/approbations";
       default:
         return null;
     }

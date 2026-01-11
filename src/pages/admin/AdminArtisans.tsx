@@ -206,7 +206,115 @@ const AdminArtisans = () => {
         {/* Artisans List */}
         <Card>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            {/* Mobile: cards */}
+            <div className="md:hidden p-3 space-y-3">
+              {artisansLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="rounded-lg border border-border bg-card p-3">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-10 h-10 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="h-3 w-28" />
+                      </div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-4 gap-2">
+                      <Skeleton className="h-10 w-full" />
+                      <Skeleton className="h-10 w-full" />
+                      <Skeleton className="h-10 w-full" />
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  </div>
+                ))
+              ) : filteredArtisans.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  Aucun artisan trouvé
+                </div>
+              ) : (
+                filteredArtisans.map((artisan) => (
+                  <div key={artisan.id} className="rounded-lg border border-border bg-card p-3">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={
+                          artisan.photo_url ||
+                          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
+                        }
+                        alt={artisan.business_name}
+                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                        loading="lazy"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground truncate">
+                              {artisan.business_name}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {artisan.siret || "SIRET non renseigné"}
+                            </p>
+                          </div>
+                          <Badge variant={artisan.status === "active" ? "secondary" : "destructive"}>
+                            {artisan.status === "active" ? "Actif" : "Suspendu"}
+                          </Badge>
+                        </div>
+
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin className="h-3.5 w-3.5" />
+                            <span className="truncate">{artisan.city}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5" />
+                            {format(new Date(artisan.created_at), "dd/MM/yyyy", { locale: fr })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-4 gap-2">
+                      <Link to={`/artisan/${artisan.slug || artisan.id}`} className="w-full">
+                        <Button size="icon" variant="outline" className="w-full" aria-label="Voir le profil">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="w-full"
+                        aria-label="Modifier"
+                        onClick={() => {
+                          setSelectedArtisan(artisan);
+                          setEditDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Link to={`/admin/messagerie?artisan=${artisan.profile_id}`} className="w-full">
+                        <Button size="icon" variant="outline" className="w-full" aria-label="Messagerie">
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        size="icon"
+                        variant={artisan.status === "suspended" ? "default" : "destructive"}
+                        className="w-full"
+                        onClick={() => handleRevoke(artisan)}
+                        aria-label={artisan.status === "suspended" ? "Réactiver" : "Suspendre"}
+                      >
+                        {artisan.status === "suspended" ? (
+                          <CheckCircle className="h-4 w-4" />
+                        ) : (
+                          <UserX className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
@@ -228,26 +336,42 @@ const AdminArtisans = () => {
                             <Skeleton className="h-4 w-32" />
                           </div>
                         </td>
-                        <td className="p-4"><Skeleton className="h-4 w-20" /></td>
-                        <td className="p-4"><Skeleton className="h-4 w-20" /></td>
-                        <td className="p-4"><Skeleton className="h-4 w-24" /></td>
-                        <td className="p-4"><Skeleton className="h-4 w-16" /></td>
-                        <td className="p-4"><Skeleton className="h-8 w-32" /></td>
+                        <td className="p-4">
+                          <Skeleton className="h-4 w-20" />
+                        </td>
+                        <td className="p-4">
+                          <Skeleton className="h-4 w-20" />
+                        </td>
+                        <td className="p-4">
+                          <Skeleton className="h-4 w-24" />
+                        </td>
+                        <td className="p-4">
+                          <Skeleton className="h-4 w-16" />
+                        </td>
+                        <td className="p-4">
+                          <Skeleton className="h-8 w-32" />
+                        </td>
                       </tr>
                     ))
                   ) : (
                     filteredArtisans.map((artisan) => (
                       <tr key={artisan.id} className="border-t border-border hover:bg-muted/30">
                         <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <img 
-                              src={artisan.photo_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"} 
-                              alt={artisan.business_name} 
-                              className="w-10 h-10 rounded-full object-cover" 
+                          <div className="flex items-center gap-3 min-w-0">
+                            <img
+                              src={
+                                artisan.photo_url ||
+                                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
+                              }
+                              alt={artisan.business_name}
+                              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                              loading="lazy"
                             />
-                            <div>
-                              <p className="font-medium text-foreground">{artisan.business_name}</p>
-                              <p className="text-sm text-muted-foreground">{artisan.siret || "SIRET non renseigné"}</p>
+                            <div className="min-w-0">
+                              <p className="font-medium text-foreground truncate">{artisan.business_name}</p>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {artisan.siret || "SIRET non renseigné"}
+                              </p>
                             </div>
                           </div>
                         </td>
@@ -267,15 +391,11 @@ const AdminArtisans = () => {
                           </span>
                         </td>
                         <td className="p-4">
-                          <Badge className={
-                            artisan.status === "active" 
-                              ? "bg-green-500/10 text-green-500" 
-                              : "bg-destructive/10 text-destructive"
-                          }>
+                          <Badge variant={artisan.status === "active" ? "secondary" : "destructive"}>
                             {artisan.status === "active" ? "Actif" : "Suspendu"}
                           </Badge>
                           {artisan.is_verified && (
-                            <CheckCircle className="h-4 w-4 text-green-500 ml-2 inline" />
+                            <CheckCircle className="h-4 w-4 text-muted-foreground ml-2 inline" />
                           )}
                         </td>
                         <td className="p-4">
@@ -285,8 +405,8 @@ const AdminArtisans = () => {
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </Link>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
                               title="Modifier"
                               onClick={() => {
@@ -301,13 +421,17 @@ const AdminArtisans = () => {
                                 <MessageSquare className="h-4 w-4" />
                               </Button>
                             </Link>
-                            <Button 
-                              size="sm" 
-                              variant={artisan.status === "suspended" ? "default" : "destructive"} 
+                            <Button
+                              size="sm"
+                              variant={artisan.status === "suspended" ? "default" : "destructive"}
                               onClick={() => handleRevoke(artisan)}
                               title={artisan.status === "suspended" ? "Réactiver" : "Suspendre"}
                             >
-                              {artisan.status === "suspended" ? <CheckCircle className="h-4 w-4" /> : <UserX className="h-4 w-4" />}
+                              {artisan.status === "suspended" ? (
+                                <CheckCircle className="h-4 w-4" />
+                              ) : (
+                                <UserX className="h-4 w-4" />
+                              )}
                             </Button>
                           </div>
                         </td>
