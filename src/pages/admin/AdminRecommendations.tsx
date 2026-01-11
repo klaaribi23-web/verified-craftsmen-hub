@@ -114,37 +114,37 @@ const AdminRecommendations = () => {
           <div className="p-4 md:p-8">
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
             <Card>
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-12 w-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-amber-500" />
+              <CardContent className="p-3 md:p-4 flex items-center gap-2 md:gap-4">
+                <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                  <Clock className="h-5 w-5 md:h-6 md:w-6 text-amber-500" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">{counts.pending}</p>
-                  <p className="text-sm text-muted-foreground">En attente</p>
+                <div className="min-w-0">
+                  <p className="text-xl md:text-2xl font-bold">{counts.pending}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground truncate">En attente</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-green-500" />
+              <CardContent className="p-3 md:p-4 flex items-center gap-2 md:gap-4">
+                <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-green-500/10 flex items-center justify-center shrink-0">
+                  <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">{counts.approved}</p>
-                  <p className="text-sm text-muted-foreground">Approuvées</p>
+                <div className="min-w-0">
+                  <p className="text-xl md:text-2xl font-bold">{counts.approved}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground truncate">Approuvées</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                  <XCircle className="h-6 w-6 text-red-500" />
+              <CardContent className="p-3 md:p-4 flex items-center gap-2 md:gap-4">
+                <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+                  <XCircle className="h-5 w-5 md:h-6 md:w-6 text-red-500" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">{counts.rejected}</p>
-                  <p className="text-sm text-muted-foreground">Rejetées</p>
+                <div className="min-w-0">
+                  <p className="text-xl md:text-2xl font-bold">{counts.rejected}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground truncate">Rejetées</p>
                 </div>
               </CardContent>
             </Card>
@@ -152,16 +152,23 @@ const AdminRecommendations = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-            <TabsList className="mb-4">
-              <TabsTrigger value="all">Toutes</TabsTrigger>
-              <TabsTrigger value="approved">Approuvées</TabsTrigger>
-              <TabsTrigger value="pending" className="gap-2">
-                En attente
+            <TabsList className="mb-4 flex-wrap h-auto gap-1">
+              <TabsTrigger value="all" className="text-xs md:text-sm px-2 md:px-3">Toutes</TabsTrigger>
+              <TabsTrigger value="approved" className="text-xs md:text-sm px-2 md:px-3">
+                <span className="hidden sm:inline">Approuvées</span>
+                <span className="sm:hidden">OK</span>
+              </TabsTrigger>
+              <TabsTrigger value="pending" className="gap-1 text-xs md:text-sm px-2 md:px-3">
+                <span className="hidden sm:inline">En attente</span>
+                <span className="sm:hidden">Attente</span>
                 {counts.pending > 0 && (
-                  <Badge variant="secondary" className="ml-1">{counts.pending}</Badge>
+                  <Badge variant="secondary" className="ml-0.5 md:ml-1 text-[10px] md:text-xs px-1">{counts.pending}</Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="rejected">Rejetées</TabsTrigger>
+              <TabsTrigger value="rejected" className="text-xs md:text-sm px-2 md:px-3">
+                <span className="hidden sm:inline">Rejetées</span>
+                <span className="sm:hidden">Refus</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value={activeTab}>
