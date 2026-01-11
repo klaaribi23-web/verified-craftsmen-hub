@@ -402,11 +402,11 @@ const ArtisanPublicProfile = () => {
                               </p>
                               <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
                                 <a 
-                                  href="tel:+33123456789" 
+                                  href="tel:0353632999" 
                                   className="flex items-center gap-3 text-primary hover:underline font-medium"
                                 >
                                   <Phone className="h-5 w-5" />
-                                  01 23 45 67 89
+                                  03 53 63 29 99
                                 </a>
                                 <a 
                                   href="mailto:contact@artisansvalides.fr" 
@@ -914,11 +914,11 @@ const ArtisanPublicProfile = () => {
                       </p>
                       <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
                         <a 
-                          href="tel:+33123456789" 
+                          href="tel:0353632999" 
                           className="flex items-center gap-3 text-primary hover:underline font-medium"
                         >
                           <Phone className="h-5 w-5" />
-                          01 23 45 67 89
+                          03 53 63 29 99
                         </a>
                         <a 
                           href="mailto:contact@artisansvalides.fr" 
