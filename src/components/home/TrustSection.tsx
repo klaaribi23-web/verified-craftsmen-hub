@@ -47,7 +47,7 @@ const TrustSection = () => {
           <span className="inline-block px-4 py-1.5 rounded-full bg-gold/20 text-gold text-sm font-medium mb-4">
             Garantie qualité
           </span>
-          <h2 className="text-xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
             Pourquoi nous faire <span className="text-gradient-gold">confiance</span> ?
           </h2>
           <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto text-center\n">

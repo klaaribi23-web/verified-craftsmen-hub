@@ -129,7 +129,7 @@ const HowItWorksSection = () => {
         }}>
             Simple et efficace
           </motion.span>
-          <h2 className="text-xl md:text-4xl lg:text-5xl font-bold text-navy mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy mb-4">
             Comment ça marche ?
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-center\n">
