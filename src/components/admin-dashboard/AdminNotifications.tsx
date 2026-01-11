@@ -249,26 +249,26 @@ export const AdminNotifications = () => {
 
   return (
     <Card className="border-border">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="flex items-center gap-2">
-          <Bell className="h-5 w-5" />
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2">
+        <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+          <Bell className="h-4 w-4 md:h-5 md:w-5" />
           Notifications
         </CardTitle>
-        <Badge variant="secondary">{newCount} nouvelles</Badge>
+        <Badge variant="secondary" className="w-fit text-xs">{newCount} nouvelles</Badge>
       </CardHeader>
       
       {/* Action buttons */}
       {notifications.length > 0 && (
-        <div className="px-6 pb-2 flex gap-2">
+        <div className="px-4 md:px-6 pb-2 flex flex-wrap gap-2">
           {newCount > 0 && (
             <Button 
               variant="outline" 
               size="sm" 
               onClick={markAllAsRead}
-              className="text-xs"
+              className="text-xs h-7 px-2"
             >
               <Check className="h-3 w-3 mr-1" />
-              Tout marquer lu
+              <span className="hidden xs:inline">Tout</span> lu
             </Button>
           )}
           {readCount > 0 && (
@@ -276,16 +276,16 @@ export const AdminNotifications = () => {
               variant="outline" 
               size="sm" 
               onClick={deleteReadNotifications}
-              className="text-xs text-destructive hover:text-destructive"
+              className="text-xs text-destructive hover:text-destructive h-7 px-2"
             >
               <Trash2 className="h-3 w-3 mr-1" />
-              Supprimer lues ({readCount})
+              <span className="hidden xs:inline">Suppr.</span> ({readCount})
             </Button>
           )}
         </div>
       )}
 
-      <CardContent className="space-y-3 max-h-96 overflow-y-auto pt-2">
+      <CardContent className="space-y-2 md:space-y-3 max-h-80 md:max-h-96 overflow-y-auto pt-2 px-3 md:px-6">
         {notifications.length > 0 ? (
           notifications.map((notification) => {
             const Icon = getIcon(notification.type);
@@ -297,23 +297,23 @@ export const AdminNotifications = () => {
             return (
               <div
                 key={notification.id}
-                className={`flex items-start gap-3 p-3 rounded-lg transition-colors group ${
+                className={`flex items-start gap-2 md:gap-3 p-2 md:p-3 rounded-lg transition-colors group ${
                   !notification.is_read ? "bg-primary/5" : "hover:bg-muted"
                 }`}
               >
-                <div className={`p-2 rounded-full ${getColor(notification.type)}`}>
-                  <Icon className="h-4 w-4" />
+                <div className={`p-1.5 md:p-2 rounded-full shrink-0 ${getColor(notification.type)}`}>
+                  <Icon className="h-3 w-3 md:h-4 md:w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground">{notification.message}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{timeAgo}</p>
+                  <p className="text-xs md:text-sm text-foreground line-clamp-2">{notification.message}</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground mt-1">{timeAgo}</p>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                   {!notification.is_read && (
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7"
+                      className="h-6 w-6 md:h-7 md:w-7"
                       onClick={() => markAsRead(notification.id)}
                       title="Marquer comme lu"
                     >
@@ -323,7 +323,7 @@ export const AdminNotifications = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-destructive hover:text-destructive"
+                    className="h-6 w-6 md:h-7 md:w-7 text-destructive hover:text-destructive"
                     onClick={() => deleteNotification(notification.id)}
                     title="Supprimer"
                   >
@@ -331,18 +331,18 @@ export const AdminNotifications = () => {
                   </Button>
                 </div>
                 {!notification.is_read && (
-                  <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                  <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-primary mt-2 shrink-0" />
                 )}
               </div>
             );
           })
         ) : (
-          <p className="text-center text-muted-foreground py-8">
+          <p className="text-center text-muted-foreground py-6 text-sm">
             Aucune notification
           </p>
         )}
         {notifications.length > 0 && (
-          <Button variant="outline" className="w-full mt-4">
+          <Button variant="outline" className="w-full mt-3 text-sm">
             Voir toutes les notifications
           </Button>
         )}
