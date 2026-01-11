@@ -1092,24 +1092,25 @@ const AdminApprovals = () => {
             {/* VITRINES TAB */}
             <TabsContent value="vitrines">
               {/* Sub-tabs for Vitrines */}
-              <Tabs value={vitrineSubTab} onValueChange={setVitrineSubTab} className="mt-4">
-                <TabsList className="mb-4 flex-wrap">
-                  <TabsTrigger value="actives" className="gap-1.5">
-                    <Store className="h-4 w-4" />
-                    <span className="hidden sm:inline">Vitrines</span> actives
-                    <Badge variant="secondary" className="ml-1 text-xs">{totalProspects.toLocaleString('fr-FR')}</Badge>
-                  </TabsTrigger>
-                  <TabsTrigger value="en-attente" className="gap-1.5">
-                    <Mail className="h-4 w-4" />
-                    <span className="hidden sm:inline">Vitrines</span> en attente
-                    <Badge variant="secondary" className="ml-1 text-xs">{totalWaiting}</Badge>
-                  </TabsTrigger>
-                  <TabsTrigger value="confirmees" className="gap-1.5">
-                    <UserCheck className="h-4 w-4" />
-                    <span className="hidden sm:inline">Vitrines</span> confirmées
-                    <Badge variant="secondary" className="ml-1 text-xs">{totalClaimed}</Badge>
-                  </TabsTrigger>
-                </TabsList>
+              <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-xl p-4 md:p-6 border border-primary/20">
+                <Tabs value={vitrineSubTab} onValueChange={setVitrineSubTab}>
+                  <TabsList className="mb-4 flex-wrap bg-white/80 dark:bg-background/80 shadow-sm">
+                    <TabsTrigger value="actives" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      <Store className="h-4 w-4" />
+                      <span className="hidden sm:inline">Vitrines</span> actives
+                      <Badge variant="secondary" className="ml-1 text-xs">{totalProspects.toLocaleString('fr-FR')}</Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="en-attente" className="gap-1.5 data-[state=active]:bg-amber-500 data-[state=active]:text-white">
+                      <Mail className="h-4 w-4" />
+                      <span className="hidden sm:inline">Vitrines</span> en attente
+                      <Badge variant="secondary" className="ml-1 text-xs">{totalWaiting}</Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="confirmees" className="gap-1.5 data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
+                      <UserCheck className="h-4 w-4" />
+                      <span className="hidden sm:inline">Vitrines</span> confirmées
+                      <Badge variant="secondary" className="ml-1 text-xs">{totalClaimed}</Badge>
+                    </TabsTrigger>
+                  </TabsList>
 
                 {/* VITRINES ACTIVES SUB-TAB */}
                 <TabsContent value="actives">
@@ -1738,6 +1739,7 @@ const AdminApprovals = () => {
                   )}
                 </TabsContent>
               </Tabs>
+              </div>
             </TabsContent>
           </Tabs>
 
