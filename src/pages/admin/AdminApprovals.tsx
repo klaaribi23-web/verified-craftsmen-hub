@@ -69,7 +69,7 @@ import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
-import { VitrineStatsCharts } from "@/components/admin-dashboard/VitrineStatsCharts";
+
 
 const PROSPECTS_PER_PAGE = 50;
 
@@ -1160,108 +1160,6 @@ const AdminApprovals = () => {
 
             {/* VITRINES TAB */}
             <TabsContent value="vitrines">
-              {/* Stats Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
-                <Card>
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <ShoppingBag className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Vitrines actives</p>
-                        <p className="text-lg md:text-2xl font-bold">{totalProspects.toLocaleString('fr-FR')}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="p-2 bg-emerald-500/10 rounded-lg">
-                        <UserCheck className="h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Total revendiquées</p>
-                        <p className="text-lg md:text-2xl font-bold">{totalClaimed}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="p-2 bg-amber-500/10 rounded-lg">
-                        <Clock className="h-4 w-4 md:h-5 md:w-5 text-amber-500" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">En attente</p>
-                        <p className="text-lg md:text-2xl font-bold">{pendingApprovalCount}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="p-2 bg-gold/10 rounded-lg">
-                        <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-gold" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Ce mois</p>
-                        <p className="text-lg md:text-2xl font-bold">{claimedThisMonth}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Second row of stats for claimed */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
-                <Card>
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="p-2 bg-red-500/10 rounded-lg">
-                        <AlertCircle className="h-4 w-4 md:h-5 md:w-5 text-red-500" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Sans documents</p>
-                        <p className="text-lg md:text-2xl font-bold">{claimedWithoutDocsCount}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="p-2 bg-blue-500/10 rounded-lg">
-                        <FileText className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Avec documents</p>
-                        <p className="text-lg md:text-2xl font-bold">{claimedWithDocsCount}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="p-2 bg-emerald-500/10 rounded-lg">
-                        <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Prêts à approuver</p>
-                        <p className="text-lg md:text-2xl font-bold">{claimedWithDocsCount}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Detailed Statistics Charts */}
-              <VitrineStatsCharts />
-
               {/* Sub-tabs for Vitrines */}
               <Tabs value={vitrineSubTab} onValueChange={setVitrineSubTab} className="mt-4">
                 <TabsList className="mb-4 flex-wrap">
