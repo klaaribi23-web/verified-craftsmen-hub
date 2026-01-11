@@ -78,6 +78,7 @@ export const useArtisans = () => {
           *,
           category:categories(id, name)
         `)
+        .in("status", ["active", "suspended"])
         .order("created_at", { ascending: false });
 
       if (error) throw error;
