@@ -139,6 +139,7 @@ interface ClaimedArtisan {
     last_name: string | null;
     email: string;
     phone: string | null;
+    created_at: string;
   } | null;
   documents_count?: number;
   documents_pending?: number;
@@ -451,7 +452,7 @@ const AdminApprovals = () => {
           slug,
           status,
           category:categories(name),
-          profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
+          profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone, created_at)
         `)
         .not("user_id", "is", null)
         .eq("status", "pending");
@@ -1820,7 +1821,7 @@ const AdminApprovals = () => {
                                     </div>
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                       <Calendar className="h-3.5 w-3.5 shrink-0" />
-                                      <span>Compte créé le {formatDate(artisan.updated_at)}</span>
+                                      <span>Compte créé le {artisan.profile?.created_at ? formatDate(artisan.profile.created_at) : formatDate(artisan.updated_at)}</span>
                                     </div>
                                   </div>
                                   
