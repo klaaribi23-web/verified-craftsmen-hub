@@ -8,71 +8,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import {
-  CheckCircle2,
-  XCircle,
-  Eye,
-  Clock,
-  MapPin,
-  AlertCircle,
-  Loader2,
-  Briefcase,
-  Euro,
-  User,
-  Store,
-  ExternalLink,
-  Pencil,
-  Trash2,
-  TrendingUp,
-  Users,
-  ShoppingBag,
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  Mail,
-  Phone,
-  Calendar,
-  UserCheck,
-  FileText,
-  Download,
-  File,
-  
-} from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, TrendingUp, Users, ShoppingBag, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
-
-
 const PROSPECTS_PER_PAGE = 50;
-
 interface PendingArtisan {
   id: string;
   business_name: string;
@@ -84,15 +30,16 @@ interface PendingArtisan {
   portfolio_images: string[] | null;
   created_at: string;
   slug: string | null;
-  category: { name: string } | null;
-  profile: { 
-    first_name: string | null; 
+  category: {
+    name: string;
+  } | null;
+  profile: {
+    first_name: string | null;
     last_name: string | null;
     email: string;
     phone: string | null;
   } | null;
 }
-
 interface ProspectArtisan {
   id: string;
   business_name: string;
@@ -102,9 +49,10 @@ interface ProspectArtisan {
   portfolio_images: string[] | null;
   created_at: string;
   slug: string | null;
-  category: { name: string } | null;
+  category: {
+    name: string;
+  } | null;
 }
-
 interface WaitingArtisan {
   id: string;
   business_name: string;
@@ -118,9 +66,10 @@ interface WaitingArtisan {
   reminder_count: number | null;
   reminder_sent_at: string | null;
   slug: string | null;
-  category: { name: string } | null;
+  category: {
+    name: string;
+  } | null;
 }
-
 interface ClaimedArtisan {
   id: string;
   business_name: string;
@@ -133,7 +82,9 @@ interface ClaimedArtisan {
   updated_at: string;
   slug: string | null;
   status: string;
-  category: { name: string } | null;
+  category: {
+    name: string;
+  } | null;
   profile: {
     first_name: string | null;
     last_name: string | null;
@@ -145,7 +96,6 @@ interface ClaimedArtisan {
   documents_pending?: number;
   documents_approved?: number;
 }
-
 interface PendingMission {
   id: string;
   title: string;
@@ -154,14 +104,15 @@ interface PendingMission {
   budget: number | null;
   created_at: string;
   photos?: string[] | null;
-  category: { name: string } | null;
+  category: {
+    name: string;
+  } | null;
   client: {
     first_name: string | null;
     last_name: string | null;
     email: string;
   } | null;
 }
-
 interface ArtisanDocument {
   id: string;
   artisan_id: string;
@@ -174,7 +125,6 @@ interface ArtisanDocument {
   created_at: string;
   updated_at: string;
 }
-
 const AdminApprovals = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -187,58 +137,62 @@ const AdminApprovals = () => {
   const [prospectToDelete, setProspectToDelete] = useState<ProspectArtisan | null>(null);
   const [editProspect, setEditProspect] = useState<ProspectArtisan | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  
+
   // Documents dialog state
   const [showDocumentsDialog, setShowDocumentsDialog] = useState(false);
   const [documentsArtisan, setDocumentsArtisan] = useState<PendingArtisan | null>(null);
   const [artisanDocuments, setArtisanDocuments] = useState<ArtisanDocument[]>([]);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
-  
+
   // Pre-registration confirmation dialog state
   const [showPreregistrationDialog, setShowPreregistrationDialog] = useState(false);
-  const [preregistrationProspect, setPreregistrationProspect] = useState<{ prospect: ProspectArtisan; email: string } | null>(null);
+  const [preregistrationProspect, setPreregistrationProspect] = useState<{
+    prospect: ProspectArtisan;
+    email: string;
+  } | null>(null);
   const [isSendingPreregistration, setIsSendingPreregistration] = useState(false);
-  
-  
+
   // Pagination state for prospects
   const [prospectPage, setProspectPage] = useState(0);
   const [prospectsPerPage, setProspectsPerPage] = useState(PROSPECTS_PER_PAGE);
   const [prospectSearch, setProspectSearch] = useState("");
-  
+
   // Sub-tab state for vitrines
   const [vitrineSubTab, setVitrineSubTab] = useState("actives");
-  
+
   // Pagination state for waiting artisans (email sent, no account)
   const [waitingPage, setWaitingPage] = useState(0);
   const [waitingPerPage, setWaitingPerPage] = useState(50);
   const [waitingSearch, setWaitingSearch] = useState("");
-  
+
   // Pagination state for claimed artisans
   const [claimedPage, setClaimedPage] = useState(0);
   const [claimedPerPage, setClaimedPerPage] = useState(50);
   const [claimedSearch, setClaimedSearch] = useState("");
 
   // Fetch pending artisans (only those with at least 1 document)
-  const { data: pendingArtisans = [], isLoading: isLoadingArtisans } = useQuery({
+  const {
+    data: pendingArtisans = [],
+    isLoading: isLoadingArtisans
+  } = useQuery({
     queryKey: ["pending-artisans"],
     queryFn: async () => {
       // First, get artisan IDs that have at least one document
-      const { data: artisansWithDocs, error: docsError } = await supabase
-        .from("artisan_documents")
-        .select("artisan_id");
-      
+      const {
+        data: artisansWithDocs,
+        error: docsError
+      } = await supabase.from("artisan_documents").select("artisan_id");
       if (docsError) throw docsError;
-      
       const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
-      
       if (artisanIdsWithDocs.length === 0) {
         return [] as PendingArtisan[];
       }
-      
+
       // Then fetch pending artisans who have documents
-      const { data, error } = await supabase
-        .from("artisans")
-        .select(`
+      const {
+        data,
+        error
+      } = await supabase.from("artisans").select(`
           id,
           business_name,
           city,
@@ -251,43 +205,44 @@ const AdminApprovals = () => {
           slug,
           category:categories(name),
           profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
-        `)
-        .eq("status", "pending")
-        .in("id", artisanIdsWithDocs)
-        .order("created_at", { ascending: false });
-
+        `).eq("status", "pending").in("id", artisanIdsWithDocs).order("created_at", {
+        ascending: false
+      });
       if (error) throw error;
       return data as PendingArtisan[];
     }
   });
 
   // Fetch total count of prospect artisans
-  const { data: totalProspects = 0 } = useQuery({
+  const {
+    data: totalProspects = 0
+  } = useQuery({
     queryKey: ["prospect-artisans-count", prospectSearch],
     queryFn: async () => {
-      let query = supabase
-        .from("artisans")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "prospect")
-        .is("user_id", null);
-      
+      let query = supabase.from("artisans").select("*", {
+        count: "exact",
+        head: true
+      }).eq("status", "prospect").is("user_id", null);
       if (prospectSearch.trim()) {
         query = query.or(`business_name.ilike.%${prospectSearch}%,city.ilike.%${prospectSearch}%`);
       }
-
-      const { count, error } = await query;
+      const {
+        count,
+        error
+      } = await query;
       if (error) throw error;
       return count || 0;
     }
   });
 
   // Fetch prospect artisans (vitrines) with pagination
-  const { data: prospectArtisans = [], isLoading: isLoadingProspects } = useQuery({
+  const {
+    data: prospectArtisans = [],
+    isLoading: isLoadingProspects
+  } = useQuery({
     queryKey: ["prospect-artisans", prospectPage, prospectsPerPage, prospectSearch],
     queryFn: async () => {
-      let query = supabase
-        .from("artisans")
-        .select(`
+      let query = supabase.from("artisans").select(`
           id,
           business_name,
           city,
@@ -297,51 +252,51 @@ const AdminApprovals = () => {
           created_at,
           slug,
           category:categories(name)
-        `)
-        .eq("status", "prospect")
-        .is("user_id", null);
-      
+        `).eq("status", "prospect").is("user_id", null);
       if (prospectSearch.trim()) {
         query = query.or(`business_name.ilike.%${prospectSearch}%,city.ilike.%${prospectSearch}%`);
       }
-      
-      const { data, error } = await query
-        .order("created_at", { ascending: false })
-        .range(prospectPage * prospectsPerPage, (prospectPage + 1) * prospectsPerPage - 1);
-
+      const {
+        data,
+        error
+      } = await query.order("created_at", {
+        ascending: false
+      }).range(prospectPage * prospectsPerPage, (prospectPage + 1) * prospectsPerPage - 1);
       if (error) throw error;
       return data as ProspectArtisan[];
     }
   });
 
   // Fetch total count of WAITING artisans (email sent, no account yet)
-  const { data: totalWaiting = 0 } = useQuery({
+  const {
+    data: totalWaiting = 0
+  } = useQuery({
     queryKey: ["waiting-artisans-count", waitingSearch],
     queryFn: async () => {
-      let query = supabase
-        .from("artisans")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "pending")
-        .is("user_id", null)
-        .not("activation_sent_at", "is", null);
-      
+      let query = supabase.from("artisans").select("*", {
+        count: "exact",
+        head: true
+      }).eq("status", "pending").is("user_id", null).not("activation_sent_at", "is", null);
       if (waitingSearch.trim()) {
         query = query.or(`business_name.ilike.%${waitingSearch}%,city.ilike.%${waitingSearch}%,email.ilike.%${waitingSearch}%`);
       }
-
-      const { count, error } = await query;
+      const {
+        count,
+        error
+      } = await query;
       if (error) throw error;
       return count || 0;
     }
   });
 
   // Fetch WAITING artisans (email sent, account not created yet)
-  const { data: waitingArtisans = [], isLoading: isLoadingWaiting } = useQuery({
+  const {
+    data: waitingArtisans = [],
+    isLoading: isLoadingWaiting
+  } = useQuery({
     queryKey: ["waiting-artisans", waitingPage, waitingPerPage, waitingSearch],
     queryFn: async () => {
-      let query = supabase
-        .from("artisans")
-        .select(`
+      let query = supabase.from("artisans").select(`
           id,
           business_name,
           city,
@@ -355,72 +310,70 @@ const AdminApprovals = () => {
           reminder_sent_at,
           slug,
           category:categories(name)
-        `)
-        .eq("status", "pending")
-        .is("user_id", null)
-        .not("activation_sent_at", "is", null);
-      
+        `).eq("status", "pending").is("user_id", null).not("activation_sent_at", "is", null);
       if (waitingSearch.trim()) {
         query = query.or(`business_name.ilike.%${waitingSearch}%,city.ilike.%${waitingSearch}%,email.ilike.%${waitingSearch}%`);
       }
-      
-      const { data, error } = await query
-        .order("activation_sent_at", { ascending: false })
-        .range(waitingPage * waitingPerPage, (waitingPage + 1) * waitingPerPage - 1);
-
+      const {
+        data,
+        error
+      } = await query.order("activation_sent_at", {
+        ascending: false
+      }).range(waitingPage * waitingPerPage, (waitingPage + 1) * waitingPerPage - 1);
       if (error) throw error;
       return data || [];
     }
   });
 
   // Fetch total count of claimed artisans WITHOUT documents (they move to Approbation Artisans once they upload docs)
-  const { data: totalClaimed = 0 } = useQuery({
+  const {
+    data: totalClaimed = 0
+  } = useQuery({
     queryKey: ["claimed-artisans-count", claimedSearch],
     queryFn: async () => {
       // 1. Get all artisan IDs that have documents
-      const { data: artisansWithDocs } = await supabase
-        .from("artisan_documents")
-        .select("artisan_id");
-      
+      const {
+        data: artisansWithDocs
+      } = await supabase.from("artisan_documents").select("artisan_id");
       const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
-      
+
       // 2. Count pending artisans with user_id but WITHOUT documents
-      let query = supabase
-        .from("artisans")
-        .select("*", { count: "exact", head: true })
-        .not("user_id", "is", null)
-        .eq("status", "pending");
-      
+      let query = supabase.from("artisans").select("*", {
+        count: "exact",
+        head: true
+      }).not("user_id", "is", null).eq("status", "pending");
+
       // Exclude those who have documents
       if (artisanIdsWithDocs.length > 0) {
         query = query.not("id", "in", `(${artisanIdsWithDocs.join(",")})`);
       }
-      
       if (claimedSearch.trim()) {
         query = query.or(`business_name.ilike.%${claimedSearch}%,city.ilike.%${claimedSearch}%,email.ilike.%${claimedSearch}%`);
       }
-
-      const { count, error } = await query;
+      const {
+        count,
+        error
+      } = await query;
       if (error) throw error;
       return count || 0;
     }
   });
 
   // Fetch claimed artisans WITHOUT documents (once they upload docs, they go to Approbation Artisans)
-  const { data: claimedArtisans = [], isLoading: isLoadingClaimed } = useQuery({
+  const {
+    data: claimedArtisans = [],
+    isLoading: isLoadingClaimed
+  } = useQuery({
     queryKey: ["claimed-artisans", claimedPage, claimedPerPage, claimedSearch],
     queryFn: async () => {
       // 1. Get all artisan IDs that have documents
-      const { data: artisansWithDocs } = await supabase
-        .from("artisan_documents")
-        .select("artisan_id");
-      
+      const {
+        data: artisansWithDocs
+      } = await supabase.from("artisan_documents").select("artisan_id");
       const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
-      
+
       // 2. Fetch pending artisans with user_id but WITHOUT documents
-      let query = supabase
-        .from("artisans")
-        .select(`
+      let query = supabase.from("artisans").select(`
           id,
           business_name,
           city,
@@ -434,61 +387,64 @@ const AdminApprovals = () => {
           status,
           category:categories(name),
           profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone, created_at)
-        `)
-        .not("user_id", "is", null)
-        .eq("status", "pending");
-      
+        `).not("user_id", "is", null).eq("status", "pending");
+
       // Exclude those who have documents
       if (artisanIdsWithDocs.length > 0) {
         query = query.not("id", "in", `(${artisanIdsWithDocs.join(",")})`);
       }
-      
       if (claimedSearch.trim()) {
         query = query.or(`business_name.ilike.%${claimedSearch}%,city.ilike.%${claimedSearch}%,email.ilike.%${claimedSearch}%`);
       }
-      
-      const { data, error } = await query
-        .order("updated_at", { ascending: false })
-        .range(claimedPage * claimedPerPage, (claimedPage + 1) * claimedPerPage - 1);
-
+      const {
+        data,
+        error
+      } = await query.order("updated_at", {
+        ascending: false
+      }).range(claimedPage * claimedPerPage, (claimedPage + 1) * claimedPerPage - 1);
       if (error) throw error;
-      
       if (!data || data.length === 0) return [] as ClaimedArtisan[];
-      
+
       // No documents for these artisans by definition, but keep structure for consistency
       const enrichedData = data?.map(artisan => ({
         ...artisan,
         documents_count: 0,
         documents_pending: 0,
-        documents_approved: 0,
+        documents_approved: 0
       })) as ClaimedArtisan[];
-      
       return enrichedData;
     }
   });
 
   // Count pending approval (claimed but waiting)
-  const { data: pendingApprovalCount = 0 } = useQuery({
+  const {
+    data: pendingApprovalCount = 0
+  } = useQuery({
     queryKey: ["pending-approval-count"],
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from("artisans")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "pending")
-        .not("user_id", "is", null);
-
+      const {
+        count,
+        error
+      } = await supabase.from("artisans").select("*", {
+        count: "exact",
+        head: true
+      }).eq("status", "pending").not("user_id", "is", null);
       if (error) throw error;
       return count || 0;
     }
   });
 
   // Fetch pending missions
-  const { data: pendingMissions = [], isLoading: isLoadingMissions } = useQuery({
+  const {
+    data: pendingMissions = [],
+    isLoading: isLoadingMissions
+  } = useQuery({
     queryKey: ["pending-missions"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("missions")
-        .select(`
+      const {
+        data,
+        error
+      } = await supabase.from("missions").select(`
           id,
           title,
           description,
@@ -498,10 +454,9 @@ const AdminApprovals = () => {
           created_at,
           category:categories(name),
           client:profiles!missions_client_id_fkey(first_name, last_name, email)
-        `)
-        .eq("status", "pending_approval")
-        .order("created_at", { ascending: false });
-
+        `).eq("status", "pending_approval").order("created_at", {
+        ascending: false
+      });
       if (error) throw error;
       return data as PendingMission[];
     }
@@ -510,21 +465,18 @@ const AdminApprovals = () => {
   // Approve artisan mutation
   const approveArtisanMutation = useMutation({
     mutationFn: async (artisanId: string) => {
-      const { error } = await supabase
-        .from("artisans")
-        .update({ status: "active", is_verified: true })
-        .eq("id", artisanId);
-
+      const {
+        error
+      } = await supabase.from("artisans").update({
+        status: "active",
+        is_verified: true
+      }).eq("id", artisanId);
       if (error) throw error;
-
       const artisan = pendingArtisans?.find(a => a.id === artisanId);
       if (artisan?.profile) {
-        const { data: userData } = await supabase
-          .from("profiles")
-          .select("user_id")
-          .eq("email", artisan.profile.email)
-          .single();
-
+        const {
+          data: userData
+        } = await supabase.from("profiles").select("user_id").eq("email", artisan.profile.email).single();
         if (userData) {
           await supabase.rpc("create_notification", {
             p_user_id: userData.user_id,
@@ -537,7 +489,9 @@ const AdminApprovals = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pending-artisans"] });
+      queryClient.invalidateQueries({
+        queryKey: ["pending-artisans"]
+      });
       toast.success("Artisan approuvé avec succès");
       setSelectedArtisan(null);
     },
@@ -548,15 +502,18 @@ const AdminApprovals = () => {
 
   // Reject artisan mutation
   const rejectArtisanMutation = useMutation({
-    mutationFn: async ({ artisanId, reason }: { artisanId: string; reason: string }) => {
+    mutationFn: async ({
+      artisanId,
+      reason
+    }: {
+      artisanId: string;
+      reason: string;
+    }) => {
       const artisan = pendingArtisans?.find(a => a.id === artisanId);
       if (artisan?.profile) {
-        const { data: userData } = await supabase
-          .from("profiles")
-          .select("user_id")
-          .eq("email", artisan.profile.email)
-          .single();
-
+        const {
+          data: userData
+        } = await supabase.from("profiles").select("user_id").eq("email", artisan.profile.email).single();
         if (userData) {
           await supabase.rpc("create_notification", {
             p_user_id: userData.user_id,
@@ -569,7 +526,9 @@ const AdminApprovals = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pending-artisans"] });
+      queryClient.invalidateQueries({
+        queryKey: ["pending-artisans"]
+      });
       toast.success("Notification de refus envoyée");
       setShowRejectDialog(false);
       setSelectedArtisan(null);
@@ -583,21 +542,17 @@ const AdminApprovals = () => {
   // Approve mission mutation
   const approveMissionMutation = useMutation({
     mutationFn: async (missionId: string) => {
-      const { error } = await supabase
-        .from("missions")
-        .update({ status: "published" })
-        .eq("id", missionId);
-
+      const {
+        error
+      } = await supabase.from("missions").update({
+        status: "published"
+      }).eq("id", missionId);
       if (error) throw error;
-
       const mission = pendingMissions?.find(m => m.id === missionId);
       if (mission?.client) {
-        const { data: userData } = await supabase
-          .from("profiles")
-          .select("user_id")
-          .eq("email", mission.client.email)
-          .single();
-
+        const {
+          data: userData
+        } = await supabase.from("profiles").select("user_id").eq("email", mission.client.email).single();
         if (userData) {
           await supabase.rpc("create_notification", {
             p_user_id: userData.user_id,
@@ -610,7 +565,9 @@ const AdminApprovals = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pending-missions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["pending-missions"]
+      });
       toast.success("Mission approuvée et publiée");
       setSelectedMission(null);
     },
@@ -621,22 +578,25 @@ const AdminApprovals = () => {
 
   // Reject mission mutation
   const rejectMissionMutation = useMutation({
-    mutationFn: async ({ missionId, reason }: { missionId: string; reason: string }) => {
-      const { error } = await supabase
-        .from("missions")
-        .update({ status: "rejected", rejection_reason: reason })
-        .eq("id", missionId);
-
+    mutationFn: async ({
+      missionId,
+      reason
+    }: {
+      missionId: string;
+      reason: string;
+    }) => {
+      const {
+        error
+      } = await supabase.from("missions").update({
+        status: "rejected",
+        rejection_reason: reason
+      }).eq("id", missionId);
       if (error) throw error;
-
       const mission = pendingMissions?.find(m => m.id === missionId);
       if (mission?.client) {
-        const { data: userData } = await supabase
-          .from("profiles")
-          .select("user_id")
-          .eq("email", mission.client.email)
-          .single();
-
+        const {
+          data: userData
+        } = await supabase.from("profiles").select("user_id").eq("email", mission.client.email).single();
         if (userData) {
           await supabase.rpc("create_notification", {
             p_user_id: userData.user_id,
@@ -649,7 +609,9 @@ const AdminApprovals = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pending-missions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["pending-missions"]
+      });
       toast.success("Mission refusée");
       setShowMissionRejectDialog(false);
       setSelectedMission(null);
@@ -663,17 +625,18 @@ const AdminApprovals = () => {
   // Delete prospect mutation
   const deleteProspectMutation = useMutation({
     mutationFn: async (prospectId: string) => {
-      const { error } = await supabase
-        .from("artisans")
-        .delete()
-        .eq("id", prospectId)
-        .eq("status", "prospect");
-
+      const {
+        error
+      } = await supabase.from("artisans").delete().eq("id", prospectId).eq("status", "prospect");
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
-      queryClient.invalidateQueries({ queryKey: ["prospect-artisans-count"] });
+      queryClient.invalidateQueries({
+        queryKey: ["prospect-artisans"]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["prospect-artisans-count"]
+      });
       toast.success("Fiche vitrine supprimée");
       setProspectToDelete(null);
     },
@@ -696,37 +659,30 @@ const AdminApprovals = () => {
   const totalWaitingPages = Math.ceil(totalWaiting / waitingPerPage);
   const waitingStartIndex = waitingPage * waitingPerPage + 1;
   const waitingEndIndex = Math.min((waitingPage + 1) * waitingPerPage, totalWaiting);
-
   const handleProspectSearchChange = (value: string) => {
     setProspectSearch(value);
     setProspectPage(0); // Reset to first page on search
   };
-
   const handlePerPageChange = (value: string) => {
     setProspectsPerPage(parseInt(value));
     setProspectPage(0); // Reset to first page
   };
-
   const handleClaimedSearchChange = (value: string) => {
     setClaimedSearch(value);
     setClaimedPage(0);
   };
-
   const handleClaimedPerPageChange = (value: string) => {
     setClaimedPerPage(parseInt(value));
     setClaimedPage(0);
   };
-
   const handleWaitingSearchChange = (value: string) => {
     setWaitingSearch(value);
     setWaitingPage(0);
   };
-
   const handleWaitingPerPageChange = (value: string) => {
     setWaitingPerPage(parseInt(value));
     setWaitingPage(0);
   };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -736,19 +692,20 @@ const AdminApprovals = () => {
       minute: '2-digit'
     });
   };
-
   const getProfileCompleteness = (artisan: PendingArtisan) => {
     let score = 0;
     let total = 6;
-    
     if (artisan.photo_url) score++;
     if (artisan.description && artisan.description.length > 50) score++;
     if (artisan.siret) score++;
     if (artisan.portfolio_images && artisan.portfolio_images.length >= 3) score++;
     if (artisan.experience_years && artisan.experience_years > 0) score++;
     if (artisan.city && artisan.city !== "Non renseigné") score++;
-
-    return { score, total, percentage: Math.round((score / total) * 100) };
+    return {
+      score,
+      total,
+      percentage: Math.round(score / total * 100)
+    };
   };
 
   // Load documents for an artisan
@@ -756,14 +713,13 @@ const AdminApprovals = () => {
     setIsLoadingDocuments(true);
     setDocumentsArtisan(artisan);
     setShowDocumentsDialog(true);
-    
     try {
-      const { data, error } = await supabase
-        .from("artisan_documents")
-        .select("*")
-        .eq("artisan_id", artisan.id)
-        .order("created_at", { ascending: false });
-      
+      const {
+        data,
+        error
+      } = await supabase.from("artisan_documents").select("*").eq("artisan_id", artisan.id).order("created_at", {
+        ascending: false
+      });
       if (error) throw error;
       setArtisanDocuments(data || []);
     } catch (error) {
@@ -776,10 +732,10 @@ const AdminApprovals = () => {
 
   // Get signed URL for document download
   const getDocumentUrl = async (filePath: string) => {
-    const { data, error } = await supabase.storage
-      .from("artisan-documents")
-      .createSignedUrl(filePath, 3600);
-    
+    const {
+      data,
+      error
+    } = await supabase.storage.from("artisan-documents").createSignedUrl(filePath, 3600);
     if (error) {
       toast.error("Erreur lors de l'accès au document");
       return null;
@@ -791,7 +747,7 @@ const AdminApprovals = () => {
   const handleApproveArtisan = async (artisan: PendingArtisan) => {
     try {
       await approveArtisanMutation.mutateAsync(artisan.id);
-      
+
       // Send approval email
       if (artisan.profile?.email) {
         await supabase.functions.invoke("send-notification-email", {
@@ -799,7 +755,7 @@ const AdminApprovals = () => {
             type: "artisan_approved",
             recipientEmail: artisan.profile.email,
             recipientFirstName: artisan.profile.first_name || "Artisan",
-            senderName: "Artisans Validés",
+            senderName: "Artisans Validés"
           }
         });
       }
@@ -811,8 +767,11 @@ const AdminApprovals = () => {
   // Reject artisan with email notification
   const handleRejectArtisan = async (artisan: PendingArtisan, reason: string) => {
     try {
-      await rejectArtisanMutation.mutateAsync({ artisanId: artisan.id, reason });
-      
+      await rejectArtisanMutation.mutateAsync({
+        artisanId: artisan.id,
+        reason
+      });
+
       // Send rejection email
       if (artisan.profile?.email) {
         await supabase.functions.invoke("send-notification-email", {
@@ -821,7 +780,7 @@ const AdminApprovals = () => {
             recipientEmail: artisan.profile.email,
             recipientFirstName: artisan.profile.first_name || "Artisan",
             senderName: "Artisans Validés",
-            rejectionReason: reason,
+            rejectionReason: reason
           }
         });
       }
@@ -829,9 +788,7 @@ const AdminApprovals = () => {
       console.error("Error rejecting artisan:", error);
     }
   };
-
-  return (
-    <>
+  return <>
       <Navbar />
       <div className="flex min-h-screen bg-background pt-16 lg:pt-20">
         <AdminSidebar />
@@ -868,14 +825,10 @@ const AdminApprovals = () => {
 
             {/* MISSIONS TAB */}
             <TabsContent value="missions">
-              {isLoadingMissions ? (
-                <div className="flex items-center justify-center py-12 md:py-20">
+              {isLoadingMissions ? <div className="flex items-center justify-center py-12 md:py-20">
                   <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
-                </div>
-              ) : pendingMissions.length > 0 ? (
-                <div className="grid gap-3 md:gap-6">
-                  {pendingMissions.map((mission) => (
-                    <Card key={mission.id} className="hover:shadow-lg transition-shadow">
+                </div> : pendingMissions.length > 0 ? <div className="grid gap-3 md:gap-6">
+                  {pendingMissions.map(mission => <Card key={mission.id} className="hover:shadow-lg transition-shadow">
                       <CardContent className="p-3 md:p-6">
                         <div className="flex flex-col gap-3 md:gap-4">
                           {/* Header */}
@@ -887,15 +840,11 @@ const AdminApprovals = () => {
                                   <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
                                   <span className="truncate max-w-[100px] md:max-w-none">{mission.city}</span>
                                 </span>
-                                {mission.category && (
-                                  <Badge variant="secondary" className="text-xs px-1.5 py-0">{mission.category.name}</Badge>
-                                )}
-                                {mission.budget && (
-                                  <span className="flex items-center gap-0.5 text-gold font-medium">
+                                {mission.category && <Badge variant="secondary" className="text-xs px-1.5 py-0">{mission.category.name}</Badge>}
+                                {mission.budget && <span className="flex items-center gap-0.5 text-gold font-medium">
                                     <Euro className="h-3 w-3" />
                                     {mission.budget} €
-                                  </span>
-                                )}
+                                  </span>}
                               </div>
                             </div>
                             <Badge variant="outline" className="gap-1 text-xs shrink-0">
@@ -904,11 +853,9 @@ const AdminApprovals = () => {
                             </Badge>
                           </div>
 
-                          {mission.description && (
-                            <p className="text-muted-foreground text-xs md:text-sm line-clamp-2">
+                          {mission.description && <p className="text-muted-foreground text-xs md:text-sm line-clamp-2">
                               {mission.description}
-                            </p>
-                          )}
+                            </p>}
 
                           <div className="text-xs md:text-sm text-muted-foreground">
                             <span className="font-medium">Client : </span>
@@ -918,45 +865,27 @@ const AdminApprovals = () => {
 
                           {/* Actions - Mobile optimized */}
                           <div className="flex flex-wrap gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 min-w-[80px] text-xs md:text-sm h-8 md:h-9"
-                              onClick={() => setSelectedMission(mission)}
-                            >
+                            <Button variant="outline" size="sm" className="flex-1 min-w-[80px] text-xs md:text-sm h-8 md:h-9" onClick={() => setSelectedMission(mission)}>
                               <Eye className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" />
                               Détails
                             </Button>
-                            <Button
-                              size="sm"
-                              className="flex-1 min-w-[80px] text-xs md:text-sm h-8 md:h-9"
-                              onClick={() => approveMissionMutation.mutate(mission.id)}
-                              disabled={approveMissionMutation.isPending}
-                            >
+                            <Button size="sm" className="flex-1 min-w-[80px] text-xs md:text-sm h-8 md:h-9" onClick={() => approveMissionMutation.mutate(mission.id)} disabled={approveMissionMutation.isPending}>
                               <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" />
                               <span className="hidden sm:inline">Approuver</span>
                               <span className="sm:hidden">OK</span>
                             </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              className="flex-1 min-w-[80px] text-xs md:text-sm h-8 md:h-9"
-                              onClick={() => {
-                                setSelectedMission(mission);
-                                setShowMissionRejectDialog(true);
-                              }}
-                            >
+                            <Button variant="destructive" size="sm" className="flex-1 min-w-[80px] text-xs md:text-sm h-8 md:h-9" onClick={() => {
+                        setSelectedMission(mission);
+                        setShowMissionRejectDialog(true);
+                      }}>
                               <XCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" />
                               Refuser
                             </Button>
                           </div>
                         </div>
                       </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <Card>
+                    </Card>)}
+                </div> : <Card>
                   <CardContent className="py-12 md:py-20 text-center">
                     <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-emerald-500 mx-auto mb-3 md:mb-4" />
                     <h3 className="text-lg md:text-xl font-semibold mb-2">Aucune mission en attente</h3>
@@ -964,22 +893,17 @@ const AdminApprovals = () => {
                       Toutes les missions ont été traitées.
                     </p>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
             </TabsContent>
 
             {/* ARTISANS TAB */}
             <TabsContent value="artisans">
-              {isLoadingArtisans ? (
-                <div className="flex items-center justify-center py-12 md:py-20">
+              {isLoadingArtisans ? <div className="flex items-center justify-center py-12 md:py-20">
                   <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
-                </div>
-              ) : pendingArtisans.length > 0 ? (
-                <div className="grid gap-3 md:gap-6">
-                  {pendingArtisans.map((artisan) => {
-                    const completeness = getProfileCompleteness(artisan);
-                    return (
-                      <Card key={artisan.id} className="hover:shadow-lg transition-shadow">
+                </div> : pendingArtisans.length > 0 ? <div className="grid gap-3 md:gap-6">
+                  {pendingArtisans.map(artisan => {
+                const completeness = getProfileCompleteness(artisan);
+                return <Card key={artisan.id} className="hover:shadow-lg transition-shadow">
                         <CardContent className="p-3 md:p-6">
                           <div className="flex gap-3 md:gap-6">
                             {/* Avatar - Smaller on mobile */}
@@ -1000,9 +924,7 @@ const AdminApprovals = () => {
                                       <MapPin className="h-3 w-3 md:h-4 md:w-4" />
                                       <span className="truncate max-w-[80px] md:max-w-none">{artisan.city}</span>
                                     </span>
-                                    {artisan.category && (
-                                      <Badge variant="secondary" className="text-xs px-1.5 py-0">{artisan.category.name}</Badge>
-                                    )}
+                                    {artisan.category && <Badge variant="secondary" className="text-xs px-1.5 py-0">{artisan.category.name}</Badge>}
                                   </div>
                                 </div>
                                 <Badge variant="outline" className="gap-1 text-xs shrink-0 hidden sm:flex">
@@ -1011,11 +933,9 @@ const AdminApprovals = () => {
                                 </Badge>
                               </div>
 
-                              {artisan.description && (
-                                <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-4">
+                              {artisan.description && <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-4">
                                   {artisan.description}
-                                </p>
-                              )}
+                                </p>}
 
                               {/* Badges - Compact on mobile */}
                               <div className="flex flex-wrap gap-1 md:gap-2 mb-2 md:mb-4">
@@ -1040,13 +960,9 @@ const AdminApprovals = () => {
                                   <span className="font-medium">{completeness.percentage}%</span>
                                 </div>
                                 <div className="h-1.5 md:h-2 bg-muted rounded-full overflow-hidden">
-                                  <div 
-                                    className={`h-full transition-all ${
-                                      completeness.percentage >= 80 ? 'bg-emerald-500' : 
-                                      completeness.percentage >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                                    }`}
-                                    style={{ width: `${completeness.percentage}%` }}
-                                  />
+                                  <div className={`h-full transition-all ${completeness.percentage >= 80 ? 'bg-emerald-500' : completeness.percentage >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{
+                              width: `${completeness.percentage}%`
+                            }} />
                                 </div>
                               </div>
 
@@ -1064,7 +980,10 @@ const AdminApprovals = () => {
                                   <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
                                   <span className="hidden sm:inline">Accepter</span>
                                 </Button>
-                                <Button variant="destructive" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => { setSelectedArtisan(artisan); setShowRejectDialog(true); }}>
+                                <Button variant="destructive" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => {
+                            setSelectedArtisan(artisan);
+                            setShowRejectDialog(true);
+                          }}>
                                   <XCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
                                   <span className="hidden sm:inline">Refuser</span>
                                 </Button>
@@ -1072,12 +991,9 @@ const AdminApprovals = () => {
                             </div>
                           </div>
                         </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              ) : (
-                <Card>
+                      </Card>;
+              })}
+                </div> : <Card>
                   <CardContent className="py-12 md:py-20 text-center">
                     <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-emerald-500 mx-auto mb-3 md:mb-4" />
                     <h3 className="text-lg md:text-xl font-semibold mb-2">Aucune demande en attente</h3>
@@ -1085,14 +1001,13 @@ const AdminApprovals = () => {
                       Toutes les demandes d'approbation ont été traitées.
                     </p>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
             </TabsContent>
 
             {/* VITRINES TAB */}
             <TabsContent value="vitrines">
               {/* Sub-tabs for Vitrines */}
-              <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-xl p-4 md:p-6 border border-primary/20">
+              <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-xl p-4 md:p-6 border border-primary/20 bg-[#f7f7f7]">
                 <Tabs value={vitrineSubTab} onValueChange={setVitrineSubTab}>
                   <TabsList className="mb-4 flex-wrap bg-white/80 dark:bg-background/80 shadow-sm">
                     <TabsTrigger value="actives" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
@@ -1118,12 +1033,7 @@ const AdminApprovals = () => {
                   <div className="flex flex-col sm:flex-row gap-3 mb-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Rechercher par nom ou ville..."
-                        value={prospectSearch}
-                        onChange={(e) => handleProspectSearchChange(e.target.value)}
-                        className="pl-9"
-                      />
+                      <Input placeholder="Rechercher par nom ou ville..." value={prospectSearch} onChange={e => handleProspectSearchChange(e.target.value)} className="pl-9" />
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
@@ -1141,46 +1051,30 @@ const AdminApprovals = () => {
                   </div>
 
                   {/* Pagination info */}
-                  {totalProspects > 0 && (
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
+                  {totalProspects > 0 && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
                       <span>
                         Affichage {startIndex} - {endIndex} sur {totalProspects.toLocaleString('fr-FR')} vitrines
                       </span>
                       <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setProspectPage(p => Math.max(0, p - 1))}
-                          disabled={prospectPage === 0}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => setProspectPage(p => Math.max(0, p - 1))} disabled={prospectPage === 0}>
                           <ChevronLeft className="h-4 w-4 mr-1" />
                           Précédent
                         </Button>
                         <span className="text-sm font-medium px-2">
                           Page {prospectPage + 1} / {totalProspectPages || 1}
                         </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setProspectPage(p => Math.min(totalProspectPages - 1, p + 1))}
-                          disabled={prospectPage >= totalProspectPages - 1}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => setProspectPage(p => Math.min(totalProspectPages - 1, p + 1))} disabled={prospectPage >= totalProspectPages - 1}>
                           Suivant
                           <ChevronRight className="h-4 w-4 ml-1" />
                         </Button>
                       </div>
-                    </div>
-                  )}
+                    </div>}
 
-                  {isLoadingProspects ? (
-                    <div className="flex items-center justify-center py-12 md:py-20">
+                  {isLoadingProspects ? <div className="flex items-center justify-center py-12 md:py-20">
                       <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
-                    </div>
-                  ) : prospectArtisans.length > 0 ? (
-                    <>
+                    </div> : prospectArtisans.length > 0 ? <>
                       <div className="grid gap-3 md:gap-6">
-                        {prospectArtisans.map((prospect) => (
-                          <Card key={prospect.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                        {prospectArtisans.map(prospect => <Card key={prospect.id} className="hover:shadow-lg transition-shadow overflow-hidden">
                             <CardContent className="p-3 md:p-6">
                               <div className="flex flex-col sm:flex-row gap-3 md:gap-6">
                                 <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0 self-start">
@@ -1199,9 +1093,7 @@ const AdminApprovals = () => {
                                           <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
                                           <span className="truncate">{prospect.city}</span>
                                         </span>
-                                        {prospect.category && (
-                                          <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{prospect.category.name}</Badge>
-                                        )}
+                                        {prospect.category && <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{prospect.category.name}</Badge>}
                                       </div>
                                     </div>
                                     <Badge variant="outline" className="gap-1 text-xs shrink-0 bg-amber-500/10 text-amber-600 border-amber-500/30 self-start">
@@ -1210,72 +1102,48 @@ const AdminApprovals = () => {
                                     </Badge>
                                   </div>
 
-                                  {prospect.description && (
-                                    <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-3">
+                                  {prospect.description && <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-3">
                                       {prospect.description}
-                                    </p>
-                                  )}
+                                    </p>}
 
                                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-3">
                                     <span>Créée le {new Date(prospect.created_at).toLocaleDateString('fr-FR')}</span>
-                                    {prospect.portfolio_images && prospect.portfolio_images.length > 0 && (
-                                      <span>• {prospect.portfolio_images.length} photo(s)</span>
-                                    )}
+                                    {prospect.portfolio_images && prospect.portfolio_images.length > 0 && <span>• {prospect.portfolio_images.length} photo(s)</span>}
                                   </div>
 
                                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
-                                      onClick={() => window.open(`/artisan/${prospect.slug}`, '_blank')}
-                                    >
+                                    <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => window.open(`/artisan/${prospect.slug}`, '_blank')}>
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                       <span className="hidden sm:inline">Voir</span>
                                     </Button>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
-                                      onClick={() => {
-                                        setEditProspect(prospect);
-                                        setEditDialogOpen(true);
-                                      }}
-                                    >
+                                    <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => {
+                                  setEditProspect(prospect);
+                                  setEditDialogOpen(true);
+                                }}>
                                       <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                       <span className="hidden sm:inline">Modifier</span>
                                     </Button>
-                                    <Button
-                                      variant="default" 
-                                      size="sm" 
-                                      className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 bg-amber-500 hover:bg-amber-600"
-                                      onClick={async () => {
-                                        // Get artisan email first
-                                        const { data: artisanData } = await supabase
-                                          .from('artisans')
-                                          .select('email')
-                                          .eq('id', prospect.id)
-                                          .single();
-                                        
-                                        if (!artisanData?.email) {
-                                          toast.error("Cet artisan n'a pas d'email. Ajoutez un email avant d'envoyer l'invitation.");
-                                          return;
-                                        }
-                                        
-                                        // Show confirmation dialog instead of native confirm()
-                                        setPreregistrationProspect({ prospect, email: artisanData.email });
-                                        setShowPreregistrationDialog(true);
-                                      }}
-                                    >
+                                    <Button variant="default" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 bg-amber-500 hover:bg-amber-600" onClick={async () => {
+                                  // Get artisan email first
+                                  const {
+                                    data: artisanData
+                                  } = await supabase.from('artisans').select('email').eq('id', prospect.id).single();
+                                  if (!artisanData?.email) {
+                                    toast.error("Cet artisan n'a pas d'email. Ajoutez un email avant d'envoyer l'invitation.");
+                                    return;
+                                  }
+
+                                  // Show confirmation dialog instead of native confirm()
+                                  setPreregistrationProspect({
+                                    prospect,
+                                    email: artisanData.email
+                                  });
+                                  setShowPreregistrationDialog(true);
+                                }}>
                                       <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                       <span className="hidden sm:inline">Pré-inscription</span>
                                     </Button>
-                                    <Button
-                                      variant="destructive" 
-                                      size="sm" 
-                                      className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
-                                      onClick={() => setProspectToDelete(prospect)}
-                                    >
+                                    <Button variant="destructive" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => setProspectToDelete(prospect)}>
                                       <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                       <span className="hidden sm:inline">Supprimer</span>
                                     </Button>
@@ -1283,61 +1151,39 @@ const AdminApprovals = () => {
                                 </div>
                               </div>
                             </CardContent>
-                          </Card>
-                        ))}
+                          </Card>)}
                       </div>
 
                       {/* Bottom pagination */}
-                      {totalProspectPages > 1 && (
-                        <div className="flex items-center justify-center gap-2 mt-6">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setProspectPage(p => Math.max(0, p - 1))}
-                            disabled={prospectPage === 0}
-                          >
+                      {totalProspectPages > 1 && <div className="flex items-center justify-center gap-2 mt-6">
+                          <Button variant="outline" size="sm" onClick={() => setProspectPage(p => Math.max(0, p - 1))} disabled={prospectPage === 0}>
                             <ChevronLeft className="h-4 w-4 mr-1" />
                             Précédent
                           </Button>
                           <span className="text-sm font-medium px-4">
                             Page {prospectPage + 1} / {totalProspectPages}
                           </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setProspectPage(p => Math.min(totalProspectPages - 1, p + 1))}
-                            disabled={prospectPage >= totalProspectPages - 1}
-                          >
+                          <Button variant="outline" size="sm" onClick={() => setProspectPage(p => Math.min(totalProspectPages - 1, p + 1))} disabled={prospectPage >= totalProspectPages - 1}>
                             Suivant
                             <ChevronRight className="h-4 w-4 ml-1" />
                           </Button>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <Card>
+                        </div>}
+                    </> : <Card>
                       <CardContent className="py-12 md:py-20 text-center">
                         <Store className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
                         <h3 className="text-lg md:text-xl font-semibold mb-2">
                           {prospectSearch ? "Aucun résultat" : "Aucune fiche vitrine"}
                         </h3>
                         <p className="text-muted-foreground text-sm md:text-base mb-4">
-                          {prospectSearch 
-                            ? `Aucune vitrine trouvée pour "${prospectSearch}"`
-                            : "Créez des fiches vitrines pour attirer de nouveaux artisans."}
+                          {prospectSearch ? `Aucune vitrine trouvée pour "${prospectSearch}"` : "Créez des fiches vitrines pour attirer de nouveaux artisans."}
                         </p>
-                        {prospectSearch ? (
-                          <Button variant="outline" onClick={() => setProspectSearch("")}>
+                        {prospectSearch ? <Button variant="outline" onClick={() => setProspectSearch("")}>
                             Effacer la recherche
-                          </Button>
-                        ) : (
-                          <Button onClick={() => navigate("/admin/ajouter-artisan")}>
+                          </Button> : <Button onClick={() => navigate("/admin/ajouter-artisan")}>
                             Créer une fiche vitrine
-                          </Button>
-                        )}
+                          </Button>}
                       </CardContent>
-                    </Card>
-                  )}
+                    </Card>}
                 </TabsContent>
 
                 {/* VITRINES EN ATTENTE SUB-TAB (email envoyé, compte pas créé) */}
@@ -1346,12 +1192,7 @@ const AdminApprovals = () => {
                   <div className="flex flex-col sm:flex-row gap-3 mb-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Rechercher par nom, ville ou email..."
-                        value={waitingSearch}
-                        onChange={(e) => handleWaitingSearchChange(e.target.value)}
-                        className="pl-9"
-                      />
+                      <Input placeholder="Rechercher par nom, ville ou email..." value={waitingSearch} onChange={e => handleWaitingSearchChange(e.target.value)} className="pl-9" />
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
@@ -1369,46 +1210,30 @@ const AdminApprovals = () => {
                   </div>
 
                   {/* Pagination info */}
-                  {totalWaiting > 0 && (
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
+                  {totalWaiting > 0 && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
                       <span>
                         Affichage {waitingStartIndex} - {waitingEndIndex} sur {totalWaiting.toLocaleString('fr-FR')} artisans en attente
                       </span>
                       <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setWaitingPage(p => Math.max(0, p - 1))}
-                          disabled={waitingPage === 0}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => setWaitingPage(p => Math.max(0, p - 1))} disabled={waitingPage === 0}>
                           <ChevronLeft className="h-4 w-4 mr-1" />
                           Précédent
                         </Button>
                         <span className="text-sm font-medium px-2">
                           Page {waitingPage + 1} / {totalWaitingPages || 1}
                         </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setWaitingPage(p => Math.min(totalWaitingPages - 1, p + 1))}
-                          disabled={waitingPage >= totalWaitingPages - 1}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => setWaitingPage(p => Math.min(totalWaitingPages - 1, p + 1))} disabled={waitingPage >= totalWaitingPages - 1}>
                           Suivant
                           <ChevronRight className="h-4 w-4 ml-1" />
                         </Button>
                       </div>
-                    </div>
-                  )}
+                    </div>}
 
-                  {isLoadingWaiting ? (
-                    <div className="flex items-center justify-center py-12 md:py-20">
+                  {isLoadingWaiting ? <div className="flex items-center justify-center py-12 md:py-20">
                       <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
-                    </div>
-                  ) : waitingArtisans.length > 0 ? (
-                    <>
+                    </div> : waitingArtisans.length > 0 ? <>
                       <div className="grid gap-3 md:gap-4">
-                        {waitingArtisans.map((artisan) => (
-                          <Card key={artisan.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                        {waitingArtisans.map(artisan => <Card key={artisan.id} className="hover:shadow-lg transition-shadow overflow-hidden">
                             <CardContent className="p-3 md:p-6">
                               <div className="flex flex-col sm:flex-row gap-3 md:gap-6">
                                 <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0 self-start">
@@ -1427,15 +1252,10 @@ const AdminApprovals = () => {
                                           <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
                                           <span className="truncate">{artisan.city}</span>
                                         </span>
-                                        {artisan.category && (
-                                          <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{artisan.category.name}</Badge>
-                                        )}
+                                        {artisan.category && <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{artisan.category.name}</Badge>}
                                       </div>
                                     </div>
-                                    <Badge 
-                                      variant="outline" 
-                                      className="gap-1 text-xs shrink-0 self-start bg-amber-500/10 text-amber-600 border-amber-500/30"
-                                    >
+                                    <Badge variant="outline" className="gap-1 text-xs shrink-0 self-start bg-amber-500/10 text-amber-600 border-amber-500/30">
                                       <Mail className="h-2.5 w-2.5" />
                                       Email envoyé
                                     </Badge>
@@ -1457,19 +1277,12 @@ const AdminApprovals = () => {
                                     </div>
                                   </div>
 
-                                  {artisan.description && (
-                                    <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-3">
+                                  {artisan.description && <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-3">
                                       {artisan.description}
-                                    </p>
-                                  )}
+                                    </p>}
 
                                   <div className="flex flex-wrap gap-2">
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="text-xs md:text-sm h-8 md:h-9 px-3"
-                                      onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}
-                                    >
+                                    <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-3" onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}>
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
                                       Voir la fiche
                                     </Button>
@@ -1477,57 +1290,37 @@ const AdminApprovals = () => {
                                 </div>
                               </div>
                             </CardContent>
-                          </Card>
-                        ))}
+                          </Card>)}
                       </div>
 
                       {/* Bottom pagination */}
-                      {totalWaitingPages > 1 && (
-                        <div className="flex items-center justify-center gap-2 mt-6">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setWaitingPage(p => Math.max(0, p - 1))}
-                            disabled={waitingPage === 0}
-                          >
+                      {totalWaitingPages > 1 && <div className="flex items-center justify-center gap-2 mt-6">
+                          <Button variant="outline" size="sm" onClick={() => setWaitingPage(p => Math.max(0, p - 1))} disabled={waitingPage === 0}>
                             <ChevronLeft className="h-4 w-4 mr-1" />
                             Précédent
                           </Button>
                           <span className="text-sm font-medium px-4">
                             Page {waitingPage + 1} / {totalWaitingPages}
                           </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setWaitingPage(p => Math.min(totalWaitingPages - 1, p + 1))}
-                            disabled={waitingPage >= totalWaitingPages - 1}
-                          >
+                          <Button variant="outline" size="sm" onClick={() => setWaitingPage(p => Math.min(totalWaitingPages - 1, p + 1))} disabled={waitingPage >= totalWaitingPages - 1}>
                             Suivant
                             <ChevronRight className="h-4 w-4 ml-1" />
                           </Button>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <Card>
+                        </div>}
+                    </> : <Card>
                       <CardContent className="py-12 md:py-20 text-center">
                         <Mail className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
                         <h3 className="text-lg md:text-xl font-semibold mb-2">
                           {waitingSearch ? "Aucun résultat" : "Aucun artisan en attente"}
                         </h3>
                         <p className="text-muted-foreground text-sm md:text-base mb-4">
-                          {waitingSearch 
-                            ? `Aucun artisan trouvé pour "${waitingSearch}"`
-                            : "Tous les artisans prospectés ont créé leur compte."}
+                          {waitingSearch ? `Aucun artisan trouvé pour "${waitingSearch}"` : "Tous les artisans prospectés ont créé leur compte."}
                         </p>
-                        {waitingSearch && (
-                          <Button variant="outline" onClick={() => setWaitingSearch("")}>
+                        {waitingSearch && <Button variant="outline" onClick={() => setWaitingSearch("")}>
                             Effacer la recherche
-                          </Button>
-                        )}
+                          </Button>}
                       </CardContent>
-                    </Card>
-                  )}
+                    </Card>}
                 </TabsContent>
 
                 {/* VITRINES CONFIRMÉES SUB-TAB (compte créé, pas de documents) */}
@@ -1536,12 +1329,7 @@ const AdminApprovals = () => {
                   <div className="flex flex-col sm:flex-row gap-3 mb-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Rechercher par nom, ville ou email..."
-                        value={claimedSearch}
-                        onChange={(e) => handleClaimedSearchChange(e.target.value)}
-                        className="pl-9"
-                      />
+                      <Input placeholder="Rechercher par nom, ville ou email..." value={claimedSearch} onChange={e => handleClaimedSearchChange(e.target.value)} className="pl-9" />
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
@@ -1559,46 +1347,30 @@ const AdminApprovals = () => {
                   </div>
 
                   {/* Pagination info */}
-                  {totalClaimed > 0 && (
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
+                  {totalClaimed > 0 && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
                       <span>
                         Affichage {claimedStartIndex} - {claimedEndIndex} sur {totalClaimed.toLocaleString('fr-FR')} artisans confirmés
                       </span>
                       <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setClaimedPage(p => Math.max(0, p - 1))}
-                          disabled={claimedPage === 0}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => setClaimedPage(p => Math.max(0, p - 1))} disabled={claimedPage === 0}>
                           <ChevronLeft className="h-4 w-4 mr-1" />
                           Précédent
                         </Button>
                         <span className="text-sm font-medium px-2">
                           Page {claimedPage + 1} / {totalClaimedPages || 1}
                         </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setClaimedPage(p => Math.min(totalClaimedPages - 1, p + 1))}
-                          disabled={claimedPage >= totalClaimedPages - 1}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => setClaimedPage(p => Math.min(totalClaimedPages - 1, p + 1))} disabled={claimedPage >= totalClaimedPages - 1}>
                           Suivant
                           <ChevronRight className="h-4 w-4 ml-1" />
                         </Button>
                       </div>
-                    </div>
-                  )}
+                    </div>}
 
-                  {isLoadingClaimed ? (
-                    <div className="flex items-center justify-center py-12 md:py-20">
+                  {isLoadingClaimed ? <div className="flex items-center justify-center py-12 md:py-20">
                       <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
-                    </div>
-                  ) : claimedArtisans.length > 0 ? (
-                    <>
+                    </div> : claimedArtisans.length > 0 ? <>
                       <div className="grid gap-3 md:gap-4">
-                        {claimedArtisans.map((artisan) => (
-                          <Card key={artisan.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                        {claimedArtisans.map(artisan => <Card key={artisan.id} className="hover:shadow-lg transition-shadow overflow-hidden">
                             <CardContent className="p-3 md:p-6">
                               <div className="flex flex-col sm:flex-row gap-3 md:gap-6">
                                 <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-muted shrink-0 self-start">
@@ -1617,15 +1389,10 @@ const AdminApprovals = () => {
                                           <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
                                           <span className="truncate">{artisan.city}</span>
                                         </span>
-                                        {artisan.category && (
-                                          <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{artisan.category.name}</Badge>
-                                        )}
+                                        {artisan.category && <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{artisan.category.name}</Badge>}
                                       </div>
                                     </div>
-                                    <Badge 
-                                      variant="outline" 
-                                      className="gap-1 text-xs shrink-0 self-start bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
-                                    >
+                                    <Badge variant="outline" className="gap-1 text-xs shrink-0 self-start bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
                                       <UserCheck className="h-2.5 w-2.5" />
                                       Compte créé
                                     </Badge>
@@ -1636,9 +1403,7 @@ const AdminApprovals = () => {
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                       <User className="h-3.5 w-3.5 shrink-0" />
                                       <span className="truncate">
-                                        {artisan.profile?.first_name || artisan.profile?.last_name 
-                                          ? `${artisan.profile?.first_name || ''} ${artisan.profile?.last_name || ''}`.trim()
-                                          : 'Non renseigné'}
+                                        {artisan.profile?.first_name || artisan.profile?.last_name ? `${artisan.profile?.first_name || ''} ${artisan.profile?.last_name || ''}`.trim() : 'Non renseigné'}
                                       </span>
                                     </div>
                                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -1657,28 +1422,18 @@ const AdminApprovals = () => {
                                   
                                   {/* Documents status - always 0 for this tab */}
                                   <div className="mb-3">
-                                    <Badge 
-                                      variant="outline"
-                                      className="gap-1.5 text-xs bg-amber-500/10 text-amber-600 border-amber-500/30"
-                                    >
+                                    <Badge variant="outline" className="gap-1.5 text-xs bg-amber-500/10 text-amber-600 border-amber-500/30">
                                       <FileText className="h-3 w-3" />
                                       0 document - En attente d'upload
                                     </Badge>
                                   </div>
 
-                                  {artisan.description && (
-                                    <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-3">
+                                  {artisan.description && <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-3">
                                       {artisan.description}
-                                    </p>
-                                  )}
+                                    </p>}
 
                                   <div className="flex flex-wrap gap-2">
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="text-xs md:text-sm h-8 md:h-9 px-3"
-                                      onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}
-                                    >
+                                    <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-3" onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}>
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
                                       Voir le profil
                                     </Button>
@@ -1686,57 +1441,37 @@ const AdminApprovals = () => {
                                 </div>
                               </div>
                             </CardContent>
-                          </Card>
-                        ))}
+                          </Card>)}
                       </div>
 
                       {/* Bottom pagination */}
-                      {totalClaimedPages > 1 && (
-                        <div className="flex items-center justify-center gap-2 mt-6">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setClaimedPage(p => Math.max(0, p - 1))}
-                            disabled={claimedPage === 0}
-                          >
+                      {totalClaimedPages > 1 && <div className="flex items-center justify-center gap-2 mt-6">
+                          <Button variant="outline" size="sm" onClick={() => setClaimedPage(p => Math.max(0, p - 1))} disabled={claimedPage === 0}>
                             <ChevronLeft className="h-4 w-4 mr-1" />
                             Précédent
                           </Button>
                           <span className="text-sm font-medium px-4">
                             Page {claimedPage + 1} / {totalClaimedPages}
                           </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setClaimedPage(p => Math.min(totalClaimedPages - 1, p + 1))}
-                            disabled={claimedPage >= totalClaimedPages - 1}
-                          >
+                          <Button variant="outline" size="sm" onClick={() => setClaimedPage(p => Math.min(totalClaimedPages - 1, p + 1))} disabled={claimedPage >= totalClaimedPages - 1}>
                             Suivant
                             <ChevronRight className="h-4 w-4 ml-1" />
                           </Button>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <Card>
+                        </div>}
+                    </> : <Card>
                       <CardContent className="py-12 md:py-20 text-center">
                         <UserCheck className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
                         <h3 className="text-lg md:text-xl font-semibold mb-2">
                           {claimedSearch ? "Aucun résultat" : "Aucun artisan confirmé"}
                         </h3>
                         <p className="text-muted-foreground text-sm md:text-base mb-4">
-                          {claimedSearch 
-                            ? `Aucun artisan trouvé pour "${claimedSearch}"`
-                            : "Aucun artisan n'a encore créé son compte depuis l'email de pré-inscription."}
+                          {claimedSearch ? `Aucun artisan trouvé pour "${claimedSearch}"` : "Aucun artisan n'a encore créé son compte depuis l'email de pré-inscription."}
                         </p>
-                        {claimedSearch && (
-                          <Button variant="outline" onClick={() => setClaimedSearch("")}>
+                        {claimedSearch && <Button variant="outline" onClick={() => setClaimedSearch("")}>
                             Effacer la recherche
-                          </Button>
-                        )}
+                          </Button>}
                       </CardContent>
-                    </Card>
-                  )}
+                    </Card>}
                 </TabsContent>
               </Tabs>
               </div>
@@ -1752,23 +1487,17 @@ const AdminApprovals = () => {
                   Expliquez à l'artisan pourquoi sa demande est refusée.
                 </DialogDescription>
               </DialogHeader>
-              <Textarea
-                placeholder="Raison du refus..."
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                rows={4}
-              />
+              <Textarea placeholder="Raison du refus..." value={rejectReason} onChange={e => setRejectReason(e.target.value)} rows={4} />
               <DialogFooter>
                 <Button variant="outline" onClick={() => setShowRejectDialog(false)}>Annuler</Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    if (selectedArtisan && rejectReason.trim()) {
-                      rejectArtisanMutation.mutate({ artisanId: selectedArtisan.id, reason: rejectReason });
-                    }
-                  }}
-                  disabled={!rejectReason.trim() || rejectArtisanMutation.isPending}
-                >
+                <Button variant="destructive" onClick={() => {
+                if (selectedArtisan && rejectReason.trim()) {
+                  rejectArtisanMutation.mutate({
+                    artisanId: selectedArtisan.id,
+                    reason: rejectReason
+                  });
+                }
+              }} disabled={!rejectReason.trim() || rejectArtisanMutation.isPending}>
                   {rejectArtisanMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                   Envoyer le refus
                 </Button>
@@ -1785,23 +1514,17 @@ const AdminApprovals = () => {
                   Expliquez au client pourquoi sa mission est refusée.
                 </DialogDescription>
               </DialogHeader>
-              <Textarea
-                placeholder="Raison du refus (ex: Description incomplète, budget irréaliste...)"
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                rows={4}
-              />
+              <Textarea placeholder="Raison du refus (ex: Description incomplète, budget irréaliste...)" value={rejectReason} onChange={e => setRejectReason(e.target.value)} rows={4} />
               <DialogFooter>
                 <Button variant="outline" onClick={() => setShowMissionRejectDialog(false)}>Annuler</Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    if (selectedMission && rejectReason.trim()) {
-                      rejectMissionMutation.mutate({ missionId: selectedMission.id, reason: rejectReason });
-                    }
-                  }}
-                  disabled={!rejectReason.trim() || rejectMissionMutation.isPending}
-                >
+                <Button variant="destructive" onClick={() => {
+                if (selectedMission && rejectReason.trim()) {
+                  rejectMissionMutation.mutate({
+                    missionId: selectedMission.id,
+                    reason: rejectReason
+                  });
+                }
+              }} disabled={!rejectReason.trim() || rejectMissionMutation.isPending}>
                   {rejectMissionMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                   Refuser la mission
                 </Button>
@@ -1812,8 +1535,7 @@ const AdminApprovals = () => {
           {/* View Artisan Profile Dialog */}
           <Dialog open={!!selectedArtisan && !showRejectDialog} onOpenChange={() => setSelectedArtisan(null)}>
             <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto mx-2 md:mx-auto">
-              {selectedArtisan && (
-                <>
+              {selectedArtisan && <>
                   <DialogHeader>
                     <DialogTitle className="text-lg md:text-xl">Profil de {selectedArtisan.business_name}</DialogTitle>
                   </DialogHeader>
@@ -1837,23 +1559,17 @@ const AdminApprovals = () => {
                       </div>
                     </div>
 
-                    {selectedArtisan.description && (
-                      <div>
+                    {selectedArtisan.description && <div>
                         <p className="text-muted-foreground text-xs md:text-sm mb-1">Description</p>
                         <p className="text-xs md:text-sm">{selectedArtisan.description}</p>
-                      </div>
-                    )}
+                      </div>}
 
-                    {selectedArtisan.portfolio_images && selectedArtisan.portfolio_images.length > 0 && (
-                      <div>
+                    {selectedArtisan.portfolio_images && selectedArtisan.portfolio_images.length > 0 && <div>
                         <p className="text-muted-foreground text-xs md:text-sm mb-2">Portfolio</p>
                         <div className="grid grid-cols-3 gap-1.5 md:gap-2">
-                          {selectedArtisan.portfolio_images.map((img, i) => (
-                            <img key={i} src={img} alt={`Portfolio ${i + 1}`} className="aspect-square object-cover rounded-lg" />
-                          ))}
+                          {selectedArtisan.portfolio_images.map((img, i) => <img key={i} src={img} alt={`Portfolio ${i + 1}`} className="aspect-square object-cover rounded-lg" />)}
                         </div>
-                      </div>
-                    )}
+                      </div>}
 
                     <div className="flex gap-2 pt-3 md:pt-4 border-t">
                       <Button className="flex-1 h-9 md:h-10 text-sm" onClick={() => approveArtisanMutation.mutate(selectedArtisan.id)} disabled={approveArtisanMutation.isPending}>
@@ -1866,16 +1582,14 @@ const AdminApprovals = () => {
                       </Button>
                     </div>
                   </div>
-                </>
-              )}
+                </>}
             </DialogContent>
           </Dialog>
 
           {/* View Mission Details Dialog */}
           <Dialog open={!!selectedMission && !showMissionRejectDialog} onOpenChange={() => setSelectedMission(null)}>
             <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto mx-2 md:mx-auto">
-              {selectedMission && (
-                <>
+              {selectedMission && <>
                   <DialogHeader>
                     <DialogTitle className="text-lg md:text-xl">{selectedMission.title}</DialogTitle>
                   </DialogHeader>
@@ -1899,29 +1613,17 @@ const AdminApprovals = () => {
                       </div>
                     </div>
 
-                    {selectedMission.description && (
-                      <div>
+                    {selectedMission.description && <div>
                         <p className="text-muted-foreground text-xs md:text-sm mb-1">Description</p>
                         <p className="text-xs md:text-sm whitespace-pre-wrap">{selectedMission.description}</p>
-                      </div>
-                    )}
+                      </div>}
 
-                    {selectedMission.photos && selectedMission.photos.length > 0 && (
-                      <div>
+                    {selectedMission.photos && selectedMission.photos.length > 0 && <div>
                         <p className="text-muted-foreground text-xs md:text-sm mb-2">Photos ({selectedMission.photos.length})</p>
                         <div className="grid grid-cols-3 gap-1.5 md:gap-2">
-                          {selectedMission.photos.map((photo, i) => (
-                            <img 
-                              key={i} 
-                              src={photo} 
-                              alt={`Photo ${i + 1}`} 
-                              className="aspect-square object-cover rounded-lg border cursor-pointer hover:opacity-90 transition-opacity"
-                              onClick={() => window.open(photo, '_blank')}
-                            />
-                          ))}
+                          {selectedMission.photos.map((photo, i) => <img key={i} src={photo} alt={`Photo ${i + 1}`} className="aspect-square object-cover rounded-lg border cursor-pointer hover:opacity-90 transition-opacity" onClick={() => window.open(photo, '_blank')} />)}
                         </div>
-                      </div>
-                    )}
+                      </div>}
 
                     <div className="flex gap-2 pt-3 md:pt-4 border-t">
                       <Button className="flex-1 h-9 md:h-10 text-sm" onClick={() => approveMissionMutation.mutate(selectedMission.id)} disabled={approveMissionMutation.isPending}>
@@ -1935,8 +1637,7 @@ const AdminApprovals = () => {
                       </Button>
                     </div>
                   </div>
-                </>
-              )}
+                </>}
             </DialogContent>
           </Dialog>
 
@@ -1952,15 +1653,11 @@ const AdminApprovals = () => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  onClick={() => {
-                    if (prospectToDelete) {
-                      deleteProspectMutation.mutate(prospectToDelete.id);
-                    }
-                  }}
-                  disabled={deleteProspectMutation.isPending}
-                >
+                <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
+                if (prospectToDelete) {
+                  deleteProspectMutation.mutate(prospectToDelete.id);
+                }
+              }} disabled={deleteProspectMutation.isPending}>
                   {deleteProspectMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                   Supprimer
                 </AlertDialogAction>
@@ -1969,17 +1666,15 @@ const AdminApprovals = () => {
           </AlertDialog>
 
           {/* Edit Prospect Dialog */}
-          <AdminEditArtisanDialog
-            open={editDialogOpen}
-            onOpenChange={(open) => {
-              setEditDialogOpen(open);
-              if (!open) {
-                setEditProspect(null);
-                queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
-              }
-            }}
-            artisan={editProspect as any}
-          />
+          <AdminEditArtisanDialog open={editDialogOpen} onOpenChange={open => {
+          setEditDialogOpen(open);
+          if (!open) {
+            setEditProspect(null);
+            queryClient.invalidateQueries({
+              queryKey: ["prospect-artisans"]
+            });
+          }
+        }} artisan={editProspect as any} />
 
           {/* Documents Dialog */}
           <Dialog open={showDocumentsDialog} onOpenChange={setShowDocumentsDialog}>
@@ -1991,19 +1686,13 @@ const AdminApprovals = () => {
                 </DialogDescription>
               </DialogHeader>
               
-              {isLoadingDocuments ? (
-                <div className="flex items-center justify-center py-8">
+              {isLoadingDocuments ? <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : artisanDocuments.length === 0 ? (
-                <div className="text-center py-8">
+                </div> : artisanDocuments.length === 0 ? <div className="text-center py-8">
                   <FileText className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
                   <p className="text-muted-foreground">Aucun document soumis</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {artisanDocuments.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
+                </div> : <div className="space-y-3">
+                  {artisanDocuments.map(doc => <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-muted rounded">
                           <File className="h-5 w-5 text-muted-foreground" />
@@ -2015,29 +1704,21 @@ const AdminApprovals = () => {
                             <Badge variant={doc.status === 'approved' ? 'default' : doc.status === 'rejected' ? 'destructive' : 'secondary'} className="text-xs">
                               {doc.status === 'approved' ? 'Approuvé' : doc.status === 'rejected' ? 'Refusé' : 'En attente'}
                             </Badge>
-                            {doc.expiry_date && (
-                              <span className="text-xs text-muted-foreground">
+                            {doc.expiry_date && <span className="text-xs text-muted-foreground">
                                 Expire: {new Date(doc.expiry_date).toLocaleDateString('fr-FR')}
-                              </span>
-                            )}
+                              </span>}
                           </div>
                         </div>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={async () => {
-                          const url = await getDocumentUrl(doc.file_path);
-                          if (url) window.open(url, '_blank');
-                        }}
-                      >
+                      <Button variant="outline" size="sm" onClick={async () => {
+                  const url = await getDocumentUrl(doc.file_path);
+                  if (url) window.open(url, '_blank');
+                }}>
                         <Download className="h-4 w-4 mr-1" />
                         Voir
                       </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    </div>)}
+                </div>}
               
               <DialogFooter className="mt-4">
                 <Button variant="outline" onClick={() => setShowDocumentsDialog(false)}>
@@ -2068,51 +1749,50 @@ const AdminApprovals = () => {
                 <AlertDialogCancel disabled={isSendingPreregistration}>
                   Annuler
                 </AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-amber-500 hover:bg-amber-600"
-                  disabled={isSendingPreregistration}
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    if (!preregistrationProspect) return;
-                    
-                    setIsSendingPreregistration(true);
-                    try {
-                      const { error } = await supabase.functions.invoke('send-preregistration-email', {
-                        body: {
-                          artisanId: preregistrationProspect.prospect.id,
-                          artisanEmail: preregistrationProspect.email,
-                          artisanName: preregistrationProspect.prospect.business_name,
-                        }
-                      });
-                      
-                      if (error) throw error;
-                      
-                      toast.success(`Email de pré-inscription envoyé à ${preregistrationProspect.prospect.business_name}`);
-                      queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
-                      queryClient.invalidateQueries({ queryKey: ["prospect-artisans-count"] });
-                      queryClient.invalidateQueries({ queryKey: ["claimed-artisans"] });
-                      queryClient.invalidateQueries({ queryKey: ["claimed-artisans-count"] });
-                      setShowPreregistrationDialog(false);
-                      setPreregistrationProspect(null);
-                    } catch (err: any) {
-                      console.error('Error sending pre-registration email:', err);
-                      toast.error("Erreur lors de l'envoi de l'email");
-                    } finally {
-                      setIsSendingPreregistration(false);
+                <AlertDialogAction className="bg-amber-500 hover:bg-amber-600" disabled={isSendingPreregistration} onClick={async e => {
+                e.preventDefault();
+                if (!preregistrationProspect) return;
+                setIsSendingPreregistration(true);
+                try {
+                  const {
+                    error
+                  } = await supabase.functions.invoke('send-preregistration-email', {
+                    body: {
+                      artisanId: preregistrationProspect.prospect.id,
+                      artisanEmail: preregistrationProspect.email,
+                      artisanName: preregistrationProspect.prospect.business_name
                     }
-                  }}
-                >
-                  {isSendingPreregistration ? (
-                    <>
+                  });
+                  if (error) throw error;
+                  toast.success(`Email de pré-inscription envoyé à ${preregistrationProspect.prospect.business_name}`);
+                  queryClient.invalidateQueries({
+                    queryKey: ["prospect-artisans"]
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ["prospect-artisans-count"]
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ["claimed-artisans"]
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ["claimed-artisans-count"]
+                  });
+                  setShowPreregistrationDialog(false);
+                  setPreregistrationProspect(null);
+                } catch (err: any) {
+                  console.error('Error sending pre-registration email:', err);
+                  toast.error("Erreur lors de l'envoi de l'email");
+                } finally {
+                  setIsSendingPreregistration(false);
+                }
+              }}>
+                  {isSendingPreregistration ? <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Envoi en cours...
-                    </>
-                  ) : (
-                    <>
+                    </> : <>
                       <Mail className="h-4 w-4 mr-2" />
                       Envoyer l'email
-                    </>
-                  )}
+                    </>}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -2120,8 +1800,6 @@ const AdminApprovals = () => {
 
         </main>
       </div>
-    </>
-  );
+    </>;
 };
-
 export default AdminApprovals;
