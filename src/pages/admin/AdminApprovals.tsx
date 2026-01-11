@@ -1007,7 +1007,7 @@ const AdminApprovals = () => {
             {/* VITRINES TAB */}
             <TabsContent value="vitrines">
               {/* Sub-tabs for Vitrines */}
-              <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 p-4 md:p-6 border border-primary/20 bg-[#f7f7f7] rounded">
+              <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 p-4 md:p-6 border border-primary/20 rounded bg-white">
                 <Tabs value={vitrineSubTab} onValueChange={setVitrineSubTab}>
                   <TabsList className="mb-4 flex-wrap bg-white/80 dark:bg-background/80 shadow-sm">
                     <TabsTrigger value="actives" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
