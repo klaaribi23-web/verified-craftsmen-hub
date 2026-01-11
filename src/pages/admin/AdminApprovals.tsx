@@ -63,7 +63,7 @@ import {
   FileText,
   Download,
   File,
-  RefreshCw,
+  
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -198,10 +198,6 @@ const AdminApprovals = () => {
   const [preregistrationProspect, setPreregistrationProspect] = useState<{ prospect: ProspectArtisan; email: string } | null>(null);
   const [isSendingPreregistration, setIsSendingPreregistration] = useState(false);
   
-  // Reminder system state
-  const [showReminderDialog, setShowReminderDialog] = useState(false);
-  const [isSendingReminders, setIsSendingReminders] = useState(false);
-  const [reminderResults, setReminderResults] = useState<{ total: number; sent: number; failed: number } | null>(null);
   
   // Pagination state for prospects
   const [prospectPage, setProspectPage] = useState(0);
@@ -1515,7 +1511,7 @@ const AdminApprovals = () => {
 
                 {/* VITRINES EN ATTENTE SUB-TAB (email envoyé, compte pas créé) */}
                 <TabsContent value="en-attente">
-                  {/* Search and pagination controls with reminder button */}
+                  {/* Search and pagination controls */}
                   <div className="flex flex-col sm:flex-row gap-3 mb-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -1527,15 +1523,6 @@ const AdminApprovals = () => {
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 border-amber-500 text-amber-600 hover:bg-amber-50"
-                        onClick={() => setShowReminderDialog(true)}
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                        <span className="hidden sm:inline">Relancer tous</span>
-                      </Button>
                       <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
                       <Select value={waitingPerPage.toString()} onValueChange={handleWaitingPerPageChange}>
                         <SelectTrigger className="w-20">
@@ -1637,12 +1624,6 @@ const AdminApprovals = () => {
                                       <Calendar className="h-3.5 w-3.5 shrink-0" />
                                       <span>Email envoyé le {artisan.activation_sent_at ? formatDate(artisan.activation_sent_at) : 'N/A'}</span>
                                     </div>
-                                    {(artisan.reminder_count || 0) > 0 && (
-                                      <div className="flex items-center gap-2 text-muted-foreground">
-                                        <RefreshCw className="h-3.5 w-3.5 shrink-0" />
-                                        <span>{artisan.reminder_count} relance(s) envoyée(s)</span>
-                                      </div>
-                                    )}
                                   </div>
 
                                   {artisan.description && (
@@ -1660,27 +1641,6 @@ const AdminApprovals = () => {
                                     >
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
                                       Voir la fiche
-                                    </Button>
-                                    <Button 
-                                      variant="outline"
-                                      size="sm" 
-                                      className="text-xs md:text-sm h-8 md:h-9 px-3 border-amber-500 text-amber-600 hover:bg-amber-50"
-                                      onClick={async () => {
-                                        try {
-                                          const { error } = await supabase.functions.invoke("send-reminder-emails", {
-                                            body: { artisanIds: [artisan.id] }
-                                          });
-                                          if (error) throw error;
-                                          toast.success("Email de relance envoyé");
-                                          queryClient.invalidateQueries({ queryKey: ["waiting-artisans"] });
-                                        } catch (error) {
-                                          console.error("Error sending reminder:", error);
-                                          toast.error("Erreur lors de l'envoi du rappel");
-                                        }
-                                      }}
-                                    >
-                                      <RefreshCw className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
-                                      Relancer
                                     </Button>
                                   </div>
                                 </div>
@@ -2326,103 +2286,6 @@ const AdminApprovals = () => {
             </AlertDialogContent>
           </AlertDialog>
 
-          {/* Reminder System AlertDialog */}
-          <AlertDialog open={showReminderDialog} onOpenChange={(open) => {
-            setShowReminderDialog(open);
-            if (!open) setReminderResults(null);
-          }}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2">
-                  <RefreshCw className="h-5 w-5 text-amber-500" />
-                  Relancer les vitrines en attente
-                </AlertDialogTitle>
-                <AlertDialogDescription className="space-y-3">
-                  {reminderResults ? (
-                    <div className="space-y-3">
-                      <div className="bg-muted p-4 rounded-lg">
-                        <p className="font-medium mb-2">Résultat des relances :</p>
-                        <div className="grid grid-cols-3 gap-2 text-center">
-                          <div className="bg-background p-2 rounded">
-                            <p className="text-2xl font-bold">{reminderResults.total}</p>
-                            <p className="text-xs text-muted-foreground">Total</p>
-                          </div>
-                          <div className="bg-emerald-500/10 p-2 rounded">
-                            <p className="text-2xl font-bold text-emerald-600">{reminderResults.sent}</p>
-                            <p className="text-xs text-muted-foreground">Envoyés</p>
-                          </div>
-                          <div className="bg-red-500/10 p-2 rounded">
-                            <p className="text-2xl font-bold text-red-600">{reminderResults.failed}</p>
-                            <p className="text-xs text-muted-foreground">Échoués</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <p>
-                        Cette action enverra un email de rappel à toutes les vitrines en attente qui ont reçu un email de pré-inscription il y a plus de <strong>2 jours</strong> et qui n'ont pas encore uploadé de documents.
-                      </p>
-                      <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg text-sm">
-                        <p className="text-amber-800">
-                          <strong>⚠️ Note :</strong> Les artisans qui ont déjà reçu une relance il y a moins de 2 jours ne seront pas relancés.
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isSendingReminders}>
-                  {reminderResults ? 'Fermer' : 'Annuler'}
-                </AlertDialogCancel>
-                {!reminderResults && (
-                  <AlertDialogAction
-                    className="bg-amber-500 hover:bg-amber-600"
-                    disabled={isSendingReminders}
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      setIsSendingReminders(true);
-                      try {
-                        const { data, error } = await supabase.functions.invoke('send-reminder-emails', {
-                          body: { daysThreshold: 2 }
-                        });
-                        
-                        if (error) throw error;
-                        
-                        setReminderResults(data.summary);
-                        
-                        if (data.summary.sent > 0) {
-                          toast.success(`${data.summary.sent} email(s) de relance envoyé(s)`);
-                        } else {
-                          toast.info("Aucune vitrine à relancer");
-                        }
-                        
-                        queryClient.invalidateQueries({ queryKey: ["claimed-artisans"] });
-                      } catch (err: any) {
-                        console.error('Error sending reminders:', err);
-                        toast.error("Erreur lors de l'envoi des relances");
-                      } finally {
-                        setIsSendingReminders(false);
-                      }
-                    }}
-                  >
-                    {isSendingReminders ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Envoi en cours...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Envoyer les relances
-                      </>
-                    )}
-                  </AlertDialogAction>
-                )}
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </main>
       </div>
     </>
