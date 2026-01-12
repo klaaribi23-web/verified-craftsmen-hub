@@ -192,6 +192,7 @@ const DevenirArtisan = () => {
               rating: 0,
               review_count: 0,
               missions_completed: 0,
+              source: "self_signup", // Artisan inscrit lui-même (pas import massif)
             }])
             .select("id")
             .single();

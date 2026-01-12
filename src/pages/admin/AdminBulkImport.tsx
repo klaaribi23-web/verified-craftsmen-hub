@@ -475,6 +475,7 @@ const AdminBulkImport = () => {
             status: "prospect" as const,
             is_verified: false,
             description: DEFAULT_DESCRIPTION, // Description générique par défaut
+            source: "import", // Artisan importé via import massif
           };
 
           if (enabledColumns.includes("email")) {

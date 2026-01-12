@@ -83,6 +83,7 @@ interface ClaimedArtisan {
   updated_at: string;
   slug: string | null;
   status: string;
+  source: string | null;
   category: {
     name: string;
   } | null;
@@ -96,6 +97,27 @@ interface ClaimedArtisan {
   documents_count?: number;
   documents_pending?: number;
   documents_approved?: number;
+}
+interface SelfSignupArtisan {
+  id: string;
+  business_name: string;
+  city: string;
+  email: string | null;
+  phone: string | null;
+  description: string | null;
+  photo_url: string | null;
+  created_at: string;
+  slug: string | null;
+  category: {
+    name: string;
+  } | null;
+  profile: {
+    first_name: string | null;
+    last_name: string | null;
+    email: string;
+    phone: string | null;
+    created_at: string;
+  } | null;
 }
 interface PendingMission {
   id: string;
@@ -161,6 +183,9 @@ const AdminApprovals = () => {
   // Sub-tab state for vitrines
   const [vitrineSubTab, setVitrineSubTab] = useState("actives");
 
+  // Sub-tab state for artisans
+  const [artisanSubTab, setArtisanSubTab] = useState("nouvelles-inscriptions");
+
   // Pagination state for waiting artisans (email sent, no account)
   const [waitingPage, setWaitingPage] = useState(0);
   const [waitingPerPage, setWaitingPerPage] = useState(50);
@@ -170,6 +195,11 @@ const AdminApprovals = () => {
   const [claimedPage, setClaimedPage] = useState(0);
   const [claimedPerPage, setClaimedPerPage] = useState(50);
   const [claimedSearch, setClaimedSearch] = useState("");
+
+  // Pagination state for self-signup artisans (nouvelles inscriptions)
+  const [selfSignupPage, setSelfSignupPage] = useState(0);
+  const [selfSignupPerPage, setSelfSignupPerPage] = useState(50);
+  const [selfSignupSearch, setSelfSignupSearch] = useState("");
 
   // Fetch pending artisans (only those with at least 1 document)
   const {
@@ -435,7 +465,88 @@ const AdminApprovals = () => {
     }
   });
 
-  // Fetch pending missions
+  // Fetch total count of SELF-SIGNUP artisans (inscriptions directes SANS documents)
+  const {
+    data: totalSelfSignup = 0
+  } = useQuery({
+    queryKey: ["self-signup-artisans-count", selfSignupSearch],
+    queryFn: async () => {
+      // 1. Get artisan IDs that have documents
+      const { data: artisansWithDocs } = await supabase.from("artisan_documents").select("artisan_id");
+      const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
+
+      // 2. Count self-signup artisans WITHOUT documents
+      let query = supabase.from("artisans").select("*", {
+        count: "exact",
+        head: true
+      })
+        .eq("status", "pending")
+        .eq("source", "self_signup")
+        .not("user_id", "is", null);
+
+      // Exclude those who have documents
+      if (artisanIdsWithDocs.length > 0) {
+        query = query.not("id", "in", `(${artisanIdsWithDocs.join(",")})`);
+      }
+
+      if (selfSignupSearch.trim()) {
+        query = query.or(`business_name.ilike.%${selfSignupSearch}%,city.ilike.%${selfSignupSearch}%,email.ilike.%${selfSignupSearch}%`);
+      }
+
+      const { count, error } = await query;
+      if (error) throw error;
+      return count || 0;
+    }
+  });
+
+  // Fetch SELF-SIGNUP artisans (inscriptions directes SANS documents)
+  const {
+    data: selfSignupArtisans = [],
+    isLoading: isLoadingSelfSignup
+  } = useQuery({
+    queryKey: ["self-signup-artisans", selfSignupPage, selfSignupPerPage, selfSignupSearch],
+    queryFn: async () => {
+      // 1. Get artisan IDs that have documents
+      const { data: artisansWithDocs } = await supabase.from("artisan_documents").select("artisan_id");
+      const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
+
+      // 2. Fetch self-signup artisans WITHOUT documents
+      let query = supabase.from("artisans").select(`
+          id,
+          business_name,
+          city,
+          email,
+          phone,
+          description,
+          photo_url,
+          created_at,
+          slug,
+          category:categories(name),
+          profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone, created_at)
+        `)
+        .eq("status", "pending")
+        .eq("source", "self_signup")
+        .not("user_id", "is", null);
+
+      // Exclude those who have documents
+      if (artisanIdsWithDocs.length > 0) {
+        query = query.not("id", "in", `(${artisanIdsWithDocs.join(",")})`);
+      }
+
+      if (selfSignupSearch.trim()) {
+        query = query.or(`business_name.ilike.%${selfSignupSearch}%,city.ilike.%${selfSignupSearch}%,email.ilike.%${selfSignupSearch}%`);
+      }
+
+      const { data, error } = await query
+        .order("created_at", { ascending: false })
+        .range(selfSignupPage * selfSignupPerPage, (selfSignupPage + 1) * selfSignupPerPage - 1);
+
+      if (error) throw error;
+      return data as SelfSignupArtisan[];
+    }
+  });
+
+
   const {
     data: pendingMissions = [],
     isLoading: isLoadingMissions
@@ -684,6 +795,18 @@ const AdminApprovals = () => {
     setWaitingPerPage(parseInt(value));
     setWaitingPage(0);
   };
+  const handleSelfSignupSearchChange = (value: string) => {
+    setSelfSignupSearch(value);
+    setSelfSignupPage(0);
+  };
+  const handleSelfSignupPerPageChange = (value: string) => {
+    setSelfSignupPerPage(parseInt(value));
+    setSelfSignupPage(0);
+  };
+  // Pagination helpers for self-signup (nouvelles inscriptions)
+  const totalSelfSignupPages = Math.ceil(totalSelfSignup / selfSignupPerPage);
+  const selfSignupStartIndex = selfSignupPage * selfSignupPerPage + 1;
+  const selfSignupEndIndex = Math.min((selfSignupPage + 1) * selfSignupPerPage, totalSelfSignup);
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -814,7 +937,7 @@ const AdminApprovals = () => {
                 <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="hidden xs:inline">Artisans</span>
                 <span className="xs:hidden">Art.</span>
-                <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{pendingArtisans.length}</Badge>
+                <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{totalSelfSignup + pendingArtisans.length}</Badge>
               </TabsTrigger>
               <TabsTrigger value="vitrines" className="flex-1 gap-1.5 text-xs sm:text-sm px-2 sm:px-4 py-2">
                 <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -899,110 +1022,272 @@ const AdminApprovals = () => {
 
             {/* ARTISANS TAB */}
             <TabsContent value="artisans">
-              {isLoadingArtisans ? <div className="flex items-center justify-center py-12 md:py-20">
-                  <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
-                </div> : pendingArtisans.length > 0 ? <div className="grid gap-3 md:gap-6">
-                  {pendingArtisans.map(artisan => {
-                const completeness = getProfileCompleteness(artisan);
-                return <Card key={artisan.id} className="hover:shadow-lg transition-shadow">
-                        <CardContent className="p-3 md:p-6">
-                          <div className="flex gap-3 md:gap-6">
-                            {/* Avatar - Smaller on mobile */}
-                            <Avatar className="h-14 w-14 md:h-24 md:w-24 ring-2 md:ring-4 ring-muted shrink-0">
-                              <AvatarImage src={artisan.photo_url || DEFAULT_AVATAR} />
-                              <AvatarFallback className="text-lg md:text-2xl bg-primary text-primary-foreground">
-                                <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
-                              </AvatarFallback>
-                            </Avatar>
+              {/* Sub-tabs for Artisans */}
+              <div className="bg-gradient-to-r from-blue-50 via-blue-100/50 to-blue-50 p-4 md:p-6 border border-blue-200 rounded bg-white">
+                <Tabs value={artisanSubTab} onValueChange={setArtisanSubTab}>
+                  <TabsList className="mb-4 flex-wrap bg-white/80 dark:bg-background/80 shadow-sm">
+                    <TabsTrigger value="nouvelles-inscriptions" className="gap-1.5 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                      <UserCheck className="h-4 w-4" />
+                      <span className="hidden sm:inline">Nouvelles</span> Inscriptions
+                      <Badge variant="secondary" className="ml-1 text-xs">{totalSelfSignup}</Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="en-attente" className="gap-1.5 data-[state=active]:bg-amber-500 data-[state=active]:text-white">
+                      <FileText className="h-4 w-4" />
+                      <span className="hidden sm:inline">Documents</span> En attente
+                      <Badge variant="secondary" className="ml-1 text-xs">{pendingArtisans.length}</Badge>
+                    </TabsTrigger>
+                  </TabsList>
 
-                            <div className="flex-1 min-w-0">
-                              {/* Header */}
-                              <div className="flex items-start justify-between gap-2 mb-2">
-                                <div className="min-w-0">
-                                  <h3 className="text-base md:text-xl font-bold truncate">{artisan.business_name}</h3>
-                                  <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
-                                    <span className="flex items-center gap-1">
-                                      <MapPin className="h-3 w-3 md:h-4 md:w-4" />
-                                      <span className="truncate max-w-[80px] md:max-w-none">{artisan.city}</span>
-                                    </span>
-                                    {artisan.category && <Badge variant="secondary" className="text-xs px-1.5 py-0">{artisan.category.name}</Badge>}
+                  {/* NOUVELLES INSCRIPTIONS SUB-TAB */}
+                  <TabsContent value="nouvelles-inscriptions">
+                    {/* Search and pagination controls */}
+                    <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="Rechercher par nom, ville ou email..." value={selfSignupSearch} onChange={e => handleSelfSignupSearchChange(e.target.value)} className="pl-9" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground whitespace-nowrap">Par page:</span>
+                        <Select value={selfSignupPerPage.toString()} onValueChange={handleSelfSignupPerPageChange}>
+                          <SelectTrigger className="w-20">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="25">25</SelectItem>
+                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem value="100">100</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Pagination info */}
+                    {totalSelfSignup > 0 && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 text-sm text-muted-foreground">
+                        <span>
+                          Affichage {selfSignupStartIndex} - {selfSignupEndIndex} sur {totalSelfSignup} inscriptions directes
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" onClick={() => setSelfSignupPage(p => Math.max(0, p - 1))} disabled={selfSignupPage === 0}>
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Précédent
+                          </Button>
+                          <span className="text-sm font-medium px-2">
+                            Page {selfSignupPage + 1} / {totalSelfSignupPages || 1}
+                          </span>
+                          <Button variant="outline" size="sm" onClick={() => setSelfSignupPage(p => Math.min(totalSelfSignupPages - 1, p + 1))} disabled={selfSignupPage >= totalSelfSignupPages - 1}>
+                            Suivant
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                          </Button>
+                        </div>
+                      </div>}
+
+                    {isLoadingSelfSignup ? <div className="flex items-center justify-center py-12 md:py-20">
+                        <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
+                      </div> : selfSignupArtisans.length > 0 ? <>
+                        <div className="grid gap-3 md:gap-4">
+                          {selfSignupArtisans.map(artisan => <Card key={artisan.id} className="hover:shadow-lg transition-shadow overflow-hidden border-l-4 border-l-blue-500">
+                              <CardContent className="p-3 md:p-6">
+                                <div className="flex flex-col sm:flex-row gap-3 md:gap-6">
+                                  <Avatar className="h-14 w-14 md:h-20 md:w-20 ring-2 ring-blue-200 shrink-0 self-start">
+                                    <AvatarImage src={artisan.photo_url || DEFAULT_AVATAR} />
+                                    <AvatarFallback className="text-lg md:text-xl bg-blue-500 text-white">
+                                      {artisan.business_name.charAt(0)}
+                                    </AvatarFallback>
+                                  </Avatar>
+
+                                  <div className="flex-1 min-w-0 overflow-hidden">
+                                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                                      <div className="min-w-0 flex-1">
+                                        <h3 className="text-base md:text-xl font-bold truncate">{artisan.business_name}</h3>
+                                        <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm mt-1">
+                                          <span className="flex items-center gap-1">
+                                            <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
+                                            <span className="truncate">{artisan.city}</span>
+                                          </span>
+                                          {artisan.category && <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{artisan.category.name}</Badge>}
+                                        </div>
+                                      </div>
+                                      <Badge variant="outline" className="gap-1 text-xs shrink-0 self-start bg-blue-500/10 text-blue-600 border-blue-500/30">
+                                        <UserCheck className="h-2.5 w-2.5" />
+                                        Inscription directe
+                                      </Badge>
+                                    </div>
+
+                                    {/* Contact info */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs md:text-sm text-muted-foreground mb-3">
+                                      {artisan.profile?.email && <span className="flex items-center gap-1 truncate">
+                                          <Mail className="h-3 w-3 shrink-0" />
+                                          {artisan.profile.email}
+                                        </span>}
+                                      {artisan.profile?.phone && <span className="flex items-center gap-1">
+                                          <Phone className="h-3 w-3 shrink-0" />
+                                          {artisan.profile.phone}
+                                        </span>}
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="h-3 w-3 shrink-0" />
+                                        Inscrit le {new Date(artisan.created_at).toLocaleDateString('fr-FR')}
+                                      </span>
+                                    </div>
+
+                                    {/* Info message */}
+                                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3 text-xs md:text-sm text-amber-700">
+                                      <div className="flex items-start gap-2">
+                                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                                        <span>Cet artisan s'est inscrit directement. Il doit encore uploader ses documents pour être validé.</span>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2">
+                                      <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}>
+                                        <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                        <span className="hidden sm:inline">Voir profil</span>
+                                      </Button>
+                                    </div>
                                   </div>
                                 </div>
-                                <Badge variant="outline" className="gap-1 text-xs shrink-0 hidden sm:flex">
-                                  <Clock className="h-2.5 w-2.5" />
-                                  En attente
-                                </Badge>
-                              </div>
+                              </CardContent>
+                            </Card>)}
+                        </div>
 
-                              {artisan.description && <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-4">
-                                  {artisan.description}
-                                </p>}
-
-                              {/* Badges - Compact on mobile */}
-                              <div className="flex flex-wrap gap-1 md:gap-2 mb-2 md:mb-4">
-                                <Badge variant={artisan.photo_url ? "default" : "secondary"} className="gap-0.5 text-xs px-1.5 py-0">
-                                  {artisan.photo_url ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
-                                  <span className="hidden sm:inline">Photo</span>
-                                </Badge>
-                                <Badge variant={artisan.siret ? "default" : "secondary"} className="gap-0.5 text-xs px-1.5 py-0">
-                                  {artisan.siret ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
-                                  SIRET
-                                </Badge>
-                                <Badge variant={artisan.portfolio_images && artisan.portfolio_images.length >= 3 ? "default" : "secondary"} className="gap-0.5 text-xs px-1.5 py-0">
-                                  {artisan.portfolio_images && artisan.portfolio_images.length >= 3 ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
-                                  {artisan.portfolio_images?.length || 0}/3
-                                </Badge>
-                              </div>
-
-                              {/* Progress bar - Compact on mobile */}
-                              <div className="mb-2 md:mb-4">
-                                <div className="flex justify-between text-xs mb-1">
-                                  <span className="text-muted-foreground">Profil</span>
-                                  <span className="font-medium">{completeness.percentage}%</span>
-                                </div>
-                                <div className="h-1.5 md:h-2 bg-muted rounded-full overflow-hidden">
-                                  <div className={`h-full transition-all ${completeness.percentage >= 80 ? 'bg-emerald-500' : completeness.percentage >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{
-                              width: `${completeness.percentage}%`
-                            }} />
-                                </div>
-                              </div>
-
-                              {/* Actions - Mobile optimized */}
-                              <div className="flex flex-wrap gap-1.5 md:gap-2">
-                                <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => setSelectedArtisan(artisan)}>
-                                  <Eye className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
-                                  <span className="hidden sm:inline">Profil</span>
-                                </Button>
-                                <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => loadArtisanDocuments(artisan)}>
-                                  <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
-                                  <span className="hidden sm:inline">Documents</span>
-                                </Button>
-                                <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => handleApproveArtisan(artisan)} disabled={approveArtisanMutation.isPending}>
-                                  <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
-                                  <span className="hidden sm:inline">Accepter</span>
-                                </Button>
-                                <Button variant="destructive" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => {
-                            setSelectedArtisan(artisan);
-                            setShowRejectDialog(true);
-                          }}>
-                                  <XCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
-                                  <span className="hidden sm:inline">Refuser</span>
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
+                        {/* Bottom pagination */}
+                        {totalSelfSignupPages > 1 && <div className="flex items-center justify-center gap-2 mt-6">
+                            <Button variant="outline" size="sm" onClick={() => setSelfSignupPage(p => Math.max(0, p - 1))} disabled={selfSignupPage === 0}>
+                              <ChevronLeft className="h-4 w-4 mr-1" />
+                              Précédent
+                            </Button>
+                            <span className="text-sm font-medium px-4">
+                              Page {selfSignupPage + 1} / {totalSelfSignupPages}
+                            </span>
+                            <Button variant="outline" size="sm" onClick={() => setSelfSignupPage(p => Math.min(totalSelfSignupPages - 1, p + 1))} disabled={selfSignupPage >= totalSelfSignupPages - 1}>
+                              Suivant
+                              <ChevronRight className="h-4 w-4 ml-1" />
+                            </Button>
+                          </div>}
+                      </> : <Card>
+                        <CardContent className="py-12 md:py-20 text-center">
+                          <UserCheck className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground/50 mx-auto mb-3 md:mb-4" />
+                          <h3 className="text-lg md:text-xl font-semibold mb-2">
+                            {selfSignupSearch ? "Aucun résultat" : "Aucune nouvelle inscription"}
+                          </h3>
+                          <p className="text-muted-foreground text-sm md:text-base mb-4">
+                            {selfSignupSearch ? `Aucun artisan trouvé pour "${selfSignupSearch}"` : "Aucun artisan ne s'est inscrit directement récemment."}
+                          </p>
+                          {selfSignupSearch && <Button variant="outline" onClick={() => setSelfSignupSearch("")}>
+                              Effacer la recherche
+                            </Button>}
                         </CardContent>
-                      </Card>;
-              })}
-                </div> : <Card>
-                  <CardContent className="py-12 md:py-20 text-center">
-                    <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-emerald-500 mx-auto mb-3 md:mb-4" />
-                    <h3 className="text-lg md:text-xl font-semibold mb-2">Aucune demande en attente</h3>
-                    <p className="text-muted-foreground text-sm md:text-base">
-                      Toutes les demandes d'approbation ont été traitées.
-                    </p>
-                  </CardContent>
-                </Card>}
+                      </Card>}
+                  </TabsContent>
+
+                  {/* EN ATTENTE D'APPROBATION SUB-TAB (tous ceux avec documents) */}
+                  <TabsContent value="en-attente">
+                    {isLoadingArtisans ? <div className="flex items-center justify-center py-12 md:py-20">
+                        <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-primary" />
+                      </div> : pendingArtisans.length > 0 ? <div className="grid gap-3 md:gap-6">
+                        {pendingArtisans.map(artisan => {
+                      const completeness = getProfileCompleteness(artisan);
+                      return <Card key={artisan.id} className="hover:shadow-lg transition-shadow border-l-4 border-l-amber-500">
+                              <CardContent className="p-3 md:p-6">
+                                <div className="flex gap-3 md:gap-6">
+                                  {/* Avatar - Smaller on mobile */}
+                                  <Avatar className="h-14 w-14 md:h-24 md:w-24 ring-2 md:ring-4 ring-muted shrink-0">
+                                    <AvatarImage src={artisan.photo_url || DEFAULT_AVATAR} />
+                                    <AvatarFallback className="text-lg md:text-2xl bg-primary text-primary-foreground">
+                                      <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
+                                    </AvatarFallback>
+                                  </Avatar>
+
+                                  <div className="flex-1 min-w-0">
+                                    {/* Header */}
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                      <div className="min-w-0">
+                                        <h3 className="text-base md:text-xl font-bold truncate">{artisan.business_name}</h3>
+                                        <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
+                                          <span className="flex items-center gap-1">
+                                            <MapPin className="h-3 w-3 md:h-4 md:w-4" />
+                                            <span className="truncate max-w-[80px] md:max-w-none">{artisan.city}</span>
+                                          </span>
+                                          {artisan.category && <Badge variant="secondary" className="text-xs px-1.5 py-0">{artisan.category.name}</Badge>}
+                                        </div>
+                                      </div>
+                                      <Badge variant="outline" className="gap-1 text-xs shrink-0 hidden sm:flex bg-amber-500/10 text-amber-600 border-amber-500/30">
+                                        <Clock className="h-2.5 w-2.5" />
+                                        Documents à vérifier
+                                      </Badge>
+                                    </div>
+
+                                    {artisan.description && <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-4">
+                                        {artisan.description}
+                                      </p>}
+
+                                    {/* Badges - Compact on mobile */}
+                                    <div className="flex flex-wrap gap-1 md:gap-2 mb-2 md:mb-4">
+                                      <Badge variant={artisan.photo_url ? "default" : "secondary"} className="gap-0.5 text-xs px-1.5 py-0">
+                                        {artisan.photo_url ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
+                                        <span className="hidden sm:inline">Photo</span>
+                                      </Badge>
+                                      <Badge variant={artisan.siret ? "default" : "secondary"} className="gap-0.5 text-xs px-1.5 py-0">
+                                        {artisan.siret ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
+                                        SIRET
+                                      </Badge>
+                                      <Badge variant={artisan.portfolio_images && artisan.portfolio_images.length >= 3 ? "default" : "secondary"} className="gap-0.5 text-xs px-1.5 py-0">
+                                        {artisan.portfolio_images && artisan.portfolio_images.length >= 3 ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
+                                        {artisan.portfolio_images?.length || 0}/3
+                                      </Badge>
+                                    </div>
+
+                                    {/* Progress bar - Compact on mobile */}
+                                    <div className="mb-2 md:mb-4">
+                                      <div className="flex justify-between text-xs mb-1">
+                                        <span className="text-muted-foreground">Profil</span>
+                                        <span className="font-medium">{completeness.percentage}%</span>
+                                      </div>
+                                      <div className="h-1.5 md:h-2 bg-muted rounded-full overflow-hidden">
+                                        <div className={`h-full transition-all ${completeness.percentage >= 80 ? 'bg-emerald-500' : completeness.percentage >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{
+                                    width: `${completeness.percentage}%`
+                                  }} />
+                                      </div>
+                                    </div>
+
+                                    {/* Actions - Mobile optimized */}
+                                    <div className="flex flex-wrap gap-1.5 md:gap-2">
+                                      <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => setSelectedArtisan(artisan)}>
+                                        <Eye className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                        <span className="hidden sm:inline">Profil</span>
+                                      </Button>
+                                      <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => loadArtisanDocuments(artisan)}>
+                                        <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                        <span className="hidden sm:inline">Documents</span>
+                                      </Button>
+                                      <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => handleApproveArtisan(artisan)} disabled={approveArtisanMutation.isPending}>
+                                        <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                        <span className="hidden sm:inline">Accepter</span>
+                                      </Button>
+                                      <Button variant="destructive" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => {
+                                  setSelectedArtisan(artisan);
+                                  setShowRejectDialog(true);
+                                }}>
+                                        <XCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                        <span className="hidden sm:inline">Refuser</span>
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>;
+                    })}
+                      </div> : <Card>
+                        <CardContent className="py-12 md:py-20 text-center">
+                          <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-emerald-500 mx-auto mb-3 md:mb-4" />
+                          <h3 className="text-lg md:text-xl font-semibold mb-2">Aucun document en attente</h3>
+                          <p className="text-muted-foreground text-sm md:text-base">
+                            Tous les artisans avec documents ont été traités.
+                          </p>
+                        </CardContent>
+                      </Card>}
+                  </TabsContent>
+                </Tabs>
+              </div>
             </TabsContent>
 
             {/* VITRINES TAB */}

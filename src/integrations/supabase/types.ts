@@ -252,6 +252,7 @@ export type Database = {
           review_count: number | null
           siret: string | null
           slug: string | null
+          source: string | null
           status: Database["public"]["Enums"]["artisan_status"]
           stripe_customer_id: string | null
           subscription_end: string | null
@@ -305,6 +306,7 @@ export type Database = {
           review_count?: number | null
           siret?: string | null
           slug?: string | null
+          source?: string | null
           status?: Database["public"]["Enums"]["artisan_status"]
           stripe_customer_id?: string | null
           subscription_end?: string | null
@@ -358,6 +360,7 @@ export type Database = {
           review_count?: number | null
           siret?: string | null
           slug?: string | null
+          source?: string | null
           status?: Database["public"]["Enums"]["artisan_status"]
           stripe_customer_id?: string | null
           subscription_end?: string | null
