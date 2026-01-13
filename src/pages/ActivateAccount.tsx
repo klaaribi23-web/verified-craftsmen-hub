@@ -6,10 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, CheckCircle, Shield, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle, Shield, Eye, EyeOff, AlertCircle, UserCheck, Key } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+
+interface ExistingAccountInfo {
+  exists: boolean;
+  role: string | null;
+  userId: string | null;
+}
 
 const ActivateAccount = () => {
   const navigate = useNavigate();
@@ -22,6 +28,9 @@ const ActivateAccount = () => {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // New state for existing account handling
+  const [existingAccount, setExistingAccount] = useState<ExistingAccountInfo | null>(null);
   
   const [artisanData, setArtisanData] = useState<{
     id: string;
@@ -72,6 +81,20 @@ const ActivateAccount = () => {
           return;
         }
 
+        // Check if email already exists in auth.users
+        try {
+          const { data: checkResult, error: checkError } = await supabase.functions.invoke('check-email-exists', {
+            body: { email: artisan.email }
+          });
+
+          if (!checkError && checkResult) {
+            setExistingAccount(checkResult);
+          }
+        } catch (err) {
+          console.warn("Could not check existing email:", err);
+          // Continue without the check - we'll handle it in submit
+        }
+
         setArtisanData({
           id: artisan.id,
           email: artisan.email,
@@ -99,7 +122,8 @@ const ActivateAccount = () => {
       return;
     }
     
-    if (formData.password !== formData.confirmPassword) {
+    // Only check confirm password if creating new account
+    if (!existingAccount?.exists && formData.password !== formData.confirmPassword) {
       toast.error("Les mots de passe ne correspondent pas");
       return;
     }
@@ -107,7 +131,39 @@ const ActivateAccount = () => {
     setIsSubmitting(true);
 
     try {
-      // Create user account with Supabase Auth
+      // Case 1: Existing client account - need to convert
+      if (existingAccount?.exists && existingAccount.role === 'client') {
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: artisanData.email,
+          password: formData.password,
+        });
+
+        if (signInError) {
+          if (signInError.message.includes("Invalid login credentials")) {
+            toast.error("Mot de passe incorrect. Veuillez réessayer ou réinitialiser votre mot de passe.");
+            setIsSubmitting(false);
+            return;
+          }
+          throw signInError;
+        }
+
+        if (signInData.user) {
+          // Convert client to artisan
+          await convertClientToArtisan(signInData.user.id, artisanData.id);
+          setShowSuccess(true);
+          setTimeout(() => navigate("/artisan/dashboard"), 2500);
+          return;
+        }
+      }
+
+      // Case 2: Existing artisan account
+      if (existingAccount?.exists && existingAccount.role === 'artisan') {
+        toast.error("Un compte artisan existe déjà avec cet email. Veuillez vous connecter.");
+        navigate("/auth");
+        return;
+      }
+
+      // Case 3: New account - create user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: artisanData.email,
         password: formData.password,
@@ -119,9 +175,8 @@ const ActivateAccount = () => {
       });
 
       if (authError) {
-        // Handle case where user already exists
+        // Handle case where user already exists (edge case if check failed)
         if (authError.message.includes("already registered")) {
-          // Try to sign in instead
           const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
             email: artisanData.email,
             password: formData.password,
@@ -129,15 +184,14 @@ const ActivateAccount = () => {
 
           if (signInError) {
             if (signInError.message.includes("Invalid login credentials")) {
-              toast.error("Un compte existe déjà avec cet email. Veuillez vous connecter ou réinitialiser votre mot de passe.");
-              navigate("/auth");
+              toast.error("Un compte existe déjà avec cet email mais le mot de passe ne correspond pas.");
+              setIsSubmitting(false);
               return;
             }
             throw signInError;
           }
 
           if (signInData.user) {
-            // Link artisan profile to existing user
             await linkArtisanToUser(signInData.user.id, artisanData.id);
             setShowSuccess(true);
             setTimeout(() => navigate("/artisan/dashboard"), 2500);
@@ -162,7 +216,6 @@ const ActivateAccount = () => {
 
         if (signInError) {
           console.error("Sign in error after signup:", signInError);
-          // Still show success, user can sign in manually
         }
 
         setShowSuccess(true);
@@ -176,26 +229,78 @@ const ActivateAccount = () => {
     }
   };
 
-  const linkArtisanToUser = async (userId: string, artisanId: string) => {
-    // 1. D'abord mettre à jour l'artisan avec user_id (la nouvelle RLS le permet)
-    // Le token doit correspondre pour que la politique RLS autorise l'update
+  const convertClientToArtisan = async (userId: string, artisanId: string) => {
+    // 1. Update artisan with user_id
     const { error: updateError } = await supabase
       .from("artisans")
       .update({
         user_id: userId,
-        profile_id: null, // On le mettra après
-        activation_token: null, // Efface le token (requis par la politique RLS)
-        // status reste 'pending' - ne pas changer
+        activation_token: null,
       })
       .eq("id", artisanId)
-      .eq("activation_token", token); // Sécurité: vérifie que le token correspond
+      .eq("activation_token", token);
 
     if (updateError) {
       console.error("Failed to link artisan:", updateError);
       throw new Error("Impossible de lier le compte artisan. Veuillez réessayer.");
     }
 
-    // 2. Supprimer le rôle client par défaut (créé automatiquement par le trigger)
+    // 2. Delete the client role
+    const { error: deleteRoleError } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("user_id", userId);
+
+    if (deleteRoleError) {
+      console.error("Failed to delete client role:", deleteRoleError);
+    }
+
+    // 3. Insert artisan role
+    const { error: roleError } = await supabase
+      .from("user_roles")
+      .insert([{ user_id: userId, role: "artisan" }]);
+
+    if (roleError) {
+      console.error("Failed to assign artisan role:", roleError);
+    }
+
+    // 4. Get and link profile_id
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (profile?.id) {
+      const { error: profileUpdateError } = await supabase
+        .from("artisans")
+        .update({ profile_id: profile.id })
+        .eq("user_id", userId);
+
+      if (profileUpdateError) {
+        console.error("Failed to update profile_id:", profileUpdateError);
+      }
+    }
+  };
+
+  const linkArtisanToUser = async (userId: string, artisanId: string) => {
+    // 1. Update artisan with user_id
+    const { error: updateError } = await supabase
+      .from("artisans")
+      .update({
+        user_id: userId,
+        profile_id: null,
+        activation_token: null,
+      })
+      .eq("id", artisanId)
+      .eq("activation_token", token);
+
+    if (updateError) {
+      console.error("Failed to link artisan:", updateError);
+      throw new Error("Impossible de lier le compte artisan. Veuillez réessayer.");
+    }
+
+    // 2. Delete default client role
     const { error: deleteRoleError } = await supabase
       .from("user_roles")
       .delete()
@@ -203,20 +308,18 @@ const ActivateAccount = () => {
 
     if (deleteRoleError) {
       console.error("Failed to delete default role:", deleteRoleError);
-      // Continue anyway - the artisan role insert should still work
     }
 
-    // 3. Créer le rôle artisan (la politique RLS vérifie que l'artisan.user_id = auth.uid())
+    // 3. Create artisan role
     const { error: roleError } = await supabase
       .from("user_roles")
       .insert([{ user_id: userId, role: "artisan" }]);
 
     if (roleError) {
       console.error("Failed to assign artisan role:", roleError);
-      // Don't throw - the user can still access their account
     }
 
-    // 4. Récupérer le profile_id (créé par le trigger handle_new_user)
+    // 4. Get profile_id
     let profileId: string | null = null;
     for (let attempt = 0; attempt < 5; attempt++) {
       const { data: profile } = await supabase
@@ -229,11 +332,10 @@ const ActivateAccount = () => {
         profileId = profile.id;
         break;
       }
-      // Attendre avant de réessayer
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    // 5. Mettre à jour le profile_id de l'artisan si trouvé
+    // 5. Update profile_id
     if (profileId) {
       const { error: profileUpdateError } = await supabase
         .from("artisans")
@@ -242,10 +344,7 @@ const ActivateAccount = () => {
       
       if (profileUpdateError) {
         console.error("Failed to update profile_id:", profileUpdateError);
-        // Non-critical - continue
       }
-    } else {
-      console.warn("Profile not found after 5 attempts - profile_id will remain null");
     }
   };
 
@@ -333,6 +432,9 @@ const ActivateAccount = () => {
     );
   }
 
+  // Determine which form to show
+  const isExistingClient = existingAccount?.exists && existingAccount?.role === 'client';
+
   // Form state
   return (
     <div className="min-h-screen bg-background">
@@ -348,15 +450,43 @@ const ActivateAccount = () => {
           <Card>
             <CardHeader className="text-center">
               <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <Shield className="h-8 w-8 text-primary" />
+                {isExistingClient ? (
+                  <UserCheck className="h-8 w-8 text-primary" />
+                ) : (
+                  <Shield className="h-8 w-8 text-primary" />
+                )}
               </div>
-              <CardTitle className="text-2xl">Activez votre compte</CardTitle>
+              <CardTitle className="text-2xl">
+                {isExistingClient ? "Compte existant détecté" : "Activez votre compte"}
+              </CardTitle>
               <CardDescription>
-                Bienvenue <span className="font-semibold text-foreground">{artisanData?.business_name}</span> !<br />
-                Créez votre mot de passe pour accéder à votre espace artisan.
+                {isExistingClient ? (
+                  <>
+                    Bonjour ! Vous avez déjà un compte client avec l'adresse <span className="font-semibold text-foreground">{artisanData?.email}</span>.
+                    <br /><br />
+                    Entrez votre mot de passe existant pour convertir votre compte en compte artisan et accéder à votre vitrine <span className="font-semibold text-foreground">{artisanData?.business_name}</span>.
+                  </>
+                ) : (
+                  <>
+                    Bienvenue <span className="font-semibold text-foreground">{artisanData?.business_name}</span> !<br />
+                    Créez votre mot de passe pour accéder à votre espace artisan.
+                  </>
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {isExistingClient && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <Key className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">Conversion de compte</p>
+                      <p>Votre compte client sera converti en compte artisan. Vous conserverez votre historique de messages et devis.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
@@ -370,7 +500,9 @@ const ActivateAccount = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="password">Mot de passe *</Label>
+                  <Label htmlFor="password">
+                    {isExistingClient ? "Mot de passe de votre compte client *" : "Mot de passe *"}
+                  </Label>
                   <div className="relative mt-1.5">
                     <Input
                       id="password"
@@ -390,31 +522,35 @@ const ActivateAccount = () => {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Minimum 8 caractères</p>
+                  {!isExistingClient && (
+                    <p className="text-xs text-muted-foreground mt-1">Minimum 8 caractères</p>
+                  )}
                 </div>
 
-                <div>
-                  <Label htmlFor="confirmPassword">Confirmer le mot de passe *</Label>
-                  <div className="relative mt-1.5">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={formData.confirmPassword}
-                      onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                      required
-                      minLength={8}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
+                {!isExistingClient && (
+                  <div>
+                    <Label htmlFor="confirmPassword">Confirmer le mot de passe *</Label>
+                    <div className="relative mt-1.5">
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={formData.confirmPassword}
+                        onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        required
+                        minLength={8}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <Button 
                   type="submit" 
@@ -424,13 +560,24 @@ const ActivateAccount = () => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Activation en cours...
+                      {isExistingClient ? "Conversion en cours..." : "Activation en cours..."}
                     </>
                   ) : (
-                    "Activer mon compte"
+                    isExistingClient ? "Convertir mon compte en artisan" : "Activer mon compte"
                   )}
                 </Button>
               </form>
+
+              {isExistingClient && (
+                <div className="mt-4 text-center">
+                  <button 
+                    onClick={() => navigate("/forgot-password")}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Mot de passe oublié ?
+                  </button>
+                </div>
+              )}
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-muted-foreground">
