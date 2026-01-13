@@ -177,51 +177,75 @@ const ActivateAccount = () => {
   };
 
   const linkArtisanToUser = async (userId: string, artisanId: string) => {
-    // Get or create profile
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    let profileId = profile?.id;
-
-    if (!profile) {
-      // Wait a bit more for trigger
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const { data: newProfile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
-      profileId = newProfile?.id;
-    }
-
-    // Update artisan with user_id and profile_id
+    // 1. D'abord mettre à jour l'artisan avec user_id (la nouvelle RLS le permet)
+    // Le token doit correspondre pour que la politique RLS autorise l'update
     const { error: updateError } = await supabase
       .from("artisans")
       .update({
         user_id: userId,
-        profile_id: profileId,
-        status: "pending",
-        activation_token: null, // Clear the token
+        profile_id: null, // On le mettra après
+        activation_token: null, // Efface le token (requis par la politique RLS)
+        // status reste 'pending' - ne pas changer
       })
-      .eq("id", artisanId);
+      .eq("id", artisanId)
+      .eq("activation_token", token); // Sécurité: vérifie que le token correspond
 
-    if (updateError) throw updateError;
+    if (updateError) {
+      console.error("Failed to link artisan:", updateError);
+      throw new Error("Impossible de lier le compte artisan. Veuillez réessayer.");
+    }
 
-    // Ensure artisan role exists
-    const { data: existingRole } = await supabase
+    // 2. Supprimer le rôle client par défaut (créé automatiquement par le trigger)
+    const { error: deleteRoleError } = await supabase
       .from("user_roles")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("role", "artisan")
-      .maybeSingle();
+      .delete()
+      .eq("user_id", userId);
 
-    if (!existingRole) {
-      // Delete any existing role and insert artisan role
-      await supabase.from("user_roles").delete().eq("user_id", userId);
-      await supabase.from("user_roles").insert([{ user_id: userId, role: "artisan" }]);
+    if (deleteRoleError) {
+      console.error("Failed to delete default role:", deleteRoleError);
+      // Continue anyway - the artisan role insert should still work
+    }
+
+    // 3. Créer le rôle artisan (la politique RLS vérifie que l'artisan.user_id = auth.uid())
+    const { error: roleError } = await supabase
+      .from("user_roles")
+      .insert([{ user_id: userId, role: "artisan" }]);
+
+    if (roleError) {
+      console.error("Failed to assign artisan role:", roleError);
+      // Don't throw - the user can still access their account
+    }
+
+    // 4. Récupérer le profile_id (créé par le trigger handle_new_user)
+    let profileId: string | null = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      
+      if (profile?.id) {
+        profileId = profile.id;
+        break;
+      }
+      // Attendre avant de réessayer
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 5. Mettre à jour le profile_id de l'artisan si trouvé
+    if (profileId) {
+      const { error: profileUpdateError } = await supabase
+        .from("artisans")
+        .update({ profile_id: profileId })
+        .eq("user_id", userId);
+      
+      if (profileUpdateError) {
+        console.error("Failed to update profile_id:", profileUpdateError);
+        // Non-critical - continue
+      }
+    } else {
+      console.warn("Profile not found after 5 attempts - profile_id will remain null");
     }
   };
 
