@@ -21,11 +21,11 @@ Deno.serve(async (req) => {
       )
     }
 
-    const { artisanId } = await req.json()
+    const { artisanId, cleanupOrphanEmail } = await req.json()
 
-    if (!artisanId) {
+    if (!artisanId && !cleanupOrphanEmail) {
       return new Response(
-        JSON.stringify({ error: 'artisanId is required' }),
+        JSON.stringify({ error: 'artisanId or cleanupOrphanEmail is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -61,6 +61,77 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Handle orphan email cleanup (no artisan, just orphan auth user)
+    if (cleanupOrphanEmail && !artisanId) {
+      console.log('Cleaning up orphan account for email:', cleanupOrphanEmail)
+      
+      const { data: usersData } = await supabaseAdmin.auth.admin.listUsers()
+      const orphanUser = usersData?.users?.find(
+        u => u.email?.toLowerCase() === cleanupOrphanEmail.toLowerCase()
+      )
+
+      if (!orphanUser) {
+        return new Response(
+          JSON.stringify({ error: 'No auth user found with this email' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      // Check if this user is linked to ANY artisan
+      const { data: linkedArtisans } = await supabaseAdmin
+        .from('artisans')
+        .select('id')
+        .eq('user_id', orphanUser.id)
+        .limit(1)
+
+      if (linkedArtisans && linkedArtisans.length > 0) {
+        return new Response(
+          JSON.stringify({ error: 'This user is linked to an artisan profile. Delete the artisan first.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      // Delete user_roles
+      await supabaseAdmin
+        .from('user_roles')
+        .delete()
+        .eq('user_id', orphanUser.id)
+
+      // Delete profile
+      await supabaseAdmin
+        .from('profiles')
+        .delete()
+        .eq('user_id', orphanUser.id)
+
+      // Delete notifications
+      await supabaseAdmin
+        .from('notifications')
+        .delete()
+        .eq('user_id', orphanUser.id)
+
+      // Delete the auth user
+      const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(orphanUser.id)
+      
+      if (deleteUserError) {
+        console.error('Error deleting auth user:', deleteUserError)
+        return new Response(
+          JSON.stringify({ error: 'Failed to delete auth user' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      console.log('Successfully deleted orphan auth user:', orphanUser.id, orphanUser.email)
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          deletedUser: orphanUser.id,
+          email: cleanupOrphanEmail
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
