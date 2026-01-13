@@ -223,10 +223,7 @@ const ActivateAccount = () => {
         // Wait for profile to be created by trigger
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // Link artisan profile to new user
-        await linkArtisanToUser(authData.user.id, artisanData.id);
-
-        // Sign in immediately (auto-confirm is enabled)
+        // SIGN IN FIRST to get an active session (required for RLS)
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: artisanData.email,
           password: formData.password,
@@ -234,7 +231,11 @@ const ActivateAccount = () => {
 
         if (signInError) {
           console.error("Sign in error after signup:", signInError);
+          throw new Error("Impossible de se connecter après l'inscription. Veuillez réessayer.");
         }
+
+        // NOW link artisan profile (with active session)
+        await linkArtisanToUser(authData.user.id, artisanData.id);
 
         setShowSuccess(true);
         setTimeout(() => navigate("/artisan/dashboard"), 2500);
@@ -302,20 +303,45 @@ const ActivateAccount = () => {
   };
 
   const linkArtisanToUser = async (userId: string, artisanId: string) => {
-    // 1. Update artisan with user_id
-    const { error: updateError } = await supabase
+    // Verify session is active
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log("Session active:", !!sessionData.session, "User ID:", sessionData.session?.user?.id);
+
+    // 1. Update artisan with user_id (profile_id will be set later)
+    const { error: updateError, data: updateData } = await supabase
       .from("artisans")
       .update({
         user_id: userId,
-        profile_id: null,
         activation_token: null,
       })
       .eq("id", artisanId)
-      .eq("activation_token", token);
+      .eq("activation_token", token)
+      .select();
 
     if (updateError) {
-      console.error("Failed to link artisan:", updateError);
-      throw new Error("Impossible de lier le compte artisan. Veuillez réessayer.");
+      console.error("Failed to link artisan:", {
+        code: updateError.code,
+        message: updateError.message,
+        details: updateError.details,
+        hint: updateError.hint,
+        artisanId,
+        userId,
+        token
+      });
+      
+      // Provide specific error messages
+      if (updateError.code === "42501") {
+        throw new Error("Erreur de permission. Veuillez vous reconnecter et réessayer.");
+      }
+      if (updateError.code === "23505") {
+        throw new Error("Ce compte est déjà lié à une autre vitrine artisan.");
+      }
+      throw new Error(`Impossible de lier le compte artisan: ${updateError.message}`);
+    }
+
+    if (!updateData || updateData.length === 0) {
+      console.error("No rows updated - token mismatch or already used:", { artisanId, token });
+      throw new Error("Le lien d'activation a déjà été utilisé ou est invalide.");
     }
 
     // 2. Delete default client role
