@@ -19,6 +19,7 @@ import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 interface ArtisanData {
   id: string;
   business_name: string;
+  email: string | null;
   description: string | null;
   category_id: string | null;
   city: string;
@@ -111,6 +112,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
     if (artisan) {
       setFormData({
         business_name: artisan.business_name,
+        email: artisan.email,
         description: artisan.description,
         category_id: artisan.category_id,
         city: artisan.city,
@@ -172,6 +174,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
         .from('artisans')
         .update({
           business_name: data.business_name,
+          email: data.email,
           description: data.description,
           category_id: data.primaryCategoryId,
           city: data.city,
@@ -400,6 +403,16 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                     onChange={(e) => setFormData(prev => ({ ...prev, experience_years: parseInt(e.target.value) || 0 }))}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  value={formData.email || ""}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="email@exemple.fr"
+                />
               </div>
 
               <div className="space-y-2">
