@@ -130,6 +130,7 @@ export const useArtisanProfile = () => {
     firstName?: string;
     lastName?: string;
     phone?: string;
+    businessName?: string;
     description?: string;
     city?: string;
     department?: string;
@@ -181,6 +182,7 @@ export const useArtisanProfile = () => {
 
       // Update artisans table
       const artisanUpdates: Record<string, any> = {};
+      if (updates.businessName !== undefined) artisanUpdates.business_name = updates.businessName;
       if (updates.description !== undefined) artisanUpdates.description = updates.description;
       if (updates.city !== undefined) artisanUpdates.city = updates.city;
       if (updates.department !== undefined) artisanUpdates.department = updates.department;
@@ -197,13 +199,6 @@ export const useArtisanProfile = () => {
       if (updates.latitude !== undefined) artisanUpdates.latitude = updates.latitude;
       if (updates.longitude !== undefined) artisanUpdates.longitude = updates.longitude;
       if (updates.interventionRadius !== undefined) artisanUpdates.intervention_radius = updates.interventionRadius;
-
-      // Also update business_name if names changed
-      if (updates.firstName !== undefined || updates.lastName !== undefined) {
-        const newFirstName = updates.firstName ?? profile.first_name ?? "";
-        const newLastName = updates.lastName ?? profile.last_name ?? "";
-        artisanUpdates.business_name = `${newFirstName} ${newLastName}`.trim() || "Non renseigné";
-      }
 
       if (Object.keys(artisanUpdates).length > 0) {
         const { error: artisanError } = await supabase

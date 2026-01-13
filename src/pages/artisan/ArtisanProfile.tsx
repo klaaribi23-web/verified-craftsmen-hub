@@ -93,6 +93,7 @@ export const ArtisanProfile = () => {
   const [city, setCity] = useState("");
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [interventionRadius, setInterventionRadius] = useState<number>(50);
+  const [businessName, setBusinessName] = useState("");
   const [siret, setSiret] = useState("");
   const [siretError, setSiretError] = useState("");
   const [experienceYears, setExperienceYears] = useState("");
@@ -144,6 +145,7 @@ export const ArtisanProfile = () => {
       setPhone(profile.phone || "");
     }
     if (artisan) {
+      setBusinessName(artisan.business_name || "");
       setDescription(artisan.description || "");
       setCity(artisan.city === "Non renseigné" ? "" : artisan.city || "");
       setSiret(artisan.siret || "");
@@ -307,6 +309,7 @@ export const ArtisanProfile = () => {
       firstName,
       lastName,
       phone,
+      businessName,
       description,
       city: city || "Non renseigné",
       siret: cleanedSiret,
@@ -678,6 +681,19 @@ export const ArtisanProfile = () => {
             <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
               <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6">Informations professionnelles</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="businessName" className="text-sm">
+                    Nom de l'entreprise <span className="text-destructive">*</span>
+                  </Label>
+                  <Input 
+                    id="businessName" 
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    placeholder="Dupont Plomberie"
+                    className="text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">Ce nom sera affiché sur votre fiche publique</p>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="siret" className="text-sm">
                     Numéro SIRET <span className="text-destructive">*</span>
