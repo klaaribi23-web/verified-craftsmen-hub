@@ -45,6 +45,7 @@ interface ProspectArtisan {
   id: string;
   business_name: string;
   city: string;
+  email: string | null;
   description: string | null;
   photo_url: string | null;
   portfolio_images: string[] | null;
@@ -282,6 +283,7 @@ const AdminApprovals = () => {
           id,
           business_name,
           city,
+          email,
           description,
           photo_url,
           portfolio_images,
