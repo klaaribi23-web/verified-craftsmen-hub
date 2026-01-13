@@ -476,6 +476,7 @@ const AdminBulkImport = () => {
             is_verified: false,
             description: DEFAULT_DESCRIPTION, // Description générique par défaut
             source: "import", // Artisan importé via import massif
+            experience_years: 3, // 3 ans d'expérience par défaut pour tous les imports
           };
 
           if (enabledColumns.includes("email")) {
