@@ -248,7 +248,7 @@ const AdminArtisans = () => {
                               {artisan.business_name}
                             </p>
                             <p className="text-xs text-muted-foreground truncate">
-                              {artisan.siret || "SIRET non renseigné"}
+                              {artisan.profile?.first_name} {artisan.profile?.last_name}
                             </p>
                           </div>
                           <Badge variant={artisan.status === "active" ? "secondary" : "destructive"}>
@@ -368,7 +368,7 @@ const AdminArtisans = () => {
                             <div className="min-w-0">
                               <p className="font-medium text-foreground truncate">{artisan.business_name}</p>
                               <p className="text-sm text-muted-foreground truncate">
-                                {artisan.siret || "SIRET non renseigné"}
+                                {artisan.profile?.first_name} {artisan.profile?.last_name}
                               </p>
                             </div>
                           </div>

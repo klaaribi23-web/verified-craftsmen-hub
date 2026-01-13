@@ -68,6 +68,7 @@ const stats = [
 
 // Validation schema
 const artisanSignupSchema = z.object({
+  businessName: z.string().trim().min(2, "Nom d'entreprise requis (min 2 caractères)").max(100, "Nom d'entreprise trop long"),
   firstName: z.string().trim().min(2, "Prénom requis (min 2 caractères)").max(50, "Prénom trop long"),
   lastName: z.string().trim().min(2, "Nom requis (min 2 caractères)").max(50, "Nom trop long"),
   email: z.string().trim().email("Email invalide").max(255, "Email trop long"),
@@ -83,6 +84,7 @@ const DevenirArtisan = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [formData, setFormData] = useState({
+    businessName: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -180,7 +182,7 @@ const DevenirArtisan = () => {
             .insert([{
               user_id: data.user.id,
               profile_id: profile.id,
-              business_name: "Non renseigné",
+              business_name: formData.businessName,
               city: formData.city || "Non renseigné",
               status: "pending",
               category_id: selectedCategoryId || null,
@@ -333,6 +335,18 @@ const DevenirArtisan = () => {
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="businessName" className="text-navy">Nom de l'entreprise *</Label>
+                      <Input
+                        id="businessName"
+                        placeholder="Dupont Plomberie"
+                        value={formData.businessName}
+                        onChange={(e) => updateForm("businessName", e.target.value)}
+                        className="mt-1.5"
+                        required
+                      />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="firstName" className="text-navy">Prénom *</Label>

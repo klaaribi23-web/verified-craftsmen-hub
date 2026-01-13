@@ -36,6 +36,11 @@ export interface Artisan {
     id: string;
     name: string;
   } | null;
+  profile?: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+  } | null;
 }
 
 export interface Category {
@@ -76,7 +81,8 @@ export const useArtisans = () => {
         .from("artisans")
         .select(`
           *,
-          category:categories(id, name)
+          category:categories(id, name),
+          profile:profiles(id, first_name, last_name)
         `)
         .in("status", ["active", "suspended"])
         .order("created_at", { ascending: false });
