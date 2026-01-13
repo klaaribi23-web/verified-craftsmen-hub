@@ -181,7 +181,56 @@ const ActivateAccount = () => {
         }
       }
 
-      // Case 3: New account - create user
+      // Case 3: New account - BUT first re-check if account now exists (user may have returned after email confirmation)
+      const { data: recheckData } = await supabase.functions.invoke("check-email-exists", {
+        body: { email: artisanData.email },
+      });
+
+      // If account exists now (user came back after confirming email)
+      if (recheckData?.exists) {
+        console.log("Account now exists after re-check, attempting sign in...");
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: artisanData.email,
+          password: formData.password,
+        });
+
+        if (signInError) {
+          if (signInError.message.includes("Invalid login credentials")) {
+            toast.error("Mot de passe incorrect. Veuillez réessayer.");
+            setIsSubmitting(false);
+            return;
+          }
+          // Handle email not confirmed (shouldn't happen if they clicked confirmation link)
+          if (signInError.message.includes("email_not_confirmed") || 
+              signInError.message.includes("Email not confirmed")) {
+            toast.info(
+              "Veuillez confirmer votre email en cliquant sur le lien envoyé, puis revenez sur cette page.",
+              { duration: 10000 }
+            );
+            setIsSubmitting(false);
+            return;
+          }
+          throw signInError;
+        }
+
+        if (signInData.user) {
+          // Wait for session to propagate
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Verify session is active
+          const { data: sessionCheck } = await supabase.auth.getSession();
+          if (!sessionCheck.session) {
+            throw new Error("Session non établie. Veuillez rafraîchir la page et réessayer.");
+          }
+          
+          await linkArtisanToUser(signInData.user.id, artisanData.id);
+          setShowSuccess(true);
+          setTimeout(() => navigate("/artisan/dashboard"), 2500);
+          return;
+        }
+      }
+
+      // If still no account, proceed with signUp
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: artisanData.email,
         password: formData.password,
@@ -206,10 +255,23 @@ const ActivateAccount = () => {
               setIsSubmitting(false);
               return;
             }
+            // Handle email not confirmed
+            if (signInError.message.includes("email_not_confirmed") || 
+                signInError.message.includes("Email not confirmed")) {
+              toast.info(
+                "Veuillez confirmer votre email en cliquant sur le lien envoyé, puis revenez sur cette page.",
+                { duration: 10000 }
+              );
+              setIsSubmitting(false);
+              return;
+            }
             throw signInError;
           }
 
           if (signInData.user) {
+            // Wait for session to propagate
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
             await linkArtisanToUser(signInData.user.id, artisanData.id);
             setShowSuccess(true);
             setTimeout(() => navigate("/artisan/dashboard"), 2500);
@@ -231,7 +293,26 @@ const ActivateAccount = () => {
 
         if (signInError) {
           console.error("Sign in error after signup:", signInError);
+          // Handle email not confirmed - this is expected if auto-confirm is disabled
+          if (signInError.message.includes("email_not_confirmed") || 
+              signInError.message.includes("Email not confirmed")) {
+            toast.info(
+              "Votre compte a été créé ! Veuillez confirmer votre email en cliquant sur le lien envoyé, puis revenez sur cette page.",
+              { duration: 10000 }
+            );
+            setIsSubmitting(false);
+            return;
+          }
           throw new Error("Impossible de se connecter après l'inscription. Veuillez réessayer.");
+        }
+
+        // Wait for session to propagate
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Verify session is active before linking
+        const { data: sessionCheck } = await supabase.auth.getSession();
+        if (!sessionCheck.session) {
+          throw new Error("Session non établie. Veuillez rafraîchir la page et réessayer.");
         }
 
         // NOW link artisan profile (with active session)
