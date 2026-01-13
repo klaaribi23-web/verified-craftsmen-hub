@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw, AlertTriangle } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -180,6 +180,11 @@ const AdminApprovals = () => {
   const [showReminderDialog, setShowReminderDialog] = useState(false);
   const [reminderArtisan, setReminderArtisan] = useState<WaitingArtisan | null>(null);
   const [isSendingReminder, setIsSendingReminder] = useState(false);
+
+  // Delete waiting artisan dialog state
+  const [showDeleteWaitingDialog, setShowDeleteWaitingDialog] = useState(false);
+  const [waitingArtisanToDelete, setWaitingArtisanToDelete] = useState<WaitingArtisan | null>(null);
+  const [isDeletingWaiting, setIsDeletingWaiting] = useState(false);
 
   // Pagination state for prospects
   const [prospectPage, setProspectPage] = useState(0);
@@ -1579,7 +1584,7 @@ const AdminApprovals = () => {
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
                                       Voir la fiche
                                     </Button>
-                                    <Button 
+                                      <Button 
                                       variant="default" 
                                       size="sm" 
                                       className="text-xs md:text-sm h-8 md:h-9 px-3 bg-amber-500 hover:bg-amber-600"
@@ -1590,6 +1595,18 @@ const AdminApprovals = () => {
                                     >
                                       <RefreshCw className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
                                       Relancer
+                                    </Button>
+                                    <Button 
+                                      variant="destructive" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-3"
+                                      onClick={() => {
+                                        setWaitingArtisanToDelete(artisan);
+                                        setShowDeleteWaitingDialog(true);
+                                      }}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                      Supprimer
                                     </Button>
                                   </div>
                                 </div>
@@ -2184,6 +2201,101 @@ const AdminApprovals = () => {
                     <>
                       <RefreshCw className="h-4 w-4 mr-2" />
                       Envoyer la relance
+                    </>
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Delete Waiting Artisan Confirmation AlertDialog */}
+          <AlertDialog open={showDeleteWaitingDialog} onOpenChange={setShowDeleteWaitingDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="h-5 w-5" />
+                  Supprimer définitivement cet artisan ?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="space-y-2">
+                  <p>
+                    Vous êtes sur le point de supprimer <strong>{waitingArtisanToDelete?.business_name}</strong> de façon permanente.
+                  </p>
+                  <p className="text-destructive font-medium">
+                    Cette action est irréversible. Toutes les données associées seront supprimées :
+                  </p>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                    <li>Fiche artisan</li>
+                    <li>Photos et portfolio</li>
+                    <li>Catégories et services</li>
+                    <li>Avis et recommandations</li>
+                  </ul>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeletingWaiting}>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!waitingArtisanToDelete) return;
+                    
+                    setIsDeletingWaiting(true);
+                    try {
+                      const artisanId = waitingArtisanToDelete.id;
+                      
+                      // 1. Delete associated categories
+                      await supabase.from("artisan_categories").delete().eq("artisan_id", artisanId);
+                      
+                      // 2. Delete associated services
+                      await supabase.from("artisan_services").delete().eq("artisan_id", artisanId);
+                      
+                      // 3. Delete associated stories
+                      await supabase.from("artisan_stories").delete().eq("artisan_id", artisanId);
+                      
+                      // 4. Delete associated documents
+                      await supabase.from("artisan_documents").delete().eq("artisan_id", artisanId);
+                      
+                      // 5. Delete associated recommendations
+                      await supabase.from("recommendations").delete().eq("artisan_id", artisanId);
+                      
+                      // 6. Delete associated reviews
+                      await supabase.from("reviews").delete().eq("artisan_id", artisanId);
+                      
+                      // 7. Delete client favorites
+                      await supabase.from("client_favorites").delete().eq("artisan_id", artisanId);
+                      
+                      // 8. Delete associated quotes
+                      await supabase.from("quotes").delete().eq("artisan_id", artisanId);
+                      
+                      // 9. Delete the artisan
+                      const { error } = await supabase.from("artisans").delete().eq("id", artisanId);
+                      
+                      if (error) throw error;
+                      
+                      toast.success("Artisan supprimé définitivement");
+                      queryClient.invalidateQueries({ queryKey: ["waiting-artisans"] });
+                      queryClient.invalidateQueries({ queryKey: ["waiting-artisans-count"] });
+                      queryClient.invalidateQueries({ queryKey: ["approval-counts"] });
+                    } catch (error: any) {
+                      console.error("Error deleting artisan:", error);
+                      toast.error("Erreur lors de la suppression : " + error.message);
+                    } finally {
+                      setIsDeletingWaiting(false);
+                      setShowDeleteWaitingDialog(false);
+                      setWaitingArtisanToDelete(null);
+                    }
+                  }}
+                  disabled={isDeletingWaiting}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
+                  {isDeletingWaiting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Suppression...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Supprimer définitivement
                     </>
                   )}
                 </AlertDialogAction>
