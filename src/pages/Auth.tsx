@@ -35,6 +35,7 @@ const signupSchema = z.object({
     .regex(/[0-9]/, "Au moins un chiffre requis"),
   firstName: z.string().trim().min(2, "Prénom requis (min 2 caractères)").max(50, "Prénom trop long"),
   lastName: z.string().trim().min(2, "Nom requis (min 2 caractères)").max(50, "Nom trop long"),
+  businessName: z.string().trim().min(2, "Nom d'entreprise requis (min 2 caractères)").max(100, "Nom d'entreprise trop long").optional(),
 });
 
 const Auth = () => {
@@ -53,6 +54,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [businessName, setBusinessName] = useState("");
 
   // Cooldown timer for resend button
   useEffect(() => {
@@ -111,7 +113,19 @@ const Auth = () => {
         password,
         firstName,
         lastName,
+        businessName: userType === "artisan" ? businessName : undefined,
       });
+
+      // Additional validation for artisan business name
+      if (userType === "artisan" && (!businessName || businessName.trim().length < 2)) {
+        toast({
+          title: "Erreur de validation",
+          description: "Le nom de votre entreprise est requis (min 2 caractères)",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
 
       if (!validationResult.success) {
         const firstError = validationResult.error.errors[0];
@@ -171,9 +185,10 @@ const Auth = () => {
               .insert([{
                 user_id: data.user.id,
                 profile_id: profile.id,
-                business_name: "Non renseigné",
+                business_name: businessName.trim(),
                 city: "Non renseigné",
                 status: "pending",
+                source: "self_signup",
                 description: null,
                 photo_url: null,
                 portfolio_images: null,
@@ -182,7 +197,6 @@ const Auth = () => {
                 rating: 0,
                 review_count: 0,
                 missions_completed: 0,
-                availability: {},
               }]);
 
             if (artisanError) {
@@ -469,6 +483,20 @@ const Auth = () => {
 
                 <TabsContent value="signup">
                   <form onSubmit={handleEmailSignUp} className="space-y-4">
+                    {/* Business Name - Only for artisans */}
+                    {userType === "artisan" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="businessName">Nom de votre entreprise *</Label>
+                        <Input
+                          id="businessName"
+                          placeholder="Dupont Plomberie"
+                          value={businessName}
+                          onChange={(e) => setBusinessName(e.target.value)}
+                          required
+                        />
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="firstName">Prénom</Label>
