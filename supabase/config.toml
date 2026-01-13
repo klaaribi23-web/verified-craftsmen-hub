@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.admin-delete-waiting-artisan]
 verify_jwt = false
+
+[functions.admin-delete-client]
+verify_jwt = false
