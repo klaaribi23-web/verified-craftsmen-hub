@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -174,6 +174,11 @@ const AdminApprovals = () => {
     email: string;
   } | null>(null);
   const [isSendingPreregistration, setIsSendingPreregistration] = useState(false);
+
+  // Reminder dialog state for waiting artisans
+  const [showReminderDialog, setShowReminderDialog] = useState(false);
+  const [reminderArtisan, setReminderArtisan] = useState<WaitingArtisan | null>(null);
+  const [isSendingReminder, setIsSendingReminder] = useState(false);
 
   // Pagination state for prospects
   const [prospectPage, setProspectPage] = useState(0);
@@ -1572,6 +1577,18 @@ const AdminApprovals = () => {
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
                                       Voir la fiche
                                     </Button>
+                                    <Button 
+                                      variant="default" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-3 bg-amber-500 hover:bg-amber-600"
+                                      onClick={() => {
+                                        setReminderArtisan(artisan);
+                                        setShowReminderDialog(true);
+                                      }}
+                                    >
+                                      <RefreshCw className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                      Relancer
+                                    </Button>
                                   </div>
                                 </div>
                               </div>
@@ -2079,6 +2096,94 @@ const AdminApprovals = () => {
                       <Mail className="h-4 w-4 mr-2" />
                       Envoyer l'email
                     </>}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Reminder Confirmation AlertDialog for Waiting Artisans */}
+          <AlertDialog open={showReminderDialog} onOpenChange={setShowReminderDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <RefreshCw className="h-5 w-5 text-amber-500" />
+                  Relancer l'artisan
+                </AlertDialogTitle>
+                <AlertDialogDescription className="space-y-2">
+                  <p>
+                    Vous allez renvoyer un email d'activation à <strong>{reminderArtisan?.business_name}</strong> ({reminderArtisan?.email}).
+                  </p>
+                  {reminderArtisan?.reminder_count && reminderArtisan.reminder_count > 0 && (
+                    <p className="text-muted-foreground text-sm">
+                      Cet artisan a déjà été relancé {reminderArtisan.reminder_count} fois.
+                      {reminderArtisan.reminder_sent_at && (
+                        <> Dernière relance: {formatDate(reminderArtisan.reminder_sent_at)}</>
+                      )}
+                    </p>
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isSendingReminder}>
+                  Annuler
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-amber-500 hover:bg-amber-600"
+                  disabled={isSendingReminder}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!reminderArtisan?.email) return;
+                    
+                    setIsSendingReminder(true);
+                    try {
+                      // Resend the pre-registration email
+                      const { error: emailError } = await supabase.functions.invoke('send-preregistration-email', {
+                        body: {
+                          artisanId: reminderArtisan.id,
+                          artisanEmail: reminderArtisan.email,
+                          artisanName: reminderArtisan.business_name,
+                        },
+                      });
+                      
+                      if (emailError) throw emailError;
+                      
+                      // Update reminder count and timestamp
+                      const { error: updateError } = await supabase
+                        .from('artisans')
+                        .update({
+                          reminder_count: (reminderArtisan.reminder_count || 0) + 1,
+                          reminder_sent_at: new Date().toISOString(),
+                        })
+                        .eq('id', reminderArtisan.id);
+                      
+                      if (updateError) {
+                        console.error('Error updating reminder count:', updateError);
+                      }
+                      
+                      toast.success(`Email de relance envoyé à ${reminderArtisan.business_name}`);
+                      queryClient.invalidateQueries({ queryKey: ["waiting-artisans"] });
+                      queryClient.invalidateQueries({ queryKey: ["waiting-artisans-count"] });
+                      setShowReminderDialog(false);
+                      setReminderArtisan(null);
+                    } catch (err: any) {
+                      console.error('Error sending reminder email:', err);
+                      toast.error("Erreur lors de l'envoi de l'email de relance");
+                    } finally {
+                      setIsSendingReminder(false);
+                    }
+                  }}
+                >
+                  {isSendingReminder ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Envoyer la relance
+                    </>
+                  )}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
