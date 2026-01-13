@@ -186,6 +186,7 @@ const Auth = () => {
                 user_id: data.user.id,
                 profile_id: profile.id,
                 business_name: businessName.trim(),
+                email: validatedData.email,
                 city: "Non renseigné",
                 status: "pending",
                 source: "self_signup",
