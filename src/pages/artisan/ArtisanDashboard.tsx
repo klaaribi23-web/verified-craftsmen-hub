@@ -212,6 +212,17 @@ export const ArtisanDashboard = () => {
     mutationFn: async () => {
       if (!artisanProfile?.id) throw new Error("Profile not found");
       
+      // Update artisan status to pending and set approval_requested_at
+      const { error: updateError } = await supabase
+        .from("artisans")
+        .update({ 
+          status: "pending",
+          approval_requested_at: new Date().toISOString()
+        })
+        .eq("id", artisanProfile.id);
+
+      if (updateError) throw updateError;
+
       // Create notification for admins
       const { data: adminRoles } = await supabase
         .from("user_roles")
@@ -224,7 +235,7 @@ export const ArtisanDashboard = () => {
             p_user_id: admin.user_id,
             p_type: "approval_request",
             p_title: "Nouvelle demande d'approbation",
-            p_message: `${artisanProfile.business_name} a demandé l'approbation de son profil.`,
+            p_message: `${artisanProfile.business_name} a soumis ses 4 documents obligatoires et demande l'approbation de son profil.`,
             p_related_id: artisanProfile.id
           });
         }
@@ -232,9 +243,10 @@ export const ArtisanDashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["artisan-profile"] });
-      toast.success("Demande d'approbation envoyée ! L'administrateur examinera votre profil.");
+      toast.success("Demande d'approbation envoyée ! L'administrateur examinera vos documents et votre profil.");
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Approval request error:", error);
       toast.error("Erreur lors de l'envoi de la demande");
     }
   });
