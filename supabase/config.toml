@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.check-email-exists]
 verify_jwt = false
+
+[functions.admin-delete-waiting-artisan]
+verify_jwt = false

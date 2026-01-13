@@ -156,11 +156,29 @@ const ActivateAccount = () => {
         }
       }
 
-      // Case 2: Existing artisan account
+      // Case 2: Existing artisan account - allow login and link
       if (existingAccount?.exists && existingAccount.role === 'artisan') {
-        toast.error("Un compte artisan existe déjà avec cet email. Veuillez vous connecter.");
-        navigate("/auth");
-        return;
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: artisanData.email,
+          password: formData.password,
+        });
+
+        if (signInError) {
+          if (signInError.message.includes("Invalid login credentials")) {
+            toast.error("Mot de passe incorrect. Veuillez réessayer ou réinitialiser votre mot de passe.");
+            setIsSubmitting(false);
+            return;
+          }
+          throw signInError;
+        }
+
+        if (signInData.user) {
+          // Link the new artisan profile to this existing user
+          await linkArtisanToUser(signInData.user.id, artisanData.id);
+          setShowSuccess(true);
+          setTimeout(() => navigate("/artisan/dashboard"), 2500);
+          return;
+        }
       }
 
       // Case 3: New account - create user
@@ -434,6 +452,7 @@ const ActivateAccount = () => {
 
   // Determine which form to show
   const isExistingClient = existingAccount?.exists && existingAccount?.role === 'client';
+  const isExistingArtisan = existingAccount?.exists && existingAccount?.role === 'artisan';
 
   // Form state
   return (
@@ -450,14 +469,14 @@ const ActivateAccount = () => {
           <Card>
             <CardHeader className="text-center">
               <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                {isExistingClient ? (
+                {isExistingClient || isExistingArtisan ? (
                   <UserCheck className="h-8 w-8 text-primary" />
                 ) : (
                   <Shield className="h-8 w-8 text-primary" />
                 )}
               </div>
               <CardTitle className="text-2xl">
-                {isExistingClient ? "Compte existant détecté" : "Activez votre compte"}
+                {isExistingClient || isExistingArtisan ? "Compte existant détecté" : "Activez votre compte"}
               </CardTitle>
               <CardDescription>
                 {isExistingClient ? (
@@ -465,6 +484,12 @@ const ActivateAccount = () => {
                     Bonjour ! Vous avez déjà un compte client avec l'adresse <span className="font-semibold text-foreground">{artisanData?.email}</span>.
                     <br /><br />
                     Entrez votre mot de passe existant pour convertir votre compte en compte artisan et accéder à votre vitrine <span className="font-semibold text-foreground">{artisanData?.business_name}</span>.
+                  </>
+                ) : isExistingArtisan ? (
+                  <>
+                    Bonjour ! Vous avez déjà un compte artisan avec l'adresse <span className="font-semibold text-foreground">{artisanData?.email}</span>.
+                    <br /><br />
+                    Entrez votre mot de passe pour lier cette nouvelle vitrine <span className="font-semibold text-foreground">{artisanData?.business_name}</span> à votre compte.
                   </>
                 ) : (
                   <>
@@ -487,6 +512,18 @@ const ActivateAccount = () => {
                 </div>
               )}
 
+              {isExistingArtisan && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <Key className="h-5 w-5 text-amber-600 mt-0.5" />
+                    <div className="text-sm text-amber-800">
+                      <p className="font-medium mb-1">Liaison de compte</p>
+                      <p>Cette nouvelle vitrine sera ajoutée à votre compte artisan existant.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
@@ -501,7 +538,7 @@ const ActivateAccount = () => {
 
                 <div>
                   <Label htmlFor="password">
-                    {isExistingClient ? "Mot de passe de votre compte client *" : "Mot de passe *"}
+                    {isExistingClient ? "Mot de passe de votre compte client *" : isExistingArtisan ? "Mot de passe de votre compte artisan *" : "Mot de passe *"}
                   </Label>
                   <div className="relative mt-1.5">
                     <Input
@@ -522,12 +559,12 @@ const ActivateAccount = () => {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  {!isExistingClient && (
+                  {!isExistingClient && !isExistingArtisan && (
                     <p className="text-xs text-muted-foreground mt-1">Minimum 8 caractères</p>
                   )}
                 </div>
 
-                {!isExistingClient && (
+                {!isExistingClient && !isExistingArtisan && (
                   <div>
                     <Label htmlFor="confirmPassword">Confirmer le mot de passe *</Label>
                     <div className="relative mt-1.5">
@@ -560,15 +597,15 @@ const ActivateAccount = () => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      {isExistingClient ? "Conversion en cours..." : "Activation en cours..."}
+                      {isExistingClient ? "Conversion en cours..." : isExistingArtisan ? "Liaison en cours..." : "Activation en cours..."}
                     </>
                   ) : (
-                    isExistingClient ? "Convertir mon compte en artisan" : "Activer mon compte"
+                    isExistingClient ? "Convertir mon compte en artisan" : isExistingArtisan ? "Lier cette vitrine à mon compte" : "Activer mon compte"
                   )}
                 </Button>
               </form>
 
-              {isExistingClient && (
+              {(isExistingClient || isExistingArtisan) && (
                 <div className="mt-4 text-center">
                   <button 
                     onClick={() => navigate("/forgot-password")}

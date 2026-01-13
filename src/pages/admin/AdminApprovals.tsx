@@ -2240,44 +2240,21 @@ const AdminApprovals = () => {
                     
                     setIsDeletingWaiting(true);
                     try {
-                      const artisanId = waitingArtisanToDelete.id;
-                      
-                      // 1. Delete associated categories
-                      await supabase.from("artisan_categories").delete().eq("artisan_id", artisanId);
-                      
-                      // 2. Delete associated services
-                      await supabase.from("artisan_services").delete().eq("artisan_id", artisanId);
-                      
-                      // 3. Delete associated stories
-                      await supabase.from("artisan_stories").delete().eq("artisan_id", artisanId);
-                      
-                      // 4. Delete associated documents
-                      await supabase.from("artisan_documents").delete().eq("artisan_id", artisanId);
-                      
-                      // 5. Delete associated recommendations
-                      await supabase.from("recommendations").delete().eq("artisan_id", artisanId);
-                      
-                      // 6. Delete associated reviews
-                      await supabase.from("reviews").delete().eq("artisan_id", artisanId);
-                      
-                      // 7. Delete client favorites
-                      await supabase.from("client_favorites").delete().eq("artisan_id", artisanId);
-                      
-                      // 8. Delete associated quotes
-                      await supabase.from("quotes").delete().eq("artisan_id", artisanId);
-                      
-                      // 9. Delete the artisan
-                      const { error } = await supabase.from("artisans").delete().eq("id", artisanId);
+                      const { data, error } = await supabase.functions.invoke('admin-delete-waiting-artisan', {
+                        body: { artisanId: waitingArtisanToDelete.id }
+                      });
                       
                       if (error) throw error;
+                      if (data?.error) throw new Error(data.error);
                       
-                      toast.success("Artisan supprimé définitivement");
+                      const deletedUser = data?.deletedUser ? " et le compte utilisateur associé" : "";
+                      toast.success(`Artisan supprimé définitivement${deletedUser}`);
                       queryClient.invalidateQueries({ queryKey: ["waiting-artisans"] });
                       queryClient.invalidateQueries({ queryKey: ["waiting-artisans-count"] });
                       queryClient.invalidateQueries({ queryKey: ["approval-counts"] });
                     } catch (error: any) {
                       console.error("Error deleting artisan:", error);
-                      toast.error("Erreur lors de la suppression : " + error.message);
+                      toast.error("Erreur lors de la suppression : " + (error.message || "Erreur inconnue"));
                     } finally {
                       setIsDeletingWaiting(false);
                       setShowDeleteWaitingDialog(false);
