@@ -862,8 +862,8 @@ const AdminBulkImport = () => {
             </Card>
           )}
 
-          {/* Import Button */}
-          {parsedData.length > 0 && !isImporting && (
+          {/* Import Button - Only show if no import has been completed */}
+          {parsedData.length > 0 && !isImporting && !importResults && (
             <div className="flex justify-end gap-4">
               <Button variant="outline" onClick={handleClear}>
                 Annuler
@@ -871,6 +871,16 @@ const AdminBulkImport = () => {
               <Button onClick={handleImport} disabled={parsedData.length === 0}>
                 <Upload className="h-4 w-4 mr-2" />
                 Publier {parsedData.length} artisans VITRINE
+              </Button>
+            </div>
+          )}
+
+          {/* New Import Button - Show after import is complete */}
+          {importResults && (
+            <div className="flex justify-end gap-4">
+              <Button onClick={handleClear}>
+                <Upload className="h-4 w-4 mr-2" />
+                Nouvel import
               </Button>
             </div>
           )}
