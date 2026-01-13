@@ -183,6 +183,7 @@ const DevenirArtisan = () => {
               user_id: data.user.id,
               profile_id: profile.id,
               business_name: formData.businessName,
+              email: formData.email,
               city: formData.city || "Non renseigné",
               status: "pending",
               category_id: selectedCategoryId || null,
