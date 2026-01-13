@@ -127,11 +127,17 @@ const AdminClients = () => {
       const result = await response.json();
 
       if (!response.ok) {
+        // Si le profil n'existe plus, rafraîchir la liste quand même
+        if (response.status === 404) {
+          toast.info("Ce client a déjà été supprimé");
+          queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
+          return;
+        }
         throw new Error(result.error || "Erreur lors de la suppression");
       }
 
       toast.success(`Client "${clientToDelete.name || clientToDelete.email}" supprimé définitivement`);
-      queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
       queryClient.invalidateQueries({ queryKey: ["admin-missions"] });
     } catch (error) {
       console.error("Error deleting client:", error);
