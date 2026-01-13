@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, CheckCircle, Shield, Eye, EyeOff, AlertCircle, UserCheck, Key } from "lucide-react";
+import { Loader2, CheckCircle, Shield, Eye, EyeOff, AlertCircle, UserCheck, Key, Mail } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -17,14 +17,15 @@ interface ExistingAccountInfo {
   userId: string | null;
 }
 
+type ActivationPhase = "loading" | "form" | "awaiting_confirmation" | "linking" | "success" | "error";
+
 const ActivateAccount = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   
-  const [isLoading, setIsLoading] = useState(true);
+  const [phase, setPhase] = useState<ActivationPhase>("loading");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -43,16 +44,45 @@ const ActivateAccount = () => {
     confirmPassword: "",
   });
 
+  // Check if user is already authenticated (came back after email confirmation)
+  useEffect(() => {
+    const checkAuthAndAutoActivate = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user && token && artisanData) {
+        console.log("User already authenticated, auto-activating...");
+        setPhase("linking");
+        
+        try {
+          await linkArtisanToUser(session.user.id, artisanData.id);
+          setPhase("success");
+          setTimeout(() => navigate("/artisan/dashboard"), 2500);
+        } catch (err: any) {
+          console.error("Auto-activation error:", err);
+          // Don't show error - let user try manually
+          setPhase("form");
+        }
+      }
+    };
+
+    if (artisanData && token) {
+      checkAuthAndAutoActivate();
+    }
+  }, [artisanData, token]);
+
   // Validate token and fetch artisan data
   useEffect(() => {
     const validateToken = async () => {
       if (!token) {
         setError("Lien d'activation invalide. Veuillez contacter le support.");
-        setIsLoading(false);
+        setPhase("error");
         return;
       }
 
       try {
+        // Check if already logged in
+        const { data: { session } } = await supabase.auth.getSession();
+        
         // Find artisan with this activation token
         const { data: artisan, error: artisanError } = await supabase
           .from("artisans")
@@ -64,21 +94,43 @@ const ActivateAccount = () => {
 
         if (!artisan) {
           setError("Ce lien d'activation est invalide ou a déjà été utilisé.");
-          setIsLoading(false);
+          setPhase("error");
           return;
         }
 
         // Check if already activated
         if (artisan.user_id) {
           setError("Ce compte a déjà été activé. Veuillez vous connecter.");
-          setIsLoading(false);
+          setPhase("error");
           return;
         }
 
         if (!artisan.email) {
           setError("Aucun email n'est associé à cette fiche. Veuillez contacter le support.");
-          setIsLoading(false);
+          setPhase("error");
           return;
+        }
+
+        setArtisanData({
+          id: artisan.id,
+          email: artisan.email,
+          business_name: artisan.business_name,
+        });
+
+        // If user is already logged in with matching email, auto-activate
+        if (session?.user?.email === artisan.email) {
+          console.log("User already logged in with matching email, auto-activating...");
+          setPhase("linking");
+          
+          try {
+            await linkArtisanToUser(session.user.id, artisan.id);
+            setPhase("success");
+            setTimeout(() => navigate("/artisan/dashboard"), 2500);
+            return;
+          } catch (err: any) {
+            console.error("Auto-activation failed:", err);
+            // Continue to form
+          }
         }
 
         // Check if email already exists in auth.users
@@ -92,19 +144,13 @@ const ActivateAccount = () => {
           }
         } catch (err) {
           console.warn("Could not check existing email:", err);
-          // Continue without the check - we'll handle it in submit
         }
 
-        setArtisanData({
-          id: artisan.id,
-          email: artisan.email,
-          business_name: artisan.business_name,
-        });
-        setIsLoading(false);
+        setPhase("form");
       } catch (err) {
         console.error("Token validation error:", err);
         setError("Une erreur est survenue. Veuillez réessayer.");
-        setIsLoading(false);
+        setPhase("error");
       }
     };
 
@@ -133,199 +179,189 @@ const ActivateAccount = () => {
     try {
       // Case 1: Existing client account - need to convert
       if (existingAccount?.exists && existingAccount.role === 'client') {
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: artisanData.email,
-          password: formData.password,
-        });
-
-        if (signInError) {
-          if (signInError.message.includes("Invalid login credentials")) {
-            toast.error("Mot de passe incorrect. Veuillez réessayer ou réinitialiser votre mot de passe.");
-            setIsSubmitting(false);
-            return;
-          }
-          throw signInError;
-        }
-
-        if (signInData.user) {
-          // Convert client to artisan
-          await convertClientToArtisan(signInData.user.id, artisanData.id);
-          setShowSuccess(true);
-          setTimeout(() => navigate("/artisan/dashboard"), 2500);
-          return;
-        }
+        await handleExistingClientAccount();
+        return;
       }
 
       // Case 2: Existing artisan account - allow login and link
       if (existingAccount?.exists && existingAccount.role === 'artisan') {
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: artisanData.email,
-          password: formData.password,
-        });
-
-        if (signInError) {
-          if (signInError.message.includes("Invalid login credentials")) {
-            toast.error("Mot de passe incorrect. Veuillez réessayer ou réinitialiser votre mot de passe.");
-            setIsSubmitting(false);
-            return;
-          }
-          throw signInError;
-        }
-
-        if (signInData.user) {
-          // Link the new artisan profile to this existing user
-          await linkArtisanToUser(signInData.user.id, artisanData.id);
-          setShowSuccess(true);
-          setTimeout(() => navigate("/artisan/dashboard"), 2500);
-          return;
-        }
+        await handleExistingArtisanAccount();
+        return;
       }
 
-      // Case 3: New account - BUT first re-check if account now exists (user may have returned after email confirmation)
+      // Case 3: New account - check if account was created but not confirmed
       const { data: recheckData } = await supabase.functions.invoke("check-email-exists", {
         body: { email: artisanData.email },
       });
 
-      // If account exists now (user came back after confirming email)
       if (recheckData?.exists) {
-        console.log("Account now exists after re-check, attempting sign in...");
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: artisanData.email,
-          password: formData.password,
-        });
-
-        if (signInError) {
-          if (signInError.message.includes("Invalid login credentials")) {
-            toast.error("Mot de passe incorrect. Veuillez réessayer.");
-            setIsSubmitting(false);
-            return;
-          }
-          // Handle email not confirmed (shouldn't happen if they clicked confirmation link)
-          if (signInError.message.includes("email_not_confirmed") || 
-              signInError.message.includes("Email not confirmed")) {
-            toast.info(
-              "Veuillez confirmer votre email en cliquant sur le lien envoyé, puis revenez sur cette page.",
-              { duration: 10000 }
-            );
-            setIsSubmitting(false);
-            return;
-          }
-          throw signInError;
-        }
-
-        if (signInData.user) {
-          // Wait for session to propagate
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          // Verify session is active
-          const { data: sessionCheck } = await supabase.auth.getSession();
-          if (!sessionCheck.session) {
-            throw new Error("Session non établie. Veuillez rafraîchir la page et réessayer.");
-          }
-          
-          await linkArtisanToUser(signInData.user.id, artisanData.id);
-          setShowSuccess(true);
-          setTimeout(() => navigate("/artisan/dashboard"), 2500);
-          return;
-        }
+        // Account exists (maybe user came back after confirming email)
+        await handleAccountAfterConfirmation();
+        return;
       }
 
-      // If still no account, proceed with signUp
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: artisanData.email,
-        password: formData.password,
-        options: {
-          data: {
-            user_type: "artisan",
-          }
-        }
-      });
-
-      if (authError) {
-        // Handle case where user already exists (edge case if check failed)
-        if (authError.message.includes("already registered")) {
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email: artisanData.email,
-            password: formData.password,
-          });
-
-          if (signInError) {
-            if (signInError.message.includes("Invalid login credentials")) {
-              toast.error("Un compte existe déjà avec cet email mais le mot de passe ne correspond pas.");
-              setIsSubmitting(false);
-              return;
-            }
-            // Handle email not confirmed
-            if (signInError.message.includes("email_not_confirmed") || 
-                signInError.message.includes("Email not confirmed")) {
-              toast.info(
-                "Veuillez confirmer votre email en cliquant sur le lien envoyé, puis revenez sur cette page.",
-                { duration: 10000 }
-              );
-              setIsSubmitting(false);
-              return;
-            }
-            throw signInError;
-          }
-
-          if (signInData.user) {
-            // Wait for session to propagate
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            await linkArtisanToUser(signInData.user.id, artisanData.id);
-            setShowSuccess(true);
-            setTimeout(() => navigate("/artisan/dashboard"), 2500);
-            return;
-          }
-        }
-        throw authError;
-      }
-
-      if (authData.user) {
-        // Wait for profile to be created by trigger
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // SIGN IN FIRST to get an active session (required for RLS)
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: artisanData.email,
-          password: formData.password,
-        });
-
-        if (signInError) {
-          console.error("Sign in error after signup:", signInError);
-          // Handle email not confirmed - this is expected if auto-confirm is disabled
-          if (signInError.message.includes("email_not_confirmed") || 
-              signInError.message.includes("Email not confirmed")) {
-            toast.info(
-              "Votre compte a été créé ! Veuillez confirmer votre email en cliquant sur le lien envoyé, puis revenez sur cette page.",
-              { duration: 10000 }
-            );
-            setIsSubmitting(false);
-            return;
-          }
-          throw new Error("Impossible de se connecter après l'inscription. Veuillez réessayer.");
-        }
-
-        // Wait for session to propagate
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Verify session is active before linking
-        const { data: sessionCheck } = await supabase.auth.getSession();
-        if (!sessionCheck.session) {
-          throw new Error("Session non établie. Veuillez rafraîchir la page et réessayer.");
-        }
-
-        // NOW link artisan profile (with active session)
-        await linkArtisanToUser(authData.user.id, artisanData.id);
-
-        setShowSuccess(true);
-        setTimeout(() => navigate("/artisan/dashboard"), 2500);
-      }
+      // Case 4: Brand new account - only signUp, no linking yet
+      await handleNewAccountSignUp();
+      
     } catch (err: any) {
       console.error("Account activation error:", err);
       toast.error(err.message || "Une erreur est survenue lors de l'activation");
-    } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleExistingClientAccount = async () => {
+    if (!artisanData) return;
+    
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: artisanData.email,
+      password: formData.password,
+    });
+
+    if (signInError) {
+      if (signInError.message.includes("Invalid login credentials")) {
+        toast.error("Mot de passe incorrect. Veuillez réessayer ou réinitialiser votre mot de passe.");
+        setIsSubmitting(false);
+        return;
+      }
+      throw signInError;
+    }
+
+    if (signInData.user) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await convertClientToArtisan(signInData.user.id, artisanData.id);
+      setPhase("success");
+      setTimeout(() => navigate("/artisan/dashboard"), 2500);
+    }
+  };
+
+  const handleExistingArtisanAccount = async () => {
+    if (!artisanData) return;
+    
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: artisanData.email,
+      password: formData.password,
+    });
+
+    if (signInError) {
+      if (signInError.message.includes("Invalid login credentials")) {
+        toast.error("Mot de passe incorrect. Veuillez réessayer ou réinitialiser votre mot de passe.");
+        setIsSubmitting(false);
+        return;
+      }
+      throw signInError;
+    }
+
+    if (signInData.user) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await linkArtisanToUser(signInData.user.id, artisanData.id);
+      setPhase("success");
+      setTimeout(() => navigate("/artisan/dashboard"), 2500);
+    }
+  };
+
+  const handleAccountAfterConfirmation = async () => {
+    if (!artisanData) return;
+    
+    console.log("Account exists, attempting sign in...");
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: artisanData.email,
+      password: formData.password,
+    });
+
+    if (signInError) {
+      if (signInError.message.includes("Invalid login credentials")) {
+        toast.error("Mot de passe incorrect. Veuillez réessayer.");
+        setIsSubmitting(false);
+        return;
+      }
+      // Email still not confirmed
+      if (signInError.message.includes("email_not_confirmed") || 
+          signInError.message.includes("Email not confirmed")) {
+        toast.info(
+          "Veuillez confirmer votre email en cliquant sur le lien envoyé, puis revenez sur cette page.",
+          { duration: 10000 }
+        );
+        setPhase("awaiting_confirmation");
+        setIsSubmitting(false);
+        return;
+      }
+      throw signInError;
+    }
+
+    if (signInData.user) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const { data: sessionCheck } = await supabase.auth.getSession();
+      if (!sessionCheck.session) {
+        throw new Error("Session non établie. Veuillez rafraîchir la page et réessayer.");
+      }
+      
+      await linkArtisanToUser(signInData.user.id, artisanData.id);
+      setPhase("success");
+      setTimeout(() => navigate("/artisan/dashboard"), 2500);
+    }
+  };
+
+  const handleNewAccountSignUp = async () => {
+    if (!artisanData) return;
+    
+    console.log("Creating new account...");
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: artisanData.email,
+      password: formData.password,
+      options: {
+        data: {
+          user_type: "artisan",
+        },
+        emailRedirectTo: `${window.location.origin}/activer-compte?token=${token}`,
+      }
+    });
+
+    if (authError) {
+      // Handle case where user already exists
+      if (authError.message.includes("already registered")) {
+        setExistingAccount({ exists: true, role: null, userId: null });
+        await handleAccountAfterConfirmation();
+        return;
+      }
+      throw authError;
+    }
+
+    if (authData.user) {
+      // SignUp successful - now check if email needs confirmation
+      console.log("SignUp successful, checking if login works...");
+      
+      // Small delay for profile creation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Try to sign in immediately
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: artisanData.email,
+        password: formData.password,
+      });
+
+      if (signInError) {
+        // Email not confirmed - this is expected
+        if (signInError.message.includes("email_not_confirmed") || 
+            signInError.message.includes("Email not confirmed")) {
+          console.log("Email confirmation required, showing awaiting state...");
+          setPhase("awaiting_confirmation");
+          setIsSubmitting(false);
+          return;
+        }
+        throw signInError;
+      }
+
+      // If sign in succeeded (auto-confirm enabled), proceed with activation
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const { data: sessionCheck } = await supabase.auth.getSession();
+      if (sessionCheck.session) {
+        await linkArtisanToUser(authData.user.id, artisanData.id);
+        setPhase("success");
+        setTimeout(() => navigate("/artisan/dashboard"), 2500);
+      }
     }
   };
 
@@ -388,7 +424,11 @@ const ActivateAccount = () => {
     const { data: sessionData } = await supabase.auth.getSession();
     console.log("Session active:", !!sessionData.session, "User ID:", sessionData.session?.user?.id);
 
-    // 1. Update artisan with user_id (profile_id will be set later)
+    if (!sessionData.session) {
+      throw new Error("Session non établie. Veuillez vous reconnecter.");
+    }
+
+    // 1. Update artisan with user_id
     const { error: updateError, data: updateData } = await supabase
       .from("artisans")
       .update({
@@ -410,7 +450,6 @@ const ActivateAccount = () => {
         token
       });
       
-      // Provide specific error messages
       if (updateError.code === "42501") {
         throw new Error("Erreur de permission. Veuillez vous reconnecter et réessayer.");
       }
@@ -474,7 +513,7 @@ const ActivateAccount = () => {
   };
 
   // Error state
-  if (error) {
+  if (phase === "error") {
     return (
       <div className="min-h-screen bg-background">
         <SEOHead 
@@ -506,7 +545,7 @@ const ActivateAccount = () => {
   }
 
   // Loading state
-  if (isLoading) {
+  if (phase === "loading") {
     return (
       <div className="min-h-screen bg-background">
         <SEOHead 
@@ -526,8 +565,88 @@ const ActivateAccount = () => {
     );
   }
 
+  // Linking state (auto-activation in progress)
+  if (phase === "linking") {
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead 
+          title="Activation en cours" 
+          description="Activation de votre compte artisan"
+          noIndex={true}
+        />
+        <Navbar />
+        <div className="container mx-auto px-4 pt-32 pb-20">
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+            <p className="text-lg font-medium mb-2">Activation de votre compte...</p>
+            <p className="text-muted-foreground">Veuillez patienter quelques secondes</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Awaiting email confirmation state
+  if (phase === "awaiting_confirmation") {
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead 
+          title="Confirmez votre email" 
+          description="Confirmez votre adresse email pour activer votre compte"
+          noIndex={true}
+        />
+        <Navbar />
+        <div className="container mx-auto px-4 pt-32 pb-20">
+          <div className="max-w-md mx-auto">
+            <Card>
+              <CardHeader className="text-center">
+                <div className="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <Mail className="h-10 w-10 text-blue-600" />
+                </div>
+                <CardTitle className="text-2xl">Confirmez votre email</CardTitle>
+                <CardDescription className="text-base mt-2">
+                  Un email de confirmation a été envoyé à <span className="font-semibold text-foreground">{artisanData?.email}</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-2">Étapes à suivre :</p>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>Ouvrez votre boîte email</li>
+                        <li>Cliquez sur le lien de confirmation</li>
+                        <li>Vous serez automatiquement redirigé vers votre tableau de bord</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-center text-sm text-muted-foreground">
+                  <p>Vous n'avez pas reçu l'email ?</p>
+                  <p className="mt-1">Vérifiez vos spams ou attendez quelques minutes.</p>
+                </div>
+
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setPhase("form")}
+                >
+                  Revenir au formulaire
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   // Success state
-  if (showSuccess) {
+  if (phase === "success") {
     return (
       <div className="min-h-screen bg-background">
         <SEOHead 
