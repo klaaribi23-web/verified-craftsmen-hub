@@ -239,13 +239,20 @@ serve(async (req) => {
     const tier = PRICE_TO_TIER[priceId] || "free";
     const billingInterval = PRICE_TO_INTERVAL[priceId] || "monthly";
     
-    // Safely handle dates - subscription.start_date might be undefined for some subscriptions
-    const subscriptionEnd = subscription.current_period_end 
+    // Log raw Stripe values for debugging
+    logStep("Raw Stripe subscription data", { 
+      current_period_end: subscription.current_period_end, 
+      start_date: subscription.start_date,
+      created: subscription.created 
+    });
+    
+    // Safely handle dates - check for undefined/null explicitly (0 is a valid timestamp)
+    const subscriptionEnd = (subscription.current_period_end !== undefined && subscription.current_period_end !== null)
       ? new Date(subscription.current_period_end * 1000).toISOString() 
       : null;
-    const subscriptionStart = subscription.start_date 
+    const subscriptionStart = (subscription.start_date !== undefined && subscription.start_date !== null)
       ? new Date(subscription.start_date * 1000).toISOString() 
-      : (subscription.created ? new Date(subscription.created * 1000).toISOString() : null);
+      : ((subscription.created !== undefined && subscription.created !== null) ? new Date(subscription.created * 1000).toISOString() : null);
 
     logStep("Active subscription found", { subscriptionId: subscription.id, priceId, tier, subscriptionEnd, subscriptionStart, billingInterval });
 
