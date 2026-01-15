@@ -16,12 +16,12 @@ import SEOHead from "@/components/seo/SEOHead";
 import OrganizationSchema from "@/components/seo/OrganizationSchema";
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
 
 const Index = () => {
-  const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-  console.log(stripeKey);
   return (
     <div className="min-h-screen">
+      stripeKey
       <SEOHead
         title="Trouvez des artisans de confiance"
         description="Mise en relation rapide avec des artisans qualifiés et vérifiés en France. Devis gratuit, qualité et expertise garantie pour tous vos projets de travaux."
