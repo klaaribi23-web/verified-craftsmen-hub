@@ -82,7 +82,7 @@ const sendSubscriptionNotification = async (
     previousPlanName?: string;
     price?: string;
     interval?: string;
-    subscriptionEnd?: string;
+    subscriptionEnd?: string | null;
   }
 ) => {
   try {
@@ -238,8 +238,14 @@ serve(async (req) => {
     const priceId = subscription.items.data[0].price.id;
     const tier = PRICE_TO_TIER[priceId] || "free";
     const billingInterval = PRICE_TO_INTERVAL[priceId] || "monthly";
-    const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-    const subscriptionStart = new Date(subscription.start_date * 1000).toISOString();
+    
+    // Safely handle dates - subscription.start_date might be undefined for some subscriptions
+    const subscriptionEnd = subscription.current_period_end 
+      ? new Date(subscription.current_period_end * 1000).toISOString() 
+      : null;
+    const subscriptionStart = subscription.start_date 
+      ? new Date(subscription.start_date * 1000).toISOString() 
+      : (subscription.created ? new Date(subscription.created * 1000).toISOString() : null);
 
     logStep("Active subscription found", { subscriptionId: subscription.id, priceId, tier, subscriptionEnd, subscriptionStart, billingInterval });
 
