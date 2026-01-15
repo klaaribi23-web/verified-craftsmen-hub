@@ -16,9 +16,10 @@ import SEOHead from "@/components/seo/SEOHead";
 import OrganizationSchema from "@/components/seo/OrganizationSchema";
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-console.log(stripeKey);
+
 const Index = () => {
+  const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+  console.log(stripeKey);
   return (
     <div className="min-h-screen">
       <SEOHead
