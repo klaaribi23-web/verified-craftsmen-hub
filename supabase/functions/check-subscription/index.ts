@@ -15,24 +15,24 @@ const logStep = (step: string, details?: unknown) => {
 // Price ID to tier mapping
 const PRICE_TO_TIER: Record<string, string> = {
   // Essentiel
-  "price_1SnLhgHsPR7NolTlCZJY5r3T": "essential",
-  "price_1SnLhuHsPR7NolTlBBcZ6KLo": "essential",
+  price_1SnLhgHsPR7NolTlCZJY5r3T: "essential",
+  price_1SnLhuHsPR7NolTlBBcZ6KLo: "essential",
   // Pro
-  "price_1SnLi9HsPR7NolTlFihKief9": "pro",
-  "price_1SnLiLHsPR7NolTlo2WwBzYd": "pro",
+  price_1SnLi9HsPR7NolTlFihKief9: "pro",
+  price_1SnLiLHsPR7NolTlo2WwBzYd: "pro",
   // Elite
-  "price_1SnMvzHsPR7NolTlvlCq5LTo": "elite",
-  "price_1SnMwfHsPR7NolTlpskUuvfB": "elite",
+  price_1SnMvzHsPR7NolTlvlCq5LTo: "elite",
+  price_1SnMwfHsPR7NolTlpskUuvfB: "elite",
 };
 
 // Price ID to interval mapping
 const PRICE_TO_INTERVAL: Record<string, "monthly" | "yearly"> = {
-  "price_1SnLhgHsPR7NolTlCZJY5r3T": "monthly",
-  "price_1SnLhuHsPR7NolTlBBcZ6KLo": "yearly",
-  "price_1SnLi9HsPR7NolTlFihKief9": "monthly",
-  "price_1SnLiLHsPR7NolTlo2WwBzYd": "yearly",
-  "price_1SnMvzHsPR7NolTlvlCq5LTo": "monthly",
-  "price_1SnMwfHsPR7NolTlpskUuvfB": "yearly",
+  price_1SnLhgHsPR7NolTlCZJY5r3T: "monthly",
+  price_1SnLhuHsPR7NolTlBBcZ6KLo: "yearly",
+  price_1SnLi9HsPR7NolTlFihKief9: "monthly",
+  price_1SnLiLHsPR7NolTlo2WwBzYd: "yearly",
+  price_1SnMvzHsPR7NolTlvlCq5LTo: "monthly",
+  price_1SnMwfHsPR7NolTlpskUuvfB: "yearly",
 };
 
 // Tier to priority mapping
@@ -83,12 +83,13 @@ const sendSubscriptionNotification = async (
     price?: string;
     interval?: string;
     subscriptionEnd?: string | null;
-  }
+  },
 ) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    
+    console.log(serviceRoleKey);
+
     if (!supabaseUrl || !serviceRoleKey) {
       logStep("Missing environment variables for notification");
       return;
@@ -98,7 +99,7 @@ const sendSubscriptionNotification = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${serviceRoleKey}`,
+        Authorization: `Bearer ${serviceRoleKey}`,
       },
       body: JSON.stringify({ userId, type, planDetails }),
     });
@@ -122,7 +123,7 @@ serve(async (req) => {
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } }
+    { auth: { persistSession: false } },
   );
 
   try {
@@ -137,7 +138,7 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    
+
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
@@ -149,7 +150,7 @@ serve(async (req) => {
 
     if (customers.data.length === 0) {
       logStep("No customer found, user is on free tier");
-      
+
       // Update artisan to free tier
       await supabaseClient
         .from("artisans")
@@ -170,7 +171,7 @@ serve(async (req) => {
           billing_interval: null,
           payment_method: null,
         }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
       );
     }
 
@@ -196,11 +197,11 @@ serve(async (req) => {
 
     if (subscriptions.data.length === 0) {
       logStep("No active subscription found");
-      
+
       // Check if this is a cancellation (was paying, now free)
       if (previousTier !== "free") {
         logStep("Subscription canceled detected", { previousTier });
-        
+
         // Send cancellation notification
         await sendSubscriptionNotification(user.id, "subscription_canceled", {
           previousTier,
@@ -209,7 +210,7 @@ serve(async (req) => {
           previousPlanName: PLAN_NAMES[previousTier] || previousTier,
         });
       }
-      
+
       // Update artisan to free tier
       await supabaseClient
         .from("artisans")
@@ -230,7 +231,7 @@ serve(async (req) => {
           billing_interval: null,
           payment_method: null,
         }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
       );
     }
 
@@ -238,28 +239,39 @@ serve(async (req) => {
     const priceId = subscription.items.data[0].price.id;
     const tier = PRICE_TO_TIER[priceId] || "free";
     const billingInterval = PRICE_TO_INTERVAL[priceId] || "monthly";
-    
-    // Log raw Stripe values for debugging
-    logStep("Raw Stripe subscription data", { 
-      current_period_end: subscription.current_period_end, 
-      start_date: subscription.start_date,
-      created: subscription.created 
-    });
-    
-    // Safely handle dates - check for undefined/null explicitly (0 is a valid timestamp)
-    const subscriptionEnd = (subscription.current_period_end !== undefined && subscription.current_period_end !== null)
-      ? new Date(subscription.current_period_end * 1000).toISOString() 
-      : null;
-    const subscriptionStart = (subscription.start_date !== undefined && subscription.start_date !== null)
-      ? new Date(subscription.start_date * 1000).toISOString() 
-      : ((subscription.created !== undefined && subscription.created !== null) ? new Date(subscription.created * 1000).toISOString() : null);
 
-    logStep("Active subscription found", { subscriptionId: subscription.id, priceId, tier, subscriptionEnd, subscriptionStart, billingInterval });
+    // Log raw Stripe values for debugging
+    logStep("Raw Stripe subscription data", {
+      current_period_end: subscription.current_period_end,
+      start_date: subscription.start_date,
+      created: subscription.created,
+    });
+
+    // Safely handle dates - check for undefined/null explicitly (0 is a valid timestamp)
+    const subscriptionEnd =
+      subscription.current_period_end !== undefined && subscription.current_period_end !== null
+        ? new Date(subscription.current_period_end * 1000).toISOString()
+        : null;
+    const subscriptionStart =
+      subscription.start_date !== undefined && subscription.start_date !== null
+        ? new Date(subscription.start_date * 1000).toISOString()
+        : subscription.created !== undefined && subscription.created !== null
+          ? new Date(subscription.created * 1000).toISOString()
+          : null;
+
+    logStep("Active subscription found", {
+      subscriptionId: subscription.id,
+      priceId,
+      tier,
+      subscriptionEnd,
+      subscriptionStart,
+      billingInterval,
+    });
 
     // Detect subscription changes and send notifications
     if (previousTier !== tier) {
       logStep("Subscription tier changed", { previousTier, newTier: tier });
-      
+
       const planPrice = PLAN_PRICES[tier]?.[billingInterval];
       const planDetails = {
         previousTier,
@@ -319,14 +331,12 @@ serve(async (req) => {
     // Calculate display priority
     const priorityConfig = TIER_PRIORITIES[tier];
     let displayPriority: number;
-    
+
     if (typeof priorityConfig === "number") {
       displayPriority = priorityConfig;
     } else {
       // Assign a random priority within the range for this tier
-      displayPriority = Math.floor(
-        Math.random() * (priorityConfig.max - priorityConfig.min + 1) + priorityConfig.min
-      );
+      displayPriority = Math.floor(Math.random() * (priorityConfig.max - priorityConfig.min + 1) + priorityConfig.min);
     }
 
     // Update artisan with subscription info
@@ -355,7 +365,7 @@ serve(async (req) => {
         billing_interval: billingInterval,
         payment_method: paymentMethod,
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
