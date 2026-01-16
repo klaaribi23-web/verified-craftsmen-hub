@@ -88,7 +88,6 @@ const sendSubscriptionNotification = async (
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    console.log(serviceRoleKey);
 
     if (!supabaseUrl || !serviceRoleKey) {
       logStep("Missing environment variables for notification");
