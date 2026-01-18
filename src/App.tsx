@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { QuoteNotificationListener } from "@/components/notifications/QuoteNotificationListener";
 import GlobalMobileNavbar from "@/components/layout/GlobalMobileNavbar";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import Index from "./pages/Index";
 import TrouverArtisan from "./pages/TrouverArtisan";
@@ -70,6 +71,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <SubscriptionProvider>
         {/* Scroll to top on route change */}
         <ScrollToTop />
         
@@ -278,6 +280,7 @@ const App = () => (
         
         {/* GDPR Cookie Consent Banner */}
         <CookieConsent />
+        </SubscriptionProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -35,7 +35,7 @@ import { useEffect } from "react";
 export const ArtisanDashboard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { tier, subscriptionEnd, checkSubscription } = useSubscription();
+  const { tier, subscriptionEnd, checkSubscription, isLoading: isLoadingSubscription } = useSubscription();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Handle subscription success redirect from Stripe
@@ -289,7 +289,7 @@ export const ArtisanDashboard = () => {
             </div>
 
             {/* Subscription Card */}
-            <SubscriptionDashboardCard tier={tier} subscriptionEnd={subscriptionEnd} />
+            <SubscriptionDashboardCard tier={tier} subscriptionEnd={subscriptionEnd} isLoading={isLoadingSubscription} />
 
             {/* Profile Completion Card */}
             {artisanProfile && artisanProfile.status !== "active" && (
