@@ -14,7 +14,6 @@ import {
   Clock, 
   XCircle,
   Eye,
-  Trash2,
   AlertTriangle,
   Loader2,
   Shield,
@@ -207,32 +206,6 @@ export const ArtisanDocuments = () => {
     }
   });
 
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (doc: DocumentRecord) => {
-      // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from("artisan-documents")
-        .remove([doc.file_path]);
-
-      if (storageError) console.error("Storage delete error:", storageError);
-
-      // Delete from database
-      const { error: dbError } = await supabase
-        .from("artisan_documents")
-        .delete()
-        .eq("id", doc.id);
-
-      if (dbError) throw dbError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
-      toast.success("Document supprimé");
-    },
-    onError: () => {
-      toast.error("Erreur lors de la suppression");
-    }
-  });
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, docType: typeof REQUIRED_DOCUMENTS[0]) => {
     const file = e.target.files?.[0];
@@ -414,51 +387,6 @@ export const ArtisanDocuments = () => {
                                 <Eye className="w-4 h-4 mr-1" />
                                 Voir
                               </Button>
-                              {uploadedDoc.status === "rejected" ? (
-                                <>
-                                  <input
-                                    ref={(el) => { fileInputRefs.current[`replace_${docType.id}`] = el; }}
-                                    type="file"
-                                    accept=".pdf,.jpg,.jpeg,.png,.webp"
-                                    onChange={async (e) => {
-                                      const file = e.target.files?.[0];
-                                      if (!file) return;
-                                      // Delete old document first, then upload new one
-                                      await deleteMutation.mutateAsync(uploadedDoc);
-                                      await handleUpload(e, docType);
-                                    }}
-                                    className="hidden"
-                                  />
-                                  <Button 
-                                    variant="gold" 
-                                    size="sm"
-                                    onClick={() => fileInputRefs.current[`replace_${docType.id}`]?.click()}
-                                    disabled={isUploading || deleteMutation.isPending}
-                                  >
-                                    {isUploading ? (
-                                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                                    ) : (
-                                      <Upload className="w-4 h-4 mr-1" />
-                                    )}
-                                    Remplacer
-                                  </Button>
-                                </>
-                              ) : (
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  className="text-destructive hover:text-destructive"
-                                  onClick={() => deleteMutation.mutate(uploadedDoc)}
-                                  disabled={deleteMutation.isPending}
-                                >
-                                  {deleteMutation.isPending ? (
-                                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                                  ) : (
-                                    <Trash2 className="w-4 h-4 mr-1" />
-                                  )}
-                                  Supprimer
-                                </Button>
-                              )}
                             </div>
                           </div>
                         ) : (
