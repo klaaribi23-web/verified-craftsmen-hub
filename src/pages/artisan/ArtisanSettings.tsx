@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 import { 
   Bell, 
   Mail, 
@@ -18,7 +20,10 @@ import {
   X,
   Loader2,
   Monitor,
-  LogOut
+  LogOut,
+  AlertTriangle,
+  CreditCard,
+  ShieldAlert
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import {
@@ -29,8 +34,20 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 export const ArtisanSettings = () => {
+  const navigate = useNavigate();
+  const { tier, openCustomerPortal, isLoading: isSubscriptionLoading } = useSubscriptionContext();
+  
   // Password change state
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -45,6 +62,15 @@ export const ArtisanSettings = () => {
   const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
   const [sessions, setSessions] = useState<any[]>([]);
   const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+
+  // Delete account state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<"warning" | "subscription" | "confirm">("warning");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Check if user has an active subscription
+  const hasActiveSubscription = tier !== "free" && tier !== undefined;
 
   // Password strength checks
   const passwordChecks = {
@@ -91,12 +117,9 @@ export const ArtisanSettings = () => {
   const loadSessions = async () => {
     setIsLoadingSessions(true);
     try {
-      // Get current session info
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session) {
-        // For now, we show the current session
-        // Supabase doesn't expose all sessions via client API
         setSessions([{
           id: session.access_token.slice(-8),
           device: navigator.userAgent.includes("Mobile") ? "Mobile" : "Desktop",
@@ -128,6 +151,73 @@ export const ArtisanSettings = () => {
       window.location.href = "/auth";
     } catch (error) {
       toast.error("Erreur lors de la déconnexion");
+    }
+  };
+
+  const handleOpenDeleteModal = () => {
+    setDeleteStep("warning");
+    setDeleteConfirmText("");
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleProceedFromWarning = () => {
+    if (hasActiveSubscription) {
+      setDeleteStep("subscription");
+    } else {
+      setDeleteStep("confirm");
+    }
+  };
+
+  const handleOpenCustomerPortal = async () => {
+    try {
+      await openCustomerPortal();
+      toast.info("Annulez votre abonnement dans le portail Stripe, puis revenez ici pour supprimer votre compte.");
+    } catch (error) {
+      toast.error("Erreur lors de l'ouverture du portail");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "SUPPRIMER") {
+      toast.error("Veuillez taper SUPPRIMER pour confirmer");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error("Session expirée");
+      }
+
+      const { data, error } = await supabase.functions.invoke("delete-artisan-account", {
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.success === false) {
+        if (data.error === "active_subscription") {
+          toast.error(data.message);
+          setDeleteStep("subscription");
+          return;
+        }
+        throw new Error(data.message);
+      }
+
+      toast.success("Votre compte a été supprimé avec succès");
+      
+      // Sign out and redirect
+      await supabase.auth.signOut();
+      navigate("/");
+      
+    } catch (error: any) {
+      console.error("Delete account error:", error);
+      toast.error(error.message || "Erreur lors de la suppression du compte");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -271,7 +361,11 @@ export const ArtisanSettings = () => {
                     Cette action est irréversible et supprimera toutes vos données
                   </p>
                 </div>
-                <Button variant="destructive" size="sm">
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={handleOpenDeleteModal}
+                >
                   Supprimer
                 </Button>
               </div>
@@ -426,6 +520,147 @@ export const ArtisanSettings = () => {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Delete Account Modal */}
+    <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+      <AlertDialogContent className="max-w-md">
+        {deleteStep === "warning" && (
+          <>
+            <AlertDialogHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <ShieldAlert className="w-6 h-6 text-destructive" />
+                </div>
+                <AlertDialogTitle className="text-xl">Supprimer votre compte ?</AlertDialogTitle>
+              </div>
+              <AlertDialogDescription className="text-left space-y-3">
+                <p className="text-foreground font-medium">
+                  Cette action est irréversible et entraînera :
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                  <li>La suppression de votre profil artisan</li>
+                  <li>La suppression de tous vos services et portfolio</li>
+                  <li>La suppression de vos stories et documents</li>
+                  <li>La suppression de toutes vos conversations</li>
+                  <li>La suppression de vos devis et candidatures</li>
+                  <li>La perte de vos avis et recommandations</li>
+                </ul>
+                <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mt-4">
+                  <p className="text-sm text-warning-foreground flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                    <span>Toutes ces données seront définitivement effacées et ne pourront pas être récupérées.</span>
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="mt-4">
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <Button 
+                variant="destructive" 
+                onClick={handleProceedFromWarning}
+                disabled={isSubscriptionLoading}
+              >
+                {isSubscriptionLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : null}
+                Continuer
+              </Button>
+            </AlertDialogFooter>
+          </>
+        )}
+
+        {deleteStep === "subscription" && (
+          <>
+            <AlertDialogHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-full bg-warning/20 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-warning" />
+                </div>
+                <AlertDialogTitle className="text-xl">Abonnement actif détecté</AlertDialogTitle>
+              </div>
+              <AlertDialogDescription className="text-left space-y-3">
+                <p className="text-foreground">
+                  Vous avez actuellement un abonnement <strong className="text-primary">{tier?.toUpperCase()}</strong> actif.
+                </p>
+                <p className="text-muted-foreground">
+                  Avant de supprimer votre compte, vous devez d'abord annuler votre abonnement 
+                  via le portail de gestion Stripe.
+                </p>
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm text-foreground mb-3">
+                    <strong>Étapes à suivre :</strong>
+                  </p>
+                  <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                    <li>Cliquez sur "Gérer mon abonnement" ci-dessous</li>
+                    <li>Annulez votre abonnement dans le portail Stripe</li>
+                    <li>Revenez ici une fois l'annulation confirmée</li>
+                    <li>Vous pourrez alors supprimer votre compte</li>
+                  </ol>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="mt-4 flex-col sm:flex-row gap-2">
+              <AlertDialogCancel className="sm:order-1">Annuler</AlertDialogCancel>
+              <Button 
+                variant="gold" 
+                onClick={handleOpenCustomerPortal}
+                className="sm:order-2"
+              >
+                <CreditCard className="w-4 h-4 mr-2" />
+                Gérer mon abonnement
+              </Button>
+            </AlertDialogFooter>
+          </>
+        )}
+
+        {deleteStep === "confirm" && (
+          <>
+            <AlertDialogHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <Trash2 className="w-6 h-6 text-destructive" />
+                </div>
+                <AlertDialogTitle className="text-xl">Confirmation finale</AlertDialogTitle>
+              </div>
+              <AlertDialogDescription className="text-left space-y-3">
+                <p className="text-foreground">
+                  Pour confirmer la suppression définitive de votre compte, tapez <strong className="text-destructive">SUPPRIMER</strong> dans le champ ci-dessous.
+                </p>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
+                  placeholder="Tapez SUPPRIMER"
+                  className="mt-2 text-center font-mono tracking-widest"
+                />
+                {deleteConfirmText && deleteConfirmText !== "SUPPRIMER" && (
+                  <p className="text-sm text-destructive">Tapez exactement "SUPPRIMER" pour continuer</p>
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="mt-4">
+              <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
+              <Button 
+                variant="destructive" 
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== "SUPPRIMER" || isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Suppression...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Supprimer définitivement
+                  </>
+                )}
+              </Button>
+            </AlertDialogFooter>
+          </>
+        )}
+      </AlertDialogContent>
+    </AlertDialog>
     </>
   );
 };
