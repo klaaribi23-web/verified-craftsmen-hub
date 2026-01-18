@@ -7,14 +7,34 @@ import { getPlanById, type SubscriptionTier } from "@/config/subscriptionPlans";
 interface SubscriptionDashboardCardProps {
   tier: SubscriptionTier;
   subscriptionEnd: string | null;
+  isLoading?: boolean;
 }
 
 export const SubscriptionDashboardCard = ({
   tier,
   subscriptionEnd,
+  isLoading = false,
 }: SubscriptionDashboardCardProps) => {
   const currentPlan = getPlanById(tier);
   const isFreeTier = tier === "free";
+
+  // Show skeleton during loading
+  if (isLoading) {
+    return (
+      <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8 animate-pulse">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-muted" />
+            <div className="flex-1">
+              <div className="h-5 bg-muted rounded w-40 mb-2" />
+              <div className="h-4 bg-muted rounded w-56" />
+            </div>
+          </div>
+          <div className="h-9 bg-muted rounded w-32" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8">
