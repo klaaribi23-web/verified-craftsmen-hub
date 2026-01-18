@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   CreditCard, 
   ExternalLink, 
@@ -31,7 +38,10 @@ import {
   Award,
   Medal,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  Filter,
+  XCircle,
+  CheckCircle
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "react-router-dom";
@@ -73,11 +83,91 @@ interface SubscriptionDetails {
   canceled_at: string | null;
 }
 
+type TierFilter = "all" | "essentiel" | "pro" | "elite";
+type StatusFilter = "all" | "active" | "canceled";
+
+interface ArtisanSubscriptionStatus {
+  artisanId: string;
+  canceled: boolean;
+}
+
 const AdminSubscriptions = () => {
   const { data: artisans, isLoading, refetch } = useSubscribedArtisans();
   const [selectedArtisan, setSelectedArtisan] = useState<SubscribedArtisan | null>(null);
   const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  
+  // Filters
+  const [tierFilter, setTierFilter] = useState<TierFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  
+  // Subscription statuses cache
+  const [subscriptionStatuses, setSubscriptionStatuses] = useState<Record<string, ArtisanSubscriptionStatus>>({});
+  const [loadingStatuses, setLoadingStatuses] = useState(false);
+
+  // Fetch all subscription statuses on mount
+  useEffect(() => {
+    const fetchAllStatuses = async () => {
+      if (!artisans || artisans.length === 0) return;
+      
+      setLoadingStatuses(true);
+      const statuses: Record<string, ArtisanSubscriptionStatus> = {};
+      
+      // Fetch in parallel with a batch size to avoid overwhelming Stripe
+      const batchSize = 5;
+      for (let i = 0; i < artisans.length; i += batchSize) {
+        const batch = artisans.slice(i, i + batchSize);
+        await Promise.all(
+          batch.map(async (artisan) => {
+            if (!artisan.stripe_customer_id) {
+              statuses[artisan.id] = { artisanId: artisan.id, canceled: false };
+              return;
+            }
+            
+            try {
+              const { data, error } = await supabase.functions.invoke("get-subscription-details", {
+                body: { stripe_customer_id: artisan.stripe_customer_id }
+              });
+              
+              if (error) throw error;
+              statuses[artisan.id] = { 
+                artisanId: artisan.id, 
+                canceled: data?.canceled || false 
+              };
+            } catch {
+              statuses[artisan.id] = { artisanId: artisan.id, canceled: false };
+            }
+          })
+        );
+      }
+      
+      setSubscriptionStatuses(statuses);
+      setLoadingStatuses(false);
+    };
+    
+    fetchAllStatuses();
+  }, [artisans]);
+
+  // Filtered artisans
+  const filteredArtisans = useMemo(() => {
+    if (!artisans) return [];
+    
+    return artisans.filter((artisan) => {
+      // Tier filter
+      if (tierFilter !== "all" && artisan.subscription_tier !== tierFilter) {
+        return false;
+      }
+      
+      // Status filter
+      if (statusFilter !== "all") {
+        const status = subscriptionStatuses[artisan.id];
+        if (statusFilter === "canceled" && !status?.canceled) return false;
+        if (statusFilter === "active" && status?.canceled) return false;
+      }
+      
+      return true;
+    });
+  }, [artisans, tierFilter, statusFilter, subscriptionStatuses]);
 
   const handleViewSubscription = async (artisan: SubscribedArtisan) => {
     setSelectedArtisan(artisan);
@@ -184,6 +274,86 @@ const AdminSubscriptions = () => {
               </Button>
             </div>
 
+            {/* Filters */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Filter className="w-4 h-4" />
+                    Filtres
+                  </div>
+                  
+                  {/* Tier Filter */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Plan :</span>
+                    <Select value={tierFilter} onValueChange={(v) => setTierFilter(v as TierFilter)}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tous</SelectItem>
+                        <SelectItem value="essentiel">
+                          <div className="flex items-center gap-2">
+                            <Medal className="w-3 h-3 text-amber-600" />
+                            Essentiel
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="pro">
+                          <div className="flex items-center gap-2">
+                            <Award className="w-3 h-3 text-slate-400" />
+                            Pro
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="elite">
+                          <div className="flex items-center gap-2">
+                            <Crown className="w-3 h-3 text-yellow-500" />
+                            Elite
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Status Filter */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Statut :</span>
+                    <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tous</SelectItem>
+                        <SelectItem value="active">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-3 h-3 text-green-500" />
+                            Actif
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="canceled">
+                          <div className="flex items-center gap-2">
+                            <XCircle className="w-3 h-3 text-destructive" />
+                            Annulé
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {loadingStatuses && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Chargement des statuts...
+                    </div>
+                  )}
+                  
+                  {/* Results count */}
+                  <div className="ml-auto text-sm text-muted-foreground">
+                    {filteredArtisans.length} résultat(s)
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Table */}
             <Card>
               <CardHeader>
@@ -194,10 +364,10 @@ const AdminSubscriptions = () => {
                   <div className="flex items-center justify-center py-12">
                     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                   </div>
-                ) : !artisans || artisans.length === 0 ? (
+                ) : filteredArtisans.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>Aucun artisan avec abonnement payant</p>
+                    <p>Aucun artisan ne correspond aux filtres</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
@@ -208,11 +378,14 @@ const AdminSubscriptions = () => {
                           <TableHead>Email</TableHead>
                           <TableHead>Téléphone</TableHead>
                           <TableHead>Abonnement</TableHead>
+                          <TableHead>Statut</TableHead>
                           <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {artisans.map((artisan) => (
+                        {filteredArtisans.map((artisan) => {
+                          const status = subscriptionStatuses[artisan.id];
+                          return (
                           <TableRow key={artisan.id}>
                             <TableCell>
                               <div className="flex items-center gap-3">
@@ -245,6 +418,21 @@ const AdminSubscriptions = () => {
                             <TableCell>
                               {getTierBadge(artisan.subscription_tier)}
                             </TableCell>
+                            <TableCell>
+                              {loadingStatuses ? (
+                                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                              ) : status?.canceled ? (
+                                <Badge variant="destructive" className="gap-1">
+                                  <XCircle className="w-3 h-3" />
+                                  Annulé
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="gap-1 text-green-600 border-green-600">
+                                  <CheckCircle className="w-3 h-3" />
+                                  Actif
+                                </Badge>
+                              )}
+                            </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-2">
                                 <Button
@@ -267,7 +455,8 @@ const AdminSubscriptions = () => {
                               </div>
                             </TableCell>
                           </TableRow>
-                        ))}
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </div>
