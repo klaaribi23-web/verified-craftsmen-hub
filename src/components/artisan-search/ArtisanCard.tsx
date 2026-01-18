@@ -183,7 +183,7 @@ const ArtisanCard = ({
         icon: Crown,
         label: "Elite",
         gradient: "from-yellow-500 via-amber-400 to-yellow-500",
-        borderClass: "border-yellow-500/50 ring-2 ring-yellow-500/30 animate-glow-pulse"
+        borderClass: "border-border"
       };
     }
     if (isPro) {
@@ -192,7 +192,7 @@ const ArtisanCard = ({
         icon: Award,
         label: "Premium",
         gradient: "from-slate-400 via-slate-300 to-slate-400",
-        borderClass: "border-slate-400/50 ring-1 ring-slate-400/20"
+        borderClass: "border-border"
       };
     }
     if (isEssential) {
@@ -201,7 +201,7 @@ const ArtisanCard = ({
         icon: Medal,
         label: "Pro",
         gradient: "from-amber-700 via-amber-600 to-amber-700",
-        borderClass: "border-amber-600/50 ring-1 ring-amber-600/20"
+        borderClass: "border-border"
       };
     }
     return { show: false, borderClass: "border-border" };
