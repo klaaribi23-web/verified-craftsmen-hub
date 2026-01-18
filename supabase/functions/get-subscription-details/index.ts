@@ -12,27 +12,27 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[GET-SUBSCRIPTION-DETAILS] ${step}${detailsStr}`);
 };
 
-// Price to tier mapping
+// Price to tier mapping - Updated with real Stripe price IDs
 const PRICE_TO_TIER: Record<string, string> = {
   // Monthly prices
-  "price_1RQn8tIBEMmaMqlKBr9WD8F2": "essentiel",
-  "price_1RQn9tIBEMmaMqlKONEgQc8V": "pro",
-  "price_1RQnAmIBEMmaMqlKMXmIhWsn": "elite",
+  "price_1SnLhgHsPR7NolTlCZJY5r3T": "essentiel",  // 29,90€/mois
+  "price_1SnLi9HsPR7NolTlFihKief9": "pro",        // 59,90€/mois
+  "price_1SnMvzHsPR7NolTlvlCq5LTo": "elite",      // 99,90€/mois
   // Yearly prices
-  "price_1RQnBVIBEMmaMqlKlMlALt4m": "essentiel",
-  "price_1RQnC8IBEMmaMqlKLy2hwNkq": "pro",
-  "price_1RQnCmIBEMmaMqlKxJ8CG0Oj": "elite",
+  "price_1SnLhuHsPR7NolTlBBcZ6KLo": "essentiel",  // 299€/an
+  "price_1SnLiLHsPR7NolTlo2WwBzYd": "pro",        // 599€/an
+  "price_1SnMwfHsPR7NolTlpskUuvfB": "elite",      // 999€/an
 };
 
 const PRICE_TO_INTERVAL: Record<string, string> = {
   // Monthly prices
-  "price_1RQn8tIBEMmaMqlKBr9WD8F2": "monthly",
-  "price_1RQn9tIBEMmaMqlKONEgQc8V": "monthly",
-  "price_1RQnAmIBEMmaMqlKMXmIhWsn": "monthly",
+  "price_1SnLhgHsPR7NolTlCZJY5r3T": "monthly",
+  "price_1SnLi9HsPR7NolTlFihKief9": "monthly",
+  "price_1SnMvzHsPR7NolTlvlCq5LTo": "monthly",
   // Yearly prices
-  "price_1RQnBVIBEMmaMqlKlMlALt4m": "yearly",
-  "price_1RQnC8IBEMmaMqlKLy2hwNkq": "yearly",
-  "price_1RQnCmIBEMmaMqlKxJ8CG0Oj": "yearly",
+  "price_1SnLhuHsPR7NolTlBBcZ6KLo": "yearly",
+  "price_1SnLiLHsPR7NolTlo2WwBzYd": "yearly",
+  "price_1SnMwfHsPR7NolTlpskUuvfB": "yearly",
 };
 
 serve(async (req) => {
@@ -116,25 +116,39 @@ serve(async (req) => {
     const subscription = subscriptions.data[0];
     const priceId = subscription.items.data[0]?.price?.id;
     
+    logStep("Raw subscription data", {
+      subscriptionId: subscription.id,
+      priceId,
+      currentPeriodEnd: subscription.current_period_end,
+      startDate: subscription.start_date,
+      created: subscription.created,
+      status: subscription.status
+    });
+    
     const tier = priceId ? (PRICE_TO_TIER[priceId] || "unknown") : "unknown";
     const billingInterval = priceId ? (PRICE_TO_INTERVAL[priceId] || "monthly") : "monthly";
     
-    // Get dates
-    const subscriptionStart = subscription.start_date 
-      ? new Date(subscription.start_date * 1000).toISOString()
-      : (subscription.created ? new Date(subscription.created * 1000).toISOString() : null);
+    // Get dates - handle both timestamp and null cases
+    let subscriptionStart: string | null = null;
+    if (subscription.start_date && typeof subscription.start_date === 'number') {
+      subscriptionStart = new Date(subscription.start_date * 1000).toISOString();
+    } else if (subscription.created && typeof subscription.created === 'number') {
+      subscriptionStart = new Date(subscription.created * 1000).toISOString();
+    }
     
-    const subscriptionEnd = subscription.current_period_end
-      ? new Date(subscription.current_period_end * 1000).toISOString()
-      : null;
+    let subscriptionEnd: string | null = null;
+    if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+    }
 
     const priceAmount = subscription.items.data[0]?.price?.unit_amount || null;
 
-    logStep("Subscription details fetched", {
+    logStep("Subscription details processed", {
       tier,
       billingInterval,
       subscriptionStart,
       subscriptionEnd,
+      priceAmount
     });
 
     return new Response(

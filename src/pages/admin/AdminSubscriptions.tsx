@@ -39,19 +39,19 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-// Plan configuration
+// Plan configuration with real Stripe prices
 const PLAN_CONFIG = {
   essentiel: {
     name: "Essentiel",
     color: "bg-amber-600",
     icon: Medal,
-    prices: { monthly: "19,90€/mois", yearly: "199€/an" }
+    prices: { monthly: "29,90€/mois", yearly: "299€/an" }
   },
   pro: {
     name: "Pro",
     color: "bg-slate-400",
     icon: Award,
-    prices: { monthly: "49,90€/mois", yearly: "499€/an" }
+    prices: { monthly: "59,90€/mois", yearly: "599€/an" }
   },
   elite: {
     name: "Elite",
