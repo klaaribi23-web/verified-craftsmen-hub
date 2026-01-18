@@ -30,8 +30,10 @@ import {
   Crown,
   Award,
   Medal,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "react-router-dom";
 import { useSubscribedArtisans, SubscribedArtisan } from "@/hooks/useSubscribedArtisans";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,6 +69,8 @@ interface SubscriptionDetails {
   subscription_start: string | null;
   subscription_end: string | null;
   price_amount: number | null;
+  canceled: boolean;
+  canceled_at: string | null;
 }
 
 const AdminSubscriptions = () => {
@@ -88,7 +92,9 @@ const AdminSubscriptions = () => {
           billing_interval: "monthly",
           subscription_start: artisan.created_at,
           subscription_end: artisan.subscription_end,
-          price_amount: null
+          price_amount: null,
+          canceled: false,
+          canceled_at: null
         });
         return;
       }
@@ -108,7 +114,9 @@ const AdminSubscriptions = () => {
         billing_interval: "monthly",
         subscription_start: artisan.created_at,
         subscription_end: artisan.subscription_end,
-        price_amount: null
+        price_amount: null,
+        canceled: false,
+        canceled_at: null
       });
       toast.error("Impossible de récupérer les détails depuis Stripe");
     } finally {
@@ -334,13 +342,29 @@ const AdminSubscriptions = () => {
                     </span>
                   </div>
 
-                  {/* Renewal Date */}
+                  {/* Next Billing Date */}
                   <div className="flex justify-between items-center py-2">
-                    <span className="text-muted-foreground">Prochain renouvellement</span>
+                    <span className="text-muted-foreground">Prochaine facturation</span>
                     <span className="font-medium text-primary">
                       {formatDate(subscriptionDetails.subscription_end)}
                     </span>
                   </div>
+
+                  {/* Cancellation Alert - Only shown if canceled */}
+                  {subscriptionDetails.canceled && (
+                    <Alert variant="destructive" className="mt-4">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>Abonnement annulé</AlertTitle>
+                      <AlertDescription className="space-y-1">
+                        {subscriptionDetails.canceled_at && (
+                          <p>Annulé le {formatDate(subscriptionDetails.canceled_at)}</p>
+                        )}
+                        <p className="text-sm">
+                          L'accès reste actif jusqu'au {formatDate(subscriptionDetails.subscription_end)}
+                        </p>
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
               ) : (
                 <p className="text-center text-muted-foreground py-4">
