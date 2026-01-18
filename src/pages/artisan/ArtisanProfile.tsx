@@ -476,7 +476,7 @@ export const ArtisanProfile = () => {
                   <div className="flex-1 text-center sm:text-left min-w-0">
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
                       <h2 className="text-xl sm:text-2xl font-bold text-foreground truncate">
-                        {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Nouveau profil"}
+                        {artisan?.business_name || businessName || "Nouveau profil"}
                       </h2>
                       {artisan?.status === "active" && (
                         <Badge className="bg-success/20 text-success border-0 gap-1 text-xs">
@@ -489,6 +489,11 @@ export const ArtisanProfile = () => {
                         </Badge>
                       )}
                     </div>
+                    {(firstName || lastName) && (
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Géré par {`${firstName} ${lastName}`.trim()}
+                      </p>
+                    )}
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                       {description || "Complétez votre profil pour être visible par les clients"}
                     </p>
