@@ -151,6 +151,14 @@ serve(async (req) => {
       priceAmount
     });
 
+    // Get cancellation info
+    const cancelAtPeriodEnd = subscription.cancel_at_period_end || false;
+    const canceledAt = subscription.canceled_at 
+      ? new Date(subscription.canceled_at * 1000).toISOString() 
+      : null;
+
+    logStep("Cancellation info", { cancelAtPeriodEnd, canceledAt });
+
     return new Response(
       JSON.stringify({
         tier,
@@ -158,6 +166,8 @@ serve(async (req) => {
         subscription_start: subscriptionStart,
         subscription_end: subscriptionEnd,
         price_amount: priceAmount,
+        canceled: cancelAtPeriodEnd,
+        canceled_at: canceledAt,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
