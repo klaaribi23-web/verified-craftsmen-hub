@@ -46,6 +46,7 @@ import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminBulkImport from "./pages/admin/AdminBulkImport";
 import AdminRecommendations from "./pages/admin/AdminRecommendations";
+import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ActivateAccount from "./pages/ActivateAccount";
@@ -260,6 +261,11 @@ const App = () => (
           <Route path="/admin/recommandations" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminRecommendations />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/abonnements" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSubscriptions />
             </ProtectedRoute>
           } />
           

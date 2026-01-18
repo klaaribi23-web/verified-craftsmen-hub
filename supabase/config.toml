@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.admin-delete-client]
 verify_jwt = false
+
+[functions.get-subscription-details]
+verify_jwt = false
