@@ -372,7 +372,7 @@ const ArtisanPublicProfile = () => {
                   <CardContent className="p-3 md:p-4">
                     <div className="flex flex-col gap-2">
                       {/* Bouton Revendiquer pour les prospects - Affiche un pop-up contact */}
-                      {artisan.status === 'prospect' && (
+                      {(artisan.status === 'prospect' || artisan.status === 'pending') && (
                         <Dialog>
                           <DialogTrigger asChild>
                             <div className="text-center mb-2 pb-3 border-b cursor-pointer">
@@ -876,7 +876,7 @@ const ArtisanPublicProfile = () => {
             <div className="hidden lg:block lg:col-span-1 space-y-6">
               
               {/* 1. SECTION REVENDICATION - Pop-up contact (uniquement prospect) */}
-              {artisan.status === 'prospect' && (
+              {(artisan.status === 'prospect' || artisan.status === 'pending') && (
                 <Dialog>
                   <Card className="min-h-[280px] flex flex-col justify-center">
                     <CardContent className="p-6">
