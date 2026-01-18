@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.delete-artisan-account]
 verify_jwt = false
+
+[functions.delete-client-account]
+verify_jwt = false
