@@ -12,6 +12,7 @@ import {
   BadgeCheck,
   ThumbsUp,
   User,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,6 +25,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin/dashboard" },
   { icon: Settings, label: "Approbations", path: "/admin/approbations", badge: "approvals" },
   { icon: ThumbsUp, label: "Recommandations", path: "/admin/recommandations", badge: "recommendations" },
+  { icon: CreditCard, label: "Abonnements", path: "/admin/abonnements" },
   { icon: Users, label: "Artisans", path: "/admin/artisans" },
   { icon: UserCheck, label: "Clients", path: "/admin/clients" },
   { icon: BarChart3, label: "Statistiques", path: "/admin/statistiques" },
