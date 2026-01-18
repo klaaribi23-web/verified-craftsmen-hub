@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ClientSidebar } from "@/components/client-dashboard/ClientSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
@@ -18,16 +19,29 @@ import {
   Bell,
   Lock,
   Save,
-  Loader2
+  Loader2,
+  Trash2,
+  ShieldAlert,
+  AlertTriangle
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 export const ClientSettings = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   
   const [formData, setFormData] = useState({
@@ -49,6 +63,12 @@ export const ClientSettings = () => {
     messages: true,
     promotions: false
   });
+
+  // Delete account state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<"warning" | "confirm">("warning");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch profile
   const { data: profile, isLoading } = useQuery({
@@ -138,6 +158,55 @@ export const ClientSettings = () => {
     changePasswordMutation.mutate();
   };
 
+  const handleOpenDeleteModal = () => {
+    setDeleteStep("warning");
+    setDeleteConfirmText("");
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleProceedToConfirm = () => {
+    setDeleteStep("confirm");
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "SUPPRIMER") {
+      toast.error("Veuillez taper SUPPRIMER pour confirmer");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error("Session expirée");
+      }
+
+      const { data, error } = await supabase.functions.invoke("delete-client-account", {
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.success === false) {
+        throw new Error(data.message);
+      }
+
+      toast.success("Votre compte a été supprimé avec succès");
+      
+      // Sign out and redirect
+      await supabase.auth.signOut();
+      navigate("/");
+      
+    } catch (error: any) {
+      console.error("Delete account error:", error);
+      toast.error(error.message || "Erreur lors de la suppression du compte");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <>
@@ -164,7 +233,7 @@ export const ClientSettings = () => {
             subtitle="Gérez votre compte et vos préférences"
           />
 
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <main className="flex-1 p-4 md:p-6 overflow-auto pb-24 lg:pb-6">
             <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
               {/* Personal Information */}
               <Card>
@@ -341,15 +410,22 @@ export const ClientSettings = () => {
               </Card>
 
               {/* Danger Zone */}
-              <Card className="border-destructive/50">
+              <Card className="border-destructive/50 bg-destructive/5">
                 <CardHeader className="pb-3 sm:pb-4">
-                  <CardTitle className="text-destructive text-base sm:text-lg">Zone de danger</CardTitle>
+                  <CardTitle className="text-destructive text-base sm:text-lg flex items-center gap-2">
+                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    Zone de danger
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                     La suppression de votre compte est irréversible. Toutes vos données seront définitivement effacées.
                   </p>
-                  <Button variant="destructive" className="w-full sm:w-auto">
+                  <Button 
+                    variant="destructive" 
+                    className="w-full sm:w-auto"
+                    onClick={handleOpenDeleteModal}
+                  >
                     Supprimer mon compte
                   </Button>
                 </CardContent>
@@ -359,6 +435,99 @@ export const ClientSettings = () => {
         </div>
       </div>
       <ChatWidget />
+
+      {/* Delete Account Modal */}
+      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <AlertDialogContent className="max-w-md">
+          {deleteStep === "warning" && (
+            <>
+              <AlertDialogHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-full bg-destructive/20 flex items-center justify-center">
+                    <ShieldAlert className="w-6 h-6 text-destructive" />
+                  </div>
+                  <AlertDialogTitle className="text-xl">Supprimer votre compte ?</AlertDialogTitle>
+                </div>
+                <AlertDialogDescription className="text-left space-y-3">
+                  <p className="text-foreground font-medium">
+                    Cette action est irréversible et entraînera :
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                    <li>La suppression de votre profil client</li>
+                    <li>La suppression de toutes vos missions publiées</li>
+                    <li>La suppression de vos devis reçus</li>
+                    <li>La suppression de toutes vos conversations</li>
+                    <li>La suppression de vos avis et recommandations</li>
+                    <li>La perte de vos artisans favoris</li>
+                  </ul>
+                  <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mt-4">
+                    <p className="text-sm text-warning-foreground flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                      <span>Toutes ces données seront définitivement effacées et ne pourront pas être récupérées.</span>
+                    </p>
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="mt-4">
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleProceedToConfirm}
+                >
+                  Continuer
+                </Button>
+              </AlertDialogFooter>
+            </>
+          )}
+
+          {deleteStep === "confirm" && (
+            <>
+              <AlertDialogHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-full bg-destructive/20 flex items-center justify-center">
+                    <Trash2 className="w-6 h-6 text-destructive" />
+                  </div>
+                  <AlertDialogTitle className="text-xl">Confirmation finale</AlertDialogTitle>
+                </div>
+                <AlertDialogDescription className="text-left space-y-3">
+                  <p className="text-foreground">
+                    Pour confirmer la suppression définitive de votre compte, tapez <strong className="text-destructive">SUPPRIMER</strong> dans le champ ci-dessous.
+                  </p>
+                  <Input
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
+                    placeholder="Tapez SUPPRIMER"
+                    className="mt-2 text-center font-mono tracking-widest"
+                  />
+                  {deleteConfirmText && deleteConfirmText !== "SUPPRIMER" && (
+                    <p className="text-sm text-destructive">Tapez exactement "SUPPRIMER" pour continuer</p>
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="mt-4">
+                <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmText !== "SUPPRIMER" || isDeleting}
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Suppression...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Supprimer définitivement
+                    </>
+                  )}
+                </Button>
+              </AlertDialogFooter>
+            </>
+          )}
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
