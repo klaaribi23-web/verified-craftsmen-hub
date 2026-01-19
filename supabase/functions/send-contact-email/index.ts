@@ -12,6 +12,7 @@ interface ContactEmailRequest {
   email: string;
   subject: string;
   message: string;
+  _hp?: string; // Honeypot field
 }
 
 // Simple validation function
@@ -82,6 +83,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     const body = await req.json();
     console.log("Received contact form submission");
+
+    // Check honeypot field - if filled, it's likely a bot
+    if (body._hp && body._hp.trim().length > 0) {
+      console.log("Honeypot triggered - rejecting spam submission");
+      // Return success to not alert bots, but don't send email
+      return new Response(
+        JSON.stringify({ success: true, message: "Message envoyé avec succès" }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     // Validate input
     const validation = validateInput(body);
