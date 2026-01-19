@@ -736,6 +736,8 @@ export type Database = {
           client_id: string
           created_at: string
           description: string | null
+          fake_applicants_count: number | null
+          fake_client_id: string | null
           id: string
           photos: string[] | null
           rejection_reason: string | null
@@ -752,6 +754,8 @@ export type Database = {
           client_id: string
           created_at?: string
           description?: string | null
+          fake_applicants_count?: number | null
+          fake_client_id?: string | null
           id?: string
           photos?: string[] | null
           rejection_reason?: string | null
@@ -768,6 +772,8 @@ export type Database = {
           client_id?: string
           created_at?: string
           description?: string | null
+          fake_applicants_count?: number | null
+          fake_client_id?: string | null
           id?: string
           photos?: string[] | null
           rejection_reason?: string | null
@@ -802,6 +808,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missions_fake_client_id_fkey"
+            columns: ["fake_client_id"]
+            isOneToOne: false
+            referencedRelation: "demo_profiles"
             referencedColumns: ["id"]
           },
         ]
