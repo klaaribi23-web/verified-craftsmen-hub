@@ -17,7 +17,7 @@ interface ExistingAccountInfo {
   userId: string | null;
 }
 
-type ActivationPhase = "loading" | "form" | "awaiting_confirmation" | "linking" | "success" | "error";
+type ActivationPhase = "loading" | "form" | "awaiting_confirmation" | "linking" | "success" | "error" | "admin_warning" | "email_mismatch";
 
 const ActivateAccount = () => {
   const navigate = useNavigate();
@@ -51,11 +51,48 @@ const ActivateAccount = () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user && token && artisanData) {
-        console.log("[ACTIVATION] ✅ Session trouvée, auto-activation en cours...", {
+        console.log("[ACTIVATION] ✅ Session trouvée, vérification sécurité...", {
           userId: session.user.id,
           email: session.user.email,
+          artisanEmail: artisanData.email,
           artisanId: artisanData.id,
         });
+        
+        // 🔒 SECURITY CHECK 1: Block if admin is logged in
+        const { data: userRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .single();
+        
+        if (userRole?.role === "admin") {
+          console.warn("[ACTIVATION] ⛔ ADMIN connecté - activation bloquée!");
+          // Log security event
+          try {
+            await supabase.rpc('add_security_log', {
+              p_user_id: session.user.id,
+              p_action: 'blocked_admin_artisan_activation',
+              p_details: { artisan_id: artisanData.id, artisan_email: artisanData.email },
+              p_severity: 'warning'
+            });
+          } catch (logErr) {
+            console.error("[ACTIVATION] Erreur log sécurité:", logErr);
+          }
+          setPhase("admin_warning");
+          return;
+        }
+        
+        // 🔒 SECURITY CHECK 2: Email must match exactly
+        if (session.user.email?.toLowerCase() !== artisanData.email.toLowerCase()) {
+          console.warn("[ACTIVATION] ⛔ Email session ne correspond PAS à l'email artisan!", {
+            sessionEmail: session.user.email,
+            artisanEmail: artisanData.email,
+          });
+          setPhase("email_mismatch");
+          return;
+        }
+        
+        console.log("[ACTIVATION] ✅ Vérifications OK, auto-activation en cours...");
         setPhase("linking");
         
         try {
@@ -447,6 +484,29 @@ const ActivateAccount = () => {
   const convertClientToArtisan = async (userId: string, artisanId: string) => {
     console.log("[ACTIVATION] 🔄 Conversion client → artisan...", { userId, artisanId });
     
+    // 🔒 SECURITY CHECK: Never convert an admin account
+    const { data: existingRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+    
+    if (existingRole?.role === "admin") {
+      console.error("[ACTIVATION] ⛔ TENTATIVE DE CONVERSION D'UN COMPTE ADMIN!");
+      // Log critical security event
+      try {
+        await supabase.rpc('add_security_log', {
+          p_user_id: userId,
+          p_action: 'blocked_admin_to_artisan_conversion',
+          p_details: { artisan_id: artisanId, attempted_conversion: true },
+          p_severity: 'critical'
+        });
+      } catch (logErr) {
+        console.error("[ACTIVATION] Erreur log sécurité:", logErr);
+      }
+      throw new Error("Impossible de convertir un compte administrateur en artisan.");
+    }
+    
     // 1. Update artisan with user_id
     console.log("[ACTIVATION] 📝 Étape 1: Liaison user_id à artisan...");
     const { error: updateError } = await supabase
@@ -517,6 +577,29 @@ const ActivateAccount = () => {
 
   const linkArtisanToUser = async (userId: string, artisanId: string) => {
     console.log("[ACTIVATION] 🔗 Liaison artisan → user...", { userId, artisanId });
+    
+    // 🔒 SECURITY CHECK: Never link an admin account to an artisan
+    const { data: existingRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+    
+    if (existingRole?.role === "admin") {
+      console.error("[ACTIVATION] ⛔ TENTATIVE DE LIAISON D'UN COMPTE ADMIN À UN ARTISAN!");
+      // Log critical security event
+      try {
+        await supabase.rpc('add_security_log', {
+          p_user_id: userId,
+          p_action: 'blocked_admin_artisan_link',
+          p_details: { artisan_id: artisanId, attempted_link: true },
+          p_severity: 'critical'
+        });
+      } catch (logErr) {
+        console.error("[ACTIVATION] Erreur log sécurité:", logErr);
+      }
+      throw new Error("Impossible de lier un compte administrateur à un profil artisan.");
+    }
     
     // Verify session is active
     const { data: sessionData } = await supabase.auth.getSession();
@@ -693,6 +776,141 @@ const ActivateAccount = () => {
             <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
             <p className="text-lg font-medium mb-2">Activation de votre compte...</p>
             <p className="text-muted-foreground">Veuillez patienter quelques secondes</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Admin warning state - SECURITY: Block admin from activating artisan accounts
+  if (phase === "admin_warning") {
+    const handleLogout = async () => {
+      await supabase.auth.signOut();
+      toast.success("Déconnexion réussie. Vous pouvez maintenant activer le compte artisan.");
+      setPhase("form");
+    };
+
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead 
+          title="Activation bloquée" 
+          description="Vous devez vous déconnecter pour activer ce compte"
+          noIndex={true}
+        />
+        <Navbar />
+        <div className="container mx-auto px-4 pt-32 pb-20">
+          <div className="max-w-md mx-auto">
+            <Card className="border-destructive/50">
+              <CardHeader className="text-center">
+                <div className="w-20 h-20 mx-auto bg-destructive/10 rounded-full flex items-center justify-center mb-4">
+                  <Shield className="h-10 w-10 text-destructive" />
+                </div>
+                <CardTitle className="text-2xl text-destructive">Compte administrateur détecté</CardTitle>
+                <CardDescription className="text-base mt-2">
+                  Vous êtes connecté avec un compte administrateur. 
+                  Pour des raisons de sécurité, vous ne pouvez pas activer un compte artisan avec cette session.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+                    <div className="text-sm text-destructive">
+                      <p className="font-medium mb-2">Pourquoi ce blocage ?</p>
+                      <p>
+                        Le compte administrateur doit rester séparé des comptes artisans. 
+                        Veuillez vous déconnecter puis utiliser un compte différent ou créer un nouveau compte pour cet artisan.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <Button 
+                  className="w-full"
+                  variant="destructive"
+                  onClick={handleLogout}
+                >
+                  Se déconnecter
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate("/")}
+                >
+                  Retour à l'accueil
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Email mismatch state - SECURITY: Logged in email doesn't match artisan email
+  if (phase === "email_mismatch") {
+    const handleLogout = async () => {
+      await supabase.auth.signOut();
+      toast.success("Déconnexion réussie. Vous pouvez maintenant vous connecter avec le bon compte.");
+      setPhase("form");
+    };
+
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead 
+          title="Email différent" 
+          description="L'email connecté ne correspond pas à l'artisan"
+          noIndex={true}
+        />
+        <Navbar />
+        <div className="container mx-auto px-4 pt-32 pb-20">
+          <div className="max-w-md mx-auto">
+            <Card className="border-amber-500/50">
+              <CardHeader className="text-center">
+                <div className="w-20 h-20 mx-auto bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                  <Mail className="h-10 w-10 text-amber-600" />
+                </div>
+                <CardTitle className="text-2xl text-amber-600">Email différent</CardTitle>
+                <CardDescription className="text-base mt-2">
+                  Vous êtes actuellement connecté avec un email différent de celui associé à cette vitrine artisan.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Email de la vitrine :</span>
+                      <span className="font-semibold">{artisanData?.email}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
+                  <p>
+                    Pour activer cette vitrine, veuillez vous déconnecter puis vous reconnecter 
+                    avec l'adresse email <span className="font-semibold text-foreground">{artisanData?.email}</span>.
+                  </p>
+                </div>
+                
+                <Button 
+                  className="w-full"
+                  onClick={handleLogout}
+                >
+                  Se déconnecter
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate("/")}
+                >
+                  Retour à l'accueil
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
         <Footer />
