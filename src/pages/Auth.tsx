@@ -169,42 +169,68 @@ const Auth = () => {
           return;
         }
 
-        // If artisan, create empty artisan profile
-        if (userType === "artisan") {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const { data: profile } = await supabase
+        // Wait for profile to be created by trigger
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Get the profile and generate confirmation token
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", data.user.id)
+          .single();
+
+        if (profileError) {
+          console.error("Error getting profile:", profileError);
+        }
+
+        // Generate a confirmation token
+        const confirmationToken = crypto.randomUUID();
+
+        // Update profile with confirmation token
+        if (profile) {
+          const { error: updateError } = await supabase
             .from("profiles")
-            .select("id")
-            .eq("user_id", data.user.id)
-            .single();
+            .update({
+              email_confirmed: false,
+              confirmation_token: confirmationToken,
+              confirmation_sent_at: new Date().toISOString(),
+            })
+            .eq("id", profile.id);
 
-          if (profile) {
-            const { error: artisanError } = await supabase
-              .from("artisans")
-              .insert([{
-                user_id: data.user.id,
-                profile_id: profile.id,
-                business_name: businessName.trim(),
-                email: validatedData.email,
-                city: "Non renseigné",
-                status: "pending",
-                source: "self_signup",
-                description: null,
-                photo_url: null,
-                portfolio_images: null,
-                portfolio_videos: null,
-                experience_years: 0,
-                rating: 0,
-                review_count: 0,
-                missions_completed: 0,
-              }]);
-
-            if (artisanError) {
-              console.error("Error creating artisan:", artisanError);
-            }
+          if (updateError) {
+            console.error("Error setting confirmation token:", updateError);
           }
         }
+
+        // If artisan, create empty artisan profile
+        if (userType === "artisan" && profile) {
+          const { error: artisanError } = await supabase
+            .from("artisans")
+            .insert([{
+              user_id: data.user.id,
+              profile_id: profile.id,
+              business_name: businessName.trim(),
+              email: validatedData.email,
+              city: "Non renseigné",
+              status: "pending",
+              source: "self_signup",
+              description: null,
+              photo_url: null,
+              portfolio_images: null,
+              portfolio_videos: null,
+              experience_years: 0,
+              rating: 0,
+              review_count: 0,
+              missions_completed: 0,
+            }]);
+
+          if (artisanError) {
+            console.error("Error creating artisan:", artisanError);
+          }
+        }
+
+        // Build confirmation URL with our custom token
+        const confirmationUrl = `${window.location.origin}/confirmer-email?token=${confirmationToken}`;
 
         // Send custom branded confirmation email
         try {
@@ -214,13 +240,15 @@ const Auth = () => {
               firstName: validatedData.firstName,
               lastName: validatedData.lastName,
               userType,
-              confirmationUrl: `${window.location.origin}/auth/callback`,
+              confirmationUrl,
             },
           });
         } catch (emailError) {
           console.error("Error sending custom email:", emailError);
-          // Continue anyway, Supabase will send default email
         }
+
+        // Sign out the user so they must confirm email before logging in
+        await supabase.auth.signOut();
 
         // Show full-page confirmation instead of toast
         setSentEmail(validatedData.email);
@@ -267,8 +295,27 @@ const Auth = () => {
 
       if (error) throw error;
 
-      // Send new device notification (runs in background)
+      // Check if email is confirmed in our system
       if (data.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("email_confirmed")
+          .eq("user_id", data.user.id)
+          .single();
+
+        // If profile exists and email is not confirmed, block login
+        if (profile && profile.email_confirmed === false) {
+          await supabase.auth.signOut();
+          toast({
+            title: "Email non confirmé",
+            description: "Veuillez confirmer votre email avant de vous connecter. Vérifiez votre boîte mail.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Send new device notification (runs in background)
         notifyNewDeviceLogin(data.user.id);
       }
 
@@ -299,30 +346,42 @@ const Auth = () => {
     
     setIsResending(true);
     try {
-      // Resend via Supabase Auth (for the confirmation link)
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: sentEmail,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        }
-      });
+      // Find the profile to get/regenerate the confirmation token
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, confirmation_token")
+        .eq("email", sentEmail)
+        .maybeSingle();
 
-      if (error) throw error;
+      let confirmationToken = profiles?.confirmation_token;
 
-      // Also send our branded email
-      try {
-        await supabase.functions.invoke("send-confirmation-email", {
-          body: {
-            email: sentEmail,
-            firstName: sentFirstName || "Utilisateur",
-            userType,
-            confirmationUrl: `${window.location.origin}/auth/callback`,
-          },
-        });
-      } catch (emailError) {
-        console.error("Error sending custom email:", emailError);
+      // If no token, generate a new one
+      if (!confirmationToken && profiles) {
+        confirmationToken = crypto.randomUUID();
+        await supabase
+          .from("profiles")
+          .update({
+            confirmation_token: confirmationToken,
+            confirmation_sent_at: new Date().toISOString(),
+          })
+          .eq("id", profiles.id);
       }
+
+      if (!confirmationToken) {
+        throw new Error("Impossible de générer un nouveau lien de confirmation.");
+      }
+
+      const confirmationUrl = `${window.location.origin}/confirmer-email?token=${confirmationToken}`;
+
+      // Send our branded email only
+      await supabase.functions.invoke("send-confirmation-email", {
+        body: {
+          email: sentEmail,
+          firstName: sentFirstName || "Utilisateur",
+          userType,
+          confirmationUrl,
+        },
+      });
 
       toast({
         title: "Email renvoyé !",
