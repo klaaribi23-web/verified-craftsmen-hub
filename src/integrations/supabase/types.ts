@@ -798,8 +798,11 @@ export type Database = {
         Row: {
           avatar_url: string | null
           city: string | null
+          confirmation_sent_at: string | null
+          confirmation_token: string | null
           created_at: string
           email: string
+          email_confirmed: boolean | null
           first_name: string | null
           id: string
           last_name: string | null
@@ -810,8 +813,11 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           city?: string | null
+          confirmation_sent_at?: string | null
+          confirmation_token?: string | null
           created_at?: string
           email: string
+          email_confirmed?: boolean | null
           first_name?: string | null
           id?: string
           last_name?: string | null
@@ -822,8 +828,11 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           city?: string | null
+          confirmation_sent_at?: string | null
+          confirmation_token?: string | null
           created_at?: string
           email?: string
+          email_confirmed?: boolean | null
           first_name?: string | null
           id?: string
           last_name?: string | null

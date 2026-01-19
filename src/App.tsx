@@ -53,6 +53,7 @@ import AuthCallback from "./pages/AuthCallback";
 import ActivateAccount from "./pages/ActivateAccount";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import ConfirmEmail from "./pages/ConfirmEmail";
 import Contact from "./pages/Contact";
 import APropos from "./pages/APropos";
 import Blog from "./pages/Blog";
@@ -93,6 +94,7 @@ const App = () => (
           <Route path="/activer-compte" element={<ActivateAccount />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/confirmer-email" element={<ConfirmEmail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/a-propos" element={<APropos />} />
           <Route path="/blog" element={<Blog />} />
