@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { notifyNewDeviceLogin } from "@/hooks/useSecurityNotifications";
+import { trackLoginAttempt, checkIfBlocked } from "@/hooks/useLoginTracking";
 import { 
   Mail, 
   Lock, 
@@ -288,12 +289,49 @@ const Auth = () => {
       }
 
       const validatedData = validationResult.data;
+
+      // Check if IP is blocked before attempting login
+      const isBlocked = await checkIfBlocked();
+      if (isBlocked) {
+        toast({
+          title: "Trop de tentatives",
+          description: "Votre adresse IP est temporairement bloquée. Réessayez dans 15 minutes.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: validatedData.email,
         password: validatedData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Track failed login attempt
+        const trackResult = await trackLoginAttempt({
+          email: validatedData.email,
+          success: false,
+        });
+
+        if (trackResult.blocked) {
+          toast({
+            title: "Compte temporairement bloqué",
+            description: "Trop de tentatives de connexion échouées. Réessayez dans 15 minutes.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        throw error;
+      }
+
+      // Track successful login
+      trackLoginAttempt({
+        email: validatedData.email,
+        success: true,
+      });
 
       // Check if email is confirmed in our system
       if (data.user) {
