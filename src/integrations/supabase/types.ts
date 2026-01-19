@@ -599,6 +599,33 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          attempted_at: string | null
+          email: string
+          id: string
+          ip_address: string | null
+          success: boolean | null
+          user_agent: string | null
+        }
+        Insert: {
+          attempted_at?: string | null
+          email: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+        }
+        Update: {
+          attempted_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachment_name: string | null
@@ -1063,6 +1090,39 @@ export type Database = {
           },
         ]
       }
+      security_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       story_views: {
         Row: {
           id: string
@@ -1188,14 +1248,17 @@ export type Database = {
           portfolio_images: string[] | null
           portfolio_videos: string[] | null
           postal_code: string | null
+          profile_id: string | null
           qualifications: string[] | null
           rating: number | null
           region: string | null
           review_count: number | null
+          siret: string | null
           slug: string | null
           status: Database["public"]["Enums"]["artisan_status"] | null
           subscription_tier: string | null
           updated_at: string | null
+          user_id: string | null
           website_url: string | null
           working_hours: Json | null
         }
@@ -1229,14 +1292,17 @@ export type Database = {
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
           postal_code?: string | null
+          profile_id?: string | null
           qualifications?: string[] | null
           rating?: number | null
           region?: string | null
           review_count?: number | null
+          siret?: string | null
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
           subscription_tier?: string | null
           updated_at?: string | null
+          user_id?: string | null
           website_url?: string | null
           working_hours?: Json | null
         }
@@ -1270,14 +1336,17 @@ export type Database = {
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
           postal_code?: string | null
+          profile_id?: string | null
           qualifications?: string[] | null
           rating?: number | null
           region?: string | null
           review_count?: number | null
+          siret?: string | null
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
           subscription_tier?: string | null
           updated_at?: string | null
+          user_id?: string | null
           website_url?: string | null
           working_hours?: Json | null
         }
@@ -1289,11 +1358,31 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artisans_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Functions: {
+      add_security_log: {
+        Args: {
+          p_action: string
+          p_details?: Json
+          p_ip_address?: string
+          p_severity?: string
+          p_user_agent?: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      cleanup_old_login_attempts: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
+      cleanup_old_security_logs: { Args: never; Returns: undefined }
       create_notification: {
         Args: {
           p_message: string
@@ -1330,6 +1419,7 @@ export type Database = {
         Args: { story_id_param: string }
         Returns: undefined
       }
+      is_ip_blocked: { Args: { p_ip_address: string }; Returns: boolean }
       record_story_view: {
         Args: { p_story_id: string; p_viewer_id?: string }
         Returns: boolean
