@@ -27,6 +27,7 @@ const Contact = () => {
     subject: "",
     message: "",
   });
+  const [honeypot, setHoneypot] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -52,7 +53,7 @@ const Contact = () => {
     
     try {
       const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: validationResult.data,
+        body: { ...validationResult.data, _hp: honeypot },
       });
 
       if (error) {
@@ -196,6 +197,21 @@ const Contact = () => {
               <Card className="border-border/50">
                 <CardContent className="p-6">
                   <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Honeypot anti-spam field - hidden from users */}
+                    <div className="absolute -left-[9999px]" aria-hidden="true">
+                      <label htmlFor="website">
+                        Ne pas remplir ce champ
+                      </label>
+                      <input
+                        type="text"
+                        id="website"
+                        name="website"
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
+                    </div>
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
                         Nom complet
