@@ -113,13 +113,7 @@ const MissionDetailModal = ({ mission, open, onClose, onApply, canApply }: Missi
           )}
 
           {/* Mission Info */}
-          <div className="grid grid-cols-2 gap-4">
-            {mission.budget && (
-              <div className="flex items-center gap-2 text-sm">
-                <Euro className="w-4 h-4 text-muted-foreground" />
-                <span>Budget : <strong className="text-foreground">{mission.budget.toLocaleString("fr-FR")} €</strong></span>
-              </div>
-            )}
+          <div className="flex flex-wrap gap-4">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="w-4 h-4 text-muted-foreground" />
               <span>Publiée le {formatDate(mission.created_at)}</span>
