@@ -1,6 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+// Rate limit configuration
+const RATE_LIMIT_MAX = 5; // Max submissions per hour
+const RATE_LIMIT_WINDOW_HOURS = 1;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -84,6 +91,12 @@ const handler = async (req: Request): Promise<Response> => {
     const body = await req.json();
     console.log("Received contact form submission");
 
+    // Get client IP address
+    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() 
+      || req.headers.get("x-real-ip") 
+      || "unknown";
+    console.log("Client IP:", clientIP);
+
     // Check honeypot field - if filled, it's likely a bot
     if (body._hp && body._hp.trim().length > 0) {
       console.log("Honeypot triggered - rejecting spam submission");
@@ -92,6 +105,31 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ success: true, message: "Message envoyé avec succès" }),
         {
           status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Initialize Supabase client with service role for rate limiting
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Check rate limit
+    const oneHourAgo = new Date(Date.now() - RATE_LIMIT_WINDOW_HOURS * 60 * 60 * 1000).toISOString();
+    const { count, error: countError } = await supabase
+      .from("contact_rate_limits")
+      .select("*", { count: "exact", head: true })
+      .eq("ip_address", clientIP)
+      .gte("created_at", oneHourAgo);
+
+    if (countError) {
+      console.error("Error checking rate limit:", countError);
+      // Continue anyway - don't block users if rate limit check fails
+    } else if (count !== null && count >= RATE_LIMIT_MAX) {
+      console.log(`Rate limit exceeded for IP ${clientIP}: ${count} submissions in the last hour`);
+      return new Response(
+        JSON.stringify({ error: "Trop de messages envoyés. Veuillez réessayer dans une heure." }),
+        {
+          status: 429,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
@@ -108,6 +146,23 @@ const handler = async (req: Request): Promise<Response> => {
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
+    }
+
+    // Record this submission for rate limiting
+    const { error: insertError } = await supabase
+      .from("contact_rate_limits")
+      .insert({ ip_address: clientIP });
+    
+    if (insertError) {
+      console.error("Error recording rate limit:", insertError);
+      // Continue anyway
+    }
+
+    // Clean up old rate limit entries (older than 24 hours)
+    try {
+      await supabase.rpc("cleanup_old_rate_limits");
+    } catch (err) {
+      console.error("Error cleaning up old rate limits:", err);
     }
 
     const { name, email, subject, message } = validation.data!;
