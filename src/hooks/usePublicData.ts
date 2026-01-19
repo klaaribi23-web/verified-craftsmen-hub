@@ -163,16 +163,21 @@ export const useDemoMissions = (userId?: string, userRole?: string) => {
         }
       }
 
-      // 5. Transform data with real applicant count and application status
-      return missions.map(mission => ({
-        ...mission,
-        client_name: mission.client 
-          ? `${mission.client.first_name || ""} ${mission.client.last_name || ""}`.trim() || "Client"
-          : "Client",
-        client_city: mission.client?.city || mission.city,
-        applicants_count: applicantsCounts.get(mission.id) || 0,
-        has_applied: myAppliedMissions.has(mission.id),
-      }));
+      // 5. Transform data with real applicant count + fake applicants and application status
+      return missions.map(mission => {
+        const realApplicants = applicantsCounts.get(mission.id) || 0;
+        const fakeApplicants = (mission as any).fake_applicants_count || 0;
+        
+        return {
+          ...mission,
+          client_name: mission.client 
+            ? `${mission.client.first_name || ""} ${mission.client.last_name || ""}`.trim() || "Client"
+            : "Client",
+          client_city: mission.client?.city || mission.city,
+          applicants_count: realApplicants + fakeApplicants,
+          has_applied: myAppliedMissions.has(mission.id),
+        };
+      });
     },
   });
 };
