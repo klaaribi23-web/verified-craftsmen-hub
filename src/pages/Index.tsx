@@ -7,7 +7,7 @@ import TrustSection from "@/components/home/TrustSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
-import GallerySection from "@/components/home/GallerySection";
+import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
 import { Star, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -29,24 +29,14 @@ const Index = () => {
         <HeroSection />
         <CategoriesSection />
 
-        {/* Featured Artisans Section */}
+        {/* Featured Artisans Section - 4x4 */}
         <section className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
             <motion.div
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              whileInView={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.6,
-              }}
-              viewport={{
-                once: true,
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
               className="text-center mb-12"
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-full mb-4">
@@ -62,21 +52,10 @@ const Index = () => {
             <FeaturedArtisansCarousel />
 
             <motion.div
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              whileInView={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.6,
-                delay: 0.3,
-              }}
-              viewport={{
-                once: true,
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
               className="text-center mt-10"
             >
               <Button asChild size="lg" variant="gold" className="group">
@@ -91,8 +70,31 @@ const Index = () => {
 
         <HowItWorksSection />
 
+        {/* Category Carousel - Maçons */}
+        <CategoryArtisansCarousel 
+          categoryName="Maçonnerie"
+          title="Un maçon près de chez vous"
+          subtitle="Des professionnels qualifiés pour vos travaux de construction et rénovation"
+        />
+
         <TrustSection />
+
+        {/* Category Carousel - Plombiers */}
+        <CategoryArtisansCarousel 
+          categoryName="Plomberie"
+          title="Nos plombiers validés"
+          subtitle="Intervention rapide et travail de qualité garantie"
+        />
+
         <TestimonialsSection />
+
+        {/* Category Carousel - Électriciens */}
+        <CategoryArtisansCarousel 
+          categoryName="Électricité"
+          title="Électriciens certifiés"
+          subtitle="Des experts pour tous vos besoins électriques"
+        />
+
         <CTASection />
       </main>
       <Footer />

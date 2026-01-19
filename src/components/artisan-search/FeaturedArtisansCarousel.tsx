@@ -28,7 +28,7 @@ const FeaturedArtisansCarousel = () => {
     align: "start",
     slidesToScroll: 1,
     breakpoints: {
-      '(min-width: 768px)': { slidesToScroll: 3 }
+      '(min-width: 768px)': { slidesToScroll: 4 }
     }
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -72,13 +72,13 @@ const FeaturedArtisansCarousel = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        {[1, 2, 3].map(i => (
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5">
+        {[1, 2, 3, 4].map(i => (
           <div key={i} className={`bg-card rounded-2xl shadow-soft border border-border overflow-hidden ${i > 1 ? 'hidden md:block' : ''}`}>
-            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-44 w-full" />
             <div className="p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <Skeleton className="w-12 h-12 rounded-full" />
+                <Skeleton className="w-11 h-11 rounded-full" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-3 w-16" />
@@ -128,7 +128,7 @@ const FeaturedArtisansCarousel = () => {
           {featuredArtisansData.map(artisan => (
             <div 
               key={artisan.id} 
-              className="flex-[0_0_100%] md:flex-[0_0_33.333%] min-w-0 pl-4"
+              className="flex-[0_0_100%] md:flex-[0_0_25%] min-w-0 pl-4"
             >
               <FeaturedArtisanCard artisan={artisan} />
             </div>
