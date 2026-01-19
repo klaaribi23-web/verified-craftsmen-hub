@@ -72,7 +72,7 @@ const Index = () => {
 
         {/* Category Carousel - Maçons */}
         <CategoryArtisansCarousel 
-          categoryName="Maçonnerie"
+          categoryName="Maçon"
           title="Un maçon près de chez vous"
           subtitle="Des professionnels qualifiés pour vos travaux de construction et rénovation"
         />
@@ -81,7 +81,7 @@ const Index = () => {
 
         {/* Category Carousel - Plombiers */}
         <CategoryArtisansCarousel 
-          categoryName="Plomberie"
+          categoryName="Dépannage plomberie"
           title="Nos plombiers validés"
           subtitle="Intervention rapide et travail de qualité garantie"
         />
@@ -90,7 +90,7 @@ const Index = () => {
 
         {/* Category Carousel - Électriciens */}
         <CategoryArtisansCarousel 
-          categoryName="Électricité"
+          categoryName="Dépannage électricité"
           title="Électriciens certifiés"
           subtitle="Des experts pour tous vos besoins électriques"
         />
