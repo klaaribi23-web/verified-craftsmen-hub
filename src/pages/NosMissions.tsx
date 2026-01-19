@@ -577,14 +577,6 @@ const NosMissions = () => {
                                   {mission.category?.name || "Autre"}
                                 </Badge>
 
-                                {/* Budget */}
-                                {mission.budget && (
-                                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                                    <Euro className="w-4 h-4" />
-                                    <span>Budget : <strong className="text-foreground">{mission.budget?.toLocaleString("fr-FR")} €</strong></span>
-                                  </div>
-                                )}
-
                                 {/* Location */}
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                                   <MapPin className="w-4 h-4" />
