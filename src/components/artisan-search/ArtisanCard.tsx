@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { MapPin, Star, CheckCircle2, ChevronLeft, ChevronRight, Heart, Crown, Award, Medal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Star, CheckCircle2, Heart, Crown, Award, Medal } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -160,17 +160,6 @@ const ArtisanCard = ({
     navigate(`/artisan/${artisanUrl}`);
   };
 
-  const nextSlide = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCurrentSlide(prev => (prev + 1) % portfolioImages.length);
-  };
-
-  const prevSlide = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCurrentSlide(prev => (prev - 1 + portfolioImages.length) % portfolioImages.length);
-  };
 
   const isElite = subscriptionTier === "elite";
   const isPro = subscriptionTier === "pro";
@@ -209,72 +198,41 @@ const ArtisanCard = ({
 
   const badgeConfig = getBadgeConfig();
 
+  const portfolioImage = portfolioImages[0] || defaultProfileImage;
+
   return (
-    <div className={cn(
-      "bg-card rounded-2xl shadow-soft border hover:shadow-elevated transition-shadow overflow-hidden relative",
-      badgeConfig.borderClass
-    )}>
-      {/* Portfolio Carousel */}
-      <div className="relative h-44 md:h-48 overflow-hidden group">
+    <div 
+      onClick={handleProfileClick}
+      className={cn(
+        "bg-card rounded-xl shadow-soft border hover:shadow-elevated transition-shadow overflow-hidden relative cursor-pointer",
+        badgeConfig.borderClass
+      )}
+    >
+      {/* Image */}
+      <div className="relative h-36 md:h-40 overflow-hidden">
+        <img 
+          src={portfolioImage} 
+          alt={`Réalisation de ${name}`} 
+          className="w-full h-full object-cover" 
+        />
+        
         {/* Subscription Badge */}
         {badgeConfig.show && badgeConfig.icon && (
-          <div className="absolute top-2 left-2 z-20">
+          <div className="absolute top-2 left-2 z-10">
             <div className={cn(
-              "relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-white text-xs font-semibold shadow-lg overflow-hidden bg-gradient-to-r",
+              "flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-semibold shadow-lg bg-gradient-to-r",
               badgeConfig.gradient
             )}>
-              {isElite && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
-              )}
-              <badgeConfig.icon className="w-3.5 h-3.5 relative z-10" />
-              <span className="relative z-10">{badgeConfig.label}</span>
+              <badgeConfig.icon className="w-3 h-3" />
+              <span>{badgeConfig.label}</span>
             </div>
           </div>
         )}
-        <img 
-          src={portfolioImages[currentSlide]} 
-          alt={`Réalisation de ${name} - Photo ${currentSlide + 1}`} 
-          width={400}
-          height={192}
-          className="w-full h-full object-cover transition-transform duration-300" 
-        />
-        
-        {/* Carousel Controls - Always visible on mobile for touch */}
-        <button 
-          onClick={prevSlide} 
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/90 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-card touch-manipulation"
-          aria-label="Image précédente"
-        >
-          <ChevronLeft className="w-5 h-5 text-foreground" />
-        </button>
-        <button 
-          onClick={nextSlide} 
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/90 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-card touch-manipulation"
-          aria-label="Image suivante"
-        >
-          <ChevronRight className="w-5 h-5 text-foreground" />
-        </button>
-
-        {/* Dots Indicator */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {portfolioImages.map((_, index) => (
-            <button 
-              key={index} 
-              onClick={e => {
-                e.preventDefault();
-                e.stopPropagation();
-                setCurrentSlide(index);
-              }} 
-              className={`w-2 h-2 rounded-full transition-all ${index === currentSlide ? "bg-card w-4" : "bg-card/60"}`} 
-              aria-label={`Image ${index + 1}`}
-            />
-          ))}
-        </div>
 
         {/* Verified Badge */}
         {verified && (
-          <div className="absolute top-2 right-14 bg-success text-success-foreground text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" />
+          <div className="absolute top-2 right-12 bg-success text-success-foreground text-xs font-medium px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+            <CheckCircle2 className="w-2.5 h-2.5" />
             <span className="hidden sm:inline">Vérifié</span>
           </div>
         )}
@@ -283,22 +241,24 @@ const ArtisanCard = ({
         <button 
           onClick={handleFavoriteClick} 
           disabled={isLoading}
-          className={`absolute top-2 right-2 w-10 h-10 rounded-full flex items-center justify-center transition-all touch-manipulation ${isFavorite ? "bg-red-500 text-white" : "bg-card/90 text-muted-foreground hover:bg-red-500 hover:text-white"} ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={cn(
+            "absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-manipulation",
+            isFavorite ? "bg-red-500 text-white" : "bg-card/90 text-muted-foreground hover:bg-red-500 hover:text-white",
+            isLoading && "opacity-50 cursor-not-allowed"
+          )}
           aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
-          <Heart className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`} />
+          <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
         </button>
       </div>
 
-      {/* Card Content */}
-      <div className="p-4">
-        {/* Profile Row */}
-        <div className="flex items-center gap-3 mb-3">
+      {/* Content */}
+      <div className="p-3 sm:p-4">
+        {/* Profile photo with story indicator */}
+        <div className="flex items-start gap-2 mb-2">
           <img 
             src={profileImage || defaultProfileImage} 
             alt={`Photo de profil de ${name}`}
-            width={48}
-            height={48}
             onClick={(e) => {
               if (hasActiveStories) {
                 e.preventDefault();
@@ -307,47 +267,49 @@ const ArtisanCard = ({
               }
             }}
             className={cn(
-              "w-11 h-11 md:w-12 md:h-12 rounded-full object-cover border-2 flex-shrink-0",
+              "w-9 h-9 rounded-full object-cover border-2 flex-shrink-0",
               hasActiveStories 
                 ? "border-green-500 cursor-pointer animate-story-pulse" 
                 : "border-gold"
             )} 
           />
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <Link to={`/artisan/${artisanUrl}`}>
-                <h3 className="font-semibold text-foreground hover:text-gold transition-colors truncate text-sm md:text-base">
-                  {name}
-                </h3>
-              </Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg flex-shrink-0">
-            <Star className="w-4 h-4 fill-gold text-gold" />
-            <span className="font-semibold text-foreground text-sm">{rating}</span>
-            <span className="text-xs text-muted-foreground hidden sm:inline">({reviews})</span>
+            <h3 className="font-semibold text-sm sm:text-base truncate mb-0.5">
+              {name}
+            </h3>
+            <Badge variant="secondary" className="text-xs">
+              {profession}
+            </Badge>
           </div>
         </div>
-
-        {/* Location & Info */}
-        <div className="flex items-center gap-2 md:gap-4 mb-4 text-xs md:text-sm text-muted-foreground">
-          <div className="flex items-center gap-1 min-w-0">
-            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="truncate" title={location}>{location}</span>
-          </div>
+        
+        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+          <MapPin className="h-3 w-3 shrink-0" />
+          <span className="truncate">{location}</span>
           {distance !== null && distance !== undefined && (
-            <>
-              <span className="flex-shrink-0">•</span>
-              <span className="flex-shrink-0 whitespace-nowrap text-gold font-medium">{Math.round(distance)} km</span>
-            </>
+            <span className="text-gold font-medium ml-1">• {Math.round(distance)} km</span>
           )}
-          <span className="flex-shrink-0">•</span>
-          <span className="flex-shrink-0 whitespace-nowrap">{experience} d'exp.</span>
         </div>
-
-        <Button variant="gold" className="w-full h-11" onClick={handleProfileClick}>
-          Voir le profil
-        </Button>
+        
+        <div className="flex items-center gap-0.5">
+          {Array.from({ length: 5 }, (_, i) => (
+            <Star
+              key={i}
+              className={cn(
+                "h-3 w-3",
+                i < Math.floor(rating)
+                  ? "fill-amber-400 text-amber-400"
+                  : "text-muted-foreground/30"
+              )}
+            />
+          ))}
+          <span className="text-xs font-medium ml-1">
+            {rating.toFixed(1)}
+          </span>
+          {reviews > 0 && (
+            <span className="text-xs text-muted-foreground ml-1">({reviews})</span>
+          )}
+        </div>
       </div>
 
       {/* Story Viewer */}
