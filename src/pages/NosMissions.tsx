@@ -67,7 +67,7 @@ import { useMissionApplicationLimit } from "@/hooks/useMissionApplicationLimit";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 30;
 
 const NosMissions = () => {
   const { toast } = useToast();
