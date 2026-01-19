@@ -52,7 +52,7 @@ interface MissionApplication {
     category: {
       name: string;
     } | null;
-  };
+  } | null;
 }
 
 interface Mission {
@@ -148,7 +148,7 @@ export const ClientMissionDetail = () => {
       queryClient.invalidateQueries({ queryKey: ['mission-applications', id] });
       toast({
         title: "Artisan décliné",
-        description: `${selectedApplicant?.artisan.business_name} a été informé qu'il n'a pas été retenu pour cette mission.`,
+        description: `${selectedApplicant?.artisan?.business_name || "L'artisan"} a été informé qu'il n'a pas été retenu pour cette mission.`,
       });
       setDeclineDialogOpen(false);
       setSelectedApplicant(null);
@@ -176,13 +176,15 @@ export const ClientMissionDetail = () => {
   const handleContact = (applicant: MissionApplication) => {
     toast({
       title: "Conversation ouverte",
-      description: `Vous pouvez maintenant discuter avec ${applicant.artisan.business_name}`,
+      description: `Vous pouvez maintenant discuter avec ${applicant.artisan?.business_name || "l'artisan"}`,
     });
     navigate("/client/messagerie");
   };
 
-  const pendingApplicants = applications?.filter(a => a.status === "pending") || [];
-  const declinedApplicants = applications?.filter(a => a.status === "declined") || [];
+  // Filter out applications where artisan is null (deleted artisans)
+  const validApplications = applications?.filter(a => a.artisan !== null) || [];
+  const pendingApplicants = validApplications.filter(a => a.status === "pending");
+  const declinedApplicants = validApplications.filter(a => a.status === "declined");
 
   const isLoading = missionLoading || applicationsLoading;
 
@@ -271,7 +273,7 @@ export const ClientMissionDetail = () => {
                             {/* Artisan info */}
                             <div className="flex items-start gap-3 sm:gap-4">
                               <Avatar className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
-                                <AvatarImage src={applicant.artisan.photo_url || DEFAULT_AVATAR} alt={applicant.artisan.business_name} />
+                                <AvatarImage src={applicant.artisan?.photo_url || DEFAULT_AVATAR} alt={applicant.artisan?.business_name || "Artisan"} />
                                 <AvatarFallback>
                                   <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                                 </AvatarFallback>
@@ -279,8 +281,8 @@ export const ClientMissionDetail = () => {
                               
                               <div className="flex-1 min-w-0">
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                                  <h3 className="font-semibold text-sm sm:text-lg truncate">{applicant.artisan.business_name}</h3>
-                                  {applicant.artisan.category?.name && (
+                                  <h3 className="font-semibold text-sm sm:text-lg truncate">{applicant.artisan?.business_name || "Artisan inconnu"}</h3>
+                                  {applicant.artisan?.category?.name && (
                                     <Badge variant="outline" className="w-fit text-xs">{applicant.artisan.category.name}</Badge>
                                   )}
                                 </div>
@@ -288,9 +290,9 @@ export const ClientMissionDetail = () => {
                                 <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                                   <span className="flex items-center gap-1">
                                     <Star className="w-3 h-3 sm:w-4 sm:h-4 text-gold fill-gold" />
-                                    {applicant.artisan.rating?.toFixed(1) || "N/A"} ({applicant.artisan.review_count || 0})
+                                    {applicant.artisan?.rating?.toFixed(1) || "N/A"} ({applicant.artisan?.review_count || 0})
                                   </span>
-                                  {applicant.artisan.experience_years && (
+                                  {applicant.artisan?.experience_years && (
                                     <span className="hidden sm:inline">{applicant.artisan.experience_years} ans d'exp.</span>
                                   )}
                                   <span className="hidden sm:inline">Postulé le {format(new Date(applicant.created_at), "d MMM yyyy", { locale: fr })}</span>
@@ -308,7 +310,7 @@ export const ClientMissionDetail = () => {
                             
                             {/* Actions - Grid 3 cols on mobile */}
                             <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2">
-                              <Link to={`/artisan/${applicant.artisan.slug || applicant.artisan.id}`} className="contents sm:block">
+                              <Link to={`/artisan/${applicant.artisan?.slug || applicant.artisan?.id || applicant.artisan_id}`} className="contents sm:block">
                                 <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm h-9 sm:h-10">
                                   <ExternalLink className="w-3.5 h-3.5 sm:mr-2" />
                                   <span className="hidden sm:inline">Voir le profil</span>
@@ -361,14 +363,14 @@ export const ClientMissionDetail = () => {
                           <CardContent className="p-4">
                             <div className="flex items-center gap-4">
                               <Avatar className="w-10 h-10">
-                                <AvatarImage src={applicant.artisan.photo_url || DEFAULT_AVATAR} alt={applicant.artisan.business_name} />
+                                <AvatarImage src={applicant.artisan?.photo_url || DEFAULT_AVATAR} alt={applicant.artisan?.business_name || "Artisan"} />
                                 <AvatarFallback>
                                   <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                                 </AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
-                                <p className="font-medium">{applicant.artisan.business_name}</p>
-                                <p className="text-sm text-muted-foreground">{applicant.artisan.category?.name || "Artisan"}</p>
+                                <p className="font-medium">{applicant.artisan?.business_name || "Artisan inconnu"}</p>
+                                <p className="text-sm text-muted-foreground">{applicant.artisan?.category?.name || "Artisan"}</p>
                               </div>
                               <Badge variant="secondary" className="bg-destructive/10 text-destructive">
                                 Non retenu
@@ -392,7 +394,7 @@ export const ClientMissionDetail = () => {
           <DialogHeader>
             <DialogTitle>Décliner cet artisan ?</DialogTitle>
             <DialogDescription>
-              {selectedApplicant?.artisan.business_name} sera informé qu'il n'a pas été retenu pour cette mission. Cette action est irréversible.
+              {selectedApplicant?.artisan?.business_name || "L'artisan"} sera informé qu'il n'a pas été retenu pour cette mission. Cette action est irréversible.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
