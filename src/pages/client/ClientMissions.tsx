@@ -29,7 +29,8 @@ import {
   AlertCircle,
   Edit,
   Loader2,
-  ImageIcon
+  ImageIcon,
+  Trash2
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { ChatWidget } from "@/components/chat/ChatWidget";
@@ -66,6 +67,7 @@ export const ClientMissions = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("all");
   const [editingMission, setEditingMission] = useState<any>(null);
+  const [deletingMission, setDeletingMission] = useState<any>(null);
   const [editForm, setEditForm] = useState({ title: "", description: "", photos: [] as string[], budget: "", city: "" });
 
   // Fetch client profile
@@ -196,7 +198,58 @@ export const ClientMissions = () => {
     }
   });
 
-  const filteredMissions = activeTab === "all" 
+  // Delete mission mutation
+  const deleteMissionMutation = useMutation({
+    mutationFn: async (missionId: string) => {
+      // First, delete all applications for this mission
+      const { error: appsError } = await supabase
+        .from("mission_applications")
+        .delete()
+        .eq("mission_id", missionId);
+
+      if (appsError) {
+        console.error("Error deleting applications:", appsError);
+        // Continue anyway, applications might not exist
+      }
+
+      // Delete mission photos from storage if they exist
+      const mission = missions.find(m => m.id === missionId);
+      if (mission?.photos && mission.photos.length > 0) {
+        for (const photoUrl of mission.photos) {
+          try {
+            // Extract file path from URL
+            const urlParts = photoUrl.split("/mission-photos/");
+            if (urlParts[1]) {
+              await supabase.storage
+                .from("mission-photos")
+                .remove([urlParts[1]]);
+            }
+          } catch (err) {
+            console.warn("Could not delete photo:", err);
+          }
+        }
+      }
+
+      // Delete the mission
+      const { error: missionError } = await supabase
+        .from("missions")
+        .delete()
+        .eq("id", missionId);
+
+      if (missionError) throw missionError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["client-missions"] });
+      toast.success("Mission supprimée avec succès");
+      setDeletingMission(null);
+    },
+    onError: (error: any) => {
+      console.error("Delete mission error:", error);
+      toast.error("Erreur lors de la suppression de la mission");
+    }
+  });
+
+  const filteredMissions = activeTab === "all"
     ? missions 
     : missions.filter((m: any) => {
         if (activeTab === "pending_approval") return m.status === "pending_approval";
@@ -423,6 +476,18 @@ export const ClientMissions = () => {
                                 </Button>
                               </Link>
                             )}
+                            {/* Delete button - only for non-completed/assigned missions */}
+                            {mission.status !== "completed" && mission.status !== "assigned" && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => setDeletingMission(mission)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                Supprimer
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -519,6 +584,46 @@ export const ClientMissions = () => {
             >
               {updateMissionMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {editingMission?.status === "rejected" ? "Resoumettre pour approbation" : "Enregistrer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingMission} onOpenChange={() => setDeletingMission(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5" />
+              Supprimer cette mission ?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-muted-foreground mb-4">
+              Êtes-vous sûr de vouloir supprimer la mission <strong>"{deletingMission?.title}"</strong> ?
+            </p>
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+              <p className="text-sm text-destructive font-medium">
+                ⚠️ Cette action est irréversible
+              </p>
+              <ul className="text-sm text-destructive/80 mt-2 space-y-1">
+                <li>• La mission sera définitivement supprimée</li>
+                <li>• Toutes les candidatures d'artisans seront supprimées</li>
+                <li>• Les photos associées seront supprimées</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingMission(null)}>
+              Annuler
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => deleteMissionMutation.mutate(deletingMission?.id)}
+              disabled={deleteMissionMutation.isPending}
+            >
+              {deleteMissionMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Supprimer définitivement
             </Button>
           </DialogFooter>
         </DialogContent>
