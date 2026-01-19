@@ -47,21 +47,32 @@ const ActivateAccount = () => {
   // Check if user is already authenticated (came back after email confirmation)
   useEffect(() => {
     const checkAuthAndAutoActivate = async () => {
+      console.log("[ACTIVATION] 🔍 Vérification session existante...");
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user && token && artisanData) {
-        console.log("User already authenticated, auto-activating...");
+        console.log("[ACTIVATION] ✅ Session trouvée, auto-activation en cours...", {
+          userId: session.user.id,
+          email: session.user.email,
+          artisanId: artisanData.id,
+        });
         setPhase("linking");
         
         try {
           await linkArtisanToUser(session.user.id, artisanData.id);
+          console.log("[ACTIVATION] 🎉 Auto-activation réussie!");
           setPhase("success");
           setTimeout(() => navigate("/artisan/dashboard"), 2500);
         } catch (err: any) {
-          console.error("Auto-activation error:", err);
-          // Don't show error - let user try manually
+          console.error("[ACTIVATION] ❌ Échec auto-activation:", err);
           setPhase("form");
         }
+      } else {
+        console.log("[ACTIVATION] ℹ️ Pas de session active pour auto-activation", {
+          hasSession: !!session,
+          hasToken: !!token,
+          hasArtisanData: !!artisanData,
+        });
       }
     };
 
@@ -73,7 +84,10 @@ const ActivateAccount = () => {
   // Validate token and fetch artisan data
   useEffect(() => {
     const validateToken = async () => {
+      console.log("[ACTIVATION] 🚀 Démarrage validation du token...", { token: token?.substring(0, 8) + "..." });
+      
       if (!token) {
+        console.log("[ACTIVATION] ❌ Pas de token fourni");
         setError("Lien d'activation invalide. Veuillez contacter le support.");
         setPhase("error");
         return;
@@ -82,30 +96,46 @@ const ActivateAccount = () => {
       try {
         // Check if already logged in
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("[ACTIVATION] 📋 Session existante:", session ? `Oui (${session.user.email})` : "Non");
         
         // Find artisan with this activation token
+        console.log("[ACTIVATION] 🔍 Recherche artisan avec ce token...");
         const { data: artisan, error: artisanError } = await supabase
           .from("artisans")
           .select("id, email, business_name, status, user_id")
           .eq("activation_token", token)
           .maybeSingle();
 
-        if (artisanError) throw artisanError;
+        if (artisanError) {
+          console.error("[ACTIVATION] ❌ Erreur recherche artisan:", artisanError);
+          throw artisanError;
+        }
 
         if (!artisan) {
+          console.log("[ACTIVATION] ❌ Aucun artisan trouvé avec ce token");
           setError("Ce lien d'activation est invalide ou a déjà été utilisé.");
           setPhase("error");
           return;
         }
 
+        console.log("[ACTIVATION] ✅ Artisan trouvé:", {
+          id: artisan.id,
+          email: artisan.email,
+          business_name: artisan.business_name,
+          status: artisan.status,
+          hasUserId: !!artisan.user_id,
+        });
+
         // Check if already activated
         if (artisan.user_id) {
+          console.log("[ACTIVATION] ⚠️ Artisan déjà activé (user_id existe)");
           setError("Ce compte a déjà été activé. Veuillez vous connecter.");
           setPhase("error");
           return;
         }
 
         if (!artisan.email) {
+          console.log("[ACTIVATION] ❌ Pas d'email associé à l'artisan");
           setError("Aucun email n'est associé à cette fiche. Veuillez contacter le support.");
           setPhase("error");
           return;
@@ -119,36 +149,40 @@ const ActivateAccount = () => {
 
         // If user is already logged in with matching email, auto-activate
         if (session?.user?.email === artisan.email) {
-          console.log("User already logged in with matching email, auto-activating...");
+          console.log("[ACTIVATION] 🔗 Email session correspond, auto-activation...");
           setPhase("linking");
           
           try {
             await linkArtisanToUser(session.user.id, artisan.id);
+            console.log("[ACTIVATION] 🎉 Auto-activation réussie (session existante)");
             setPhase("success");
             setTimeout(() => navigate("/artisan/dashboard"), 2500);
             return;
           } catch (err: any) {
-            console.error("Auto-activation failed:", err);
+            console.error("[ACTIVATION] ❌ Échec auto-activation:", err);
             // Continue to form
           }
         }
 
         // Check if email already exists in auth.users
+        console.log("[ACTIVATION] 🔍 Vérification compte existant...");
         try {
           const { data: checkResult, error: checkError } = await supabase.functions.invoke('check-email-exists', {
             body: { email: artisan.email }
           });
 
           if (!checkError && checkResult) {
+            console.log("[ACTIVATION] 📋 Résultat vérification compte:", checkResult);
             setExistingAccount(checkResult);
           }
         } catch (err) {
-          console.warn("Could not check existing email:", err);
+          console.warn("[ACTIVATION] ⚠️ Impossible de vérifier email existant:", err);
         }
 
+        console.log("[ACTIVATION] 📝 Affichage du formulaire");
         setPhase("form");
       } catch (err) {
-        console.error("Token validation error:", err);
+        console.error("[ACTIVATION] ❌ Erreur validation token:", err);
         setError("Une erreur est survenue. Veuillez réessayer.");
         setPhase("error");
       }
@@ -159,52 +193,66 @@ const ActivateAccount = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("[ACTIVATION] 📤 Soumission du formulaire...");
     
-    if (!artisanData) return;
+    if (!artisanData) {
+      console.log("[ACTIVATION] ❌ Pas de données artisan");
+      return;
+    }
     
     // Validate password
     if (formData.password.length < 8) {
+      console.log("[ACTIVATION] ❌ Mot de passe trop court");
       toast.error("Le mot de passe doit contenir au moins 8 caractères");
       return;
     }
     
     // Only check confirm password if creating new account
     if (!existingAccount?.exists && formData.password !== formData.confirmPassword) {
+      console.log("[ACTIVATION] ❌ Mots de passe non identiques");
       toast.error("Les mots de passe ne correspondent pas");
       return;
     }
 
     setIsSubmitting(true);
+    console.log("[ACTIVATION] 🔄 Traitement en cours...", {
+      email: artisanData.email,
+      existingAccount: existingAccount,
+    });
 
     try {
       // Case 1: Existing client account - need to convert
       if (existingAccount?.exists && existingAccount.role === 'client') {
+        console.log("[ACTIVATION] 👤 Cas 1: Compte client existant → conversion en artisan");
         await handleExistingClientAccount();
         return;
       }
 
       // Case 2: Existing artisan account - allow login and link
       if (existingAccount?.exists && existingAccount.role === 'artisan') {
+        console.log("[ACTIVATION] 👤 Cas 2: Compte artisan existant → liaison nouvelle vitrine");
         await handleExistingArtisanAccount();
         return;
       }
 
       // Case 3: New account - check if account was created but not confirmed
+      console.log("[ACTIVATION] 🔍 Re-vérification compte existant...");
       const { data: recheckData } = await supabase.functions.invoke("check-email-exists", {
         body: { email: artisanData.email },
       });
 
       if (recheckData?.exists) {
-        // Account exists (maybe user came back after confirming email)
+        console.log("[ACTIVATION] 👤 Cas 3: Compte créé précédemment, tentative connexion");
         await handleAccountAfterConfirmation();
         return;
       }
 
       // Case 4: Brand new account - only signUp, no linking yet
+      console.log("[ACTIVATION] 🆕 Cas 4: Nouveau compte → inscription");
       await handleNewAccountSignUp();
       
     } catch (err: any) {
-      console.error("Account activation error:", err);
+      console.error("[ACTIVATION] ❌ Erreur activation:", err);
       toast.error(err.message || "Une erreur est survenue lors de l'activation");
       setIsSubmitting(false);
     }
@@ -213,12 +261,14 @@ const ActivateAccount = () => {
   const handleExistingClientAccount = async () => {
     if (!artisanData) return;
     
+    console.log("[ACTIVATION] 🔐 Connexion compte client existant...");
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email: artisanData.email,
       password: formData.password,
     });
 
     if (signInError) {
+      console.error("[ACTIVATION] ❌ Erreur connexion:", signInError.message);
       if (signInError.message.includes("Invalid login credentials")) {
         toast.error("Mot de passe incorrect. Veuillez réessayer ou réinitialiser votre mot de passe.");
         setIsSubmitting(false);
@@ -228,8 +278,10 @@ const ActivateAccount = () => {
     }
 
     if (signInData.user) {
+      console.log("[ACTIVATION] ✅ Connexion réussie, conversion client → artisan...");
       await new Promise(resolve => setTimeout(resolve, 500));
       await convertClientToArtisan(signInData.user.id, artisanData.id);
+      console.log("[ACTIVATION] 🎉 Conversion réussie!");
       setPhase("success");
       setTimeout(() => navigate("/artisan/dashboard"), 2500);
     }
@@ -238,12 +290,14 @@ const ActivateAccount = () => {
   const handleExistingArtisanAccount = async () => {
     if (!artisanData) return;
     
+    console.log("[ACTIVATION] 🔐 Connexion compte artisan existant...");
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email: artisanData.email,
       password: formData.password,
     });
 
     if (signInError) {
+      console.error("[ACTIVATION] ❌ Erreur connexion:", signInError.message);
       if (signInError.message.includes("Invalid login credentials")) {
         toast.error("Mot de passe incorrect. Veuillez réessayer ou réinitialiser votre mot de passe.");
         setIsSubmitting(false);
@@ -253,8 +307,10 @@ const ActivateAccount = () => {
     }
 
     if (signInData.user) {
+      console.log("[ACTIVATION] ✅ Connexion réussie, liaison nouvelle vitrine...");
       await new Promise(resolve => setTimeout(resolve, 500));
       await linkArtisanToUser(signInData.user.id, artisanData.id);
+      console.log("[ACTIVATION] 🎉 Liaison réussie!");
       setPhase("success");
       setTimeout(() => navigate("/artisan/dashboard"), 2500);
     }
@@ -263,13 +319,14 @@ const ActivateAccount = () => {
   const handleAccountAfterConfirmation = async () => {
     if (!artisanData) return;
     
-    console.log("Account exists, attempting sign in...");
+    console.log("[ACTIVATION] 🔐 Tentative connexion (compte existant)...");
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email: artisanData.email,
       password: formData.password,
     });
 
     if (signInError) {
+      console.error("[ACTIVATION] ❌ Erreur connexion:", signInError.message);
       if (signInError.message.includes("Invalid login credentials")) {
         toast.error("Mot de passe incorrect. Veuillez réessayer.");
         setIsSubmitting(false);
@@ -278,6 +335,7 @@ const ActivateAccount = () => {
       // Email still not confirmed
       if (signInError.message.includes("email_not_confirmed") || 
           signInError.message.includes("Email not confirmed")) {
+        console.log("[ACTIVATION] 📧 Email non confirmé → affichage écran d'attente");
         toast.info(
           "Veuillez confirmer votre email en cliquant sur le lien envoyé, puis revenez sur cette page.",
           { duration: 10000 }
@@ -290,14 +348,18 @@ const ActivateAccount = () => {
     }
 
     if (signInData.user) {
+      console.log("[ACTIVATION] ✅ Connexion réussie, vérification session...");
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const { data: sessionCheck } = await supabase.auth.getSession();
       if (!sessionCheck.session) {
+        console.error("[ACTIVATION] ❌ Session non établie après connexion");
         throw new Error("Session non établie. Veuillez rafraîchir la page et réessayer.");
       }
       
+      console.log("[ACTIVATION] 🔗 Liaison artisan...");
       await linkArtisanToUser(signInData.user.id, artisanData.id);
+      console.log("[ACTIVATION] 🎉 Activation terminée!");
       setPhase("success");
       setTimeout(() => navigate("/artisan/dashboard"), 2500);
     }
@@ -306,7 +368,11 @@ const ActivateAccount = () => {
   const handleNewAccountSignUp = async () => {
     if (!artisanData) return;
     
-    console.log("Creating new account...");
+    console.log("[ACTIVATION] 📝 Création nouveau compte...", {
+      email: artisanData.email,
+      redirectTo: `${window.location.origin}/activer-compte?token=${token}`,
+    });
+    
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: artisanData.email,
       password: formData.password,
@@ -319,8 +385,10 @@ const ActivateAccount = () => {
     });
 
     if (authError) {
+      console.error("[ACTIVATION] ❌ Erreur inscription:", authError.message);
       // Handle case where user already exists
       if (authError.message.includes("already registered")) {
+        console.log("[ACTIVATION] ⚠️ Compte déjà existant, tentative connexion...");
         setExistingAccount({ exists: true, role: null, userId: null });
         await handleAccountAfterConfirmation();
         return;
@@ -329,23 +397,29 @@ const ActivateAccount = () => {
     }
 
     if (authData.user) {
-      // SignUp successful - now check if email needs confirmation
-      console.log("SignUp successful, checking if login works...");
+      console.log("[ACTIVATION] ✅ Inscription réussie!", {
+        userId: authData.user.id,
+        email: authData.user.email,
+        emailConfirmedAt: authData.user.email_confirmed_at,
+      });
       
       // Small delay for profile creation
+      console.log("[ACTIVATION] ⏳ Attente création profil (1s)...");
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Try to sign in immediately
+      console.log("[ACTIVATION] 🔐 Tentative connexion immédiate...");
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: artisanData.email,
         password: formData.password,
       });
 
       if (signInError) {
+        console.error("[ACTIVATION] ⚠️ Connexion échouée:", signInError.message);
         // Email not confirmed - this is expected
         if (signInError.message.includes("email_not_confirmed") || 
             signInError.message.includes("Email not confirmed")) {
-          console.log("Email confirmation required, showing awaiting state...");
+          console.log("[ACTIVATION] 📧 Email non confirmé → affichage écran d'attente");
           setPhase("awaiting_confirmation");
           setIsSubmitting(false);
           return;
@@ -354,11 +428,16 @@ const ActivateAccount = () => {
       }
 
       // If sign in succeeded (auto-confirm enabled), proceed with activation
+      console.log("[ACTIVATION] ✅ Connexion réussie (auto-confirm actif)");
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const { data: sessionCheck } = await supabase.auth.getSession();
+      console.log("[ACTIVATION] 📋 Vérification session:", !!sessionCheck.session);
+      
       if (sessionCheck.session) {
+        console.log("[ACTIVATION] 🔗 Liaison artisan...");
         await linkArtisanToUser(authData.user.id, artisanData.id);
+        console.log("[ACTIVATION] 🎉 Activation terminée avec succès!");
         setPhase("success");
         setTimeout(() => navigate("/artisan/dashboard"), 2500);
       }
@@ -366,7 +445,10 @@ const ActivateAccount = () => {
   };
 
   const convertClientToArtisan = async (userId: string, artisanId: string) => {
+    console.log("[ACTIVATION] 🔄 Conversion client → artisan...", { userId, artisanId });
+    
     // 1. Update artisan with user_id
+    console.log("[ACTIVATION] 📝 Étape 1: Liaison user_id à artisan...");
     const { error: updateError } = await supabase
       .from("artisans")
       .update({
@@ -377,30 +459,38 @@ const ActivateAccount = () => {
       .eq("activation_token", token);
 
     if (updateError) {
-      console.error("Failed to link artisan:", updateError);
+      console.error("[ACTIVATION] ❌ Échec liaison artisan:", updateError);
       throw new Error("Impossible de lier le compte artisan. Veuillez réessayer.");
     }
+    console.log("[ACTIVATION] ✅ Artisan lié");
 
     // 2. Delete the client role
+    console.log("[ACTIVATION] 📝 Étape 2: Suppression rôle client...");
     const { error: deleteRoleError } = await supabase
       .from("user_roles")
       .delete()
       .eq("user_id", userId);
 
     if (deleteRoleError) {
-      console.error("Failed to delete client role:", deleteRoleError);
+      console.error("[ACTIVATION] ⚠️ Échec suppression rôle client:", deleteRoleError);
+    } else {
+      console.log("[ACTIVATION] ✅ Rôle client supprimé");
     }
 
     // 3. Insert artisan role
+    console.log("[ACTIVATION] 📝 Étape 3: Attribution rôle artisan...");
     const { error: roleError } = await supabase
       .from("user_roles")
       .insert([{ user_id: userId, role: "artisan" }]);
 
     if (roleError) {
-      console.error("Failed to assign artisan role:", roleError);
+      console.error("[ACTIVATION] ⚠️ Échec attribution rôle artisan:", roleError);
+    } else {
+      console.log("[ACTIVATION] ✅ Rôle artisan attribué");
     }
 
     // 4. Get and link profile_id
+    console.log("[ACTIVATION] 📝 Étape 4: Liaison profile_id...");
     const { data: profile } = await supabase
       .from("profiles")
       .select("id")
@@ -414,21 +504,34 @@ const ActivateAccount = () => {
         .eq("user_id", userId);
 
       if (profileUpdateError) {
-        console.error("Failed to update profile_id:", profileUpdateError);
+        console.error("[ACTIVATION] ⚠️ Échec liaison profile_id:", profileUpdateError);
+      } else {
+        console.log("[ACTIVATION] ✅ Profile_id lié:", profile.id);
       }
+    } else {
+      console.log("[ACTIVATION] ⚠️ Aucun profil trouvé pour ce user");
     }
+    
+    console.log("[ACTIVATION] 🎉 Conversion terminée!");
   };
 
   const linkArtisanToUser = async (userId: string, artisanId: string) => {
+    console.log("[ACTIVATION] 🔗 Liaison artisan → user...", { userId, artisanId });
+    
     // Verify session is active
     const { data: sessionData } = await supabase.auth.getSession();
-    console.log("Session active:", !!sessionData.session, "User ID:", sessionData.session?.user?.id);
+    console.log("[ACTIVATION] 📋 Vérification session:", {
+      active: !!sessionData.session,
+      userId: sessionData.session?.user?.id,
+    });
 
     if (!sessionData.session) {
+      console.error("[ACTIVATION] ❌ Pas de session active");
       throw new Error("Session non établie. Veuillez vous reconnecter.");
     }
 
     // 1. Update artisan with user_id
+    console.log("[ACTIVATION] 📝 Étape 1: Mise à jour artisan (user_id, token=null)...");
     const { error: updateError, data: updateData } = await supabase
       .from("artisans")
       .update({
@@ -440,14 +543,14 @@ const ActivateAccount = () => {
       .select();
 
     if (updateError) {
-      console.error("Failed to link artisan:", {
+      console.error("[ACTIVATION] ❌ Échec mise à jour artisan:", {
         code: updateError.code,
         message: updateError.message,
         details: updateError.details,
         hint: updateError.hint,
         artisanId,
         userId,
-        token
+        token: token?.substring(0, 8) + "...",
       });
       
       if (updateError.code === "42501") {
@@ -460,30 +563,38 @@ const ActivateAccount = () => {
     }
 
     if (!updateData || updateData.length === 0) {
-      console.error("No rows updated - token mismatch or already used:", { artisanId, token });
+      console.error("[ACTIVATION] ❌ Aucune ligne mise à jour (token invalide ou déjà utilisé)");
       throw new Error("Le lien d'activation a déjà été utilisé ou est invalide.");
     }
+    console.log("[ACTIVATION] ✅ Artisan mis à jour:", updateData[0]);
 
     // 2. Delete default client role
+    console.log("[ACTIVATION] 📝 Étape 2: Suppression rôle par défaut...");
     const { error: deleteRoleError } = await supabase
       .from("user_roles")
       .delete()
       .eq("user_id", userId);
 
     if (deleteRoleError) {
-      console.error("Failed to delete default role:", deleteRoleError);
+      console.error("[ACTIVATION] ⚠️ Échec suppression rôle:", deleteRoleError);
+    } else {
+      console.log("[ACTIVATION] ✅ Rôle par défaut supprimé");
     }
 
     // 3. Create artisan role
+    console.log("[ACTIVATION] 📝 Étape 3: Attribution rôle artisan...");
     const { error: roleError } = await supabase
       .from("user_roles")
       .insert([{ user_id: userId, role: "artisan" }]);
 
     if (roleError) {
-      console.error("Failed to assign artisan role:", roleError);
+      console.error("[ACTIVATION] ⚠️ Échec attribution rôle:", roleError);
+    } else {
+      console.log("[ACTIVATION] ✅ Rôle artisan attribué");
     }
 
     // 4. Get profile_id
+    console.log("[ACTIVATION] 📝 Étape 4: Recherche profile_id (max 5 tentatives)...");
     let profileId: string | null = null;
     for (let attempt = 0; attempt < 5; attempt++) {
       const { data: profile } = await supabase
@@ -494,8 +605,10 @@ const ActivateAccount = () => {
       
       if (profile?.id) {
         profileId = profile.id;
+        console.log("[ACTIVATION] ✅ Profile trouvé (tentative ${attempt + 1}):", profileId);
         break;
       }
+      console.log("[ACTIVATION] ⏳ Tentative ${attempt + 1}/5 - profil non trouvé, attente 500ms...");
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
