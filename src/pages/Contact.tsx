@@ -8,7 +8,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import contactHeroImage from "@/assets/contact-hero.jpg";
+import { z } from "zod";
+
+// Validation schema
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Le nom est requis").max(100, "Le nom ne peut pas dépasser 100 caractères"),
+  email: z.string().trim().email("Adresse email invalide").max(255, "L'email ne peut pas dépasser 255 caractères"),
+  subject: z.string().trim().min(1, "Le sujet est requis").max(200, "Le sujet ne peut pas dépasser 200 caractères"),
+  message: z.string().trim().min(1, "Le message est requis").max(5000, "Le message ne peut pas dépasser 5000 caractères"),
+});
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -18,24 +28,62 @@ const Contact = () => {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    
+    // Validate form data
+    const validationResult = contactSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast.error("Veuillez corriger les erreurs dans le formulaire");
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success("Message envoyé avec succès ! Nous vous répondrons rapidement.");
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setIsSubmitting(false);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: validationResult.data,
+      });
+
+      if (error) {
+        console.error("Error sending contact email:", error);
+        throw new Error(error.message || "Erreur lors de l'envoi du message");
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      toast.success("Message envoyé avec succès ! Nous vous répondrons rapidement.");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error: any) {
+      console.error("Contact form error:", error);
+      toast.error(error.message || "Erreur lors de l'envoi du message. Veuillez réessayer.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   return (
@@ -83,7 +131,12 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">Email</h3>
-                    <p className="text-muted-foreground">contact@artisansvalides.fr</p>
+                    <a 
+                      href="mailto:contact@artisansvalides.fr" 
+                      className="text-primary hover:underline font-medium"
+                    >
+                      contact@artisansvalides.fr
+                    </a>
                     <p className="text-sm text-muted-foreground mt-1">Réponse sous 24h</p>
                   </div>
                 </CardContent>
@@ -96,7 +149,12 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">Téléphone</h3>
-                    <p className="text-muted-foreground">03 53 63 29 99</p>
+                    <a 
+                      href="tel:+33353632999" 
+                      className="text-primary hover:underline font-medium"
+                    >
+                      03 53 63 29 99
+                    </a>
                     <p className="text-sm text-muted-foreground mt-1">Du lundi au vendredi</p>
                   </div>
                 </CardContent>
@@ -149,7 +207,11 @@ const Contact = () => {
                         onChange={handleChange}
                         placeholder="Votre nom"
                         required
+                        className={errors.name ? "border-destructive" : ""}
                       />
+                      {errors.name && (
+                        <p className="text-sm text-destructive mt-1">{errors.name}</p>
+                      )}
                     </div>
 
                     <div>
@@ -164,7 +226,11 @@ const Contact = () => {
                         onChange={handleChange}
                         placeholder="votre@email.fr"
                         required
+                        className={errors.email ? "border-destructive" : ""}
                       />
+                      {errors.email && (
+                        <p className="text-sm text-destructive mt-1">{errors.email}</p>
+                      )}
                     </div>
 
                     <div>
@@ -178,7 +244,11 @@ const Contact = () => {
                         onChange={handleChange}
                         placeholder="Objet de votre message"
                         required
+                        className={errors.subject ? "border-destructive" : ""}
                       />
+                      {errors.subject && (
+                        <p className="text-sm text-destructive mt-1">{errors.subject}</p>
+                      )}
                     </div>
 
                     <div>
@@ -193,7 +263,11 @@ const Contact = () => {
                         placeholder="Décrivez votre demande..."
                         rows={5}
                         required
+                        className={errors.message ? "border-destructive" : ""}
                       />
+                      {errors.message && (
+                        <p className="text-sm text-destructive mt-1">{errors.message}</p>
+                      )}
                     </div>
 
                     <Button 
