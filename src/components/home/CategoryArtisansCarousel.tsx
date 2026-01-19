@@ -1,14 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
-import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2, Crown, Award, Medal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-
+import { Badge } from "@/components/ui/badge";
 interface CategoryArtisansCarouselProps {
   categoryName: string;
   title: string;
@@ -272,71 +271,72 @@ const CompactArtisanCard = ({ artisan }: CompactArtisanCardProps) => {
   const portfolioImage = artisan.portfolio_images?.[0] || artisan.photo_url || "/favicon.png";
 
   return (
-    <div className="bg-card rounded-xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden">
-      {/* Image */}
-      <div className="relative h-36 md:h-40 overflow-hidden">
-        <img 
-          src={portfolioImage} 
-          alt={artisan.business_name} 
-          className="w-full h-full object-cover" 
-        />
-        
-        {/* Subscription Badge */}
-        {badgeConfig.show && badgeConfig.icon && (
-          <div className="absolute top-2 left-2 z-10">
-            <div className={cn(
-              "flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-semibold shadow-lg bg-gradient-to-r",
-              badgeConfig.gradient
-            )}>
-              <badgeConfig.icon className="w-3 h-3" />
-              <span>{badgeConfig.label}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Verified Badge */}
-        {artisan.is_verified && (
-          <div className="absolute top-2 right-2 bg-success text-success-foreground text-xs font-medium px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-            <CheckCircle2 className="w-2.5 h-2.5" />
-            <span className="hidden sm:inline">Vérifié</span>
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-3">
-        {/* Profile Row */}
-        <div className="flex items-center gap-2 mb-2">
+    <Link to={`/artisan/${artisan.slug || artisan.id}`}>
+      <div className="bg-card rounded-xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden cursor-pointer h-full">
+        {/* Image */}
+        <div className="relative h-36 md:h-40 overflow-hidden">
           <img 
-            src={artisan.photo_url || "/favicon.png"} 
+            src={portfolioImage} 
             alt={artisan.business_name} 
-            className="w-9 h-9 rounded-full object-cover border-2 border-gold flex-shrink-0" 
+            className="w-full h-full object-cover" 
           />
-          <div className="flex-1 min-w-0">
-            <Link to={`/artisan/${artisan.slug || artisan.id}`}>
-              <h3 className="font-semibold text-sm text-foreground hover:text-gold transition-colors truncate">
-                {artisan.business_name}
-              </h3>
-            </Link>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <MapPin className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{artisan.city}</span>
+          
+          {/* Subscription Badge */}
+          {badgeConfig.show && badgeConfig.icon && (
+            <div className="absolute top-2 left-2 z-10">
+              <div className={cn(
+                "flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-semibold shadow-lg bg-gradient-to-r",
+                badgeConfig.gradient
+              )}>
+                <badgeConfig.icon className="w-3 h-3" />
+                <span>{badgeConfig.label}</span>
+              </div>
             </div>
-          </div>
-          {(artisan.rating || 0) > 0 && (
-            <div className="flex items-center gap-0.5 bg-muted px-1.5 py-0.5 rounded flex-shrink-0">
-              <Star className="w-3 h-3 fill-gold text-gold" />
-              <span className="font-semibold text-xs text-foreground">{(artisan.rating || 0).toFixed(1)}</span>
+          )}
+
+          {/* Verified Badge */}
+          {artisan.is_verified && (
+            <div className="absolute top-2 right-2 bg-success text-success-foreground text-xs font-medium px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+              <CheckCircle2 className="w-2.5 h-2.5" />
+              <span className="hidden sm:inline">Vérifié</span>
             </div>
           )}
         </div>
 
-        <Button variant="gold" size="sm" className="w-full h-8 text-xs" asChild>
-          <Link to={`/artisan/${artisan.slug || artisan.id}`}>Voir le profil</Link>
-        </Button>
+        {/* Content */}
+        <div className="p-3 sm:p-4">
+          <h3 className="font-semibold text-sm sm:text-base truncate mb-1">
+            {artisan.business_name}
+          </h3>
+          
+          <Badge variant="secondary" className="text-xs mb-2">
+            {artisan.category?.name || "Artisan"}
+          </Badge>
+          
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+            <MapPin className="h-3 w-3 shrink-0" />
+            <span className="truncate">{artisan.city}</span>
+          </div>
+          
+          <div className="flex items-center gap-0.5">
+            {Array.from({ length: 5 }, (_, i) => (
+              <Star
+                key={i}
+                className={cn(
+                  "h-3 w-3",
+                  i < Math.floor(artisan.rating || 0)
+                    ? "fill-amber-400 text-amber-400"
+                    : "text-muted-foreground/30"
+                )}
+              />
+            ))}
+            <span className="text-xs font-medium ml-1">
+              {(artisan.rating || 0).toFixed(1)}
+            </span>
+          </div>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 };
-
 export default CategoryArtisansCarousel;
