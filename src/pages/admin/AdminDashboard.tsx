@@ -6,6 +6,7 @@ import { AdminNotifications } from "@/components/admin-dashboard/AdminNotificati
 import { NewArtisansList } from "@/components/admin-dashboard/NewArtisansList";
 import { TopArtisansList } from "@/components/admin-dashboard/TopArtisansList";
 import { GeocodeMissingArtisans } from "@/components/admin-dashboard/GeocodeMissingArtisans";
+import { DeleteDemoMissions } from "@/components/admin-dashboard/DeleteDemoMissions";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { useAdminStats } from "@/hooks/useAdminData";
@@ -120,6 +121,7 @@ const AdminDashboard = () => {
           <div className="space-y-4 md:space-y-6">
             <AdminNotifications />
             <GeocodeMissingArtisans onComplete={handleRefresh} />
+            <DeleteDemoMissions />
           </div>
         </div>
       </div>
