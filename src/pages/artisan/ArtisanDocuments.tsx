@@ -136,11 +136,18 @@ export const ArtisanDocuments = () => {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      console.log("Uploading to path:", filePath);
+      
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from("artisan-documents")
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Storage upload error:", uploadError);
+        throw new Error(`Erreur de stockage: ${uploadError.message}`);
+      }
+      
+      console.log("Upload successful:", uploadData);
 
       // Insert document record with document type as name
       const { data: insertedDoc, error: insertError } = await supabase
@@ -156,53 +163,58 @@ export const ArtisanDocuments = () => {
         .select("id")
         .single();
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error("Database insert error:", insertError);
+        throw new Error(`Erreur base de données: ${insertError.message}`);
+      }
 
-      // Notify all admins about new document
-      const { data: admins } = await supabase
-        .from("user_roles")
-        .select("user_id")
-        .eq("role", "admin");
+      // Check if ALL 4 mandatory documents are now present
+      const mandatoryDocIds = ["rc_pro", "decennale", "kbis", "identite"];
+      const { data: allDocs } = await supabase
+        .from("artisan_documents")
+        .select("name")
+        .eq("artisan_id", artisan.id);
 
-      if (admins && admins.length > 0) {
-        for (const admin of admins) {
-          await supabase.rpc("create_notification", {
-            p_user_id: admin.user_id,
-            p_type: "new_document",
-            p_title: "Nouveau document à vérifier",
-            p_message: `L'artisan ${artisan.business_name} a soumis : ${documentName}`,
-            p_related_id: insertedDoc?.id || null
-          });
+      const uploadedMandatoryCount = mandatoryDocIds.filter(docId => 
+        allDocs?.some(d => d.name === docId)
+      ).length;
+
+      // Only notify admin when ALL 4 mandatory documents are complete
+      if (uploadedMandatoryCount === mandatoryDocIds.length) {
+        const { data: admins } = await supabase
+          .from("user_roles")
+          .select("user_id")
+          .eq("role", "admin");
+
+        if (admins && admins.length > 0) {
+          for (const admin of admins) {
+            await supabase.rpc("create_notification", {
+              p_user_id: admin.user_id,
+              p_type: "documents_complete",
+              p_title: "Dossier complet à valider",
+              p_message: `L'artisan ${artisan.business_name} a soumis tous ses documents obligatoires`,
+              p_related_id: artisan.id
+            });
+          }
         }
       }
 
-      // Return info about the upload for post-processing
-      return { documentType };
+      return { documentType, allDocsComplete: uploadedMandatoryCount === mandatoryDocIds.length };
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
       toast.success("Document téléchargé avec succès");
       
-      // Check if all mandatory documents are now uploaded
-      const currentDocs = queryClient.getQueryData<DocumentRecord[]>(["artisan-documents", artisan?.id]) || [];
-      const mandatoryDocIds = REQUIRED_DOCUMENTS.filter(d => d.required).map(d => d.id);
-      const uploadedMandatoryIds = currentDocs.map(d => d.name).filter(name => mandatoryDocIds.includes(name));
-      
-      // Add the just-uploaded document if it's mandatory and not yet in the cache
-      if (data?.documentType && mandatoryDocIds.includes(data.documentType) && !uploadedMandatoryIds.includes(data.documentType)) {
-        uploadedMandatoryIds.push(data.documentType);
-      }
-      
-      if (uploadedMandatoryIds.length === mandatoryDocIds.length) {
+      if (data?.allDocsComplete) {
         toast.success(
           "🎉 Tous vos documents obligatoires sont téléchargés ! Rendez-vous sur votre Tableau de bord pour demander l'approbation.",
           { duration: 8000 }
         );
       }
     },
-    onError: (error) => {
-      console.error("Upload error:", error);
-      toast.error("Erreur lors du téléchargement");
+    onError: (error: Error) => {
+      console.error("Upload error details:", error);
+      toast.error(error.message || "Erreur lors du téléchargement");
     }
   });
 

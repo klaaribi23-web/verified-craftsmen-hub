@@ -1,26 +1,44 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis", "identite"];
+
 export const useApprovalCounts = () => {
   return useQuery({
     queryKey: ["approval-counts"],
     queryFn: async () => {
-      // Count pending artisans (with documents - awaiting document validation)
-      // First get artisan IDs that have documents
-      const { data: artisansWithDocs } = await supabase
+      // Get all documents grouped by artisan to find those with ALL 4 mandatory docs
+      const { data: allDocs } = await supabase
         .from("artisan_documents")
-        .select("artisan_id");
+        .select("artisan_id, name");
       
-      const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
+      // Count mandatory documents per artisan
+      const mandatoryDocCountByArtisan: Record<string, Set<string>> = {};
+      allDocs?.forEach(doc => {
+        if (MANDATORY_DOC_IDS.includes(doc.name)) {
+          if (!mandatoryDocCountByArtisan[doc.artisan_id]) {
+            mandatoryDocCountByArtisan[doc.artisan_id] = new Set();
+          }
+          mandatoryDocCountByArtisan[doc.artisan_id].add(doc.name);
+        }
+      });
+
+      // Get artisan IDs with ALL 4 mandatory documents
+      const artisanIdsWithAllDocs = Object.entries(mandatoryDocCountByArtisan)
+        .filter(([_, docs]) => docs.size >= MANDATORY_DOC_IDS.length)
+        .map(([id]) => id);
+
+      // Get artisan IDs with at least 1 document (for confirmed artisans calculation)
+      const artisanIdsWithAnyDocs = [...new Set(allDocs?.map(d => d.artisan_id) || [])];
       
       let pendingArtisansCount = 0;
-      if (artisanIdsWithDocs.length > 0) {
+      if (artisanIdsWithAllDocs.length > 0) {
         const { count } = await supabase
           .from("artisans")
           .select("*", { count: "exact", head: true })
           .eq("status", "pending")
           .not("user_id", "is", null)
-          .in("id", artisanIdsWithDocs);
+          .in("id", artisanIdsWithAllDocs);
         pendingArtisansCount = count || 0;
       }
 
@@ -44,7 +62,7 @@ export const useApprovalCounts = () => {
         .is("user_id", null)
         .not("activation_sent_at", "is", null);
 
-      // Count confirmed artisans (account created, no documents)
+      // Count confirmed artisans (account created, but not all 4 documents)
       let confirmedArtisans = 0;
       const { data: pendingWithUser } = await supabase
         .from("artisans")
@@ -53,8 +71,8 @@ export const useApprovalCounts = () => {
         .not("user_id", "is", null);
       
       if (pendingWithUser && pendingWithUser.length > 0) {
-        const artisanIdsWithDocsSet = new Set(artisanIdsWithDocs);
-        confirmedArtisans = pendingWithUser.filter(a => !artisanIdsWithDocsSet.has(a.id)).length;
+        const artisanIdsWithAllDocsSet = new Set(artisanIdsWithAllDocs);
+        confirmedArtisans = pendingWithUser.filter(a => !artisanIdsWithAllDocsSet.has(a.id)).length;
       }
 
       // Count pending documents (awaiting validation)
