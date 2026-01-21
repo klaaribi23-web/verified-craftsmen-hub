@@ -607,18 +607,32 @@ const AdminApprovals = () => {
   // Approve artisan mutation
   const approveArtisanMutation = useMutation({
     mutationFn: async (artisanId: string) => {
-      const {
-        error
-      } = await supabase.from("artisans").update({
+      // 1. Mettre à jour le statut de l'artisan
+      const { error } = await supabase.from("artisans").update({
         status: "active",
         is_verified: true
       }).eq("id", artisanId);
       if (error) throw error;
+
+      // 2. Mettre à jour tous les documents "pending" en "verified"
+      const { error: docsError } = await supabase
+        .from("artisan_documents")
+        .update({ status: "verified", updated_at: new Date().toISOString() })
+        .eq("artisan_id", artisanId)
+        .eq("status", "pending");
+      
+      if (docsError) {
+        console.error("Erreur mise à jour documents:", docsError);
+      }
+
+      // 3. Envoyer la notification à l'artisan
       const artisan = pendingArtisans?.find(a => a.id === artisanId);
       if (artisan?.profile) {
-        const {
-          data: userData
-        } = await supabase.from("profiles").select("user_id").eq("email", artisan.profile.email).single();
+        const { data: userData } = await supabase
+          .from("profiles")
+          .select("user_id")
+          .eq("email", artisan.profile.email)
+          .single();
         if (userData) {
           await supabase.rpc("create_notification", {
             p_user_id: userData.user_id,
@@ -633,6 +647,9 @@ const AdminApprovals = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["pending-artisans"]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["artisan-documents"]
       });
       toast.success("Artisan approuvé avec succès");
       setSelectedArtisan(null);
