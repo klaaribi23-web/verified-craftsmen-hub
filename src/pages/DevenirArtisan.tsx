@@ -82,6 +82,7 @@ const artisanSignupSchema = z.object({
 const DevenirArtisan = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [formData, setFormData] = useState({
     businessName: "",
@@ -176,6 +177,9 @@ const DevenirArtisan = () => {
           .single();
 
         if (profile) {
+          // Generate confirmation token
+          const confirmationToken = crypto.randomUUID();
+
           // Create minimal artisan profile with primary category
           const { data: artisanData, error: artisanError } = await supabase
             .from("artisans")
@@ -216,33 +220,43 @@ const DevenirArtisan = () => {
             }
           }
 
-          // Update profile with phone and city
+          // Update profile with phone, city, and confirmation token
           await supabase
             .from("profiles")
-            .update({ phone: formData.phone, city: formData.city })
+            .update({ 
+              phone: formData.phone, 
+              city: formData.city,
+              email_confirmed: false,
+              confirmation_token: confirmationToken,
+              confirmation_sent_at: new Date().toISOString(),
+            })
             .eq("id", profile.id);
-        }
 
-        // Send custom branded confirmation email
-        try {
-          await supabase.functions.invoke("send-confirmation-email", {
-            body: {
-              email: formData.email,
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              userType: "artisan",
-              confirmationUrl: `${window.location.origin}/auth/callback`,
-            },
+          // Send custom branded confirmation email with correct URL
+          try {
+            await supabase.functions.invoke("send-confirmation-email", {
+              body: {
+                email: formData.email,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                userType: "artisan",
+                confirmationUrl: `${window.location.origin}/confirmer-email?token=${confirmationToken}`,
+              },
+            });
+          } catch (emailError) {
+            console.error("Error sending custom email:", emailError);
+          }
+
+          // Sign out user to force email confirmation before login
+          await supabase.auth.signOut();
+
+          // Show confirmation screen
+          setEmailSent(true);
+          toast({
+            title: "Email de confirmation envoyé",
+            description: "Veuillez cliquer sur le lien dans l'email pour activer votre compte.",
           });
-        } catch (emailError) {
-          console.error("Error sending custom email:", emailError);
         }
-
-        // Show confirmation message
-        toast({
-          title: "Email de confirmation envoyé",
-          description: "Veuillez cliquer sur le lien dans l'email pour activer votre compte.",
-        });
       }
     } catch (error: any) {
       console.error("Signup error:", error);
@@ -257,6 +271,52 @@ const DevenirArtisan = () => {
       setIsLoading(false);
     }
   };
+
+  // Email confirmation sent screen
+  if (emailSent) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead 
+          title="Email de confirmation envoyé"
+          description="Vérifiez votre boîte mail pour confirmer votre inscription."
+        />
+        <Navbar />
+        <main className="pt-32 lg:pt-20 pb-20">
+          <div className="container mx-auto px-4 max-w-md">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl p-8 shadow-floating text-center"
+            >
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              </div>
+              <h1 className="text-2xl font-bold text-navy mb-4">
+                Email de confirmation envoyé !
+              </h1>
+              <p className="text-muted-foreground mb-6">
+                Un email a été envoyé à <strong className="text-navy">{formData.email}</strong>. 
+                Cliquez sur le lien dans l'email pour activer votre compte.
+              </p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-amber-800">
+                  <strong>Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email dans votre boîte de réception.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/auth")}
+                className="w-full"
+              >
+                Retour à la connexion
+              </Button>
+            </motion.div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
