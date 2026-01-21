@@ -212,25 +212,43 @@ const AdminApprovals = () => {
   const [selfSignupPerPage, setSelfSignupPerPage] = useState(50);
   const [selfSignupSearch, setSelfSignupSearch] = useState("");
 
-  // Fetch pending artisans (only those with at least 1 document)
+  // Fetch pending artisans (only those with ALL 4 mandatory documents)
+  const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis", "identite"];
+  
   const {
     data: pendingArtisans = [],
     isLoading: isLoadingArtisans
   } = useQuery({
     queryKey: ["pending-artisans"],
     queryFn: async () => {
-      // First, get artisan IDs that have at least one document
+      // First, get all documents and count mandatory docs per artisan
       const {
-        data: artisansWithDocs,
+        data: allDocs,
         error: docsError
-      } = await supabase.from("artisan_documents").select("artisan_id");
+      } = await supabase.from("artisan_documents").select("artisan_id, name");
       if (docsError) throw docsError;
-      const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
-      if (artisanIdsWithDocs.length === 0) {
+      
+      // Count mandatory documents per artisan
+      const mandatoryDocCountByArtisan: Record<string, Set<string>> = {};
+      allDocs?.forEach(doc => {
+        if (MANDATORY_DOC_IDS.includes(doc.name)) {
+          if (!mandatoryDocCountByArtisan[doc.artisan_id]) {
+            mandatoryDocCountByArtisan[doc.artisan_id] = new Set();
+          }
+          mandatoryDocCountByArtisan[doc.artisan_id].add(doc.name);
+        }
+      });
+
+      // Get artisan IDs with ALL 4 mandatory documents
+      const artisanIdsWithAllDocs = Object.entries(mandatoryDocCountByArtisan)
+        .filter(([_, docs]) => docs.size >= MANDATORY_DOC_IDS.length)
+        .map(([id]) => id);
+      
+      if (artisanIdsWithAllDocs.length === 0) {
         return [] as PendingArtisan[];
       }
 
-      // Then fetch pending artisans who have documents
+      // Then fetch pending artisans who have ALL 4 mandatory documents
       const {
         data,
         error
@@ -247,7 +265,7 @@ const AdminApprovals = () => {
           slug,
           category:categories(name),
           profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone)
-        `).eq("status", "pending").in("id", artisanIdsWithDocs).order("created_at", {
+        `).eq("status", "pending").in("id", artisanIdsWithAllDocs).order("created_at", {
         ascending: false
       });
       if (error) throw error;
