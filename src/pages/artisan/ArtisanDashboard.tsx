@@ -245,9 +245,15 @@ export const ArtisanDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ["artisan-profile"] });
       toast.success("Demande d'approbation envoyée ! L'administrateur examinera vos documents et votre profil.");
     },
-    onError: (error) => {
-      console.error("Approval request error:", error);
-      toast.error("Erreur lors de l'envoi de la demande");
+    onError: (error: any) => {
+      console.error("Approval request error details:", {
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code
+      });
+      const errorMessage = error?.message || "Erreur lors de l'envoi de la demande";
+      toast.error(`Erreur: ${errorMessage}`);
     }
   });
 

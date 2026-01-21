@@ -212,6 +212,7 @@ export type Database = {
           activation_sent_at: string | null
           activation_token: string | null
           address: string | null
+          approval_requested_at: string | null
           business_name: string
           category_id: string | null
           city: string
@@ -266,6 +267,7 @@ export type Database = {
           activation_sent_at?: string | null
           activation_token?: string | null
           address?: string | null
+          approval_requested_at?: string | null
           business_name: string
           category_id?: string | null
           city: string
@@ -320,6 +322,7 @@ export type Database = {
           activation_sent_at?: string | null
           activation_token?: string | null
           address?: string | null
+          approval_requested_at?: string | null
           business_name?: string
           category_id?: string | null
           city?: string
