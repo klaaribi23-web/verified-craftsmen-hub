@@ -168,6 +168,11 @@ const AdminApprovals = () => {
   const [artisanDocuments, setArtisanDocuments] = useState<ArtisanDocument[]>([]);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
 
+  // Document rejection dialog state
+  const [showDocumentRejectDialog, setShowDocumentRejectDialog] = useState(false);
+  const [documentToReject, setDocumentToReject] = useState<ArtisanDocument | null>(null);
+  const [documentRejectReason, setDocumentRejectReason] = useState("");
+
   // Pre-registration confirmation dialog state
   const [showPreregistrationDialog, setShowPreregistrationDialog] = useState(false);
   const [preregistrationProspect, setPreregistrationProspect] = useState<{
@@ -604,17 +609,176 @@ const AdminApprovals = () => {
     }
   });
 
-  // Approve artisan mutation
+  // Helper: Get artisan user_id
+  const getArtisanUserId = async (artisanId: string): Promise<string | null> => {
+    const { data } = await supabase
+      .from("artisans")
+      .select("user_id")
+      .eq("id", artisanId)
+      .single();
+    return data?.user_id || null;
+  };
+
+  // Helper: Get document label in French
+  const getDocumentLabel = (name: string): string => {
+    const labels: Record<string, string> = {
+      rc_pro: "RC Professionnelle",
+      decennale: "Assurance Décennale",
+      kbis: "Extrait KBIS",
+      identite: "Pièce d'identité"
+    };
+    return labels[name] || name;
+  };
+
+  // Helper: Check if all 4 mandatory documents are verified
+  const checkAllDocumentsVerified = async (artisanId: string) => {
+    const { data: docs } = await supabase
+      .from("artisan_documents")
+      .select("name, status")
+      .eq("artisan_id", artisanId);
+    
+    const verifiedDocs = docs?.filter(d => d.status === "verified").map(d => d.name) || [];
+    const allMandatoryVerified = MANDATORY_DOC_IDS.every(doc => verifiedDocs.includes(doc));
+    
+    if (allMandatoryVerified) {
+      // Activate artisan automatically
+      await supabase
+        .from("artisans")
+        .update({ status: "active", is_verified: true })
+        .eq("id", artisanId);
+      
+      // Get user_id for notification
+      const userId = await getArtisanUserId(artisanId);
+      if (userId) {
+        await supabase.rpc("create_notification", {
+          p_user_id: userId,
+          p_type: "approval",
+          p_title: "Profil activé !",
+          p_message: "Tous vos documents ont été validés. Votre profil est maintenant visible publiquement !",
+          p_related_id: null
+        });
+
+        // Send activation email
+        const artisan = documentsArtisan;
+        if (artisan?.profile?.email) {
+          await supabase.functions.invoke("send-notification-email", {
+            body: {
+              type: "artisan_approved",
+              recipientEmail: artisan.profile.email,
+              recipientFirstName: artisan.profile.first_name || "Artisan",
+              senderName: "Artisans Validés"
+            }
+          });
+        }
+      }
+      
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: ["pending-artisans"] });
+      toast.success("Tous les documents validés - Profil activé !");
+    }
+  };
+
+  // Refresh documents list
+  const refreshDocuments = async () => {
+    if (!documentsArtisan) return;
+    const { data } = await supabase
+      .from("artisan_documents")
+      .select("*")
+      .eq("artisan_id", documentsArtisan.id)
+      .order("created_at", { ascending: false });
+    setArtisanDocuments(data || []);
+  };
+
+  // Approve individual document mutation
+  const approveDocumentMutation = useMutation({
+    mutationFn: async ({ documentId, artisanId, documentName }: { 
+      documentId: string; 
+      artisanId: string; 
+      documentName: string;
+    }) => {
+      // 1. Update document status to "verified"
+      const { error } = await supabase
+        .from("artisan_documents")
+        .update({ status: "verified", updated_at: new Date().toISOString() })
+        .eq("id", documentId);
+      if (error) throw error;
+
+      // 2. Send notification to artisan
+      const userId = await getArtisanUserId(artisanId);
+      if (userId) {
+        await supabase.rpc("create_notification", {
+          p_user_id: userId,
+          p_type: "document_verified",
+          p_title: "Document validé",
+          p_message: `Votre document "${documentName}" a été vérifié et approuvé.`,
+          p_related_id: documentId
+        });
+      }
+
+      // 3. Check if all 4 mandatory documents are now verified
+      await checkAllDocumentsVerified(artisanId);
+    },
+    onSuccess: () => {
+      refreshDocuments();
+      queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
+      toast.success("Document approuvé");
+    },
+    onError: () => {
+      toast.error("Erreur lors de l'approbation du document");
+    }
+  });
+
+  // Reject individual document mutation
+  const rejectDocumentMutation = useMutation({
+    mutationFn: async ({ documentId, artisanId, documentName, reason }: {
+      documentId: string;
+      artisanId: string;
+      documentName: string;
+      reason: string;
+    }) => {
+      // 1. Update document status to "rejected"
+      const { error } = await supabase
+        .from("artisan_documents")
+        .update({ status: "rejected", updated_at: new Date().toISOString() })
+        .eq("id", documentId);
+      if (error) throw error;
+
+      // 2. Send notification to artisan
+      const userId = await getArtisanUserId(artisanId);
+      if (userId) {
+        await supabase.rpc("create_notification", {
+          p_user_id: userId,
+          p_type: "document_rejected",
+          p_title: "Document refusé",
+          p_message: `Votre document "${documentName}" a été refusé. Raison : ${reason}. Veuillez soumettre un nouveau document.`,
+          p_related_id: documentId
+        });
+      }
+    },
+    onSuccess: () => {
+      refreshDocuments();
+      queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
+      toast.success("Document refusé - Notification envoyée");
+      setShowDocumentRejectDialog(false);
+      setDocumentToReject(null);
+      setDocumentRejectReason("");
+    },
+    onError: () => {
+      toast.error("Erreur lors du refus du document");
+    }
+  });
+
+  // Approve artisan mutation (kept for backward compatibility)
   const approveArtisanMutation = useMutation({
     mutationFn: async (artisanId: string) => {
-      // 1. Mettre à jour le statut de l'artisan
+      // 1. Update artisan status
       const { error } = await supabase.from("artisans").update({
         status: "active",
         is_verified: true
       }).eq("id", artisanId);
       if (error) throw error;
 
-      // 2. Mettre à jour tous les documents "pending" en "verified"
+      // 2. Update all pending documents to verified
       const { error: docsError } = await supabase
         .from("artisan_documents")
         .update({ status: "verified", updated_at: new Date().toISOString() })
@@ -625,7 +789,7 @@ const AdminApprovals = () => {
         console.error("Erreur mise à jour documents:", docsError);
       }
 
-      // 3. Envoyer la notification à l'artisan
+      // 3. Send notification to artisan
       const artisan = pendingArtisans?.find(a => a.id === artisanId);
       if (artisan?.profile) {
         const { data: userData } = await supabase
@@ -2039,47 +2203,154 @@ const AdminApprovals = () => {
               <DialogHeader>
                 <DialogTitle>Documents de {documentsArtisan?.business_name}</DialogTitle>
                 <DialogDescription>
-                  Vérifiez les documents soumis par l'artisan
+                  Vérifiez et validez chaque document individuellement. L'artisan sera notifié pour chaque décision.
                 </DialogDescription>
               </DialogHeader>
               
-              {isLoadingDocuments ? <div className="flex items-center justify-center py-8">
+              {isLoadingDocuments ? (
+                <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div> : artisanDocuments.length === 0 ? <div className="text-center py-8">
+                </div>
+              ) : artisanDocuments.length === 0 ? (
+                <div className="text-center py-8">
                   <FileText className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
                   <p className="text-muted-foreground">Aucun document soumis</p>
-                </div> : <div className="space-y-3">
-                  {artisanDocuments.map(doc => <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {artisanDocuments.map(doc => (
+                    <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-muted rounded">
                           <File className="h-5 w-5 text-muted-foreground" />
                         </div>
                         <div>
-                          <p className="font-medium text-sm">{doc.name}</p>
+                          <p className="font-medium text-sm">{getDocumentLabel(doc.name)}</p>
                           <p className="text-xs text-muted-foreground">{doc.file_name}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge variant={doc.status === 'approved' ? 'default' : doc.status === 'rejected' ? 'destructive' : 'secondary'} className="text-xs">
-                              {doc.status === 'approved' ? 'Approuvé' : doc.status === 'rejected' ? 'Refusé' : 'En attente'}
+                            <Badge 
+                              variant={doc.status === 'verified' ? 'default' : doc.status === 'rejected' ? 'destructive' : 'secondary'} 
+                              className="text-xs"
+                            >
+                              {doc.status === 'verified' ? 'Vérifié' : doc.status === 'rejected' ? 'Refusé' : 'En attente'}
                             </Badge>
-                            {doc.expiry_date && <span className="text-xs text-muted-foreground">
+                            {doc.expiry_date && (
+                              <span className="text-xs text-muted-foreground">
                                 Expire: {new Date(doc.expiry_date).toLocaleDateString('fr-FR')}
-                              </span>}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" onClick={async () => {
-                  const url = await getDocumentUrl(doc.file_path);
-                  if (url) window.open(url, '_blank');
-                }}>
-                        <Download className="h-4 w-4 mr-1" />
-                        Voir
-                      </Button>
-                    </div>)}
-                </div>}
+                      
+                      <div className="flex items-center gap-2">
+                        {/* View document button */}
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={async () => {
+                            const url = await getDocumentUrl(doc.file_path);
+                            if (url) window.open(url, '_blank');
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        
+                        {/* Approve/Reject buttons - only for pending documents */}
+                        {doc.status === 'pending' && documentsArtisan && (
+                          <>
+                            <Button 
+                              variant="default" 
+                              size="sm" 
+                              className="bg-green-600 hover:bg-green-700"
+                              disabled={approveDocumentMutation.isPending}
+                              onClick={() => approveDocumentMutation.mutate({
+                                documentId: doc.id,
+                                artisanId: documentsArtisan.id,
+                                documentName: getDocumentLabel(doc.name)
+                              })}
+                            >
+                              {approveDocumentMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <CheckCircle2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button 
+                              variant="destructive" 
+                              size="sm"
+                              disabled={rejectDocumentMutation.isPending}
+                              onClick={() => {
+                                setDocumentToReject(doc);
+                                setShowDocumentRejectDialog(true);
+                              }}
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
               
               <DialogFooter className="mt-4">
                 <Button variant="outline" onClick={() => setShowDocumentsDialog(false)}>
                   Fermer
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Document Reject Dialog */}
+          <Dialog open={showDocumentRejectDialog} onOpenChange={setShowDocumentRejectDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <XCircle className="h-5 w-5 text-destructive" />
+                  Refuser le document
+                </DialogTitle>
+                <DialogDescription>
+                  Indiquez la raison du refus pour "{documentToReject ? getDocumentLabel(documentToReject.name) : ''}"
+                </DialogDescription>
+              </DialogHeader>
+              <Textarea 
+                placeholder="Ex: Document illisible, date d'expiration dépassée, mauvais type de document..."
+                value={documentRejectReason}
+                onChange={(e) => setDocumentRejectReason(e.target.value)}
+                className="min-h-[100px]"
+              />
+              <DialogFooter>
+                <Button variant="outline" onClick={() => {
+                  setShowDocumentRejectDialog(false);
+                  setDocumentToReject(null);
+                  setDocumentRejectReason("");
+                }}>
+                  Annuler
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  disabled={!documentRejectReason.trim() || rejectDocumentMutation.isPending || !documentToReject || !documentsArtisan}
+                  onClick={() => {
+                    if (documentToReject && documentsArtisan) {
+                      rejectDocumentMutation.mutate({
+                        documentId: documentToReject.id,
+                        artisanId: documentsArtisan.id,
+                        documentName: getDocumentLabel(documentToReject.name),
+                        reason: documentRejectReason
+                      });
+                    }
+                  }}
+                >
+                  {rejectDocumentMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    "Confirmer le refus"
+                  )}
                 </Button>
               </DialogFooter>
             </DialogContent>
