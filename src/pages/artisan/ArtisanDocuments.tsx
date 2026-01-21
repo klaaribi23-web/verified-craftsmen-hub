@@ -19,7 +19,8 @@ import {
   Shield,
   Building,
   CreditCard,
-  Award
+  Award,
+  RefreshCw
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
@@ -105,7 +106,9 @@ export const ArtisanDocuments = () => {
   const queryClient = useQueryClient();
   const { artisan } = useArtisanProfile();
   const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
+  const [deletingDocType, setDeletingDocType] = useState<string | null>(null);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const replaceInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   // Fetch documents from database
   const { data: documents = [], isLoading } = useQuery({
@@ -218,6 +221,93 @@ export const ArtisanDocuments = () => {
     }
   });
 
+  // Delete rejected document mutation
+  const deleteRejectedDocMutation = useMutation({
+    mutationFn: async ({ docId, filePath }: { docId: string; filePath: string }) => {
+      if (!artisan?.id) throw new Error("Artisan non trouvé");
+
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("artisan-documents")
+        .remove([filePath]);
+
+      if (storageError) {
+        console.error("Storage delete error:", storageError);
+        // Continue even if storage delete fails (file might not exist)
+      }
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("artisan_documents")
+        .delete()
+        .eq("id", docId)
+        .eq("status", "rejected"); // Safety: only delete rejected docs
+
+      if (dbError) throw dbError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
+    },
+    onError: (error: Error) => {
+      console.error("Delete error:", error);
+      toast.error("Erreur lors de la suppression");
+    }
+  });
+
+  // Replace rejected document handler
+  const handleReplaceRejectedDocument = async (
+    e: React.ChangeEvent<HTMLInputElement>, 
+    docType: typeof REQUIRED_DOCUMENTS[0],
+    existingDoc: DocumentRecord
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Format non supporté. Utilisez PDF, JPG ou PNG.");
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Le fichier est trop volumineux (max 10 Mo)");
+      return;
+    }
+
+    setDeletingDocType(docType.id);
+
+    try {
+      // First, delete the rejected document
+      await deleteRejectedDocMutation.mutateAsync({
+        docId: existingDoc.id,
+        filePath: existingDoc.file_path
+      });
+
+      // Then upload the new one
+      setUploadingDocType(docType.id);
+      await uploadMutation.mutateAsync({
+        file,
+        documentType: docType.id,
+        documentName: docType.name
+      });
+
+      toast.success("Document remplacé avec succès ! Il sera vérifié par notre équipe.");
+    } catch (error) {
+      console.error("Replace error:", error);
+      toast.error("Erreur lors du remplacement du document");
+    } finally {
+      setDeletingDocType(null);
+      setUploadingDocType(null);
+    }
+
+    // Reset file input
+    const inputRef = replaceInputRefs.current[docType.id];
+    if (inputRef) {
+      inputRef.value = "";
+    }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, docType: typeof REQUIRED_DOCUMENTS[0]) => {
     const file = e.target.files?.[0];
@@ -335,10 +425,12 @@ export const ArtisanDocuments = () => {
                   {REQUIRED_DOCUMENTS.map((docType) => {
                     const uploadedDoc = getDocumentForType(docType.id);
                     const hasDocument = !!uploadedDoc;
+                    const isRejected = uploadedDoc?.status === "rejected";
                     const statusConfig = hasDocument ? getStatusConfig(uploadedDoc.status) : null;
                     const StatusIcon = statusConfig?.icon;
                     const DocIcon = docType.icon;
                     const isUploading = uploadingDocType === docType.id;
+                    const isDeleting = deletingDocType === docType.id;
 
                     return (
                       <div 
@@ -399,7 +491,40 @@ export const ArtisanDocuments = () => {
                                 <Eye className="w-4 h-4 mr-1" />
                                 Voir
                               </Button>
+
+                              {/* Replace button - only for rejected documents */}
+                              {isRejected && (
+                                <>
+                                  <input
+                                    ref={(el) => { replaceInputRefs.current[docType.id] = el; }}
+                                    type="file"
+                                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                    onChange={(e) => handleReplaceRejectedDocument(e, docType, uploadedDoc)}
+                                    className="hidden"
+                                  />
+                                  <Button 
+                                    variant="gold" 
+                                    size="sm"
+                                    onClick={() => replaceInputRefs.current[docType.id]?.click()}
+                                    disabled={isUploading || isDeleting}
+                                  >
+                                    {(isUploading || isDeleting) ? (
+                                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                    ) : (
+                                      <RefreshCw className="w-4 h-4 mr-1" />
+                                    )}
+                                    Remplacer
+                                  </Button>
+                                </>
+                              )}
                             </div>
+
+                            {/* Help text for rejected documents */}
+                            {isRejected && (
+                              <p className="text-xs text-destructive mt-2">
+                                Ce document a été refusé. Cliquez sur "Remplacer" pour soumettre un nouveau document.
+                              </p>
+                            )}
                           </div>
                         ) : (
                           <div>
