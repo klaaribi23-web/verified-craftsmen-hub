@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
@@ -216,6 +216,53 @@ const AdminApprovals = () => {
   const [selfSignupPage, setSelfSignupPage] = useState(0);
   const [selfSignupPerPage, setSelfSignupPerPage] = useState(50);
   const [selfSignupSearch, setSelfSignupSearch] = useState("");
+
+  // Realtime subscription for instant updates on admin dashboard
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-approvals-realtime')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'artisans'
+      }, (payload) => {
+        console.log("[Realtime Admin Approvals] Artisan changed:", payload);
+        queryClient.invalidateQueries({ queryKey: ["pending-artisans"] });
+        queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+        queryClient.invalidateQueries({ queryKey: ["prospect-artisans-count"] });
+        queryClient.invalidateQueries({ queryKey: ["waiting-artisans"] });
+        queryClient.invalidateQueries({ queryKey: ["waiting-artisans-count"] });
+        queryClient.invalidateQueries({ queryKey: ["claimed-artisans"] });
+        queryClient.invalidateQueries({ queryKey: ["claimed-artisans-count"] });
+        queryClient.invalidateQueries({ queryKey: ["self-signup-artisans"] });
+        queryClient.invalidateQueries({ queryKey: ["self-signup-artisans-count"] });
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'artisan_documents'
+      }, (payload) => {
+        console.log("[Realtime Admin Approvals] Document changed:", payload);
+        queryClient.invalidateQueries({ queryKey: ["pending-artisans"] });
+        queryClient.invalidateQueries({ queryKey: ["claimed-artisans"] });
+        queryClient.invalidateQueries({ queryKey: ["claimed-artisans-count"] });
+        queryClient.invalidateQueries({ queryKey: ["self-signup-artisans"] });
+        queryClient.invalidateQueries({ queryKey: ["self-signup-artisans-count"] });
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'missions'
+      }, (payload) => {
+        console.log("[Realtime Admin Approvals] Mission changed:", payload);
+        queryClient.invalidateQueries({ queryKey: ["pending-missions"] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   // Fetch pending artisans (only those with ALL 4 mandatory documents)
   const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis", "identite"];
