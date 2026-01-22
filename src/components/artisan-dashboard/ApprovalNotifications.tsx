@@ -36,7 +36,7 @@ export const ApprovalNotifications = () => {
         .from("notifications")
         .select("*")
         .eq("user_id", user.id)
-        .in("type", ["approval", "rejection"])
+        .in("type", ["approval", "rejection", "document_verified", "document_rejected"])
         .order("created_at", { ascending: false })
         .limit(5);
 
