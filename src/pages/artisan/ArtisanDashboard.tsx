@@ -3,6 +3,8 @@ import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader"
 import { StatsCard } from "@/components/artisan-dashboard/StatsCard";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ProfileCompletionCard } from "@/components/artisan-dashboard/ProfileCompletionCard";
+import { ActiveProfileCard } from "@/components/artisan-dashboard/ActiveProfileCard";
+import { SuspendedProfileCard } from "@/components/artisan-dashboard/SuspendedProfileCard";
 import { ApprovalNotifications } from "@/components/artisan-dashboard/ApprovalNotifications";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -50,7 +52,7 @@ export const ArtisanDashboard = () => {
     }
   }, [searchParams, setSearchParams, checkSubscription]);
 
-  // Fetch artisan profile
+  // Fetch artisan profile with auto-refresh
   const { data: artisanProfile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["artisan-profile", user?.id],
     queryFn: async () => {
@@ -68,7 +70,8 @@ export const ArtisanDashboard = () => {
       }
       return data;
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    refetchInterval: 30000 // Auto-refresh every 30 seconds
   });
 
   // Fetch real stats
@@ -125,7 +128,8 @@ export const ArtisanDashboard = () => {
         mandatoryUploaded
       };
     },
-    enabled: !!artisanProfile?.id
+    enabled: !!artisanProfile?.id,
+    refetchInterval: 30000 // Auto-refresh every 30 seconds
   });
 
   // Fetch stories stats
@@ -297,8 +301,30 @@ export const ArtisanDashboard = () => {
             {/* Subscription Card */}
             <SubscriptionDashboardCard tier={tier} subscriptionEnd={subscriptionEnd} isLoading={isLoadingSubscription} />
 
-            {/* Profile Completion Card */}
-            {artisanProfile && artisanProfile.status !== "active" && (
+            {/* Profile Status Cards */}
+            {artisanProfile?.status === "active" && (
+              <div className="mb-6">
+                <ActiveProfileCard
+                  profile={{
+                    photo_url: artisanProfile.photo_url,
+                    description: artisanProfile.description,
+                    siret: artisanProfile.siret,
+                    city: artisanProfile.city,
+                    portfolio_images: artisanProfile.portfolio_images,
+                    experience_years: artisanProfile.experience_years
+                  }}
+                />
+              </div>
+            )}
+
+            {artisanProfile?.status === "suspended" && (
+              <div className="mb-6">
+                <SuspendedProfileCard />
+              </div>
+            )}
+
+            {artisanProfile && 
+             (artisanProfile.status === "pending" || artisanProfile.status === "prospect") && (
               <div className="mb-6">
                 <ProfileCompletionCard
                   profile={{
