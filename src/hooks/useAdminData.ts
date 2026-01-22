@@ -129,6 +129,7 @@ export const useProfiles = () => {
         .from("profiles")
         .select("*")
         .in("user_id", clientUserIds)
+        .neq("email", "demo-client@craftlink.internal")  // Exclure le profil fantôme
         .order("created_at", { ascending: false });
 
       if (error) throw error;

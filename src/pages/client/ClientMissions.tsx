@@ -107,6 +107,7 @@ export const ClientMissions = () => {
           artisans:assigned_artisan_id (business_name, photo_url)
         `)
         .eq("client_id", profile.id)
+        .is("fake_client_id", null)  // Exclure les missions démo
         .order("created_at", { ascending: false });
 
       if (error) throw error;
