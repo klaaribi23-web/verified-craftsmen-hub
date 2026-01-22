@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -125,6 +125,28 @@ export const ArtisanDocuments = () => {
     },
     enabled: !!artisan?.id
   });
+
+  // Realtime subscription for document status updates
+  useEffect(() => {
+    if (!artisan?.id) return;
+
+    const channel = supabase
+      .channel('artisan-documents-realtime')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'artisan_documents',
+        filter: `artisan_id=eq.${artisan.id}`
+      }, (payload) => {
+        console.log("[Realtime] Document updated:", payload);
+        queryClient.invalidateQueries({ queryKey: ["artisan-documents"] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [artisan?.id, queryClient]);
 
   // Upload mutation
   const uploadMutation = useMutation({

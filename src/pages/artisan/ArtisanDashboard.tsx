@@ -32,7 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import { Link, useSearchParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 
 export const ArtisanDashboard = () => {
   const { user } = useAuth();
@@ -51,6 +51,29 @@ export const ArtisanDashboard = () => {
       checkSubscription();
     }
   }, [searchParams, setSearchParams, checkSubscription]);
+
+  // Realtime subscription for artisan profile updates
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('artisan-profile-realtime')
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'artisans',
+        filter: `user_id=eq.${user.id}`
+      }, (payload) => {
+        console.log("[Realtime] Artisan profile updated:", payload);
+        queryClient.invalidateQueries({ queryKey: ["artisan-profile"] });
+        queryClient.invalidateQueries({ queryKey: ["artisan-documents-stats"] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   // Fetch artisan profile with auto-refresh
   const { data: artisanProfile, isLoading: isLoadingProfile } = useQuery({
