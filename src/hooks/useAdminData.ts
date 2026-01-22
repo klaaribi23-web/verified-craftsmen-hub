@@ -313,17 +313,32 @@ export const useUpdateArtisanStatus = () => {
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: "active" | "suspended" | "pending" }) => {
-      const { error } = await supabase
+      console.log(`[Admin] Updating artisan ${id} to status: ${status}`);
+      
+      const { data, error } = await supabase
         .from("artisans")
-        .update({ status })
-        .eq("id", id);
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq("id", id)
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("[Admin] Update failed:", error);
+        throw error;
+      }
+      
+      console.log("[Admin] Update successful:", data);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-artisans"] });
       queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["new-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["top-artisans"] });
     },
+    onError: (error) => {
+      console.error("[Admin] Mutation error:", error);
+    }
   });
 };
 

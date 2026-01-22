@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,8 @@ const AdminArtisans = () => {
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedArtisan, setSelectedArtisan] = useState<any>(null);
+  
+  const queryClient = useQueryClient();
 
   const { data: artisans, isLoading: artisansLoading } = useArtisans();
   const { data: categories } = useCategories();
@@ -82,20 +85,28 @@ const AdminArtisans = () => {
   const confirmRevoke = async () => {
     if (!selectedArtisan) return;
     
+    const newStatus = selectedArtisan.status === "suspended" ? "active" : "suspended";
+    
     try {
+      console.log(`[Admin] Attempting to update ${selectedArtisan.business_name} to ${newStatus}`);
+      
       await updateStatus.mutateAsync({
         id: selectedArtisan.id,
-        status: selectedArtisan.status === "suspended" ? "active" : "suspended"
+        status: newStatus
       });
       
+      // Force explicit refetch to ensure UI is in sync
+      await queryClient.refetchQueries({ queryKey: ["admin-artisans"] });
+      
       toast({
-        title: selectedArtisan.status === "suspended" ? "Artisan réactivé" : "Artisan révoqué",
-        description: `${selectedArtisan.business_name} a été ${selectedArtisan.status === "suspended" ? "réactivé" : "suspendu"}.`,
+        title: newStatus === "active" ? "Artisan réactivé" : "Artisan révoqué",
+        description: `${selectedArtisan.business_name} a été ${newStatus === "active" ? "réactivé" : "suspendu"}.`,
       });
     } catch (error) {
+      console.error("[Admin] Status update error:", error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue",
+        description: "La mise à jour du statut a échoué. Vérifiez la console pour plus de détails.",
         variant: "destructive",
       });
     }
