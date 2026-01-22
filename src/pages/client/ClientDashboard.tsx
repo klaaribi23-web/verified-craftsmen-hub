@@ -83,6 +83,7 @@ export const ClientDashboard = () => {
           artisans:assigned_artisan_id (business_name)
         `)
         .eq("client_id", profile.id)
+        .is("fake_client_id", null)  // Exclure les missions démo
         .order("created_at", { ascending: false })
         .limit(5);
 
