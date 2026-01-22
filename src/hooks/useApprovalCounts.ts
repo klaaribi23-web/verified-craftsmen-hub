@@ -1,9 +1,47 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis", "identite"];
 
 export const useApprovalCounts = () => {
+  const queryClient = useQueryClient();
+
+  // Realtime subscription for instant updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-approval-counts-realtime')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'artisans'
+      }, (payload) => {
+        console.log("[Realtime Admin] Artisan changed:", payload);
+        queryClient.invalidateQueries({ queryKey: ["approval-counts"] });
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'artisan_documents'
+      }, (payload) => {
+        console.log("[Realtime Admin] Document changed:", payload);
+        queryClient.invalidateQueries({ queryKey: ["approval-counts"] });
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'missions'
+      }, (payload) => {
+        console.log("[Realtime Admin] Mission changed:", payload);
+        queryClient.invalidateQueries({ queryKey: ["approval-counts"] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ["approval-counts"],
     queryFn: async () => {
@@ -93,6 +131,6 @@ export const useApprovalCounts = () => {
         total: pendingArtisansCount + (pendingMissions || 0) + (prospectArtisans || 0) + (pendingDocuments || 0)
       };
     },
-    refetchInterval: 30000 // Refresh every 30 seconds
+    refetchInterval: 30000 // Fallback refresh every 30 seconds
   });
 };
