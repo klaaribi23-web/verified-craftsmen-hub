@@ -56,23 +56,46 @@ serve(async (req) => {
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
     if (userRole?.role !== "artisan") {
+      logStep("Role check failed", { role: userRole?.role });
       throw new Error("Cette fonction est réservée aux artisans");
     }
     logStep("User role verified", { role: userRole.role });
 
-    // Get artisan record
-    const { data: artisan } = await supabaseAdmin
+    // Get artisan record - search by user_id first, then by email
+    let artisan = null;
+
+    // First try by user_id
+    const { data: artisanByUser } = await supabaseAdmin
       .from("artisans")
-      .select("id, stripe_customer_id, subscription_tier, business_name")
+      .select("id, stripe_customer_id, subscription_tier, business_name, email, user_id, profile_id")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
+
+    if (artisanByUser) {
+      artisan = artisanByUser;
+      logStep("Artisan found by user_id", { artisanId: artisan.id });
+    } else if (userEmail) {
+      // Try by email for partially activated artisans
+      const { data: artisanByEmail } = await supabaseAdmin
+        .from("artisans")
+        .select("id, stripe_customer_id, subscription_tier, business_name, email, user_id, profile_id")
+        .eq("email", userEmail)
+        .maybeSingle();
+      
+      if (artisanByEmail) {
+        artisan = artisanByEmail;
+        logStep("Artisan found by email", { artisanId: artisan.id });
+      }
+    }
 
     if (!artisan) {
-      throw new Error("Profil artisan introuvable");
+      logStep("No artisan found", { userId, email: userEmail });
+      throw new Error("Aucun profil artisan trouvé pour ce compte. Vérifiez que vous êtes bien connecté avec le bon compte.");
     }
+
     logStep("Artisan found", { artisanId: artisan.id, tier: artisan.subscription_tier });
 
     // Check Stripe subscription status
@@ -105,7 +128,6 @@ serve(async (req) => {
     } else if (artisan.subscription_tier && artisan.subscription_tier !== "free") {
       // Double check: if tier is not free but no stripe customer, still block
       logStep("Non-free tier without Stripe customer - checking database");
-      // Allow deletion if subscription_end is in the past
       const { data: artisanDetails } = await supabaseAdmin
         .from("artisans")
         .select("subscription_end")
@@ -133,15 +155,79 @@ serve(async (req) => {
     const artisanId = artisan.id;
     logStep("Starting data deletion for artisan", { artisanId });
 
-    // Get profile ID
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq("user_id", userId)
-      .single();
+    // Get profile ID (may be null for imported artisans)
+    let profileId = artisan.profile_id;
+    if (!profileId) {
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      profileId = profile?.id;
+    }
+    logStep("Profile lookup", { profileId: profileId || "NOT FOUND" });
 
-    const profileId = profile?.id;
+    // ========== STORAGE CLEANUP ==========
+    
+    // Delete portfolio files from storage
+    try {
+      const { data: portfolioFiles } = await supabaseAdmin.storage
+        .from("artisan-portfolios")
+        .list(`${artisanId}/`);
+      
+      if (portfolioFiles && portfolioFiles.length > 0) {
+        const filePaths = portfolioFiles.map(f => `${artisanId}/${f.name}`);
+        await supabaseAdmin.storage.from("artisan-portfolios").remove(filePaths);
+        logStep("Deleted portfolio files", { count: filePaths.length });
+      }
+    } catch (storageError) {
+      logStep("Portfolio storage cleanup skipped", { error: (storageError as Error).message });
+    }
 
+    // Delete documents from storage
+    try {
+      const { data: docRecords } = await supabaseAdmin
+        .from("artisan_documents")
+        .select("file_path")
+        .eq("artisan_id", artisanId);
+      
+      if (docRecords && docRecords.length > 0) {
+        const docPaths = docRecords.map(d => d.file_path).filter(Boolean);
+        if (docPaths.length > 0) {
+          await supabaseAdmin.storage.from("artisan-documents").remove(docPaths);
+          logStep("Deleted document files", { count: docPaths.length });
+        }
+      }
+    } catch (storageError) {
+      logStep("Documents storage cleanup skipped", { error: (storageError as Error).message });
+    }
+
+    // Delete stories media from storage
+    try {
+      const { data: storyRecords } = await supabaseAdmin
+        .from("artisan_stories")
+        .select("media_url")
+        .eq("artisan_id", artisanId);
+      
+      if (storyRecords && storyRecords.length > 0) {
+        const storyPaths = storyRecords
+          .map(s => {
+            if (!s.media_url) return null;
+            const match = s.media_url.match(/artisan-stories\/(.+)$/);
+            return match ? match[1] : null;
+          })
+          .filter(Boolean) as string[];
+        
+        if (storyPaths.length > 0) {
+          await supabaseAdmin.storage.from("artisan-stories").remove(storyPaths);
+          logStep("Deleted story files", { count: storyPaths.length });
+        }
+      }
+    } catch (storageError) {
+      logStep("Stories storage cleanup skipped", { error: (storageError as Error).message });
+    }
+
+    // ========== DATABASE CLEANUP ==========
     // Delete all related data in order (respect foreign keys)
     
     // 1. Delete story views
@@ -259,14 +345,21 @@ serve(async (req) => {
       .delete()
       .eq("user_id", userId);
 
-    // 16. Delete artisan record
+    // 16. Delete security logs
+    logStep("Deleting security logs");
+    await supabaseAdmin
+      .from("security_logs")
+      .delete()
+      .eq("user_id", userId);
+
+    // 17. Delete artisan record
     logStep("Deleting artisan record");
     await supabaseAdmin
       .from("artisans")
       .delete()
       .eq("id", artisanId);
 
-    // 17. Delete profile
+    // 18. Delete profile
     if (profileId) {
       logStep("Deleting profile");
       await supabaseAdmin
@@ -275,14 +368,14 @@ serve(async (req) => {
         .eq("id", profileId);
     }
 
-    // 18. Delete user role
+    // 19. Delete user role
     logStep("Deleting user role");
     await supabaseAdmin
       .from("user_roles")
       .delete()
       .eq("user_id", userId);
 
-    // 19. Delete auth user (using admin API)
+    // 20. Delete auth user (using admin API)
     logStep("Deleting auth user");
     const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(userId);
     
