@@ -1399,6 +1399,10 @@ export type Database = {
       cleanup_old_login_attempts: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_security_logs: { Args: never; Returns: undefined }
+      count_mandatory_documents: {
+        Args: { p_artisan_id: string }
+        Returns: number
+      }
       create_notification: {
         Args: {
           p_message: string
