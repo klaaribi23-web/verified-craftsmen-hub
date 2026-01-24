@@ -44,3 +44,9 @@ verify_jwt = false
 
 [functions.add-security-headers]
 verify_jwt = false
+
+[functions.confirm-email]
+verify_jwt = false
+
+[functions.resend-confirmation-email]
+verify_jwt = false

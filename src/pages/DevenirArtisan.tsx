@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import Navbar from "@/components/layout/Navbar";
@@ -23,7 +23,8 @@ import {
   Star,
   Zap,
   Clock,
-  Loader2
+  Loader2,
+  Mail
 } from "lucide-react";
 
 const benefits = [
@@ -83,6 +84,8 @@ const DevenirArtisan = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [formData, setFormData] = useState({
     businessName: "",
@@ -94,8 +97,64 @@ const DevenirArtisan = () => {
     password: "",
   });
 
+  // Cooldown timer for resend button
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
+
   const updateForm = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
+  };
+
+  const handleResendEmail = async () => {
+    if (resendCooldown > 0 || isResending) return;
+    
+    setIsResending(true);
+    try {
+      console.log("[DevenirArtisan] Calling resend-confirmation-email Edge Function");
+      
+      // Call secure Edge Function (uses service_role, server-side rate limiting)
+      const { data, error } = await supabase.functions.invoke("resend-confirmation-email", {
+        body: {
+          email: formData.email,
+          firstName: formData.firstName || "Artisan",
+          userType: "artisan",
+        },
+      });
+
+      if (error) {
+        console.error("[DevenirArtisan] Resend Edge Function error:", error);
+        throw new Error("Impossible de renvoyer l'email.");
+      }
+
+      if (!data?.success) {
+        console.log("[DevenirArtisan] Resend failed:", data?.message);
+        // If server returns cooldown remaining, use it
+        if (data?.cooldownRemaining) {
+          setResendCooldown(data.cooldownRemaining);
+        }
+        throw new Error(data?.message || "Impossible de renvoyer l'email.");
+      }
+
+      console.log("[DevenirArtisan] Email resent successfully");
+      toast({
+        title: "Email renvoyé !",
+        description: "Un nouvel email de confirmation a été envoyé.",
+      });
+      setResendCooldown(60); // 60 seconds cooldown
+    } catch (error: any) {
+      console.error("[DevenirArtisan] Resend error:", error);
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de renvoyer l'email.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResending(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -314,30 +373,47 @@ const DevenirArtisan = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl p-8 shadow-floating text-center"
+              className="bg-card rounded-2xl p-8 shadow-floating text-center"
             >
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Mail className="w-8 h-8 text-primary" />
               </div>
-              <h1 className="text-2xl font-bold text-navy mb-4">
+              <h1 className="text-2xl font-bold text-foreground mb-4">
                 Email de confirmation envoyé !
               </h1>
+              <p className="text-muted-foreground mb-2">
+                Un email a été envoyé à <strong className="text-foreground">{formData.email}</strong>. 
+              </p>
               <p className="text-muted-foreground mb-6">
-                Un email a été envoyé à <strong className="text-navy">{formData.email}</strong>. 
                 Cliquez sur le lien dans l'email pour activer votre compte.
               </p>
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <p className="text-sm text-amber-800">
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
+                <p className="text-sm text-amber-800 dark:text-amber-200">
                   <strong>Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email dans votre boîte de réception.
                 </p>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => navigate("/auth")}
-                className="w-full"
-              >
-                Retour à la connexion
-              </Button>
+              <div className="flex flex-col gap-3">
+                <Button 
+                  variant="default" 
+                  onClick={handleResendEmail}
+                  disabled={isResending || resendCooldown > 0}
+                  className="w-full"
+                >
+                  {isResending ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
+                  {resendCooldown > 0 
+                    ? `Renvoyer l'email (${resendCooldown}s)` 
+                    : "Renvoyer l'email"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/auth")}
+                  className="w-full"
+                >
+                  Retour à la connexion
+                </Button>
+              </div>
             </motion.div>
           </div>
         </main>

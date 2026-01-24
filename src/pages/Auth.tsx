@@ -400,50 +400,39 @@ const Auth = () => {
     
     setIsResending(true);
     try {
-      // Find the profile to get/regenerate the confirmation token
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, confirmation_token")
-        .eq("email", sentEmail)
-        .maybeSingle();
-
-      let confirmationToken = profiles?.confirmation_token;
-
-      // If no token, generate a new one
-      if (!confirmationToken && profiles) {
-        confirmationToken = crypto.randomUUID();
-        await supabase
-          .from("profiles")
-          .update({
-            confirmation_token: confirmationToken,
-            confirmation_sent_at: new Date().toISOString(),
-          })
-          .eq("id", profiles.id);
-      }
-
-      if (!confirmationToken) {
-        throw new Error("Impossible de générer un nouveau lien de confirmation.");
-      }
-
-      const confirmationUrl = `${window.location.origin}/confirmer-email?token=${confirmationToken}`;
-
-      // Send our branded email only
-      await supabase.functions.invoke("send-confirmation-email", {
+      console.log("[Auth] Calling resend-confirmation-email Edge Function");
+      
+      // Call secure Edge Function (uses service_role, server-side rate limiting)
+      const { data, error } = await supabase.functions.invoke("resend-confirmation-email", {
         body: {
           email: sentEmail,
           firstName: sentFirstName || "Utilisateur",
           userType,
-          confirmationUrl,
         },
       });
 
+      if (error) {
+        console.error("[Auth] Resend Edge Function error:", error);
+        throw new Error("Impossible de renvoyer l'email.");
+      }
+
+      if (!data?.success) {
+        console.log("[Auth] Resend failed:", data?.message);
+        // If server returns cooldown remaining, use it
+        if (data?.cooldownRemaining) {
+          setResendCooldown(data.cooldownRemaining);
+        }
+        throw new Error(data?.message || "Impossible de renvoyer l'email.");
+      }
+
+      console.log("[Auth] Email resent successfully");
       toast({
         title: "Email renvoyé !",
         description: "Un nouvel email de confirmation a été envoyé.",
       });
       setResendCooldown(60); // 60 seconds cooldown
     } catch (error: any) {
-      console.error("Resend error:", error);
+      console.error("[Auth] Resend error:", error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de renvoyer l'email.",
