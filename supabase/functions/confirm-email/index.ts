@@ -19,11 +19,24 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { token }: ConfirmEmailRequest = await req.json();
 
-    // Validate token
+    // Validate token exists and is a string
     if (!token || typeof token !== "string" || token.trim() === "") {
       console.error("[confirm-email] Invalid or missing token");
       return new Response(
         JSON.stringify({ success: false, message: "Token de confirmation invalide." }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate token is a valid UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(token.trim())) {
+      console.log("[confirm-email] Invalid token format (not a UUID):", token.substring(0, 10) + "...");
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: "Ce lien de confirmation est invalide." 
+        }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
