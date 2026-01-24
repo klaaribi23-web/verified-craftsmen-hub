@@ -371,8 +371,8 @@ const ArtisanPublicProfile = () => {
                 <Card>
                   <CardContent className="p-3 md:p-4">
                     <div className="flex flex-col gap-2">
-                      {/* Bouton Revendiquer pour les prospects - Affiche un pop-up contact */}
-                      {(artisan.status === 'prospect' || artisan.status === 'pending') && (
+                      {/* Bouton Revendiquer pour les prospects SANS user_id (vitrines non réclamées) */}
+                      {artisan.status === 'prospect' && !(artisan as any).user_id && (
                         <Dialog>
                           <DialogTrigger asChild>
                             <div className="text-center mb-2 pb-3 border-b cursor-pointer">
@@ -875,8 +875,8 @@ const ArtisanPublicProfile = () => {
             {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
             <div className="hidden lg:block lg:col-span-1 space-y-6">
               
-              {/* 1. SECTION REVENDICATION - Pop-up contact (uniquement prospect) */}
-              {(artisan.status === 'prospect' || artisan.status === 'pending') && (
+              {/* 1. SECTION REVENDICATION - Pop-up contact (uniquement prospect SANS user_id) */}
+              {artisan.status === 'prospect' && !(artisan as any).user_id && (
                 <Dialog>
                   <Card className="min-h-[280px] flex flex-col justify-center">
                     <CardContent className="p-6">

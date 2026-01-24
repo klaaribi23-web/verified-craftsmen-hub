@@ -159,7 +159,7 @@ Deno.serve(async (req) => {
 
     console.log('Deleting artisan:', artisan.id, 'email:', artisan.email, 'user_id:', artisan.user_id)
 
-    // Delete all associated data
+    // Delete all associated data (full cascade)
     const deletePromises = [
       supabaseAdmin.from('artisan_categories').delete().eq('artisan_id', artisanId),
       supabaseAdmin.from('artisan_services').delete().eq('artisan_id', artisanId),
@@ -169,6 +169,7 @@ Deno.serve(async (req) => {
       supabaseAdmin.from('reviews').delete().eq('artisan_id', artisanId),
       supabaseAdmin.from('client_favorites').delete().eq('artisan_id', artisanId),
       supabaseAdmin.from('quotes').delete().eq('artisan_id', artisanId),
+      supabaseAdmin.from('mission_applications').delete().eq('artisan_id', artisanId),
     ]
 
     await Promise.all(deletePromises)
@@ -230,6 +231,12 @@ Deno.serve(async (req) => {
       // Delete user_roles
       await supabaseAdmin
         .from('user_roles')
+        .delete()
+        .eq('user_id', userIdToDelete)
+
+      // Delete security_logs for this user
+      await supabaseAdmin
+        .from('security_logs')
         .delete()
         .eq('user_id', userIdToDelete)
 
