@@ -191,6 +191,11 @@ const AdminApprovals = () => {
   const [waitingArtisanToDelete, setWaitingArtisanToDelete] = useState<WaitingArtisan | null>(null);
   const [isDeletingWaiting, setIsDeletingWaiting] = useState(false);
 
+  // Delete self-signup artisan dialog state
+  const [showDeleteSelfSignupDialog, setShowDeleteSelfSignupDialog] = useState(false);
+  const [selfSignupToDelete, setSelfSignupToDelete] = useState<SelfSignupArtisan | null>(null);
+  const [isDeletingSelfSignup, setIsDeletingSelfSignup] = useState(false);
+
   // Pagination state for prospects
   const [prospectPage, setProspectPage] = useState(0);
   const [prospectsPerPage, setProspectsPerPage] = useState(PROSPECTS_PER_PAGE);
@@ -1396,9 +1401,17 @@ const AdminApprovals = () => {
                                     </div>
 
                                     <div className="flex flex-wrap gap-2">
-                                      <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}>
-                                        <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
-                                        <span className="hidden sm:inline">Voir profil</span>
+                                      <Button 
+                                        variant="destructive" 
+                                        size="sm" 
+                                        className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                        onClick={() => {
+                                          setSelfSignupToDelete(artisan);
+                                          setShowDeleteSelfSignupDialog(true);
+                                        }}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                        <span className="hidden sm:inline">Supprimer</span>
                                       </Button>
                                     </div>
                                   </div>
@@ -2618,6 +2631,76 @@ const AdminApprovals = () => {
                   className="bg-destructive hover:bg-destructive/90"
                 >
                   {isDeletingWaiting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Suppression...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Supprimer définitivement
+                    </>
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          {/* Delete Self-Signup Artisan Confirmation Dialog */}
+          <AlertDialog open={showDeleteSelfSignupDialog} onOpenChange={setShowDeleteSelfSignupDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-destructive" />
+                  Supprimer cette inscription ?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="space-y-2">
+                  <p>
+                    Vous êtes sur le point de supprimer l'inscription de <strong>{selfSignupToDelete?.business_name}</strong>.
+                  </p>
+                  <p className="text-sm mt-2">Cette action va :</p>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                    <li>Supprimer le profil temporaire et le compte utilisateur</li>
+                    <li>Supprimer tous les documents éventuels</li>
+                    <li>Permettre à l'artisan de se réinscrire avec le même email</li>
+                  </ul>
+                  <p className="text-destructive font-medium mt-2">
+                    Cette action est irréversible.
+                  </p>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeletingSelfSignup}>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!selfSignupToDelete) return;
+                    
+                    setIsDeletingSelfSignup(true);
+                    try {
+                      const { data, error } = await supabase.functions.invoke('admin-delete-waiting-artisan', {
+                        body: { artisanId: selfSignupToDelete.id }
+                      });
+                      
+                      if (error) throw error;
+                      if (data?.error) throw new Error(data.error);
+                      
+                      toast.success("Inscription supprimée. L'artisan peut se réinscrire avec le même email.");
+                      queryClient.invalidateQueries({ queryKey: ["self-signup-artisans"] });
+                      queryClient.invalidateQueries({ queryKey: ["self-signup-artisans-count"] });
+                      queryClient.invalidateQueries({ queryKey: ["approval-counts"] });
+                    } catch (error: any) {
+                      console.error("Error deleting self-signup artisan:", error);
+                      toast.error("Erreur lors de la suppression : " + (error.message || "Erreur inconnue"));
+                    } finally {
+                      setIsDeletingSelfSignup(false);
+                      setShowDeleteSelfSignupDialog(false);
+                      setSelfSignupToDelete(null);
+                    }
+                  }}
+                  disabled={isDeletingSelfSignup}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
+                  {isDeletingSelfSignup ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Suppression...
