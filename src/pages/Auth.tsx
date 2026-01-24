@@ -170,41 +170,56 @@ const Auth = () => {
           return;
         }
 
-        // Wait for profile to be created by trigger
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Get the profile and generate confirmation token
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("user_id", data.user.id)
-          .single();
+        // Wait for profile to be created by trigger with retry logic
+        let profile = null;
+        let retries = 0;
+        const maxRetries = 5;
 
-        if (profileError) {
-          console.error("Error getting profile:", profileError);
+        while (!profile && retries < maxRetries) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("user_id", data.user.id)
+            .maybeSingle();
+
+          if (profileData) {
+            profile = profileData;
+          } else {
+            retries++;
+            console.log(`[AUTH] Waiting for profile creation, retry ${retries}/${maxRetries}`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+
+        if (!profile) {
+          // Sign out the user since we can't complete registration
+          await supabase.auth.signOut();
+          throw new Error("Erreur lors de la création du profil. Veuillez réessayer.");
         }
 
         // Generate a confirmation token
         const confirmationToken = crypto.randomUUID();
 
-        // Update profile with confirmation token
-        if (profile) {
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({
-              email_confirmed: false,
-              confirmation_token: confirmationToken,
-              confirmation_sent_at: new Date().toISOString(),
-            })
-            .eq("id", profile.id);
+        // Update profile with confirmation token - MUST NOT ignore this error
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({
+            email_confirmed: false,
+            confirmation_token: confirmationToken,
+            confirmation_sent_at: new Date().toISOString(),
+          })
+          .eq("id", profile.id);
 
-          if (updateError) {
-            console.error("Error setting confirmation token:", updateError);
-          }
+        if (updateError) {
+          console.error("[AUTH] Error setting confirmation token:", updateError);
+          await supabase.auth.signOut();
+          throw new Error("Erreur lors de l'enregistrement du token de confirmation. Veuillez réessayer.");
         }
 
+        console.log("[AUTH] Confirmation token saved successfully:", confirmationToken);
+
         // If artisan, create empty artisan profile
-        if (userType === "artisan" && profile) {
+        if (userType === "artisan") {
           const { error: artisanError } = await supabase
             .from("artisans")
             .insert([{
@@ -226,26 +241,27 @@ const Auth = () => {
             }]);
 
           if (artisanError) {
-            console.error("Error creating artisan:", artisanError);
+            console.error("[AUTH] Error creating artisan:", artisanError);
           }
         }
 
         // Build confirmation URL with our custom token
         const confirmationUrl = `${window.location.origin}/confirmer-email?token=${confirmationToken}`;
 
-        // Send custom branded confirmation email
-        try {
-          await supabase.functions.invoke("send-confirmation-email", {
-            body: {
-              email: validatedData.email,
-              firstName: validatedData.firstName,
-              lastName: validatedData.lastName,
-              userType,
-              confirmationUrl,
-            },
-          });
-        } catch (emailError) {
-          console.error("Error sending custom email:", emailError);
+        // Send custom branded confirmation email - only AFTER token is saved
+        const { error: emailError } = await supabase.functions.invoke("send-confirmation-email", {
+          body: {
+            email: validatedData.email,
+            firstName: validatedData.firstName,
+            lastName: validatedData.lastName,
+            userType,
+            confirmationUrl,
+          },
+        });
+
+        if (emailError) {
+          console.error("[AUTH] Error sending confirmation email:", emailError);
+          // Don't throw here - token is saved, user can request resend
         }
 
         // Sign out the user so they must confirm email before logging in

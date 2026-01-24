@@ -167,96 +167,124 @@ const DevenirArtisan = () => {
           return;
         }
 
-        // Wait for profile to be created by trigger
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const { data: profile } = await supabase
+        // Wait for profile to be created by trigger with retry logic
+        let profile = null;
+        let retries = 0;
+        const maxRetries = 5;
+
+        while (!profile && retries < maxRetries) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("user_id", data.user.id)
+            .maybeSingle();
+
+          if (profileData) {
+            profile = profileData;
+          } else {
+            retries++;
+            console.log(`[DEVENIR-ARTISAN] Waiting for profile creation, retry ${retries}/${maxRetries}`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+
+        if (!profile) {
+          // Sign out the user since we can't complete registration
+          await supabase.auth.signOut();
+          throw new Error("Erreur lors de la création du profil. Veuillez réessayer.");
+        }
+
+        // Generate confirmation token
+        const confirmationToken = crypto.randomUUID();
+
+        // Update profile with phone, city, and confirmation token - MUST NOT ignore this error
+        const { error: updateError } = await supabase
           .from("profiles")
+          .update({ 
+            phone: formData.phone, 
+            city: formData.city,
+            email_confirmed: false,
+            confirmation_token: confirmationToken,
+            confirmation_sent_at: new Date().toISOString(),
+          })
+          .eq("id", profile.id);
+
+        if (updateError) {
+          console.error("[DEVENIR-ARTISAN] Error setting confirmation token:", updateError);
+          await supabase.auth.signOut();
+          throw new Error("Erreur lors de l'enregistrement du token de confirmation. Veuillez réessayer.");
+        }
+
+        console.log("[DEVENIR-ARTISAN] Confirmation token saved successfully:", confirmationToken);
+
+        // Create minimal artisan profile with primary category
+        const { data: artisanData, error: artisanError } = await supabase
+          .from("artisans")
+          .insert([{
+            user_id: data.user.id,
+            profile_id: profile.id,
+            business_name: formData.businessName,
+            email: formData.email,
+            city: formData.city || "Non renseigné",
+            status: "pending",
+            category_id: selectedCategoryId || null,
+            description: null,
+            photo_url: null,
+            portfolio_images: null,
+            portfolio_videos: null,
+            experience_years: 0,
+            rating: 0,
+            review_count: 0,
+            missions_completed: 0,
+            source: "self_signup",
+          }])
           .select("id")
-          .eq("user_id", data.user.id)
           .single();
 
-        if (profile) {
-          // Generate confirmation token
-          const confirmationToken = crypto.randomUUID();
-
-          // Create minimal artisan profile with primary category
-          const { data: artisanData, error: artisanError } = await supabase
-            .from("artisans")
+        if (artisanError) {
+          console.error("[DEVENIR-ARTISAN] Error creating artisan:", artisanError);
+        } else if (artisanData && selectedCategoryId) {
+          // Insert primary category into artisan_categories
+          const { error: catError } = await supabase
+            .from("artisan_categories")
             .insert([{
-              user_id: data.user.id,
-              profile_id: profile.id,
-              business_name: formData.businessName,
-              email: formData.email,
-              city: formData.city || "Non renseigné",
-              status: "pending",
-              category_id: selectedCategoryId || null,
-              description: null,
-              photo_url: null,
-              portfolio_images: null,
-              portfolio_videos: null,
-              experience_years: 0,
-              rating: 0,
-              review_count: 0,
-              missions_completed: 0,
-              source: "self_signup", // Artisan inscrit lui-même (pas import massif)
-            }])
-            .select("id")
-            .single();
-
-          if (artisanError) {
-            console.error("Error creating artisan:", artisanError);
-          } else if (artisanData && selectedCategoryId) {
-            // Insert primary category into artisan_categories
-            const { error: catError } = await supabase
-              .from("artisan_categories")
-              .insert([{
-                artisan_id: artisanData.id,
-                category_id: selectedCategoryId,
-              }]);
-            
-            if (catError) {
-              console.error("Error inserting category:", catError);
-            }
+              artisan_id: artisanData.id,
+              category_id: selectedCategoryId,
+            }]);
+          
+          if (catError) {
+            console.error("[DEVENIR-ARTISAN] Error inserting category:", catError);
           }
-
-          // Update profile with phone, city, and confirmation token
-          await supabase
-            .from("profiles")
-            .update({ 
-              phone: formData.phone, 
-              city: formData.city,
-              email_confirmed: false,
-              confirmation_token: confirmationToken,
-              confirmation_sent_at: new Date().toISOString(),
-            })
-            .eq("id", profile.id);
-
-          // Send custom branded confirmation email with correct URL
-          try {
-            await supabase.functions.invoke("send-confirmation-email", {
-              body: {
-                email: formData.email,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                userType: "artisan",
-                confirmationUrl: `${window.location.origin}/confirmer-email?token=${confirmationToken}`,
-              },
-            });
-          } catch (emailError) {
-            console.error("Error sending custom email:", emailError);
-          }
-
-          // Sign out user to force email confirmation before login
-          await supabase.auth.signOut();
-
-          // Show confirmation screen
-          setEmailSent(true);
-          toast({
-            title: "Email de confirmation envoyé",
-            description: "Veuillez cliquer sur le lien dans l'email pour activer votre compte.",
-          });
         }
+
+        // Build confirmation URL with our custom token
+        const confirmationUrl = `${window.location.origin}/confirmer-email?token=${confirmationToken}`;
+
+        // Send custom branded confirmation email - only AFTER token is saved
+        const { error: emailError } = await supabase.functions.invoke("send-confirmation-email", {
+          body: {
+            email: formData.email,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            userType: "artisan",
+            confirmationUrl,
+          },
+        });
+
+        if (emailError) {
+          console.error("[DEVENIR-ARTISAN] Error sending confirmation email:", emailError);
+          // Don't throw here - token is saved, user can request resend
+        }
+
+        // Sign out user to force email confirmation before login
+        await supabase.auth.signOut();
+
+        // Show confirmation screen
+        setEmailSent(true);
+        toast({
+          title: "Email de confirmation envoyé",
+          description: "Veuillez cliquer sur le lien dans l'email pour activer votre compte.",
+        });
       }
     } catch (error: any) {
       console.error("Signup error:", error);
