@@ -452,14 +452,29 @@ const Auth = () => {
             <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
               <Mail className="h-10 w-10 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold">Email de confirmation envoyé !</h1>
+            
+            {/* Green success banner */}
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-left">
+              <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
+                <CheckCircle className="h-5 w-5 flex-shrink-0" />
+                <p className="font-medium">
+                  Votre inscription a bien été prise en compte !
+                </p>
+              </div>
+              <p className="text-sm text-green-700 dark:text-green-300 mt-2 ml-7">
+                Pour continuer, veuillez confirmer votre adresse email en cliquant sur le lien que vous venez de recevoir.
+              </p>
+            </div>
+            
+            <h1 className="text-2xl font-bold">Vérifiez votre boîte mail</h1>
             <p className="text-muted-foreground">
-              Un email a été envoyé à <strong className="text-foreground">{sentEmail}</strong>.<br />
-              Cliquez sur le lien dans l'email pour activer votre compte.
+              Un email a été envoyé à <strong className="text-foreground">{sentEmail}</strong>.
             </p>
-            <p className="text-sm text-muted-foreground">
-              Vous n'avez pas reçu l'email ? Vérifiez vos spams.
-            </p>
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                <strong>Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email dans votre boîte de réception.
+              </p>
+            </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button 
                 variant="default" 

@@ -378,14 +378,25 @@ const DevenirArtisan = () => {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Mail className="w-8 h-8 text-primary" />
               </div>
+              
+              {/* Green success banner */}
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6 text-left">
+                <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
+                  <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+                  <p className="font-medium">
+                    Votre inscription a bien été prise en compte !
+                  </p>
+                </div>
+                <p className="text-sm text-green-700 dark:text-green-300 mt-2 ml-7">
+                  Pour continuer, veuillez confirmer votre adresse email en cliquant sur le lien que vous venez de recevoir.
+                </p>
+              </div>
+              
               <h1 className="text-2xl font-bold text-foreground mb-4">
-                Email de confirmation envoyé !
+                Vérifiez votre boîte mail
               </h1>
-              <p className="text-muted-foreground mb-2">
-                Un email a été envoyé à <strong className="text-foreground">{formData.email}</strong>. 
-              </p>
               <p className="text-muted-foreground mb-6">
-                Cliquez sur le lien dans l'email pour activer votre compte.
+                Un email a été envoyé à <strong className="text-foreground">{formData.email}</strong>. 
               </p>
               <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
                 <p className="text-sm text-amber-800 dark:text-amber-200">
