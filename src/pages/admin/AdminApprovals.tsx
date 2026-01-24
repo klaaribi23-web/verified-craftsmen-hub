@@ -455,11 +455,11 @@ const AdminApprovals = () => {
       } = await supabase.from("artisan_documents").select("artisan_id");
       const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
 
-      // 2. Count pending artisans with user_id but WITHOUT documents
+      // 2. Count pending artisans with user_id but WITHOUT documents (ONLY imported, NOT self_signup)
       let query = supabase.from("artisans").select("*", {
         count: "exact",
         head: true
-      }).not("user_id", "is", null).eq("status", "pending");
+      }).not("user_id", "is", null).eq("status", "pending").or("source.is.null,source.eq.import");
 
       // Exclude those who have documents
       if (artisanIdsWithDocs.length > 0) {
@@ -490,7 +490,7 @@ const AdminApprovals = () => {
       } = await supabase.from("artisan_documents").select("artisan_id");
       const artisanIdsWithDocs = [...new Set(artisansWithDocs?.map(d => d.artisan_id) || [])];
 
-      // 2. Fetch pending artisans with user_id but WITHOUT documents
+      // 2. Fetch pending artisans with user_id but WITHOUT documents (ONLY imported, NOT self_signup)
       let query = supabase.from("artisans").select(`
           id,
           business_name,
@@ -503,9 +503,10 @@ const AdminApprovals = () => {
           updated_at,
           slug,
           status,
+          source,
           category:categories(name),
           profile:profiles!artisans_profile_id_fkey(first_name, last_name, email, phone, created_at)
-        `).not("user_id", "is", null).eq("status", "pending");
+        `).not("user_id", "is", null).eq("status", "pending").or("source.is.null,source.eq.import");
 
       // Exclude those who have documents
       if (artisanIdsWithDocs.length > 0) {
