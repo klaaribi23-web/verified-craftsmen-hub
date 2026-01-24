@@ -25,11 +25,12 @@ const ConfirmEmail = () => {
       }
 
       try {
-        // Find profile with this confirmation token
+        // Find profile with this confirmation token (anonymous access via RLS policy)
         const { data: profile, error: findError } = await supabase
           .from("profiles")
           .select("id, email, first_name, email_confirmed")
           .eq("confirmation_token", token)
+          .eq("email_confirmed", false)
           .maybeSingle();
 
         if (findError) {
