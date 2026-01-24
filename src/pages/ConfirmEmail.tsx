@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
@@ -25,50 +25,26 @@ const ConfirmEmail = () => {
       }
 
       try {
-        // Find profile with this confirmation token (anonymous access via RLS policy)
-        const { data: profile, error: findError } = await supabase
-          .from("profiles")
-          .select("id, email, first_name, email_confirmed")
-          .eq("confirmation_token", token)
-          .eq("email_confirmed", false)
-          .maybeSingle();
+        console.log("[ConfirmEmail] Calling confirm-email Edge Function");
+        
+        // Call the secure Edge Function (uses service_role, no token exposed client-side)
+        const { data, error } = await supabase.functions.invoke("confirm-email", {
+          body: { token },
+        });
 
-        if (findError) {
-          console.error("Error finding profile:", findError);
-          throw new Error("Erreur lors de la vérification du token.");
-        }
-
-        if (!profile) {
-          setStatus("error");
-          setErrorMessage("Ce lien de confirmation est invalide ou a déjà été utilisé.");
-          return;
-        }
-
-        if (profile.email_confirmed) {
-          // Already confirmed, just redirect
-          setStatus("success");
-          toast({
-            title: "Email déjà confirmé",
-            description: "Votre email a déjà été confirmé. Vous pouvez vous connecter.",
-          });
-          return;
-        }
-
-        // Update profile to mark email as confirmed and clear the token
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({
-            email_confirmed: true,
-            confirmation_token: null,
-            confirmation_sent_at: null,
-          })
-          .eq("id", profile.id);
-
-        if (updateError) {
-          console.error("Error updating profile:", updateError);
+        if (error) {
+          console.error("[ConfirmEmail] Edge Function error:", error);
           throw new Error("Erreur lors de la confirmation de l'email.");
         }
 
+        if (!data?.success) {
+          console.log("[ConfirmEmail] Confirmation failed:", data?.message);
+          setStatus("error");
+          setErrorMessage(data?.message || "Ce lien de confirmation est invalide ou a déjà été utilisé.");
+          return;
+        }
+
+        console.log("[ConfirmEmail] Email confirmed successfully");
         setStatus("success");
         toast({
           title: "Email confirmé !",
@@ -76,7 +52,7 @@ const ConfirmEmail = () => {
         });
 
       } catch (error: any) {
-        console.error("Confirmation error:", error);
+        console.error("[ConfirmEmail] Confirmation error:", error);
         setStatus("error");
         setErrorMessage(error.message || "Une erreur est survenue lors de la confirmation.");
       }
