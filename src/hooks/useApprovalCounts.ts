@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 
-const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis", "identite"];
+const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis"];
 
 export const useApprovalCounts = () => {
   const queryClient = useQueryClient();

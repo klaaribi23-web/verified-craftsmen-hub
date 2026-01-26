@@ -772,7 +772,7 @@ const ArtisanPublicProfile = () => {
                             </div>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-xs">
-                            <p>RC Pro, garantie décennale, KBIS et pièce d'identité vérifiés par notre équipe de modération.</p>
+                            <p>RC Pro, garantie décennale et KBIS vérifiés par notre équipe de modération.</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>

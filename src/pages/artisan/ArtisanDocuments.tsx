@@ -58,13 +58,6 @@ const REQUIRED_DOCUMENTS = [
     icon: Building
   },
   { 
-    id: "identite", 
-    name: "Pièce d'identité (recto/verso)", 
-    description: "Carte d'identité ou passeport valide",
-    required: true,
-    icon: CreditCard
-  },
-  { 
     id: "certifications", 
     name: "Qualifications / Certifications", 
     description: "RGE, Qualibat, ou autres certifications professionnelles",
@@ -194,7 +187,7 @@ export const ArtisanDocuments = () => {
       }
 
       // Check if ALL 4 mandatory documents are now present
-      const mandatoryDocIds = ["rc_pro", "decennale", "kbis", "identite"];
+      const mandatoryDocIds = ["rc_pro", "decennale", "kbis"];
       const { data: allDocs } = await supabase
         .from("artisan_documents")
         .select("name")
@@ -430,7 +423,7 @@ export const ArtisanDocuments = () => {
                     <p className={`text-sm ${allMandatoryUploaded ? "text-success/80" : "text-amber-600"}`}>
                       {allMandatoryUploaded 
                         ? "Vos documents sont en cours de vérification par notre équipe."
-                        : "Vous devez télécharger les 4 documents obligatoires pour pouvoir demander l'approbation de votre profil."
+                        : "Vous devez télécharger les 3 documents obligatoires pour pouvoir demander l'approbation de votre profil."
                       }
                     </p>
                   </div>

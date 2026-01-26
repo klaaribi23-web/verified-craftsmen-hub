@@ -184,7 +184,7 @@ export const ProfileCompletionCard = ({
                 }`}>
                   {allDocumentsUploaded 
                     ? "Tous vos documents ont été téléchargés !" 
-                    : "RC Pro, Décennale, KBIS, Pièce d'identité"}
+                    : "RC Pro, Décennale, KBIS"}
                 </p>
               </div>
             </div>
@@ -274,7 +274,7 @@ export const ProfileCompletionCard = ({
               <Lock className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm text-muted-foreground">
-                  Téléchargez vos 4 documents obligatoires pour débloquer le bouton d'approbation.
+                  Téléchargez vos 3 documents obligatoires pour débloquer le bouton d'approbation.
                 </p>
                 <Link 
                   to="/artisan/documents"
