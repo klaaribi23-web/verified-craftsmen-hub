@@ -120,8 +120,8 @@ export const ArtisanDashboard = () => {
   });
 
   // Fetch documents stats with mandatory document count
-  const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis", "identite"];
-  const TOTAL_MANDATORY_DOCS = 4;
+  const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis"];
+  const TOTAL_MANDATORY_DOCS = 3;
 
   const { data: documentStats } = useQuery({
     queryKey: ["artisan-documents-stats", artisanProfile?.id],

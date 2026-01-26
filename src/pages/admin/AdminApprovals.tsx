@@ -270,7 +270,7 @@ const AdminApprovals = () => {
   }, [queryClient]);
 
   // Fetch pending artisans (only those with ALL 4 mandatory documents)
-  const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis", "identite"];
+  const MANDATORY_DOC_IDS = ["rc_pro", "decennale", "kbis"];
   
   const {
     data: pendingArtisans = [],
@@ -677,8 +677,7 @@ const AdminApprovals = () => {
     const labels: Record<string, string> = {
       rc_pro: "RC Professionnelle",
       decennale: "Assurance Décennale",
-      kbis: "Extrait KBIS",
-      identite: "Pièce d'identité"
+      kbis: "Extrait KBIS"
     };
     return labels[name] || name;
   };
