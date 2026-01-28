@@ -149,6 +149,9 @@ interface ArtisanDocument {
   created_at: string;
   updated_at: string;
 }
+// Union type for all editable artisan types
+type EditableArtisan = ProspectArtisan | WaitingArtisan | ClaimedArtisan | SelfSignupArtisan | PendingArtisan;
+
 const AdminApprovals = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -159,7 +162,7 @@ const AdminApprovals = () => {
   const [showMissionRejectDialog, setShowMissionRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [prospectToDelete, setProspectToDelete] = useState<ProspectArtisan | null>(null);
-  const [editProspect, setEditProspect] = useState<ProspectArtisan | null>(null);
+  const [editArtisan, setEditArtisan] = useState<EditableArtisan | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   // Documents dialog state
@@ -195,6 +198,16 @@ const AdminApprovals = () => {
   const [showDeleteSelfSignupDialog, setShowDeleteSelfSignupDialog] = useState(false);
   const [selfSignupToDelete, setSelfSignupToDelete] = useState<SelfSignupArtisan | null>(null);
   const [isDeletingSelfSignup, setIsDeletingSelfSignup] = useState(false);
+
+  // Delete claimed artisan dialog state (Vitrines confirmées)
+  const [showDeleteClaimedDialog, setShowDeleteClaimedDialog] = useState(false);
+  const [claimedArtisanToDelete, setClaimedArtisanToDelete] = useState<ClaimedArtisan | null>(null);
+  const [isDeletingClaimed, setIsDeletingClaimed] = useState(false);
+
+  // Delete pending artisan dialog state (Documents en attente)
+  const [showDeletePendingDialog, setShowDeletePendingDialog] = useState(false);
+  const [pendingArtisanToDelete, setPendingArtisanToDelete] = useState<PendingArtisan | null>(null);
+  const [isDeletingPending, setIsDeletingPending] = useState(false);
 
   // Pagination state for prospects
   const [prospectPage, setProspectPage] = useState(0);
@@ -1402,6 +1415,28 @@ const AdminApprovals = () => {
 
                                     <div className="flex flex-wrap gap-2">
                                       <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                        onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}
+                                        disabled={!artisan.slug}
+                                      >
+                                        <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                        <span className="hidden sm:inline">Voir</span>
+                                      </Button>
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                        onClick={() => {
+                                          setEditArtisan(artisan);
+                                          setEditDialogOpen(true);
+                                        }}
+                                      >
+                                        <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                        <span className="hidden sm:inline">Modifier</span>
+                                      </Button>
+                                      <Button 
                                         variant="destructive" 
                                         size="sm" 
                                         className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
@@ -1530,16 +1565,28 @@ const AdminApprovals = () => {
                                         <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
                                         <span className="hidden sm:inline">Documents</span>
                                       </Button>
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+                                        onClick={() => {
+                                          setEditArtisan(artisan);
+                                          setEditDialogOpen(true);
+                                        }}
+                                      >
+                                        <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                        <span className="hidden sm:inline">Modifier</span>
+                                      </Button>
                                       <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => handleApproveArtisan(artisan)} disabled={approveArtisanMutation.isPending}>
                                         <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
                                         <span className="hidden sm:inline">Accepter</span>
                                       </Button>
                                       <Button variant="destructive" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => {
-                                  setSelectedArtisan(artisan);
-                                  setShowRejectDialog(true);
-                                }}>
-                                        <XCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
-                                        <span className="hidden sm:inline">Refuser</span>
+                                        setPendingArtisanToDelete(artisan);
+                                        setShowDeletePendingDialog(true);
+                                      }}>
+                                        <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-0.5 md:mr-1" />
+                                        <span className="hidden sm:inline">Supprimer</span>
                                       </Button>
                                     </div>
                                   </div>
@@ -1674,7 +1721,7 @@ const AdminApprovals = () => {
                                       <span className="hidden sm:inline">Voir</span>
                                     </Button>
                                     <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => {
-                                  setEditProspect(prospect);
+                                  setEditArtisan(prospect);
                                   setEditDialogOpen(true);
                                 }}>
                                       <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
@@ -1855,6 +1902,18 @@ const AdminApprovals = () => {
                                       <RefreshCw className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
                                       Relancer
                                     </Button>
+                                      <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-3"
+                                      onClick={() => {
+                                        setEditArtisan(artisan);
+                                        setEditDialogOpen(true);
+                                      }}
+                                    >
+                                      <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                      Modifier
+                                    </Button>
                                     <Button 
                                       variant="destructive" 
                                       size="sm" 
@@ -2017,6 +2076,30 @@ const AdminApprovals = () => {
                                     <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-3" onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}>
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
                                       Voir le profil
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-3"
+                                      onClick={() => {
+                                        setEditArtisan(artisan);
+                                        setEditDialogOpen(true);
+                                      }}
+                                    >
+                                      <Pencil className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                      Modifier
+                                    </Button>
+                                    <Button 
+                                      variant="destructive" 
+                                      size="sm" 
+                                      className="text-xs md:text-sm h-8 md:h-9 px-3"
+                                      onClick={() => {
+                                        setClaimedArtisanToDelete(artisan);
+                                        setShowDeleteClaimedDialog(true);
+                                      }}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                      Supprimer
                                     </Button>
                                   </div>
                                 </div>
@@ -2246,16 +2329,18 @@ const AdminApprovals = () => {
             </AlertDialogContent>
           </AlertDialog>
 
-          {/* Edit Prospect Dialog */}
+          {/* Edit Artisan Dialog */}
           <AdminEditArtisanDialog open={editDialogOpen} onOpenChange={open => {
           setEditDialogOpen(open);
           if (!open) {
-            setEditProspect(null);
-            queryClient.invalidateQueries({
-              queryKey: ["prospect-artisans"]
-            });
+            setEditArtisan(null);
+            queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+            queryClient.invalidateQueries({ queryKey: ["waiting-artisans"] });
+            queryClient.invalidateQueries({ queryKey: ["claimed-artisans"] });
+            queryClient.invalidateQueries({ queryKey: ["self-signup-artisans"] });
+            queryClient.invalidateQueries({ queryKey: ["pending-artisans"] });
           }
-        }} artisan={editProspect as any} />
+        }} artisan={editArtisan as any} />
 
           {/* Documents Dialog */}
           <Dialog open={showDocumentsDialog} onOpenChange={setShowDocumentsDialog}>
@@ -2701,6 +2786,149 @@ const AdminApprovals = () => {
                   className="bg-destructive hover:bg-destructive/90"
                 >
                   {isDeletingSelfSignup ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Suppression...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Supprimer définitivement
+                    </>
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Delete Claimed Artisan Confirmation AlertDialog */}
+          <AlertDialog open={showDeleteClaimedDialog} onOpenChange={setShowDeleteClaimedDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="h-5 w-5" />
+                  Supprimer définitivement cet artisan ?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="space-y-2">
+                  <p>
+                    Vous êtes sur le point de supprimer <strong>{claimedArtisanToDelete?.business_name}</strong> de façon permanente.
+                  </p>
+                  <p className="text-destructive font-medium">
+                    Cette action est irréversible. Toutes les données associées seront supprimées :
+                  </p>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                    <li>Fiche artisan et compte utilisateur</li>
+                    <li>Photos et portfolio</li>
+                    <li>Catégories et services</li>
+                    <li>Avis et recommandations</li>
+                  </ul>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeletingClaimed}>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!claimedArtisanToDelete) return;
+                    
+                    setIsDeletingClaimed(true);
+                    try {
+                      const { data, error } = await supabase.functions.invoke('admin-delete-waiting-artisan', {
+                        body: { artisanId: claimedArtisanToDelete.id }
+                      });
+                      
+                      if (error) throw error;
+                      if (data?.error) throw new Error(data.error);
+                      
+                      const deletedUser = data?.deletedUser ? " et le compte utilisateur associé" : "";
+                      toast.success(`Artisan supprimé définitivement${deletedUser}`);
+                      queryClient.invalidateQueries({ queryKey: ["claimed-artisans"] });
+                      queryClient.invalidateQueries({ queryKey: ["claimed-artisans-count"] });
+                      queryClient.invalidateQueries({ queryKey: ["approval-counts"] });
+                    } catch (error: any) {
+                      console.error("Error deleting artisan:", error);
+                      toast.error("Erreur lors de la suppression : " + (error.message || "Erreur inconnue"));
+                    } finally {
+                      setIsDeletingClaimed(false);
+                      setShowDeleteClaimedDialog(false);
+                      setClaimedArtisanToDelete(null);
+                    }
+                  }}
+                  disabled={isDeletingClaimed}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
+                  {isDeletingClaimed ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Suppression...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Supprimer définitivement
+                    </>
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Delete Pending Artisan (Documents en attente) Confirmation AlertDialog */}
+          <AlertDialog open={showDeletePendingDialog} onOpenChange={setShowDeletePendingDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="h-5 w-5" />
+                  Supprimer définitivement cet artisan ?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="space-y-2">
+                  <p>
+                    Vous êtes sur le point de supprimer <strong>{pendingArtisanToDelete?.business_name}</strong> et tous ses documents de façon permanente.
+                  </p>
+                  <p className="text-destructive font-medium">
+                    Cette action est irréversible. Toutes les données associées seront supprimées :
+                  </p>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                    <li>Fiche artisan et compte utilisateur</li>
+                    <li>Documents uploadés</li>
+                    <li>Photos et portfolio</li>
+                    <li>Catégories et services</li>
+                  </ul>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeletingPending}>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!pendingArtisanToDelete) return;
+                    
+                    setIsDeletingPending(true);
+                    try {
+                      const { data, error } = await supabase.functions.invoke('admin-delete-waiting-artisan', {
+                        body: { artisanId: pendingArtisanToDelete.id }
+                      });
+                      
+                      if (error) throw error;
+                      if (data?.error) throw new Error(data.error);
+                      
+                      const deletedUser = data?.deletedUser ? " et le compte utilisateur associé" : "";
+                      toast.success(`Artisan supprimé définitivement${deletedUser}`);
+                      queryClient.invalidateQueries({ queryKey: ["pending-artisans"] });
+                      queryClient.invalidateQueries({ queryKey: ["approval-counts"] });
+                    } catch (error: any) {
+                      console.error("Error deleting artisan:", error);
+                      toast.error("Erreur lors de la suppression : " + (error.message || "Erreur inconnue"));
+                    } finally {
+                      setIsDeletingPending(false);
+                      setShowDeletePendingDialog(false);
+                      setPendingArtisanToDelete(null);
+                    }
+                  }}
+                  disabled={isDeletingPending}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
+                  {isDeletingPending ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Suppression...
