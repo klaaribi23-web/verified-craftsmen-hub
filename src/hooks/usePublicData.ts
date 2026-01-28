@@ -80,18 +80,18 @@ export const useMissionApplicationsRealtime = () => {
 
   useEffect(() => {
     const channel = supabase
-      .channel('mission-applications-changes')
+      .channel("mission-applications-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'mission_applications',
+          event: "*",
+          schema: "public",
+          table: "mission_applications",
         },
         () => {
           // Invalidate the query to refetch data when applications change
           queryClient.invalidateQueries({ queryKey: ["public-missions"] });
-        }
+        },
       )
       .subscribe();
 
@@ -113,18 +113,20 @@ export const useDemoMissions = (userId?: string, userRole?: string) => {
       // 1. Fetch missions
       const { data: missions, error } = await supabase
         .from("missions")
-        .select(`
+        .select(
+          `
           *,
           category:categories(id, name),
           client:profiles!missions_client_id_fkey(first_name, last_name, city)
-        `)
+        `,
+        )
         .eq("status", "published")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       if (!missions || missions.length === 0) return [];
 
-      const missionIds = missions.map(m => m.id);
+      const missionIds = missions.map((m) => m.id);
 
       // 2. Fetch applicant counts from mission_applications
       const { data: applicationsData, error: appError } = await supabase
@@ -136,7 +138,7 @@ export const useDemoMissions = (userId?: string, userRole?: string) => {
 
       // 3. Count applicants per mission
       const applicantsCounts = new Map<string, number>();
-      applicationsData?.forEach(app => {
+      applicationsData?.forEach((app) => {
         const count = applicantsCounts.get(app.mission_id) || 0;
         applicantsCounts.set(app.mission_id, count + 1);
       });
@@ -144,11 +146,7 @@ export const useDemoMissions = (userId?: string, userRole?: string) => {
       // 4. Fetch artisan's own applications if logged in as artisan
       let myAppliedMissions = new Set<string>();
       if (userId && userRole === "artisan") {
-        const { data: artisanData } = await supabase
-          .from("artisans")
-          .select("id")
-          .eq("user_id", userId)
-          .single();
+        const { data: artisanData } = await supabase.from("artisans").select("id").eq("user_id", userId).single();
 
         if (artisanData?.id) {
           const { data: myApplications } = await supabase
@@ -157,20 +155,20 @@ export const useDemoMissions = (userId?: string, userRole?: string) => {
             .eq("artisan_id", artisanData.id)
             .in("mission_id", missionIds);
 
-          myApplications?.forEach(app => {
+          myApplications?.forEach((app) => {
             myAppliedMissions.add(app.mission_id);
           });
         }
       }
 
       // 5. Transform data with real applicant count + fake applicants and application status
-      return missions.map(mission => {
+      return missions.map((mission) => {
         const realApplicants = applicantsCounts.get(mission.id) || 0;
         const fakeApplicants = (mission as any).fake_applicants_count || 0;
-        
+
         return {
           ...mission,
-          client_name: mission.client 
+          client_name: mission.client
             ? `${mission.client.first_name || ""} ${mission.client.last_name || ""}`.trim() || "Client"
             : "Client",
           client_city: mission.client?.city || mission.city,
@@ -190,20 +188,20 @@ export const usePublicArtisans = () => {
       // Fetch artisans (active + prospect for showcase profiles)
       const { data: artisans, error: artisansError } = await supabase
         .from("public_artisans")
-        .select(`
+        .select(
+          `
           *,
           category:categories(id, name)
-        `)
-        .in("status", ["active", "prospect"])
+        `,
+        )
+        //.in("status", ["active", "prospect"])
         .order("display_priority", { ascending: true, nullsFirst: false })
         .order("rating", { ascending: false });
 
       if (artisansError) throw artisansError;
 
       // Fetch all artisan categories
-      const { data: artisanCategories, error: catError } = await supabase
-        .from("artisan_categories")
-        .select(`
+      const { data: artisanCategories, error: catError } = await supabase.from("artisan_categories").select(`
           artisan_id,
           category:categories(id, name)
         `);
@@ -211,13 +209,15 @@ export const usePublicArtisans = () => {
       if (catError) throw catError;
 
       // Map categories to artisans
-      const artisansWithCategories = artisans?.map(artisan => ({
-        ...artisan,
-        categories: artisanCategories
-          ?.filter(ac => ac.artisan_id === artisan.id)
-          .map(ac => ac.category)
-          .filter(Boolean) || []
-      })) || [];
+      const artisansWithCategories =
+        artisans?.map((artisan) => ({
+          ...artisan,
+          categories:
+            artisanCategories
+              ?.filter((ac) => ac.artisan_id === artisan.id)
+              .map((ac) => ac.category)
+              .filter(Boolean) || [],
+        })) || [];
 
       return artisansWithCategories as (ArtisanPublic & { categories: { id: string; name: string }[] })[];
     },
@@ -231,10 +231,12 @@ export const useFeaturedArtisans = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("public_artisans")
-        .select(`
+        .select(
+          `
           *,
           category:categories(id, name)
-        `)
+        `,
+        )
         .in("status", ["active", "prospect"])
         .order("display_priority", { ascending: true, nullsFirst: false })
         .order("rating", { ascending: false })
@@ -247,10 +249,7 @@ export const useFeaturedArtisans = () => {
 };
 
 // Re-export categories hooks from useCategories for backwards compatibility
-export { 
-  useCategories as usePublicCategories,
-  useCategoriesWithCount 
-} from "./useCategories";
+export { useCategories as usePublicCategories, useCategoriesWithCount } from "./useCategories";
 
 // Fetch single artisan by slug or ID - uses secure public_artisans view
 export const useArtisanBySlug = (slugOrId: string) => {
@@ -260,10 +259,12 @@ export const useArtisanBySlug = (slugOrId: string) => {
       // Try by slug first
       let { data, error } = await supabase
         .from("public_artisans")
-        .select(`
+        .select(
+          `
           *,
           category:categories(id, name, icon)
-        `)
+        `,
+        )
         .eq("slug", slugOrId)
         .maybeSingle();
 
@@ -271,10 +272,12 @@ export const useArtisanBySlug = (slugOrId: string) => {
       if (!data && !error) {
         const result = await supabase
           .from("public_artisans")
-          .select(`
+          .select(
+            `
             *,
             category:categories(id, name, icon)
-          `)
+          `,
+          )
           .eq("id", slugOrId)
           .maybeSingle();
         data = result.data;
@@ -287,14 +290,16 @@ export const useArtisanBySlug = (slugOrId: string) => {
       // Fetch multiple categories from junction table
       const { data: artisanCategories } = await supabase
         .from("artisan_categories")
-        .select(`
+        .select(
+          `
           category:categories(id, name, icon)
-        `)
+        `,
+        )
         .eq("artisan_id", data.id);
 
       return {
         ...data,
-        categories: artisanCategories?.map(ac => ac.category).filter(Boolean) || []
+        categories: artisanCategories?.map((ac) => ac.category).filter(Boolean) || [],
       } as ArtisanPublic & { categories: { id: string; name: string; icon?: string | null }[] };
     },
     enabled: !!slugOrId,
@@ -329,10 +334,12 @@ export const useArtisanReviews = (artisanId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("reviews")
-        .select(`
+        .select(
+          `
           *,
           client:profiles!reviews_client_id_fkey(first_name, last_name)
-        `)
+        `,
+        )
         .eq("artisan_id", artisanId)
         .order("created_at", { ascending: false });
 
@@ -349,13 +356,15 @@ export const useSimilarArtisans = (categoryId: string | null, excludeId: string)
     queryKey: ["similar-artisans", categoryId, excludeId],
     queryFn: async () => {
       if (!categoryId) return [];
-      
+
       const { data, error } = await supabase
         .from("public_artisans")
-        .select(`
+        .select(
+          `
           *,
           category:categories(id, name)
-        `)
+        `,
+        )
         .eq("category_id", categoryId)
         .in("status", ["active", "prospect"])
         .neq("id", excludeId)
