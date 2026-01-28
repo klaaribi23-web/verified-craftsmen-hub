@@ -59,7 +59,7 @@ const Confidentialite = () => {
                   <p>Le responsable du traitement des données personnelles est :</p>
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                     <p><strong className="text-foreground">KJ SYSTEMES</strong></p>
-                    <p>Représenté par : Khalid LAARIBI</p>
+                    <p>Représenté par : Knob</p>
                     <p>Adresse : 77 rue de la Monnaie, 59800 Lille, France</p>
                     <p>Email : <a href="mailto:contact@artisansvalides.fr" className="text-primary hover:underline">contact@artisansvalides.fr</a></p>
                     <p>Téléphone : <a href="tel:0353632999" className="text-primary hover:underline">03 53 63 29 99</a></p>
