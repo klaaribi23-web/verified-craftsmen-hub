@@ -1,15 +1,6 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { 
-  MessageSquare, 
-  Award, 
-  Wrench, 
-  Image, 
-  Video, 
-  Clock, 
-  Star,
-  Users
-} from "lucide-react";
+import { MessageSquare, Award, Wrench, Image, Video, Clock, Star, Users } from "lucide-react";
 
 interface NavItem {
   id: string;
@@ -24,7 +15,7 @@ const navItems: NavItem[] = [
   { id: "realisations", label: "Réalisations", icon: <Image className="h-4 w-4" /> },
   { id: "videos", label: "Vidéos", icon: <Video className="h-4 w-4" /> },
   { id: "horaires", label: "Horaires", icon: <Clock className="h-4 w-4" /> },
-  { id: "avis", label: "Avis clients", icon: <Star className="h-4 w-4" /> },
+  //{ id: "avis", label: "Avis clients", icon: <Star className="h-4 w-4" /> },
   { id: "recommandations", label: "Recommandations", icon: <Users className="h-4 w-4" /> },
 ];
 
@@ -36,16 +27,16 @@ const ProfileNavigation = ({ visibleSections }: ProfileNavigationProps) => {
   const [activeSection, setActiveSection] = useState<string>("");
 
   // Filter nav items based on visible sections
-  const filteredNavItems = visibleSections 
-    ? navItems.filter(item => visibleSections.includes(item.id))
-    : navItems;
+  const filteredNavItems = visibleSections ? navItems.filter((item) => visibleSections.includes(item.id)) : navItems;
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = filteredNavItems.map(item => ({
-        id: item.id,
-        element: document.getElementById(item.id)
-      })).filter(s => s.element);
+      const sections = filteredNavItems
+        .map((item) => ({
+          id: item.id,
+          element: document.getElementById(item.id),
+        }))
+        .filter((s) => s.element);
 
       const scrollPosition = window.scrollY + 200;
 
@@ -72,7 +63,7 @@ const ProfileNavigation = ({ visibleSections }: ProfileNavigationProps) => {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   };
@@ -90,7 +81,7 @@ const ProfileNavigation = ({ visibleSections }: ProfileNavigationProps) => {
             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all",
             activeSection === item.id
               ? "bg-primary text-primary-foreground shadow-md"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted",
           )}
         >
           {item.icon}
