@@ -17,9 +17,7 @@ const ratingLabels = [
 
 const RecommendationCard = ({ recommendation }: RecommendationCardProps) => {
   const client = recommendation.client;
-  const initials = client
-    ? `${client.first_name?.[0] || ""}${client.last_name?.[0] || ""}`.toUpperCase() || "?"
-    : "?";
+  const initials = client ? `${client.first_name?.[0] || ""}${client.last_name?.[0] || ""}`.toUpperCase() || "?" : "?";
 
   const displayName = client
     ? `${client.first_name || ""} ${client.last_name?.[0] || ""}`.trim() || "Client"
@@ -39,9 +37,7 @@ const RecommendationCard = ({ recommendation }: RecommendationCardProps) => {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`${size} ${
-              star <= rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"
-            }`}
+            className={`${size} ${star <= rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"}`}
           />
         ))}
       </div>
@@ -55,9 +51,7 @@ const RecommendationCard = ({ recommendation }: RecommendationCardProps) => {
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Avatar className="h-8 w-8 sm:h-10 sm:w-10 shrink-0">
             <AvatarImage src={client?.avatar_url || undefined} />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs sm:text-sm">
-              {initials}
-            </AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary text-xs sm:text-sm">{initials}</AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <p className="font-medium text-xs sm:text-sm truncate">{displayName}.</p>
@@ -75,21 +69,9 @@ const RecommendationCard = ({ recommendation }: RecommendationCardProps) => {
         </div>
       </div>
 
-      {/* Ratings Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-        {ratingLabels.map(({ key, label }) => (
-          <div key={key} className="flex items-center justify-between gap-1 bg-muted/30 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2">
-            <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{label}</span>
-            {renderStars(recommendation[key] as number, true)}
-          </div>
-        ))}
-      </div>
-
       {/* Comment */}
       {recommendation.comment && (
-        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-          "{recommendation.comment}"
-        </p>
+        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">"{recommendation.comment}"</p>
       )}
     </div>
   );
