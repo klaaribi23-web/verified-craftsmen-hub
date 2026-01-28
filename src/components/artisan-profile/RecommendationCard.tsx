@@ -69,6 +69,19 @@ const RecommendationCard = ({ recommendation }: RecommendationCardProps) => {
         </div>
       </div>
 
+      {/* Ratings Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+        {ratingLabels.map(({ key, label }) => (
+          <div
+            key={key}
+            className="flex items-center justify-between gap-1 bg-muted/30 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2"
+          >
+            <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{label}</span>
+            {renderStars(recommendation[key] as number, true)}
+          </div>
+        ))}
+      </div>
+
       {/* Comment */}
       {recommendation.comment && (
         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">"{recommendation.comment}"</p>
