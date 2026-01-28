@@ -19,23 +19,30 @@ import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 interface ArtisanData {
   id: string;
   business_name: string;
-  email: string | null;
-  description: string | null;
-  category_id: string | null;
+  email?: string | null;
+  description?: string | null;
+  category_id?: string | null;
   city: string;
-  postal_code: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  photo_url: string | null;
-  portfolio_images: string[] | null;
-  portfolio_videos: string[] | null;
-  experience_years: number | null;
-  is_verified: boolean | null;
-  facebook_url: string | null;
-  instagram_url: string | null;
-  linkedin_url: string | null;
-  website_url: string | null;
-  working_hours: Record<string, unknown> | null;
+  postal_code?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  photo_url?: string | null;
+  portfolio_images?: string[] | null;
+  portfolio_videos?: string[] | null;
+  experience_years?: number | null;
+  is_verified?: boolean | null;
+  facebook_url?: string | null;
+  instagram_url?: string | null;
+  linkedin_url?: string | null;
+  website_url?: string | null;
+  working_hours?: Record<string, unknown> | null;
+  // Support for nested profile email (used by some artisan types)
+  profile?: {
+    email?: string;
+    first_name?: string | null;
+    last_name?: string | null;
+    phone?: string | null;
+  } | null;
 }
 
 interface AdminEditArtisanDialogProps {
@@ -110,24 +117,27 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
 
   useEffect(() => {
     if (artisan) {
+      // Extract email from either direct field or nested profile
+      const artisanEmail = artisan.email || artisan.profile?.email || null;
+      
       setFormData({
         business_name: artisan.business_name,
-        email: artisan.email,
-        description: artisan.description,
-        category_id: artisan.category_id,
+        email: artisanEmail,
+        description: artisan.description || null,
+        category_id: artisan.category_id || null,
         city: artisan.city,
-        postal_code: artisan.postal_code,
-        latitude: artisan.latitude,
-        longitude: artisan.longitude,
-        photo_url: artisan.photo_url,
+        postal_code: artisan.postal_code || null,
+        latitude: artisan.latitude || null,
+        longitude: artisan.longitude || null,
+        photo_url: artisan.photo_url || null,
         portfolio_images: artisan.portfolio_images || [],
         portfolio_videos: artisan.portfolio_videos || [],
-        experience_years: artisan.experience_years,
-        is_verified: artisan.is_verified,
-        facebook_url: artisan.facebook_url,
-        instagram_url: artisan.instagram_url,
-        linkedin_url: artisan.linkedin_url,
-        website_url: artisan.website_url,
+        experience_years: artisan.experience_years || null,
+        is_verified: artisan.is_verified || null,
+        facebook_url: artisan.facebook_url || null,
+        instagram_url: artisan.instagram_url || null,
+        linkedin_url: artisan.linkedin_url || null,
+        website_url: artisan.website_url || null,
       });
 
       // Set initial coordinates if available
