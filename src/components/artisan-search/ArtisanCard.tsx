@@ -41,7 +41,7 @@ const ArtisanCard = ({
   profileImage,
   portfolio,
   distance,
-  subscriptionTier
+  subscriptionTier,
 }: ArtisanCardProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -67,11 +67,7 @@ const ArtisanCard = ({
 
       try {
         // Get user's profile ID
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("user_id", user.id)
-          .single();
+        const { data: profile } = await supabase.from("profiles").select("id").eq("user_id", user.id).single();
 
         if (!profile) return;
 
@@ -132,12 +128,10 @@ const ArtisanCard = ({
         toast.info("Artisan retiré de vos favoris");
       } else {
         // Add to favorites
-        const { error } = await supabase
-          .from("client_favorites")
-          .insert({
-            client_id: profile.id,
-            artisan_id: artisanId
-          });
+        const { error } = await supabase.from("client_favorites").insert({
+          client_id: profile.id,
+          artisan_id: artisanId,
+        });
 
         if (error) throw error;
 
@@ -155,11 +149,10 @@ const ArtisanCard = ({
   const handleProfileClick = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'instant'
+      behavior: "instant",
     });
     navigate(`/artisan/${artisanUrl}`);
   };
-
 
   const isElite = subscriptionTier === "elite";
   const isPro = subscriptionTier === "pro";
@@ -172,7 +165,7 @@ const ArtisanCard = ({
         icon: Crown,
         label: "Elite",
         gradient: "from-yellow-500 via-amber-400 to-yellow-500",
-        borderClass: "border-border"
+        borderClass: "border-border",
       };
     }
     if (isPro) {
@@ -181,7 +174,7 @@ const ArtisanCard = ({
         icon: Award,
         label: "Premium",
         gradient: "from-slate-400 via-slate-300 to-slate-400",
-        borderClass: "border-border"
+        borderClass: "border-border",
       };
     }
     if (isEssential) {
@@ -190,7 +183,7 @@ const ArtisanCard = ({
         icon: Medal,
         label: "Pro",
         gradient: "from-amber-700 via-amber-600 to-amber-700",
-        borderClass: "border-border"
+        borderClass: "border-border",
       };
     }
     return { show: false, borderClass: "border-border" };
@@ -201,28 +194,26 @@ const ArtisanCard = ({
   const portfolioImage = portfolioImages[0] || defaultProfileImage;
 
   return (
-    <div 
+    <div
       onClick={handleProfileClick}
       className={cn(
         "bg-card rounded-xl shadow-soft border hover:shadow-elevated transition-shadow overflow-hidden relative cursor-pointer",
-        badgeConfig.borderClass
+        badgeConfig.borderClass,
       )}
     >
       {/* Image */}
       <div className="relative h-36 md:h-40 overflow-hidden">
-        <img 
-          src={portfolioImage} 
-          alt={`Réalisation de ${name}`} 
-          className="w-full h-full object-cover" 
-        />
-        
+        <img src={portfolioImage} alt={`Réalisation de ${name}`} className="w-full h-full object-cover" />
+
         {/* Subscription Badge */}
         {badgeConfig.show && badgeConfig.icon && (
           <div className="absolute top-2 left-2 z-10">
-            <div className={cn(
-              "flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-semibold shadow-lg bg-gradient-to-r",
-              badgeConfig.gradient
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-semibold shadow-lg bg-gradient-to-r",
+                badgeConfig.gradient,
+              )}
+            >
               <badgeConfig.icon className="w-3 h-3" />
               <span>{badgeConfig.label}</span>
             </div>
@@ -238,13 +229,13 @@ const ArtisanCard = ({
         )}
 
         {/* Favorite Button */}
-        <button 
-          onClick={handleFavoriteClick} 
+        <button
+          onClick={handleFavoriteClick}
           disabled={isLoading}
           className={cn(
             "absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-manipulation",
             isFavorite ? "bg-red-500 text-white" : "bg-card/90 text-muted-foreground hover:bg-red-500 hover:text-white",
-            isLoading && "opacity-50 cursor-not-allowed"
+            isLoading && "opacity-50 cursor-not-allowed",
           )}
           aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
@@ -256,8 +247,8 @@ const ArtisanCard = ({
       <div className="p-3 sm:p-4">
         {/* Profile photo with story indicator */}
         <div className="flex items-start gap-2 mb-2">
-          <img 
-            src={profileImage || defaultProfileImage} 
+          <img
+            src={profileImage || defaultProfileImage}
             alt={`Photo de profil de ${name}`}
             onClick={(e) => {
               if (hasActiveStories) {
@@ -268,46 +259,22 @@ const ArtisanCard = ({
             }}
             className={cn(
               "w-9 h-9 rounded-full object-cover border-2 flex-shrink-0",
-              hasActiveStories 
-                ? "border-green-500 cursor-pointer animate-story-pulse" 
-                : "border-gold"
-            )} 
+              hasActiveStories ? "border-green-500 cursor-pointer animate-story-pulse" : "border-gold",
+            )}
           />
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm sm:text-base truncate mb-0.5">
-              {name}
-            </h3>
+            <h3 className="font-semibold text-sm sm:text-base truncate mb-0.5">{name}</h3>
             <Badge variant="secondary" className="text-xs">
               {profession}
             </Badge>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
           <MapPin className="h-3 w-3 shrink-0" />
           <span className="truncate">{location}</span>
           {distance !== null && distance !== undefined && (
             <span className="text-gold font-medium ml-1">• {Math.round(distance)} km</span>
-          )}
-        </div>
-        
-        <div className="flex items-center gap-0.5">
-          {Array.from({ length: 5 }, (_, i) => (
-            <Star
-              key={i}
-              className={cn(
-                "h-3 w-3",
-                i < Math.floor(rating)
-                  ? "fill-amber-400 text-amber-400"
-                  : "text-muted-foreground/30"
-              )}
-            />
-          ))}
-          <span className="text-xs font-medium ml-1">
-            {rating.toFixed(1)}
-          </span>
-          {reviews > 0 && (
-            <span className="text-xs text-muted-foreground ml-1">({reviews})</span>
           )}
         </div>
       </div>
