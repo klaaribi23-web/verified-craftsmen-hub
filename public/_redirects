@@ -1,0 +1,2 @@
+# Redirect sitemap.xml to dynamic Edge function
+/sitemap.xml https://nkeodfivjnhawzrezuqp.supabase.co/functions/v1/sitemap 301
