@@ -30,6 +30,7 @@ import { ArtisanStories } from "./pages/artisan/ArtisanStories";
 import ArtisanSubscription from "./pages/artisan/ArtisanSubscription";
 import ArtisanPublicProfile from "./pages/ArtisanPublicProfile";
 import { ClientDashboard } from "./pages/client/ClientDashboard";
+import { ClientDashboardNew } from "./pages/client/ClientDashboardNew";
 import { ClientMissions } from "./pages/client/ClientMissions";
 import { ClientMissionDetail } from "./pages/client/ClientMissionDetail";
 import { ClientFavorites } from "./pages/client/ClientFavorites";
@@ -108,6 +109,9 @@ const App = () => (
           
           {/* Redirection /dashboard/artisan → /artisan/dashboard */}
           <Route path="/dashboard/artisan" element={<Navigate to="/artisan/dashboard" replace />} />
+          
+          {/* Dashboard Particulier */}
+          <Route path="/dashboard/client" element={<ClientDashboardNew />} />
           
           {/* Redirections SEO - anciennes URLs WordPress */}
           <Route path="/accueil-old" element={<Navigate to="/" replace />} />
