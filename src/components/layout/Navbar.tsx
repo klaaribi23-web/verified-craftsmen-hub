@@ -511,6 +511,12 @@ const Navbar = () => {
             <div className="hidden lg:flex items-center gap-3">
               {isAuthenticated && (
                 <>
+                  <Button variant="gold" size="sm" asChild>
+                    <Link to={getDashboardLink()}>
+                      <LayoutDashboard className="w-4 h-4 mr-1.5" />
+                      Espace Pro
+                    </Link>
+                  </Button>
                   <Link to={getMessagingLink()} className="relative">
                     <Button variant="ghost" size="icon" className="relative">
                       <MessageCircle className="w-5 h-5" />
