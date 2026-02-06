@@ -7,6 +7,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { QuoteNotificationListener } from "@/components/notifications/QuoteNotificationListener";
 import GlobalMobileNavbar from "@/components/layout/GlobalMobileNavbar";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { DemoContactProvider } from "@/contexts/DemoContactContext";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import Index from "./pages/Index";
 import TrouverArtisan from "./pages/TrouverArtisan";
@@ -73,6 +74,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <DemoContactProvider>
         <SubscriptionProvider>
         {/* Scroll to top on route change */}
         <ScrollToTop />
@@ -283,6 +285,7 @@ const App = () => (
         {/* GDPR Cookie Consent Banner */}
         <CookieConsent />
         </SubscriptionProvider>
+        </DemoContactProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
