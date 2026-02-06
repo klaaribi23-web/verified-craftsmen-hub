@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, Phone, MapPin, Clock, Send, User, Briefcase, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,14 +13,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 
+const TRAVAUX_OPTIONS = [
+  "Peinture",
+  "Électricité",
+  "Maçonnerie",
+  "Menuiserie",
+  "Autre",
+] as const;
+
 type ContactType = "particulier" | "professionnel" | null;
 
 const particulierSchema = z.object({
   lastName: z.string().trim().min(1, "Le nom est requis").max(100),
-  firstName: z.string().trim().min(1, "Le prénom est requis").max(100),
+  email: z.string().trim().email("L'email est invalide").max(255),
   phone: z.string().trim().min(1, "Le téléphone est requis").max(20),
   city: z.string().trim().min(1, "La ville est requise").max(100),
-  projectType: z.string().trim().min(1, "Le type de projet est requis").max(200),
+  projectType: z.string().trim().min(1, "Le type de travaux est requis").max(200),
   message: z.string().trim().min(1, "Le message est requis").max(5000),
 });
 
@@ -28,6 +37,7 @@ const professionnelSchema = z.object({
   companyName: z.string().trim().min(1, "Le nom de l'entreprise est requis").max(200),
   siret: z.string().trim().min(1, "Le SIRET est requis").max(20),
   trade: z.string().trim().min(1, "Le métier est requis").max(100),
+  email: z.string().trim().email("L'email est invalide").max(255),
   phone: z.string().trim().min(1, "Le téléphone est requis").max(20),
 });
 
@@ -38,11 +48,11 @@ const Contact = () => {
   const [honeypot, setHoneypot] = useState("");
 
   const [particulierData, setParticulierData] = useState({
-    lastName: "", firstName: "", phone: "", city: "", projectType: "", message: "",
+    lastName: "", email: "", phone: "", city: "", projectType: "", message: "",
   });
 
   const [proData, setProData] = useState({
-    directorName: "", companyName: "", siret: "", trade: "", phone: "",
+    directorName: "", companyName: "", siret: "", trade: "", email: "", phone: "",
   });
 
   const handleParticulierChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -78,7 +88,7 @@ const Contact = () => {
         return;
       }
       subject = `[Particulier] ${result.data.projectType}`;
-      message = `Nom: ${result.data.lastName}\nPrénom: ${result.data.firstName}\nTéléphone: ${result.data.phone}\nVille: ${result.data.city}\nType de projet: ${result.data.projectType}\n\nMessage:\n${result.data.message}`;
+      message = `Nom: ${result.data.lastName}\nEmail: ${result.data.email}\nTéléphone: ${result.data.phone}\nVille: ${result.data.city}\nType de travaux: ${result.data.projectType}\n\nMessage:\n${result.data.message}`;
     } else {
       const result = professionnelSchema.safeParse(proData);
       if (!result.success) {
@@ -91,15 +101,15 @@ const Contact = () => {
         return;
       }
       subject = `[Professionnel] ${result.data.companyName}`;
-      message = `Dirigeant: ${result.data.directorName}\nEntreprise: ${result.data.companyName}\nSIRET: ${result.data.siret}\nMétier: ${result.data.trade}\nTéléphone: ${result.data.phone}`;
+      message = `Dirigeant: ${result.data.directorName}\nEntreprise: ${result.data.companyName}\nSIRET: ${result.data.siret}\nMétier: ${result.data.trade}\nEmail: ${result.data.email}\nTéléphone: ${result.data.phone}`;
     }
 
     setIsSubmitting(true);
     try {
       const { error } = await supabase.functions.invoke('send-contact-email', {
         body: {
-          name: contactType === "particulier" ? `${particulierData.firstName} ${particulierData.lastName}` : proData.directorName,
-          email: "contact@artisansvalides.fr",
+          name: contactType === "particulier" ? particulierData.lastName : proData.directorName,
+          email: contactType === "particulier" ? particulierData.email : proData.email,
           subject,
           message,
           _hp: honeypot,
@@ -108,8 +118,8 @@ const Contact = () => {
       if (error) throw new Error(error.message);
       toast.success("Message envoyé ! Un expert vous rappelle sous 24h.");
       setContactType(null);
-      setParticulierData({ lastName: "", firstName: "", phone: "", city: "", projectType: "", message: "" });
-      setProData({ directorName: "", companyName: "", siret: "", trade: "", phone: "" });
+      setParticulierData({ lastName: "", email: "", phone: "", city: "", projectType: "", message: "" });
+      setProData({ directorName: "", companyName: "", siret: "", trade: "", email: "", phone: "" });
     } catch (error: any) {
       toast.error(error.message || "Erreur lors de l'envoi. Veuillez réessayer.");
     } finally {
@@ -203,9 +213,9 @@ const Contact = () => {
                                   {errors.lastName && <p className="text-sm text-destructive mt-1">{errors.lastName}</p>}
                                 </div>
                                 <div>
-                                  <label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-2">Prénom</label>
-                                  <Input id="firstName" name="firstName" value={particulierData.firstName} onChange={handleParticulierChange} placeholder="Votre prénom" required className={errors.firstName ? "border-destructive" : ""} />
-                                  {errors.firstName && <p className="text-sm text-destructive mt-1">{errors.firstName}</p>}
+                                  <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">Email</label>
+                                  <Input id="email" name="email" type="email" value={particulierData.email} onChange={handleParticulierChange} placeholder="votre@email.fr" required className={errors.email ? "border-destructive" : ""} />
+                                  {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
                                 </div>
                               </div>
                               <div className="grid grid-cols-2 gap-4">
@@ -221,8 +231,17 @@ const Contact = () => {
                                 </div>
                               </div>
                               <div>
-                                <label htmlFor="projectType" className="block text-sm font-medium text-foreground mb-2">Type de projet</label>
-                                <Input id="projectType" name="projectType" value={particulierData.projectType} onChange={handleParticulierChange} placeholder="Ex: Rénovation salle de bain, peinture..." required className={errors.projectType ? "border-destructive" : ""} />
+                                <label htmlFor="projectType" className="block text-sm font-medium text-foreground mb-2">Type de travaux</label>
+                                <Select value={particulierData.projectType} onValueChange={(val) => { setParticulierData(prev => ({ ...prev, projectType: val })); if (errors.projectType) setErrors(prev => ({ ...prev, projectType: "" })); }}>
+                                  <SelectTrigger className={errors.projectType ? "border-destructive" : ""}>
+                                    <SelectValue placeholder="Sélectionnez un type de travaux" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {TRAVAUX_OPTIONS.map(opt => (
+                                      <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                                 {errors.projectType && <p className="text-sm text-destructive mt-1">{errors.projectType}</p>}
                               </div>
                               <div>
@@ -257,10 +276,17 @@ const Contact = () => {
                                   {errors.trade && <p className="text-sm text-destructive mt-1">{errors.trade}</p>}
                                 </div>
                               </div>
-                              <div>
-                                <label htmlFor="proPhone" className="block text-sm font-medium text-foreground mb-2">Téléphone</label>
-                                <Input id="proPhone" name="phone" type="tel" value={proData.phone} onChange={handleProChange} placeholder="06 12 34 56 78" required className={errors.phone ? "border-destructive" : ""} />
-                                {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <label htmlFor="proEmail" className="block text-sm font-medium text-foreground mb-2">Email</label>
+                                  <Input id="proEmail" name="email" type="email" value={proData.email} onChange={handleProChange} placeholder="contact@entreprise.fr" required className={errors.email ? "border-destructive" : ""} />
+                                  {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+                                </div>
+                                <div>
+                                  <label htmlFor="proPhone" className="block text-sm font-medium text-foreground mb-2">Téléphone</label>
+                                  <Input id="proPhone" name="phone" type="tel" value={proData.phone} onChange={handleProChange} placeholder="06 12 34 56 78" required className={errors.phone ? "border-destructive" : ""} />
+                                  {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
+                                </div>
                               </div>
                             </>
                           )}
@@ -278,7 +304,7 @@ const Contact = () => {
                     <div className="flex items-center gap-3 mt-4 p-4 bg-success/10 rounded-lg border border-success/20">
                       <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
                       <p className="text-sm text-foreground font-medium">
-                        Un expert vous rappelle sous 24h pour valider votre demande.
+                        Un expert Artisans Validés vous recontacte sous 24h.
                       </p>
                     </div>
                   </motion.div>
