@@ -10,8 +10,6 @@ import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-ph
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
-import { CategorySelect } from "@/components/categories/CategorySelect";
-import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { 
   ArrowRight, 
   Shield, 
@@ -23,50 +21,56 @@ import {
   Zap,
   Clock,
   Loader2,
-  UserCheck
+  UserCheck,
+  Lock,
+  Crown,
+  Check,
+  Phone
 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { BOOSTER_OFFER } from "@/config/subscriptionPlans";
 
 const benefits = [
   {
-    icon: UserCheck,
-    title: "Sélection sur dossier",
-    description: "Nous étudions chaque candidature individuellement. Seuls les meilleurs profils sont retenus.",
+    icon: Lock,
+    title: "2 places max par ville",
+    description: "On verrouille votre secteur. Pas 10 artisans, pas 5. Deux. Point.",
   },
   {
     icon: BadgeCheck,
-    title: "Badge Artisan Validé",
-    description: "Notre équipe vérifie vos documents, votre SIRET et vos assurances avant validation.",
+    title: "Profil géré par nos soins",
+    description: "On s'occupe de tout : photos, textes, mise en avant. Vous, vous bossez.",
   },
   {
     icon: TrendingUp,
-    title: "Chantiers qualifiés garantis",
-    description: "Nous vous transmettons uniquement des demandes sérieuses et pré-qualifiées par nos soins.",
+    title: "Appels directs",
+    description: "Les clients vous appellent directement. Pas de plateforme entre vous et le chantier.",
   },
   {
-    icon: Star,
-    title: "Exclusivité géographique",
-    description: "Nombre limité d'artisans par zone pour vous garantir un volume de chantiers suffisant.",
+    icon: Shield,
+    title: "0% commission",
+    description: "Pas de commission sur vos devis, pas de frais cachés. Un abonnement fixe, c'est tout.",
   },
   {
     icon: Zap,
-    title: "Accompagnement dédié",
-    description: "Un interlocuteur unique vous guide dans l'optimisation de votre profil et vos performances.",
+    title: "Zéro prospection",
+    description: "On fait le travail commercial pour vous. Concentrez-vous sur votre métier.",
   },
   {
     icon: Clock,
-    title: "Zéro prospection",
-    description: "Nous faisons le travail commercial pour vous. Concentrez-vous sur votre métier.",
+    title: "On vous rappelle sous 2h",
+    description: "Pas de robot, pas de spam. Un humain qui vérifie votre dossier.",
   },
 ];
 
 const stats = [
-  { value: "200+", label: "Artisans sélectionnés" },
-  { value: "98%", label: "Taux de satisfaction" },
+  { value: "2 max", label: "Artisans par ville" },
+  { value: "0%", label: "Commission" },
   { value: "3 à 5", label: "RDV/mois en moyenne" },
-  { value: "48h", label: "Délai de réponse" },
+  { value: "2h", label: "Délai de rappel" },
 ];
 
-// Validation schema - simplified for candidacy
+// Validation schema
 const candidacySchema = z.object({
   fullName: z.string().trim().min(2, "Nom complet requis (min 2 caractères)").max(100, "Nom trop long"),
   phone: z.string().trim().refine(
@@ -74,16 +78,17 @@ const candidacySchema = z.object({
     { message: "Numéro français invalide (10 chiffres commençant par 0)" }
   ),
   city: z.string().trim().min(2, "Ville requise").max(100, "Ville trop longue"),
+  metier: z.string().trim().min(2, "Métier requis").max(100, "Métier trop long"),
 });
 
 const DevenirArtisan = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [candidacySent, setCandidacySent] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
     city: "",
+    metier: "",
   });
 
   const updateForm = (field: string, value: string) => {
@@ -95,7 +100,6 @@ const DevenirArtisan = () => {
     setIsLoading(true);
 
     try {
-      // Validate form data
       const validationResult = candidacySchema.safeParse(formData);
       
       if (!validationResult.success) {
@@ -109,23 +113,13 @@ const DevenirArtisan = () => {
         return;
       }
 
-      if (!selectedCategoryId) {
-        toast({
-          title: "Métier requis",
-          description: "Veuillez sélectionner votre métier principal",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Simulate sending candidacy (fake data mode - no Supabase)
+      // Simulate sending candidacy (fake data mode)
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       setCandidacySent(true);
       toast({
         title: "Candidature envoyée !",
-        description: "Notre équipe va étudier votre dossier et vous recontacter sous 48h.",
+        description: "On vous rappelle sous 2h pour valider votre dossier.",
       });
     } catch (error: any) {
       console.error("Candidacy error:", error);
@@ -139,7 +133,7 @@ const DevenirArtisan = () => {
     }
   };
 
-  // Candidacy sent confirmation screen
+  // Confirmation screen
   if (candidacySent) {
     return (
       <div className="min-h-screen bg-background">
@@ -156,31 +150,25 @@ const DevenirArtisan = () => {
               className="bg-card rounded-2xl p-8 shadow-floating text-center"
             >
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <UserCheck className="w-8 h-8 text-primary" />
+                <Phone className="w-8 h-8 text-primary" />
               </div>
               
-              {/* Green success banner */}
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6 text-left">
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
-                  <p className="font-medium">
-                    Candidature bien reçue !
-                  </p>
+                  <p className="font-medium">Candidature reçue !</p>
                 </div>
-                <p className="text-sm text-green-700 dark:text-green-300 mt-2 ml-7">
-                  Notre équipe de sélection va étudier votre profil avec attention.
-                </p>
               </div>
               
               <h1 className="text-2xl font-bold text-foreground mb-4">
-                Nous vous recontactons sous 48h
+                On vous rappelle sous 2h
               </h1>
               <p className="text-muted-foreground mb-6">
-                Un membre de notre équipe vous appellera au <strong className="text-foreground">{formData.phone}</strong> pour finaliser votre dossier.
+                Un membre de notre équipe va vous appeler au <strong className="text-foreground">{formData.phone}</strong> pour vérifier la disponibilité de votre secteur à <strong className="text-foreground">{formData.city}</strong>.
               </p>
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  <strong>Processus de sélection :</strong> Nous vérifions manuellement chaque candidature (SIRET, assurances, références) avant d'intégrer un artisan à notre réseau.
+              <div className="bg-muted rounded-lg p-4 mb-6 text-left">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Pas de robot, pas de spam.</strong> C'est un humain qui étudie votre dossier et vérifie vos documents (SIRET, assurances, références).
                 </p>
               </div>
               <Button
@@ -202,14 +190,14 @@ const DevenirArtisan = () => {
     <div className="min-h-screen bg-background">
       <SEOHead 
         title="Candidater au réseau Artisans Validés"
-        description="Rejoignez un réseau exclusif d'artisans triés sur le volet. Nous vérifions et validons chaque profil pour garantir l'excellence."
+        description="Arrêtez de payer pour des leads partagés. On verrouille votre ville, on vérifie vos assurances, vous signez les chantiers."
         canonical="https://artisansvalides.fr/devenir-artisan"
       />
       <Navbar />
       
       <main className="pt-32 lg:pt-20">
-        {/* Hero */}
-        <section className="bg-navy py-20 lg:py-32 relative overflow-hidden">
+        {/* Hero + Form */}
+        <section className="bg-navy py-16 lg:py-28 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
@@ -223,30 +211,21 @@ const DevenirArtisan = () => {
                 animate={{ opacity: 1, y: 0 }}
               >
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-6">
-                  <Shield className="w-4 h-4 text-gold" />
+                  <Lock className="w-4 h-4 text-gold" />
                   <span className="text-sm font-medium text-gold">
-                    Réseau sélectif — Places limitées
+                    2 places max par ville — Vérifiez la disponibilité
                   </span>
                 </div>
 
-                <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
-                  Candidatez au réseau{" "}
-                  <span className="text-gradient-gold">Artisans Validés</span>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
+                  Arrêtez de payer pour des leads{" "}
+                  <span className="text-gradient-gold">partagés avec 10 concurrents.</span>
                 </h1>
 
                 <p className="text-lg text-white/70 mb-8">
-                  Nous sélectionnons, vérifions et validons chaque artisan de notre réseau. 
-                  Pas d'inscription libre : seuls les profils approuvés par notre équipe sont intégrés.
+                  On verrouille votre ville. On vérifie vos assurances. On lance votre pub. 
+                  Vous signez les chantiers. <strong className="text-white">Direct, sans intermédiaire.</strong>
                 </p>
-
-                <div className="flex flex-wrap gap-4 mb-8">
-                  {["Sélection sur dossier", "Vérification manuelle", "Exclusivité par zone"].map((item) => (
-                    <div key={item} className="flex items-center gap-2 text-white">
-                      <CheckCircle2 className="w-5 h-5 text-gold" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -259,25 +238,25 @@ const DevenirArtisan = () => {
                 </div>
               </motion.div>
 
-              {/* Form */}
+              {/* Form — Zero friction */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <div className="bg-white rounded-2xl p-8 shadow-floating">
+                <div className="bg-white rounded-2xl p-6 md:p-8 shadow-floating">
                   <div className="text-center mb-6">
                     <h2 className="text-xl font-bold text-navy mb-2">
-                      Candidater au réseau
+                      Votre secteur est-il encore disponible ?
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Remplissez ce formulaire, nous vous recontactons sous 48h
+                      Remplissez ce formulaire, on vous rappelle sous 2h
                     </p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <Label htmlFor="fullName" className="text-navy">Nom complet *</Label>
+                      <Label htmlFor="fullName" className="text-navy">Prénom / Nom *</Label>
                       <Input
                         id="fullName"
                         placeholder="Jean Dupont"
@@ -300,50 +279,45 @@ const DevenirArtisan = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="city" className="text-navy">Ville d'intervention *</Label>
-                      <div className="mt-1.5">
-                        <CityAutocompleteAPI
-                          value={formData.city}
-                          onChange={(value) => updateForm("city", value)}
-                          placeholder="Tapez votre ville..."
-                          required
-                        />
-                      </div>
+                      <Label htmlFor="city" className="text-navy">Ville *</Label>
+                      <Input
+                        id="city"
+                        placeholder="Ex: Lyon, Marseille, Bordeaux..."
+                        value={formData.city}
+                        onChange={(e) => updateForm("city", e.target.value)}
+                        className="mt-1.5"
+                        required
+                      />
                     </div>
 
                     <div>
-                      <Label className="text-navy">Métier principal *</Label>
-                      <div className="mt-1.5">
-                        <CategorySelect
-                          value={selectedCategoryId}
-                          onValueChange={(id) => setSelectedCategoryId(id)}
-                          placeholder="Sélectionnez votre métier..."
-                          allowParentSelection={false}
-                        />
-                      </div>
+                      <Label htmlFor="metier" className="text-navy">Métier *</Label>
+                      <Input
+                        id="metier"
+                        placeholder="Ex: Plombier, Électricien, Maçon..."
+                        value={formData.metier}
+                        onChange={(e) => updateForm("metier", e.target.value)}
+                        className="mt-1.5"
+                        required
+                      />
                     </div>
 
                     <Button 
                       type="submit" 
                       variant="gold" 
                       size="lg" 
-                      className="w-full"
+                      className="w-full !text-base md:!text-lg !py-6 !font-bold"
                       disabled={isLoading}
                     >
                       {isLoading ? (
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                       ) : null}
-                      Envoyer ma candidature
-                      {!isLoading && <ArrowRight className="w-5 h-5 ml-2" />}
+                      {isLoading ? "Vérification..." : "VÉRIFIER LA DISPONIBILITÉ DE MON SECTEUR"}
                     </Button>
 
-                    <p className="text-xs text-center text-muted-foreground">
-                      En candidatant, vous acceptez nos{" "}
-                      <Link to="/cgu" className="text-gold hover:underline">CGU</Link>
-                      {" "}et notre{" "}
-                      <Link to="/confidentialite" className="text-gold hover:underline">
-                        politique de confidentialité
-                      </Link>
+                    <p className="text-xs text-center text-muted-foreground pt-1">
+                      On vous rappelle sous 2h pour valider votre dossier. <br />
+                      <strong>Pas de robot, pas de spam.</strong>
                     </p>
                   </form>
                 </div>
@@ -352,8 +326,146 @@ const DevenirArtisan = () => {
           </div>
         </section>
 
+        {/* Pricing — Le Deal */}
+        <section className="py-16 lg:py-24 bg-white">
+          <div className="container mx-auto px-4 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
+                Le deal
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
+                Simple. Transparent. Sans commission.
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Un prix fixe, pas de surprise. Vous gardez 100% de vos devis.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Carte Exclusivité */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                <Card className="relative flex flex-col h-full border-2 border-gold/70 hover:border-gold shadow-lg shadow-gold/10">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-gold text-navy-dark px-4 py-1.5 rounded-full text-sm font-bold shadow-gold">
+                    ⭐ L'EXCLUSIVITÉ
+                  </div>
+
+                  <CardHeader className="text-center pb-2 pt-10">
+                    <div className="flex justify-center mb-3">
+                      <div className="p-3 rounded-full bg-gold/20">
+                        <Crown className="w-10 h-10 text-gold" />
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <span className="text-5xl font-bold text-navy">99€</span>
+                      <span className="text-muted-foreground text-lg"> HT/mois</span>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex-1">
+                    <ul className="space-y-4">
+                      {[
+                        "2 places max par ville",
+                        "Profil géré par nos soins",
+                        "Appels directs des clients",
+                        "0% commission sur vos devis",
+                      ].map((feature) => (
+                        <li key={feature} className="flex items-center gap-3 text-base">
+                          <Check className="w-5 h-5 flex-shrink-0 text-gold" />
+                          <span className="font-medium">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+
+                  <CardFooter className="pt-4">
+                    <Button
+                      variant="gold"
+                      size="lg"
+                      className="w-full !text-base !font-bold"
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
+                      Vérifier la disponibilité
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+
+              {/* Carte Boost */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+              >
+                <Card className="relative flex flex-col h-full border-2 border-primary/50 hover:border-primary">
+                  <div className="absolute -top-3 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
+                    Option facultative
+                  </div>
+
+                  <CardHeader className="text-center pb-2 pt-10">
+                    <div className="flex justify-center mb-3">
+                      <div className="p-3 rounded-full bg-primary/20">
+                        <Zap className="w-10 h-10 text-primary" />
+                      </div>
+                    </div>
+                    <CardTitle className="text-2xl mb-1">LE BOOST</CardTitle>
+                    <div className="mb-2">
+                      <span className="text-5xl font-bold text-navy">+500€</span>
+                      <span className="text-muted-foreground text-lg"> HT</span>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex-1">
+                    <div className="bg-primary/5 rounded-lg p-4 mb-6">
+                      <p className="text-sm text-foreground font-medium">
+                        Garantie de 3 RDV qualifiés sur le mois. Idéal pour remplir un carnet de commande vide rapidement.
+                      </p>
+                    </div>
+
+                    <ul className="space-y-4">
+                      {[
+                        "3 RDV chantier qualifiés garantis",
+                        "Activable et désactivable en un clic",
+                        "Remboursé si objectif non atteint",
+                        "Compatible avec l'Exclusivité",
+                      ].map((feature) => (
+                        <li key={feature} className="flex items-center gap-3 text-base">
+                          <Check className="w-5 h-5 flex-shrink-0 text-primary" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+
+                  <CardFooter className="pt-4">
+                    <Button
+                      variant="default"
+                      size="lg"
+                      className="w-full !text-base"
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
+                      Candidater d'abord
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
         {/* Benefits */}
-        <section className="py-20 bg-white">
+        <section className="py-16 lg:py-24 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -362,14 +474,11 @@ const DevenirArtisan = () => {
               className="text-center mb-16"
             >
               <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-                Un réseau exclusif
+                Pourquoi nous ?
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
-                Pourquoi candidater chez Artisans Validés ?
+                On fait le boulot commercial.<br />Vous faites le boulot terrain.
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Nous ne sommes pas un annuaire. Nous sélectionnons et accompagnons chaque artisan.
-              </p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -380,7 +489,7 @@ const DevenirArtisan = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-muted rounded-2xl p-8"
+                  className="bg-white rounded-2xl p-8"
                 >
                   <div className="w-14 h-14 rounded-xl bg-gradient-gold flex items-center justify-center mb-6 shadow-gold">
                     <benefit.icon className="w-7 h-7 text-navy-dark" />
@@ -398,7 +507,7 @@ const DevenirArtisan = () => {
         </section>
 
         {/* How it works */}
-        <section className="py-20 bg-muted">
+        <section className="py-16 lg:py-24 bg-white">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -406,20 +515,17 @@ const DevenirArtisan = () => {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-                Processus de sélection
-              </span>
               <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
-                Comment rejoindre le réseau ?
+                Comment ça marche ?
               </h2>
             </motion.div>
 
             <div className="grid md:grid-cols-4 gap-8">
               {[
-                { step: "01", title: "Candidature", desc: "Remplissez le formulaire en 1 minute" },
-                { step: "02", title: "Entretien", desc: "Notre équipe vous appelle sous 48h" },
-                { step: "03", title: "Vérification", desc: "Nous contrôlons SIRET, assurances et références" },
-                { step: "04", title: "Intégration", desc: "Profil validé, vous recevez vos premiers chantiers" },
+                { step: "01", title: "Candidature", desc: "Remplissez le formulaire en 30 secondes" },
+                { step: "02", title: "Rappel sous 2h", desc: "On vous appelle pour vérifier votre secteur" },
+                { step: "03", title: "Vérification", desc: "On contrôle SIRET, assurances et références" },
+                { step: "04", title: "C'est parti", desc: "Votre profil est live, les clients vous appellent" },
               ].map((item, index) => (
                 <motion.div
                   key={item.step}
@@ -441,7 +547,7 @@ const DevenirArtisan = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-20 bg-white">
+        <section className="py-16 lg:py-20 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden">
               <div className="absolute inset-0 opacity-10">
@@ -449,14 +555,13 @@ const DevenirArtisan = () => {
               </div>
               <div className="relative z-10">
                 <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                  Rejoignez un réseau d'excellence
+                  Votre ville est peut-être encore disponible.
                 </h2>
                 <p className="text-white/70 mb-8 max-w-xl mx-auto">
-                  Nous sélectionnons les meilleurs artisans de chaque zone. 
-                  Les places sont limitées, candidatez dès maintenant.
+                  2 places max par secteur. Quand c'est pris, c'est pris.
                 </p>
                 <Button variant="gold" size="xl" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                  Candidater maintenant
+                  VÉRIFIER MON SECTEUR
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
