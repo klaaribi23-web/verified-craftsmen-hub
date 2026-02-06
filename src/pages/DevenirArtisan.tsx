@@ -28,7 +28,7 @@ import {
   Phone
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { BOOSTER_OFFER } from "@/config/subscriptionPlans";
+
 
 const benefits = [
   {
@@ -346,7 +346,7 @@ const DevenirArtisan = () => {
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="max-w-lg mx-auto">
               {/* Carte Exclusivité */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -355,7 +355,7 @@ const DevenirArtisan = () => {
               >
                 <Card className="relative flex flex-col h-full border-2 border-gold/70 hover:border-gold shadow-lg shadow-gold/10">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-gold text-navy-dark px-4 py-1.5 rounded-full text-sm font-bold shadow-gold">
-                    ⭐ L'EXCLUSIVITÉ
+                    ⭐ ACCÈS RÉSEAU & EXCLUSIVITÉ
                   </div>
 
                   <CardHeader className="text-center pb-2 pt-10">
@@ -364,10 +364,13 @@ const DevenirArtisan = () => {
                         <Crown className="w-10 h-10 text-gold" />
                       </div>
                     </div>
-                    <div className="mb-4">
+                    <div className="mb-1">
                       <span className="text-5xl font-bold text-navy">99€</span>
                       <span className="text-muted-foreground text-lg"> HT/mois</span>
                     </div>
+                    <p className="text-sm text-muted-foreground">
+                      Possibilité d'activer des campagnes de RDV garantis après validation de votre secteur.
+                    </p>
                   </CardHeader>
 
                   <CardContent className="flex-1">
@@ -395,67 +398,6 @@ const DevenirArtisan = () => {
                     >
                       Vérifier la disponibilité
                       <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-
-              {/* Carte Boost */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-              >
-                <Card className="relative flex flex-col h-full border-2 border-primary/50 hover:border-primary">
-                  <div className="absolute -top-3 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
-                    Option facultative
-                  </div>
-
-                  <CardHeader className="text-center pb-2 pt-10">
-                    <div className="flex justify-center mb-3">
-                      <div className="p-3 rounded-full bg-primary/20">
-                        <Zap className="w-10 h-10 text-primary" />
-                      </div>
-                    </div>
-                    <CardTitle className="text-2xl mb-1">LE BOOST</CardTitle>
-                    <div className="mb-2">
-                      <span className="text-5xl font-bold text-navy">+500€</span>
-                      <span className="text-muted-foreground text-lg"> HT</span>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="flex-1">
-                    <div className="bg-primary/5 rounded-lg p-4 mb-6">
-                      <p className="text-sm text-foreground font-medium">
-                        Garantie de 3 RDV qualifiés sur le mois. Idéal pour remplir un carnet de commande vide rapidement.
-                      </p>
-                    </div>
-
-                    <ul className="space-y-4">
-                      {[
-                        "3 RDV chantier qualifiés garantis",
-                        "Activable et désactivable en un clic",
-                        "Remboursé si objectif non atteint",
-                        "Compatible avec l'Exclusivité",
-                      ].map((feature) => (
-                        <li key={feature} className="flex items-center gap-3 text-base">
-                          <Check className="w-5 h-5 flex-shrink-0 text-primary" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-
-                  <CardFooter className="pt-4">
-                    <Button
-                      variant="default"
-                      size="lg"
-                      className="w-full !text-base"
-                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    >
-                      Candidater d'abord
-                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </CardFooter>
                 </Card>
