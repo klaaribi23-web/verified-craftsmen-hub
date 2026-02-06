@@ -270,7 +270,7 @@ const Navbar = () => {
     if (!isAuthenticated) {
       return (
         <>
-          <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10" asChild>
+          <Button variant="ghost" asChild>
             <Link to="/auth">Connexion</Link>
           </Button>
           <Button variant="gold" asChild>
@@ -468,7 +468,7 @@ const Navbar = () => {
       {/* Main Header */}
       <header
         className={cn(
-          "fixed left-0 right-0 z-50 bg-navy text-white backdrop-blur-md border-b border-white/10",
+          "fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-border",
           // Shift down when top bar is visible (mobile + authenticated)
           showMobileDashboardNav ? "top-12 lg:top-0" : "top-0",
         )}
@@ -479,7 +479,7 @@ const Navbar = () => {
             <Link to="/" className="flex items-center gap-2 group">
               <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform" />
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-white leading-tight">ARTISANS</span>
+                <span className="text-lg font-bold text-navy leading-tight">ARTISANS</span>
                 <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
               </div>
             </Link>
@@ -492,8 +492,8 @@ const Navbar = () => {
                   to={link.href}
                   className={`text-sm font-medium transition-colors relative py-2 ${
                     isActive(link.href)
-                      ? "text-white"
-                      : "text-white/70 hover:text-white"
+                      ? "text-navy"
+                      : "text-muted-foreground hover:text-navy"
                   }`}
                 >
                   {link.label}
@@ -511,21 +511,21 @@ const Navbar = () => {
             <div className="hidden lg:flex items-center gap-3">
               {/* Context-aware dashboard button */}
               {isAuthenticated && role === "artisan" ? (
-              <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 font-semibold" asChild>
+              <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold" asChild>
                   <Link to="/artisan/dashboard">
                     <LayoutDashboard className="w-4 h-4 mr-1.5" />
                     Mon Dashboard Pro
                   </Link>
                 </Button>
               ) : isAuthenticated && role === "client" ? (
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 font-semibold" asChild>
+                <Button variant="outline" size="sm" className="border-teal-500 text-teal-700 hover:bg-teal-500 hover:text-white font-semibold" asChild>
                   <Link to="/dashboard/client">
                     <ClipboardList className="w-4 h-4 mr-1.5" />
                     Mes Projets
                   </Link>
                 </Button>
               ) : isAuthenticated && role === "admin" ? (
-                <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10 font-semibold" asChild>
+                <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold" asChild>
                   <Link to="/admin/dashboard">
                     <LayoutDashboard className="w-4 h-4 mr-1.5" />
                     Admin
@@ -534,7 +534,7 @@ const Navbar = () => {
               ) : null}
               {/* Espace Pro always visible for non-artisan visitors */}
               {(!isAuthenticated || role === "client") && (
-                <Button variant="outline" size="sm" className="border-gold/50 text-gold hover:bg-gold/10 font-semibold" asChild>
+                <Button variant="outline" size="sm" className="border-gold/50 text-gold hover:bg-gold hover:text-white font-semibold" asChild>
                   <Link to="/devenir-artisan">
                     <User className="w-4 h-4 mr-1.5" />
                     Espace Pro
@@ -544,7 +544,7 @@ const Navbar = () => {
               {isAuthenticated && (
                 <>
                   <Link to={getMessagingLink()} className="relative">
-                     <Button variant="ghost" size="icon" className="relative text-white/70 hover:text-white hover:bg-white/10">
+                     <Button variant="ghost" size="icon" className="relative">
                       <MessageCircle className="w-5 h-5" />
                       {unreadMessagesCount > 0 && (
                         <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-medium">
@@ -562,7 +562,7 @@ const Navbar = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-white"
+              className="lg:hidden p-2 text-navy"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -585,8 +585,8 @@ const Navbar = () => {
                       onClick={() => setIsOpen(false)}
                       className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                         isActive(link.href)
-                          ? "bg-gold/10 text-white"
-                          : "text-white/70 hover:bg-white/10"
+                          ? "bg-gold/10 text-navy"
+                          : "text-muted-foreground hover:bg-muted"
                       }`}
                     >
                       {link.label}
