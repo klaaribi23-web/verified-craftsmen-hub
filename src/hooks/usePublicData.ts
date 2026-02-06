@@ -62,6 +62,9 @@ export interface ArtisanPublic {
   intervention_radius?: number | null;
   latitude?: number | null;
   longitude?: number | null;
+  phone?: string | null;
+  email?: string | null;
+  siret?: string | null;
   category?: {
     id: string;
     name: string;

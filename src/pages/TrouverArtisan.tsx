@@ -290,7 +290,7 @@ const TrouverArtisan = () => {
                     opacity: 1,
                     y: 0
                   }}>
-                          <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} distance={artisanDistances.get(artisan.id) ?? null} subscriptionTier={artisan.subscription_tier} />
+                          <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} portfolioVideos={artisan.portfolio_videos || undefined} distance={artisanDistances.get(artisan.id) ?? null} subscriptionTier={artisan.subscription_tier} phone={artisan.phone} siret={artisan.siret} facebookUrl={artisan.facebook_url} instagramUrl={artisan.instagram_url} linkedinUrl={artisan.linkedin_url} websiteUrl={artisan.website_url} />
                         </motion.div>)}
                     </div>
 
