@@ -58,7 +58,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-6 md:mb-8">
               <Button
                 size="lg"
-                className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-base md:text-lg px-8 py-6 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 transition-all"
+                className="bg-gradient-gold text-white font-bold text-base md:text-lg px-8 py-6 shadow-lg shadow-gold/30 hover:shadow-gold/50 transition-all"
                 asChild
               >
                 <Link to="/demande-devis">

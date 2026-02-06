@@ -15,14 +15,14 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent/10 hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Premium gold button
-        gold: "bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
+        // Premium orange ambré button
+        gold: "bg-gradient-gold text-white font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
         // Hero CTA button
-        hero: "bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-bold text-base px-8 py-6 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] rounded-xl",
+        hero: "bg-gradient-gold text-white font-bold text-base px-8 py-6 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] rounded-xl",
         // Outline gold
-        "outline-gold": "border-2 border-amber-400 bg-transparent text-amber-500 hover:bg-amber-400 hover:text-slate-900",
+        "outline-gold": "border-2 border-gold bg-transparent text-gold hover:bg-gold hover:text-white",
         // White button for dark backgrounds
-        white: "bg-white text-slate-900 hover:bg-white/90 shadow-sm",
+        white: "bg-white text-foreground hover:bg-white/90 shadow-sm",
         // Subtle button
         subtle: "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
       },
