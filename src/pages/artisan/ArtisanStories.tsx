@@ -190,7 +190,7 @@ export const ArtisanStories = () => {
             {/* Feature Gate for free users */}
             {!hasStoriesAccess && !isLoadingSubscription ? (
               <FeatureGate 
-                requiredTier="essential" 
+                requiredTier="exclusivite" 
                 feature="Stories Live"
               >
                 <div />

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import type { SubscriptionTier, BillingInterval } from "@/config/subscriptionPlans";
+import type { BillingInterval } from "@/config/subscriptionPlans";
 
 interface PaymentMethod {
   last4: string;
@@ -11,7 +11,7 @@ interface PaymentMethod {
 }
 
 interface SubscriptionState {
-  tier: SubscriptionTier;
+  tier: string;
   subscriptionEnd: string | null;
   subscriptionStart: string | null;
   billingInterval: BillingInterval | null;

@@ -3,18 +3,20 @@ import { Link } from "react-router-dom";
 import { Shield, CheckCircle2, Star, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
+
 const HeroSection = () => {
   const stats = [{
-    value: "5000+",
-    label: "Artisans vérifiés"
+    value: "200+",
+    label: "Artisans sélectionnés"
   }, {
-    value: "50K+",
-    label: "Projets réalisés"
+    value: "98%",
+    label: "Clients satisfaits"
   }, {
-    value: "4.8/5",
+    value: "4.9/5",
     label: "Note moyenne"
   }];
-  const badges = ["Vérification SIRET", "Assurances validées", "Avis certifiés"];
+  const badges = ["Profils vérifiés par nos soins", "Assurances contrôlées", "Avis certifiés"];
+
   return <section className="relative min-h-screen flex items-center pt-32 lg:pt-20 overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
@@ -28,33 +30,23 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
           {/* Content */}
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6
-        }} className="text-center lg:text-left">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center lg:text-left">
             {/* Trust Badge */}
             <div className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gold/20 border border-gold/30 mb-4 md:mb-6">
               <Shield className="w-3 h-3 md:w-4 md:h-4 text-gold" />
               <span className="text-xs md:text-sm font-medium text-white">
-                La référence qualité en France
+                Chaque artisan est vérifié et validé par notre équipe
               </span>
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-white leading-tight mb-4 md:mb-6">
-              Trouvez l'artisan{" "}
-              <span className="text-gradient-gold">parfait</span> pour vos
-              travaux
+              Des artisans{" "}
+              <span className="text-gradient-gold">triés sur le volet</span> pour vos travaux
             </h1>
 
             <p className="text-base md:text-lg text-white/80 mb-6 md:mb-8 max-w-xl mx-auto lg:mx-0">
-              Connectez-vous avec des artisans vérifiés, qualifiés et proches de
-              chez vous. Devis gratuit, avis certifiés, tranquillité d'esprit
-              garantie.
+              Nous sélectionnons, vérifions et validons personnellement chaque artisan de notre réseau. 
+              Vous ne trouverez que des professionnels approuvés par notre équipe.
             </p>
 
             {/* Badges */}
@@ -71,7 +63,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-8 md:mb-12">
               <Button variant="hero" size="lg" className="md:text-base lg:text-lg" asChild>
                 <Link to="/demande-devis">
-                  Déposer une annonce
+                  Trouver mon artisan
                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                 </Link>
               </Button>
@@ -96,16 +88,7 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Visual */}
-          <motion.div initial={{
-          opacity: 0,
-          x: 20
-        }} animate={{
-          opacity: 1,
-          x: 0
-        }} transition={{
-          duration: 0.6,
-          delay: 0.2
-        }} className="relative hidden lg:block">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="relative hidden lg:block">
             {/* Main Card */}
             <div className="relative">
               <div className="bg-white rounded-2xl shadow-floating p-6 border border-border">
@@ -141,11 +124,11 @@ const HeroSection = () => {
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex items-center gap-1 px-2 py-1 rounded bg-success/10 text-success text-xs font-medium">
                     <CheckCircle2 className="w-3 h-3" />
-                    SIRET vérifié
+                    SIRET vérifié par nos soins
                   </div>
                   <div className="flex items-center gap-1 px-2 py-1 rounded bg-success/10 text-success text-xs font-medium">
                     <CheckCircle2 className="w-3 h-3" />
-                    Assuré RC Pro
+                    Assurance contrôlée
                   </div>
                 </div>
 
@@ -155,33 +138,23 @@ const HeroSection = () => {
               </div>
 
               {/* Floating Elements */}
-              <motion.div animate={{
-              y: [0, -10, 0]
-            }} transition={{
-              duration: 3,
-              repeat: Infinity
-            }} className="absolute -top-4 -right-4 bg-white rounded-xl shadow-elevated p-4 border border-border">
+              <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-4 -right-4 bg-white rounded-xl shadow-elevated p-4 border border-border">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
                     <CheckCircle2 className="w-4 h-4 text-success" />
                   </div>
                   <div>
                     <div className="text-sm font-medium text-navy">
-                      Artisan validé
+                      Validé par notre équipe
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Profil vérifié
+                      Profil contrôlé manuellement
                     </div>
                   </div>
                 </div>
               </motion.div>
 
-              <motion.div animate={{
-              y: [0, 10, 0]
-            }} transition={{
-              duration: 3.5,
-              repeat: Infinity
-            }} className="absolute -bottom-6 -left-6 bg-gradient-gold rounded-xl shadow-gold p-4">
+              <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 3.5, repeat: Infinity }} className="absolute -bottom-6 -left-6 bg-gradient-gold rounded-xl shadow-gold p-4">
                 <div className="flex items-center gap-3">
                   <div className="text-2xl font-bold text-navy-dark">98%</div>
                   <div className="text-sm text-navy-dark/80">
@@ -197,4 +170,5 @@ const HeroSection = () => {
       </div>
     </section>;
 };
+
 export default HeroSection;

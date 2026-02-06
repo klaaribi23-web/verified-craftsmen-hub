@@ -1,34 +1,36 @@
 import { motion } from "framer-motion";
-import { FileText, Users, MessageSquare, ThumbsUp, ArrowRight } from "lucide-react";
+import { FileText, UserCheck, MessageSquare, ThumbsUp, ArrowRight } from "lucide-react";
+
 const steps = [{
   icon: FileText,
   step: "01",
   title: "Décrivez votre projet",
-  description: "Remplissez notre formulaire simple en quelques minutes. Décrivez vos travaux, ajoutez des photos et précisez vos attentes.",
+  description: "Remplissez notre formulaire en quelques minutes. Notre équipe analyse votre besoin pour vous orienter vers le bon artisan.",
   color: "from-blue-500 to-blue-600",
   bgColor: "bg-blue-500/10"
 }, {
-  icon: Users,
+  icon: UserCheck,
   step: "02",
-  title: "Recevez des devis",
-  description: "Notre algorithme sélectionne les artisans les plus adaptés à votre projet. Ils vous contactent avec leur meilleur devis.",
+  title: "Nous sélectionnons pour vous",
+  description: "Notre équipe identifie les artisans les plus adaptés parmi notre réseau vérifié. Pas d'algorithme, un vrai travail humain.",
   color: "from-emerald-500 to-emerald-600",
   bgColor: "bg-emerald-500/10"
 }, {
   icon: MessageSquare,
   step: "03",
-  title: "Échangez et choisissez",
-  description: "Comparez les profils, les avis et les tarifs. Échangez directement avec les artisans via notre messagerie sécurisée.",
+  title: "Échangez en confiance",
+  description: "Nous vous mettons en relation avec des artisans dont le profil, les assurances et les avis ont été contrôlés par nos soins.",
   color: "from-amber-500 to-amber-600",
   bgColor: "bg-amber-500/10"
 }, {
   icon: ThumbsUp,
   step: "04",
-  title: "Travaux réalisés",
-  description: "Une fois les travaux terminés, laissez votre avis pour aider la communauté et récompenser le travail bien fait.",
+  title: "Travaux suivis",
+  description: "Nous restons disponibles pendant et après les travaux. Votre satisfaction est notre priorité.",
   color: "from-purple-500 to-purple-600",
   bgColor: "bg-purple-500/10"
 }];
+
 const AnimatedIcon = ({
   icon: Icon,
   color,
@@ -58,7 +60,6 @@ const AnimatedIcon = ({
       duration: 0.2
     }
   }}>
-      {/* Animated ring */}
       <motion.div className="absolute inset-0 rounded-2xl border-2 border-white/30" animate={{
       scale: [1, 1.2, 1],
       opacity: [0.5, 0, 0.5]
@@ -68,7 +69,6 @@ const AnimatedIcon = ({
       delay: index * 0.3
     }} />
       
-      {/* Floating particles */}
       {[...Array(3)].map((_, i) => <motion.div key={i} className="absolute w-2 h-2 rounded-full bg-white/40" style={{
       top: `${20 + i * 25}%`,
       left: `${10 + i * 30}%`
@@ -84,9 +84,9 @@ const AnimatedIcon = ({
       <Icon className="w-10 h-10 text-white relative z-10" strokeWidth={1.5} />
     </motion.div>;
 };
+
 const HowItWorksSection = () => {
   return <section className="py-20 lg:py-32 bg-muted relative overflow-hidden">
-      {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/5 blur-3xl" animate={{
         scale: [1, 1.2, 1],
@@ -106,16 +106,7 @@ const HowItWorksSection = () => {
       </div>
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
-        {/* Header */}
-        <motion.div initial={{
-        opacity: 0,
-        y: 20
-      }} whileInView={{
-        opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} className="text-center mb-16">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
           <motion.span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4" initial={{
           scale: 0.8,
           opacity: 0
@@ -127,18 +118,17 @@ const HowItWorksSection = () => {
         }} transition={{
           delay: 0.2
         }}>
-            Simple et efficace
+            Un service de conciergerie
           </motion.span>
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy mb-4">
             Comment ça marche ?
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-center\n">
-            Trouvez votre artisan idéal en 4 étapes simples.
-            Nous nous occupons de tout le reste.
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto text-center">
+            Nous faisons le travail de sélection pour vous.
+            Chaque artisan est vérifié et validé par notre équipe.
           </p>
         </motion.div>
 
-        {/* Steps */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step, index) => <motion.div key={step.step} initial={{
           opacity: 0,
@@ -151,7 +141,6 @@ const HowItWorksSection = () => {
         }} transition={{
           delay: index * 0.15
         }} className="relative group">
-              {/* Connector Line with animated arrow */}
               {index < steps.length - 1 && <div className="hidden lg:flex absolute top-10 left-[65%] w-full items-center">
                   <div className="flex-1 h-0.5 bg-gradient-to-r from-border to-border/50" />
                   <motion.div animate={{
@@ -164,7 +153,6 @@ const HowItWorksSection = () => {
                   </motion.div>
                 </div>}
 
-              {/* Step Number Badge - outside overflow container */}
               <motion.div className="absolute -top-3 left-8 z-20 px-4 py-1.5 bg-gradient-gold rounded-full text-navy-dark text-sm font-bold shadow-gold" whileHover={{
             scale: 1.1
           }}>
@@ -177,10 +165,8 @@ const HowItWorksSection = () => {
           }} transition={{
             duration: 0.3
           }}>
-                {/* Hover gradient overlay */}
                 <div className={`absolute inset-0 rounded-2xl ${step.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
-                {/* Animated Icon */}
                 <div className="mb-6 relative z-10">
                   <AnimatedIcon icon={step.icon} color={step.color} index={index} />
                 </div>
@@ -197,4 +183,5 @@ const HowItWorksSection = () => {
       </div>
     </section>;
 };
+
 export default HowItWorksSection;

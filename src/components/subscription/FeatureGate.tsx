@@ -7,15 +7,16 @@ import { Link } from "react-router-dom";
 import type { SubscriptionTier } from "@/config/subscriptionPlans";
 
 interface FeatureGateProps {
-  requiredTier: SubscriptionTier | SubscriptionTier[];
+  requiredTier: SubscriptionTier | SubscriptionTier[] | string | string[];
   feature: string;
   children: ReactNode;
 }
 
-const tierOrder: SubscriptionTier[] = ["free", "essential", "pro", "elite"];
+const tierOrder: string[] = ["free", "exclusivite"];
 
-const getTierLevel = (tier: SubscriptionTier): number => {
-  return tierOrder.indexOf(tier);
+const getTierLevel = (tier: string): number => {
+  const idx = tierOrder.indexOf(tier);
+  return idx === -1 ? 0 : idx;
 };
 
 export const FeatureGate = ({ requiredTier, feature, children }: FeatureGateProps) => {
@@ -27,21 +28,13 @@ export const FeatureGate = ({ requiredTier, feature, children }: FeatureGateProp
 
   const currentTierLevel = getTierLevel(tier);
   const requiredTiers = Array.isArray(requiredTier) ? requiredTier : [requiredTier];
-  const minRequiredLevel = Math.min(...requiredTiers.map(getTierLevel));
+  const minRequiredLevel = Math.min(...requiredTiers.map(t => getTierLevel(t)));
   
   const hasAccess = currentTierLevel >= minRequiredLevel;
 
   if (hasAccess) {
     return <>{children}</>;
   }
-
-  const minRequiredTier = tierOrder[minRequiredLevel];
-  const tierNames: Record<SubscriptionTier, string> = {
-    free: "Gratuit",
-    essential: "Essentiel",
-    pro: "Pro",
-    elite: "Elite",
-  };
 
   return (
     <Card className="border-dashed border-2 border-muted">
@@ -53,13 +46,13 @@ export const FeatureGate = ({ requiredTier, feature, children }: FeatureGateProp
           {feature}
         </h3>
         <p className="text-muted-foreground text-sm max-w-sm mb-4">
-          Cette fonctionnalité est réservée aux abonnements{" "}
-          <span className="font-medium text-primary">{tierNames[minRequiredTier]}</span> et supérieurs.
+          Cette fonctionnalité est réservée aux abonnés{" "}
+          <span className="font-medium text-primary">Exclusivité</span>.
         </p>
         <Button asChild className="gap-2">
           <Link to="/artisan/abonnement">
             <Crown className="w-4 h-4" />
-            Mettre à niveau
+            Souscrire à l'Exclusivité
           </Link>
         </Button>
       </CardContent>

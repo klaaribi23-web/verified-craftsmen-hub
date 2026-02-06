@@ -1,16 +1,21 @@
 import { Badge } from "@/components/ui/badge";
 import { Crown, Award, Medal } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { SubscriptionTier } from "@/config/subscriptionPlans";
 
 interface SubscriptionBadgeProps {
-  tier: SubscriptionTier;
+  tier: string;
   className?: string;
   showLabel?: boolean;
   size?: "sm" | "md" | "lg";
 }
 
-const badgeConfig = {
+const badgeConfig: Record<string, { icon: any; label: string; className: string; iconClassName: string } | null> = {
+  exclusivite: {
+    icon: Crown,
+    label: "Exclusivité",
+    className: "bg-gradient-to-r from-yellow-400 to-amber-500 text-white border-yellow-500",
+    iconClassName: "text-white",
+  },
   elite: {
     icon: Crown,
     label: "Elite",

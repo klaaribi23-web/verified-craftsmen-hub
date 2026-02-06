@@ -1,20 +1,14 @@
 // Stripe Price IDs
 export const STRIPE_PRICES = {
-  essential: {
-    monthly: "price_1SnLhgHsPR7NolTlCZJY5r3T",
-    yearly: "price_1SnLhuHsPR7NolTlBBcZ6KLo",
+  exclusivite: {
+    monthly: "price_exclusivite_monthly",
   },
-  pro: {
-    monthly: "price_1SnLi9HsPR7NolTlFihKief9",
-    yearly: "price_1SnLiLHsPR7NolTlo2WwBzYd",
-  },
-  elite: {
-    monthly: "price_1SnMvzHsPR7NolTlvlCq5LTo",
-    yearly: "price_1SnMwfHsPR7NolTlpskUuvfB",
+  booster: {
+    oneTime: "price_booster_one_time",
   },
 };
 
-export type SubscriptionTier = "free" | "essential" | "pro" | "elite";
+export type SubscriptionTier = "free" | "exclusivite";
 export type BillingInterval = "monthly" | "yearly";
 
 export interface PlanFeatures {
@@ -29,7 +23,7 @@ export interface PlanFeatures {
 }
 
 export interface SubscriptionPlan {
-  id: SubscriptionTier;
+  id: string;
   name: string;
   description: string;
   priority: { min: number; max: number } | number;
@@ -42,58 +36,24 @@ export interface SubscriptionPlan {
   isContactSales?: boolean;
 }
 
+export interface BoosterOffer {
+  id: string;
+  name: string;
+  description: string;
+  priceHT: number;
+  guarantee: string;
+}
+
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
-    id: "free",
-    name: "Gratuit",
-    description: "Pour démarrer sur la plateforme",
-    priority: 100,
-    priorityLabel: "Standard",
+    id: "exclusivite",
+    name: "Exclusivité",
+    description: "Votre zone, vos chantiers. Visibilité maximale garantie.",
+    priority: { min: 1, max: 3 },
+    priorityLabel: "Top 3 de votre zone",
     prices: {
-      monthly: 0,
-      yearly: 0,
-    },
-    features: {
-      missionsPerMonth: 1,
-      statistics: false,
-      devisAI: false,
-      storiesLive: false,
-      support: "standard",
-      betaAccess: false,
-      badge: null,
-      badgeLabel: null,
-    },
-  },
-  {
-    id: "essential",
-    name: "Essentiel",
-    description: "Pour les artisans actifs",
-    priority: { min: 11, max: 20 },
-    priorityLabel: "Top 11-20",
-    prices: {
-      monthly: 29.90,
-      yearly: 299,
-    },
-    features: {
-      missionsPerMonth: 30,
-      statistics: true,
-      devisAI: false,
-      storiesLive: true,
-      support: "priority",
-      betaAccess: false,
-      badge: "bronze",
-      badgeLabel: "Pro",
-    },
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    description: "Pour maximiser votre visibilité",
-    priority: { min: 4, max: 10 },
-    priorityLabel: "Top 4-10",
-    prices: {
-      monthly: 59.90,
-      yearly: 599,
+      monthly: 99,
+      yearly: 990,
     },
     features: {
       missionsPerMonth: "unlimited",
@@ -101,33 +61,20 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       devisAI: true,
       storiesLive: true,
       support: "dedicated",
-      betaAccess: false,
-      badge: "silver",
-      badgeLabel: "Premium",
-    },
-  },
-  {
-    id: "elite",
-    name: "Elite",
-    description: "L'excellence pour votre entreprise",
-    priority: { min: 1, max: 3 },
-    priorityLabel: "Top 1-3",
-    prices: {
-      monthly: 99.90,
-      yearly: 999,
-    },
-    features: {
-      missionsPerMonth: "unlimited",
-      statistics: true,
-      devisAI: true,
-      storiesLive: true,
-      support: "vip",
       betaAccess: true,
       badge: "gold",
-      badgeLabel: "Elite",
+      badgeLabel: "Artisan Exclusif",
     },
   },
 ];
+
+export const BOOSTER_OFFER: BoosterOffer = {
+  id: "booster",
+  name: "Booster",
+  description: "3 rendez-vous chantier qualifiés garantis par notre équipe. Si nous n'atteignons pas l'objectif, nous vous remboursons.",
+  priceHT: 500,
+  guarantee: "3 RDV qualifiés garantis ou remboursé",
+};
 
 export const getPlanById = (id: SubscriptionTier): SubscriptionPlan | undefined => {
   return SUBSCRIPTION_PLANS.find((plan) => plan.id === id);
