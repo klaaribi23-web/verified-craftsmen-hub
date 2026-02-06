@@ -58,7 +58,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-6 md:mb-8">
               <Button
                 size="lg"
-                className="bg-gradient-gold text-white font-bold text-base md:text-lg px-8 py-6 shadow-lg shadow-gold/30 hover:shadow-gold/50 transition-all"
+                className="bg-gradient-gold text-white font-bold text-base md:text-lg px-8 py-6 shadow-lg shadow-gold/30 hover:shadow-gold/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 asChild
               >
                 <Link to="/demande-devis">
