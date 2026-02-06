@@ -4,31 +4,24 @@ import { FileText, UserCheck, MessageSquare, ThumbsUp, ArrowRight } from "lucide
 const steps = [{
   icon: FileText,
   step: "01",
-  title: "Décrivez votre projet",
-  description: "Remplissez notre formulaire en quelques minutes. Notre équipe analyse votre besoin pour vous orienter vers le bon artisan.",
+  title: "Décrivez votre besoin avec des photos",
+  description: "Remplissez notre formulaire en quelques minutes et ajoutez des photos de votre chantier pour que les artisans comprennent votre projet.",
   color: "from-blue-500 to-blue-600",
   bgColor: "bg-blue-500/10"
 }, {
-  icon: UserCheck,
+  icon: MessageSquare,
   step: "02",
-  title: "Nous sélectionnons pour vous",
-  description: "Notre équipe identifie les artisans les plus adaptés parmi notre réseau vérifié. Pas d'algorithme, un vrai travail humain.",
+  title: "Discutez anonymement avec les artisans",
+  description: "Échangez en toute confidentialité. Vos coordonnées restent masquées tant que vous ne décidez pas de les partager.",
   color: "from-emerald-500 to-emerald-600",
   bgColor: "bg-emerald-500/10"
 }, {
-  icon: MessageSquare,
+  icon: ThumbsUp,
   step: "03",
-  title: "Échangez en confiance",
-  description: "Nous vous mettons en relation avec des artisans dont le profil, les assurances et les avis ont été contrôlés par nos soins.",
+  title: "Choisissez votre pro et lancez les travaux",
+  description: "Comparez les devis, sélectionnez l'artisan qui vous convient et démarrez vos travaux en toute sérénité.",
   color: "from-amber-500 to-amber-600",
   bgColor: "bg-amber-500/10"
-}, {
-  icon: ThumbsUp,
-  step: "04",
-  title: "Travaux suivis",
-  description: "Nous restons disponibles pendant et après les travaux. Votre satisfaction est notre priorité.",
-  color: "from-purple-500 to-purple-600",
-  bgColor: "bg-purple-500/10"
 }];
 
 const AnimatedIcon = ({
@@ -129,7 +122,7 @@ const HowItWorksSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, index) => <motion.div key={step.step} initial={{
           opacity: 0,
           y: 30
