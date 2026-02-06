@@ -21,25 +21,16 @@ const filterBlocks = [
     icon: Shield,
     title: "Assurances Vérifiées",
     description: "On contrôle systématiquement la validité de la décennale et de la RC Pro. Vous êtes protégé.",
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-    border: "border-blue-100",
   },
   {
     icon: TrendingUp,
     title: "Santé Financière",
     description: "On vérifie le SIRET et la solidité de l'entreprise. Pas d'artisans fantômes.",
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-    border: "border-emerald-100",
   },
   {
     icon: Star,
     title: "Savoir-Faire Validé",
     description: "On contrôle les références et les avis réels. Seuls les pros avec un vrai historique restent dans le réseau.",
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-    border: "border-amber-100",
   },
 ];
 
@@ -76,8 +67,11 @@ const CommentCaMarche = () => {
       
       <main className="pt-32 lg:pt-20">
         {/* Hero — L'Engagement */}
-        <section className="py-20 lg:py-28 bg-gradient-to-b from-blue-950 to-blue-900 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.04),transparent_70%)]" />
+        <section className="py-20 lg:py-28 bg-navy relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold rounded-full blur-3xl" />
+          </div>
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -87,7 +81,7 @@ const CommentCaMarche = () => {
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                 Ne prenez plus de risques<br className="hidden md:block" /> pour vos travaux.
               </h1>
-              <p className="text-lg md:text-xl text-blue-100/80 mb-10 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">
                 Nous sélectionnons pour vous des artisans locaux dont nous avons 
                 personnellement vérifié le dossier. Gratuit, direct, sécurisé.
               </p>
@@ -110,10 +104,10 @@ const CommentCaMarche = () => {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <p className="text-sm font-semibold tracking-widest uppercase text-blue-600 mb-3">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
                 Notre engagement
-              </p>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
                 Le Filtre Artisans Validés
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto">
@@ -129,12 +123,12 @@ const CommentCaMarche = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.12 }}
-                  className={`rounded-2xl border ${block.border} ${block.bg} p-8 text-center`}
+                  className="rounded-2xl border border-border bg-muted p-8 text-center"
                 >
-                  <div className={`w-14 h-14 rounded-xl ${block.bg} flex items-center justify-center mx-auto mb-5 border ${block.border}`}>
-                    <block.icon className={`w-7 h-7 ${block.color}`} />
+                  <div className="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center mx-auto mb-5 border border-gold/20">
+                    <block.icon className="w-7 h-7 text-gold" />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">
+                  <h3 className="text-lg font-semibold text-navy mb-3">
                     {block.title}
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
@@ -155,10 +149,10 @@ const CommentCaMarche = () => {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <p className="text-sm font-semibold tracking-widest uppercase text-emerald-600 mb-3">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
                 Simple & rapide
-              </p>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
                 Comment ça se passe ?
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto">
@@ -174,15 +168,15 @@ const CommentCaMarche = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.12 }}
-                  className="flex items-start gap-6 bg-white rounded-2xl p-6 md:p-8 border border-border shadow-sm"
+                  className="flex items-start gap-6 bg-white rounded-2xl p-6 md:p-8 border border-border shadow-soft"
                 >
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center text-navy-dark font-bold text-lg shadow-gold">
                     {step.step}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <step.icon className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                      <h3 className="text-lg font-semibold text-foreground">
+                      <step.icon className="w-5 h-5 text-gold flex-shrink-0" />
+                      <h3 className="text-lg font-semibold text-navy">
                         {step.title}
                       </h3>
                     </div>
@@ -206,7 +200,7 @@ const CommentCaMarche = () => {
         </section>
 
         {/* Bandeau Accompagnement */}
-        <section className="py-14 bg-blue-950">
+        <section className="py-14 bg-navy">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 15 }}
@@ -215,10 +209,10 @@ const CommentCaMarche = () => {
               className="flex flex-col md:flex-row items-center justify-center gap-6 text-center md:text-left"
             >
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center">
+                <div className="w-11 h-11 rounded-full bg-gold/15 flex items-center justify-center">
                   <Phone className="w-5 h-5 text-gold" />
                 </div>
-                <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center">
+                <div className="w-11 h-11 rounded-full bg-gold/15 flex items-center justify-center">
                   <MessageCircle className="w-5 h-5 text-gold" />
                 </div>
               </div>
@@ -226,7 +220,7 @@ const CommentCaMarche = () => {
                 <p className="text-white font-medium text-base md:text-lg">
                   Un doute ? Une question ?
                 </p>
-                <p className="text-blue-200/70 text-sm mt-1">
+                <p className="text-white/60 text-sm mt-1">
                   Nos experts vous accompagnent gratuitement dans le choix de votre artisan.
                 </p>
               </div>
