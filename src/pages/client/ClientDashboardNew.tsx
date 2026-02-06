@@ -17,6 +17,7 @@ import {
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import { useAuth } from "@/hooks/useAuth";
+import { DemoMessaging } from "@/components/demo/DemoMessaging";
 
 // Demo data for design validation
 const demoProject = {
@@ -171,55 +172,14 @@ export const ClientDashboardNew = () => {
                 ))}
               </div>
 
-              {/* Messages with Privacy Banner */}
-              <Card>
-                <CardContent className="p-0">
-                  {/* Privacy Banner */}
-                  <div className="bg-teal-50 border-b border-teal-200 px-4 py-3 rounded-t-xl flex items-start gap-3">
-                    <Shield className="w-5 h-5 text-teal-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-sm text-teal-800">
-                      🔒 <strong>Votre anonymat est garanti.</strong> L'artisan ne verra vos coordonnées que si vous cliquez sur{" "}
-                      <Button variant="outline" size="sm" className="h-6 px-2 text-xs border-teal-400 text-teal-700 hover:bg-teal-100 mx-1">
-                        Partager mes contacts
-                      </Button>
-                    </p>
-                  </div>
-
-                  {/* Messages List */}
-                  <div className="divide-y divide-border">
-                    {demoMessages.map((msg) => (
-                      <div key={msg.id} className="p-4 hover:bg-muted/30 transition-colors flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-semibold text-teal-700">
-                            {msg.artisan.charAt(0)}
-                          </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="font-medium text-sm truncate">{msg.artisan}</p>
-                            <span className="text-xs text-muted-foreground whitespace-nowrap">{msg.time}</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground mt-0.5 truncate">
-                            {maskContactInfo(msg.message)}
-                          </p>
-                        </div>
-                        {msg.unread && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-teal-500 mt-2 flex-shrink-0" />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* View All */}
-                  <div className="p-3 border-t border-border">
-                    <Link to="/dashboard/client/messages" className="w-full">
-                      <Button variant="ghost" className="w-full text-teal-600 hover:text-teal-700 hover:bg-teal-50">
-                        Voir tous les messages <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Messagerie Démo - Simulation de mise en relation */}
+              <div>
+                <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-teal-600" />
+                  Messagerie — Rénovation Salle de Bain
+                </h3>
+                <DemoMessaging viewAs="client" />
+              </div>
 
             </div>
           </main>

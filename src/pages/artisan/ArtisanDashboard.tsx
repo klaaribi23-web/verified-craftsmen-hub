@@ -7,6 +7,7 @@ import { ActiveProfileCard } from "@/components/artisan-dashboard/ActiveProfileC
 import { SuspendedProfileCard } from "@/components/artisan-dashboard/SuspendedProfileCard";
 import { ProfileViewsCard } from "@/components/artisan-dashboard/ProfileViewsCard";
 import { ApprovalNotifications } from "@/components/artisan-dashboard/ApprovalNotifications";
+import { DemoMessaging } from "@/components/demo/DemoMessaging";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -510,6 +511,15 @@ export const ArtisanDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {/* Demo Messaging - Artisan View */}
+              <div>
+                <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-accent" />
+                  Messagerie — Rénovation Salle de Bain
+                </h3>
+                <DemoMessaging viewAs="artisan" />
+              </div>
+
               {/* Recent Requests */}
               <div className="bg-card rounded-xl border border-border shadow-soft">
                 <div className="p-6 border-b border-border flex items-center justify-between">
@@ -549,32 +559,6 @@ export const ArtisanDashboard = () => {
                       </div>
                     ))
                   )}
-                </div>
-              </div>
-
-              {/* Upcoming Jobs */}
-              <div className="bg-card rounded-xl border border-border shadow-soft">
-                <div className="p-6 border-b border-border flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-foreground">Prochains chantiers</h2>
-                  <Link to="/artisan/planning">
-                    <Button variant="ghost" size="sm" className="text-accent hover:text-accent">
-                      Planning complet <ArrowRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </Link>
-                </div>
-                <div className="p-8 text-center">
-                  <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">Aucun chantier prévu</p>
-                  <p className="text-sm text-muted-foreground/70 mt-1">
-                    Vos chantiers planifiés apparaîtront ici
-                  </p>
-                </div>
-                <div className="p-4 border-t border-border">
-                  <Link to="/artisan/planning">
-                    <Button variant="outline" className="w-full">
-                      Gérer mon planning
-                    </Button>
-                  </Link>
                 </div>
               </div>
             </div>
