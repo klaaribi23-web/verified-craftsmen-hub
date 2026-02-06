@@ -12,7 +12,7 @@ import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisa
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Search, MapPin, Droplets, Zap, Flame, Paintbrush, Key, Construction, Hammer, Wrench, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { usePublicArtisans } from "@/hooks/usePublicData";
 import { useCategoriesHierarchy, CategoryWithChildren } from "@/hooks/useCategories";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
@@ -272,60 +272,58 @@ const TrouverArtisan = () => {
           <div className="container mx-auto px-4 lg:px-8">
             <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6 md:mb-8">Tous nos artisans</h2>
             
-            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            {/* Filters - Left Column */}
-              <aside className="lg:w-80 flex-shrink-0" aria-label="Filtres de recherche">
-                <ArtisanFilters onFiltersChange={handleFiltersChange} />
-              </aside>
+            {/* Horizontal Search Bar */}
+            <div className="mb-6">
+              <ArtisanFilters onFiltersChange={handleFiltersChange} />
+            </div>
 
-              {/* Artisans Grid - Right Column */}
-              <div className="flex-1">
-                {artisansLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                    {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-80 rounded-2xl" />)}
-                  </div> : paginatedArtisans.length > 0 ? <>
-                    <div className="mb-4 text-sm text-muted-foreground">
-                      {filteredArtisans.length} artisan{filteredArtisans.length > 1 ? "s" : ""} trouvé{filteredArtisans.length > 1 ? "s" : ""}
-                    </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8">
-                      {paginatedArtisans.map(artisan => <motion.div key={artisan.id} initial={{
-                    opacity: 0,
-                    y: 20
-                  }} animate={{
-                    opacity: 1,
-                    y: 0
-                  }}>
-                          <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} portfolioVideos={artisan.portfolio_videos || undefined} distance={artisanDistances.get(artisan.id) ?? null} subscriptionTier={artisan.subscription_tier} phone={artisan.phone} siret={artisan.siret} facebookUrl={artisan.facebook_url} instagramUrl={artisan.instagram_url} linkedinUrl={artisan.linkedin_url} websiteUrl={artisan.website_url} />
-                        </motion.div>)}
-                    </div>
+            {/* Artisans Grid */}
+            <div>
+              {artisansLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <Skeleton key={i} className="h-80 rounded-2xl" />)}
+                </div> : paginatedArtisans.length > 0 ? <>
+                  <div className="mb-4 text-sm text-muted-foreground">
+                    {filteredArtisans.length} artisan{filteredArtisans.length > 1 ? "s" : ""} trouvé{filteredArtisans.length > 1 ? "s" : ""}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    {paginatedArtisans.map(artisan => <motion.div key={artisan.id} initial={{
+                  opacity: 0,
+                  y: 20
+                }} animate={{
+                  opacity: 1,
+                  y: 0
+                }}>
+                        <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} portfolioVideos={artisan.portfolio_videos || undefined} distance={artisanDistances.get(artisan.id) ?? null} subscriptionTier={artisan.subscription_tier} phone={artisan.phone} siret={artisan.siret} facebookUrl={artisan.facebook_url} instagramUrl={artisan.instagram_url} linkedinUrl={artisan.linkedin_url} websiteUrl={artisan.website_url} />
+                      </motion.div>)}
+                  </div>
 
-                    {/* Pagination */}
-                    {totalPages > 1 && <Pagination>
-                        <PaginationContent className="flex-wrap gap-1">
-                          <PaginationItem>
-                            <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className={`${currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} min-h-[44px]`} />
-                          </PaginationItem>
-                          
-                          {Array.from({
-                      length: totalPages
-                    }, (_, i) => i + 1).slice(
-                      Math.max(0, currentPage - 3),
-                      Math.min(totalPages, currentPage + 2)
-                    ).map(page => <PaginationItem key={page}>
-                              <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer min-h-[44px] min-w-[44px]">
-                                {page}
-                              </PaginationLink>
-                            </PaginationItem>)}
-                          
-                          <PaginationItem>
-                            <PaginationNext onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className={`${currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} min-h-[44px]`} />
-                          </PaginationItem>
-                        </PaginationContent>
-                      </Pagination>}
-                  </> : <div className="text-center py-12">
-                    <p className="text-muted-foreground">Aucun artisan ne correspond à vos critères</p>
-                  </div>}
-              </div>
+                  {/* Pagination */}
+                  {totalPages > 1 && <Pagination>
+                      <PaginationContent className="flex-wrap gap-1">
+                        <PaginationItem>
+                          <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className={`${currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} min-h-[44px]`} />
+                        </PaginationItem>
+                        
+                        {Array.from({
+                    length: totalPages
+                  }, (_, i) => i + 1).slice(
+                    Math.max(0, currentPage - 3),
+                    Math.min(totalPages, currentPage + 2)
+                  ).map(page => <PaginationItem key={page}>
+                            <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer min-h-[44px] min-w-[44px]">
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>)}
+                        
+                        <PaginationItem>
+                          <PaginationNext onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className={`${currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} min-h-[44px]`} />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>}
+                </> : <div className="text-center py-12">
+                  <p className="text-muted-foreground">Aucun artisan ne correspond à vos critères</p>
+                </div>}
             </div>
           </div>
         </section>
