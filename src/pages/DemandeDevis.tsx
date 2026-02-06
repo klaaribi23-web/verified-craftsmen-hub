@@ -43,9 +43,9 @@ import {
 
 const urgencyOptions = [
   { id: "urgent", label: "Urgent (24-48h)", description: "Intervention rapide nécessaire" },
-  { id: "week", label: "Cette semaine", description: "Dans les 7 prochains jours" },
-  { id: "month", label: "Ce mois-ci", description: "Flexible sur le planning" },
-  { id: "later", label: "Plus tard", description: "Je planifie à l'avance" },
+  { id: "month", label: "Dans le mois", description: "Flexible sur le planning" },
+  { id: "3months", label: "D'ici 3 mois", description: "Je planifie à l'avance" },
+  { id: "estimate", label: "Juste pour une estimation", description: "Pas de date précise" },
 ];
 
 // Validation schemas
@@ -631,10 +631,10 @@ const DemandeDevis = () => {
                         />
                       </div>
 
-                      <div className="flex items-start gap-3 p-4 rounded-xl bg-muted">
-                        <Shield className="w-5 h-5 text-gold mt-0.5" />
-                        <p className="text-sm text-muted-foreground">
-                          Vos données sont protégées et ne seront transmises qu'aux artisans sélectionnés pour votre projet.
+                      <div className="flex items-start gap-3 p-4 rounded-xl bg-teal-50 border border-teal-200">
+                        <Shield className="w-5 h-5 text-teal-600 mt-0.5" />
+                        <p className="text-sm text-teal-800">
+                          🔒 <strong>Votre projet sera visible anonymement par nos artisans validés.</strong> Vous restez maître de vos coordonnées. Aucune information personnelle ne sera partagée sans votre accord.
                         </p>
                       </div>
                     </div>
@@ -736,19 +736,18 @@ const DemandeDevis = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center py-8"
                   >
-                    <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6">
-                      <CheckCircle2 className="w-10 h-10 text-success" />
+                    <div className="w-20 h-20 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle2 className="w-10 h-10 text-teal-600" />
                     </div>
                     <h2 className="text-2xl font-bold text-navy mb-4">
-                      Demande envoyée avec succès !
+                      🎉 Félicitations ! Votre projet est en ligne.
                     </h2>
                     <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                      Votre demande a été transmise aux artisans de votre secteur. 
-                      Vous recevrez leurs devis sous 24h maximum.
+                      Vous recevrez des notifications dès qu'un artisan y répondra. Suivez l'avancement depuis votre espace personnel.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button variant="gold" onClick={() => navigate("/client/dashboard")}>
-                        Accéder à mon tableau de bord
+                      <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => navigate("/dashboard/client")}>
+                        Accéder à mon espace
                       </Button>
                       <Button variant="outline" onClick={() => navigate("/trouver-artisan")}>
                         Parcourir les artisans
