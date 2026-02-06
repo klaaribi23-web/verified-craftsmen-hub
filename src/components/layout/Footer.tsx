@@ -23,6 +23,9 @@ const Footer = () => {
     }, {
       label: "Maçon",
       href: "/trouver-artisan"
+    }, {
+      label: "Mon Tableau de Bord",
+      href: "/artisan/dashboard"
     }],
     company: [{
       label: "À propos",
