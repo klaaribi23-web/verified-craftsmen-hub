@@ -29,14 +29,14 @@
     --muted: 214 20% 96%;
     --muted-foreground: 215 16% 47%;
     
-    /* Accent - Orange Lumineux */
-    --accent: 28 90% 52%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Jaune Vif Premium */
+    --accent: 45 93% 47%;
+    --accent-foreground: 222 47% 11%;
     
-    /* Orange variants */
-    --gold: 28 90% 52%;
-    --gold-light: 28 85% 62%;
-    --gold-dark: 28 95% 42%;
+    /* Gold/Premium variants */
+    --gold: 45 93% 47%;
+    --gold-light: 45 93% 58%;
+    --gold-dark: 45 85% 40%;
     
     /* Navy Blue variants */
     --navy: 222 47% 15%;
@@ -61,15 +61,15 @@
     /* Sidebar */
     --sidebar-background: 222 47% 15%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 28 90% 52%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 45 93% 47%;
+    --sidebar-primary-foreground: 222 47% 11%;
     --sidebar-accent: 222 47% 20%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 222 47% 25%;
-    --sidebar-ring: 28 90% 52%;
+    --sidebar-ring: 45 93% 47%;
     
     /* Gradients */
-    --gradient-gold: linear-gradient(135deg, hsl(28 90% 52%) 0%, hsl(24 85% 58%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45 93% 47%) 0%, hsl(35 93% 55%) 100%);
     --gradient-navy: linear-gradient(135deg, hsl(222 47% 15%) 0%, hsl(222 55% 25%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(210 20% 98%) 0%, hsl(214 20% 94%) 100%);
     
@@ -78,7 +78,7 @@
     --shadow-md: 0 4px 6px -1px hsl(222 47% 11% / 0.1), 0 2px 4px -2px hsl(222 47% 11% / 0.1);
     --shadow-lg: 0 10px 15px -3px hsl(222 47% 11% / 0.1), 0 4px 6px -4px hsl(222 47% 11% / 0.1);
     --shadow-xl: 0 20px 25px -5px hsl(222 47% 11% / 0.1), 0 8px 10px -6px hsl(222 47% 11% / 0.1);
-    --shadow-gold: 0 4px 14px 0 hsl(28 90% 52% / 0.3);
+    --shadow-gold: 0 4px 14px 0 hsl(45 93% 47% / 0.3);
   }
 
   .dark {
@@ -91,8 +91,8 @@
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
     
-    --primary: 28 90% 52%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 45 93% 47%;
+    --primary-foreground: 222 47% 11%;
     
     --secondary: 222 47% 18%;
     --secondary-foreground: 210 40% 98%;
@@ -100,15 +100,15 @@
     --muted: 222 47% 15%;
     --muted-foreground: 215 20% 65%;
     
-    --accent: 28 90% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 45 93% 47%;
+    --accent-foreground: 222 47% 11%;
     
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 40% 98%;
     
     --border: 222 47% 20%;
     --input: 222 47% 20%;
-    --ring: 28 90% 52%;
+    --ring: 45 93% 47%;
   }
 }
 
@@ -169,8 +169,8 @@
 }
 
 @keyframes pulse-gold {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(28 90% 52% / 0.4); }
-  50% { box-shadow: 0 0 0 15px hsl(28 90% 52% / 0); }
+  0%, 100% { box-shadow: 0 0 0 0 hsl(45 93% 47% / 0.4); }
+  50% { box-shadow: 0 0 0 15px hsl(45 93% 47% / 0); }
 }
 
 @keyframes shimmer {
@@ -187,7 +187,7 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, hsl(28 90% 52% / 0.1), transparent);
+  background: linear-gradient(90deg, transparent, hsl(45 93% 47% / 0.1), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
