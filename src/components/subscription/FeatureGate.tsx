@@ -1,9 +1,7 @@
 import { ReactNode } from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Lock, Crown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ShieldCheck } from "lucide-react";
 import type { SubscriptionTier } from "@/config/subscriptionPlans";
 
 interface FeatureGateProps {
@@ -36,25 +34,19 @@ export const FeatureGate = ({ requiredTier, feature, children }: FeatureGateProp
     return <>{children}</>;
   }
 
+  // Even without access, show content with a validated shield — no locks
   return (
-    <Card className="border-dashed border-2 border-muted">
+    <Card className="border border-success/30">
       <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-          <Lock className="w-8 h-8 text-muted-foreground" />
+        <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mb-4">
+          <ShieldCheck className="w-8 h-8 text-success" />
         </div>
         <h3 className="font-semibold text-lg text-foreground mb-2">
           {feature}
         </h3>
-        <p className="text-muted-foreground text-sm max-w-sm mb-4">
-          Cette fonctionnalité est réservée aux abonnés{" "}
-          <span className="font-medium text-primary">Exclusivité</span>.
+        <p className="text-muted-foreground text-sm max-w-sm">
+          Section sécurisée et validée par notre équipe.
         </p>
-        <Button asChild className="gap-2">
-          <Link to="/artisan/abonnement">
-            <Crown className="w-4 h-4" />
-            Souscrire à l'Exclusivité
-          </Link>
-        </Button>
       </CardContent>
     </Card>
   );

@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2 } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SubscriptionBadgeProps {
@@ -37,12 +37,12 @@ export const SubscriptionBadge = ({
   return (
     <Badge
       className={cn(
-        "flex items-center gap-1 font-semibold border bg-success text-success-foreground border-success",
+        "flex items-center gap-1 font-semibold border bg-success/20 text-success border-success/30",
         sizeStyles.badge,
         className
       )}
     >
-      <CheckCircle2 className={cn(sizeStyles.icon)} />
+      <ShieldCheck className={cn(sizeStyles.icon)} />
       {showLabel && <span>Artisan Validé</span>}
     </Badge>
   );

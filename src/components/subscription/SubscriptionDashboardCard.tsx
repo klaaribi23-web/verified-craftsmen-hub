@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
-import { Crown, ArrowRight, Calendar } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
-import { getPlanById } from "@/config/subscriptionPlans";
+import { ShieldCheck, Calendar, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface SubscriptionDashboardCardProps {
   tier: string;
@@ -15,9 +13,6 @@ export const SubscriptionDashboardCard = ({
   subscriptionEnd,
   isLoading = false,
 }: SubscriptionDashboardCardProps) => {
-  const currentPlan = getPlanById(tier as any);
-  const isFreeTier = tier === "free";
-
   // Show skeleton during loading
   if (isLoading) {
     return (
@@ -30,33 +25,29 @@ export const SubscriptionDashboardCard = ({
               <div className="h-4 bg-muted rounded w-56" />
             </div>
           </div>
-          <div className="h-9 bg-muted rounded w-32" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8">
+    <div className="bg-card rounded-xl border border-success/30 shadow-soft p-4 md:p-6 mb-6 md:mb-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div
-            className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-              isFreeTier ? "bg-muted" : "bg-primary/10"
-            }`}
-          >
-            <Crown
-              className={`w-6 h-6 ${isFreeTier ? "text-muted-foreground" : "text-primary"}`}
-            />
+          <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
+            <ShieldCheck className="w-6 h-6 text-success" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-foreground">Mon abonnement</h3>
-              <SubscriptionBadge tier={tier} size="sm" />
+              <h3 className="font-semibold text-foreground">Statut : Artisan Validé</h3>
+              <Badge className="bg-success/20 text-success border-0 text-xs px-2 py-0.5">
+                <ShieldCheck className="w-3 h-3 mr-1" />
+                Actif
+              </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              Plan {currentPlan?.name || "Gratuit"}
-              {!isFreeTier && subscriptionEnd && (
+              Votre abonnement à 99€ HT/mois est actif.
+              {subscriptionEnd && (
                 <span className="inline-flex items-center gap-1 ml-2">
                   <Calendar className="w-3 h-3" />
                   Renouvellement le{" "}
@@ -69,15 +60,12 @@ export const SubscriptionDashboardCard = ({
             </p>
           </div>
         </div>
-        <Link to="/artisan/abonnement">
-          <Button
-            variant={isFreeTier ? "default" : "outline"}
-            size="sm"
-            className="w-full sm:w-auto"
-          >
-            {isFreeTier ? "Passer au niveau supérieur" : "Gérer"}
-            <ArrowRight className="w-4 h-4 ml-1" />
-          </Button>
+        <Link
+          to="/artisan/abonnement"
+          className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline whitespace-nowrap"
+        >
+          <FileText className="w-4 h-4" />
+          Voir mes factures
         </Link>
       </div>
     </div>
