@@ -509,38 +509,20 @@ const Navbar = () => {
 
             {/* Desktop CTA / User Menu */}
             <div className="hidden lg:flex items-center gap-3">
-              {/* Context-aware dashboard button */}
-              {isAuthenticated && role === "artisan" ? (
+              {/* Mon Espace (Teal) - always visible */}
+              <Button variant="outline" size="sm" className="border-teal-500 text-teal-700 hover:bg-teal-500 hover:text-white font-semibold" asChild>
+                <Link to="/dashboard/client">
+                  <ClipboardList className="w-4 h-4 mr-1.5" />
+                  Mon Espace
+                </Link>
+              </Button>
+              {/* Espace Pro (Navy) - always visible */}
               <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold" asChild>
-                  <Link to="/artisan/dashboard">
-                    <LayoutDashboard className="w-4 h-4 mr-1.5" />
-                    Mon Dashboard Pro
-                  </Link>
-                </Button>
-              ) : isAuthenticated && role === "client" ? (
-                <Button variant="outline" size="sm" className="border-teal-500 text-teal-700 hover:bg-teal-500 hover:text-white font-semibold" asChild>
-                  <Link to="/dashboard/client">
-                    <ClipboardList className="w-4 h-4 mr-1.5" />
-                    Mes Projets
-                  </Link>
-                </Button>
-              ) : isAuthenticated && role === "admin" ? (
-                <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold" asChild>
-                  <Link to="/admin/dashboard">
-                    <LayoutDashboard className="w-4 h-4 mr-1.5" />
-                    Admin
-                  </Link>
-                </Button>
-              ) : null}
-              {/* Espace Pro always visible for non-artisan visitors */}
-              {(!isAuthenticated || role === "client") && (
-                <Button variant="outline" size="sm" className="border-gold text-gold-dark hover:bg-gold hover:text-navy-dark font-semibold" asChild>
-                  <Link to="/devenir-artisan">
-                    <User className="w-4 h-4 mr-1.5" />
-                    Espace Pro
-                  </Link>
-                </Button>
-              )}
+                <Link to="/artisan/dashboard">
+                  <User className="w-4 h-4 mr-1.5" />
+                  Espace Pro
+                </Link>
+              </Button>
               {isAuthenticated && (
                 <>
                   <Link to={getMessagingLink()} className="relative">

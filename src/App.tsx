@@ -110,8 +110,9 @@ const App = () => (
           {/* Redirection /dashboard/artisan → /artisan/dashboard */}
           <Route path="/dashboard/artisan" element={<Navigate to="/artisan/dashboard" replace />} />
           
-          {/* Dashboard Particulier */}
+          {/* Dashboard Particulier - accessible sans auth pour démo */}
           <Route path="/dashboard/client" element={<ClientDashboardNew />} />
+          <Route path="/dashboard/client/*" element={<ClientDashboardNew />} />
           
           {/* Redirections SEO - anciennes URLs WordPress */}
           <Route path="/accueil-old" element={<Navigate to="/" replace />} />
