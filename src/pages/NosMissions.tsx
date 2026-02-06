@@ -63,6 +63,120 @@ import { AlertTriangle } from "lucide-react";
 
 const ITEMS_PER_PAGE = 30;
 
+// ── Demo missions displayed when DB is empty ──
+const DEMO_MISSIONS = [
+  {
+    id: "demo-1",
+    title: "Rénovation peinture appartement 70m²",
+    description: "Rénovation complète de la peinture d'un appartement de 70m² : lessivage des murs, rebouchage des fissures, application de deux couches de peinture acrylique dans toutes les pièces. Plafonds et boiseries inclus.",
+    city: "Lille (59000)",
+    budget: null,
+    budget_range: "3 000€ - 5 500€",
+    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1h ago
+    category: { id: "cat-peinture", name: "Peinture" },
+    client_name: "Client vérifié",
+    applicants_count: 3,
+    has_applied: false,
+    photos: null,
+    status: "published",
+    client_id: "",
+    fake_applicants_count: 0,
+  },
+  {
+    id: "demo-2",
+    title: "Pose de carrelage salle de bain + cuisine",
+    description: "Pose de carrelage au sol et murs dans une salle de bain de 8m² (faïence 60x30) et cuisine de 12m² (grès cérame 60x60). Dépose de l'ancien revêtement, ragréage et joints compris.",
+    city: "Roubaix (59100)",
+    budget: null,
+    budget_range: "4 500€ - 7 000€",
+    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3h ago
+    category: { id: "cat-carrelage", name: "Carrelage" },
+    client_name: "Client vérifié",
+    applicants_count: 5,
+    has_applied: false,
+    photos: null,
+    status: "published",
+    client_id: "",
+    fake_applicants_count: 0,
+  },
+  {
+    id: "demo-3",
+    title: "Installation pompe à chaleur Air/Eau",
+    description: "Installation d'une pompe à chaleur Air/Eau pour une maison de 120m². Comprend la dépose de l'ancienne chaudière fioul, le raccordement hydraulique et la mise en service. Maison bien isolée (RT 2012).",
+    city: "Tourcoing (59200)",
+    budget: null,
+    budget_range: "8 000€ - 12 000€",
+    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // today
+    category: { id: "cat-chauffage", name: "Chauffage / Climatisation" },
+    client_name: "Client vérifié",
+    applicants_count: 2,
+    has_applied: false,
+    photos: null,
+    status: "published",
+    client_id: "",
+    fake_applicants_count: 0,
+  },
+  {
+    id: "demo-4",
+    title: "Réfection complète toiture ardoise",
+    description: "Réfection totale d'une toiture en ardoise naturelle sur une maison de ville (surface toiture environ 90m²). Charpente en bon état. Remplacement des ardoises, zinguerie et pose de fenêtres de toit Velux (x2).",
+    city: "Marcq-en-Barœul (59700)",
+    budget: null,
+    budget_range: "15 000€ - 22 000€",
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h ago
+    category: { id: "cat-couverture", name: "Couverture / Toiture" },
+    client_name: "Client vérifié",
+    applicants_count: 1,
+    has_applied: false,
+    photos: null,
+    status: "published",
+    client_id: "",
+    fake_applicants_count: 0,
+  },
+  {
+    id: "demo-5",
+    title: "Mise en conformité tableau électrique",
+    description: "Mise aux normes NF C 15-100 du tableau électrique principal. Remplacement du tableau vétuste, ajout de disjoncteurs différentiels, reprise du câblage et vérification de la terre. Maison des années 70.",
+    city: "Villeneuve-d'Ascq (59650)",
+    budget: null,
+    budget_range: "1 800€ - 3 200€",
+    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1h ago
+    category: { id: "cat-electricite", name: "Électricité" },
+    client_name: "Client vérifié",
+    applicants_count: 4,
+    has_applied: false,
+    photos: null,
+    status: "published",
+    client_id: "",
+    fake_applicants_count: 0,
+  },
+  {
+    id: "demo-6",
+    title: "Aménagement de combles 45m²",
+    description: "Aménagement complet de combles perdus en espace habitable de 45m² : isolation par l'intérieur (laine de roche), pose de placo, création de deux pièces avec cloisons, électricité et finitions peinture.",
+    city: "Bondues (59910)",
+    budget: null,
+    budget_range: "18 000€ - 28 000€",
+    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // today
+    category: { id: "cat-amenagement", name: "Aménagement intérieur" },
+    client_name: "Client vérifié",
+    applicants_count: 2,
+    has_applied: false,
+    photos: null,
+    status: "published",
+    client_id: "",
+    fake_applicants_count: 0,
+  },
+];
+
+const formatTimeAgo = (dateString: string) => {
+  const diff = Date.now() - new Date(dateString).getTime();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  if (hours < 1) return "Il y a moins d'1h";
+  if (hours < 24) return `Il y a ${hours}h`;
+  return "Aujourd'hui";
+};
+
 const NosMissions = () => {
   const { toast } = useToast();
   const { user, role, isAuthenticated } = useAuth();
@@ -102,8 +216,14 @@ const NosMissions = () => {
 
   const [searchCoordinates, setSearchCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
-  const { data: missions, isLoading: missionsLoading } = useDemoMissions(user?.id, role);
+  const { data: dbMissions, isLoading: missionsLoading } = useDemoMissions(user?.id, role);
   const { data: categories } = useCategoriesHierarchy();
+
+  // Merge DB missions with demo fallback when DB is empty
+  const missions = useMemo(() => {
+    if (dbMissions && dbMissions.length > 0) return dbMissions;
+    return DEMO_MISSIONS as any[];
+  }, [dbMissions]);
 
   const missionCities = useMemo(() => {
     return missions?.map(m => m.city).filter(Boolean) || [];
@@ -480,10 +600,12 @@ const NosMissions = () => {
                             </div>
 
                             {/* Budget */}
-                            {mission.budget && (
+                            {(mission.budget || mission.budget_range) && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                                 <Euro className="w-4 h-4 text-gold shrink-0" />
-                                <span>Budget estimé : <strong className="text-foreground">{mission.budget.toLocaleString('fr-FR')} €</strong></span>
+                                <span>Budget estimé : <strong className="text-foreground">
+                                  {mission.budget_range || `${mission.budget?.toLocaleString('fr-FR')} €`}
+                                </strong></span>
                               </div>
                             )}
 
@@ -497,7 +619,7 @@ const NosMissions = () => {
                             {/* Date */}
                             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
                               <Calendar className="w-3.5 h-3.5" />
-                              <span>Publié le {formatDate(mission.created_at)}</span>
+                              <span>{formatTimeAgo(mission.created_at)}</span>
                             </div>
 
                             {/* Spacer */}
@@ -701,10 +823,10 @@ const NosMissions = () => {
           <div className="py-6 space-y-4">
             <div className="bg-navy/5 border border-navy/10 rounded-xl p-6 text-center">
               <p className="text-foreground font-medium text-lg mb-2">
-                Cette mission est réservée à nos partenaires exclusifs.
+                Accès restreint aux Partenaires Validés.
               </p>
               <p className="text-muted-foreground">
-                Assurez-vous d'abord l'exclusivité de votre secteur pour accéder aux détails de ce chantier et postuler.
+                Votre secteur est-il encore disponible ? Rejoignez notre réseau exclusif pour accéder aux détails de ce chantier et postuler.
               </p>
             </div>
             
