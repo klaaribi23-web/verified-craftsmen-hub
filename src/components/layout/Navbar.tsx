@@ -534,7 +534,7 @@ const Navbar = () => {
               ) : null}
               {/* Espace Pro always visible for non-artisan visitors */}
               {(!isAuthenticated || role === "client") && (
-                <Button variant="outline" size="sm" className="border-gold/50 text-gold hover:bg-gold hover:text-white font-semibold" asChild>
+                <Button variant="outline" size="sm" className="border-gold text-gold-dark hover:bg-gold hover:text-navy-dark font-semibold" asChild>
                   <Link to="/devenir-artisan">
                     <User className="w-4 h-4 mr-1.5" />
                     Espace Pro
