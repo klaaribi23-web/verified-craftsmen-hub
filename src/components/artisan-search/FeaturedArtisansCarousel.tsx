@@ -2,10 +2,9 @@ import { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2, Crown, Award, Medal } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2 } from "lucide-react";
 import { useFeaturedArtisans } from "@/hooks/usePublicData";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 
 interface FeaturedArtisan {
   id: string;
@@ -19,7 +18,6 @@ interface FeaturedArtisan {
   experience: string;
   profileImage: string;
   portfolio: string[];
-  subscriptionTier: string | null;
 }
 
 const FeaturedArtisansCarousel = () => {
@@ -48,7 +46,6 @@ const FeaturedArtisansCarousel = () => {
     experience: artisan.experience_years ? `${artisan.experience_years} ans` : "N/A",
     profileImage: artisan.photo_url || "/favicon.png",
     portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : ["/favicon.png"],
-    subscriptionTier: artisan.subscription_tier || null,
   }));
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
@@ -152,39 +149,6 @@ const FeaturedArtisansCarousel = () => {
 };
 
 const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
-  const isElite = artisan.subscriptionTier === "elite";
-  const isPro = artisan.subscriptionTier === "pro";
-  const isEssential = artisan.subscriptionTier === "essential";
-
-  const getBadgeConfig = () => {
-    if (isElite) {
-      return {
-        show: true,
-        icon: Crown,
-        label: "Elite",
-        gradient: "from-yellow-500 via-amber-400 to-yellow-500",
-      };
-    }
-    if (isPro) {
-      return {
-        show: true,
-        icon: Award,
-        label: "Premium",
-        gradient: "from-slate-400 via-slate-300 to-slate-400",
-      };
-    }
-    if (isEssential) {
-      return {
-        show: true,
-        icon: Medal,
-        label: "Pro",
-        gradient: "from-amber-700 via-amber-600 to-amber-700",
-      };
-    }
-    return { show: false };
-  };
-
-  const badgeConfig = getBadgeConfig();
   const portfolioImage = artisan.portfolio[0] || artisan.profileImage || "/favicon.png";
 
   return (
@@ -194,28 +158,13 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
         <div className="relative h-36 md:h-40 overflow-hidden">
           <img src={portfolioImage} alt={artisan.name} className="w-full h-full object-cover" />
 
-          {/* Subscription Badge */}
-          {badgeConfig.show && badgeConfig.icon && (
-            <div className="absolute top-2 left-2 z-10">
-              <div
-                className={cn(
-                  "flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-semibold shadow-lg bg-gradient-to-r",
-                  badgeConfig.gradient,
-                )}
-              >
-                <badgeConfig.icon className="w-3 h-3" />
-                <span>{badgeConfig.label}</span>
-              </div>
+          {/* Artisan Validé Badge */}
+          <div className="absolute top-2 left-2 z-10">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
+              <CheckCircle2 className="w-3 h-3" />
+              <span>Artisan Validé</span>
             </div>
-          )}
-
-          {/* Verified Badge */}
-          {artisan.verified && (
-            <div className="absolute top-2 right-2 bg-success text-success-foreground text-xs font-medium px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-              <CheckCircle2 className="w-2.5 h-2.5" />
-              <span className="hidden sm:inline">Vérifié</span>
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Content */}
@@ -230,6 +179,15 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
             <MapPin className="h-3 w-3 shrink-0" />
             <span className="truncate">{artisan.location}</span>
           </div>
+
+          {/* Rating */}
+          {artisan.rating > 0 && (
+            <div className="flex items-center gap-1">
+              <Star className="w-3.5 h-3.5 fill-gold text-gold" />
+              <span className="text-xs font-semibold">{artisan.rating.toFixed(1)}</span>
+              {artisan.reviews > 0 && <span className="text-xs text-muted-foreground">({artisan.reviews} avis)</span>}
+            </div>
+          )}
         </div>
       </div>
     </Link>

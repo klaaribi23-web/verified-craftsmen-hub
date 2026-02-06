@@ -227,7 +227,7 @@ export const usePublicArtisans = () => {
   });
 };
 
-// Fetch featured artisans (top rated, active + prospect) - uses secure public_artisans view
+// Fetch featured artisans (verified first, then best rated) - uses secure public_artisans view
 export const useFeaturedArtisans = () => {
   return useQuery({
     queryKey: ["featured-artisans"],
@@ -241,7 +241,7 @@ export const useFeaturedArtisans = () => {
         `,
         )
         .in("status", ["active", "prospect"])
-        .order("display_priority", { ascending: true, nullsFirst: false })
+        .eq("is_verified", true)
         .order("rating", { ascending: false })
         .limit(12);
 

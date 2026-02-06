@@ -256,7 +256,12 @@ const TrouverArtisan = () => {
         <section className="py-10 md:py-16 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="mb-6 md:mb-8">
-              <h2 className="text-xl md:text-2xl font-bold text-foreground text-center md:text-left">Artisans recommandés</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground text-center md:text-left">
+                La sélection Artisans Validés : dossiers 100% vérifiés
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1 text-center md:text-left">
+                Assurances, SIRET et avis clients contrôlés par notre équipe.
+              </p>
             </div>
             <FeaturedArtisansCarousel />
           </div>
