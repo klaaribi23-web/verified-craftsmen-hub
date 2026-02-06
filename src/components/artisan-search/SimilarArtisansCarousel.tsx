@@ -4,7 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, ChevronLeft, ChevronRight, Shield, Crown, Award, Gem } from "lucide-react";
+import { Star, MapPin, ChevronLeft, ChevronRight, Shield, CheckCircle2 } from "lucide-react";
 import { useSimilarArtisans } from "@/hooks/usePublicData";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -65,36 +65,7 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
     ));
   };
 
-  const getSubscriptionBadge = (tier: string | null) => {
-    switch (tier) {
-      case 'elite':
-        return { 
-          show: true, 
-          label: 'Elite', 
-          icon: Crown, 
-          gradient: 'from-amber-500 to-yellow-400',
-          borderClass: 'ring-2 ring-amber-400/50'
-        };
-      case 'pro':
-        return { 
-          show: true, 
-          label: 'Pro', 
-          icon: Award, 
-          gradient: 'from-blue-600 to-blue-400',
-          borderClass: 'ring-2 ring-blue-400/50'
-        };
-      case 'essential':
-        return { 
-          show: true, 
-          label: 'Essentiel', 
-          icon: Gem, 
-          gradient: 'from-emerald-600 to-emerald-400',
-          borderClass: 'ring-2 ring-emerald-400/50'
-        };
-      default:
-        return { show: false, label: '', icon: null, gradient: '', borderClass: '' };
-    }
-  };
+  // No more tier badges - all artisans get the same "Artisan Validé" badge
 
   if (isLoading) {
     return (
@@ -156,48 +127,35 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
         {/* Embla Carousel - 1x1 mobile, 3x3 tablet, 4x4 desktop */}
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex -ml-4">
-            {similarArtisans.map((artisan) => {
-              const badgeConfig = getSubscriptionBadge(artisan.subscription_tier);
-              const BadgeIcon = badgeConfig.icon;
-
-              return (
+            {similarArtisans.map((artisan) => (
                 <div 
                   key={artisan.id} 
                   className="flex-[0_0_100%] sm:flex-[0_0_33.333%] lg:flex-[0_0_25%] min-w-0 pl-4"
                 >
                   <Card 
-                    className={cn(
-                      "overflow-hidden hover:shadow-xl transition-all cursor-pointer h-full",
-                      badgeConfig.borderClass
-                    )}
+                    className="overflow-hidden hover:shadow-xl transition-all cursor-pointer h-full border-border"
                     onClick={() => handleViewProfile(artisan.slug || artisan.id)}
                   >
-                    {/* Photo en haut de la card */}
                     <div className="relative h-32 sm:h-36 lg:h-40 overflow-hidden bg-muted">
-                    <img 
-                      src={
-                        artisan.photo_url || 
-                        (artisan.portfolio_images && artisan.portfolio_images.length > 0 
-                          ? artisan.portfolio_images[0] 
-                          : "/placeholder.svg")
-                      } 
-                      alt={artisan.business_name || "Artisan"}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                      {/* Badge abonnement en overlay */}
-                      {badgeConfig.show && BadgeIcon && (
-                        <div className={cn(
-                          "absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-semibold bg-gradient-to-r shadow-lg",
-                          badgeConfig.gradient
-                        )}>
-                          <BadgeIcon className="w-3 h-3" />
-                          <span className="hidden sm:inline">{badgeConfig.label}</span>
-                        </div>
-                      )}
+                      <img 
+                        src={
+                          artisan.photo_url || 
+                          (artisan.portfolio_images && artisan.portfolio_images.length > 0 
+                            ? artisan.portfolio_images[0] 
+                            : "/placeholder.svg")
+                        } 
+                        alt={artisan.business_name || "Artisan"}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      {/* Badge Artisan Validé */}
+                      <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span className="hidden sm:inline">Artisan Validé</span>
+                      </div>
                       {/* Badge vérifié */}
                       {artisan.is_verified && (
-                        <div className="absolute bottom-2 left-2 bg-emerald-500 text-white rounded-full p-1.5 shadow-lg">
+                        <div className="absolute bottom-2 left-2 bg-success text-success-foreground rounded-full p-1.5 shadow-lg">
                           <Shield className="h-3 w-3" />
                         </div>
                       )}
@@ -233,8 +191,7 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
                     </CardContent>
                   </Card>
                 </div>
-              );
-            })}
+              ))}
           </div>
         </div>
 

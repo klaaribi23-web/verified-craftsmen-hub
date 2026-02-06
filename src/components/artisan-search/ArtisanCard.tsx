@@ -7,9 +7,6 @@ import {
   Star,
   CheckCircle2,
   Heart,
-  Crown,
-  Award,
-  Medal,
   Shield,
   Phone,
   Zap,
@@ -197,27 +194,12 @@ const ArtisanCard = ({
     setShowVideo(true);
   };
 
-  const isElite = subscriptionTier === "elite";
-  const isPro = subscriptionTier === "pro";
-  const isEssential = subscriptionTier === "essential";
-
-  const getBadgeConfig = () => {
-    if (isElite) return { show: true, icon: Crown, label: "Elite", gradient: "from-yellow-500 via-amber-400 to-yellow-500", borderClass: "border-border" };
-    if (isPro) return { show: true, icon: Award, label: "Premium", gradient: "from-slate-400 via-slate-300 to-slate-400", borderClass: "border-border" };
-    if (isEssential) return { show: true, icon: Medal, label: "Pro", gradient: "from-amber-700 via-amber-600 to-amber-700", borderClass: "border-border" };
-    return { show: false, borderClass: "border-border" };
-  };
-
-  const badgeConfig = getBadgeConfig();
   const portfolioImage = portfolioImages[0] || defaultProfileImage;
 
   return (
     <div
       onClick={handleProfileClick}
-      className={cn(
-        "bg-card rounded-xl shadow-soft border hover:shadow-elevated transition-all overflow-hidden relative cursor-pointer group",
-        badgeConfig.borderClass,
-      )}
+      className="bg-card rounded-xl shadow-soft border border-border hover:shadow-elevated transition-all overflow-hidden relative cursor-pointer group"
     >
       {/* Urgent Badge */}
       {isUrgent && (
@@ -252,23 +234,13 @@ const ArtisanCard = ({
           </button>
         )}
 
-        {/* Subscription Badge */}
-        {badgeConfig.show && badgeConfig.icon && (
-          <div className="absolute top-2 left-2 z-10">
-            <div className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-semibold shadow-lg bg-gradient-to-r", badgeConfig.gradient)}>
-              <badgeConfig.icon className="w-3 h-3" />
-              <span>{badgeConfig.label}</span>
-            </div>
+        {/* Artisan Validé Badge */}
+        <div className="absolute top-2 left-2 z-10">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
+            <CheckCircle2 className="w-3 h-3" />
+            <span>Artisan Validé</span>
           </div>
-        )}
-
-        {/* Verified Badge */}
-        {verified && (
-          <div className="absolute top-2 right-12 bg-success text-success-foreground text-xs font-medium px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-            <CheckCircle2 className="w-2.5 h-2.5" />
-            <span className="hidden sm:inline">Vérifié</span>
-          </div>
-        )}
+        </div>
 
         {/* Favorite Button */}
         <button

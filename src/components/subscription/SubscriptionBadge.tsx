@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Crown, Award, Medal } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SubscriptionBadgeProps {
@@ -8,34 +8,6 @@ interface SubscriptionBadgeProps {
   showLabel?: boolean;
   size?: "sm" | "md" | "lg";
 }
-
-const badgeConfig: Record<string, { icon: any; label: string; className: string; iconClassName: string } | null> = {
-  exclusivite: {
-    icon: Crown,
-    label: "Exclusivité",
-    className: "bg-gradient-to-r from-yellow-400 to-amber-500 text-white border-yellow-500",
-    iconClassName: "text-white",
-  },
-  elite: {
-    icon: Crown,
-    label: "Elite",
-    className: "bg-gradient-to-r from-yellow-400 to-amber-500 text-white border-yellow-500",
-    iconClassName: "text-white",
-  },
-  pro: {
-    icon: Award,
-    label: "Premium",
-    className: "bg-gradient-to-r from-slate-300 to-slate-400 text-slate-800 border-slate-400",
-    iconClassName: "text-slate-800",
-  },
-  essential: {
-    icon: Medal,
-    label: "Pro",
-    className: "bg-gradient-to-r from-amber-600 to-amber-700 text-white border-amber-600",
-    iconClassName: "text-white",
-  },
-  free: null,
-};
 
 const sizeConfig = {
   sm: {
@@ -58,24 +30,20 @@ export const SubscriptionBadge = ({
   showLabel = true,
   size = "md",
 }: SubscriptionBadgeProps) => {
-  const config = badgeConfig[tier];
-  
-  if (!config) return null;
+  if (tier === "free" || !tier) return null;
 
-  const Icon = config.icon;
   const sizeStyles = sizeConfig[size];
 
   return (
     <Badge
       className={cn(
-        "flex items-center gap-1 font-semibold border",
-        config.className,
+        "flex items-center gap-1 font-semibold border bg-success text-success-foreground border-success",
         sizeStyles.badge,
         className
       )}
     >
-      <Icon className={cn(sizeStyles.icon, config.iconClassName)} />
-      {showLabel && <span>{config.label}</span>}
+      <CheckCircle2 className={cn(sizeStyles.icon)} />
+      {showLabel && <span>Artisan Validé</span>}
     </Badge>
   );
 };
