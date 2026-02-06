@@ -116,11 +116,7 @@ const App = () => (
           <Route path="/artisansvalides/" element={<Navigate to="/" replace />} />
           
           {/* Protected Artisan Routes */}
-          <Route path="/artisan/dashboard" element={
-            <ProtectedRoute allowedRoles={["artisan"]}>
-              <ArtisanDashboard />
-            </ProtectedRoute>
-          } />
+          <Route path="/artisan/dashboard" element={<ArtisanDashboard />} />
           <Route path="/artisan/profil" element={
             <ProtectedRoute allowedRoles={["artisan"]}>
               <ArtisanProfile />
