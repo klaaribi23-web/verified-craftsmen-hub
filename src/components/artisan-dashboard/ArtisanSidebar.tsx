@@ -14,7 +14,7 @@ import {
   Camera,
   Menu,
   Crown,
-  Lock,
+  ShieldCheck,
   Zap,
 } from "lucide-react";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
@@ -45,16 +45,16 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Tableau de bord", path: "/artisan/dashboard" },
-    { icon: User, label: "Mon profil", path: "/artisan/profil" },
+    { icon: User, label: "Mon profil", path: "/artisan/profil", verified: isVerified },
     { icon: Zap, label: "Opportunités", path: "/nos-missions", badge: opportunityCount > 0 ? opportunityCount : undefined },
-    { icon: Camera, label: "Mes Stories", path: "/artisan/stories", requiresPro: !hasProAccess },
-    { icon: FileText, label: "Documents", path: "/artisan/documents" },
+    { icon: Camera, label: "Mes Stories", path: "/artisan/stories", verified: hasProAccess },
+    { icon: FileText, label: "Documents", path: "/artisan/documents", verified: isVerified },
     { icon: Briefcase, label: "Mes prestations", path: "/artisan/prestations" },
     { icon: ClipboardList, label: "Missions postulées", path: "/artisan/demandes" },
     { icon: MessageSquare, label: "Messagerie", path: "/artisan/messagerie" },
     { icon: ClipboardList, label: "Mes devis", path: "/artisan/devis" },
-    { icon: Crown, label: "Mon abonnement", path: "/artisan/abonnement" },
-    { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires", requiresPro: !hasProAccess },
+    { icon: Crown, label: "Mon abonnement", path: "/artisan/abonnement", verified: hasProAccess },
+    { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires", verified: hasProAccess },
     { icon: Settings, label: "Paramètres", path: "/artisan/parametres" },
   ];
 
@@ -122,11 +122,8 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
                       {item.badge > 9 ? "9+" : item.badge}
                     </span>
                   )}
-                  {item.requiresPro && (
-                    <Badge variant="secondary" className="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 flex items-center gap-1">
-                      <Lock className="w-3 h-3" />
-                      PRO
-                    </Badge>
+                  {item.verified && (
+                    <ShieldCheck className="w-4 h-4 text-success flex-shrink-0" />
                   )}
                 </Link>
               </li>
