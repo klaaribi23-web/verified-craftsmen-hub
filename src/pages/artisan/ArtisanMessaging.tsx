@@ -254,6 +254,29 @@ export const ArtisanMessaging = () => {
     // Check for status messages
     const isAccepted = msg.content.includes("✅ DEVIS ACCEPTÉ");
     const isRefused = msg.content.includes("❌ DEVIS REFUSÉ");
+    const isContactShared = msg.content.includes("📱 CONTACTS_SHARED:");
+
+    if (isContactShared) {
+      // Parse contact info
+      const nameMatch = msg.content.match(/CONTACTS_SHARED:\s*([^\|]+)/);
+      const phoneMatch = msg.content.match(/📞\s*([^\|]+)/);
+      const emailMatch = msg.content.match(/✉️\s*(.+)$/);
+      const clientName = nameMatch ? nameMatch[1].trim() : "Client";
+      const phone = phoneMatch ? phoneMatch[1].trim() : "Non renseigné";
+      const email = emailMatch ? emailMatch[1].trim() : "";
+
+      return (
+        <div key={msg.id} className="flex justify-center my-4">
+          <div className="px-4 py-3 rounded-xl bg-teal-50 border border-teal-200 max-w-sm text-center space-y-1">
+            <p className="text-sm font-semibold text-teal-800">📱 Coordonnées partagées</p>
+            <p className="text-sm text-teal-700 font-medium">{clientName}</p>
+            <p className="text-sm text-teal-700">📞 {phone}</p>
+            {email && <p className="text-sm text-teal-700">✉️ {email}</p>}
+          </div>
+        </div>
+      );
+    }
+
     if (hasAttachment) {
       const isImage = msg.attachment_type?.startsWith('image/');
       return (
@@ -482,7 +505,16 @@ export const ArtisanMessaging = () => {
                       <div className="min-w-0">
                         <p className="font-medium text-foreground text-sm md:text-base truncate">{selectedConversation.participant_name}</p>
                         <p className="text-xs text-muted-foreground truncate">
-                          📞 [Coordonnées masquées - Discutez d'abord ici]
+                          {(() => {
+                            // Check if contacts have been shared in this conversation
+                            const contactMsg = messages.find(m => m.content.includes("📱 CONTACTS_SHARED:"));
+                            if (contactMsg) {
+                              const match = contactMsg.content.match(/📞\s*([^\|]+)/);
+                              const phone = match ? match[1].trim() : null;
+                              return phone && phone !== "Non renseigné" ? `📞 ${phone}` : "📞 Coordonnées partagées";
+                            }
+                            return "📞 [Coordonnées masquées - Discutez d'abord ici]";
+                          })()}
                         </p>
                       </div>
                     </div>

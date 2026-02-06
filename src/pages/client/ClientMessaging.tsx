@@ -26,6 +26,8 @@ import {
   Star,
   Archive,
   Trash2,
+  Shield,
+  Share2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -55,8 +57,11 @@ import { VoiceRecorder } from "@/components/chat/VoiceRecorder";
 import { SecureVoiceMessage } from "@/components/chat/SecureVoiceMessage";
 import { SecureAttachment } from "@/components/chat/SecureAttachment";
 
+import { useAuth } from "@/hooks/useAuth";
+
 export const ClientMessaging = () => {
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const artisanIdFromUrl = searchParams.get("artisan");
   const artisanNameFromUrl = searchParams.get("name");
 
@@ -86,6 +91,7 @@ export const ClientMessaging = () => {
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [contactsShared, setContactsShared] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -244,6 +250,44 @@ export const ClientMessaging = () => {
       : !archivedConversationIds.includes(conv.participant_id)
     );
 
+  // Detect if contacts were already shared in this conversation
+  useEffect(() => {
+    if (messages.length > 0 && selectedConversationId) {
+      const hasShared = messages.some(m => m.content.includes("📱 CONTACTS_SHARED:"));
+      if (hasShared) {
+        setContactsShared(prev => new Set(prev).add(selectedConversationId));
+      }
+    }
+  }, [messages, selectedConversationId]);
+
+  const handleShareContacts = async () => {
+    if (!selectedConversationId || !user) return;
+
+    // Get client's profile info
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("first_name, last_name, phone, email")
+      .eq("user_id", user.id)
+      .single();
+
+    if (!profile) {
+      toast.error("Impossible de récupérer vos coordonnées");
+      return;
+    }
+
+    const contactMessage = `📱 CONTACTS_SHARED: ${profile.first_name || ""} ${profile.last_name || ""} | 📞 ${profile.phone || "Non renseigné"} | ✉️ ${profile.email}`;
+
+    sendMessage.mutate(
+      { receiverId: selectedConversationId, content: contactMessage },
+      {
+        onSuccess: () => {
+          setContactsShared(prev => new Set(prev).add(selectedConversationId!));
+          toast.success("Vos coordonnées ont été transmises à l'artisan. Il peut désormais vous appeler.");
+        },
+      }
+    );
+  };
+
   const handleArchiveToggle = () => {
     if (selectedConversationId) {
       if (archivedConversationIds.includes(selectedConversationId)) {
@@ -334,9 +378,21 @@ export const ClientMessaging = () => {
       );
     }
 
-    // Check for status messages
+    // Check for special messages
     const isAccepted = message.content.includes("✅ DEVIS ACCEPTÉ");
     const isRefused = message.content.includes("❌ DEVIS REFUSÉ");
+    const isContactShared = message.content.includes("📱 CONTACTS_SHARED:");
+
+    if (isContactShared) {
+      return (
+        <div key={message.id} className="flex justify-center my-4">
+          <div className="px-4 py-3 rounded-xl bg-teal-50 border border-teal-200 max-w-sm text-center">
+            <p className="text-sm font-semibold text-teal-800">✅ Vos coordonnées ont été transmises à l'artisan.</p>
+            <p className="text-xs text-teal-600 mt-1">Il peut désormais vous appeler.</p>
+          </div>
+        </div>
+      );
+    }
 
     if (isAccepted || isRefused) {
       return (
@@ -628,6 +684,32 @@ export const ClientMessaging = () => {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                    </div>
+                  </div>
+                  {/* Privacy Banner + Share Contacts */}
+                  <div className="px-3 md:px-4 py-2 border-b border-border bg-teal-50">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Shield className="w-4 h-4 text-teal-600 shrink-0" />
+                        <p className="text-xs text-teal-800 truncate">
+                          🔒 Votre anonymat est garanti. L'artisan ne verra vos coordonnées que si vous cliquez sur "Partager mes contacts".
+                        </p>
+                      </div>
+                      {selectedConversationId && !contactsShared.has(selectedConversationId) ? (
+                        <Button
+                          size="sm"
+                          className="bg-teal-600 hover:bg-teal-700 text-white shrink-0 gap-1 text-xs"
+                          onClick={handleShareContacts}
+                          disabled={sendMessage.isPending}
+                        >
+                          <Share2 className="w-3 h-3" />
+                          Partager mes contacts
+                        </Button>
+                      ) : (
+                        <Badge className="bg-teal-100 text-teal-700 border-0 shrink-0 text-xs">
+                          ✅ Contacts partagés
+                        </Badge>
+                      )}
                     </div>
                   </div>
 
