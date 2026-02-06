@@ -198,8 +198,8 @@ export const ClientDashboard = () => {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-primary/10">
-                        <Briefcase className="w-6 h-6 text-primary" />
+                      <div className="p-3 rounded-xl bg-teal-500/10">
+                        <Briefcase className="w-6 h-6 text-teal-600" />
                       </div>
                       <div>
                         <p className="text-2xl font-bold">{missions.length}</p>
@@ -212,8 +212,8 @@ export const ClientDashboard = () => {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-accent/10">
-                        <MessageSquare className="w-6 h-6 text-accent" />
+                      <div className="p-3 rounded-xl bg-teal-500/10">
+                        <MessageSquare className="w-6 h-6 text-teal-600" />
                       </div>
                       <div>
                         <p className="text-2xl font-bold">{conversationsCount}</p>
