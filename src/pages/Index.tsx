@@ -27,6 +27,17 @@ const Index = () => {
       <Navbar />
       <main>
         <HeroSection />
+
+        {/* Bandeau ADN Particuliers */}
+        <section className="bg-navy py-6">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-white text-base md:text-lg font-medium">
+              Ici, on ne vous vend pas au plus offrant.{" "}
+              <span className="text-gold font-bold">On vous présente l'artisan local qu'on a personnellement validé.</span>
+            </p>
+          </div>
+        </section>
+
         <CategoriesSection />
 
         {/* Featured Artisans Section - 4x4 */}

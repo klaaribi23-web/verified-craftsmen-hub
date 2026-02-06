@@ -40,13 +40,13 @@ const HeroSection = () => {
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-white leading-tight mb-4 md:mb-6">
-              Des artisans{" "}
-              <span className="text-gradient-gold">triés sur le volet</span> pour vos travaux
+              Arrêtez de payer pour des leads{" "}
+              <span className="text-gradient-gold">partagés avec 10 concurrents.</span>
             </h1>
 
             <p className="text-base md:text-lg text-white/80 mb-6 md:mb-8 max-w-xl mx-auto lg:mx-0">
-              Nous sélectionnons, vérifions et validons personnellement chaque artisan de notre réseau. 
-              Vous ne trouverez que des professionnels approuvés par notre équipe.
+              On verrouille votre ville (2 places max). On vérifie vos assurances. On lance votre pub. 
+              Vous signez les chantiers. Direct, sans intermédiaire.
             </p>
 
             {/* Badges */}
