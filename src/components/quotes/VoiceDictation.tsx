@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 
 interface VoiceDictationProps {
@@ -12,62 +12,77 @@ export const VoiceDictation = ({ onTranscript, disabled }: VoiceDictationProps) 
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
   const recognitionRef = useRef<any>(null);
+  const accumulatedRef = useRef<string>("");
 
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setIsSupported(false);
-    }
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) setIsSupported(false);
   }, []);
 
   const startListening = useCallback(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) {
       toast.error("La reconnaissance vocale n'est pas supportée par votre navigateur");
       return;
     }
 
-    const recognition = new SpeechRecognition();
+    // Reset accumulated text
+    accumulatedRef.current = "";
+
+    const recognition = new SR();
     recognition.lang = "fr-FR";
     recognition.continuous = true;
-    recognition.interimResults = true;
+    recognition.interimResults = false; // Only final results for reliability
 
     recognition.onresult = (event: any) => {
-      let finalTranscript = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript + " ";
+          accumulatedRef.current += event.results[i][0].transcript + " ";
         }
-      }
-      if (finalTranscript.trim()) {
-        onTranscript(finalTranscript.trim());
       }
     };
 
     recognition.onerror = (event: any) => {
       console.error("Speech recognition error:", event.error);
-      if (event.error === "not-allowed") {
-        toast.error("Accès au microphone refusé. Vérifiez vos permissions.");
-      }
       setIsListening(false);
+      recognitionRef.current = null;
+
+      if (event.error === "not-allowed" || event.error === "denied") {
+        toast.error("Micro bloqué. Veuillez autoriser l'accès dans les réglages de votre navigateur.", { duration: 6000 });
+      } else if (event.error === "no-speech") {
+        toast.warning("Aucune parole détectée. Réessayez.");
+      } else {
+        toast.error("Erreur de reconnaissance vocale. Réessayez.");
+      }
     };
 
     recognition.onend = () => {
+      // Flush accumulated text on end (triggered by stop() or timeout)
+      const text = accumulatedRef.current.trim();
+      if (text) {
+        onTranscript(text);
+        toast.success("✅ Texte ajouté au devis");
+      }
+      accumulatedRef.current = "";
       setIsListening(false);
+      recognitionRef.current = null;
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
-    setIsListening(true);
-    toast.info("🎙️ Dictez votre devis...");
+    try {
+      recognition.start();
+      setIsListening(true);
+      toast.info("🎙️ Écoute en cours...");
+    } catch (err) {
+      console.error("Failed to start recognition:", err);
+      toast.error("Micro bloqué. Veuillez autoriser l'accès dans les réglages de votre navigateur.", { duration: 6000 });
+    }
   }, [onTranscript]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
+      recognitionRef.current.stop(); // triggers onend which flushes text
     }
-    setIsListening(false);
   }, []);
 
   if (!isSupported) return null;
@@ -76,17 +91,18 @@ export const VoiceDictation = ({ onTranscript, disabled }: VoiceDictationProps) 
     <Button
       type="button"
       variant={isListening ? "destructive" : "default"}
+      size="sm"
       onClick={isListening ? stopListening : startListening}
       disabled={disabled}
       className={isListening 
-        ? "gap-2 animate-pulse" 
+        ? "gap-2 animate-pulse bg-red-600 hover:bg-red-700 text-white" 
         : "gap-2 bg-orange-500 hover:bg-orange-600 text-white"
       }
     >
       {isListening ? (
         <>
           <MicOff className="w-4 h-4" />
-          Arrêter la dictée
+          Écoute en cours...
         </>
       ) : (
         <>
