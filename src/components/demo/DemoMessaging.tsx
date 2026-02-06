@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Send, CheckCircle, Lock, Unlock, Phone, Mail, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useDemoContact } from "@/contexts/DemoContactContext";
 
 interface DemoMessagingProps {
   /** "client" shows the share button, "artisan" shows masked/revealed contacts */
@@ -57,14 +58,15 @@ const clientContact = {
 };
 
 export const DemoMessaging = ({ viewAs, contactsShared = false, onShareContacts }: DemoMessagingProps) => {
-  const [shared, setShared] = useState(contactsShared);
+  const { isContactShared, shareContacts } = useDemoContact();
+  const shared = isContactShared || contactsShared;
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleShare = () => {
-    setShared(true);
-    setShowConfirmation(true);
+    shareContacts();
     onShareContacts?.();
-    toast.success("Vos coordonnées ont été transmises à l'artisan !");
+    toast.success("Succès : L'artisan peut maintenant voir votre numéro");
+    setShowConfirmation(true);
     setTimeout(() => setShowConfirmation(false), 4000);
   };
 
