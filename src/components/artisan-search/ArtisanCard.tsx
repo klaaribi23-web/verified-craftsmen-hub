@@ -199,7 +199,7 @@ const ArtisanCard = ({
   return (
     <div
       onClick={handleProfileClick}
-      className="bg-card rounded-xl shadow-soft border border-border hover:shadow-elevated transition-all overflow-hidden relative cursor-pointer group"
+      className="bg-card rounded-xl shadow-soft border border-border hover:shadow-elevated transition-all overflow-hidden relative cursor-pointer group h-full flex flex-col"
     >
       {/* Urgent Badge */}
       {isUrgent && (
@@ -210,7 +210,7 @@ const ArtisanCard = ({
       )}
 
       {/* Image */}
-      <div className={cn("relative h-36 md:h-40 overflow-hidden", isUrgent && "mt-7")}>
+      <div className={cn("relative h-36 md:h-40 overflow-hidden flex-shrink-0", isUrgent && "mt-7")}>
         {showVideo && hasVideos ? (
           <video
             src={portfolioVideos![0]}
@@ -234,8 +234,8 @@ const ArtisanCard = ({
           </button>
         )}
 
-        {/* Artisan Validé Badge */}
-        <div className="absolute top-2 left-2 z-10">
+        {/* Artisan Validé Badge - absolute top right */}
+        <div className="absolute top-2 right-10 z-10">
           <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
             <CheckCircle2 className="w-3 h-3" />
             <span>Artisan Validé</span>
@@ -247,7 +247,7 @@ const ArtisanCard = ({
           onClick={handleFavoriteClick}
           disabled={isLoading}
           className={cn(
-            "absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-manipulation",
+            "absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-manipulation z-10",
             isFavorite ? "bg-red-500 text-white" : "bg-card/90 text-muted-foreground hover:bg-red-500 hover:text-white",
             isLoading && "opacity-50 cursor-not-allowed",
           )}
@@ -257,8 +257,8 @@ const ArtisanCard = ({
         </button>
       </div>
 
-      {/* Content */}
-      <div className="p-3 sm:p-4">
+      {/* Content - flex-1 to fill remaining space */}
+      <div className="p-3 sm:p-4 flex flex-col flex-1">
         {/* Check Artisans Validés - Verification Block */}
         {verified && (
           <div className="flex items-center gap-2 mb-2 p-1.5 rounded-lg bg-success/5 border border-success/15">
@@ -276,8 +276,8 @@ const ArtisanCard = ({
           </div>
         )}
 
-        {/* Profile photo with story indicator */}
-        <div className="flex items-start gap-2 mb-2">
+        {/* Profile photo with story indicator - fixed min-height for title zone */}
+        <div className="flex items-start gap-2 mb-2 min-h-[48px]">
           <img
             src={profileImage || defaultProfileImage}
             alt={`Photo de profil de ${name}`}
@@ -311,43 +311,47 @@ const ArtisanCard = ({
         </div>
 
         {/* Rating */}
-        {rating > 0 && (
-          <div className="flex items-center gap-1 mb-3">
-            <Star className="w-3.5 h-3.5 fill-gold text-gold" />
-            <span className="text-xs font-semibold">{rating.toFixed(1)}</span>
-            {reviews > 0 && <span className="text-xs text-muted-foreground">({reviews} avis)</span>}
-          </div>
-        )}
+        <div className="flex items-center gap-1 mb-3 min-h-[18px]">
+          {rating > 0 ? (
+            <>
+              <Star className="w-3.5 h-3.5 fill-gold text-gold" />
+              <span className="text-xs font-semibold">{rating.toFixed(1)}</span>
+              {reviews > 0 && <span className="text-xs text-muted-foreground">({reviews} avis)</span>}
+            </>
+          ) : (
+            <span className="text-xs text-muted-foreground italic">Pas encore d'avis</span>
+          )}
+        </div>
 
-        {/* Social Icons Bar */}
-        {hasSocialLinks && (
-          <div className="flex items-center gap-1.5 mb-3">
-            {instagramUrl && (
-              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Instagram">
-                <Instagram className="w-3 h-3 text-muted-foreground" />
-              </a>
-            )}
-            {facebookUrl && (
-              <a href={facebookUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Facebook">
-                <Facebook className="w-3 h-3 text-muted-foreground" />
-              </a>
-            )}
-            {linkedinUrl && (
-              <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="LinkedIn">
-                <Linkedin className="w-3 h-3 text-muted-foreground" />
-              </a>
-            )}
-            {websiteUrl && (
-              <a href={websiteUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Site web">
-                <Globe className="w-3 h-3 text-muted-foreground" />
-              </a>
-            )}
-          </div>
-        )}
+        {/* Social Icons Bar - reserved height even when empty */}
+        <div className="flex items-center gap-1.5 mb-3 min-h-[24px]">
+          {instagramUrl && (
+            <a href={instagramUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Instagram">
+              <Instagram className="w-3 h-3 text-muted-foreground" />
+            </a>
+          )}
+          {facebookUrl && (
+            <a href={facebookUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Facebook">
+              <Facebook className="w-3 h-3 text-muted-foreground" />
+            </a>
+          )}
+          {linkedinUrl && (
+            <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="LinkedIn">
+              <Linkedin className="w-3 h-3 text-muted-foreground" />
+            </a>
+          )}
+          {websiteUrl && (
+            <a href={websiteUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Site web">
+              <Globe className="w-3 h-3 text-muted-foreground" />
+            </a>
+          )}
+        </div>
 
-        {/* Action Buttons */}
+        {/* Spacer to push buttons to bottom */}
+        <div className="flex-1" />
+
+        {/* Action Buttons - always at bottom */}
         <div className="flex flex-col gap-2">
-          {/* Invite to project */}
           <Button
             variant="gold"
             size="sm"
@@ -358,7 +362,6 @@ const ArtisanCard = ({
             Inviter à chiffrer mon projet
           </Button>
 
-          {/* Urgent call button */}
           {isUrgent && (
             <Button
               variant="destructive"

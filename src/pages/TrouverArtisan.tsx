@@ -286,8 +286,8 @@ const TrouverArtisan = () => {
                     {filteredArtisans.length} artisan{filteredArtisans.length > 1 ? "s" : ""} trouvé{filteredArtisans.length > 1 ? "s" : ""}
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
-                    {paginatedArtisans.map(artisan => <motion.div key={artisan.id} initial={{
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch gap-4 md:gap-6 mb-8">
+                    {paginatedArtisans.map(artisan => <motion.div key={artisan.id} className="h-full" initial={{
                   opacity: 0,
                   y: 20
                 }} animate={{
