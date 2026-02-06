@@ -314,6 +314,255 @@ export const blogArticles: BlogArticle[] = [
       </article>
     ),
   },
+  {
+    id: "4",
+    slug: "renovation-energetique-arnaques-courantes",
+    title: "Rénovation Énergétique : 5 arnaques courantes et comment les éviter",
+    excerpt: "Faux labels RGE, démarchage abusif, devis gonflés... Découvrez les 5 arnaques les plus fréquentes en rénovation énergétique et nos conseils pour vous en protéger.",
+    author: "L'équipe Artisans Validés",
+    date: "5 février 2025",
+    readTime: "9 min",
+    category: "Sécurité",
+    tags: ["arnaque rénovation", "label RGE", "isolation à 1€", "démarchage abusif", "protection consommateur"],
+    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&h=400&fit=crop",
+    content: (
+      <article className="prose prose-lg max-w-none">
+        <p className="text-xl text-muted-foreground leading-relaxed">
+          La <strong>rénovation énergétique</strong> attire malheureusement de nombreux escrocs. Chaque année, des milliers de 
+          Français sont victimes de fraudes liées aux travaux d'isolation, de chauffage ou de panneaux solaires. 
+          Voici les <strong>5 arnaques les plus courantes</strong> et nos conseils pour vous en protéger.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">1. L'isolation à 1€ : la promesse trop belle</h2>
+        <p>
+          Le dispositif d'<strong>isolation à 1€</strong> a officiellement pris fin, mais certains démarcheurs continuent de 
+          l'utiliser comme appât. Ils promettent des travaux quasi-gratuits puis facturent des suppléments injustifiés 
+          ou réalisent des travaux de très mauvaise qualité.
+        </p>
+        <p>
+          <strong>Comment se protéger :</strong> Ne donnez jamais suite à un démarchage téléphonique ou à domicile. 
+          Vérifiez toujours les offres sur le site officiel <em>france-renov.gouv.fr</em>.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">2. Le faux label RGE</h2>
+        <p>
+          Certains artisans prétendent détenir la <strong>certification RGE</strong> alors qu'elle est expirée, suspendue 
+          ou tout simplement inexistante. Sans cette certification valide, vous ne pourrez pas bénéficier des aides de l'État.
+        </p>
+        <p>
+          <strong>Comment se protéger :</strong> Vérifiez systématiquement le label RGE sur le site officiel 
+          <em> france-renov.gouv.fr/annuaire-rge</em>. Sur <Link to="/" className="text-primary hover:underline font-medium">Artisans Validés</Link>, 
+          nous vérifions manuellement chaque certification.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">3. Le devis gonflé artificiellement</h2>
+        <p>
+          Certains professionnels gonflent volontairement les devis pour maximiser les <strong>primes CEE</strong> ou 
+          <strong> MaPrimeRénov'</strong>. Le client ne s'en rend pas compte car les aides absorbent la différence, 
+          mais les travaux réalisés ne correspondent pas au montant facturé.
+        </p>
+        <p>
+          <strong>Comment se protéger :</strong> Demandez toujours <Link to="/demande-devis" className="text-primary hover:underline font-medium">plusieurs devis comparatifs</Link> et 
+          méfiez-vous des écarts de prix importants.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">4. Le démarchage agressif à domicile</h2>
+        <p>
+          Le <strong>démarchage à domicile</strong> pour des travaux de rénovation énergétique est l'une des pratiques 
+          les plus signalées auprès de la DGCCRF. Les vendeurs utilisent des techniques de pression pour faire signer 
+          des contrats immédiatement.
+        </p>
+        <p>
+          <strong>Comment se protéger :</strong> Vous disposez d'un délai de rétractation de 14 jours. Ne signez jamais 
+          sous pression et prenez toujours le temps de comparer.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">5. L'absence d'assurance décennale</h2>
+        <p>
+          Des artisans interviennent sans <strong>assurance décennale</strong> valide. En cas de malfaçon, vous n'avez 
+          aucun recours pendant les 10 ans de garantie légale.
+        </p>
+        <p>
+          <strong>Comment se protéger :</strong> Exigez systématiquement une attestation d'assurance décennale en cours 
+          de validité avant tout début de travaux.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Conclusion : choisissez des artisans vérifiés</h2>
+        <p>
+          La meilleure protection reste de passer par une plateforme qui <strong>vérifie en amont</strong> les certifications, 
+          assurances et références de chaque artisan. C'est exactement ce que fait 
+          <Link to="/" className="text-primary hover:underline font-medium"> Artisans Validés</Link>.
+        </p>
+
+        <div className="mt-8 p-6 bg-gold/10 rounded-xl border border-gold/20 text-center">
+          <p className="text-lg font-semibold mb-4">Ne prenez aucun risque avec vos travaux</p>
+          <Link to="/trouver-artisan" className="inline-flex items-center gap-2 bg-gold hover:bg-gold-hover text-white font-bold py-3 px-8 rounded-lg transition-colors text-lg">
+            Trouver un artisan vérifié maintenant
+          </Link>
+        </div>
+      </article>
+    ),
+  },
+  {
+    id: "5",
+    slug: "maprimenov-cee-guide-aides-sans-erreur",
+    title: "MaPrimeRénov et CEE : Le guide pour obtenir vos aides sans erreur",
+    excerpt: "Dossier incomplet, artisan non-RGE, délais dépassés... Évitez les erreurs fatales qui bloquent vos demandes d'aides à la rénovation énergétique.",
+    author: "L'équipe Artisans Validés",
+    date: "1 février 2025",
+    readTime: "11 min",
+    category: "Financement",
+    tags: ["MaPrimeRénov", "CEE", "aides rénovation", "dossier administratif", "erreurs à éviter"],
+    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=400&fit=crop",
+    content: (
+      <article className="prose prose-lg max-w-none">
+        <p className="text-xl text-muted-foreground leading-relaxed">
+          Chaque année, des milliers de dossiers <strong>MaPrimeRénov'</strong> et <strong>CEE</strong> sont refusés pour 
+          des erreurs évitables. Ce guide vous accompagne pas à pas pour monter votre dossier correctement 
+          et obtenir le maximum d'aides pour vos travaux.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Erreur n°1 : Commencer les travaux avant la validation</h2>
+        <p>
+          C'est l'erreur la plus fréquente et la plus coûteuse. Pour <strong>MaPrimeRénov'</strong>, vous devez 
+          impérativement attendre la notification d'accord AVANT de signer le devis et de démarrer les travaux. 
+          Pour les <strong>CEE</strong>, l'inscription auprès du fournisseur d'énergie doit être faite AVANT la signature du devis.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Erreur n°2 : Choisir un artisan non-RGE</h2>
+        <p>
+          Les deux dispositifs exigent que les travaux soient réalisés par un <strong>artisan certifié RGE</strong>. 
+          Si votre artisan n'a pas cette certification au moment de la facturation, votre dossier sera automatiquement refusé.
+        </p>
+        <p>
+          Sur <Link to="/trouver-artisan" className="text-primary hover:underline font-medium">Artisans Validés</Link>, 
+          les certifications sont vérifiées et mises à jour régulièrement.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Erreur n°3 : Un devis incomplet ou non-conforme</h2>
+        <p>
+          Le devis doit comporter des mentions obligatoires précises : le numéro RGE de l'artisan, la description technique 
+          des matériaux (résistance thermique R pour l'isolation), les quantités exactes et le détail main d'œuvre/fournitures.
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>Numéro RGE et domaine de certification</li>
+          <li>Performance thermique des matériaux (valeur R, COP...)</li>
+          <li>Surface ou quantité précise des travaux</li>
+          <li>Mention de la dépose de l'ancien équipement si applicable</li>
+        </ul>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Erreur n°4 : Ne pas cumuler les aides</h2>
+        <p>
+          <strong>MaPrimeRénov'</strong> et les <strong>CEE</strong> sont cumulables ! Ajoutez-y l'éco-PTZ et la TVA à 5,5%, 
+          et votre reste à charge peut être considérablement réduit. Beaucoup de particuliers passent à côté de milliers 
+          d'euros simplement par méconnaissance.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Erreur n°5 : Dépasser les délais de dépôt</h2>
+        <p>
+          Vous disposez généralement de <strong>6 mois</strong> après la fin des travaux pour déposer votre dossier MaPrimeRénov' 
+          et envoyer les justificatifs CEE. Passé ce délai, votre demande sera irrecevable.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Notre conseil : faites-vous accompagner</h2>
+        <p>
+          Le montage d'un dossier d'aides peut être complexe. En passant par 
+          <Link to="/" className="text-primary hover:underline font-medium"> Artisans Validés</Link>, vous bénéficiez 
+          d'artisans qui connaissent parfaitement les procédures et peuvent vous accompagner dans vos démarches.
+        </p>
+
+        <div className="mt-8 p-6 bg-gold/10 rounded-xl border border-gold/20 text-center">
+          <p className="text-lg font-semibold mb-4">Obtenez vos aides sans stress</p>
+          <Link to="/trouver-artisan" className="inline-flex items-center gap-2 bg-gold hover:bg-gold-hover text-white font-bold py-3 px-8 rounded-lg transition-colors text-lg">
+            Trouver un artisan vérifié maintenant
+          </Link>
+        </div>
+      </article>
+    ),
+  },
+  {
+    id: "6",
+    slug: "pourquoi-verification-decennale-artisans",
+    title: "Pourquoi nous vérifions systématiquement la décennale de nos artisans",
+    excerpt: "L'assurance décennale est votre meilleure protection juridique. Découvrez pourquoi nous en faisons une exigence absolue et comment elle vous protège pendant 10 ans.",
+    author: "L'équipe Artisans Validés",
+    date: "28 janvier 2025",
+    readTime: "8 min",
+    category: "Protection juridique",
+    tags: ["assurance décennale", "garantie", "protection client", "malfaçon", "recours juridique"],
+    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=400&fit=crop",
+    content: (
+      <article className="prose prose-lg max-w-none">
+        <p className="text-xl text-muted-foreground leading-relaxed">
+          L'<strong>assurance décennale</strong> n'est pas une option : c'est une obligation légale et votre meilleure 
+          protection en cas de malfaçon. Chez Artisans Validés, nous en faisons un critère d'admission non négociable. 
+          Voici pourquoi cette vérification est cruciale pour votre tranquillité.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Qu'est-ce que la garantie décennale ?</h2>
+        <p>
+          La <strong>garantie décennale</strong> (loi Spinetta de 1978) oblige tout constructeur à garantir pendant 
+          <strong> 10 ans</strong> la solidité de l'ouvrage et son aptitude à sa destination. Elle couvre les dommages 
+          qui compromettent la solidité du bâtiment ou le rendent impropre à l'usage auquel il est destiné.
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>Fissures structurelles des murs ou fondations</li>
+          <li>Problèmes d'étanchéité de la toiture</li>
+          <li>Défaillance du système de chauffage rendant le logement inhabitable</li>
+          <li>Affaissement de plancher ou de terrasse</li>
+          <li>Infiltrations d'eau par les menuiseries</li>
+        </ul>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Sans décennale : le cauchemar juridique</h2>
+        <p>
+          Si votre artisan n'a pas d'<strong>assurance décennale</strong> valide au moment des travaux, vous devrez 
+          le poursuivre personnellement en justice. Les procédures sont longues (2 à 5 ans), coûteuses et l'issue 
+          est incertaine, surtout si l'entreprise a fait faillite entre-temps.
+        </p>
+        <p>
+          <strong>Chiffre clé :</strong> 30% des entreprises du bâtiment de moins de 5 salariés disparaissent dans 
+          les 5 premières années. Sans décennale, votre recours disparaît avec elles.
+        </p>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Notre processus de vérification</h2>
+        <p>
+          Chez <Link to="/" className="text-primary hover:underline font-medium">Artisans Validés</Link>, chaque 
+          artisan doit fournir son <strong>attestation d'assurance décennale</strong> en cours de validité avant 
+          d'apparaître sur la plateforme. Notre équipe vérifie :
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>La validité de l'attestation (date d'effet et d'expiration)</li>
+          <li>La correspondance entre l'activité déclarée et les travaux proposés</li>
+          <li>Le nom de l'assureur et la police d'assurance</li>
+          <li>Le renouvellement annuel de l'attestation</li>
+        </ul>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Les autres garanties que nous vérifions</h2>
+        <p>
+          Au-delà de la décennale, nous contrôlons également :
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li><strong>Responsabilité civile professionnelle</strong> : couvre les dommages causés aux tiers pendant le chantier</li>
+          <li><strong>Garantie de parfait achèvement</strong> : 1 an pour signaler tout défaut</li>
+          <li><strong>Garantie biennale</strong> : 2 ans sur les équipements dissociables (robinetterie, volets...)</li>
+        </ul>
+
+        <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Votre tranquillité, notre priorité</h2>
+        <p>
+          En choisissant un artisan sur notre plateforme, vous avez la certitude que toutes les garanties légales 
+          sont en place. Pas de mauvaise surprise, pas de zone grise : uniquement des 
+          <strong> professionnels correctement assurés</strong>.
+        </p>
+
+        <div className="mt-8 p-6 bg-gold/10 rounded-xl border border-gold/20 text-center">
+          <p className="text-lg font-semibold mb-4">Protégez-vous avec des artisans assurés</p>
+          <Link to="/trouver-artisan" className="inline-flex items-center gap-2 bg-gold hover:bg-gold-hover text-white font-bold py-3 px-8 rounded-lg transition-colors text-lg">
+            Trouver un artisan vérifié maintenant
+          </Link>
+        </div>
+      </article>
+    ),
+  },
 ];
 
 export const getArticleBySlug = (slug: string): BlogArticle | undefined => {
