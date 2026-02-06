@@ -15,11 +15,13 @@ import {
   Menu,
   Crown,
   Lock,
+  Zap,
 } from "lucide-react";
 import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useArtisanProfile } from "@/hooks/useArtisanProfile";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useOpportunityCount } from "@/hooks/useOpportunityCount";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +32,7 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
   const { signOut } = useAuth();
   const { artisan, profile, isLoading } = useArtisanProfile();
   const { tier } = useSubscription();
+  const { data: opportunityCount = 0 } = useOpportunityCount();
 
   const handleLogout = async () => {
     await signOut();
@@ -43,6 +46,7 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
   const menuItems = [
     { icon: LayoutDashboard, label: "Tableau de bord", path: "/artisan/dashboard" },
     { icon: User, label: "Mon profil", path: "/artisan/profil" },
+    { icon: Zap, label: "Opportunités", path: "/nos-missions", badge: opportunityCount > 0 ? opportunityCount : undefined },
     { icon: Camera, label: "Mes Stories", path: "/artisan/stories", requiresPro: !hasProAccess },
     { icon: FileText, label: "Documents", path: "/artisan/documents" },
     { icon: Briefcase, label: "Mes prestations", path: "/artisan/prestations" },
@@ -113,6 +117,11 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
                 >
                   <item.icon className="w-5 h-5 flex-shrink-0" />
                   <span className="truncate flex-1">{item.label}</span>
+                  {item.badge && (
+                    <span className="w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-bold">
+                      {item.badge > 9 ? "9+" : item.badge}
+                    </span>
+                  )}
                   {item.requiresPro && (
                     <Badge variant="secondary" className="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 flex items-center gap-1">
                       <Lock className="w-3 h-3" />
