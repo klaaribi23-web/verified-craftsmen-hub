@@ -515,6 +515,12 @@ const Navbar = () => {
                   Espace Pro
                 </Link>
               </Button>
+              <Button variant="outline" size="sm" className="border-teal-500 text-teal-700 hover:bg-teal-500 hover:text-white font-semibold" asChild>
+                <Link to="/dashboard/client">
+                  <User className="w-4 h-4 mr-1.5" />
+                  Mon Espace
+                </Link>
+              </Button>
               {isAuthenticated && (
                 <>
                   <Link to={getMessagingLink()} className="relative">
