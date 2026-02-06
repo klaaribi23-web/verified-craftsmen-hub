@@ -152,11 +152,7 @@ const App = () => (
               <ArtisanSettings />
             </ProtectedRoute>
           } />
-          <Route path="/artisan/devis" element={
-            <ProtectedRoute allowedRoles={["artisan"]}>
-              <ArtisanQuotes />
-            </ProtectedRoute>
-          } />
+          <Route path="/artisan/devis" element={<ArtisanQuotes />} />
           <Route path="/artisan/stories" element={
             <ProtectedRoute allowedRoles={["artisan"]}>
               <ArtisanStories />

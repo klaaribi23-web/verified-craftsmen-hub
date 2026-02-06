@@ -38,6 +38,7 @@ import { useEffect, useCallback } from "react";
 export const ArtisanDashboard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const demoMode = !user;
   const { tier, subscriptionEnd, checkSubscription, isLoading: isLoadingSubscription } = useSubscription();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -285,7 +286,7 @@ export const ArtisanDashboard = () => {
     }
   });
 
-  if (isLoadingProfile) {
+  if (isLoadingProfile && !demoMode) {
     return (
       <>
         <Navbar />
@@ -298,6 +299,11 @@ export const ArtisanDashboard = () => {
       </>
     );
   }
+
+  const demoStats = { requests: 12, inProgress: 3, completed: 47, rating: 4.8 };
+  const displayStats = demoMode ? demoStats : stats;
+  const displayTier = demoMode ? "pro" as const : tier;
+  const displayBusinessName = demoMode ? "Durand Peinture & Décoration" : artisanProfile?.business_name;
 
   return (
     <>
@@ -313,7 +319,7 @@ export const ArtisanDashboard = () => {
         <div className="flex-1 flex flex-col">
           <DashboardHeader 
             title="Tableau de bord" 
-            subtitle={`Bienvenue${artisanProfile?.business_name ? `, ${artisanProfile.business_name}` : ''} ! Voici un aperçu de votre activité.`}
+            subtitle={`Bienvenue${displayBusinessName ? `, ${displayBusinessName}` : ''} ! Voici un aperçu de votre activité.`}
           />
 
           <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
@@ -323,7 +329,7 @@ export const ArtisanDashboard = () => {
             </div>
 
             {/* Subscription Card */}
-            <SubscriptionDashboardCard tier={tier} subscriptionEnd={subscriptionEnd} isLoading={isLoadingSubscription} />
+            <SubscriptionDashboardCard tier={displayTier} subscriptionEnd={subscriptionEnd} isLoading={demoMode ? false : isLoadingSubscription} />
 
             {/* Profile Status Cards */}
             {artisanProfile?.status === "active" && (
@@ -369,36 +375,36 @@ export const ArtisanDashboard = () => {
             )}
 
             {/* Profile Views Counter */}
-            <ProfileViewsCard artisanId={artisanProfile?.id} />
+            <ProfileViewsCard artisanId={artisanProfile?.id} demoMode={demoMode} />
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
               <StatsCard
                 title="Demandes reçues"
-                value={stats?.requests || 0}
+                value={displayStats?.requests || 0}
                 icon={Briefcase}
               />
               <StatsCard
                 title="Chantiers en cours"
-                value={stats?.inProgress || 0}
+                value={displayStats?.inProgress || 0}
                 icon={Clock}
                 variant="gold"
               />
               <StatsCard
                 title="Chantiers terminés"
-                value={stats?.completed || 0}
+                value={displayStats?.completed || 0}
                 icon={CheckCircle}
                 variant="success"
               />
               <StatsCard
                 title="Note moyenne"
-                value={stats?.rating?.toFixed(1) || "0.0"}
+                value={displayStats?.rating?.toFixed(1) || "0.0"}
                 icon={Star}
               />
             </div>
 
             {/* Stories Stats Card - Only for paid tiers */}
-            {tier !== "free" ? (
+            {displayTier !== "free" ? (
               <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                   <div className="flex items-center gap-3">
@@ -408,7 +414,7 @@ export const ArtisanDashboard = () => {
                     <div>
                       <h3 className="font-semibold text-foreground">Mes Stories</h3>
                       <p className="text-sm text-muted-foreground">
-                        {storiesStats?.active || 0} story active sur {storiesStats?.total || 0} total
+                        {demoMode ? 2 : (storiesStats?.active || 0)} story active sur {demoMode ? 8 : (storiesStats?.total || 0)} total
                       </p>
                     </div>
                   </div>
@@ -423,21 +429,21 @@ export const ArtisanDashboard = () => {
                   <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-primary/10 rounded-lg text-center md:text-left">
                     <Video className="w-5 h-5 text-primary hidden md:block" />
                     <div>
-                      <p className="text-lg md:text-2xl font-bold text-primary">{storiesStats?.active || 0}</p>
+                      <p className="text-lg md:text-2xl font-bold text-primary">{demoMode ? 2 : (storiesStats?.active || 0)}</p>
                       <p className="text-[10px] md:text-xs text-muted-foreground">Actives (24h)</p>
                     </div>
                   </div>
                   <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-accent/10 rounded-lg text-center md:text-left">
                     <Eye className="w-5 h-5 text-accent hidden md:block" />
                     <div>
-                      <p className="text-lg md:text-2xl font-bold text-accent">{storiesStats?.views || 0}</p>
+                      <p className="text-lg md:text-2xl font-bold text-accent">{demoMode ? 89 : (storiesStats?.views || 0)}</p>
                       <p className="text-[10px] md:text-xs text-muted-foreground">Vues totales</p>
                     </div>
                   </div>
                   <div className="flex flex-col md:flex-row items-center md:gap-3 p-2 md:p-3 bg-success/10 rounded-lg text-center md:text-left">
                     <Users className="w-5 h-5 text-success hidden md:block" />
                     <div>
-                      <p className="text-lg md:text-2xl font-bold text-success">{storiesStats?.uniqueViewers || 0}</p>
+                      <p className="text-lg md:text-2xl font-bold text-success">{demoMode ? 34 : (storiesStats?.uniqueViewers || 0)}</p>
                       <p className="text-[10px] md:text-xs text-muted-foreground">Visiteurs uniques</p>
                     </div>
                   </div>

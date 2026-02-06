@@ -4,15 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileViewsCardProps {
   artisanId: string | undefined;
+  demoMode?: boolean;
 }
 
-export const ProfileViewsCard = ({ artisanId }: ProfileViewsCardProps) => {
+export const ProfileViewsCard = ({ artisanId, demoMode }: ProfileViewsCardProps) => {
   const { data: viewsCount = 0 } = useQuery({
     queryKey: ["profile-views", artisanId],
     queryFn: async () => {
       if (!artisanId) return 0;
-      // Use review_count as a proxy for profile engagement, 
-      // or story_views as profile visibility indicator
       const { count } = await supabase
         .from("story_views")
         .select("*", { count: "exact", head: true })
@@ -25,8 +24,10 @@ export const ProfileViewsCard = ({ artisanId }: ProfileViewsCardProps) => {
         );
       return count || 0;
     },
-    enabled: !!artisanId,
+    enabled: !!artisanId && !demoMode,
   });
+
+  const displayCount = demoMode ? 124 : viewsCount;
 
   return (
     <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8">
@@ -36,7 +37,7 @@ export const ProfileViewsCard = ({ artisanId }: ProfileViewsCardProps) => {
         </div>
         <div className="flex-1">
           <p className="text-sm text-muted-foreground font-medium">Vues de votre profil</p>
-          <p className="text-3xl md:text-4xl font-bold text-foreground">{viewsCount}</p>
+          <p className="text-3xl md:text-4xl font-bold text-foreground">{displayCount}</p>
           <p className="text-xs text-muted-foreground mt-1">
             Augmentez votre visibilité avec l'abonnement Pro à 99€/mois
           </p>
