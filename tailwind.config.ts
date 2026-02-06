@@ -121,11 +121,11 @@ export default {
         },
         "glow-pulse": {
           "0%, 100%": { 
-            boxShadow: "0 0 8px 2px rgba(230, 126, 34, 0.4), 0 0 16px 4px rgba(230, 126, 34, 0.2)",
+            boxShadow: "0 0 8px 2px rgba(234, 179, 8, 0.4), 0 0 16px 4px rgba(234, 179, 8, 0.2)",
             filter: "brightness(1)"
           },
           "50%": { 
-            boxShadow: "0 0 12px 4px rgba(230, 126, 34, 0.6), 0 0 24px 8px rgba(230, 126, 34, 0.3)",
+            boxShadow: "0 0 12px 4px rgba(234, 179, 8, 0.6), 0 0 24px 8px rgba(234, 179, 8, 0.3)",
             filter: "brightness(1.1)"
           },
         },
