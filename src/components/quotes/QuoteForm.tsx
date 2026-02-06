@@ -12,6 +12,7 @@ import {
 import { FileText, Calculator } from "lucide-react";
 import { useQuotes } from "@/hooks/useQuotes";
 import { toast } from "sonner";
+import { VoiceDictation } from "./VoiceDictation";
 
 interface QuoteFormProps {
   open: boolean;
@@ -77,10 +78,15 @@ export const QuoteForm = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="description">Description du travail</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="description">Description du travail</Label>
+              <VoiceDictation 
+                onTranscript={(text) => setDescription(prev => prev ? prev + " " + text : text)}
+              />
+            </div>
             <Textarea
               id="description"
-              placeholder="Décrivez les travaux à effectuer..."
+              placeholder="Décrivez les travaux à effectuer ou utilisez la dictée vocale..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
