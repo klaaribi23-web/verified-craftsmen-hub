@@ -5,6 +5,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { ProfileCompletionCard } from "@/components/artisan-dashboard/ProfileCompletionCard";
 import { ActiveProfileCard } from "@/components/artisan-dashboard/ActiveProfileCard";
 import { SuspendedProfileCard } from "@/components/artisan-dashboard/SuspendedProfileCard";
+import { ProfileViewsCard } from "@/components/artisan-dashboard/ProfileViewsCard";
 import { ApprovalNotifications } from "@/components/artisan-dashboard/ApprovalNotifications";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -366,6 +367,9 @@ export const ArtisanDashboard = () => {
                 />
               </div>
             )}
+
+            {/* Profile Views Counter */}
+            <ProfileViewsCard artisanId={artisanProfile?.id} />
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">

@@ -482,7 +482,7 @@ export const ArtisanMessaging = () => {
                       <div className="min-w-0">
                         <p className="font-medium text-foreground text-sm md:text-base truncate">{selectedConversation.participant_name}</p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {selectedConversation.participant_role}
+                          📞 [Coordonnées masquées - Discutez d'abord ici]
                         </p>
                       </div>
                     </div>
