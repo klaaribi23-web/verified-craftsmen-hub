@@ -509,18 +509,38 @@ const Navbar = () => {
 
             {/* Desktop CTA / User Menu */}
             <div className="hidden lg:flex items-center gap-3">
-              <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
-                <Link to={isAuthenticated ? getDashboardLink() : "/artisan/dashboard"}>
-                  <LayoutDashboard className="w-4 h-4 mr-1.5" />
-                  Espace Pro
-                </Link>
-              </Button>
-              <Button variant="outline" size="sm" className="border-teal-500 text-teal-700 hover:bg-teal-500 hover:text-white font-semibold" asChild>
-                <Link to="/dashboard/client">
-                  <User className="w-4 h-4 mr-1.5" />
-                  Mon Espace
-                </Link>
-              </Button>
+              {/* Context-aware dashboard button */}
+              {isAuthenticated && role === "artisan" ? (
+                <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
+                  <Link to="/artisan/dashboard">
+                    <LayoutDashboard className="w-4 h-4 mr-1.5" />
+                    Mon Dashboard Pro
+                  </Link>
+                </Button>
+              ) : isAuthenticated && role === "client" ? (
+                <Button variant="outline" size="sm" className="border-teal-500 text-teal-700 hover:bg-teal-500 hover:text-white font-semibold" asChild>
+                  <Link to="/dashboard/client">
+                    <ClipboardList className="w-4 h-4 mr-1.5" />
+                    Mes Projets
+                  </Link>
+                </Button>
+              ) : isAuthenticated && role === "admin" ? (
+                <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
+                  <Link to="/admin/dashboard">
+                    <LayoutDashboard className="w-4 h-4 mr-1.5" />
+                    Admin
+                  </Link>
+                </Button>
+              ) : null}
+              {/* Espace Pro always visible for non-artisan visitors */}
+              {(!isAuthenticated || role === "client") && (
+                <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
+                  <Link to="/devenir-artisan">
+                    <User className="w-4 h-4 mr-1.5" />
+                    Espace Pro
+                  </Link>
+                </Button>
+              )}
               {isAuthenticated && (
                 <>
                   <Link to={getMessagingLink()} className="relative">
@@ -576,6 +596,11 @@ const Navbar = () => {
                   {/* Show login buttons only if not authenticated */}
                   {!isAuthenticated && !isLoading && (
                     <div className="pt-3 space-y-2 border-t border-border">
+                      <Button variant="outline" className="w-full" asChild>
+                        <Link to="/devenir-artisan" onClick={() => setIsOpen(false)}>
+                          Espace Pro — 99€ HT/mois
+                        </Link>
+                      </Button>
                       <Button variant="outline" className="w-full" asChild>
                         <Link to="/auth" onClick={() => setIsOpen(false)}>
                           Connexion
