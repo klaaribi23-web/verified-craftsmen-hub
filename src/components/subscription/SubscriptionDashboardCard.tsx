@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import { Crown, ArrowRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
-import { getPlanById, type SubscriptionTier } from "@/config/subscriptionPlans";
+import { getPlanById } from "@/config/subscriptionPlans";
 
 interface SubscriptionDashboardCardProps {
-  tier: SubscriptionTier;
+  tier: string;
   subscriptionEnd: string | null;
   isLoading?: boolean;
 }
@@ -15,7 +15,7 @@ export const SubscriptionDashboardCard = ({
   subscriptionEnd,
   isLoading = false,
 }: SubscriptionDashboardCardProps) => {
-  const currentPlan = getPlanById(tier);
+  const currentPlan = getPlanById(tier as any);
   const isFreeTier = tier === "free";
 
   // Show skeleton during loading

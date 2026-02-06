@@ -30,7 +30,7 @@ export const ArtisanPartnerOffers = () => {
                 </div>
               ) : !hasPartnerOffersAccess ? (
                 <FeatureGate 
-                  requiredTier="essential" 
+                  requiredTier="exclusivite" 
                   feature="Offres Partenaires"
                 >
                   <div />

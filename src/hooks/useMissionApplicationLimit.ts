@@ -8,7 +8,7 @@ interface MissionLimitState {
   appliedThisMonth: number;
   limit: number | "unlimited";
   canApply: boolean;
-  tier: SubscriptionTier;
+  tier: string;
   isLoading: boolean;
 }
 
@@ -68,9 +68,10 @@ export const useMissionApplicationLimit = () => {
         appliedCount = 0;
       }
 
-      const tier = (artisan.subscription_tier || "free") as SubscriptionTier;
+      const tier = artisan.subscription_tier || "free";
       const plan = SUBSCRIPTION_PLANS.find((p) => p.id === tier);
-      const limit = plan?.features.missionsPerMonth || 1;
+      // If artisan has any paid tier (old or new), give unlimited access
+      const limit = plan?.features.missionsPerMonth || (tier !== "free" ? "unlimited" as const : 1);
 
       const canApply = limit === "unlimited" || appliedCount < limit;
 

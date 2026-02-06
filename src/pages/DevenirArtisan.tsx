@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/categories/CategorySelect";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
@@ -24,55 +23,52 @@ import {
   Zap,
   Clock,
   Loader2,
-  Mail
+  UserCheck
 } from "lucide-react";
 
 const benefits = [
   {
-    icon: Users,
-    title: "Chantiers qualifiés",
-    description: "Recevez des demandes de clients vérifiés, correspondant à vos compétences et votre zone.",
+    icon: UserCheck,
+    title: "Sélection sur dossier",
+    description: "Nous étudions chaque candidature individuellement. Seuls les meilleurs profils sont retenus.",
   },
   {
     icon: BadgeCheck,
     title: "Badge Artisan Validé",
-    description: "Démarquez-vous avec notre badge de confiance qui rassure les clients.",
+    description: "Notre équipe vérifie vos documents, votre SIRET et vos assurances avant validation.",
   },
   {
     icon: TrendingUp,
-    title: "Développez votre activité",
-    description: "Augmentez votre visibilité et votre chiffre d'affaires grâce à notre plateforme.",
+    title: "Chantiers qualifiés garantis",
+    description: "Nous vous transmettons uniquement des demandes sérieuses et pré-qualifiées par nos soins.",
   },
   {
     icon: Star,
-    title: "Avis certifiés",
-    description: "Collectez des avis authentiques qui valorisent la qualité de votre travail.",
+    title: "Exclusivité géographique",
+    description: "Nombre limité d'artisans par zone pour vous garantir un volume de chantiers suffisant.",
   },
   {
     icon: Zap,
-    title: "Interface simple",
-    description: "Gérez vos demandes, devis et planning depuis un tableau de bord intuitif.",
+    title: "Accompagnement dédié",
+    description: "Un interlocuteur unique vous guide dans l'optimisation de votre profil et vos performances.",
   },
   {
     icon: Clock,
-    title: "Gain de temps",
-    description: "Fini le démarchage ! Les clients viennent directement à vous.",
+    title: "Zéro prospection",
+    description: "Nous faisons le travail commercial pour vous. Concentrez-vous sur votre métier.",
   },
 ];
 
 const stats = [
-  { value: "5000+", label: "Artisans inscrits" },
-  { value: "50K+", label: "Chantiers réalisés" },
-  { value: "4.8/5", label: "Satisfaction client" },
-  { value: "24h", label: "Délai de réponse" },
+  { value: "200+", label: "Artisans sélectionnés" },
+  { value: "98%", label: "Taux de satisfaction" },
+  { value: "3 à 5", label: "RDV/mois en moyenne" },
+  { value: "48h", label: "Délai de réponse" },
 ];
 
-// Validation schema
-const artisanSignupSchema = z.object({
-  businessName: z.string().trim().min(2, "Nom d'entreprise requis (min 2 caractères)").max(100, "Nom d'entreprise trop long"),
-  firstName: z.string().trim().min(2, "Prénom requis (min 2 caractères)").max(50, "Prénom trop long"),
-  lastName: z.string().trim().min(2, "Nom requis (min 2 caractères)").max(50, "Nom trop long"),
-  email: z.string().trim().email("Email invalide").max(255, "Email trop long"),
+// Validation schema - simplified for candidacy
+const candidacySchema = z.object({
+  fullName: z.string().trim().min(2, "Nom complet requis (min 2 caractères)").max(100, "Nom trop long"),
   phone: z.string().trim().refine(
     (val) => validateFrenchPhone(val),
     { message: "Numéro français invalide (10 chiffres commençant par 0)" }
@@ -81,80 +77,17 @@ const artisanSignupSchema = z.object({
 });
 
 const DevenirArtisan = () => {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  const [isResending, setIsResending] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
+  const [candidacySent, setCandidacySent] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [formData, setFormData] = useState({
-    businessName: "",
-    firstName: "",
-    lastName: "",
-    email: "",
+    fullName: "",
     phone: "",
     city: "",
-    password: "",
   });
-
-  // Cooldown timer for resend button
-  useEffect(() => {
-    if (resendCooldown > 0) {
-      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [resendCooldown]);
 
   const updateForm = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
-  };
-
-  const handleResendEmail = async () => {
-    if (resendCooldown > 0 || isResending) return;
-    
-    setIsResending(true);
-    try {
-      console.log("[DevenirArtisan] Calling resend-confirmation-email Edge Function");
-      
-      // Call secure Edge Function (uses service_role, server-side rate limiting)
-      const { data, error } = await supabase.functions.invoke("resend-confirmation-email", {
-        body: {
-          email: formData.email,
-          firstName: formData.firstName || "Artisan",
-          userType: "artisan",
-        },
-      });
-
-      if (error) {
-        console.error("[DevenirArtisan] Resend Edge Function error:", error);
-        throw new Error("Impossible de renvoyer l'email.");
-      }
-
-      if (!data?.success) {
-        console.log("[DevenirArtisan] Resend failed:", data?.message);
-        // If server returns cooldown remaining, use it
-        if (data?.cooldownRemaining) {
-          setResendCooldown(data.cooldownRemaining);
-        }
-        throw new Error(data?.message || "Impossible de renvoyer l'email.");
-      }
-
-      console.log("[DevenirArtisan] Email resent successfully");
-      toast({
-        title: "Email renvoyé !",
-        description: "Un nouvel email de confirmation a été envoyé.",
-      });
-      setResendCooldown(60); // 60 seconds cooldown
-    } catch (error: any) {
-      console.error("[DevenirArtisan] Resend error:", error);
-      toast({
-        title: "Erreur",
-        description: error.message || "Impossible de renvoyer l'email.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsResending(false);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -163,7 +96,7 @@ const DevenirArtisan = () => {
 
     try {
       // Validate form data
-      const validationResult = artisanSignupSchema.safeParse(formData);
+      const validationResult = candidacySchema.safeParse(formData);
       
       if (!validationResult.success) {
         const firstError = validationResult.error.errors[0];
@@ -176,18 +109,6 @@ const DevenirArtisan = () => {
         return;
       }
 
-      // Check password
-      if (formData.password.length < 8) {
-        toast({
-          title: "Mot de passe trop court",
-          description: "Le mot de passe doit contenir au moins 8 caractères",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Check categories
       if (!selectedCategoryId) {
         toast({
           title: "Métier requis",
@@ -198,160 +119,19 @@ const DevenirArtisan = () => {
         return;
       }
 
-      // Create user with Supabase
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            user_type: "artisan",
-          }
-        }
-      });
+      // Simulate sending candidacy (fake data mode - no Supabase)
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      if (error) throw error;
-
-      if (data.user) {
-        // Check if user already exists
-        if (data.user.identities && data.user.identities.length === 0) {
-          toast({
-            title: "Email déjà utilisé",
-            description: "Cet email est déjà enregistré. Veuillez vous connecter.",
-            variant: "destructive",
-          });
-          navigate("/auth");
-          return;
-        }
-
-        // Wait for profile to be created by trigger with retry logic
-        let profile = null;
-        let retries = 0;
-        const maxRetries = 5;
-
-        while (!profile && retries < maxRetries) {
-          const { data: profileData } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("user_id", data.user.id)
-            .maybeSingle();
-
-          if (profileData) {
-            profile = profileData;
-          } else {
-            retries++;
-            console.log(`[DEVENIR-ARTISAN] Waiting for profile creation, retry ${retries}/${maxRetries}`);
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
-        }
-
-        if (!profile) {
-          // Sign out the user since we can't complete registration
-          await supabase.auth.signOut();
-          throw new Error("Erreur lors de la création du profil. Veuillez réessayer.");
-        }
-
-        // Generate confirmation token
-        const confirmationToken = crypto.randomUUID();
-
-        // Update profile with phone, city, and confirmation token - MUST NOT ignore this error
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({ 
-            phone: formData.phone, 
-            city: formData.city,
-            email_confirmed: false,
-            confirmation_token: confirmationToken,
-            confirmation_sent_at: new Date().toISOString(),
-          })
-          .eq("id", profile.id);
-
-        if (updateError) {
-          console.error("[DEVENIR-ARTISAN] Error setting confirmation token:", updateError);
-          await supabase.auth.signOut();
-          throw new Error("Erreur lors de l'enregistrement du token de confirmation. Veuillez réessayer.");
-        }
-
-        console.log("[DEVENIR-ARTISAN] Confirmation token saved successfully:", confirmationToken);
-
-        // Create minimal artisan profile with primary category
-        const { data: artisanData, error: artisanError } = await supabase
-          .from("artisans")
-          .insert([{
-            user_id: data.user.id,
-            profile_id: profile.id,
-            business_name: formData.businessName,
-            email: formData.email,
-            city: formData.city || "Non renseigné",
-            status: "pending",
-            category_id: selectedCategoryId || null,
-            description: null,
-            photo_url: null,
-            portfolio_images: null,
-            portfolio_videos: null,
-            experience_years: 0,
-            rating: 0,
-            review_count: 0,
-            missions_completed: 0,
-            source: "self_signup",
-          }])
-          .select("id")
-          .single();
-
-        if (artisanError) {
-          console.error("[DEVENIR-ARTISAN] Error creating artisan:", artisanError);
-        } else if (artisanData && selectedCategoryId) {
-          // Insert primary category into artisan_categories
-          const { error: catError } = await supabase
-            .from("artisan_categories")
-            .insert([{
-              artisan_id: artisanData.id,
-              category_id: selectedCategoryId,
-            }]);
-          
-          if (catError) {
-            console.error("[DEVENIR-ARTISAN] Error inserting category:", catError);
-          }
-        }
-
-        // Build confirmation URL with our custom token
-        const confirmationUrl = `${window.location.origin}/confirmer-email?token=${confirmationToken}`;
-
-        // Send custom branded confirmation email - only AFTER token is saved
-        const { error: emailError } = await supabase.functions.invoke("send-confirmation-email", {
-          body: {
-            email: formData.email,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            userType: "artisan",
-            confirmationUrl,
-          },
-        });
-
-        if (emailError) {
-          console.error("[DEVENIR-ARTISAN] Error sending confirmation email:", emailError);
-          // Don't throw here - token is saved, user can request resend
-        }
-
-        // Sign out user to force email confirmation before login
-        await supabase.auth.signOut();
-
-        // Show confirmation screen
-        setEmailSent(true);
-        toast({
-          title: "Email de confirmation envoyé",
-          description: "Veuillez cliquer sur le lien dans l'email pour activer votre compte.",
-        });
-      }
-    } catch (error: any) {
-      console.error("Signup error:", error);
+      setCandidacySent(true);
       toast({
-        title: "Erreur d'inscription",
-        description: error.message === "User already registered" 
-          ? "Cet email est déjà utilisé. Veuillez vous connecter."
-          : error.message,
+        title: "Candidature envoyée !",
+        description: "Notre équipe va étudier votre dossier et vous recontacter sous 48h.",
+      });
+    } catch (error: any) {
+      console.error("Candidacy error:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {
@@ -359,13 +139,13 @@ const DevenirArtisan = () => {
     }
   };
 
-  // Email confirmation sent screen
-  if (emailSent) {
+  // Candidacy sent confirmation screen
+  if (candidacySent) {
     return (
       <div className="min-h-screen bg-background">
         <SEOHead 
-          title="Email de confirmation envoyé"
-          description="Vérifiez votre boîte mail pour confirmer votre inscription."
+          title="Candidature envoyée"
+          description="Votre candidature au réseau Artisans Validés a bien été reçue."
         />
         <Navbar />
         <main className="pt-32 lg:pt-20 pb-20">
@@ -376,7 +156,7 @@ const DevenirArtisan = () => {
               className="bg-card rounded-2xl p-8 shadow-floating text-center"
             >
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Mail className="w-8 h-8 text-primary" />
+                <UserCheck className="w-8 h-8 text-primary" />
               </div>
               
               {/* Green success banner */}
@@ -384,47 +164,32 @@ const DevenirArtisan = () => {
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
                   <p className="font-medium">
-                    Votre inscription a bien été prise en compte !
+                    Candidature bien reçue !
                   </p>
                 </div>
                 <p className="text-sm text-green-700 dark:text-green-300 mt-2 ml-7">
-                  Pour continuer, veuillez confirmer votre adresse email en cliquant sur le lien que vous venez de recevoir.
+                  Notre équipe de sélection va étudier votre profil avec attention.
                 </p>
               </div>
               
               <h1 className="text-2xl font-bold text-foreground mb-4">
-                Vérifiez votre boîte mail
+                Nous vous recontactons sous 48h
               </h1>
               <p className="text-muted-foreground mb-6">
-                Un email a été envoyé à <strong className="text-foreground">{formData.email}</strong>. 
+                Un membre de notre équipe vous appellera au <strong className="text-foreground">{formData.phone}</strong> pour finaliser votre dossier.
               </p>
               <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
                 <p className="text-sm text-amber-800 dark:text-amber-200">
-                  <strong>Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email dans votre boîte de réception.
+                  <strong>Processus de sélection :</strong> Nous vérifions manuellement chaque candidature (SIRET, assurances, références) avant d'intégrer un artisan à notre réseau.
                 </p>
               </div>
-              <div className="flex flex-col gap-3">
-                <Button 
-                  variant="default" 
-                  onClick={handleResendEmail}
-                  disabled={isResending || resendCooldown > 0}
-                  className="w-full"
-                >
-                  {isResending ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : null}
-                  {resendCooldown > 0 
-                    ? `Renvoyer l'email (${resendCooldown}s)` 
-                    : "Renvoyer l'email"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate("/auth")}
-                  className="w-full"
-                >
-                  Retour à la connexion
-                </Button>
-              </div>
+              <Button
+                variant="gold"
+                onClick={() => window.location.href = "/"}
+                className="w-full"
+              >
+                Retour à l'accueil
+              </Button>
             </motion.div>
           </div>
         </main>
@@ -436,8 +201,8 @@ const DevenirArtisan = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
-        title="Devenir artisan partenaire"
-        description="Rejoignez le réseau Artisans Validés : recevez des chantiers qualifiés, développez votre activité et obtenez le badge de confiance."
+        title="Candidater au réseau Artisans Validés"
+        description="Rejoignez un réseau exclusif d'artisans triés sur le volet. Nous vérifions et validons chaque profil pour garantir l'excellence."
         canonical="https://artisansvalides.fr/devenir-artisan"
       />
       <Navbar />
@@ -460,22 +225,22 @@ const DevenirArtisan = () => {
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-6">
                   <Shield className="w-4 h-4 text-gold" />
                   <span className="text-sm font-medium text-gold">
-                    Rejoignez le réseau de confiance
+                    Réseau sélectif — Places limitées
                   </span>
                 </div>
 
                 <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
-                  Développez votre activité avec{" "}
+                  Candidatez au réseau{" "}
                   <span className="text-gradient-gold">Artisans Validés</span>
                 </h1>
 
                 <p className="text-lg text-white/70 mb-8">
-                  Recevez des demandes de chantiers qualifiés directement dans votre boîte mail. 
-                  Inscription gratuite, sans engagement.
+                  Nous sélectionnons, vérifions et validons chaque artisan de notre réseau. 
+                  Pas d'inscription libre : seuls les profils approuvés par notre équipe sont intégrés.
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">
-                  {["Inscription gratuite", "Sans commission", "Chantiers vérifiés"].map((item) => (
+                  {["Sélection sur dossier", "Vérification manuelle", "Exclusivité par zone"].map((item) => (
                     <div key={item} className="flex items-center gap-2 text-white">
                       <CheckCircle2 className="w-5 h-5 text-gold" />
                       <span>{item}</span>
@@ -503,81 +268,28 @@ const DevenirArtisan = () => {
                 <div className="bg-white rounded-2xl p-8 shadow-floating">
                   <div className="text-center mb-6">
                     <h2 className="text-xl font-bold text-navy mb-2">
-                      Créer mon compte artisan
+                      Candidater au réseau
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Inscription rapide en 2 minutes
+                      Remplissez ce formulaire, nous vous recontactons sous 48h
                     </p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <Label htmlFor="businessName" className="text-navy">Nom de l'entreprise *</Label>
+                      <Label htmlFor="fullName" className="text-navy">Nom complet *</Label>
                       <Input
-                        id="businessName"
-                        placeholder="Dupont Plomberie"
-                        value={formData.businessName}
-                        onChange={(e) => updateForm("businessName", e.target.value)}
-                        className="mt-1.5"
-                        required
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName" className="text-navy">Prénom *</Label>
-                        <Input
-                          id="firstName"
-                          placeholder="Jean"
-                          value={formData.firstName}
-                          onChange={(e) => updateForm("firstName", e.target.value)}
-                          className="mt-1.5"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName" className="text-navy">Nom *</Label>
-                        <Input
-                          id="lastName"
-                          placeholder="Dupont"
-                          value={formData.lastName}
-                          onChange={(e) => updateForm("lastName", e.target.value)}
-                          className="mt-1.5"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="email" className="text-navy">Email professionnel *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="contact@monentreprise.fr"
-                        value={formData.email}
-                        onChange={(e) => updateForm("email", e.target.value)}
+                        id="fullName"
+                        placeholder="Jean Dupont"
+                        value={formData.fullName}
+                        onChange={(e) => updateForm("fullName", e.target.value)}
                         className="mt-1.5"
                         required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="password" className="text-navy">Mot de passe *</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={formData.password}
-                        onChange={(e) => updateForm("password", e.target.value)}
-                        className="mt-1.5"
-                        required
-                        minLength={8}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Minimum 8 caractères</p>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="phone" className="text-navy">Téléphone * (format français)</Label>
+                      <Label htmlFor="phone" className="text-navy">Téléphone *</Label>
                       <div className="mt-1.5">
                         <FrenchPhoneInput
                           id="phone"
@@ -585,21 +297,6 @@ const DevenirArtisan = () => {
                           onChange={(value) => updateForm("phone", value)}
                         />
                       </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-navy">Métier principal *</Label>
-                      <div className="mt-1.5">
-                        <CategorySelect
-                          value={selectedCategoryId}
-                          onValueChange={(id) => setSelectedCategoryId(id)}
-                          placeholder="Sélectionnez votre métier..."
-                          allowParentSelection={false}
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Vous pourrez ajouter des compétences secondaires dans votre tableau de bord
-                      </p>
                     </div>
 
                     <div>
@@ -614,6 +311,18 @@ const DevenirArtisan = () => {
                       </div>
                     </div>
 
+                    <div>
+                      <Label className="text-navy">Métier principal *</Label>
+                      <div className="mt-1.5">
+                        <CategorySelect
+                          value={selectedCategoryId}
+                          onValueChange={(id) => setSelectedCategoryId(id)}
+                          placeholder="Sélectionnez votre métier..."
+                          allowParentSelection={false}
+                        />
+                      </div>
+                    </div>
+
                     <Button 
                       type="submit" 
                       variant="gold" 
@@ -624,27 +333,18 @@ const DevenirArtisan = () => {
                       {isLoading ? (
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                       ) : null}
-                      Créer mon compte gratuit
+                      Envoyer ma candidature
                       {!isLoading && <ArrowRight className="w-5 h-5 ml-2" />}
                     </Button>
 
                     <p className="text-xs text-center text-muted-foreground">
-                      En vous inscrivant, vous acceptez nos{" "}
+                      En candidatant, vous acceptez nos{" "}
                       <Link to="/cgu" className="text-gold hover:underline">CGU</Link>
                       {" "}et notre{" "}
                       <Link to="/confidentialite" className="text-gold hover:underline">
                         politique de confidentialité
                       </Link>
                     </p>
-
-                    <div className="text-center pt-2 border-t border-border">
-                      <p className="text-sm text-muted-foreground">
-                        Déjà un compte ?{" "}
-                        <Link to="/auth" className="text-gold hover:underline font-medium">
-                          Se connecter
-                        </Link>
-                      </p>
-                    </div>
                   </form>
                 </div>
               </motion.div>
@@ -662,13 +362,13 @@ const DevenirArtisan = () => {
               className="text-center mb-16"
             >
               <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-                Vos avantages
+                Un réseau exclusif
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
-                Pourquoi rejoindre Artisans Validés ?
+                Pourquoi candidater chez Artisans Validés ?
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Des outils pensés pour vous aider à développer votre activité
+                Nous ne sommes pas un annuaire. Nous sélectionnons et accompagnons chaque artisan.
               </p>
             </motion.div>
 
@@ -707,19 +407,19 @@ const DevenirArtisan = () => {
               className="text-center mb-16"
             >
               <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-                Processus simple
+                Processus de sélection
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
-                Comment ça fonctionne ?
+                Comment rejoindre le réseau ?
               </h2>
             </motion.div>
 
             <div className="grid md:grid-cols-4 gap-8">
               {[
-                { step: "01", title: "Inscription", desc: "Créez votre compte en 2 minutes" },
-                { step: "02", title: "Profil complet", desc: "Ajoutez vos infos et documents" },
-                { step: "03", title: "Validation", desc: "Notre équipe vérifie votre profil" },
-                { step: "04", title: "Chantiers", desc: "Recevez des demandes qualifiées" },
+                { step: "01", title: "Candidature", desc: "Remplissez le formulaire en 1 minute" },
+                { step: "02", title: "Entretien", desc: "Notre équipe vous appelle sous 48h" },
+                { step: "03", title: "Vérification", desc: "Nous contrôlons SIRET, assurances et références" },
+                { step: "04", title: "Intégration", desc: "Profil validé, vous recevez vos premiers chantiers" },
               ].map((item, index) => (
                 <motion.div
                   key={item.step}
@@ -749,14 +449,14 @@ const DevenirArtisan = () => {
               </div>
               <div className="relative z-10">
                 <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                  Prêt à développer votre activité ?
+                  Rejoignez un réseau d'excellence
                 </h2>
                 <p className="text-white/70 mb-8 max-w-xl mx-auto">
-                  Rejoignez plus de 5000 artisans qui font confiance à Artisans Validés 
-                  pour développer leur clientèle.
+                  Nous sélectionnons les meilleurs artisans de chaque zone. 
+                  Les places sont limitées, candidatez dès maintenant.
                 </p>
                 <Button variant="gold" size="xl" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                  Commencer gratuitement
+                  Candidater maintenant
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
