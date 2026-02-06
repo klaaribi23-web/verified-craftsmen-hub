@@ -326,6 +326,33 @@ const DevenirArtisan = () => {
           </div>
         </section>
 
+        {/* Bandeau Réassurance Humaine */}
+        <section className="py-10 bg-muted/70 border-y border-border/50">
+          <div className="container mx-auto px-4 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="max-w-2xl mx-auto text-center"
+            >
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-gold" />
+                </div>
+                <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                  <UserCheck className="w-5 h-5 text-gold" />
+                </div>
+              </div>
+              <p className="text-base md:text-lg font-medium text-foreground mb-2">
+                Ici, pas de plateforme robotisée. Un expert du bâtiment analyse votre candidature et vous rappelle sous 2h pour valider votre exclusivité.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Déjà plus de 50 artisans partenaires accompagnés cette année.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Pricing — Le Deal */}
         <section className="py-16 lg:py-24 bg-white">
           <div className="container mx-auto px-4 lg:px-8">
