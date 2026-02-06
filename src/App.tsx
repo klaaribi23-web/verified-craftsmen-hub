@@ -106,6 +106,9 @@ const App = () => (
           
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           
+          {/* Redirection /dashboard/artisan → /artisan/dashboard */}
+          <Route path="/dashboard/artisan" element={<Navigate to="/artisan/dashboard" replace />} />
+          
           {/* Redirections SEO - anciennes URLs WordPress */}
           <Route path="/accueil-old" element={<Navigate to="/" replace />} />
           <Route path="/accueil-old/" element={<Navigate to="/" replace />} />

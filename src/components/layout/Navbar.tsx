@@ -509,14 +509,14 @@ const Navbar = () => {
 
             {/* Desktop CTA / User Menu */}
             <div className="hidden lg:flex items-center gap-3">
+              <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
+                <Link to={isAuthenticated ? getDashboardLink() : "/artisan/dashboard"}>
+                  <LayoutDashboard className="w-4 h-4 mr-1.5" />
+                  Espace Pro
+                </Link>
+              </Button>
               {isAuthenticated && (
                 <>
-                  <Button variant="gold" size="sm" asChild>
-                    <Link to={getDashboardLink()}>
-                      <LayoutDashboard className="w-4 h-4 mr-1.5" />
-                      Espace Pro
-                    </Link>
-                  </Button>
                   <Link to={getMessagingLink()} className="relative">
                     <Button variant="ghost" size="icon" className="relative">
                       <MessageCircle className="w-5 h-5" />
