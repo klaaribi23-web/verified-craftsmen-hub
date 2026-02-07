@@ -93,7 +93,7 @@ const Footer = () => {
           <nav aria-label="Nos métiers">
             <h2 className="font-semibold text-white mb-4">Nos métiers</h2>
             <ul className="space-y-3">
-              {footerLinks.services.map(link => <li key={link.href}>
+              {footerLinks.services.map(link => <li key={link.label}>
                   <Link to={link.href} className="text-sm text-white/70 hover:text-gold transition-colors">
                     {link.label}
                   </Link>
