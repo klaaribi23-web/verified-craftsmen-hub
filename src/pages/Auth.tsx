@@ -725,7 +725,7 @@ const Auth = () => {
                     <p className="text-sm text-center text-muted-foreground">
                       Vous n'avez pas encore d'accès ? Seuls les artisans validés par notre équipe peuvent se connecter.
                     </p>
-                    <Link to="/devenir-artisan" className="block">
+                    <Link to="/devenir-partenaire" className="block">
                       <Button variant="gold" className="w-full !font-bold" size="lg">
                         Devenir Artisan Partenaire
                       </Button>

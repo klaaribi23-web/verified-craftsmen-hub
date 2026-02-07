@@ -14,6 +14,7 @@ import TrouverArtisan from "./pages/TrouverArtisan";
 import NosMissions from "./pages/NosMissions";
 import DemandeDevis from "./pages/DemandeDevis";
 import DevenirArtisan from "./pages/DevenirArtisan";
+import DevenirPartenaire from "./pages/DevenirPartenaire";
 import CommentCaMarche from "./pages/CommentCaMarche";
 import Connexion from "./pages/Connexion";
 import NotFound from "./pages/NotFound";
@@ -90,6 +91,7 @@ const App = () => (
           <Route path="/demande-devis" element={<DemandeDevis />} />
           <Route path="/deposer-mission" element={<DemandeDevis />} />
           <Route path="/devenir-artisan" element={<DevenirArtisan />} />
+          <Route path="/devenir-partenaire" element={<DevenirPartenaire />} />
           <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/auth" element={<Auth />} />

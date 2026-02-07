@@ -280,9 +280,10 @@ export const ChatWidget = ({
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold truncate">{selectedParticipant.name}</p>
-                  <p className="text-xs opacity-80">
-                    Dernière connexion: Aujourd'hui
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    <p className="text-xs opacity-80">En ligne</p>
+                  </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -337,16 +338,24 @@ export const ChatWidget = ({
                           className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
                         >
                           <div
-                            className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                            className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                               isOwn
-                                ? "bg-primary text-primary-foreground rounded-br-sm"
-                                : "bg-muted rounded-bl-sm"
+                                ? "bg-navy text-white rounded-br-sm"
+                                : "bg-muted text-foreground rounded-bl-sm"
                             }`}
                           >
-                            <p className="text-sm">{msg.content}</p>
-                            <p className={`text-[10px] mt-1 ${isOwn ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                              {formatMessageTime(msg.created_at)}
-                            </p>
+                            <p className="text-sm leading-relaxed">{msg.content}</p>
+                            <div className={`flex items-center gap-1 mt-1 ${isOwn ? "justify-end" : ""}`}>
+                              <p className={`text-[10px] ${isOwn ? "text-white/60" : "text-muted-foreground"}`}>
+                                {formatMessageTime(msg.created_at)}
+                              </p>
+                              {isOwn && msg.is_read && (
+                                <span className="text-[10px] text-white/60">✓✓</span>
+                              )}
+                              {isOwn && !msg.is_read && (
+                                <span className="text-[10px] text-white/40">✓</span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       );
