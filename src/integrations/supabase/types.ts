@@ -232,6 +232,7 @@ export type Database = {
           instagram_url: string | null
           insurance_number: string | null
           intervention_radius: number | null
+          is_audited: boolean
           is_verified: boolean | null
           last_mission_reset: string | null
           latitude: number | null
@@ -287,6 +288,7 @@ export type Database = {
           instagram_url?: string | null
           insurance_number?: string | null
           intervention_radius?: number | null
+          is_audited?: boolean
           is_verified?: boolean | null
           last_mission_reset?: string | null
           latitude?: number | null
@@ -342,6 +344,7 @@ export type Database = {
           instagram_url?: string | null
           insurance_number?: string | null
           intervention_radius?: number | null
+          is_audited?: boolean
           is_verified?: boolean | null
           last_mission_reset?: string | null
           latitude?: number | null
