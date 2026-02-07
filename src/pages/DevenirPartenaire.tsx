@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
@@ -79,8 +80,19 @@ const DevenirPartenaire = () => {
         return;
       }
 
-      // Simulate submission
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Save to database
+      const { error: dbError } = await supabase
+        .from("partner_candidacies")
+        .insert({
+          business_name: formData.businessName,
+          siret: formData.siret,
+          metier: formData.metier,
+          city: formData.city,
+          phone: formData.phone,
+        });
+
+      if (dbError) throw dbError;
+
       setSubmitted(true);
       toast({ title: "Candidature envoyée !", description: "Un conseiller vous rappelle sous 24h." });
     } catch {
