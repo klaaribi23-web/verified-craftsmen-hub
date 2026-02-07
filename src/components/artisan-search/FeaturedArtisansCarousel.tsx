@@ -18,6 +18,7 @@ interface FeaturedArtisan {
   experience: string;
   profileImage: string;
   portfolio: string[];
+  subscriptionTier: string | null;
 }
 
 const FeaturedArtisansCarousel = () => {
@@ -46,6 +47,7 @@ const FeaturedArtisansCarousel = () => {
     experience: artisan.experience_years ? `${artisan.experience_years} ans` : "N/A",
     profileImage: artisan.photo_url || "/favicon.png",
     portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : ["/favicon.png"],
+    subscriptionTier: artisan.subscription_tier || null,
   }));
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
@@ -158,13 +160,15 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
         <div className="relative h-36 md:h-40 overflow-hidden">
           <img src={portfolioImage} alt={artisan.name} className="w-full h-full object-cover" />
 
-          {/* Artisan Validé Badge */}
-          <div className="absolute top-2 left-2 z-10">
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
-              <CheckCircle2 className="w-3 h-3" />
-              <span>Artisan Validé</span>
+          {/* Artisan Validé Badge - only for subscribers */}
+          {(artisan.subscriptionTier === "artisan_valide" || artisan.subscriptionTier === "boost_annuel") && (
+            <div className="absolute top-2 left-2 z-10">
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>Artisan Validé</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Content */}

@@ -57,6 +57,7 @@ export const ClientFavorites = () => {
             review_count,
             slug,
             is_verified,
+            subscription_tier,
             categories:category_id (name)
           )
         `)
@@ -127,7 +128,7 @@ export const ClientFavorites = () => {
                           >
                             <Heart className="w-5 h-5 fill-current" />
                           </button>
-                          {fav.artisans?.is_verified && (
+                          {(fav.artisans?.subscription_tier === "artisan_valide" || fav.artisans?.subscription_tier === "boost_annuel") && (
                             <Badge className="absolute bottom-3 left-3 bg-success text-white">
                               Artisan Validé
                             </Badge>

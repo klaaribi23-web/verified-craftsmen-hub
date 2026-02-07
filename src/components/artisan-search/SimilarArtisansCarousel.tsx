@@ -148,11 +148,13 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
-                      {/* Badge Artisan Validé */}
-                      <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span className="hidden sm:inline">Artisan Validé</span>
-                      </div>
+                      {/* Badge Artisan Validé - only for subscribers */}
+                      {(artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel") && (
+                        <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span className="hidden sm:inline">Artisan Validé</span>
+                        </div>
+                      )}
                       {/* Badge vérifié */}
                       {artisan.is_verified && (
                         <div className="absolute bottom-2 left-2 bg-success text-success-foreground rounded-full p-1.5 shadow-lg">

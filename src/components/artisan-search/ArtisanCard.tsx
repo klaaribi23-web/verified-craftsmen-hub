@@ -234,13 +234,15 @@ const ArtisanCard = ({
           </button>
         )}
 
-        {/* Artisan Validé Badge - absolute top right */}
-        <div className="absolute top-2 right-10 z-10">
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
-            <CheckCircle2 className="w-3 h-3" />
-            <span>Artisan Validé</span>
+        {/* Artisan Validé Badge - only for paying subscribers */}
+        {(subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel") && (
+          <div className="absolute top-2 right-10 z-10">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
+              <CheckCircle2 className="w-3 h-3" />
+              <span>Artisan Validé</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Favorite Button */}
         <button

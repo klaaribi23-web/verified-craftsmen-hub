@@ -316,7 +316,7 @@ const ArtisanPublicProfile = () => {
                           </div>
                         )}
                       </div>
-                      {artisan.is_verified && (
+                      {(artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel") && (
                         <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20">
                           <Shield className="h-3 w-3 mr-1" />
                           Artisan Validé
