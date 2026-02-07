@@ -470,16 +470,24 @@ const Navbar = () => {
       >
         <nav className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Logo - left, fixed width */}
-            <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
-              <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform flex-shrink-0" />
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-navy leading-tight">ARTISANS</span>
-                <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
-              </div>
-            </Link>
+            {/* Left: Logo + "Trouver un artisan" */}
+            <div className="flex items-center gap-6 flex-shrink-0">
+              <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
+                <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-navy leading-tight">ARTISANS</span>
+                  <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
+                </div>
+              </Link>
+              <Link
+                to="/trouver-artisan"
+                className="hidden lg:inline-flex text-sm font-semibold text-navy hover:text-primary transition-colors whitespace-nowrap"
+              >
+                Trouver un artisan
+              </Link>
+            </div>
 
-            {/* Desktop: 3 buttons right-aligned */}
+            {/* Right: links + buttons */}
             <div className="hidden lg:flex items-center gap-4">
               {/* Devenir partenaire - text link, hidden when authenticated */}
               {!isAuthenticated && !isLoading && (
@@ -490,16 +498,16 @@ const Navbar = () => {
                   Devenir partenaire
                 </Link>
               )}
-              <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
-                <Link to="/client/dashboard">
-                  <ClipboardList className="w-4 h-4 mr-1.5" />
-                  Mon Espace
-                </Link>
-              </Button>
               <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold" asChild>
                 <Link to="/artisan/dashboard">
                   <User className="w-4 h-4 mr-1.5" />
                   Espace Pro
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
+                <Link to="/client/dashboard">
+                  <ClipboardList className="w-4 h-4 mr-1.5" />
+                  Mon Espace
                 </Link>
               </Button>
               <Button variant="gold" size="sm" className="font-semibold" asChild>
