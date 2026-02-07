@@ -263,13 +263,11 @@ const ArtisanCard = ({
           </div>
         )}
 
-        {/* Audité Terrain Macaron - floating seal for boost_annuel */}
+        {/* Audité Terrain Seal - circular stamp overlapping top-right corner */}
         {isPremium && isAudited && (
-          <div className="absolute bottom-2 right-2 z-10">
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold shadow-lg bg-amber-500 text-white border-2 border-amber-300">
-              <Shield className="w-3.5 h-3.5 fill-current" />
-              Audité Terrain
-            </div>
+          <div className="absolute -top-1 -right-1 z-20 w-14 h-14 rounded-full bg-amber-500 border-[3px] border-amber-300 shadow-lg flex flex-col items-center justify-center">
+            <Shield className="w-5 h-5 text-white fill-current" />
+            <span className="text-[6px] font-extrabold text-white leading-tight tracking-tight">AUDITÉ</span>
           </div>
         )}
 
@@ -294,11 +292,11 @@ const ArtisanCard = ({
         {isPaying && (
           <div className="flex flex-wrap items-center gap-1.5 mb-2">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
-              <CheckCircle2 className="w-3 h-3" />
+              <Shield className="w-3 h-3" />
               Décennale
             </span>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
-              <FileText className="w-3 h-3" />
+              <Shield className="w-3 h-3" />
               {siret ? "SIRET" : "Vérifié"}
             </span>
           </div>
@@ -322,7 +320,7 @@ const ArtisanCard = ({
             )}
           />
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm sm:text-base truncate mb-0.5">{name}</h3>
+            <h3 className={cn("truncate mb-0.5", isPremium ? "font-bold text-base sm:text-lg" : "font-semibold text-sm sm:text-base")}>{name}</h3>
             <Badge variant="secondary" className="text-xs">
               {profession}
             </Badge>
@@ -385,7 +383,7 @@ const ArtisanCard = ({
             size="sm"
             className={cn(
               "w-full text-xs",
-              isPremium && "bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md"
+              isPremium && "bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md animate-[pulse_3s_ease-in-out_infinite]"
             )}
             onClick={handleInviteProject}
           >
