@@ -19,7 +19,8 @@ import {
   User, 
   Loader2,
   ArrowLeft,
-  CheckCircle
+  CheckCircle,
+  Phone
 } from "lucide-react";
 
 // Validation schemas
@@ -530,35 +531,157 @@ const Auth = () => {
               {/* User Type Selection */}
               <Tabs value={userType} onValueChange={(v) => setUserType(v as "client" | "artisan")} className="mb-6">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="client">Je suis un client</TabsTrigger>
-                  <TabsTrigger value="artisan">Je suis un artisan</TabsTrigger>
+                  <TabsTrigger value="client">Particulier</TabsTrigger>
+                  <TabsTrigger value="artisan">Professionnel</TabsTrigger>
                 </TabsList>
               </Tabs>
 
-              {/* Artisan notice */}
-              {userType === "artisan" && (
-                <div className="bg-muted/50 p-3 rounded-lg mb-6 text-sm text-muted-foreground">
-                  <p>Les artisans doivent s'inscrire avec leur email professionnel pour être vérifiés.</p>
-                </div>
-              )}
+              {userType === "client" ? (
+                <>
+                  {/* Client: login + signup */}
+                  <Tabs value={authMode} onValueChange={(v) => setAuthMode(v as "login" | "signup")} className="mb-6">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="login">Connexion</TabsTrigger>
+                      <TabsTrigger value="signup">Inscription</TabsTrigger>
+                    </TabsList>
 
-              {/* Auth Mode Toggle */}
-              <Tabs value={authMode} onValueChange={(v) => setAuthMode(v as "login" | "signup")} className="mb-6">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">Connexion</TabsTrigger>
-                  <TabsTrigger value="signup">Inscription</TabsTrigger>
-                </TabsList>
+                    <TabsContent value="login">
+                      <form onSubmit={handleEmailSignIn} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="email"
+                              type="email"
+                              placeholder="votre@email.com"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              className="pl-10"
+                              required
+                            />
+                          </div>
+                        </div>
 
-                <TabsContent value="login">
-                  <form onSubmit={handleEmailSignIn} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="password">Mot de passe</Label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="password"
+                              type="password"
+                              placeholder="••••••••"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              className="pl-10"
+                              required
+                              minLength={6}
+                            />
+                          </div>
+                        </div>
+
+                        <Button type="submit" className="w-full" disabled={isLoading}>
+                          {isLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : null}
+                          Se connecter
+                        </Button>
+
+                        <div className="text-center">
+                          <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                            Mot de passe oublié ?
+                          </Link>
+                        </div>
+                      </form>
+                    </TabsContent>
+
+                    <TabsContent value="signup">
+                      <form onSubmit={handleEmailSignUp} className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="firstName">Prénom</Label>
+                            <div className="relative">
+                              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                id="firstName"
+                                placeholder="Jean"
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                className="pl-10"
+                                required
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="lastName">Nom</Label>
+                            <Input
+                              id="lastName"
+                              placeholder="Dupont"
+                              value={lastName}
+                              onChange={(e) => setLastName(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="signupEmail">Email</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="signupEmail"
+                              type="email"
+                              placeholder="votre@email.com"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              className="pl-10"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="signupPassword">Mot de passe</Label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="signupPassword"
+                              type="password"
+                              placeholder="••••••••"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              className="pl-10"
+                              required
+                              minLength={8}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Minimum 8 caractères, une majuscule et un chiffre
+                          </p>
+                        </div>
+
+                        <Button type="submit" className="w-full" disabled={isLoading}>
+                          {isLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : null}
+                          Créer mon compte
+                        </Button>
+                      </form>
+                    </TabsContent>
+                  </Tabs>
+                </>
+              ) : (
+                <>
+                  {/* Artisan: login only + candidacy CTA */}
+                  <form onSubmit={handleEmailSignIn} className="space-y-4 mb-6">
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">Email professionnel</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="email"
                           type="email"
-                          placeholder="votre@email.com"
+                          placeholder="votre@email-pro.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           className="pl-10"
@@ -597,96 +720,27 @@ const Auth = () => {
                       </Link>
                     </div>
                   </form>
-                </TabsContent>
 
-                <TabsContent value="signup">
-                  <form onSubmit={handleEmailSignUp} className="space-y-4">
-                    {/* Business Name - Only for artisans */}
-                    {userType === "artisan" && (
-                      <div className="space-y-2">
-                        <Label htmlFor="businessName">Nom de votre entreprise *</Label>
-                        <Input
-                          id="businessName"
-                          placeholder="Dupont Plomberie"
-                          value={businessName}
-                          onChange={(e) => setBusinessName(e.target.value)}
-                          required
-                        />
-                      </div>
-                    )}
+                  <div className="border-t pt-6 space-y-4">
+                    <p className="text-sm text-center text-muted-foreground">
+                      Vous n'avez pas encore d'accès ? Seuls les artisans validés par notre équipe peuvent se connecter.
+                    </p>
+                    <Link to="/devenir-artisan" className="block">
+                      <Button variant="gold" className="w-full !font-bold" size="lg">
+                        Devenir Artisan Partenaire
+                      </Button>
+                    </Link>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName">Prénom</Label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            id="firstName"
-                            placeholder="Jean"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                            className="pl-10"
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName">Nom</Label>
-                        <Input
-                          id="lastName"
-                          placeholder="Dupont"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          required
-                        />
-                      </div>
+                    <div className="bg-muted rounded-lg p-4 text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Besoin d'en parler de vive voix ?</p>
+                      <a href="tel:+33612345678" className="inline-flex items-center gap-2 font-semibold text-foreground hover:text-primary transition-colors">
+                        <Phone className="h-4 w-4" />
+                        06 12 34 56 78
+                      </a>
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="signupEmail">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signupEmail"
-                          type="email"
-                          placeholder="votre@email.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="pl-10"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="signupPassword">Mot de passe</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="signupPassword"
-                          type="password"
-                          placeholder="••••••••"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10"
-                          required
-                          minLength={8}
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Minimum 8 caractères, une majuscule et un chiffre
-                      </p>
-                    </div>
-
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : null}
-                      Créer mon compte
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
