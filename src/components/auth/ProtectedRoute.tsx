@@ -1,6 +1,8 @@
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth, UserRole } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,6 +16,7 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
   const { isAuthenticated, role, isLoading } = useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const toastShown = useRef(false);
   
   // Check if demo mode is enabled
   const isDemoAccess = DEMO_MODE && searchParams.get("demo") !== "false";
@@ -35,7 +38,10 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
   }
 
   if (!isAuthenticated) {
-    // Redirect to auth page with return URL
+    if (!toastShown.current) {
+      toastShown.current = true;
+      setTimeout(() => toast.error("Accès réservé. Veuillez vous connecter."), 0);
+    }
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
