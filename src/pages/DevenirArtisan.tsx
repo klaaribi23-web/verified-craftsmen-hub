@@ -206,41 +206,42 @@ const DevenirArtisan = () => {
       />
       <Navbar />
       
-      <main className="pt-24 lg:pt-20">
+      <main className="pt-20 lg:pt-20">
         {/* Hero + Form */}
-        <section className="bg-navy py-10 md:py-16 lg:py-28 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
+        <section className="bg-navy py-8 md:py-16 lg:py-28 relative overflow-hidden">
+          {/* Decorations hidden on mobile */}
+          <div className="hidden md:block absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
           </div>
 
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
-            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-5 lg:gap-12 items-center">
               {/* Content */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center lg:text-left"
               >
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-6">
+                <div className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-4 lg:mb-6">
                   <Lock className="w-4 h-4 text-gold" />
                   <span className="text-sm font-medium text-gold">
                     2 places max par ville — Vérifiez la disponibilité
                   </span>
                 </div>
 
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 md:mb-6">
+                <h1 className="text-xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-3 md:mb-6">
                   Arrêtez de payer pour des leads{" "}
                   <span className="text-gradient-gold">partagés avec 10 concurrents.</span>
                 </h1>
 
-                <p className="text-base md:text-lg text-white/70 mb-6 md:mb-8">
+                <p className="text-sm md:text-lg text-white/70 mb-4 md:mb-8 hidden md:block">
                   On verrouille votre ville. On vérifie vos assurances. On lance votre pub. 
                   Vous signez les chantiers. <strong className="text-white">Direct, sans intermédiaire.</strong>
                 </p>
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                {/* Stats — hidden on mobile */}
+                <div className="hidden md:grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                   {stats.map((stat) => (
                     <div key={stat.label} className="text-center">
                       <div className="text-xl md:text-2xl font-bold text-gold">{stat.value}</div>
@@ -257,32 +258,32 @@ const DevenirArtisan = () => {
                 transition={{ delay: 0.2 }}
                 className="w-full"
               >
-                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-floating">
-                  <div className="text-center mb-6">
-                    <h2 className="text-xl font-bold text-navy mb-2">
+                <div className="bg-white rounded-2xl p-4 md:p-8 shadow-floating">
+                  <div className="text-center mb-4 md:mb-6">
+                    <h2 className="text-lg md:text-xl font-bold text-navy mb-1 md:mb-2">
                       Votre secteur est-il encore disponible ?
                     </h2>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       Remplissez ce formulaire, on vous rappelle sous 2h
                     </p>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4 pb-16 md:pb-0">
                     <div>
-                      <Label htmlFor="fullName" className="text-navy">Prénom / Nom *</Label>
+                      <Label htmlFor="fullName" className="text-navy text-sm">Prénom / Nom *</Label>
                       <Input
                         id="fullName"
                         placeholder="Jean Dupont"
                         value={formData.fullName}
                         onChange={(e) => updateForm("fullName", e.target.value)}
-                        className="mt-1.5"
+                        className="mt-1 h-9 md:h-10"
                         required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="phone" className="text-navy">Téléphone *</Label>
-                      <div className="mt-1.5">
+                      <Label htmlFor="phone" className="text-navy text-sm">Téléphone *</Label>
+                      <div className="mt-1">
                         <FrenchPhoneInput
                           id="phone"
                           value={formData.phone}
@@ -292,47 +293,66 @@ const DevenirArtisan = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="city" className="text-navy">Ville *</Label>
+                      <Label htmlFor="city" className="text-navy text-sm">Ville *</Label>
                       <Input
                         id="city"
                         placeholder="Ex: Lyon, Marseille, Bordeaux..."
                         value={formData.city}
                         onChange={(e) => updateForm("city", e.target.value)}
-                        className="mt-1.5"
+                        className="mt-1 h-9 md:h-10"
                         required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="metier" className="text-navy">Métier *</Label>
+                      <Label htmlFor="metier" className="text-navy text-sm">Métier *</Label>
                       <Input
                         id="metier"
                         placeholder="Ex: Plombier, Électricien, Maçon..."
                         value={formData.metier}
                         onChange={(e) => updateForm("metier", e.target.value)}
-                        className="mt-1.5"
+                        className="mt-1 h-9 md:h-10"
                         required
                       />
                     </div>
 
-                    <Button 
-                      type="submit" 
-                      variant="gold" 
-                      size="lg" 
-                      className="w-full !text-base md:!text-lg !py-6 !font-bold"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      ) : null}
-                      {isLoading ? "Vérification..." : "VÉRIFIER LA DISPONIBILITÉ DE MON SECTEUR"}
-                    </Button>
+                    {/* Desktop submit */}
+                    <div className="hidden md:block">
+                      <Button 
+                        type="submit" 
+                        variant="gold" 
+                        size="lg" 
+                        className="w-full !text-base md:!text-lg !py-6 !font-bold"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
+                        {isLoading ? "Vérification..." : "VÉRIFIER LA DISPONIBILITÉ DE MON SECTEUR"}
+                      </Button>
+                    </div>
 
-                    <p className="text-xs text-center text-muted-foreground pt-1">
+                    <p className="text-xs text-center text-muted-foreground pt-1 hidden md:block">
                       On vous rappelle sous 2h pour valider votre dossier. <br />
                       <strong>Pas de robot, pas de spam.</strong>
                     </p>
                   </form>
+
+                  {/* Mobile sticky submit */}
+                  <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border p-3 shadow-lg">
+                    <Button 
+                      type="button"
+                      variant="gold" 
+                      size="lg" 
+                      className="w-full !text-sm !py-4 !font-bold"
+                      disabled={isLoading}
+                      onClick={(e) => {
+                        const form = document.querySelector('form');
+                        if (form) form.requestSubmit();
+                      }}
+                    >
+                      {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                      {isLoading ? "Vérification..." : "VÉRIFIER MON SECTEUR"}
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             </div>
