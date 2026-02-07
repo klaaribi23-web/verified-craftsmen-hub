@@ -112,9 +112,17 @@ const App = () => (
           {/* Redirection /dashboard/artisan → /artisan/dashboard */}
           <Route path="/dashboard/artisan" element={<Navigate to="/artisan/dashboard" replace />} />
           
-          {/* Dashboard Particulier - accessible sans auth pour démo */}
-          <Route path="/dashboard/client" element={<ClientDashboardNew />} />
-          <Route path="/dashboard/client/*" element={<ClientDashboardNew />} />
+          {/* Dashboard Particulier - protégé */}
+          <Route path="/dashboard/client" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientDashboardNew />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/client/*" element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <ClientDashboardNew />
+            </ProtectedRoute>
+          } />
           
           {/* Redirections SEO - anciennes URLs WordPress */}
           <Route path="/accueil-old" element={<Navigate to="/" replace />} />
@@ -123,7 +131,11 @@ const App = () => (
           <Route path="/artisansvalides/" element={<Navigate to="/" replace />} />
           
           {/* Protected Artisan Routes */}
-          <Route path="/artisan/dashboard" element={<ArtisanDashboard />} />
+          <Route path="/artisan/dashboard" element={
+            <ProtectedRoute allowedRoles={["artisan"]}>
+              <ArtisanDashboard />
+            </ProtectedRoute>
+          } />
           <Route path="/artisan/profil" element={
             <ProtectedRoute allowedRoles={["artisan"]}>
               <ArtisanProfile />
