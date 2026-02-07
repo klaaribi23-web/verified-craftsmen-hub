@@ -18,16 +18,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { DemoMessaging } from "@/components/demo/DemoMessaging";
-
-// Demo data for design validation
-const demoProject = {
-  name: "Rénovation salle de bain",
-  progress: 65,
-  status: "En cours",
-  artisan: "Durand Plomberie",
-  startDate: "12 janvier 2026",
-  nextStep: "Pose du carrelage",
-};
+import { DemoProjectShowcase } from "@/components/demo/DemoProjectShowcase";
 
 const demoStats = {
   projects: 3,
@@ -96,34 +87,8 @@ export const ClientDashboardNew = () => {
           <main className="flex-1 p-4 md:p-8">
             <div className="max-w-5xl mx-auto space-y-6">
 
-              {/* Current Project Card */}
-              <Card className="border-2 border-teal-200 bg-gradient-to-r from-teal-50 to-sky-50 shadow-md overflow-hidden">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <p className="text-sm font-medium text-teal-600 mb-1">Mon Projet en cours</p>
-                      <h2 className="text-xl font-bold text-foreground">{demoProject.name}</h2>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Artisan : <span className="font-medium text-foreground">{demoProject.artisan}</span>
-                      </p>
-                    </div>
-                    <Badge className="bg-teal-500/15 text-teal-700 border-0 text-sm">
-                      {demoProject.status}
-                    </Badge>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Progression</span>
-                      <span className="font-semibold text-teal-700">{demoProject.progress}%</span>
-                    </div>
-                    <Progress value={demoProject.progress} className="h-3 bg-teal-100" />
-                    <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
-                      <Clock className="w-4 h-4" />
-                      Prochaine étape : <span className="font-medium text-foreground">{demoProject.nextStep}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Projet Témoin */}
+              <DemoProjectShowcase />
 
               {/* New Project CTA */}
               <Card className="border border-dashed border-teal-300 bg-white hover:shadow-md transition-shadow">
