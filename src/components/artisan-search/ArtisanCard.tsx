@@ -47,6 +47,7 @@ interface ArtisanCardProps {
   linkedinUrl?: string | null;
   websiteUrl?: string | null;
   isUrgent?: boolean;
+  isAudited?: boolean;
 }
 
 // Default logo for artisans without photos
@@ -74,6 +75,7 @@ const ArtisanCard = ({
   linkedinUrl,
   websiteUrl,
   isUrgent,
+  isAudited,
 }: ArtisanCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -261,17 +263,22 @@ const ArtisanCard = ({
 
       {/* Content - flex-1 to fill remaining space */}
       <div className="p-3 sm:p-4 flex flex-col flex-1">
-        {/* Check Artisans Validés - Verification Block - only for paying subscribers */}
+        {/* Verification Block + Audité - only for paying subscribers */}
         {(subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel") && verified && (
           <div className="flex items-center gap-2 mb-2 p-1.5 rounded-lg bg-success/5 border border-success/15">
             <Shield className="w-4 h-4 text-success flex-shrink-0" />
-            <div className="flex items-center gap-2 text-xs text-success font-medium overflow-hidden">
+            <div className="flex items-center gap-2 text-xs text-success font-medium overflow-hidden flex-wrap">
               <span className="flex items-center gap-0.5">
                 <CheckCircle2 className="w-3 h-3" /> Décennale
               </span>
               {siret && (
                 <span className="flex items-center gap-0.5">
                   <FileText className="w-3 h-3" /> SIRET
+                </span>
+              )}
+              {isAudited && (
+                <span className="flex items-center gap-0.5">
+                  <Shield className="w-3 h-3" /> Audité
                 </span>
               )}
             </div>

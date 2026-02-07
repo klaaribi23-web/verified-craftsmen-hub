@@ -65,6 +65,7 @@ export interface ArtisanPublic {
   phone?: string | null;
   email?: string | null;
   siret?: string | null;
+  is_audited?: boolean;
   category?: {
     id: string;
     name: string;
