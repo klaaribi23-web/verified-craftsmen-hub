@@ -235,33 +235,15 @@ interface CompactArtisanCardProps {
 }
 
 const CompactArtisanCard = ({ artisan }: CompactArtisanCardProps) => {
-  const isElite = artisan.subscription_tier === "elite";
-  const isPro = artisan.subscription_tier === "pro";
-  const isEssential = artisan.subscription_tier === "essential";
+  const isPaid = artisan.subscription_tier && artisan.subscription_tier !== "free";
 
   const getBadgeConfig = () => {
-    if (isElite) {
+    if (isPaid) {
       return {
         show: true,
         icon: Crown,
-        label: "Elite",
-        gradient: "from-yellow-500 via-amber-400 to-yellow-500",
-      };
-    }
-    if (isPro) {
-      return {
-        show: true,
-        icon: Award,
-        label: "Premium",
-        gradient: "from-slate-400 via-slate-300 to-slate-400",
-      };
-    }
-    if (isEssential) {
-      return {
-        show: true,
-        icon: Medal,
-        label: "Pro",
-        gradient: "from-amber-700 via-amber-600 to-amber-700",
+        label: "Artisan Validé",
+        gradient: "from-primary via-primary/80 to-primary",
       };
     }
     return { show: false };

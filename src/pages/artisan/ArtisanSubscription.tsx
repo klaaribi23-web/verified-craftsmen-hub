@@ -5,10 +5,9 @@ import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
-import { SUBSCRIPTION_PLANS, BOOSTER_OFFER } from "@/config/subscriptionPlans";
+import { SUBSCRIPTION_PLAN, BOOSTER_OFFER, STRIPE_PRICES } from "@/config/subscriptionPlans";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import { Crown, Calendar, Settings, CreditCard, Check, Zap, Shield, ArrowRight } from "lucide-react";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
@@ -23,6 +22,7 @@ const ArtisanSubscription = () => {
     billingInterval: currentBillingInterval,
     paymentMethod,
     checkSubscription,
+    createCheckout,
     openCustomerPortal,
   } = useSubscription();
 
@@ -42,6 +42,21 @@ const ArtisanSubscription = () => {
     }
   }, [searchParams, checkSubscription]);
 
+  const handleSubscribe = async () => {
+    setIsLoading(true);
+    try {
+      await createCheckout(STRIPE_PRICES.artisan_valide.monthly);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de lancer le paiement. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleManageSubscription = async () => {
     setIsLoading(true);
     try {
@@ -57,12 +72,12 @@ const ArtisanSubscription = () => {
     }
   };
 
-  const exclusivitePlan = SUBSCRIPTION_PLANS[0];
+  const isSubscribed = tier !== "free";
 
-  const exclusiviteFeatures = [
+  const features = [
     "Visibilité maximale dans votre zone",
     "Chantiers qualifiés illimités",
-    "Badge Artisan Exclusif",
+    "Badge Artisan Validé",
     "Statistiques avancées",
     "Devis IA intégré",
     "Stories Live",
@@ -85,7 +100,7 @@ const ArtisanSubscription = () => {
           <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             <div className="max-w-4xl mx-auto">
               {/* Current plan info */}
-              {tier !== "free" && (
+              {isSubscribed && (
                 <Card className="mb-8 border-primary/50">
                   <CardHeader>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -95,11 +110,11 @@ const ArtisanSubscription = () => {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <CardTitle className="text-xl">Plan Exclusivité</CardTitle>
+                            <CardTitle className="text-xl">Artisan Validé</CardTitle>
                             <SubscriptionBadge tier={tier} size="md" />
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            Facturation {currentBillingInterval === "yearly" ? "annuelle" : "mensuelle"}
+                            Facturation mensuelle — 99€ HT/mois
                           </p>
                         </div>
                       </div>
@@ -158,27 +173,31 @@ const ArtisanSubscription = () => {
 
               {/* Pricing Section */}
               <div className="mb-8 text-center">
-                <h2 className="text-xl font-semibold mb-2">Nos offres</h2>
+                <h2 className="text-xl font-semibold mb-2">
+                  {isSubscribed ? "Votre offre" : "Notre offre"}
+                </h2>
                 <p className="text-muted-foreground text-sm mb-8">
                   Une offre simple, transparente, pensée pour les artisans d'excellence
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Exclusivité Card */}
-                <Card className="relative flex flex-col h-full border-2 border-yellow-500/70 hover:border-yellow-500 shadow-lg shadow-yellow-500/10">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-md">
-                    ⭐ Recommandé
-                  </div>
+                {/* Artisan Validé Card */}
+                <Card className="relative flex flex-col h-full border-2 border-primary/50 hover:border-primary shadow-lg">
+                  {!isSubscribed && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-md">
+                      ⭐ Recommandé
+                    </div>
+                  )}
 
                   <CardHeader className="text-center pb-2 pt-8">
                     <div className="flex justify-center mb-2">
-                      <div className="p-2 rounded-full bg-yellow-500/20">
-                        <Crown className="w-8 h-8 text-yellow-500" />
+                      <div className="p-2 rounded-full bg-primary/20">
+                        <Crown className="w-8 h-8 text-primary" />
                       </div>
                     </div>
-                    <CardTitle className="text-2xl">{exclusivitePlan.name}</CardTitle>
-                    <CardDescription>{exclusivitePlan.description}</CardDescription>
+                    <CardTitle className="text-2xl">{SUBSCRIPTION_PLAN.name}</CardTitle>
+                    <CardDescription>{SUBSCRIPTION_PLAN.description}</CardDescription>
                   </CardHeader>
 
                   <CardContent className="flex-1">
@@ -187,13 +206,13 @@ const ArtisanSubscription = () => {
                       <span className="text-muted-foreground"> HT/mois</span>
                     </div>
 
-                    <div className="flex items-center justify-center gap-2 mb-4 py-2 px-3 rounded-lg bg-yellow-500/10 text-yellow-600 text-sm">
+                    <div className="flex items-center justify-center gap-2 mb-4 py-2 px-3 rounded-lg bg-primary/10 text-primary text-sm">
                       <Shield className="w-4 h-4" />
-                      <span className="font-medium">Top 3 de votre zone géographique</span>
+                      <span className="font-medium">Visibilité prioritaire garantie</span>
                     </div>
 
                     <ul className="space-y-3">
-                      {exclusiviteFeatures.map((feature) => (
+                      {features.map((feature) => (
                         <li key={feature} className="flex items-center gap-2 text-sm">
                           <Check className="w-4 h-4 flex-shrink-0 text-success" />
                           <span>{feature}</span>
@@ -203,32 +222,32 @@ const ArtisanSubscription = () => {
                   </CardContent>
 
                   <CardFooter className="pt-4">
-                    {tier === "exclusivite" ? (
+                    {isSubscribed ? (
                       <Button className="w-full" variant="secondary" disabled>
                         Plan actuel
                       </Button>
                     ) : (
                       <Button
-                        className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0"
-                        onClick={handleManageSubscription}
+                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground border-0"
+                        onClick={handleSubscribe}
                         disabled={isLoading}
                       >
-                        {isLoading ? "Chargement..." : "Souscrire à l'Exclusivité"}
+                        {isLoading ? "Chargement..." : "S'abonner — 99€ HT/mois"}
                       </Button>
                     )}
                   </CardFooter>
                 </Card>
 
                 {/* Booster Card */}
-                <Card className="relative flex flex-col h-full border-2 border-primary/50 hover:border-primary">
-                  <div className="absolute -top-3 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                <Card className="relative flex flex-col h-full border-2 border-muted hover:border-muted-foreground/30">
+                  <div className="absolute -top-3 right-4 bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-medium">
                     Ponctuel
                   </div>
 
                   <CardHeader className="text-center pb-2 pt-8">
                     <div className="flex justify-center mb-2">
-                      <div className="p-2 rounded-full bg-primary/20">
-                        <Zap className="w-8 h-8 text-primary" />
+                      <div className="p-2 rounded-full bg-accent/20">
+                        <Zap className="w-8 h-8 text-accent-foreground" />
                       </div>
                     </div>
                     <CardTitle className="text-2xl">{BOOSTER_OFFER.name}</CardTitle>
@@ -242,7 +261,7 @@ const ArtisanSubscription = () => {
                       <p className="text-sm text-muted-foreground mt-1">Paiement unique</p>
                     </div>
 
-                    <div className="flex items-center justify-center gap-2 mb-4 py-2 px-3 rounded-lg bg-primary/10 text-primary text-sm">
+                    <div className="flex items-center justify-center gap-2 mb-4 py-2 px-3 rounded-lg bg-accent/10 text-accent-foreground text-sm">
                       <Zap className="w-4 h-4" />
                       <span className="font-medium">3 RDV chantier garantis</span>
                     </div>

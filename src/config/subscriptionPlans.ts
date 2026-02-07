@@ -1,24 +1,23 @@
-// Stripe Price IDs
+// Stripe Price IDs - Offre unique Artisan Validé 99€ HT/mois
 export const STRIPE_PRICES = {
-  exclusivite: {
-    monthly: "price_exclusivite_monthly",
-  },
-  booster: {
-    oneTime: "price_booster_one_time",
+  artisan_valide: {
+    monthly: "price_1SyIOVHsPR7NolTlZfj6dkKt",
   },
 };
 
-export type SubscriptionTier = "free" | "exclusivite";
-export type BillingInterval = "monthly" | "yearly";
+export const STRIPE_PRODUCT_ID = "prod_TwAjvtmZUKLDW7";
+
+export type SubscriptionTier = "free" | "artisan_valide";
+export type BillingInterval = "monthly";
 
 export interface PlanFeatures {
   missionsPerMonth: number | "unlimited";
   statistics: boolean;
   devisAI: boolean;
   storiesLive: boolean;
-  support: "standard" | "priority" | "dedicated" | "vip";
+  support: "standard" | "dedicated";
   betaAccess: boolean;
-  badge: "bronze" | "silver" | "gold" | null;
+  badge: "gold" | null;
   badgeLabel: string | null;
 }
 
@@ -26,14 +25,8 @@ export interface SubscriptionPlan {
   id: string;
   name: string;
   description: string;
-  priority: { min: number; max: number } | number;
-  priorityLabel: string;
-  prices: {
-    monthly: number;
-    yearly: number;
-  };
+  priceHT: number;
   features: PlanFeatures;
-  isContactSales?: boolean;
 }
 
 export interface BoosterOffer {
@@ -44,29 +37,22 @@ export interface BoosterOffer {
   guarantee: string;
 }
 
-export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
-  {
-    id: "exclusivite",
-    name: "Exclusivité",
-    description: "Votre zone, vos chantiers. Visibilité maximale garantie.",
-    priority: { min: 1, max: 3 },
-    priorityLabel: "Top 3 de votre zone",
-    prices: {
-      monthly: 99,
-      yearly: 990,
-    },
-    features: {
-      missionsPerMonth: "unlimited",
-      statistics: true,
-      devisAI: true,
-      storiesLive: true,
-      support: "dedicated",
-      betaAccess: true,
-      badge: "gold",
-      badgeLabel: "Artisan Exclusif",
-    },
+export const SUBSCRIPTION_PLAN: SubscriptionPlan = {
+  id: "artisan_valide",
+  name: "Artisan Validé",
+  description: "Votre visibilité maximale, vos chantiers qualifiés.",
+  priceHT: 99,
+  features: {
+    missionsPerMonth: "unlimited",
+    statistics: true,
+    devisAI: true,
+    storiesLive: true,
+    support: "dedicated",
+    betaAccess: true,
+    badge: "gold",
+    badgeLabel: "Artisan Validé",
   },
-];
+};
 
 export const BOOSTER_OFFER: BoosterOffer = {
   id: "booster",
@@ -76,10 +62,6 @@ export const BOOSTER_OFFER: BoosterOffer = {
   guarantee: "3 RDV qualifiés garantis ou remboursé",
 };
 
-export const getPlanById = (id: SubscriptionTier): SubscriptionPlan | undefined => {
-  return SUBSCRIPTION_PLANS.find((plan) => plan.id === id);
-};
-
-export const getPlanByBadge = (badge: "bronze" | "silver" | "gold"): SubscriptionPlan | undefined => {
-  return SUBSCRIPTION_PLANS.find((plan) => plan.features.badge === badge);
-};
+// Keep backward compatibility
+export const SUBSCRIPTION_PLANS = [SUBSCRIPTION_PLAN];
+export const getPlanById = (id: string) => id === "artisan_valide" ? SUBSCRIPTION_PLAN : undefined;
