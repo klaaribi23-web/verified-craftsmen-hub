@@ -1299,6 +1299,7 @@ export type Database = {
           id: string | null
           instagram_url: string | null
           intervention_radius: number | null
+          is_audited: boolean | null
           is_verified: boolean | null
           latitude: number | null
           linkedin_url: string | null
@@ -1343,6 +1344,7 @@ export type Database = {
           id?: string | null
           instagram_url?: string | null
           intervention_radius?: number | null
+          is_audited?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
           linkedin_url?: string | null
@@ -1387,6 +1389,7 @@ export type Database = {
           id?: string | null
           instagram_url?: string | null
           intervention_radius?: number | null
+          is_audited?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
           linkedin_url?: string | null
