@@ -16,7 +16,6 @@ import {
   Linkedin,
   Globe,
   FileText,
-  Send,
   Wrench,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -183,16 +182,6 @@ const ArtisanCard = ({
     }
   };
 
-  const handleInviteProject = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isAuthenticated) {
-      toast.error("Connectez-vous pour inviter un artisan");
-      navigate("/auth");
-      return;
-    }
-    navigate(`/demande-devis?artisan=${artisanId}`);
-  };
 
   const handleVideoClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -335,18 +324,14 @@ const ArtisanCard = ({
           )}
         </div>
 
-        {/* Rating */}
-        <div className="flex items-center gap-1 mb-3 min-h-[18px]">
-          {rating > 0 ? (
-            <>
-              <Star className="w-3.5 h-3.5 fill-gold text-gold" />
-              <span className="text-xs font-semibold">{rating.toFixed(1)}</span>
-              {reviews > 0 && <span className="text-xs text-muted-foreground">({reviews} avis)</span>}
-            </>
-          ) : (
-            <span className="text-xs text-muted-foreground italic">Pas encore d'avis</span>
-          )}
-        </div>
+        {/* Rating - only show if has reviews */}
+        {rating > 0 && (
+          <div className="flex items-center gap-1 mb-3">
+            <Star className="w-3.5 h-3.5 fill-gold text-gold" />
+            <span className="text-xs font-semibold">{rating.toFixed(1)}</span>
+            {reviews > 0 && <span className="text-xs text-muted-foreground">({reviews} avis)</span>}
+          </div>
+        )}
 
         {/* Social Icons Bar - reserved height even when empty */}
         <div className="flex items-center gap-1.5 mb-3 min-h-[24px]">
@@ -372,25 +357,12 @@ const ArtisanCard = ({
           )}
         </div>
 
-        {/* Spacer to push buttons to bottom */}
+        {/* Spacer to push urgent button to bottom */}
         <div className="flex-1" />
 
-        {/* Action Buttons - always at bottom */}
-        <div className="flex flex-col gap-2">
-          <Button
-            variant={isPremium ? "default" : "gold"}
-            size="sm"
-            className={cn(
-              "w-full text-xs",
-              isPremium && "bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-200%] before:animate-shimmer before:bg-[length:200%_100%]"
-            )}
-            onClick={handleInviteProject}
-          >
-            <Send className="w-3.5 h-3.5" />
-            Inviter à chiffrer mon projet
-          </Button>
-
-          {isUrgent && (
+        {/* Urgent CTA only */}
+        {isUrgent && (
+          <div className="mt-2">
             <Button
               variant="destructive"
               size="sm"
@@ -400,8 +372,8 @@ const ArtisanCard = ({
               <Phone className="w-3.5 h-3.5" />
               Appeler pour une urgence
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Story Viewer */}
