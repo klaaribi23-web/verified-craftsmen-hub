@@ -1,0 +1,86 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const email = "admin@test.fr";
+    const password = "Admin2026!";
+
+    // Check if user already exists
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const existingUser = existingUsers?.users?.find(u => u.email === email);
+
+    if (existingUser) {
+      return new Response(
+        JSON.stringify({ message: "Admin already exists", user_id: existingUser.id }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
+    // Create auth user
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        first_name: "Admin",
+        last_name: "Test",
+        user_type: "admin",
+      },
+    });
+
+    if (authError) throw authError;
+
+    const userId = authData.user.id;
+
+    // Wait for profile trigger
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Set email_confirmed in profiles
+    await supabaseAdmin
+      .from("profiles")
+      .update({ email_confirmed: true })
+      .eq("user_id", userId);
+
+    // Fix role to admin (trigger sets it based on user_type)
+    const { data: existingRole } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", userId)
+      .single();
+
+    if (existingRole) {
+      await supabaseAdmin
+        .from("user_roles")
+        .update({ role: "admin" })
+        .eq("user_id", userId);
+    } else {
+      await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: userId, role: "admin" });
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, email, user_id: userId }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+    );
+  } catch (error: any) {
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+    );
+  }
+});
