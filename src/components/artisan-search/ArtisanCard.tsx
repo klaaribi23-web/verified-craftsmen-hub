@@ -261,8 +261,8 @@ const ArtisanCard = ({
 
       {/* Content - flex-1 to fill remaining space */}
       <div className="p-3 sm:p-4 flex flex-col flex-1">
-        {/* Check Artisans Validés - Verification Block */}
-        {verified && (
+        {/* Check Artisans Validés - Verification Block - only for paying subscribers */}
+        {(subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel") && verified && (
           <div className="flex items-center gap-2 mb-2 p-1.5 rounded-lg bg-success/5 border border-success/15">
             <Shield className="w-4 h-4 text-success flex-shrink-0" />
             <div className="flex items-center gap-2 text-xs text-success font-medium overflow-hidden">
