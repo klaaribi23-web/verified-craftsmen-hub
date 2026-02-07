@@ -474,18 +474,18 @@ const Navbar = () => {
         )}
       >
         <nav className="container mx-auto px-4 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform" />
+          <div className="flex items-center h-16 lg:h-20">
+            {/* Logo - fixed width */}
+            <Link to="/" className="flex items-center gap-2 group flex-shrink-0 w-[160px]">
+              <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform flex-shrink-0" />
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-navy leading-tight">ARTISANS</span>
                 <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
               </div>
             </Link>
 
-            {/* Desktop Navigation - Center links */}
-            <div className="hidden lg:flex items-center gap-6">
+            {/* Desktop Navigation - Center links with flex-1 */}
+            <div className="hidden lg:flex flex-1 items-center justify-center gap-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -507,23 +507,20 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Desktop CTA / User Menu - Right aligned */}
-            <div className="hidden lg:flex items-center gap-2">
-              {/* Mon Espace (Teal) */}
-              <Button variant="outline" size="sm" className="border-teal-500 text-teal-700 hover:bg-teal-500 hover:text-white font-semibold" asChild>
+            {/* Desktop CTA / User Menu - Right aligned, fixed width */}
+            <div className="hidden lg:flex items-center justify-end gap-2 flex-shrink-0">
+              <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
                 <Link to="/client/dashboard">
                   <ClipboardList className="w-4 h-4 mr-1.5" />
                   Mon Espace
                 </Link>
               </Button>
-              {/* Espace Pro (Navy) */}
               <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold" asChild>
                 <Link to="/artisan/dashboard">
                   <User className="w-4 h-4 mr-1.5" />
                   Espace Pro
                 </Link>
               </Button>
-              {/* Demander un devis CTA */}
               <Button variant="gold" size="sm" className="font-semibold" asChild>
                 <Link to="/demande-devis">
                   Demander un devis
@@ -547,10 +544,11 @@ const Navbar = () => {
               {renderUserMenu()}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile: spacer + burger */}
+            <div className="flex-1 lg:hidden" />
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-navy"
+              className="lg:hidden p-2 text-navy flex-shrink-0"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
