@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
-import { SUBSCRIPTION_PLAN, BOOSTER_OFFER, STRIPE_PRICES } from "@/config/subscriptionPlans";
+import { MONTHLY_PLAN, YEARLY_PLAN, STRIPE_PRICES } from "@/config/subscriptionPlans";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
-import { Crown, Calendar, Settings, CreditCard, Check, Zap, Shield, ArrowRight } from "lucide-react";
+import { Crown, Calendar, Settings, CreditCard, Check, Shield, Star, Sparkles } from "lucide-react";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
+import { cn } from "@/lib/utils";
 
 const ArtisanSubscription = () => {
   const [searchParams] = useSearchParams();
@@ -42,10 +43,10 @@ const ArtisanSubscription = () => {
     }
   }, [searchParams, checkSubscription]);
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = async (priceId: string) => {
     setIsLoading(true);
     try {
-      await createCheckout(STRIPE_PRICES.artisan_valide.monthly);
+      await createCheckout(priceId);
     } catch (error) {
       toast({
         title: "Erreur",
@@ -74,7 +75,7 @@ const ArtisanSubscription = () => {
 
   const isSubscribed = tier !== "free";
 
-  const features = [
+  const sharedFeatures = [
     "Visibilité maximale dans votre zone",
     "Chantiers qualifiés illimités",
     "Badge Artisan Validé",
@@ -83,6 +84,12 @@ const ArtisanSubscription = () => {
     "Stories Live",
     "Support dédié",
     "Accès bêta exclusif",
+  ];
+
+  const yearlyExtras = [
+    "Badge Audité offert",
+    "3 RDV chantier qualifiés garantis",
+    "Économisez 2 mois (10 mois pour le prix de 12)",
   ];
 
   return (
@@ -98,7 +105,7 @@ const ArtisanSubscription = () => {
           />
 
           <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               {/* Current plan info */}
               {isSubscribed && (
                 <Card className="mb-8 border-primary/50">
@@ -114,7 +121,9 @@ const ArtisanSubscription = () => {
                             <SubscriptionBadge tier={tier} size="md" />
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            Facturation mensuelle — 99€ HT/mois
+                            {currentBillingInterval === "yearly" 
+                              ? "Facturation annuelle — 990€ HT/an" 
+                              : "Facturation mensuelle — 99€ HT/mois"}
                           </p>
                         </div>
                       </div>
@@ -173,31 +182,25 @@ const ArtisanSubscription = () => {
 
               {/* Pricing Section */}
               <div className="mb-8 text-center">
-                <h2 className="text-xl font-semibold mb-2">
-                  {isSubscribed ? "Votre offre" : "Notre offre"}
+                <h2 className="text-2xl font-bold mb-2">
+                  {isSubscribed ? "Votre offre" : "Choisissez votre offre"}
                 </h2>
-                <p className="text-muted-foreground text-sm mb-8">
-                  Une offre simple, transparente, pensée pour les artisans d'excellence
+                <p className="text-muted-foreground text-sm">
+                  Une offre pensée pour les artisans d'excellence
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Artisan Validé Card */}
-                <Card className="relative flex flex-col h-full border-2 border-primary/50 hover:border-primary shadow-lg">
-                  {!isSubscribed && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-md">
-                      ⭐ Recommandé
-                    </div>
-                  )}
-
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                {/* Monthly Card */}
+                <Card className="relative flex flex-col h-full border-2 border-border hover:border-primary/40 transition-all">
                   <CardHeader className="text-center pb-2 pt-8">
                     <div className="flex justify-center mb-2">
-                      <div className="p-2 rounded-full bg-primary/20">
-                        <Crown className="w-8 h-8 text-primary" />
+                      <div className="p-2 rounded-full bg-muted">
+                        <Crown className="w-7 h-7 text-muted-foreground" />
                       </div>
                     </div>
-                    <CardTitle className="text-2xl">{SUBSCRIPTION_PLAN.name}</CardTitle>
-                    <CardDescription>{SUBSCRIPTION_PLAN.description}</CardDescription>
+                    <CardTitle className="text-xl">{MONTHLY_PLAN.name}</CardTitle>
+                    <CardDescription>{MONTHLY_PLAN.description}</CardDescription>
                   </CardHeader>
 
                   <CardContent className="flex-1">
@@ -206,13 +209,8 @@ const ArtisanSubscription = () => {
                       <span className="text-muted-foreground"> HT/mois</span>
                     </div>
 
-                    <div className="flex items-center justify-center gap-2 mb-4 py-2 px-3 rounded-lg bg-primary/10 text-primary text-sm">
-                      <Shield className="w-4 h-4" />
-                      <span className="font-medium">Visibilité prioritaire garantie</span>
-                    </div>
-
                     <ul className="space-y-3">
-                      {features.map((feature) => (
+                      {sharedFeatures.map((feature) => (
                         <li key={feature} className="flex items-center gap-2 text-sm">
                           <Check className="w-4 h-4 flex-shrink-0 text-success" />
                           <span>{feature}</span>
@@ -222,63 +220,79 @@ const ArtisanSubscription = () => {
                   </CardContent>
 
                   <CardFooter className="pt-4">
-                    {isSubscribed ? (
+                    {isSubscribed && currentBillingInterval === "monthly" ? (
                       <Button className="w-full" variant="secondary" disabled>
                         Plan actuel
                       </Button>
+                    ) : isSubscribed ? (
+                      <Button className="w-full" variant="outline" disabled>
+                        —
+                      </Button>
                     ) : (
                       <Button
-                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground border-0"
-                        onClick={handleSubscribe}
+                        className="w-full"
+                        variant="outline"
+                        onClick={() => handleSubscribe(STRIPE_PRICES.artisan_valide.monthly)}
                         disabled={isLoading}
                       >
-                        {isLoading ? "Chargement..." : "S'abonner — 99€ HT/mois"}
+                        {isLoading ? "Chargement..." : "S'abonner — 99€/mois"}
                       </Button>
                     )}
                   </CardFooter>
                 </Card>
 
-                {/* Booster Card */}
-                <Card className="relative flex flex-col h-full border-2 border-muted hover:border-muted-foreground/30">
-                  <div className="absolute -top-3 right-4 bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-medium">
-                    Ponctuel
+                {/* Yearly Card — highlighted */}
+                <Card className={cn(
+                  "relative flex flex-col h-full border-2 transition-all shadow-xl",
+                  "border-primary ring-2 ring-primary/20 scale-[1.02]"
+                )}>
+                  {/* Best deal badge */}
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-5 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-1.5">
+                      <Star className="w-4 h-4 fill-white" />
+                      LE MEILLEUR DEAL
+                    </div>
                   </div>
 
-                  <CardHeader className="text-center pb-2 pt-8">
+                  <CardHeader className="text-center pb-2 pt-10">
                     <div className="flex justify-center mb-2">
-                      <div className="p-2 rounded-full bg-accent/20">
-                        <Zap className="w-8 h-8 text-accent-foreground" />
+                      <div className="p-2 rounded-full bg-primary/20">
+                        <Sparkles className="w-7 h-7 text-primary" />
                       </div>
                     </div>
-                    <CardTitle className="text-2xl">{BOOSTER_OFFER.name}</CardTitle>
-                    <CardDescription>Coup de boost ponctuel pour votre activité</CardDescription>
+                    <CardTitle className="text-xl">{YEARLY_PLAN.name}</CardTitle>
+                    <CardDescription className="text-primary font-medium">
+                      {YEARLY_PLAN.description}
+                    </CardDescription>
                   </CardHeader>
 
                   <CardContent className="flex-1">
-                    <div className="text-center mb-6">
-                      <span className="text-4xl font-bold">500€</span>
-                      <span className="text-muted-foreground"> HT</span>
-                      <p className="text-sm text-muted-foreground mt-1">Paiement unique</p>
+                    <div className="text-center mb-2">
+                      <span className="text-4xl font-bold">990€</span>
+                      <span className="text-muted-foreground"> HT/an</span>
                     </div>
+                    <p className="text-center text-sm text-muted-foreground mb-6">
+                      soit <span className="font-semibold text-foreground">82,50€/mois</span> — 2 mois offerts
+                    </p>
 
-                    <div className="flex items-center justify-center gap-2 mb-4 py-2 px-3 rounded-lg bg-accent/10 text-accent-foreground text-sm">
-                      <Zap className="w-4 h-4" />
-                      <span className="font-medium">3 RDV chantier garantis</span>
-                    </div>
-
-                    <div className="bg-muted rounded-lg p-4 mb-4">
-                      <p className="text-sm text-foreground">
-                        {BOOSTER_OFFER.description}
+                    {/* Exclusive yearly perks */}
+                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
+                      <p className="text-sm font-semibold text-primary mb-2 flex items-center gap-1.5">
+                        <Shield className="w-4 h-4" />
+                        Avantages exclusifs annuels
                       </p>
+                      <ul className="space-y-2">
+                        {yearlyExtras.map((extra) => (
+                          <li key={extra} className="flex items-center gap-2 text-sm font-medium">
+                            <Star className="w-3.5 h-3.5 flex-shrink-0 text-amber-500 fill-amber-500" />
+                            <span>{extra}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
 
                     <ul className="space-y-3">
-                      {[
-                        "3 rendez-vous qualifiés garantis",
-                        "Prospects pré-qualifiés par notre équipe",
-                        "Remboursé si objectif non atteint",
-                        "Compatible avec ou sans abonnement",
-                      ].map((feature) => (
+                      {sharedFeatures.map((feature) => (
                         <li key={feature} className="flex items-center gap-2 text-sm">
                           <Check className="w-4 h-4 flex-shrink-0 text-success" />
                           <span>{feature}</span>
@@ -288,17 +302,19 @@ const ArtisanSubscription = () => {
                   </CardContent>
 
                   <CardFooter className="pt-4">
-                    <Button
-                      className="w-full"
-                      variant="default"
-                      onClick={() => toast({
-                        title: "Booster",
-                        description: "Contactez-nous pour activer le Booster : contact@artisansvalides.fr",
-                      })}
-                    >
-                      Activer le Booster
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
+                    {isSubscribed && currentBillingInterval === "yearly" ? (
+                      <Button className="w-full" variant="secondary" disabled>
+                        Plan actuel
+                      </Button>
+                    ) : (
+                      <Button
+                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground border-0 shadow-lg"
+                        onClick={() => handleSubscribe(STRIPE_PRICES.artisan_valide.yearly)}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Chargement..." : "S'abonner — 990€ HT/an"}
+                      </Button>
+                    )}
                   </CardFooter>
                 </Card>
               </div>
