@@ -1,1 +1,4 @@
 project_id = "cstxrauedasufcecaouq"
+
+[functions.create-test-artisan]
+verify_jwt = false

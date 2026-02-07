@@ -855,6 +855,48 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_candidacies: {
+        Row: {
+          admin_notes: string | null
+          business_name: string
+          city: string
+          created_at: string
+          id: string
+          insurance_file_url: string | null
+          metier: string
+          phone: string
+          siret: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          business_name: string
+          city: string
+          created_at?: string
+          id?: string
+          insurance_file_url?: string | null
+          metier: string
+          phone: string
+          siret: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          business_name?: string
+          city?: string
+          created_at?: string
+          id?: string
+          insurance_file_url?: string | null
+          metier?: string
+          phone?: string
+          siret?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

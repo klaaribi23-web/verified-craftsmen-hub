@@ -15,6 +15,7 @@ import NosMissions from "./pages/NosMissions";
 import DemandeDevis from "./pages/DemandeDevis";
 import DevenirArtisan from "./pages/DevenirArtisan";
 import DevenirPartenaire from "./pages/DevenirPartenaire";
+import AdminExclusive from "./pages/admin/AdminExclusive";
 import CommentCaMarche from "./pages/CommentCaMarche";
 import Connexion from "./pages/Connexion";
 import NotFound from "./pages/NotFound";
@@ -108,6 +109,7 @@ const App = () => (
           <Route path="/cgu" element={<CGU />} />
           <Route path="/cgv" element={<CGV />} />
           <Route path="/confidentialite" element={<Confidentialite />} />
+          <Route path="/admin-exclusive" element={<AdminExclusive />} />
           
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           
