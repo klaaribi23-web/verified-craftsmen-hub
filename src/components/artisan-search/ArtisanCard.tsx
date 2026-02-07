@@ -17,6 +17,7 @@ import {
   Globe,
   FileText,
   Send,
+  Wrench,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,10 +89,13 @@ const ArtisanCard = ({
   const { stories, hasActiveStories } = usePublicArtisanStories(artisanId);
 
   const artisanUrl = slug || id;
-  const portfolioImages = portfolio && portfolio.length > 0 ? portfolio : [DEFAULT_LOGO];
+  const portfolioImages = portfolio && portfolio.length > 0 ? portfolio : [];
   const defaultProfileImage = profileImage || DEFAULT_LOGO;
   const hasVideos = portfolioVideos && portfolioVideos.length > 0;
   const hasSocialLinks = facebookUrl || instagramUrl || linkedinUrl || websiteUrl;
+  const isPremium = subscriptionTier === "boost_annuel";
+  const isPaying = subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel";
+  const hasPortfolioImage = portfolio && portfolio.length > 0;
 
   // Check if artisan is already in favorites on mount
   useEffect(() => {
@@ -201,7 +205,12 @@ const ArtisanCard = ({
   return (
     <div
       onClick={handleProfileClick}
-      className="bg-card rounded-xl shadow-soft border border-border hover:shadow-elevated transition-all overflow-hidden relative cursor-pointer group h-full flex flex-col"
+      className={cn(
+        "bg-card rounded-xl shadow-soft border hover:shadow-elevated transition-all overflow-hidden relative cursor-pointer group h-full flex flex-col",
+        isPremium
+          ? "border-2 border-amber-400 shadow-lg ring-1 ring-amber-200/50"
+          : "border-border"
+      )}
     >
       {/* Urgent Badge */}
       {isUrgent && (
@@ -221,8 +230,12 @@ const ArtisanCard = ({
             className="w-full h-full object-cover"
             onClick={(e) => e.stopPropagation()}
           />
+        ) : hasPortfolioImage ? (
+          <img src={portfolioImages[0]} alt={`Réalisation de ${name}`} className="w-full h-full object-cover" />
         ) : (
-          <img src={portfolioImage} alt={`Réalisation de ${name}`} className="w-full h-full object-cover" />
+          <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 flex items-center justify-center">
+            <Wrench className="w-12 h-12 text-muted-foreground/40" />
+          </div>
         )}
 
         {/* Video play button overlay */}
@@ -237,11 +250,21 @@ const ArtisanCard = ({
         )}
 
         {/* Artisan Validé Badge - only for paying subscribers */}
-        {(subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel") && (
+        {isPaying && (
           <div className="absolute top-2 right-10 z-10">
             <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
               <CheckCircle2 className="w-3 h-3" />
               <span>Artisan Validé</span>
+            </div>
+          </div>
+        )}
+
+        {/* Audité Terrain Macaron - floating seal for boost_annuel */}
+        {isPremium && isAudited && (
+          <div className="absolute bottom-2 right-2 z-10">
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold shadow-lg bg-amber-500 text-white border-2 border-amber-300">
+              <Shield className="w-3.5 h-3.5 fill-current" />
+              Audité Terrain
             </div>
           </div>
         )}
@@ -264,14 +287,8 @@ const ArtisanCard = ({
       {/* Content - flex-1 to fill remaining space */}
       <div className="p-3 sm:p-4 flex flex-col flex-1">
         {/* Premium Certification Badges - only for paying subscribers */}
-        {(subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel") && (
+        {isPaying && (
           <div className="flex flex-wrap items-center gap-1.5 mb-2">
-            {isAudited && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-sm">
-                <Shield className="w-3 h-3" />
-                Audité Terrain
-              </span>
-            )}
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
               <CheckCircle2 className="w-3 h-3" />
               Décennale
@@ -360,9 +377,12 @@ const ArtisanCard = ({
         {/* Action Buttons - always at bottom */}
         <div className="flex flex-col gap-2">
           <Button
-            variant="gold"
+            variant={isPremium ? "default" : "gold"}
             size="sm"
-            className="w-full text-xs"
+            className={cn(
+              "w-full text-xs",
+              isPremium && "bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md"
+            )}
             onClick={handleInviteProject}
           >
             <Send className="w-3.5 h-3.5" />
