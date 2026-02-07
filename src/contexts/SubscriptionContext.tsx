@@ -86,12 +86,18 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       });
       setHasFetched(true);
     } catch (err) {
-      console.error("Error checking subscription:", err);
-      setState(prev => ({
-        ...prev,
+      // Silently fallback to free tier on any error (e.g. missing Stripe key)
+      // This prevents the error banner from appearing in the UI
+      console.warn("Subscription check unavailable, defaulting to free tier");
+      setState({
+        tier: "free",
+        subscriptionEnd: null,
+        subscriptionStart: null,
+        billingInterval: null,
+        paymentMethod: null,
         isLoading: false,
-        error: err instanceof Error ? err.message : "Unknown error",
-      }));
+        error: null,
+      });
       setHasFetched(true);
     }
   }, [user, hasFetched]);
