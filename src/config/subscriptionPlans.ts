@@ -37,14 +37,6 @@ export interface SubscriptionPlan {
   highlight?: string;
 }
 
-export interface BoosterOffer {
-  id: string;
-  name: string;
-  description: string;
-  priceHT: number;
-  guarantee: string;
-}
-
 export const MONTHLY_PLAN: SubscriptionPlan = {
   id: "artisan_valide_monthly",
   name: "Mensuel",
@@ -86,15 +78,7 @@ export const YEARLY_PLAN: SubscriptionPlan = {
   },
 };
 
-export const BOOSTER_OFFER: BoosterOffer = {
-  id: "booster",
-  name: "Booster",
-  description: "3 rendez-vous chantier qualifiés garantis par notre équipe. Si nous n'atteignons pas l'objectif, nous vous remboursons.",
-  priceHT: 500,
-  guarantee: "3 RDV qualifiés garantis ou remboursé",
-};
-
-// Keep backward compatibility
+// Backward compatibility
 export const SUBSCRIPTION_PLAN = MONTHLY_PLAN;
 export const SUBSCRIPTION_PLANS = [MONTHLY_PLAN, YEARLY_PLAN];
 export const getPlanById = (id: string) => SUBSCRIPTION_PLANS.find(p => p.id === id);
