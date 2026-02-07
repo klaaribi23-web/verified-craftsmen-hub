@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans";
 import type { SubscriptionTier } from "@/config/subscriptionPlans";
 
 interface MissionLimitState {
@@ -69,9 +68,8 @@ export const useMissionApplicationLimit = () => {
       }
 
       const tier = artisan.subscription_tier || "free";
-      const plan = SUBSCRIPTION_PLANS.find((p) => p.id === tier);
-      // If artisan has any paid tier (old or new), give unlimited access
-      const limit = plan?.features.missionsPerMonth || (tier !== "free" ? "unlimited" as const : 1);
+      // Any paid tier gets unlimited access
+      const limit = tier !== "free" ? "unlimited" as const : 1;
 
       const canApply = limit === "unlimited" || appliedCount < limit;
 
