@@ -10,6 +10,7 @@ interface LocalBusinessSchemaProps {
   description?: string;
   phone?: string;
   email?: string;
+  googleBusinessUrl?: string;
 }
 
 const LocalBusinessSchema = ({
@@ -21,7 +22,8 @@ const LocalBusinessSchema = ({
   reviewCount,
   description,
   phone,
-  email
+  email,
+  googleBusinessUrl
 }: LocalBusinessSchemaProps) => {
   const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -56,6 +58,11 @@ const LocalBusinessSchema = ({
 
   if (email) {
     schema.email = email;
+  }
+
+  if (googleBusinessUrl) {
+    schema.url = googleBusinessUrl;
+    schema.sameAs = [googleBusinessUrl];
   }
 
   return (
