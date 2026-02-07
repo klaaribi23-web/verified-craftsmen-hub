@@ -253,23 +253,22 @@ const ArtisanCard = ({
           </button>
         )}
 
-        {/* Artisan Validé Badge - only for paying subscribers */}
-        {isPaying && (
+        {/* Status Badge - Audité (gold, top tier) OR Validé (green) - never both */}
+        {isPremium && isAudited ? (
+          <div className="absolute top-2 right-10 z-10">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold shadow-lg bg-amber-500 text-white border border-amber-300">
+              <Shield className="w-3 h-3 fill-current" />
+              <span>ARTISAN AUDITÉ</span>
+            </div>
+          </div>
+        ) : isPaying ? (
           <div className="absolute top-2 right-10 z-10">
             <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
               <CheckCircle2 className="w-3 h-3" />
               <span>Artisan Validé</span>
             </div>
           </div>
-        )}
-
-        {/* Audité Terrain Seal - circular stamp overlapping top-right corner */}
-        {isPremium && isAudited && (
-          <div className="absolute -top-1 -right-1 z-20 w-14 h-14 rounded-full bg-amber-500 border-[3px] border-amber-300 shadow-lg flex flex-col items-center justify-center">
-            <Shield className="w-5 h-5 text-white fill-current" />
-            <span className="text-[6px] font-extrabold text-white leading-tight tracking-tight">AUDITÉ</span>
-          </div>
-        )}
+        ) : null}
 
         {/* Favorite Button */}
         <button
