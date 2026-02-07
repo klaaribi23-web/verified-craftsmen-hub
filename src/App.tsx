@@ -115,6 +115,7 @@ const App = () => (
           
           {/* Redirection /dashboard/artisan → /artisan/dashboard */}
           <Route path="/dashboard/artisan" element={<Navigate to="/artisan/dashboard" replace />} />
+          <Route path="/dashboard/pro" element={<Navigate to="/artisan/dashboard" replace />} />
           
           {/* Dashboard Particulier - protégé */}
           <Route path="/dashboard/client" element={
