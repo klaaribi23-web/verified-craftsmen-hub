@@ -26,15 +26,18 @@ import {
   Briefcase,
   MapPin,
   Link as LinkIcon,
-  Upload
+  Upload,
+  Sparkles,
+  Key,
+  Copy
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/categories/CategorySelect";
 import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
-import { supabase } from "@/integrations/supabase/client";
 import { 
   cities as frenchCities, 
   departments as frenchDepartments, 
@@ -63,6 +66,9 @@ const AdminAddArtisan = () => {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
+  const [createAccount, setCreateAccount] = useState(false);
+  const [accountPassword, setAccountPassword] = useState("");
   
   
   const [formData, setFormData] = useState({
@@ -115,6 +121,41 @@ const AdminAddArtisan = () => {
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleGenerateSEO = async () => {
+    if (!formData.businessName || !primaryCategoryName || !formData.city) {
+      toast({ title: "Champs manquants", description: "Remplissez le nom, la catégorie et la ville avant de générer.", variant: "destructive" });
+      return;
+    }
+    setIsGeneratingSEO(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-seo-description", {
+        body: { businessName: formData.businessName, metier: primaryCategoryName, city: formData.city },
+      });
+      if (error) throw error;
+      if (data?.description) {
+        handleChange("description", data.description);
+        toast({ title: "Description générée ✨", description: "Vous pouvez la modifier si besoin." });
+      }
+    } catch (err: any) {
+      console.error("SEO generation error:", err);
+      toast({ title: "Erreur IA", description: err.message || "Impossible de générer la description", variant: "destructive" });
+    } finally {
+      setIsGeneratingSEO(false);
+    }
+  };
+
+  const handleGeneratePassword = () => {
+    setAccountPassword("Artisan2026!");
+    setCreateAccount(true);
+    toast({ title: "Mot de passe généré", description: "Artisan2026! — l'artisan pourra le changer après connexion." });
+  };
+
+  const handleCopyCredentials = () => {
+    const text = `Email: ${formData.email}\nMot de passe: ${accountPassword}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copié !", description: "Identifiants copiés dans le presse-papier." });
   };
 
 
@@ -431,29 +472,40 @@ const AdminAddArtisan = () => {
         }
       }
 
-      // Add services
-      if (services.length > 0 && artisan) {
-        const servicesData = services.map((s) => ({
-          artisan_id: artisan.id,
-          title: s.title,
-          description: s.description || null,
-          price: parseFloat(s.price) || null,
-        }));
+      // Create user account if password was generated
+      if (accountPassword && formData.email) {
+        try {
+          const { data: accountData, error: accountError } = await supabase.functions.invoke("create-artisan-account", {
+            body: {
+              email: formData.email,
+              password: accountPassword,
+              firstName: formData.businessName,
+              lastName: "",
+              artisanId: artisan.id,
+            },
+          });
 
-        const { error: servicesError } = await supabase
-          .from("artisan_services")
-          .insert(servicesData);
+          if (accountError) throw accountError;
+          if (accountData?.error) throw new Error(accountData.error);
 
-        if (servicesError) {
-          console.error("Error adding services:", servicesError);
+          toast({
+            title: "Compte créé ✅",
+            description: `Artisan ajouté + compte créé pour ${formData.email}`,
+          });
+        } catch (accErr: any) {
+          console.error("Account creation error:", accErr);
+          toast({
+            title: "Artisan ajouté (sans compte)",
+            description: `Fiche créée mais erreur création compte : ${accErr.message}`,
+            variant: "destructive",
+          });
         }
+      } else {
+        toast({
+          title: "Artisan ajouté",
+          description: `${formData.businessName} a été ajouté à la plateforme avec succès.`,
+        });
       }
-
-
-      toast({
-        title: "Artisan ajouté",
-        description: `${formData.businessName} a été ajouté à la plateforme avec succès.`,
-      });
 
       navigate("/admin/artisans");
     } catch (error) {
@@ -670,10 +722,27 @@ const AdminAddArtisan = () => {
                 </CardContent>
               </Card>
 
-              {/* Description */}
+              {/* Description + AI SEO */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Description</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Description</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGenerateSEO}
+                      disabled={isGeneratingSEO}
+                      className="gap-2"
+                    >
+                      {isGeneratingSEO ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-4 w-4" />
+                      )}
+                      {isGeneratingSEO ? "Génération..." : "Générer description SEO"}
+                    </Button>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Textarea
@@ -681,7 +750,9 @@ const AdminAddArtisan = () => {
                     value={formData.description}
                     onChange={(e) => handleChange("description", e.target.value)}
                     className="min-h-[150px]"
+                    maxLength={320}
                   />
+                  <p className="text-xs text-muted-foreground mt-1">{formData.description.length}/320 caractères</p>
                 </CardContent>
               </Card>
 
@@ -967,6 +1038,52 @@ const AdminAddArtisan = () => {
               </CardContent>
             </Card>
 
+            {/* Credentials */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Key className="h-5 w-5" />
+                  Identifiants de connexion
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label>Email de connexion</Label>
+                  <Input
+                    value={formData.email}
+                    readOnly
+                    className="bg-muted"
+                    placeholder="Rempli automatiquement depuis l'email ci-dessus"
+                  />
+                </div>
+                <div>
+                  <Label>Mot de passe provisoire</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={accountPassword}
+                      readOnly
+                      className="bg-muted flex-1"
+                      placeholder="Cliquez sur 'Générer' pour créer un mot de passe"
+                    />
+                    <Button type="button" variant="outline" onClick={handleGeneratePassword} className="gap-2">
+                      <Key className="h-4 w-4" />
+                      Générer
+                    </Button>
+                    {accountPassword && (
+                      <Button type="button" variant="outline" onClick={handleCopyCredentials}>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {accountPassword && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ✅ Un compte sera créé automatiquement à l'enregistrement. L'artisan pourra se connecter avec ces identifiants.
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Submit Button */}
             <div className="flex justify-end">
               <Button type="submit" size="lg" className="gap-2" disabled={isSubmitting}>
@@ -975,7 +1092,7 @@ const AdminAddArtisan = () => {
                 ) : (
                   <Save className="h-5 w-5" />
                 )}
-                Créer le profil artisan
+                {accountPassword ? "Créer le profil + compte artisan" : "Créer le profil artisan"}
               </Button>
             </div>
           </form>

@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload, X, Plus } from "lucide-react";
+import { Loader2, Upload, X, Plus, Sparkles } from "lucide-react";
 import { CategorySelect } from "@/components/categories/CategorySelect";
 import { CategoryMultiSelect } from "@/components/categories/CategoryMultiSelect";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
@@ -69,6 +69,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [availability, setAvailability] = useState<Record<string, { start: string; end: string; enabled: boolean }>>({});
   const [cityCoordinates, setCityCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -253,6 +254,31 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
     });
   };
 
+  const handleGenerateSEO = async () => {
+    // Find category name from primaryCategoryId
+    const catName = categories.find(c => c.id === primaryCategoryId)?.name;
+    if (!formData.business_name || !catName || !formData.city) {
+      toast.error("Remplissez le nom, la catégorie et la ville avant de générer.");
+      return;
+    }
+    setIsGeneratingSEO(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-seo-description", {
+        body: { businessName: formData.business_name, metier: catName, city: formData.city },
+      });
+      if (error) throw error;
+      if (data?.description) {
+        setFormData(prev => ({ ...prev, description: data.description }));
+        toast.success("Description SEO générée ✨");
+      }
+    } catch (err: any) {
+      console.error("SEO generation error:", err);
+      toast.error(err.message || "Impossible de générer la description");
+    } finally {
+      setIsGeneratingSEO(false);
+    }
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !artisan?.id) return;
@@ -426,12 +452,31 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
               </div>
 
               <div className="space-y-2">
-                <Label>Description</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Description</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateSEO}
+                    disabled={isGeneratingSEO}
+                    className="gap-2"
+                  >
+                    {isGeneratingSEO ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-3 w-3" />
+                    )}
+                    {isGeneratingSEO ? "Génération..." : "SEO IA"}
+                  </Button>
+                </div>
                 <Textarea
                   value={formData.description || ""}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   rows={4}
+                  maxLength={320}
                 />
+                <p className="text-xs text-muted-foreground">{(formData.description || "").length}/320 caractères</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
