@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// Deno.serve used below
 
 // Security headers to add to all responses
 const securityHeaders = {
@@ -36,7 +36,7 @@ const securityHeaders = {
   ].join("; "),
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   // This function returns the recommended security headers
   // It can be called by the frontend to verify security configuration
   
