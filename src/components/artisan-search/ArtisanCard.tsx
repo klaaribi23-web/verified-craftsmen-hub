@@ -206,10 +206,10 @@ const ArtisanCard = ({
     <div
       onClick={handleProfileClick}
       className={cn(
-        "bg-card rounded-xl shadow-soft border hover:shadow-elevated transition-all overflow-hidden relative cursor-pointer group h-full flex flex-col",
+        "bg-card rounded-xl shadow-soft border overflow-hidden relative cursor-pointer group h-full flex flex-col",
         isPremium
-          ? "border-2 border-amber-400 shadow-lg ring-1 ring-amber-200/50"
-          : "border-border"
+          ? "border-2 border-amber-400 shadow-lg shadow-amber-200/50 ring-1 ring-amber-200/50 hover:scale-[1.02] hover:shadow-xl hover:shadow-amber-300/40 transition-all duration-300 ease-out"
+          : "border-border hover:shadow-elevated transition-all"
       )}
     >
       {/* Urgent Badge */}
