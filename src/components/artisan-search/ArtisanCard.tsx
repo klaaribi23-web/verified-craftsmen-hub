@@ -383,7 +383,7 @@ const ArtisanCard = ({
             size="sm"
             className={cn(
               "w-full text-xs",
-              isPremium && "bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md animate-[pulse_3s_ease-in-out_infinite]"
+              isPremium && "bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-200%] before:animate-shimmer before:bg-[length:200%_100%]"
             )}
             onClick={handleInviteProject}
           >
