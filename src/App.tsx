@@ -117,17 +117,9 @@ const App = () => (
           <Route path="/dashboard/artisan" element={<Navigate to="/artisan/dashboard" replace />} />
           <Route path="/dashboard/pro" element={<Navigate to="/artisan/dashboard" replace />} />
           
-          {/* Dashboard Particulier - protégé */}
-          <Route path="/dashboard/client" element={
-            <ProtectedRoute allowedRoles={["client"]}>
-              <ClientDashboardNew />
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard/client/*" element={
-            <ProtectedRoute allowedRoles={["client"]}>
-              <ClientDashboardNew />
-            </ProtectedRoute>
-          } />
+          {/* Redirection /dashboard/client → /client/dashboard */}
+          <Route path="/dashboard/client" element={<Navigate to="/client/dashboard" replace />} />
+          <Route path="/dashboard/client/*" element={<Navigate to="/client/dashboard" replace />} />
           
           {/* Redirections SEO - anciennes URLs WordPress */}
           <Route path="/accueil-old" element={<Navigate to="/" replace />} />
@@ -276,11 +268,7 @@ const App = () => (
               <AdminBulkImport />
             </ProtectedRoute>
           } />
-          <Route path="/admin/import-massif" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminBulkImport />
-            </ProtectedRoute>
-          } />
+          {/* duplicate removed */}
           <Route path="/admin/recommandations" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminRecommendations />

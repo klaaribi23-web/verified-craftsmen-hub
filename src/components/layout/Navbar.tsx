@@ -484,13 +484,13 @@ const Navbar = () => {
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-8">
+            {/* Desktop Navigation - Center links */}
+            <div className="hidden lg:flex items-center gap-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
-                  className={`text-sm font-medium transition-colors relative py-2 ${
+                  className={`text-sm font-medium transition-colors relative py-2 whitespace-nowrap ${
                     isActive(link.href)
                       ? "text-navy"
                       : "text-muted-foreground hover:text-navy"
@@ -507,26 +507,32 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Desktop CTA / User Menu */}
-            <div className="hidden lg:flex items-center gap-3">
-              {/* Mon Espace (Teal) - always visible */}
+            {/* Desktop CTA / User Menu - Right aligned */}
+            <div className="hidden lg:flex items-center gap-2">
+              {/* Mon Espace (Teal) */}
               <Button variant="outline" size="sm" className="border-teal-500 text-teal-700 hover:bg-teal-500 hover:text-white font-semibold" asChild>
-                <Link to="/dashboard/client">
+                <Link to="/client/dashboard">
                   <ClipboardList className="w-4 h-4 mr-1.5" />
                   Mon Espace
                 </Link>
               </Button>
-              {/* Espace Pro (Navy) - always visible */}
+              {/* Espace Pro (Navy) */}
               <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold" asChild>
                 <Link to="/artisan/dashboard">
                   <User className="w-4 h-4 mr-1.5" />
                   Espace Pro
                 </Link>
               </Button>
+              {/* Demander un devis CTA */}
+              <Button variant="gold" size="sm" className="font-semibold" asChild>
+                <Link to="/demande-devis">
+                  Demander un devis
+                </Link>
+              </Button>
               {isAuthenticated && (
                 <>
                   <Link to={getMessagingLink()} className="relative">
-                     <Button variant="ghost" size="icon" className="relative">
+                    <Button variant="ghost" size="icon" className="relative">
                       <MessageCircle className="w-5 h-5" />
                       {unreadMessagesCount > 0 && (
                         <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-medium">
