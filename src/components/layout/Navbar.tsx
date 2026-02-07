@@ -474,9 +474,9 @@ const Navbar = () => {
         )}
       >
         <nav className="container mx-auto px-4 lg:px-8">
-          <div className="flex items-center h-16 lg:h-20">
-            {/* Logo - fixed width */}
-            <Link to="/" className="flex items-center gap-2 group flex-shrink-0 w-[160px]">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            {/* Logo - left, fixed width */}
+            <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
               <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform flex-shrink-0" />
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-navy leading-tight">ARTISANS</span>
@@ -484,31 +484,8 @@ const Navbar = () => {
               </div>
             </Link>
 
-            {/* Desktop Navigation - Center links with flex-1 */}
-            <div className="hidden lg:flex flex-1 items-center justify-center gap-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={`text-sm font-medium transition-colors relative py-2 whitespace-nowrap ${
-                    isActive(link.href)
-                      ? "text-navy"
-                      : "text-muted-foreground hover:text-navy"
-                  }`}
-                >
-                  {link.label}
-                  {isActive(link.href) && (
-                    <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-full"
-                    />
-                  )}
-                </Link>
-              ))}
-            </div>
-
-            {/* Desktop CTA / User Menu - Right aligned, fixed width */}
-            <div className="hidden lg:flex items-center justify-end gap-2 flex-shrink-0">
+            {/* Desktop: 3 buttons right-aligned */}
+            <div className="hidden lg:flex items-center gap-4">
               <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
                 <Link to="/client/dashboard">
                   <ClipboardList className="w-4 h-4 mr-1.5" />
@@ -544,11 +521,10 @@ const Navbar = () => {
               {renderUserMenu()}
             </div>
 
-            {/* Mobile: spacer + burger */}
-            <div className="flex-1 lg:hidden" />
+            {/* Mobile: burger only */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-navy flex-shrink-0"
+              className="lg:hidden p-2 text-navy"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
