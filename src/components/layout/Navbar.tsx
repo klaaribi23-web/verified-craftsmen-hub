@@ -484,7 +484,7 @@ const Navbar = () => {
               {/* Devenir partenaire - text link, hidden when authenticated */}
               {!isAuthenticated && !isLoading && (
                 <Link
-                  to="/devenir-partenaire"
+                  to="/devenir-artisan"
                   className="text-sm font-medium text-navy hover:text-navy/70 underline-offset-4 hover:underline transition-colors whitespace-nowrap"
                 >
                   Devenir partenaire
