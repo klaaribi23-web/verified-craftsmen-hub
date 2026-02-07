@@ -269,14 +269,9 @@ const Navbar = () => {
 
     if (!isAuthenticated) {
       return (
-        <>
-          <Button variant="ghost" asChild>
-            <Link to="/auth">Connexion</Link>
-          </Button>
-          <Button variant="gold" asChild>
-            <Link to="/demande-devis">Demander un devis</Link>
-          </Button>
-        </>
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/auth">Connexion</Link>
+        </Button>
       );
     }
 
@@ -486,6 +481,15 @@ const Navbar = () => {
 
             {/* Desktop: 3 buttons right-aligned */}
             <div className="hidden lg:flex items-center gap-4">
+              {/* Devenir partenaire - text link, hidden when authenticated */}
+              {!isAuthenticated && !isLoading && (
+                <Link
+                  to="/devenir-partenaire"
+                  className="text-sm font-medium text-navy hover:text-navy/70 underline-offset-4 hover:underline transition-colors whitespace-nowrap"
+                >
+                  Devenir partenaire
+                </Link>
+              )}
               <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
                 <Link to="/client/dashboard">
                   <ClipboardList className="w-4 h-4 mr-1.5" />
