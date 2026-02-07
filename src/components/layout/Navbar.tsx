@@ -470,8 +470,8 @@ const Navbar = () => {
       >
         <nav className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Left: Logo + "Trouver un artisan" */}
-            <div className="flex items-center gap-6 flex-shrink-0">
+            {/* Left: Logo + Client navigation */}
+            <div className="flex items-center gap-8 flex-shrink-0">
               <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
                 <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform flex-shrink-0" />
                 <div className="flex flex-col">
@@ -479,38 +479,49 @@ const Navbar = () => {
                   <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
                 </div>
               </Link>
-              <Link
-                to="/trouver-artisan"
-                className="hidden lg:inline-flex text-sm font-semibold text-navy hover:text-primary transition-colors whitespace-nowrap"
-              >
-                Trouver un artisan
-              </Link>
+              <nav className="hidden lg:flex items-center gap-6">
+                <Link
+                  to="/trouver-artisan"
+                  className="text-[15px] font-bold text-navy hover:text-primary transition-colors whitespace-nowrap"
+                >
+                  Trouver un artisan
+                </Link>
+                <Link
+                  to="/nos-missions"
+                  className="text-[15px] font-bold text-navy hover:text-primary transition-colors whitespace-nowrap"
+                >
+                  Consulter les missions
+                </Link>
+              </nav>
             </div>
 
-            {/* Right: links + buttons */}
+            {/* Right: Artisan/Account zone */}
             <div className="hidden lg:flex items-center gap-4">
+              {/* Separator */}
+              <div className="h-6 w-px bg-border" aria-hidden="true" />
+
               {/* Devenir partenaire - text link, hidden when authenticated */}
               {!isAuthenticated && !isLoading && (
                 <Link
                   to="/devenir-artisan"
-                  className="text-sm font-medium text-navy hover:text-navy/70 underline-offset-4 hover:underline transition-colors whitespace-nowrap"
+                  className="text-[15px] font-semibold text-navy hover:text-navy/70 underline-offset-4 hover:underline transition-colors whitespace-nowrap"
                 >
                   Devenir partenaire
                 </Link>
               )}
-              <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold" asChild>
+              <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold text-[13px]" asChild>
                 <Link to="/artisan/dashboard">
-                  <User className="w-4 h-4 mr-1.5" />
+                  <User className="w-4 h-4 mr-1" />
                   Espace Pro
                 </Link>
               </Button>
-              <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground font-semibold" asChild>
+              <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground font-semibold text-[13px]" asChild>
                 <Link to="/client/dashboard">
-                  <ClipboardList className="w-4 h-4 mr-1.5" />
+                  <ClipboardList className="w-4 h-4 mr-1" />
                   Mon Espace
                 </Link>
               </Button>
-              <Button variant="gold" size="sm" className="font-semibold" asChild>
+              <Button variant="gold" className="font-bold text-[15px] px-5 py-2" asChild>
                 <Link to="/demande-devis">
                   Demander un devis
                 </Link>
