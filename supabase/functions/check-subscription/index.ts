@@ -11,9 +11,9 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
-// Single product: Artisan Validé 99€ HT/mois
-const ARTISAN_VALIDE_PRICE_ID = "price_1SyIOVHsPR7NolTlZfj6dkKt";
-const ARTISAN_VALIDE_PRODUCT_ID = "prod_TwAjvtmZUKLDW7";
+// Product IDs
+const MONTHLY_PRODUCT_ID = "prod_TwAjvtmZUKLDW7";
+const YEARLY_PRODUCT_ID = "prod_TwD9dvf0BhK26h";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -65,9 +65,14 @@ Deno.serve(async (req) => {
     logStep("Found Stripe customer", { customerId });
 
     // Get active subscriptions
-    const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
+    const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 5 });
 
-    if (subscriptions.data.length === 0) {
+    // Also check trialing subscriptions (for trial periods)
+    const trialingSubscriptions = await stripe.subscriptions.list({ customer: customerId, status: "trialing", limit: 5 });
+    
+    const allSubscriptions = [...subscriptions.data, ...trialingSubscriptions.data];
+
+    if (allSubscriptions.length === 0) {
       logStep("No active subscription");
       await supabaseClient
         .from("artisans")
@@ -80,15 +85,21 @@ Deno.serve(async (req) => {
       );
     }
 
-    const subscription = subscriptions.data[0];
-    const subscriptionEnd = subscription.current_period_end !== undefined && subscription.current_period_end !== null
-      ? new Date(subscription.current_period_end * 1000).toISOString() : null;
-    const subscriptionStart = subscription.start_date !== undefined && subscription.start_date !== null
-      ? new Date(subscription.start_date * 1000).toISOString()
-      : subscription.created !== undefined && subscription.created !== null
-        ? new Date(subscription.created * 1000).toISOString() : null;
+    const subscription = allSubscriptions[0];
+    const productId = subscription.items.data[0]?.price?.product as string;
+    const isYearly = productId === YEARLY_PRODUCT_ID;
+    const billingInterval = isYearly ? "yearly" : "monthly";
 
-    logStep("Active subscription found", { subscriptionId: subscription.id, subscriptionEnd, subscriptionStart });
+    const subscriptionEnd = subscription.current_period_end
+      ? new Date(subscription.current_period_end * 1000).toISOString()
+      : null;
+    const subscriptionStart = subscription.start_date
+      ? new Date(subscription.start_date * 1000).toISOString()
+      : subscription.created
+        ? new Date(subscription.created * 1000).toISOString()
+        : null;
+
+    logStep("Active subscription found", { subscriptionId: subscription.id, productId, billingInterval, subscriptionEnd });
 
     // Get payment method info
     let paymentMethod = null;
@@ -104,14 +115,25 @@ Deno.serve(async (req) => {
       logStep("Could not fetch payment method", { error: pmError });
     }
 
-    // Update artisan with subscription info
-    const displayPriority = Math.floor(Math.random() * 3) + 1; // Top 1-3
+    // Update artisan: yearly plan activates is_audited
+    const displayPriority = Math.floor(Math.random() * 3) + 1;
+    const updateData: Record<string, unknown> = {
+      subscription_tier: "artisan_valide",
+      stripe_customer_id: customerId,
+      subscription_end: subscriptionEnd,
+      display_priority: displayPriority,
+    };
+
+    if (isYearly) {
+      updateData.is_audited = true;
+    }
+
     await supabaseClient
       .from("artisans")
-      .update({ subscription_tier: "artisan_valide", stripe_customer_id: customerId, subscription_end: subscriptionEnd, display_priority: displayPriority })
+      .update(updateData)
       .eq("user_id", user.id);
 
-    logStep("Artisan updated", { tier: "artisan_valide", displayPriority });
+    logStep("Artisan updated", { tier: "artisan_valide", billingInterval, isAudited: isYearly, displayPriority });
 
     return new Response(
       JSON.stringify({
@@ -119,7 +141,7 @@ Deno.serve(async (req) => {
         subscription_tier: "artisan_valide",
         subscription_end: subscriptionEnd,
         subscription_start: subscriptionStart,
-        billing_interval: "monthly",
+        billing_interval: billingInterval,
         payment_method: paymentMethod,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
