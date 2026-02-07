@@ -206,20 +206,21 @@ const DevenirArtisan = () => {
       />
       <Navbar />
       
-      <main className="pt-32 lg:pt-20">
+      <main className="pt-24 lg:pt-20">
         {/* Hero + Form */}
-        <section className="bg-navy py-16 lg:py-28 relative overflow-hidden">
+        <section className="bg-navy py-10 md:py-16 lg:py-28 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
           </div>
 
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               {/* Content */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                className="text-center lg:text-left"
               >
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-6">
                   <Lock className="w-4 h-4 text-gold" />
@@ -228,22 +229,22 @@ const DevenirArtisan = () => {
                   </span>
                 </div>
 
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4 md:mb-6">
                   Arrêtez de payer pour des leads{" "}
                   <span className="text-gradient-gold">partagés avec 10 concurrents.</span>
                 </h1>
 
-                <p className="text-lg text-white/70 mb-8">
+                <p className="text-base md:text-lg text-white/70 mb-6 md:mb-8">
                   On verrouille votre ville. On vérifie vos assurances. On lance votre pub. 
                   Vous signez les chantiers. <strong className="text-white">Direct, sans intermédiaire.</strong>
                 </p>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                   {stats.map((stat) => (
                     <div key={stat.label} className="text-center">
-                      <div className="text-2xl font-bold text-gold">{stat.value}</div>
-                      <div className="text-sm text-white/60">{stat.label}</div>
+                      <div className="text-xl md:text-2xl font-bold text-gold">{stat.value}</div>
+                      <div className="text-xs md:text-sm text-white/60">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -254,8 +255,9 @@ const DevenirArtisan = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
+                className="w-full"
               >
-                <div className="bg-white rounded-2xl p-6 md:p-8 shadow-floating">
+                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-floating">
                   <div className="text-center mb-6">
                     <h2 className="text-xl font-bold text-navy mb-2">
                       Votre secteur est-il encore disponible ?
