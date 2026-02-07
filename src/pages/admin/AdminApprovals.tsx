@@ -19,6 +19,8 @@ import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader"
 import { DEFAULT_AVATAR } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
+import { AdminCandidatures, usePartnerCandidaciesCount } from "@/components/admin-dashboard/AdminCandidatures";
+import { Crown } from "lucide-react";
 const PROSPECTS_PER_PAGE = 50;
 interface PendingArtisan {
   id: string;
@@ -235,6 +237,9 @@ const AdminApprovals = () => {
   const [selfSignupPerPage, setSelfSignupPerPage] = useState(50);
   const [selfSignupSearch, setSelfSignupSearch] = useState("");
 
+  // Partner candidacies count
+  const { data: candidaciesCount = 0 } = usePartnerCandidaciesCount();
+
   // Realtime subscription for instant updates on admin dashboard
   useEffect(() => {
     const channel = supabase
@@ -274,6 +279,14 @@ const AdminApprovals = () => {
       }, (payload) => {
         console.log("[Realtime Admin Approvals] Mission changed:", payload);
         queryClient.invalidateQueries({ queryKey: ["pending-missions"] });
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'partner_candidacies'
+      }, () => {
+        queryClient.invalidateQueries({ queryKey: ["partner-candidacies-pending"] });
+        queryClient.invalidateQueries({ queryKey: ["partner-candidacies-count"] });
       })
       .subscribe();
 
@@ -1221,6 +1234,14 @@ const AdminApprovals = () => {
                 <span className="xs:hidden">Vitr.</span>
                 <Badge variant="secondary" className="ml-1 text-xs h-5 px-1.5">{totalProspects.toLocaleString('fr-FR')}</Badge>
               </TabsTrigger>
+              <TabsTrigger value="candidatures" className="flex-1 gap-1.5 text-xs sm:text-sm px-2 sm:px-4 py-2">
+                <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">Candidatures</span>
+                <span className="xs:hidden">Cand.</span>
+                {candidaciesCount > 0 && (
+                  <Badge variant="destructive" className="ml-1 text-xs h-5 px-1.5">{candidaciesCount}</Badge>
+                )}
+              </TabsTrigger>
             </TabsList>
 
             {/* MISSIONS TAB */}
@@ -2138,6 +2159,17 @@ const AdminApprovals = () => {
                     </Card>}
                 </TabsContent>
               </Tabs>
+              </div>
+            </TabsContent>
+
+            {/* CANDIDATURES TAB */}
+            <TabsContent value="candidatures">
+              <div className="bg-gradient-to-r from-gold/5 via-gold/10 to-gold/5 p-4 md:p-6 border border-gold/20 rounded bg-white">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <Crown className="h-5 w-5 text-gold" />
+                  Nouvelles candidatures artisans
+                </h2>
+                <AdminCandidatures />
               </div>
             </TabsContent>
           </Tabs>
