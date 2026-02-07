@@ -263,25 +263,23 @@ const ArtisanCard = ({
 
       {/* Content - flex-1 to fill remaining space */}
       <div className="p-3 sm:p-4 flex flex-col flex-1">
-        {/* Verification Block + Audité - only for paying subscribers */}
-        {(subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel") && verified && (
-          <div className="flex items-center gap-2 mb-2 p-1.5 rounded-lg bg-success/5 border border-success/15">
-            <Shield className="w-4 h-4 text-success flex-shrink-0" />
-            <div className="flex items-center gap-2 text-xs text-success font-medium overflow-hidden flex-wrap">
-              <span className="flex items-center gap-0.5">
-                <CheckCircle2 className="w-3 h-3" /> Décennale
+        {/* Premium Certification Badges - only for paying subscribers */}
+        {(subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel") && (
+          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            {isAudited && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-sm">
+                <Shield className="w-3 h-3" />
+                Audité Terrain
               </span>
-              {siret && (
-                <span className="flex items-center gap-0.5">
-                  <FileText className="w-3 h-3" /> SIRET
-                </span>
-              )}
-              {isAudited && (
-                <span className="flex items-center gap-0.5">
-                  <Shield className="w-3 h-3" /> Audité
-                </span>
-              )}
-            </div>
+            )}
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
+              <CheckCircle2 className="w-3 h-3" />
+              Décennale
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
+              <FileText className="w-3 h-3" />
+              {siret ? "SIRET" : "Vérifié"}
+            </span>
           </div>
         )}
 
