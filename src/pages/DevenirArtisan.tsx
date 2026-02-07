@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
@@ -113,8 +114,18 @@ const DevenirArtisan = () => {
         return;
       }
 
-      // Simulate sending candidacy (fake data mode)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Save to partner_candidacies table (admin-exclusive dashboard)
+      const { error: dbError } = await supabase
+        .from("partner_candidacies")
+        .insert({
+          business_name: formData.fullName,
+          siret: "00000000000000", // Will be verified during callback
+          metier: formData.metier,
+          city: formData.city,
+          phone: formData.phone,
+        });
+
+      if (dbError) throw dbError;
 
       setCandidacySent(true);
       toast({

@@ -34,7 +34,7 @@ const Footer = () => {
       label: "Comment ça marche",
       href: "/comment-ca-marche"
     }, {
-      label: "Devenir artisan",
+      label: "Devenir partenaire",
       href: "/devenir-artisan"
     }, {
       label: "Blog",
