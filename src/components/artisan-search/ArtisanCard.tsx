@@ -232,9 +232,13 @@ const ArtisanCard = ({
           />
         ) : hasPortfolioImage ? (
           <img src={portfolioImages[0]} alt={`Réalisation de ${name}`} className="w-full h-full object-cover" />
+        ) : profileImage ? (
+          <div className="w-full h-full bg-gradient-to-br from-muted/80 to-muted/30 flex items-center justify-center p-6">
+            <img src={profileImage} alt={`Logo de ${name}`} className="max-w-[60%] max-h-[80%] object-contain" />
+          </div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 flex items-center justify-center">
-            <Wrench className="w-12 h-12 text-muted-foreground/40" />
+          <div className="w-full h-full bg-gradient-to-br from-sky-100 to-blue-50 flex items-center justify-center">
+            <Wrench className="w-14 h-14 text-sky-300/70" />
           </div>
         )}
 
