@@ -129,8 +129,8 @@ const DevenirArtisan = () => {
 
       setCandidacySent(true);
       toast({
-        title: "Candidature envoyée !",
-        description: "On vous rappelle sous 2h pour valider votre dossier.",
+        title: "Demande reçue !",
+        description: "Nous vérifions la disponibilité dans votre secteur. Un expert vous rappelle sous 2h.",
       });
     } catch (error: any) {
       console.error("Candidacy error:", error);
