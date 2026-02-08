@@ -18,6 +18,7 @@ interface StoryViewerProps {
   stories: Story[];
   artisanName: string;
   artisanPhoto?: string | null;
+  highlightCity?: string;
   initialIndex?: number;
   isOpen: boolean;
   onClose: () => void;
@@ -29,6 +30,7 @@ const StoryViewer = ({
   stories,
   artisanName,
   artisanPhoto,
+  highlightCity,
   initialIndex = 0,
   isOpen,
   onClose,
@@ -253,7 +255,14 @@ const StoryViewer = ({
         {currentStory.caption && (
           <div className="absolute bottom-16 left-0 right-0 z-10 px-4">
             <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3 max-w-lg mx-auto">
-              <p className="text-white text-sm text-center">{currentStory.caption}</p>
+              <p className="text-white text-sm text-center" dangerouslySetInnerHTML={{
+                __html: highlightCity && currentStory.caption.includes(highlightCity)
+                  ? currentStory.caption.replace(
+                      new RegExp(`(${highlightCity.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+                      '<strong class="font-bold">$1</strong>'
+                    )
+                  : currentStory.caption
+              }} />
             </div>
           </div>
         )}

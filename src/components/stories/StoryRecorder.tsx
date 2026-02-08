@@ -8,15 +8,23 @@ import {
   Loader2,
   RotateCcw,
   Send,
-  Square
+  Square,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StoryRecorderProps {
   isOpen: boolean;
   onClose: () => void;
   onPublish: (blob: Blob, mediaType: "image" | "video", caption?: string) => Promise<void>;
   isUploading?: boolean;
+  artisanContext?: {
+    businessName: string;
+    city: string;
+    category?: string;
+    department?: string;
+  };
 }
 
 const MAX_VIDEO_DURATION = 20;
@@ -47,7 +55,7 @@ const getSupportedMimeType = (): string => {
   return "";
 };
 
-const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorderProps) => {
+const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading, artisanContext }: StoryRecorderProps) => {
   const isMobile = isMobileDevice();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
@@ -56,6 +64,30 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
   const [capturedMedia, setCapturedMedia] = useState<{ blob: Blob; type: "image" | "video"; url: string } | null>(null);
   const [caption, setCaption] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
+
+  const handleGenerateCaption = async () => {
+    if (!artisanContext) return;
+    setIsGeneratingCaption(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-portfolio-caption", {
+        body: {
+          businessName: artisanContext.businessName,
+          metier: artisanContext.category,
+          city: artisanContext.city,
+          department: artisanContext.department,
+        },
+      });
+      if (error) throw error;
+      if (data?.caption) {
+        setCaption(data.caption);
+      }
+    } catch (err) {
+      console.error("Erreur g\u00e9n\u00e9ration l\u00e9gende:", err);
+    } finally {
+      setIsGeneratingCaption(false);
+    }
+  };
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -499,13 +531,31 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading }: StoryRecorde
           >
             {/* Caption input */}
             <div className="mb-4">
-              <Input
-                placeholder="Ajouter une légende... (optionnel)"
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                maxLength={150}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 text-sm"
-              />
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Ajouter une l\u00e9gende... (optionnel)"
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  maxLength={150}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50 text-sm flex-1"
+                />
+                {artisanContext && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleGenerateCaption}
+                    disabled={isGeneratingCaption}
+                    className="border-white/30 text-white bg-white/10 hover:bg-white/20 shrink-0"
+                    title="G\u00e9n\u00e9rer une l\u00e9gende g\u00e9o-centr\u00e9e par IA"
+                  >
+                    {isGeneratingCaption ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-4 w-4" />
+                    )}
+                  </Button>
+                )}
+              </div>
               <p className="text-xs text-white/40 text-right mt-1">
                 {caption.length}/150
               </p>

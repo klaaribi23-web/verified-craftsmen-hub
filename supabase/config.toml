@@ -6,5 +6,8 @@ verify_jwt = false
 [functions.generate-seo-description]
 verify_jwt = false
 
+[functions.generate-portfolio-caption]
+verify_jwt = false
+
 [functions.create-artisan-account]
 verify_jwt = false

@@ -4,6 +4,8 @@ import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
 import { useArtisanStories, ArtisanStory } from "@/hooks/useArtisanStories";
 import { useArtisanProfile } from "@/hooks/useArtisanProfile";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { FeatureGate } from "@/components/subscription/FeatureGate";
 import StoryRecorder from "@/components/stories/StoryRecorder";
 import StoryViewer from "@/components/stories/StoryViewer";
@@ -36,6 +38,21 @@ export const ArtisanStories = () => {
   
   const { artisan } = useArtisanProfile();
   const { tier, isLoading: isLoadingSubscription } = useSubscription();
+
+  // Get category name for AI caption generation
+  const { data: categoryName } = useQuery({
+    queryKey: ["category-name", artisan?.category_id],
+    queryFn: async () => {
+      if (!artisan?.category_id) return null;
+      const { data } = await supabase
+        .from("categories")
+        .select("name")
+        .eq("id", artisan.category_id)
+        .single();
+      return data?.name || null;
+    },
+    enabled: !!artisan?.category_id,
+  });
   
   const [storyToDelete, setStoryToDelete] = useState<string | null>(null);
   const [isRecorderOpen, setIsRecorderOpen] = useState(false);
@@ -286,6 +303,12 @@ export const ArtisanStories = () => {
           onClose={() => setIsRecorderOpen(false)}
           onPublish={handlePublish}
           isUploading={isUploading}
+          artisanContext={artisan ? {
+            businessName: artisan.business_name,
+            city: artisan.city,
+            category: categoryName || undefined,
+            department: artisan.department || artisan.postal_code?.substring(0, 2) || undefined,
+          } : undefined}
         />
       )}
 
@@ -294,6 +317,7 @@ export const ArtisanStories = () => {
         stories={activeStories}
         artisanName={artisan?.business_name || "Mon profil"}
         artisanPhoto={artisan?.photo_url}
+        highlightCity={artisan?.city}
         initialIndex={selectedStoryIndex || 0}
         isOpen={selectedStoryIndex !== null}
         onClose={() => setSelectedStoryIndex(null)}

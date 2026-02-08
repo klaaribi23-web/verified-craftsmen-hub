@@ -7,9 +7,24 @@ interface PortfolioCarouselProps {
   items: string[];
   type: "image" | "video";
   onItemClick?: (item: string, index: number) => void;
+  artisanContext?: {
+    businessName: string;
+    city: string;
+    category?: string;
+    department?: string;
+  };
 }
 
-export const PortfolioCarousel = ({ items, type, onItemClick }: PortfolioCarouselProps) => {
+export const PortfolioCarousel = ({ items, type, onItemClick, artisanContext }: PortfolioCarouselProps) => {
+  const getAltText = (index: number) => {
+    if (!artisanContext) return type === "image" ? `R\u00e9alisation ${index + 1}` : `Vid\u00e9o ${index + 1}`;
+    const { businessName, category, city, department } = artisanContext;
+    const deptSuffix = department ? ` (${department})` : "";
+    if (type === "image") {
+      return `${category || "Travaux"} par ${businessName} \u00e0 ${city}${deptSuffix} - R\u00e9alisation ${index + 1}`;
+    }
+    return `Vid\u00e9o ${category || "chantier"} par ${businessName} \u00e0 ${city}${deptSuffix}`;
+  };
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
     align: "start",
@@ -60,7 +75,7 @@ export const PortfolioCarousel = ({ items, type, onItemClick }: PortfolioCarouse
                   >
                     <img
                       src={item}
-                      alt={`Réalisation ${index + 1}`}
+                      alt={getAltText(index)}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
@@ -75,7 +90,7 @@ export const PortfolioCarousel = ({ items, type, onItemClick }: PortfolioCarouse
                     {item.includes('youtube') || item.includes('youtu.be') ? (
                       <img
                         src={`https://img.youtube.com/vi/${item.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/)?.[1]}/mqdefault.jpg`}
-                        alt={`Vidéo ${index + 1}`}
+                        alt={getAltText(index)}
                         className="w-full h-full object-cover"
                       />
                     ) : item.startsWith('blob:') ? (
