@@ -606,6 +606,14 @@ const NosMissions = () => {
               </Alert>
             )}
 
+            {/* Reassurance banner */}
+            <div className="flex items-start gap-3 bg-card border border-border rounded-xl p-4 mb-8">
+              <span className="text-xl shrink-0">🛡️</span>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Chaque demande publiée ici fait l'objet d'une analyse de faisabilité technique. <span className="font-medium text-foreground">Vos données ne sont jamais vendues</span> : vous gardez le contrôle total sur qui peut vous contacter.
+              </p>
+            </div>
+
             {/* ── Mission Cards Grid ── */}
             {missionsLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -684,10 +692,20 @@ const NosMissions = () => {
                               </p>
                             )}
 
-                            {/* Date */}
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                              <Calendar className="w-3.5 h-3.5" />
-                              <span>{formatTimeAgo(mission.created_at)}</span>
+                            {/* Date + reactivity */}
+                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-3.5 h-3.5" />
+                                <span>{formatTimeAgo(mission.created_at)}</span>
+                              </div>
+                              <span className={cn(
+                                "italic",
+                                (mission.applicants_count || 0) >= 5 ? "text-gold font-medium" : "text-muted-foreground/70"
+                              )}>
+                                {(mission.applicants_count || 0) >= 5
+                                  ? "Mise en relation disponible"
+                                  : "Analyse en cours par nos experts"}
+                              </span>
                             </div>
 
                             {/* Spacer */}
@@ -893,23 +911,23 @@ const NosMissions = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ── Teasing Modal (non-authenticated) ── */}
+      {/* ── Teasing Modal (non-authenticated / non-artisan) ── */}
       <Dialog open={showTeasingModal} onOpenChange={setShowTeasingModal}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
               <ShieldCheck className="w-6 h-6 text-gold" />
-              Mission réservée
+              Accès réservé au réseau national
             </DialogTitle>
           </DialogHeader>
           
           <div className="py-6 space-y-4">
             <div className="bg-navy/5 border border-navy/10 rounded-xl p-6 text-center">
-              <p className="text-foreground font-medium text-lg mb-2">
-                Accès restreint aux Partenaires Validés.
+              <p className="text-foreground font-medium text-lg mb-3">
+                Cet accès est réservé aux membres du réseau national Artisans Validés.
               </p>
-              <p className="text-muted-foreground">
-                Votre secteur est-il encore disponible ? Rejoignez notre réseau exclusif pour accéder aux détails de ce chantier et postuler.
+              <p className="text-muted-foreground leading-relaxed">
+                Votre profil doit être audité (Assurances & Expertise) avant toute mise en relation. Notre processus de certification garantit la qualité pour les deux parties.
               </p>
             </div>
             
@@ -917,7 +935,7 @@ const NosMissions = () => {
               <Link to="/devenir-artisan" className="w-full" onClick={() => setShowTeasingModal(false)}>
                 <Button variant="gold" className="w-full gap-2" size="lg">
                   <UserPlus className="w-5 h-5" />
-                  Devenir partenaire
+                  Devenir Membre
                 </Button>
               </Link>
               <Link to="/auth" className="w-full" onClick={() => setShowTeasingModal(false)}>
