@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.create-artisan-account]
 verify_jwt = false
+
+[functions.send-project-request-email]
+verify_jwt = false

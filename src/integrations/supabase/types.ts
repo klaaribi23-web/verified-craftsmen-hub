@@ -948,6 +948,54 @@ export type Database = {
         }
         Relationships: []
       }
+      project_requests: {
+        Row: {
+          artisan_id: string
+          client_city: string
+          client_name: string
+          client_phone: string
+          created_at: string
+          id: string
+          project_description: string
+          status: string
+        }
+        Insert: {
+          artisan_id: string
+          client_city: string
+          client_name: string
+          client_phone: string
+          created_at?: string
+          id?: string
+          project_description: string
+          status?: string
+        }
+        Update: {
+          artisan_id?: string
+          client_city?: string
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          id?: string
+          project_description?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_requests_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_requests_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quotes: {
         Row: {
           artisan_id: string
