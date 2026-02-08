@@ -19,6 +19,7 @@ import { CategoryIcon } from "@/components/categories/CategoryIcon";
 import { calculateDistance } from "@/lib/geoDistance";
 import { useCityCoordinatesCache } from "@/hooks/useCityCoordinatesCache";
 import DynamicFAQ from "@/components/artisan-search/DynamicFAQ";
+import ExpertFAQSection from "@/components/artisan-search/ExpertFAQSection";
 
 const ITEMS_PER_PAGE = 21;
 const TrouverArtisan = () => {
@@ -333,6 +334,12 @@ const TrouverArtisan = () => {
         <DynamicFAQ 
           city={filters.city || undefined} 
           category={filters.categoryName || undefined} 
+        />
+
+        {/* Expert AI FAQ */}
+        <ExpertFAQSection
+          category={filters.categoryName || "Artisan du bâtiment"}
+          city={filters.city || undefined}
         />
 
         {/* CTA */}
