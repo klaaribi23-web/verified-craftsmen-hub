@@ -66,6 +66,13 @@ const Footer = () => {
     { label: "Bordeaux", slug: "bordeaux" },
     { label: "Nantes", slug: "nantes" },
     { label: "Strasbourg", slug: "strasbourg" },
+    { label: "Rennes", slug: "rennes" },
+    { label: "Montpellier", slug: "montpellier" },
+  ];
+  const regionLinks = [
+    "Hauts-de-France", "Île-de-France", "Auvergne-Rhône-Alpes",
+    "Provence-Alpes-Côte d'Azur", "Occitanie", "Nouvelle-Aquitaine",
+    "Bretagne", "Grand Est", "Pays de la Loire", "Normandie",
   ];
   return <footer className="bg-navy text-white">
       {/* Main Footer */}
@@ -147,7 +154,19 @@ const Footer = () => {
             </ul>
           </nav>
         </div>
-      </div>
+
+        {/* Zones d'intervention SEO */}
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <h2 className="font-semibold text-white mb-4 text-center">Nos zones d'intervention</h2>
+          <div className="flex flex-wrap justify-center gap-3">
+            {regionLinks.map(region => (
+              <span key={region} className="text-sm text-white/60 bg-white/5 px-3 py-1.5 rounded-full">
+                {region}
+              </span>
+            ))}
+          </div>
+        </div>
+        </div>
 
       {/* Bottom Bar */}
       <div className="border-t border-white/10">

@@ -53,9 +53,46 @@ const HeroSection = () => {
             <p className="text-sm md:text-base text-gold/80 font-medium mb-3 max-w-xl mx-auto lg:mx-0">
               Le premier réseau d'artisans audités par Andrea, expert du bâtiment (20 ans de terrain) à Roubaix et dans les Hauts-de-France.
             </p>
-            <p className="text-base md:text-lg text-white/80 mb-6 md:mb-8 max-w-xl mx-auto lg:mx-0">
+            <p className="text-base md:text-lg text-white/80 mb-4 max-w-xl mx-auto lg:mx-0">
               Décrivez votre projet, recevez des devis, et ne partagez vos coordonnées que lorsque vous êtes prêt.
             </p>
+
+            {/* Search Bar */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 mb-6 md:mb-8 border border-white/20 max-w-xl mx-auto lg:mx-0">
+              <p className="text-xs text-white/60 mb-2 font-medium">Trouvez un artisan validé près de chez vous</p>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const metier = formData.get("metier") as string;
+                  const ville = formData.get("ville") as string;
+                  const params = new URLSearchParams();
+                  if (metier) params.set("metier", metier);
+                  if (ville) params.set("ville", ville);
+                  window.location.href = `/trouver-artisan${params.toString() ? `?${params}` : ""}`;
+                }}
+                className="flex flex-col sm:flex-row gap-2"
+              >
+                <input
+                  name="metier"
+                  type="text"
+                  placeholder="Métier (ex: Plombier)"
+                  className="flex-1 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
+                />
+                <input
+                  name="ville"
+                  type="text"
+                  placeholder="Ville ou Code Postal"
+                  className="flex-1 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
+                />
+                <button
+                  type="submit"
+                  className="bg-gradient-gold text-navy-dark font-bold px-5 py-2.5 rounded-lg text-sm hover:scale-[1.02] transition-transform"
+                >
+                  Rechercher
+                </button>
+              </form>
+            </div>
 
             {/* Main CTA */}
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-6 md:mb-8">
