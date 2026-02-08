@@ -64,101 +64,175 @@ import { AlertTriangle } from "lucide-react";
 const ITEMS_PER_PAGE = 30;
 
 // ── Demo missions displayed when DB is empty ──
+const BADGES = ["Vérifié par Andrea", "Audit Technique OK", "Priorité Qualité"] as const;
+const randomBadge = (i: number) => BADGES[i % BADGES.length];
+
 const DEMO_MISSIONS = [
   {
     id: "demo-1",
     title: "Remplacement Chaudière Gaz par PAC Air-Eau",
-    description: "Maison individuelle. Cherche artisan RGE pour dossier MaPrimeRénov. Budget estimé : 12 000€.",
+    description: "Maison individuelle 120m². Cherche artisan RGE pour dossier MaPrimeRénov. Budget estimé : 12 000€.",
     city: "Lyon (69)",
     budget: 12000,
     budget_range: "~12 000€",
     created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    category: { id: "cat-chauffage", name: "Chauffage / Climatisation" },
-    client_name: "Client vérifié",
-    applicants_count: 4,
-    has_applied: false,
-    photos: null,
-    status: "published",
-    client_id: "",
-    fake_applicants_count: 0,
-    verified_by_andrea: true,
-    trust_badge: "Projet vérifié par l'Expert",
+    category: { id: "c1", name: "Chauffage / Climatisation" },
+    client_name: "Client vérifié", applicants_count: 4, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(0),
   },
   {
     id: "demo-2",
     title: "Pose de 5 fenêtres Alu double vitrage",
     description: "Rénovation appartement centre-ville. Isolation phonique haute performance exigée.",
     city: "Bordeaux (33)",
-    budget: null,
-    budget_range: "Sur devis",
+    budget: null, budget_range: "Sur devis",
     created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    category: { id: "cat-menuiserie", name: "Menuiserie" },
-    client_name: "Client vérifié",
-    applicants_count: 2,
-    has_applied: false,
-    photos: null,
-    status: "published",
-    client_id: "",
-    fake_applicants_count: 0,
-    verified_by_andrea: true,
-    trust_badge: "Coordonnées réservées aux membres",
+    category: { id: "c2", name: "Menuiserie" },
+    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(1),
   },
   {
     id: "demo-3",
     title: "Réfection complète toiture ardoise",
     description: "Surface 80m². Travaux prévus pour le printemps. Devis comparatifs souhaités.",
     city: "Rennes (35)",
-    budget: null,
-    budget_range: "Sur devis",
+    budget: null, budget_range: "Sur devis",
     created_at: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
-    category: { id: "cat-couverture", name: "Couverture / Toiture" },
-    client_name: "Client vérifié",
-    applicants_count: 5,
-    has_applied: false,
-    photos: null,
-    status: "published",
-    client_id: "",
-    fake_applicants_count: 0,
-    verified_by_andrea: true,
-    trust_badge: "Urgent",
+    category: { id: "c3", name: "Couverture / Toiture" },
+    client_name: "Client vérifié", applicants_count: 5, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: "Urgent",
   },
   {
     id: "demo-4",
     title: "Installation 8 panneaux photovoltaïques",
     description: "Autoconsommation avec revente du surplus. Toit plat disponible.",
     city: "Montpellier (34)",
-    budget: null,
-    budget_range: "Sur devis",
+    budget: null, budget_range: "Sur devis",
     created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-    category: { id: "cat-electricite", name: "Énergie Solaire" },
-    client_name: "Client vérifié",
-    applicants_count: 3,
-    has_applied: false,
-    photos: null,
-    status: "published",
-    client_id: "",
-    fake_applicants_count: 0,
-    verified_by_andrea: true,
-    trust_badge: "Vérifié par Andrea",
+    category: { id: "c4", name: "Énergie Solaire" },
+    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(2),
   },
   {
     id: "demo-5",
     title: "Mise aux normes NF C 15-100",
     description: "Appartement haussmannien. Changement complet du tableau et des prises.",
     city: "Paris (75)",
-    budget: null,
-    budget_range: "Sur devis",
+    budget: null, budget_range: "Sur devis",
     created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-    category: { id: "cat-electricite", name: "Électricité" },
-    client_name: "Client vérifié",
-    applicants_count: 7,
-    has_applied: false,
-    photos: null,
-    status: "published",
-    client_id: "",
-    fake_applicants_count: 0,
-    verified_by_andrea: true,
-    trust_badge: "En attente d'artisan",
+    category: { id: "c5", name: "Électricité" },
+    client_name: "Client vérifié", applicants_count: 7, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: "En attente d'artisan",
+  },
+  {
+    id: "demo-6",
+    title: "Pose de Velux sur extension bois",
+    description: "Extension ossature bois récente. Pose de 2 Velux avec volet roulant solaire. Accès échafaudage possible.",
+    city: "Nantes (44)",
+    budget: 3500, budget_range: "~3 500€",
+    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c6", name: "Menuiserie" },
+    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(0),
+  },
+  {
+    id: "demo-7",
+    title: "Installation clim réversible appartement",
+    description: "T3 de 65m² au 2e étage. Souhait d'un bi-split discret. Balcon disponible pour le groupe extérieur.",
+    city: "Marseille (13)",
+    budget: 4500, budget_range: "~4 500€",
+    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c7", name: "Climatisation" },
+    client_name: "Client vérifié", applicants_count: 6, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(1),
+  },
+  {
+    id: "demo-8",
+    title: "Isolation thermique par l'extérieur (ITE)",
+    description: "Maison mitoyenne années 70. Façade 90m² à isoler. Finition enduit gratté souhaité.",
+    city: "Strasbourg (67)",
+    budget: 18000, budget_range: "~18 000€",
+    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c8", name: "Isolation" },
+    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(2),
+  },
+  {
+    id: "demo-9",
+    title: "Rénovation complète de salle de bain",
+    description: "Remplacement baignoire par douche italienne. Faïence, plomberie, électricité. Surface 7m².",
+    city: "Toulouse (31)",
+    budget: 8000, budget_range: "~8 000€",
+    created_at: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c9", name: "Plomberie" },
+    client_name: "Client vérifié", applicants_count: 8, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(0),
+  },
+  {
+    id: "demo-10",
+    title: "Traitement de charpente contre les termites",
+    description: "Villa de plain-pied. Diagnostic termites positif. Traitement curatif + préventif nécessaire.",
+    city: "Biarritz (64)",
+    budget: 5000, budget_range: "~5 000€",
+    created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c10", name: "Charpente / Bois" },
+    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: "Urgent",
+  },
+  {
+    id: "demo-11",
+    title: "Installation de borne de recharge VE",
+    description: "Maison individuelle avec garage. Installation wallbox 7kW sur tableau existant conforme.",
+    city: "Grenoble (38)",
+    budget: 1800, budget_range: "~1 800€",
+    created_at: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c11", name: "Électricité" },
+    client_name: "Client vérifié", applicants_count: 4, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(1),
+  },
+  {
+    id: "demo-12",
+    title: "Ravalement façade immeuble R+2",
+    description: "Copropriété de 6 lots. Nettoyage haute pression, réparation fissures, peinture imperméable.",
+    city: "Rouen (76)",
+    budget: 25000, budget_range: "~25 000€",
+    created_at: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c12", name: "Maçonnerie" },
+    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(2),
+  },
+  {
+    id: "demo-13",
+    title: "Peinture intérieure appartement 4 pièces",
+    description: "80m² habitable. Lessivage, enduit de rebouchage, 2 couches de peinture acrylique. Plafonds inclus.",
+    city: "Nice (06)",
+    budget: 4000, budget_range: "~4 000€",
+    created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c13", name: "Peinture" },
+    client_name: "Client vérifié", applicants_count: 5, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(0),
+  },
+  {
+    id: "demo-14",
+    title: "Installation domotique maison neuve",
+    description: "Maison RT2012, 140m². Volets, éclairages, chauffage connectés. Système KNX ou équivalent.",
+    city: "Reims (51)",
+    budget: 12000, budget_range: "~12 000€",
+    created_at: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c14", name: "Domotique" },
+    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(1),
+  },
+  {
+    id: "demo-15",
+    title: "Création terrasse bois sur plots",
+    description: "Terrasse 30m² en pin Douglas. Sol irrégulier, plots réglables nécessaires. Vue mer.",
+    city: "Ajaccio (2A)",
+    budget: 6000, budget_range: "~6 000€",
+    created_at: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c15", name: "Menuiserie" },
+    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    verified_by_andrea: true, trust_badge: randomBadge(2),
   },
 ];
 
@@ -624,19 +698,19 @@ const NosMissions = () => {
                                 <div className={cn(
                                   "flex items-center gap-1.5 text-xs font-semibold",
                                   mission.trust_badge === "Urgent" ? "text-destructive" : 
-                                  mission.trust_badge === "En attente d'artisan" ? "text-orange-600" : "text-success"
+                                  mission.trust_badge === "En attente d'artisan" ? "text-amber-600" : "text-success"
                                 )}>
                                   <ShieldCheck className="w-4 h-4" />
-                                  <span>{mission.trust_badge || "Projet vérifié par l'Expert"}</span>
+                                  <span>{mission.trust_badge || "Vérifié par Andrea"}</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                   <Users className="w-3.5 h-3.5" />
                                   <span>{mission.applicants_count || 0} candidat{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-1.5 text-xs text-gold-dark font-medium">
-                                <BadgeCheck className="w-3.5 h-3.5" />
-                                <span>Coordonnées accessibles aux membres Validés</span>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <BadgeCheck className="w-3.5 h-3.5 text-gold" />
+                                <span>Le client garde la main sur ses coordonnées</span>
                               </div>
                             </div>
 
@@ -646,8 +720,8 @@ const NosMissions = () => {
                               className="w-full gap-2"
                               onClick={() => handleViewMission(mission)}
                             >
-                              <Eye className="w-4 h-4" />
-                              Voir la mission
+                              <Send className="w-4 h-4" />
+                              Postuler à la mission
                             </Button>
                           </div>
                         </CardContent>
