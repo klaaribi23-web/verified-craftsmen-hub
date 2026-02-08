@@ -16,7 +16,6 @@ import {
   Linkedin,
   Globe,
   FileText,
-  Wrench,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -226,9 +225,7 @@ const ArtisanCard = ({
             <img src={profileImage} alt={`Logo de ${name}`} className="max-w-[60%] max-h-[80%] object-contain" />
           </div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-sky-100 to-blue-50 flex items-center justify-center">
-            <Wrench className="w-14 h-14 text-sky-300/70" />
-          </div>
+          <div className="w-full h-full bg-gradient-to-br from-sky-100 to-blue-50" />
         )}
 
         {/* Video play button overlay */}
@@ -245,16 +242,16 @@ const ArtisanCard = ({
         {/* Status Badge - Audité (gold, top tier) OR Validé (green) - never both */}
         {isPremium && isAudited ? (
           <div className="absolute top-2 right-10 z-10">
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold shadow-lg bg-amber-500 text-white border border-amber-300">
-              <Shield className="w-3 h-3 fill-current" />
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg bg-amber-500 text-white border border-amber-300">
+              <Shield className="w-3.5 h-3.5 fill-current" />
               <span>ARTISAN AUDITÉ</span>
             </div>
           </div>
         ) : isPaying ? (
           <div className="absolute top-2 right-10 z-10">
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
-              <CheckCircle2 className="w-3 h-3" />
-              <span>Artisan Validé</span>
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg bg-green-600 text-white">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>ARTISAN VALIDÉ</span>
             </div>
           </div>
         ) : null}
