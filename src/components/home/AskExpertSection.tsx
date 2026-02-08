@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircleQuestion, ArrowRight, Send, Loader2 } from "lucide-react";
+import { MessageCircleQuestion, ArrowRight, Send, Loader2, Shield, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,10 +22,16 @@ const ROTATING_PLACEHOLDERS = [
   "Comment éviter les arnaques artisan ?",
 ];
 
+const isConfidenceTopic = (q: string) => {
+  const keywords = ["assurance", "décennale", "prix", "devis", "tarif", "coût", "coûte", "combien", "garantie", "rc pro"];
+  return keywords.some((k) => q.toLowerCase().includes(k));
+};
+
 const AskExpertSection = () => {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfidence, setShowConfidence] = useState(false);
   const cacheRef = useRef<Record<string, string>>({});
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
@@ -42,8 +48,11 @@ const AskExpertSection = () => {
     const trimmed = q.trim();
     if (!trimmed || isLoading) return;
 
+    setShowConfidence(false);
+
     if (cacheRef.current[trimmed]) {
       setAnswer(cacheRef.current[trimmed]);
+      setShowConfidence(isConfidenceTopic(trimmed));
       return;
     }
 
@@ -60,6 +69,7 @@ const AskExpertSection = () => {
       const response = data?.answer || "Je n'ai pas pu répondre à cette question. Essayez de reformuler.";
       cacheRef.current[trimmed] = response;
       setAnswer(response);
+      setShowConfidence(isConfidenceTopic(trimmed));
     } catch (err) {
       console.error("Ask expert error:", err);
       toast.error("Impossible de contacter l'expert. Réessayez.");
@@ -162,6 +172,12 @@ const AskExpertSection = () => {
                 </div>
               ) : (
                 <>
+                  {showConfidence && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gold/10 border border-gold/20 mb-3">
+                      <Shield className="h-3.5 w-3.5 text-gold" />
+                      <span className="text-xs font-semibold text-gold">Conseil de Terrain</span>
+                    </div>
+                  )}
                   <p className="text-foreground leading-relaxed whitespace-pre-line mb-4">
                     {answer}
                   </p>
@@ -179,6 +195,20 @@ const AskExpertSection = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Expertise counter */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="flex items-center justify-center gap-2 mt-8 text-muted-foreground"
+        >
+          <Zap className="h-4 w-4 text-gold" />
+          <p className="text-xs md:text-sm">
+            Andrea a déjà analysé <span className="font-bold text-foreground">+500 points de contrôle technique</span> ce mois-ci pour sécuriser nos chantiers.
+          </p>
+        </motion.div>
       </div>
     </section>
   );
