@@ -562,13 +562,13 @@ const Navbar = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="lg:hidden overflow-hidden"
               >
-                <div className="py-4 space-y-3">
+                <div className="py-4 space-y-1">
                   {navLinks.map((link) => (
                     <Link
                       key={link.href}
                       to={link.href}
                       onClick={() => setIsOpen(false)}
-                      className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      className={`block px-4 py-4 rounded-lg text-base font-medium transition-colors ${
                         isActive(link.href)
                           ? "bg-gold/10 text-navy"
                           : "text-muted-foreground hover:bg-muted"
@@ -578,26 +578,34 @@ const Navbar = () => {
                     </Link>
                   ))}
                   
-                  {/* Show login buttons only if not authenticated */}
-                  {!isAuthenticated && !isLoading && (
-                    <div className="pt-3 space-y-2 border-t border-border">
-                      <Button variant="outline" className="w-full" asChild>
-                        <Link to="/devenir-artisan" onClick={() => setIsOpen(false)}>
-                          Espace Pro — 99€ HT/mois
+                  {/* CTA buttons - always visible, touch-friendly */}
+                  <div className="pt-4 space-y-3 border-t border-border mt-2">
+                    <Button variant="gold" className="w-full h-14 text-base font-bold" asChild>
+                      <Link to="/devenir-artisan" onClick={() => setIsOpen(false)}>
+                        Rejoindre l'Alliance
+                      </Link>
+                    </Button>
+                    {!isAuthenticated && !isLoading ? (
+                      <>
+                        <Button variant="outline" className="w-full h-12 text-base" asChild>
+                          <Link to="/auth" onClick={() => setIsOpen(false)}>
+                            Espace Client — Connexion
+                          </Link>
+                        </Button>
+                        <Button variant="default" className="w-full h-12 text-base" asChild>
+                          <Link to="/demande-devis" onClick={() => setIsOpen(false)}>
+                            Demander un devis gratuit
+                          </Link>
+                        </Button>
+                      </>
+                    ) : (
+                      <Button variant="outline" className="w-full h-12 text-base" asChild>
+                        <Link to={getDashboardLink()} onClick={() => setIsOpen(false)}>
+                          Mon espace
                         </Link>
                       </Button>
-                      <Button variant="outline" className="w-full" asChild>
-                        <Link to="/auth" onClick={() => setIsOpen(false)}>
-                          Connexion
-                        </Link>
-                      </Button>
-                      <Button variant="gold" className="w-full" asChild>
-                        <Link to="/demande-devis" onClick={() => setIsOpen(false)}>
-                          Demander un devis
-                        </Link>
-                      </Button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )}

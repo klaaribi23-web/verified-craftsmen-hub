@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -459,6 +459,21 @@ const NosMissions = () => {
     }
   };
 
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
+
+  // Show floating filter button on mobile when scrolled past hero
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowMobileFilter(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToFilters = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
@@ -470,7 +485,7 @@ const NosMissions = () => {
       
       <main className="pt-32 lg:pt-20">
         {/* ── Hero Section ── */}
-        <section className="bg-navy relative overflow-hidden py-20 lg:py-28">
+        <section className="bg-navy relative overflow-hidden py-12 md:py-20 lg:py-28">
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-72 h-72 bg-gold/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
@@ -481,7 +496,7 @@ const NosMissions = () => {
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-3xl mx-auto mb-12"
             >
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
                 Trouvez votre prochaine <span className="text-gradient-gold">opportunité</span>
               </h1>
               <p className="text-lg text-white/70">
@@ -496,8 +511,8 @@ const NosMissions = () => {
               transition={{ delay: 0.15 }}
               className="max-w-4xl mx-auto"
             >
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 md:p-6">
-                <div className="flex flex-col md:flex-row gap-4 items-end">
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 md:p-6">
+                <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-end">
                   {/* Category filter */}
                   <div className="flex-1 w-full">
                     <Label className="text-white/80 text-sm mb-2 block">Quel métier ?</Label>
@@ -571,12 +586,12 @@ const NosMissions = () => {
         </section>
 
         {/* ── Missions Catalogue ── */}
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4 lg:px-8">
+        <section className="py-8 md:py-16 bg-muted/30">
+          <div className="container mx-auto px-3 md:px-4 lg:px-8">
             {/* Section header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
                   Nos chantiers en cours
                 </h2>
                 <p className="text-muted-foreground mt-1">
@@ -616,7 +631,7 @@ const NosMissions = () => {
 
             {/* ── Mission Cards Grid ── */}
             {missionsLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                 {Array.from({ length: 9 }).map((_, i) => (
                   <Card key={i}>
                     <CardContent className="p-6 space-y-4">
@@ -631,7 +646,7 @@ const NosMissions = () => {
               </div>
             ) : paginatedMissions.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                   {paginatedMissions.map((mission, index) => (
                     <motion.div
                       key={mission.id}
@@ -660,7 +675,7 @@ const NosMissions = () => {
                             </div>
 
                             {/* Title */}
-                            <h3 className="font-bold text-lg text-foreground mb-3 line-clamp-2 group-hover:text-navy transition-colors">
+                            <h3 className="font-bold text-base md:text-lg text-foreground mb-3 line-clamp-2 group-hover:text-navy transition-colors">
                               {mission.title}
                             </h3>
 
@@ -736,13 +751,13 @@ const NosMissions = () => {
                               </div>
                             </div>
 
-                            {/* CTA Button */}
+                            {/* CTA Button - Touch-friendly */}
                             <Button 
                               variant="gold"
-                              className="w-full gap-2"
+                              className="w-full gap-2 h-12 text-base font-bold"
                               onClick={() => handleViewMission(mission)}
                             >
-                              <Send className="w-4 h-4" />
+                              <Send className="w-5 h-5" />
                               Postuler à ce chantier
                             </Button>
                           </div>
@@ -851,6 +866,17 @@ const NosMissions = () => {
           </div>
         </section>
       </main>
+
+      {/* ── Floating Mobile Filter Button ── */}
+      {showMobileFilter && (
+        <button
+          onClick={scrollToFilters}
+          className="md:hidden fixed bottom-24 right-4 z-50 bg-gold text-navy-dark font-bold px-5 py-3 rounded-full shadow-lg flex items-center gap-2 active:scale-95 transition-transform"
+        >
+          <MapPin className="w-4 h-4" />
+          Filtrer par ville
+        </button>
+      )}
 
       <Footer />
 
