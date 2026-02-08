@@ -56,6 +56,9 @@ const AllianceSection = () => {
                   Mon rôle : auditer et certifier les vrais patrons.
                 </span>
               </p>
+              <p className="text-muted-foreground leading-relaxed text-base mt-4">
+                Quand je valide une entreprise, je mets mon expérience de 20 ans en jeu. C'est pour ça que nos clients ont confiance : ils savent qu'un artisan Validé, c'est un artisan qui bosse vraiment.
+              </p>
             </div>
           </motion.div>
 
@@ -92,18 +95,34 @@ const AllianceSection = () => {
           </motion.div>
         </div>
 
-        {/* Central Message */}
+        {/* Citation choc + valeur ajoutée */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-3xl mx-auto text-center"
+          className="max-w-3xl mx-auto"
         >
-          <Quote className="w-10 h-10 text-gold/40 mx-auto mb-4" />
-          <p className="text-lg md:text-xl lg:text-2xl font-medium text-foreground leading-relaxed">
-            Nous avons créé <span className="text-gradient-gold font-bold">Artisans Validés</span> pour
-            protéger les bons professionnels contre les vendeurs de leads et redonner
-            confiance aux particuliers.
+          <div className="bg-navy rounded-2xl p-8 md:p-10 border-l-4 border-gold mb-6">
+            <Quote className="w-8 h-8 text-gold/60 mb-4" />
+            <p className="text-white text-lg md:text-xl lg:text-2xl font-bold leading-relaxed italic">
+              « On a créé ce qu'on aurait aimé avoir quand on était sur le terrain : de la vraie transparence, pas des promesses en l'air. »
+            </p>
+            <p className="text-gold font-extrabold text-base md:text-lg mt-4">
+              On en a eu marre des vendeurs de leads qui ne connaissent rien au bâtiment et qui vendent du vent aux artisans.
+            </p>
+          </div>
+
+          <div className="bg-muted/50 rounded-xl p-6 md:p-8 border border-border mb-6">
+            <p className="text-foreground leading-relaxed text-base md:text-lg">
+              Ici, on ne vous vend pas des numéros de téléphone. On vous offre une vitrine auditée par un pro du métier. Quand je valide une entreprise, je mets mon expérience de 20 ans en jeu.{" "}
+              <span className="font-bold text-gold">
+                C'est pour ça que nos clients ont confiance : ils savent qu'un artisan Validé, c'est un artisan qui bosse vraiment.
+              </span>
+            </p>
+          </div>
+
+          <p className="text-center text-foreground font-bold text-lg md:text-xl">
+            Andrea & Associée — <span className="text-gold">L'expertise du chantier au service du digital.</span>
           </p>
         </motion.div>
       </div>
