@@ -38,7 +38,8 @@ Réponds UNIQUEMENT en JSON valide, sans markdown ni backticks. Le JSON doit avo
       "question": "string - la question du particulier",
       "answer": "string - ta réponse directe et experte (3-5 phrases, ton franc et rassurant, cite des éléments concrets comme les assurances, le SIRET, les certifications)"
     }
-  ]
+  ],
+  "nearby_cities": ["string - 3 à 5 villes voisines de la ville mentionnée, réelles et géographiquement proches"]
 }`;
 
     const userPrompt = `Génère exactement 5 questions-réponses d'expert pour la catégorie "${category}" ${city ? `à ${locationLabel}` : ""}${deptLabel ? ` (département ${deptLabel})` : ""}.
@@ -49,6 +50,8 @@ Les questions doivent couvrir ces thèmes (adapte-les au métier ${category}) :
 3. Pourquoi choisir un artisan Validé plutôt qu'un devis en ligne anonyme
 4. Les erreurs les plus fréquentes quand on choisit un ${category.toLowerCase()} (et comment les éviter)
 5. Ce que comprend concrètement la certification Artisans Validés pour un ${category.toLowerCase()}
+
+${city ? `Inclus dans "nearby_cities" 3 à 5 villes géographiquement proches de ${locationLabel}. Ce doivent être de vraies villes françaises.` : 'Mets un tableau vide pour "nearby_cities".'}
 
 Ton ton doit être celui d'un pro du terrain : direct, concret, avec des exemples réels. Pas de blabla marketing. Tutoie le lecteur.`;
 

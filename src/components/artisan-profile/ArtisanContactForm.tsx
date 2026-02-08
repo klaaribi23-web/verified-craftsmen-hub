@@ -120,7 +120,7 @@ const ArtisanContactForm = ({
   }
 
   return (
-    <Card>
+    <Card data-contact-form>
       <CardContent className="p-6 space-y-4">
         {/* Audit reassurance */}
         {isAudited && (

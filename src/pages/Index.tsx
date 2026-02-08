@@ -7,6 +7,7 @@ import TrustSection from "@/components/home/TrustSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
 import AllianceSection from "@/components/home/AllianceSection";
+import SocialProofBanner from "@/components/home/SocialProofBanner";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
@@ -28,6 +29,7 @@ const Index = () => {
       <Navbar />
       <main>
         <HeroSection />
+        <SocialProofBanner />
 
         {/* Bandeau ADN Particuliers */}
         <section className="bg-navy py-6">

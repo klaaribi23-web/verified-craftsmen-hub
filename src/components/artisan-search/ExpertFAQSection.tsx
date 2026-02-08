@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Shield, MessageCircle, ChevronDown, Sparkles, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Shield, MessageCircle, ChevronDown, Sparkles, Loader2, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
@@ -15,11 +16,20 @@ interface FAQItem {
   answer: string;
 }
 
+interface FAQData {
+  questions: FAQItem[];
+  nearby_cities?: string[];
+}
+
+const normalizeSlug = (str: string) =>
+  str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
 const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps) => {
   const [questions, setQuestions] = useState<FAQItem[]>([]);
+  const [nearbyCities, setNearbyCities] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const cacheRef = useRef<Map<string, FAQItem[]>>(new Map());
+  const cacheRef = useRef<Map<string, FAQData>>(new Map());
 
   useEffect(() => {
     if (!category) return;
@@ -27,13 +37,16 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
     const cacheKey = `${category}-${city || ""}-${department || ""}`;
     
     if (cacheRef.current.has(cacheKey)) {
-      setQuestions(cacheRef.current.get(cacheKey)!);
+      const cached = cacheRef.current.get(cacheKey)!;
+      setQuestions(cached.questions);
+      setNearbyCities(cached.nearby_cities || []);
       return;
     }
 
     const fetchExpertFAQ = async () => {
       setLoading(true);
       setQuestions([]);
+      setNearbyCities([]);
       try {
         const { data, error } = await supabase.functions.invoke("generate-expert-faq", {
           body: { category, city, department },
@@ -46,7 +59,8 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
 
         if (data?.questions) {
           setQuestions(data.questions);
-          cacheRef.current.set(cacheKey, data.questions);
+          setNearbyCities(data.nearby_cities || []);
+          cacheRef.current.set(cacheKey, { questions: data.questions, nearby_cities: data.nearby_cities });
         }
       } catch (err) {
         console.error("Expert FAQ fetch error:", err);
@@ -60,8 +74,6 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
 
   if (!category) return null;
   if (!loading && questions.length === 0) return null;
-
-  const locationLabel = city || "votre ville";
 
   // JSON-LD FAQ structured data
   const faqJsonLd = questions.length > 0 ? {
@@ -79,7 +91,6 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
 
   return (
     <section className="py-12 md:py-20 bg-background">
-      {/* JSON-LD Structured Data */}
       {faqJsonLd && (
         <Helmet>
           <script type="application/ld+json">
@@ -132,7 +143,6 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
           <div className="space-y-4" role="list" aria-label="Questions fréquentes d'expert">
             {questions.map((item, index) => (
               <div key={index} role="listitem" className="group">
-                {/* Question bubble (user style - right aligned feel) */}
                 <button
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
                   className="w-full text-left"
@@ -159,7 +169,6 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
                   </div>
                 </button>
 
-                {/* Answer bubble (expert style - left aligned with gold accent) */}
                 <div className={cn(
                   "overflow-hidden transition-all duration-300 ease-out",
                   openIndex === index ? "max-h-[500px] opacity-100 mt-2" : "max-h-0 opacity-0"
@@ -180,6 +189,30 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Geo-linking: nearby cities */}
+        {!loading && nearbyCities.length > 0 && city && (
+          <div className="mt-8 p-4 bg-muted/50 rounded-xl border border-border">
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="h-4 w-4 text-primary" />
+              <p className="text-sm font-semibold text-foreground">
+                Nous intervenons aussi sur les secteurs voisins
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {nearbyCities.map((nearbyCity) => (
+                <Link
+                  key={nearbyCity}
+                  to={`/artisans-ville/${normalizeSlug(nearbyCity)}`}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-background border border-border rounded-full text-sm text-primary hover:bg-primary/5 hover:border-primary/30 transition-colors"
+                >
+                  <MapPin className="h-3 w-3" />
+                  {nearbyCity}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>
