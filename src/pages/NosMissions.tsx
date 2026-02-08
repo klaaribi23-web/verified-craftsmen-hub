@@ -654,7 +654,7 @@ const NosMissions = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.03 }}
                     >
-                      <Card className="h-full group hover:shadow-xl transition-all duration-300 border-border/60 hover:border-gold/30 overflow-hidden">
+                      <Card className="h-full group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-border/60 hover:border-gold/30 overflow-hidden">
                         <CardContent className="p-0 flex flex-col h-full">
                           {/* Top colored bar */}
                           <div className="h-1.5 bg-gradient-to-r from-gold to-gold-light" />
