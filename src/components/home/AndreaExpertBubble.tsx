@@ -341,7 +341,7 @@ const AndreaExpertBubble = () => {
       {/* Floating Bubble */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="fixed bottom-6 right-6 z-50">
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="fixed bottom-6 right-6 z-50 hidden md:block">
             <AnimatePresence>
               {showTooltip && (
                 <motion.div initial={{ opacity: 0, y: 10, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.9 }}
