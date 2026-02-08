@@ -8,6 +8,7 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
 import AllianceSection from "@/components/home/AllianceSection";
 import SocialProofBanner from "@/components/home/SocialProofBanner";
+import AskExpertSection from "@/components/home/AskExpertSection";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
@@ -42,6 +43,8 @@ const Index = () => {
         </section>
 
         <CategoriesSection />
+
+        <AskExpertSection />
 
         {/* Featured Artisans Section - 4x4 */}
         <section className="py-16 md:py-24 bg-background">
