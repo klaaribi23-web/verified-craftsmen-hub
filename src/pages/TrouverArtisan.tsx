@@ -18,6 +18,7 @@ import { useCategoriesHierarchy, CategoryWithChildren } from "@/hooks/useCategor
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
 import { calculateDistance } from "@/lib/geoDistance";
 import { useCityCoordinatesCache } from "@/hooks/useCityCoordinatesCache";
+import DynamicFAQ from "@/components/artisan-search/DynamicFAQ";
 
 const ITEMS_PER_PAGE = 21;
 const TrouverArtisan = () => {
@@ -327,6 +328,12 @@ const TrouverArtisan = () => {
             </div>
           </div>
         </section>
+
+        {/* Dynamic FAQ */}
+        <DynamicFAQ 
+          city={filters.city || undefined} 
+          category={filters.categoryName || undefined} 
+        />
 
         {/* CTA */}
         <section className="py-10 md:py-16 bg-muted">
