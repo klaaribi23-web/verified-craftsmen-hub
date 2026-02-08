@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 import ArtisanCard from "@/components/artisan-search/ArtisanCard";
 import DynamicFAQ from "@/components/artisan-search/DynamicFAQ";
+import ExpertFAQSection from "@/components/artisan-search/ExpertFAQSection";
 import { usePublicArtisans } from "@/hooks/usePublicData";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -214,6 +215,12 @@ const CityArtisansPage = () => {
 
         {/* Dynamic FAQ */}
         <DynamicFAQ city={cityName} />
+
+        {/* Expert AI FAQ */}
+        <ExpertFAQSection
+          category={cityCategories[0]?.name || "Artisan du bâtiment"}
+          city={cityName}
+        />
 
         {/* CTA */}
         <section className="py-10 md:py-16 bg-muted">

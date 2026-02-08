@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.generate-faq]
 verify_jwt = false
+
+[functions.generate-expert-faq]
+verify_jwt = false
