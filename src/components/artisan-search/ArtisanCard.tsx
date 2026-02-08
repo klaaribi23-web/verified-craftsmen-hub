@@ -23,6 +23,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
+import AuditSummaryDialog from "@/components/artisan-search/AuditSummaryDialog";
 
 interface ArtisanCardProps {
   id: string | number;
@@ -79,6 +80,7 @@ const ArtisanCard = ({
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [storyViewerOpen, setStoryViewerOpen] = useState(false);
+  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -241,12 +243,16 @@ const ArtisanCard = ({
 
         {/* Status Badge - Audité (gold, top tier) OR Validé (green) - never both */}
         {isPremium && isAudited ? (
-          <div className="absolute top-2 right-10 z-10">
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg bg-amber-500 text-white border border-amber-300">
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAuditDialogOpen(true); }}
+            className="absolute top-2 right-10 z-10 cursor-pointer"
+            aria-label="Voir le résumé d'audit"
+          >
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg bg-amber-500 text-white border border-amber-300 hover:bg-amber-600 transition-colors">
               <Shield className="w-3.5 h-3.5 fill-current" />
               <span>ARTISAN AUDITÉ</span>
             </div>
-          </div>
+          </button>
         ) : isPaying ? (
           <div className="absolute top-2 right-10 z-10">
             <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg bg-green-600 text-white">
@@ -381,6 +387,13 @@ const ArtisanCard = ({
         highlightCity={location}
         isOpen={storyViewerOpen}
         onClose={() => setStoryViewerOpen(false)}
+      />
+
+      {/* Audit Summary Dialog */}
+      <AuditSummaryDialog
+        open={auditDialogOpen}
+        onOpenChange={setAuditDialogOpen}
+        businessName={name}
       />
     </div>
   );
