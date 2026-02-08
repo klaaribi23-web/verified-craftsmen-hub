@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, Loader2, Sparkles, Shield, ArrowRight, Mic, MicOff, Volume2, Share2, CreditCard } from "lucide-react";
+import { X, Send, Sparkles, Shield, ArrowRight, Mic, MicOff, Volume2, VolumeX, Share2, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
@@ -19,11 +18,60 @@ const TOOLTIP_MESSAGES = [
 ];
 
 const PRICING_KEYWORDS = ["abonnement", "tarif", "prix", "99", "990", "mensuel", "annuel", "payer", "offre", "alliance", "partenaire", "rejoindre", "accès", "souscrire", "inscription"];
+const CONFIDENCE_KEYWORDS = ["assurance", "décennale", "prix", "devis", "tarif", "coût", "coûte", "combien", "garantie", "rc pro", "siret", "kbis"];
+
+type ChatMessage = {
+  role: "andrea" | "user";
+  text: string;
+  isConfidence?: boolean;
+  isPricing?: boolean;
+  isStreaming?: boolean;
+};
+
+// Voice frequency visualizer
+const VoiceVisualizer = ({ isActive }: { isActive: boolean }) => {
+  if (!isActive) return null;
+  return (
+    <div className="flex items-center gap-[2px] h-4 mx-1">
+      {Array.from({ length: 7 }).map((_, i) => (
+        <motion.div
+          key={i}
+          className="w-[2px] rounded-full bg-gold"
+          animate={{
+            height: isActive
+              ? [3 + Math.random() * 4, 8 + Math.random() * 10, 3 + Math.random() * 4]
+              : [3, 3, 3],
+          }}
+          transition={{
+            duration: 0.4 + Math.random() * 0.3,
+            repeat: Infinity,
+            delay: i * 0.05,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Loading sound wave animation
+const SoundWaves = () => (
+  <div className="flex items-center gap-[3px] h-5">
+    {[0, 1, 2, 3, 4].map((i) => (
+      <motion.div
+        key={i}
+        className="w-[3px] rounded-full bg-gold"
+        animate={{ height: ["6px", "16px", "6px"] }}
+        transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
+      />
+    ))}
+  </div>
+);
 
 const AndreaExpertBubble = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState<{ role: "andrea" | "user"; text: string; isConfidence?: boolean; isPricing?: boolean }[]>([
+  const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "andrea", text: INTRO_MESSAGE },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,11 +81,12 @@ const AndreaExpertBubble = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  const cacheRef = useRef<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const badgeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const tooltipTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -66,58 +115,123 @@ const AndreaExpertBubble = () => {
     };
   }, [isOpen]);
 
-  const isConfidenceTopic = (q: string) => {
-    const keywords = ["assurance", "décennale", "prix", "devis", "tarif", "coût", "coûte", "combien", "garantie", "rc pro", "siret", "kbis"];
-    return keywords.some((k) => q.toLowerCase().includes(k));
-  };
-
-  const isTechnicalQuestion = (q: string) => {
-    const keywords = ["technique", "norme", "dtu", "réglementation", "certification", "qualibat", "rge", "électricité", "plomberie", "maçonnerie", "toiture", "charpente", "isolation"];
-    return keywords.some((k) => q.toLowerCase().includes(k));
-  };
+  const isConfidenceTopic = (q: string) => CONFIDENCE_KEYWORDS.some((k) => q.toLowerCase().includes(k));
 
   const isPricingTopic = (q: string, answer: string) => {
     const combined = (q + " " + answer).toLowerCase();
     return PRICING_KEYWORDS.some((k) => combined.includes(k));
   };
 
+  // Streaming ask
   const handleAsk = async () => {
     const trimmed = question.trim();
     if (!trimmed || isLoading) return;
 
     const confidence = isConfidenceTopic(trimmed);
-    const technical = isTechnicalQuestion(trimmed);
-
     setMessages((prev) => [...prev, { role: "user", text: trimmed }]);
     setQuestion("");
-
-    if (cacheRef.current[trimmed]) {
-      let text = cacheRef.current[trimmed];
-      if (technical) text += "\n\nD'ailleurs, il y a des chantiers qui correspondent à votre expertise en ce moment. Vous voulez les voir ?";
-      const pricing = isPricingTopic(trimmed, text);
-      setMessages((prev) => [...prev, { role: "andrea", text, isConfidence: confidence, isPricing: pricing }]);
-      return;
-    }
-
     setIsLoading(true);
+
+    // Add empty streaming message
+    const streamingMsgIndex = messages.length + 1; // +1 for user message just added
+    setMessages((prev) => [...prev, { role: "andrea", text: "", isStreaming: true, isConfidence: confidence }]);
+
     try {
-      const { data, error } = await supabase.functions.invoke("ask-expert-andrea", { body: { question: trimmed } });
-      if (error) throw error;
-      let response = data?.answer || "Je n'ai pas pu répondre. Reformulez votre question.";
-      cacheRef.current[trimmed] = response;
-      if (technical) response += "\n\nD'ailleurs, il y a des chantiers qui correspondent à votre expertise en ce moment. Vous voulez les voir ?";
-      const pricing = isPricingTopic(trimmed, response);
-      setMessages((prev) => [...prev, { role: "andrea", text: response, isConfidence: confidence, isPricing: pricing }]);
-    } catch {
-      toast.error("Impossible de contacter Andrea. Réessayez.");
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ask-expert-andrea-stream`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ question: trimmed }),
+          signal: controller.signal,
+        }
+      );
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6).trim();
+            if (data === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                fullText += parsed.text;
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  const lastAndrea = updated.length - 1;
+                  if (updated[lastAndrea]?.role === "andrea") {
+                    updated[lastAndrea] = {
+                      ...updated[lastAndrea],
+                      text: fullText,
+                    };
+                  }
+                  return updated;
+                });
+              }
+            } catch {
+              // Skip unparseable
+            }
+          }
+        }
+      }
+
+      // Finalize message
+      const pricing = isPricingTopic(trimmed, fullText);
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastAndrea = updated.length - 1;
+        if (updated[lastAndrea]?.role === "andrea") {
+          updated[lastAndrea] = {
+            ...updated[lastAndrea],
+            text: fullText,
+            isStreaming: false,
+            isPricing: pricing,
+          };
+        }
+        return updated;
+      });
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        toast.error("Impossible de contacter Andrea. Réessayez.");
+        setMessages((prev) => prev.filter((m) => !(m.role === "andrea" && m.isStreaming)));
+      }
     } finally {
       setIsLoading(false);
+      abortRef.current = null;
     }
   };
 
   // Speech-to-Text
   const toggleListening = useCallback(() => {
-    if (isListening) { recognitionRef.current?.stop(); setIsListening(false); return; }
+    // If Andrea is speaking, stop her first (interruption)
+    if (isSpeaking) {
+      stopSpeaking();
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) { toast.error("Reconnaissance vocale non supportée."); return; }
     const recognition = new SR();
@@ -137,43 +251,90 @@ const AndreaExpertBubble = () => {
     recognitionRef.current = recognition;
     try { recognition.start(); setIsListening(true); toast.info("🎙️ Parlez maintenant..."); }
     catch { toast.error("Micro bloqué.", { duration: 5000 }); }
-  }, [isListening]);
+  }, [isListening, isSpeaking]);
 
-  // TTS
-  const speakText = useCallback((text: string) => {
-    if (!("speechSynthesis" in window)) { toast.error("Synthèse vocale non supportée."); return; }
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "fr-FR"; utterance.rate = 0.95; utterance.pitch = 0.85;
-    const voices = window.speechSynthesis.getVoices();
-    const fr = voices.find((v) => v.lang.startsWith("fr") && v.name.toLowerCase().includes("male")) || voices.find((v) => v.lang.startsWith("fr"));
-    if (fr) utterance.voice = fr;
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-    window.speechSynthesis.speak(utterance);
+  // Stop speaking (interruption)
+  const stopSpeaking = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+    window.speechSynthesis?.cancel();
+    setIsSpeaking(false);
   }, []);
+
+  // ElevenLabs TTS with fallback to browser TTS
+  const speakText = useCallback(async (text: string) => {
+    if (isSpeaking) {
+      stopSpeaking();
+      return;
+    }
+
+    setIsSpeaking(true);
+
+    try {
+      // Try ElevenLabs first
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text: text.substring(0, 500) }),
+        }
+      );
+
+      if (!response.ok) throw new Error("ElevenLabs failed");
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setIsSpeaking(false);
+        audioRef.current = null;
+        URL.revokeObjectURL(audioUrl);
+      };
+      audio.onerror = () => {
+        setIsSpeaking(false);
+        audioRef.current = null;
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      await audio.play();
+    } catch {
+      // Fallback to browser TTS
+      console.log("[Andrea] ElevenLabs unavailable, falling back to browser TTS");
+      if (!("speechSynthesis" in window)) {
+        toast.error("Synthèse vocale non supportée.");
+        setIsSpeaking(false);
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "fr-FR";
+      utterance.rate = 0.95;
+      utterance.pitch = 0.85;
+      const voices = window.speechSynthesis.getVoices();
+      const fr = voices.find((v) => v.lang.startsWith("fr") && v.name.toLowerCase().includes("female")) ||
+                 voices.find((v) => v.lang.startsWith("fr"));
+      if (fr) utterance.voice = fr;
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [isSpeaking, stopSpeaking]);
 
   // Share via WhatsApp
   const shareResponse = (text: string) => {
     const shareText = `💬 L'Expert Andrea (Artisans Validés) dit :\n\n"${text}"\n\n👉 Posez vos questions : https://artisans-valides.fr`;
-    const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-    window.open(waUrl, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
   };
-
-  // Sound wave animation component
-  const SoundWaves = () => (
-    <div className="flex items-center gap-[3px] h-5">
-      {[0, 1, 2, 3, 4].map((i) => (
-        <motion.div
-          key={i}
-          className="w-[3px] rounded-full bg-gold"
-          animate={{ height: ["6px", "16px", "6px"] }}
-          transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
-        />
-      ))}
-    </div>
-  );
 
   return (
     <>
@@ -222,13 +383,23 @@ const AndreaExpertBubble = () => {
                 <Sparkles className="h-5 w-5 text-navy-dark" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-sm">Andrea — Expert IA</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-white text-sm">Andrea — Expert IA</p>
+                  <VoiceVisualizer isActive={isSpeaking} />
+                </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-xs text-white/70">En ligne · Analyse en temps réel</span>
+                  <span className="text-xs text-white/70">
+                    {isSpeaking ? "Andrea parle…" : "En ligne · Analyse en temps réel"}
+                  </span>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white transition-colors">
+              {isSpeaking && (
+                <button onClick={stopSpeaking} className="text-white/70 hover:text-white transition-colors" title="Couper la parole">
+                  <VolumeX className="h-5 w-5" />
+                </button>
+              )}
+              <button onClick={() => { setIsOpen(false); stopSpeaking(); }} className="text-white/70 hover:text-white transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -242,24 +413,28 @@ const AndreaExpertBubble = () => {
                       msg.role === "user" ? "bg-navy text-white rounded-br-sm" : "bg-muted text-foreground rounded-bl-sm"
                     }`}>
                       {msg.text}
+                      {msg.isStreaming && (
+                        <motion.span
+                          className="inline-block w-1.5 h-4 bg-gold ml-0.5 align-text-bottom rounded-sm"
+                          animate={{ opacity: [1, 0] }}
+                          transition={{ duration: 0.5, repeat: Infinity }}
+                        />
+                      )}
                     </div>
 
-                    {msg.role === "andrea" && i > 0 && (
+                    {msg.role === "andrea" && i > 0 && !msg.isStreaming && (
                       <div className="flex flex-wrap items-center gap-2 mt-1.5 ml-1">
-                        {/* Confidence badge */}
                         {msg.isConfidence && (
                           <div className="flex items-center gap-1">
                             <Shield className="h-3 w-3 text-gold" />
                             <span className="text-[10px] font-semibold text-gold">Conseil de Terrain</span>
                           </div>
                         )}
-                        {/* Listen */}
-                        <button onClick={() => speakText(msg.text)} disabled={isSpeaking}
-                          className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50">
+                        <button onClick={() => speakText(msg.text)}
+                          className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
                           <Volume2 className={`h-3 w-3 ${isSpeaking ? "text-gold animate-pulse" : ""}`} />
-                          {isSpeaking ? "Écoute…" : "Écouter"}
+                          {isSpeaking ? "Stop" : "Écouter"}
                         </button>
-                        {/* Share */}
                         <button onClick={() => shareResponse(msg.text)}
                           className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
                           <Share2 className="h-3 w-3" />
@@ -268,15 +443,13 @@ const AndreaExpertBubble = () => {
                       </div>
                     )}
 
-                    {/* Mission link */}
-                    {msg.role === "andrea" && msg.text.includes("Vous voulez les voir ?") && (
+                    {msg.role === "andrea" && msg.text.includes("Vous voulez les voir ?") && !msg.isStreaming && (
                       <Link to="/nos-missions" className="inline-flex items-center gap-1 mt-2 ml-1 text-xs text-gold hover:text-gold/80 font-medium transition-colors">
                         Voir les chantiers <ArrowRight className="h-3 w-3" />
                       </Link>
                     )}
 
-                    {/* Pricing CTA buttons */}
-                    {msg.role === "andrea" && msg.isPricing && (
+                    {msg.role === "andrea" && msg.isPricing && !msg.isStreaming && (
                       <div className="flex flex-col gap-2 mt-3 ml-1">
                         <Link to="/devenir-artisan" className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 border border-gold/30 text-sm font-semibold text-gold hover:bg-gold/20 transition-colors">
                           <CreditCard className="h-4 w-4" /> Accès Mensuel — 99€ HT/mois
@@ -290,8 +463,7 @@ const AndreaExpertBubble = () => {
                 </div>
               ))}
 
-              {/* Loading with sound wave animation */}
-              {isLoading && (
+              {isLoading && messages[messages.length - 1]?.role !== "andrea" && (
                 <div className="flex justify-start">
                   <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-3 text-muted-foreground text-sm">
                     <SoundWaves />
@@ -318,7 +490,7 @@ const AndreaExpertBubble = () => {
                 </Button>
               </form>
               <p className="text-[10px] text-muted-foreground text-center mt-2">
-                ⚡ IA experte · 20 ans d'expérience terrain ·{" "}
+                ⚡ IA experte · Voix premium ElevenLabs ·{" "}
                 <Link to="/a-propos" className="underline hover:text-foreground">En savoir plus</Link>
               </p>
             </div>
