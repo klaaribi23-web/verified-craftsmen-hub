@@ -97,7 +97,7 @@ const HeroSection = () => {
             </div>
 
             {/* Main CTA */}
-            <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-6 md:mb-8">
+            <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-8">
               <Button
                 size="lg"
                 className="bg-gradient-gold text-navy-dark font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-gold/40 hover:shadow-gold/60 transition-all hover:scale-[1.03] active:scale-[0.98] animate-[pulse-subtle_5s_ease-in-out_infinite] ring-2 ring-gold/50 ring-offset-2 ring-offset-navy"
@@ -110,6 +110,18 @@ const HeroSection = () => {
               </Button>
               <Button variant="outline" size="lg" className="bg-white/10 text-white border-white/30 hover:bg-white/20 md:text-base" asChild>
                 <Link to="/trouver-artisan">Voir les Artisans</Link>
+              </Button>
+            </div>
+
+            {/* Mobile-only Andrea CTA */}
+            <div className="block lg:hidden mb-6">
+              <Button
+                size="lg"
+                className="w-full bg-navy text-white font-bold text-base py-7 border-2 border-gold/40 hover:bg-navy-dark hover:border-gold/60 transition-all gap-2 shadow-lg"
+                onClick={() => document.getElementById('expert-andrea')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <Mic className="w-5 h-5 text-gold" />
+                Parler à Andrea 🎙️
               </Button>
             </div>
 
