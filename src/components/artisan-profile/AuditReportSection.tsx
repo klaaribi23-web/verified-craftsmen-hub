@@ -50,9 +50,9 @@ const AuditReportSection = ({ businessName, city, category }: AuditReportSection
                 L'avis de l'expert
               </p>
               <p className="text-sm text-amber-900/80 dark:text-amber-200/80 leading-relaxed">
-                « Après une visite approfondie de l'entreprise <strong>{businessName}</strong> à {city}, 
+                « Après une visite approfondie de l'entreprise <strong>{businessName}</strong>{city && city !== 'À compléter' ? ` à ${city}` : ''}, 
                 nous confirmons le sérieux de cette structure. 
-                {category ? ` Spécialisé en ${category.toLowerCase()}, cet artisan` : ' Cet artisan'} dispose 
+                {category ? ` Spécialisé en ${category.toLowerCase()}, cet artisan` : ' Cet artisan'} dispose
                 d'un équipement professionnel adapté, d'une organisation rigoureuse et d'un réel souci 
                 de satisfaction client. Nous recommandons cette entreprise en toute confiance. »
               </p>
