@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, CheckCircle2, Star, ArrowRight, Camera, MessageSquare, UserCheck } from "lucide-react";
+import { Shield, CheckCircle2, Star, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
@@ -57,39 +57,41 @@ const HeroSection = () => {
               Décrivez votre projet, recevez des devis, et ne partagez vos coordonnées que lorsque vous êtes prêt.
             </p>
 
-            {/* Search Bar */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 mb-6 md:mb-8 border border-white/20 max-w-xl mx-auto lg:mx-0">
-              <p className="text-xs text-white/60 mb-2 font-medium">Trouvez un artisan validé près de chez vous</p>
+            {/* Expert Andrea Module */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6 md:mb-8 border border-gold/20 max-w-xl mx-auto lg:mx-0 shadow-[0_0_20px_rgba(212,175,55,0.08)]">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-gold" />
+                <p className="text-sm text-gold font-semibold">Posez votre question à l'Expert</p>
+              </div>
+              <p className="text-xs text-white/60 mb-3 leading-relaxed">
+                Une question sur une assurance ? Un doute sur un devis ? Andrea, notre IA experte du bâtiment, vous répond sans langue de bois.
+              </p>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);
-                  const metier = formData.get("metier") as string;
-                  const ville = formData.get("ville") as string;
-                  const params = new URLSearchParams();
-                  if (metier) params.set("metier", metier);
-                  if (ville) params.set("ville", ville);
-                  window.location.href = `/trouver-artisan${params.toString() ? `?${params}` : ""}`;
+                  const q = formData.get("question") as string;
+                  if (q?.trim()) {
+                    window.location.href = `/#expert-andrea?q=${encodeURIComponent(q.trim())}`;
+                    // Scroll to the AskExpertSection
+                    const section = document.getElementById("expert-andrea");
+                    if (section) section.scrollIntoView({ behavior: "smooth" });
+                  }
                 }}
-                className="flex flex-col sm:flex-row gap-2"
+                className="flex gap-2"
               >
                 <input
-                  name="metier"
+                  name="question"
                   type="text"
-                  placeholder="Métier (ex: Plombier)"
-                  className="flex-1 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
-                />
-                <input
-                  name="ville"
-                  type="text"
-                  placeholder="Ville ou Code Postal"
-                  className="flex-1 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
+                  placeholder="Ex : Comment vérifier une décennale ?"
+                  className="flex-1 rounded-lg bg-white/10 border border-gold/20 text-white placeholder:text-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
                 />
                 <button
                   type="submit"
-                  className="bg-gradient-gold text-navy-dark font-bold px-5 py-2.5 rounded-lg text-sm hover:scale-[1.02] transition-transform"
+                  className="bg-gradient-gold text-navy-dark font-bold px-5 py-2.5 rounded-lg text-sm hover:scale-[1.02] transition-transform flex items-center gap-1.5"
                 >
-                  Rechercher
+                  <Send className="w-4 h-4" />
+                  Demander
                 </button>
               </form>
             </div>

@@ -10,6 +10,7 @@ import AllianceSection from "@/components/home/AllianceSection";
 import SocialProofBanner from "@/components/home/SocialProofBanner";
 import AskExpertSection from "@/components/home/AskExpertSection";
 import ExpertCaseStudy from "@/components/home/ExpertCaseStudy";
+import LaboAndreaSection from "@/components/home/LaboAndreaSection";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
@@ -45,7 +46,11 @@ const Index = () => {
 
         <CategoriesSection />
 
-        <AskExpertSection />
+        <div id="expert-andrea">
+          <AskExpertSection />
+        </div>
+
+        <LaboAndreaSection />
 
         {/* Featured Artisans Section - 4x4 */}
         <section className="py-16 md:py-24 bg-background">
