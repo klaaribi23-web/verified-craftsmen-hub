@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { MessageCircleQuestion, ArrowRight, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,11 +13,30 @@ const SUGGESTED_QUESTIONS = [
   "Comment choisir un bon artisan ?",
 ];
 
+const ROTATING_PLACEHOLDERS = [
+  "Comment vérifier une décennale ?",
+  "Prix d'une toiture en 2026 ?",
+  "Comment choisir un bon plombier ?",
+  "Quelles aides pour une rénovation énergétique ?",
+  "Durée d'une rénovation de salle de bain ?",
+  "Comment éviter les arnaques artisan ?",
+];
+
 const AskExpertSection = () => {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const cacheRef = useRef<Record<string, string>>({});
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  // Rotate placeholder text
+  useEffect(() => {
+    if (question) return; // Don't rotate when user is typing
+    const interval = setInterval(() => {
+      setPlaceholderIndex((i) => (i + 1) % ROTATING_PLACEHOLDERS.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [question]);
 
   const handleAsk = async (q: string) => {
     const trimmed = q.trim();
@@ -89,8 +108,8 @@ const AskExpertSection = () => {
             <Input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Ex : Comment vérifier une assurance décennale ?"
-              className="h-12 text-base pr-4 bg-background border-2 border-primary/20 focus-visible:ring-primary/30"
+              placeholder={ROTATING_PLACEHOLDERS[placeholderIndex]}
+              className="h-12 text-base pr-4 bg-background border-2 border-primary/20 focus-visible:ring-primary/30 transition-all"
               disabled={isLoading}
             />
             <Button

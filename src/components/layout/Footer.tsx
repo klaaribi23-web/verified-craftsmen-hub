@@ -160,9 +160,9 @@ const Footer = () => {
           <h2 className="font-semibold text-white mb-4 text-center">Nos zones d'intervention</h2>
           <div className="flex flex-wrap justify-center gap-3">
             {regionLinks.map(region => (
-              <span key={region} className="text-sm text-white/60 bg-white/5 px-3 py-1.5 rounded-full">
+              <Link key={region} to={`/trouver-artisan?region=${encodeURIComponent(region)}`} className="text-sm text-white/60 bg-white/5 px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-gold transition-colors">
                 {region}
-              </span>
+              </Link>
             ))}
           </div>
         </div>

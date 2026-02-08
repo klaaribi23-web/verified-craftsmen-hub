@@ -95,7 +95,7 @@ const Navbar = () => {
 
   const navLinks = [
     { href: "/trouver-artisan", label: "Trouver un artisan" },
-    { href: "/nos-missions", label: "Nos missions" },
+    { href: "/nos-missions", label: "Consulter les missions" },
     { href: "/comment-ca-marche", label: "Comment ça marche" },
     { href: "/blog", label: "Blog" },
     { href: "/devenir-artisan", label: "Devenir artisan" },
