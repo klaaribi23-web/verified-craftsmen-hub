@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Hammer, Target, Quote } from "lucide-react";
+import { Hammer, Target, Quote, Cpu, ShieldCheck } from "lucide-react";
 import founderTerrain from "@/assets/about/founder-terrain.jpg";
 import founderDigital from "@/assets/about/founder-digital.jpg";
 
@@ -15,19 +15,19 @@ const AllianceSection = () => {
           className="text-center mb-16"
         >
           <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-            L'Alliance de l'Expérience et de la Technologie
+            Notre Méthode
           </span>
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-2 tracking-tight">
-            Pourquoi nous ?
+            Deux piliers. Une certification.
           </h2>
           <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-gradient-gold">
-            Le terrain rencontre le digital.
+            L'Expertise Métier rencontre la Technologie.
           </p>
         </motion.div>
 
-        {/* Two Columns */}
+        {/* Two Columns — Pillars */}
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 mb-16">
-          {/* Bloc Terrain */}
+          {/* Pilier 1 : Expertise Métier */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -39,30 +39,37 @@ const AllianceSection = () => {
                 <Hammer className="w-7 h-7 text-navy-dark" />
               </div>
               <h3 className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
-                L'Expérience Terrain
+                Pilier 1 : L'Expertise Métier
               </h3>
             </div>
 
-            <div className="flex flex-col items-center sm:flex-row gap-6">
+            <div className="flex flex-col items-center sm:flex-row gap-6 mb-6">
               <img
                 src={founderTerrain}
-                alt="Fondateur - Expert terrain avec 20 ans d'expérience en rénovation"
+                alt="Nos Experts Terrain — 20 ans d'expérience en rénovation"
                 className="w-28 h-28 rounded-full object-cover border-4 border-gold/40 shadow-lg shrink-0"
               />
               <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                20 ans dans la rénovation de l'habitat. Je connais vos problématiques,
-                vos galères et votre valeur.{" "}
-                <span className="font-bold text-foreground text-lg lg:text-xl block mt-2">
-                  Mon rôle : auditer et certifier les vrais patrons.
-                </span>
-              </p>
-              <p className="text-muted-foreground leading-relaxed text-base mt-4">
-                Quand je valide une entreprise, je mets mon expérience de 20 ans en jeu. C'est pour ça que nos clients ont confiance : ils savent qu'un artisan Validé, c'est un artisan qui bosse vraiment.
+                Un protocole de validation strict, élaboré par des professionnels cumulant{" "}
+                <span className="font-bold text-foreground">20 ans de chantier</span>.
               </p>
             </div>
+
+            <ul className="space-y-3 text-muted-foreground">
+              {[
+                "Vérification décennale & RC Pro",
+                "Analyse de santé financière (SIRET & solidité)",
+                "Références clients et réalisations auditées",
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-3">
+                  <ShieldCheck className="w-5 h-5 text-gold shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </motion.div>
 
-          {/* Bloc Digital */}
+          {/* Pilier 2 : Technologie Exclusive */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -71,31 +78,42 @@ const AllianceSection = () => {
           >
             <div className="flex items-center gap-4 mb-6">
               <div className="w-14 h-14 rounded-xl bg-navy flex items-center justify-center shadow-lg">
-                <Target className="w-7 h-7 text-white" />
+                <Cpu className="w-7 h-7 text-white" />
               </div>
               <h3 className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
-                La Stratégie Digitale
+                Pilier 2 : La Technologie Exclusive
               </h3>
             </div>
 
-            <div className="flex flex-col items-center sm:flex-row gap-6">
+            <div className="flex flex-col items-center sm:flex-row gap-6 mb-6">
               <img
                 src={founderDigital}
-                alt="Fondatrice - Experte en stratégie digitale et acquisition web"
+                alt="Experte en stratégie digitale et acquisition web"
                 className="w-28 h-28 rounded-full object-cover border-4 border-navy/40 shadow-lg shrink-0"
               />
               <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                Experte en acquisition et stratégie web.{" "}
-                <span className="font-bold text-foreground text-lg lg:text-xl block mt-2">
-                  Mon rôle : déployer l'artillerie numérique pour que votre savoir-faire
-                  soit numéro 1 sur votre secteur.
-                </span>
+                Une plateforme de mise en relation intelligente qui{" "}
+                <span className="font-bold text-foreground">protège les données des clients</span>{" "}
+                et sélectionne les meilleurs profils par algorithme de confiance.
               </p>
             </div>
+
+            <ul className="space-y-3 text-muted-foreground">
+              {[
+                "Algorithme de matching par expertise & localisation",
+                "Protection totale des coordonnées clients",
+                "Maillage technologique sur toute la France",
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-3">
+                  <Cpu className="w-5 h-5 text-navy shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </motion.div>
         </div>
 
-        {/* Citation choc + valeur ajoutée */}
+        {/* Citation choc + ton direct */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -105,33 +123,21 @@ const AllianceSection = () => {
           <div className="bg-navy rounded-2xl p-8 md:p-10 border-l-4 border-gold mb-6">
             <Quote className="w-8 h-8 text-gold/60 mb-4" />
             <p className="text-white text-lg md:text-xl lg:text-2xl font-bold leading-relaxed italic">
-              « On a créé ce qu'on aurait aimé avoir quand on était sur le terrain : de la vraie transparence, pas des promesses en l'air. »
-            </p>
-            <p className="text-gold font-extrabold text-base md:text-lg mt-4">
-              On en a eu marre des vendeurs de leads qui ne connaissent rien au bâtiment et qui vendent du vent aux artisans.
+              « Nous utilisons la technologie pour éliminer les mauvais payeurs et les mauvais poseurs. Pas de blabla, juste des chantiers vérifiés et des pros certifiés. »
             </p>
           </div>
 
           <div className="bg-muted/50 rounded-xl p-6 md:p-8 border border-border mb-6">
             <p className="text-foreground leading-relaxed text-base md:text-lg">
-              Ici, on ne vous vend pas des numéros de téléphone. On vous offre une vitrine auditée par un pro du métier. Quand je valide une entreprise, je mets mon expérience de 20 ans en jeu.{" "}
+              De Lille à Marseille, nos Experts Terrain et notre algorithme de confiance valident les meilleurs artisans de France.{" "}
               <span className="font-bold text-gold">
-                C'est pour ça que nos clients ont confiance : ils savent qu'un artisan Validé, c'est un artisan qui bosse vraiment.
-              </span>
-            </p>
-          </div>
-
-          <div className="bg-card rounded-xl p-6 md:p-8 border border-border">
-            <p className="text-foreground leading-relaxed text-base md:text-lg">
-              De Lille à Marseille, nous validons les meilleurs.{" "}
-              <span className="font-bold text-gold">
-                Andrea supervise chaque dossier pour garantir que l'artisan qui entre chez vous est un vrai pro, peu importe sa région.
+                Chaque dossier est audité. Chaque certification est méritée.
               </span>
             </p>
           </div>
 
           <p className="text-center text-foreground font-bold text-lg md:text-xl mt-6">
-            Andrea & Associée — <span className="text-gold">L'expertise du chantier au service du digital.</span>
+            La Certification Artisans Validés — <span className="text-gold">L'expertise du chantier au service du digital.</span>
           </p>
         </motion.div>
       </div>

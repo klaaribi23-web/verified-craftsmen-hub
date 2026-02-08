@@ -64,7 +64,7 @@ import { AlertTriangle } from "lucide-react";
 const ITEMS_PER_PAGE = 30;
 
 // ── Demo missions displayed when DB is empty ──
-const BADGES = ["Audit Technologique Certifié", "Validation Expertise Métier", "Algorithme de Confiance ✓"] as const;
+const BADGES = ["Mission Auditée & Certifiée", "Validation Expertise Métier", "Algorithme de Confiance ✓"] as const;
 const randomBadge = (i: number) => BADGES[i % BADGES.length];
 
 const DEMO_MISSIONS = [
@@ -702,7 +702,7 @@ const NosMissions = () => {
                                   mission.trust_badge === "En attente d'artisan" ? "text-amber-600" : "text-success"
                                 )}>
                                   <ShieldCheck className="w-4 h-4" />
-                                  <span>{mission.trust_badge || "Audit Technologique Certifié"}</span>
+                                  <span>{mission.trust_badge || "Mission Auditée & Certifiée"}</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                   <Users className="w-3.5 h-3.5" />
@@ -712,6 +712,9 @@ const NosMissions = () => {
                               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <BadgeCheck className="w-3.5 h-3.5 text-gold" />
                                 <span>Le client garde la main sur ses coordonnées. Transmission après validation de votre profil.</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70 italic">
+                                <span>Analyse de faisabilité technique effectuée par nos outils d'expertise</span>
                               </div>
                             </div>
 
@@ -812,15 +815,17 @@ const NosMissions = () => {
             <div className="max-w-3xl mx-auto text-center">
               <BadgeCheck className="w-12 h-12 text-gold mx-auto mb-4" />
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                Marre de la concurrence ?
+                La technologie au service du terrain
               </h2>
-              <p className="text-lg text-white/70 mb-8 max-w-xl mx-auto">
-                Rejoignez un réseau exclusif où les chantiers vérifiés vous attendent. 
-                Plus de prospection, plus de clients douteux.
+              <p className="text-lg text-white/70 mb-4 max-w-xl mx-auto">
+                Nous utilisons la technologie pour éliminer les mauvais payeurs et les mauvais poseurs. Pas de blabla, juste des chantiers vérifiés et des pros certifiés.
+              </p>
+              <p className="text-sm text-white/50 mb-8 max-w-lg mx-auto">
+                Notre algorithme de confiance, combiné à 20 ans de savoir-faire terrain, sélectionne les meilleurs artisans de France.
               </p>
               <Link to="/devenir-artisan">
                 <Button variant="gold" size="xl" className="gap-2">
-                  Devenir partenaire
+                  Rejoindre le réseau certifié
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </Link>

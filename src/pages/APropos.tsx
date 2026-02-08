@@ -66,24 +66,23 @@ const APropos = () => {
             margin: "-100px"
           }} variants={staggerContainer}>
                <motion.p variants={fadeInUp} className="text-xl md:text-2xl text-foreground leading-relaxed mb-8">
-                On a créé ce qu'on aurait aimé avoir quand on était sur le terrain :
+                Notre force repose sur deux piliers :
                 <br />
-                <span className="text-gold font-bold">de la vraie transparence, pas des promesses en l'air.</span>
+                <span className="text-gold font-bold">L'Expertise Métier + La Technologie Exclusive.</span>
               </motion.p>
               
               <motion.div variants={fadeInUp} className="bg-navy rounded-xl p-6 border-l-4 border-gold mb-6">
                 <p className="text-white font-bold italic text-lg leading-relaxed">
-                  « On en a eu marre des vendeurs de leads qui ne connaissent rien au bâtiment et qui vendent du vent aux artisans. »
+                  « Nous utilisons la technologie pour éliminer les mauvais payeurs et les mauvais poseurs. Pas de blabla, juste des chantiers vérifiés et des pros certifiés. »
                 </p>
-                <p className="text-gold font-semibold text-sm mt-2">— Andrea, Fondateur</p>
+                <p className="text-gold font-semibold text-sm mt-2">— L'équipe Artisans Validés</p>
               </motion.div>
 
               <motion.div variants={fadeInUp} className="text-lg text-muted-foreground leading-relaxed">
                 <p>
-                  Ici, on ne vous vend pas des numéros de téléphone. On vous offre une vitrine auditée par un pro du métier.
-                  Quand je valide une entreprise, je mets mon expérience de 20 ans en jeu.{" "}
+                  Un protocole de validation strict, élaboré par des professionnels cumulant 20 ans de chantier, combiné à un algorithme de confiance qui protège les particuliers.{" "}
                   <span className="text-foreground font-semibold">
-                    C'est pour ça que nos clients ont confiance : ils savent qu'un artisan Validé, c'est un artisan qui bosse vraiment.
+                    La Certification Artisans Validés garantit que chaque artisan a été audité sur ses assurances, sa solidité financière et ses références réelles.
                   </span>
                 </p>
               </motion.div>
@@ -116,9 +115,9 @@ const APropos = () => {
                 
                 <motion.div variants={fadeInUp} className="mt-8 bg-gradient-to-r from-gold/10 to-primary/10 p-6 rounded-xl border-l-4 border-gold">
                   <p className="text-foreground italic text-lg leading-relaxed">
-                    « On a créé cette plateforme parce qu'on en avait marre des vendeurs de leads qui trompent les artisans. Ici, on parle vrai, on audite pour de vrai, et on protège les patrons qui bossent bien. »
+                    « Notre audit technique et notre algorithme de confiance éliminent les vendeurs de leads et protègent les vrais artisans. Pas de blabla, pas de promesses en l'air. »
                   </p>
-                  <p className="text-gold font-semibold mt-3">— Andrea, Fondateur & Expert Terrain</p>
+                  <p className="text-gold font-semibold mt-3">— Nos Experts Terrain, Artisans Validés</p>
                 </motion.div>
               </motion.div>
               
