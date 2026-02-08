@@ -63,6 +63,7 @@ import StoryViewer from "@/components/stories/StoryViewer";
 import { InterventionMap } from "@/components/artisan-profile/InterventionMap";
 import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
 import AuditReportSection from "@/components/artisan-profile/AuditReportSection";
+import ArtisanContactForm from "@/components/artisan-profile/ArtisanContactForm";
 
 const ArtisanPublicProfile = () => {
   const { slug } = useParams<{
@@ -1002,115 +1003,13 @@ const ArtisanPublicProfile = () => {
               )}
 
               {/* 2. SECTION CONTACT */}
-              <div>
-                <Card>
-                  <CardContent className="p-6 space-y-4">
-                    <div className="text-center mb-2">
-                      <p className="text-sm text-muted-foreground mb-1">Besoin d'un devis ?</p>
-                      <p className="text-2xl font-bold text-primary">Contactez-moi</p>
-                    </div>
-
-                    <Button className="w-full" size="lg" onClick={() => setChatOpen(true)}>
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Demander un devis
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      size="lg"
-                      onClick={() => setShowContactInfo(!showContactInfo)}
-                    >
-                      <Phone className="h-4 w-4 mr-2" />
-                      {showContactInfo ? "Masquer les contacts" : "Voir le téléphone"}
-                    </Button>
-
-                    {/* Contact Info revealed */}
-                    {showContactInfo && (
-                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
-                        {isAuthenticated ? (
-                          <>
-                            <div className="flex items-center gap-3">
-                              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                <Phone className="h-5 w-5 text-primary" />
-                              </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground">Téléphone</p>
-                                <p className="font-medium text-primary">{artisanContact.phone || "Non renseigné"}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                <Mail className="h-5 w-5 text-primary" />
-                              </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground">Email</p>
-                                <p className="font-medium text-primary">{artisanContact.email || "Non renseigné"}</p>
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="text-center py-2">
-                            <p className="text-sm text-muted-foreground mb-2">
-                              Connectez-vous pour voir les coordonnées
-                            </p>
-                            <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
-                              Se connecter
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Share Section */}
-                    <div className="pt-4 border-t">
-                      <p className="text-sm text-muted-foreground mb-3 flex items-center justify-center gap-2">
-                        <Share2 className="h-4 w-4" />
-                        Partager ce profil
-                      </p>
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleShare("facebook")}
-                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors"
-                          title="Partager sur Facebook"
-                        >
-                          <Facebook className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleShare("whatsapp")}
-                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-colors"
-                          title="Partager sur WhatsApp"
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleShare("twitter")}
-                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-black hover:text-white transition-colors"
-                          title="Partager sur X"
-                        >
-                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => handleShare("linkedin")}
-                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors"
-                          title="Partager sur LinkedIn"
-                        >
-                          <Linkedin className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleShare("copy")}
-                          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                          title="Copier le lien"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <ArtisanContactForm
+                artisanId={artisan.id}
+                artisanName={artisan.business_name}
+                artisanEmail={artisanContact.email}
+                artisanCity={artisan.city}
+                isAudited={artisan.is_audited === true}
+              />
 
               {/* 3. SECTION ZONE D'INTERVENTION - Non-sticky, EN DERNIER */}
               {artisan.latitude &&
