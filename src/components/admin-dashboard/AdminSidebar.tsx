@@ -13,6 +13,7 @@ import {
   ThumbsUp,
   User,
   CreditCard,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,6 +30,7 @@ const menuItems = [
   { icon: Users, label: "Artisans", path: "/admin/artisans" },
   { icon: UserCheck, label: "Clients", path: "/admin/clients" },
   { icon: BarChart3, label: "Statistiques", path: "/admin/statistiques" },
+  { icon: FileText, label: "Demandes projets", path: "/admin/demandes-projets" },
   { icon: MessageCircle, label: "Messagerie", path: "/admin/messagerie" },
   { icon: UserPlus, label: "Ajouter artisan", path: "/admin/ajouter-artisan" },
   { icon: Upload, label: "Import massif", path: "/admin/import-massif" },
