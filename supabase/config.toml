@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.send-project-request-email]
 verify_jwt = false
+
+[functions.generate-faq]
+verify_jwt = false
