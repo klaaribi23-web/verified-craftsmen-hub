@@ -64,6 +64,7 @@ import { InterventionMap } from "@/components/artisan-profile/InterventionMap";
 import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
 import AuditReportSection from "@/components/artisan-profile/AuditReportSection";
 import ArtisanContactForm from "@/components/artisan-profile/ArtisanContactForm";
+import StickyMobileCTA from "@/components/artisan-profile/StickyMobileCTA";
 
 const ArtisanPublicProfile = () => {
   const { slug } = useParams<{
@@ -1247,6 +1248,20 @@ const ArtisanPublicProfile = () => {
       />
 
       <Footer />
+
+      {/* Sticky Mobile CTA */}
+      <StickyMobileCTA
+        artisanName={artisan.business_name}
+        onRequestQuote={() => {
+          const contactSection = document.querySelector('[class*="ArtisanContactForm"], [data-contact-form]');
+          if (contactSection) {
+            contactSection.scrollIntoView({ behavior: "smooth" });
+          } else {
+            // Scroll to the contact form area (roughly 2/3 down the right column)
+            window.scrollTo({ top: 600, behavior: "smooth" });
+          }
+        }}
+      />
     </div>
   );
 };
