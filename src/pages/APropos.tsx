@@ -173,15 +173,15 @@ const APropos = () => {
               </motion.h2>
               <motion.div variants={fadeInUp} className="w-12 h-1 bg-gold mx-auto mb-10" />
 
-              <motion.div variants={fadeInUp} className="grid sm:grid-cols-3 gap-6 mb-12">
+              <motion.div variants={fadeInUp} className="grid sm:grid-cols-3 gap-6 mb-12 text-left">
                 {[
-                  { title: "Pas de commissions", desc: "Vos échanges restent les vôtres" },
-                  { title: "Pas de vente de leads", desc: "Vos données ne sont jamais revendues" },
-                  { title: "Pas de fausses urgences", desc: "Prenez le temps de décider" },
+                  { title: "Pas de commissions", desc: "On ne prend pas de pourcentage sur vos travaux. Votre argent doit rester dans votre projet, pas dans notre poche." },
+                  { title: "Pas de vente de leads", desc: "Vos données sont précieuses. On ne les revend jamais à 10 entreprises différentes pour vous faire harceler." },
+                  { title: "Pas de fausses urgences", desc: "On ne vous met pas la pression. Un bon chantier, c'est un chantier réfléchi avec le bon pro." },
                 ].map((item, i) => (
                   <div key={i} className="bg-muted/50 border border-border rounded-xl p-6">
                     <h3 className="font-bold text-foreground mb-2">{item.title}</h3>
-                    <p className="text-muted-foreground text-sm">{item.desc}</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
                   </div>
                 ))}
               </motion.div>
@@ -207,13 +207,13 @@ const APropos = () => {
               viewport={{ once: true }}
               variants={staggerContainer}
             >
-              <motion.p variants={fadeInUp} className="text-xl md:text-2xl font-medium mb-2">
-                Nous ne voulons pas être les plus gros.
+              <motion.p variants={fadeInUp} className="text-white/70 text-sm leading-relaxed max-w-xl mx-auto mb-8">
+                Artisans Validés est né de la rencontre entre des experts du bâtiment fatigués des dérives du web et des ingénieurs convaincus que la technologie doit servir à protéger les gens, pas à les exploiter.
               </motion.p>
-              <motion.p variants={fadeInUp} className="text-2xl md:text-3xl font-bold text-gold mb-4">
-                Nous voulons être les plus justes.
-              </motion.p>
-              <motion.p variants={fadeInUp} className="text-white/70 text-sm mb-10">
+              <motion.div variants={fadeInUp} className="bg-white/10 border border-gold/30 rounded-xl px-6 py-4 inline-block mb-8">
+                <p className="text-gold font-bold text-lg">Notre engagement : Moins de blabla, plus de résultats.</p>
+              </motion.div>
+              <motion.p variants={fadeInUp} className="text-white/50 text-xs mb-10">
                 Andrea & Associée — L'expertise du chantier au service du digital.
               </motion.p>
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center">
