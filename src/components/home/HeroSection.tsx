@@ -1,14 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, CheckCircle2, Star, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2 } from "lucide-react";
+import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
+import MicWaveform from "./MicWaveform";
 
 const HeroSection = () => {
-  const { startConversation, isConnecting, isConnected, isSpeaking, micActive, endConversation, micPermission, requestMicPermission } = useAndreaVoiceAgent();
+  const {
+    startConversation, isConnecting, isConnected, isSpeaking,
+    micActive, micLevel, endConversation, micPermission,
+    requestMicPermission, resetMic,
+  } = useAndreaVoiceAgent();
 
   const getVoiceLabel = () => {
     if (isConnecting) return "Connexion...";
@@ -18,7 +23,6 @@ const HeroSection = () => {
     return "Andrea écoute… 🎙️";
   };
 
-  // Fetch real artisan count
   const { data: artisanCount } = useQuery({
     queryKey: ["artisan-count-hero"],
     queryFn: async () => {
@@ -32,6 +36,58 @@ const HeroSection = () => {
   });
 
   const displayCount = artisanCount && artisanCount > 0 ? artisanCount : 200;
+
+  const VoiceButton = ({ mobile = false }: { mobile?: boolean }) => {
+    if (micPermission === "denied") {
+      return (
+        <Button
+          size="lg"
+          variant={mobile ? "default" : "destructive"}
+          className={`${mobile ? "w-full font-bold text-base py-7 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-2 border-destructive" : "w-full text-base"} gap-2`}
+          onClick={requestMicPermission}
+        >
+          <Mic className="w-5 h-5" />
+          Activer le micro 🔴
+        </Button>
+      );
+    }
+
+    return (
+      <div className="space-y-2">
+        <Button
+          size="lg"
+          variant={mobile ? "default" : "gold"}
+          className={mobile
+            ? `w-full font-bold text-base py-7 border-2 transition-all gap-2 shadow-lg ${
+                isConnected
+                  ? "bg-gold text-navy-dark border-gold animate-pulse"
+                  : isConnecting
+                  ? "bg-navy/80 text-white border-gold/60"
+                  : "bg-navy text-white border-gold/40 hover:bg-navy-dark hover:border-gold/60"
+              }`
+            : `w-full text-base gap-2 ${isConnected ? "animate-pulse ring-2 ring-gold/50" : ""}`
+          }
+          onClick={isConnected ? endConversation : startConversation}
+          disabled={isConnecting}
+        >
+          {isConnecting ? (
+            <Loader2 className="w-5 h-5 animate-spin text-gold" />
+          ) : (
+            <Mic className={`w-5 h-5 ${isConnected && mobile ? "text-navy-dark" : ""} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
+          )}
+          {getVoiceLabel()}
+        </Button>
+        {isConnected && (
+          <MicWaveform
+            level={micLevel}
+            isActive={micActive}
+            onReset={resetMic}
+            className="justify-center"
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <section className="relative min-h-screen flex items-center pt-32 lg:pt-20 overflow-hidden">
@@ -84,7 +140,6 @@ const HeroSection = () => {
                   const q = formData.get("question") as string;
                   if (q?.trim()) {
                     window.location.href = `/#expert-andrea?q=${encodeURIComponent(q.trim())}`;
-                    // Scroll to the AskExpertSection
                     const section = document.getElementById("expert-andrea");
                     if (section) section.scrollIntoView({ behavior: "smooth" });
                   }
@@ -126,36 +181,7 @@ const HeroSection = () => {
 
             {/* Mobile-only Andrea CTA */}
             <div className="block lg:hidden mb-6">
-              {micPermission === "denied" ? (
-                <Button
-                  size="lg"
-                  className="w-full font-bold text-base py-7 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-2 border-destructive gap-2"
-                  onClick={requestMicPermission}
-                >
-                  <Mic className="w-5 h-5" />
-                  Activer le micro 🔴
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  className={`w-full font-bold text-base py-7 border-2 transition-all gap-2 shadow-lg ${
-                    isConnected
-                      ? "bg-gold text-navy-dark border-gold animate-pulse"
-                      : isConnecting
-                      ? "bg-navy/80 text-white border-gold/60"
-                      : "bg-navy text-white border-gold/40 hover:bg-navy-dark hover:border-gold/60"
-                  }`}
-                  onClick={isConnected ? endConversation : startConversation}
-                  disabled={isConnecting}
-                >
-                  {isConnecting ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-gold" />
-                  ) : (
-                    <Mic className={`w-5 h-5 ${isConnected ? "text-navy-dark" : "text-gold"} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
-                  )}
-                  {getVoiceLabel()}
-                </Button>
-              )}
+              <VoiceButton mobile />
             </div>
 
             {/* Trust line */}
@@ -164,7 +190,7 @@ const HeroSection = () => {
               Déjà <span className="text-gold font-bold">+{displayCount}</span> artisans validés et vérifiés par nos soins.
             </p>
 
-            {/* How it works mini — 3 steps */}
+            {/* How it works mini */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-5 border border-white/20">
               <div className="grid grid-cols-3 gap-3 md:gap-6">
                 {[
@@ -211,32 +237,7 @@ const HeroSection = () => {
                   ))}
                 </div>
 
-                {micPermission === "denied" ? (
-                  <Button
-                    variant="destructive"
-                    size="lg"
-                    className="w-full text-base gap-2"
-                    onClick={requestMicPermission}
-                  >
-                    <Mic className="w-5 h-5" />
-                    Activer le micro 🔴
-                  </Button>
-                ) : (
-                  <Button
-                    variant="gold"
-                    size="lg"
-                    className={`w-full text-base gap-2 ${isConnected ? "animate-pulse ring-2 ring-gold/50" : ""}`}
-                    onClick={isConnected ? endConversation : startConversation}
-                    disabled={isConnecting}
-                  >
-                    {isConnecting ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Mic className={`w-5 h-5 ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
-                    )}
-                    {getVoiceLabel()}
-                  </Button>
-                )}
+                <VoiceButton />
               </div>
 
               {/* Floating Element */}

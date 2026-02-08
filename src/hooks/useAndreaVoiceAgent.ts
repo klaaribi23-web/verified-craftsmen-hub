@@ -10,11 +10,11 @@ export const useAndreaVoiceAgent = () => {
   const [error, setError] = useState<string | null>(null);
   const [micActive, setMicActive] = useState(false);
   const [micPermission, setMicPermission] = useState<MicPermission>("unknown");
+  const [micLevel, setMicLevel] = useState(0); // 0-1 for waveform visualization
   const analyserRef = useRef<AnalyserNode | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
 
   // Check mic permission on mount
   useEffect(() => {
@@ -26,7 +26,6 @@ export const useAndreaVoiceAgent = () => {
           result.onchange = () => setMicPermission(result.state as MicPermission);
         }
       } catch {
-        // permissions.query not supported for microphone on some browsers
         setMicPermission("unknown");
       }
     };
@@ -42,6 +41,7 @@ export const useAndreaVoiceAgent = () => {
     onDisconnect: () => {
       console.log("[Andrea Voice] Disconnected from agent");
       setMicActive(false);
+      setMicLevel(0);
       stopMicMonitor();
     },
     onMessage: (message) => {
@@ -54,72 +54,52 @@ export const useAndreaVoiceAgent = () => {
     },
   });
 
-  // Boost output volume to 150%
-  const boostOutputVolume = useCallback(() => {
-    try {
-      const ctx = audioCtxRef.current;
-      if (!ctx) return;
-      // Find all audio/video elements and boost via GainNode
-      const audioElements = document.querySelectorAll("audio, video");
-      audioElements.forEach((el) => {
-        const mediaEl = el as HTMLMediaElement;
-        if (!(mediaEl as any).__boosted) {
-          try {
-            const source = ctx.createMediaElementSource(mediaEl);
-            const gain = ctx.createGain();
-            gain.gain.value = 1.5; // 150%
-            source.connect(gain);
-            gain.connect(ctx.destination);
-            (mediaEl as any).__boosted = true;
-          } catch {}
-        }
-      });
-    } catch (e) {
-      console.warn("[Andrea Voice] Volume boost error:", e);
-    }
-  }, []);
-
-  // Set ElevenLabs SDK volume to max
-  useEffect(() => {
-    if (conversation.status === "connected") {
-      try {
-        conversation.setVolume({ volume: 1 });
-      } catch {}
-      // Also try boosting any audio elements
-      const timer = setInterval(boostOutputVolume, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [conversation.status, boostOutputVolume, conversation]);
-
-  // Monitor mic input volume
+  // Monitor mic input volume with low threshold
   const startMicMonitor = useCallback((stream: MediaStream) => {
     try {
       const ctx = audioCtxRef.current || new (window.AudioContext || (window as any).webkitAudioContext)();
       audioCtxRef.current = ctx;
       const source = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
-      analyser.fftSize = 256;
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.3;
       source.connect(analyser);
       analyserRef.current = analyser;
 
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
       let silentFrames = 0;
+      let frameCount = 0;
 
       const check = () => {
         analyser.getByteFrequencyData(dataArray);
-        const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-        if (avg > 2) {
+        // Use max instead of avg for better sensitivity
+        let max = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          if (dataArray[i] > max) max = dataArray[i];
+        }
+        const normalizedLevel = max / 255;
+
+        // Update level every 3 frames for smooth animation
+        frameCount++;
+        if (frameCount % 3 === 0) {
+          setMicLevel(normalizedLevel);
+        }
+
+        // Very low threshold: any sound > 0.5% triggers active
+        if (max > 1) {
           setMicActive(true);
           silentFrames = 0;
         } else {
           silentFrames++;
-          if (silentFrames > 150) {
+          // After ~5 seconds of total silence
+          if (silentFrames > 300) {
             setMicActive(false);
           }
         }
         rafRef.current = requestAnimationFrame(check);
       };
       check();
+      console.log("[Andrea Voice] ✅ Mic monitor started, analyser fftSize:", analyser.fftSize);
     } catch (e) {
       console.warn("[Andrea Voice] Mic monitor error:", e);
     }
@@ -131,6 +111,7 @@ export const useAndreaVoiceAgent = () => {
       rafRef.current = null;
     }
     analyserRef.current = null;
+    setMicLevel(0);
     if (micStreamRef.current) {
       micStreamRef.current.getTracks().forEach((t) => t.stop());
       micStreamRef.current = null;
@@ -155,6 +136,41 @@ export const useAndreaVoiceAgent = () => {
     }
   }, []);
 
+  const resetMic = useCallback(async () => {
+    console.log("[Andrea Voice] 🔄 Resetting microphone...");
+    stopMicMonitor();
+
+    // Close old AudioContext
+    if (audioCtxRef.current) {
+      try { audioCtxRef.current.close(); } catch {}
+      audioCtxRef.current = null;
+    }
+
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioCtxRef.current = ctx;
+      if (ctx.state === "suspended") await ctx.resume();
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          sampleRate: 16000,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      micStreamRef.current = stream;
+      startMicMonitor(stream);
+      setMicPermission("granted");
+      toast.success("Micro réinitialisé ✅");
+      console.log("[Andrea Voice] ✅ Mic reset complete, tracks:", stream.getAudioTracks().map(t => t.getSettings()));
+    } catch (err) {
+      console.error("[Andrea Voice] ❌ Mic reset failed:", err);
+      toast.error("Impossible de réinitialiser le micro.");
+    }
+  }, [stopMicMonitor, startMicMonitor]);
+
   const startConversation = useCallback(async () => {
     // End existing session first
     if (conversation.status === "connected") {
@@ -166,27 +182,30 @@ export const useAndreaVoiceAgent = () => {
     setIsConnecting(true);
     setError(null);
     setMicActive(false);
+    setMicLevel(0);
     stopMicMonitor();
 
     try {
-      // 1. Force AudioContext activation
+      // 1. Force AudioContext activation (mobile audio unlock)
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioCtxRef.current = audioCtx;
       if (audioCtx.state === "suspended") {
         await audioCtx.resume();
       }
+      // Play silent buffer to unlock audio output on iOS/Android
       const buffer = audioCtx.createBuffer(1, 1, 22050);
-      const source = audioCtx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioCtx.destination);
-      source.start(0);
+      const silentSource = audioCtx.createBufferSource();
+      silentSource.buffer = buffer;
+      silentSource.connect(audioCtx.destination);
+      silentSource.start(0);
       console.log("[Andrea Voice] AudioContext state:", audioCtx.state);
 
-      // 2. Request microphone — FORCE MONO
-      console.log("[Andrea Voice] Requesting MONO microphone access...");
+      // 2. Request MONO microphone at 16kHz
+      console.log("[Andrea Voice] Requesting MONO 16kHz microphone...");
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
+          sampleRate: 16000,
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
@@ -194,7 +213,8 @@ export const useAndreaVoiceAgent = () => {
       });
       micStreamRef.current = stream;
       setMicPermission("granted");
-      console.log("[Andrea Voice] ✅ Mono mic access granted, tracks:", stream.getAudioTracks().map(t => t.getSettings()));
+      const settings = stream.getAudioTracks()[0]?.getSettings();
+      console.log("[Andrea Voice] ✅ Mic granted — sampleRate:", settings?.sampleRate, "channelCount:", settings?.channelCount);
 
       // 3. Start mic activity monitor
       startMicMonitor(stream);
@@ -235,8 +255,6 @@ export const useAndreaVoiceAgent = () => {
       if (msg.includes("Permission") || msg.includes("NotAllowed")) {
         setMicPermission("denied");
         toast.error("Micro bloqué. Autorisez l'accès au microphone.", { duration: 5000 });
-      } else if (msg.includes("API") || msg.includes("Token")) {
-        toast.error("Erreur de connexion ElevenLabs ❌");
       } else {
         toast.error("Erreur de connexion ElevenLabs ❌");
       }
@@ -253,10 +271,12 @@ export const useAndreaVoiceAgent = () => {
   return {
     startConversation,
     endConversation,
+    resetMic,
     isConnecting,
     isConnected: conversation.status === "connected",
     isSpeaking: conversation.isSpeaking,
     micActive,
+    micLevel,
     micPermission,
     requestMicPermission,
     status: conversation.status,
