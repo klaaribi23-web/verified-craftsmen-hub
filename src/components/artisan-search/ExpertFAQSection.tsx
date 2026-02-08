@@ -122,7 +122,7 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
             ))}
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground pt-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Khalid prépare ses réponses…
+              Andrea prépare ses réponses…
             </div>
           </div>
         )}
@@ -173,7 +173,7 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
                         {item.answer}
                       </p>
                       <p className="text-[11px] text-amber-600/60 dark:text-amber-400/50 mt-2 italic">
-                        — Khalid, Fondateur & Expert Terrain
+                        — Andrea, Fondateur & Expert Terrain
                       </p>
                     </div>
                   </div>

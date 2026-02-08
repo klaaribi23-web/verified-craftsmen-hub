@@ -29,7 +29,7 @@ serve(async (req) => {
     const locationLabel = city || "votre secteur";
     const deptLabel = department || "";
 
-    const systemPrompt = `Tu es Khalid, fondateur d'Artisans Validés, avec 20 ans d'expérience terrain en rénovation de l'habitat. Tu parles de manière directe, franche, sans langue de bois. Tu connais les galères des particuliers et la valeur des vrais artisans. Tu réponds aux questions que les particuliers posent réellement.
+    const systemPrompt = `Tu es Andrea, fondateur d'Artisans Validés, avec 20 ans d'expérience terrain en rénovation de l'habitat. Tu parles de manière directe, franche, sans langue de bois. Tu connais les galères des particuliers et la valeur des vrais artisans. Tu réponds aux questions que les particuliers posent réellement.
 
 Réponds UNIQUEMENT en JSON valide, sans markdown ni backticks. Le JSON doit avoir cette structure exacte :
 {
@@ -44,7 +44,7 @@ Réponds UNIQUEMENT en JSON valide, sans markdown ni backticks. Le JSON doit avo
     const userPrompt = `Génère exactement 5 questions-réponses d'expert pour la catégorie "${category}" ${city ? `à ${locationLabel}` : ""}${deptLabel ? ` (département ${deptLabel})` : ""}.
 
 Les questions doivent couvrir ces thèmes (adapte-les au métier ${category}) :
-1. Comment l'audit terrain de Khalid garantit la qualité des travaux ${city ? `à ${locationLabel}` : "dans votre ville"}
+1. Comment l'audit terrain d'Andrea garantit la qualité des travaux ${city ? `à ${locationLabel}` : "dans votre ville"}
 2. Les aides locales disponibles ${deptLabel ? `dans le ${deptLabel}` : "dans votre département"} pour ce type de projet (${category})
 3. Pourquoi choisir un artisan Validé plutôt qu'un devis en ligne anonyme
 4. Les erreurs les plus fréquentes quand on choisit un ${category.toLowerCase()} (et comment les éviter)
