@@ -1,12 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, CheckCircle2, Star, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic } from "lucide-react";
+import { Shield, CheckCircle2, Star, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
 
 const HeroSection = () => {
+  const { startConversation, isConnecting, isConnected, isSpeaking, endConversation } = useAndreaVoiceAgent();
+
   // Fetch real artisan count
   const { data: artisanCount } = useQuery({
     queryKey: ["artisan-count-hero"],
@@ -117,11 +120,28 @@ const HeroSection = () => {
             <div className="block lg:hidden mb-6">
               <Button
                 size="lg"
-                className="w-full bg-navy text-white font-bold text-base py-7 border-2 border-gold/40 hover:bg-navy-dark hover:border-gold/60 transition-all gap-2 shadow-lg"
-                onClick={() => document.getElementById('expert-andrea')?.scrollIntoView({ behavior: 'smooth' })}
+                className={`w-full font-bold text-base py-7 border-2 transition-all gap-2 shadow-lg ${
+                  isConnected
+                    ? "bg-gold text-navy-dark border-gold animate-pulse"
+                    : isConnecting
+                    ? "bg-navy/80 text-white border-gold/60"
+                    : "bg-navy text-white border-gold/40 hover:bg-navy-dark hover:border-gold/60"
+                }`}
+                onClick={isConnected ? endConversation : startConversation}
+                disabled={isConnecting}
               >
-                <Mic className="w-5 h-5 text-gold" />
-                Parler à Andrea 🎙️
+                {isConnecting ? (
+                  <Loader2 className="w-5 h-5 animate-spin text-gold" />
+                ) : (
+                  <Mic className={`w-5 h-5 ${isConnected ? "text-navy-dark" : "text-gold"}`} />
+                )}
+                {isConnecting
+                  ? "Connexion..."
+                  : isConnected
+                  ? isSpeaking
+                    ? "Andrea parle… 🔊"
+                    : "Andrea écoute… 🎙️"
+                  : "Parler à Andrea 🎙️"}
               </Button>
             </div>
 
@@ -181,11 +201,22 @@ const HeroSection = () => {
                 <Button
                   variant="gold"
                   size="lg"
-                  className="w-full text-base gap-2"
-                  onClick={() => document.getElementById('expert-andrea')?.scrollIntoView({ behavior: 'smooth' })}
+                  className={`w-full text-base gap-2 ${isConnected ? "animate-pulse ring-2 ring-gold/50" : ""}`}
+                  onClick={isConnected ? endConversation : startConversation}
+                  disabled={isConnecting}
                 >
-                  <Mic className="w-5 h-5" />
-                  Parler à Andrea
+                  {isConnecting ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Mic className="w-5 h-5" />
+                  )}
+                  {isConnecting
+                    ? "Connexion..."
+                    : isConnected
+                    ? isSpeaking
+                      ? "Andrea parle… 🔊"
+                      : "Andrea écoute… 🎙️"
+                    : "Parler à Andrea"}
                 </Button>
               </div>
 
