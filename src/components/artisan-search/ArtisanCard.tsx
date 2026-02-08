@@ -378,6 +378,7 @@ const ArtisanCard = ({
         stories={stories}
         artisanName={name}
         artisanPhoto={profileImage || defaultProfileImage}
+        highlightCity={location}
         isOpen={storyViewerOpen}
         onClose={() => setStoryViewerOpen(false)}
       />

@@ -707,6 +707,12 @@ const ArtisanPublicProfile = () => {
                         setSelectedImage(image);
                         setSelectedImageIndex(index);
                       }}
+                      artisanContext={{
+                        businessName: artisan.business_name,
+                        city: artisan.city,
+                        category: artisan.category?.name,
+                        department: artisan.department || artisan.postal_code?.substring(0, 2),
+                      }}
                     />
                   </CardContent>
                 </Card>
@@ -726,6 +732,12 @@ const ArtisanPublicProfile = () => {
                       items={artisan.portfolio_videos}
                       type="video"
                       onItemClick={(video) => setSelectedVideo(video)}
+                      artisanContext={{
+                        businessName: artisan.business_name,
+                        city: artisan.city,
+                        category: artisan.category?.name,
+                        department: artisan.department || artisan.postal_code?.substring(0, 2),
+                      }}
                     />
                   </CardContent>
                 </Card>
@@ -1147,7 +1159,7 @@ const ArtisanPublicProfile = () => {
 
           <img
             src={selectedImage}
-            alt={`Réalisation ${selectedImageIndex + 1}`}
+            alt={`${artisan.category?.name || "R\u00e9alisation"} par ${artisan.business_name} \u00e0 ${artisan.city}${artisan.department ? ` (${artisan.department})` : artisan.postal_code ? ` (${artisan.postal_code.substring(0, 2)})` : ""} - Photo ${selectedImageIndex + 1}`}
             className="max-w-full max-h-[90vh] rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />
@@ -1330,6 +1342,7 @@ const ArtisanPublicProfile = () => {
         stories={stories}
         artisanName={artisan.business_name}
         artisanPhoto={artisan.photo_url}
+        highlightCity={artisan.city}
         isOpen={storyViewerOpen}
         onClose={() => setStoryViewerOpen(false)}
       />
