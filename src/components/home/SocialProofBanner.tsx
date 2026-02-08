@@ -1,20 +1,20 @@
-import { useState, useEffect, useMemo } from "react";
-import { CheckCircle2, FileText, MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CheckCircle2, FileText, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 interface ProofMessage {
   text: string;
-  icon: "audit" | "devis" | "artisan";
+  icon: "audit" | "devis";
 }
 
 const FALLBACK_MESSAGES: ProofMessage[] = [
-  { text: "✅ Nouvel artisan validé à Lille", icon: "artisan" },
-  { text: "📩 Demande de devis reçue à Lyon", icon: "devis" },
-  { text: "✅ Audit terrain réalisé à Marseille", icon: "audit" },
-  { text: "📩 Nouvelle demande de devis à Paris", icon: "devis" },
-  { text: "✅ Artisan certifié à Toulouse", icon: "artisan" },
-  { text: "📩 Demande de devis reçue à Bordeaux", icon: "devis" },
+  { text: "Nouvel audit de conformité validé par Andrea à Lille", icon: "audit" },
+  { text: "Nouveau projet de rénovation déposé à Lyon il y a 12 min", icon: "devis" },
+  { text: "Nouvel audit de conformité validé par Andrea à Marseille", icon: "audit" },
+  { text: "Nouveau projet de rénovation déposé à Paris il y a 8 min", icon: "devis" },
+  { text: "Nouvel audit de conformité validé par Andrea à Toulouse", icon: "audit" },
+  { text: "Nouveau projet de rénovation déposé à Bordeaux il y a 25 min", icon: "devis" },
 ];
 
 const SocialProofBanner = () => {
@@ -22,11 +22,9 @@ const SocialProofBanner = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
 
-  // Fetch real data for dynamic messages
   useEffect(() => {
     const fetchRecentActivity = async () => {
       try {
-        // Fetch recent audited artisans
         const { data: auditedArtisans } = await supabase
           .from("public_artisans")
           .select("business_name, city, created_at")
@@ -34,7 +32,6 @@ const SocialProofBanner = () => {
           .order("created_at", { ascending: false })
           .limit(3);
 
-        // Fetch recent project requests
         const { data: recentRequests } = await supabase
           .from("project_requests")
           .select("client_city, created_at")
@@ -45,9 +42,8 @@ const SocialProofBanner = () => {
 
         auditedArtisans?.forEach((a) => {
           if (a.city && a.city !== "À compléter") {
-            const ago = getTimeAgo(a.created_at);
             dynamicMessages.push({
-              text: `✅ Dernier audit réalisé à ${a.city} ${ago}`,
+              text: `Nouvel audit de conformité validé par Andrea à ${a.city}`,
               icon: "audit",
             });
           }
@@ -57,7 +53,7 @@ const SocialProofBanner = () => {
           if (r.client_city) {
             const ago = getTimeAgo(r.created_at);
             dynamicMessages.push({
-              text: `📩 Nouvelle demande de devis à ${r.client_city} ${ago}`,
+              text: `Nouveau projet de rénovation déposé à ${r.client_city} ${ago}`,
               icon: "devis",
             });
           }
@@ -74,7 +70,6 @@ const SocialProofBanner = () => {
     fetchRecentActivity();
   }, []);
 
-  // Rotate messages
   useEffect(() => {
     const interval = setInterval(() => {
       setIsVisible(false);
@@ -87,6 +82,8 @@ const SocialProofBanner = () => {
   }, [messages.length]);
 
   const current = messages[currentIndex];
+  const IconComp = current.icon === "audit" ? CheckCircle2 : FileText;
+  const emoji = current.icon === "audit" ? "✅" : "📩";
 
   return (
     <div className="bg-navy/95 border-b border-white/10 py-2.5 overflow-hidden">
@@ -97,8 +94,9 @@ const SocialProofBanner = () => {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
           )}
         >
-          <span className="text-base leading-none">{current.text.substring(0, 2)}</span>
-          <span className="font-medium">{current.text.substring(2)}</span>
+          <span className="text-base leading-none">{emoji}</span>
+          <span className="font-medium">{current.text}</span>
+          <ShieldCheck className="h-4 w-4 text-gold flex-shrink-0 ml-1" />
         </div>
       </div>
     </div>
@@ -107,10 +105,11 @@ const SocialProofBanner = () => {
 
 function getTimeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
-  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
-  if (hours < 1) return "il y a quelques minutes";
+  if (minutes < 60) return `il y a ${Math.max(1, minutes)} min`;
   if (hours < 24) return `il y a ${hours}h`;
   if (days < 7) return `il y a ${days}j`;
   return "récemment";

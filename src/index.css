@@ -204,3 +204,9 @@ body:has(.mobile-navbar-active) footer {
     padding-bottom: 5rem;
   }
 }
+
+/* Subtle pulse animation for CTA */
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); box-shadow: 0 10px 15px -3px rgb(234 179 8 / 0.3); }
+  50% { transform: scale(1.03); box-shadow: 0 10px 25px -3px rgb(234 179 8 / 0.5); }
+}
