@@ -11,6 +11,7 @@ import { DemoContactProvider } from "@/contexts/DemoContactContext";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import Index from "./pages/Index";
 import TrouverArtisan from "./pages/TrouverArtisan";
+import CityArtisansPage from "./pages/CityArtisansPage";
 import NosMissions from "./pages/NosMissions";
 import DemandeDevis from "./pages/DemandeDevis";
 import DevenirArtisan from "./pages/DevenirArtisan";
@@ -111,6 +112,7 @@ const App = () => (
           <Route path="/cgv" element={<CGV />} />
           <Route path="/confidentialite" element={<Confidentialite />} />
           <Route path="/admin-exclusive" element={<AdminExclusive />} />
+          <Route path="/artisans-ville/:citySlug" element={<CityArtisansPage />} />
           
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           
