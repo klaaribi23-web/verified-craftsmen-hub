@@ -149,8 +149,8 @@ const DevenirArtisan = () => {
     return (
       <div className="min-h-screen bg-background">
         <SEOHead 
-          title="Candidature envoyée"
-          description="Votre candidature au réseau Artisans Validés a bien été reçue."
+          title="Demande reçue — Artisans Validés"
+          description="Votre demande d'accès au réseau Artisans Validés a bien été reçue."
         />
         <Navbar />
         <main className="pt-32 lg:pt-20 pb-20">
@@ -165,10 +165,10 @@ const DevenirArtisan = () => {
               </div>
               
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6 text-left">
-                <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
-                  <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
-                  <p className="font-medium">Candidature reçue !</p>
-                </div>
+                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
+                   <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+                   <p className="font-medium">Demande d'accès reçue !</p>
+                 </div>
               </div>
               
               <h1 className="text-2xl font-bold text-foreground mb-4">
@@ -200,7 +200,7 @@ const DevenirArtisan = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
-        title="Candidater au réseau Artisans Validés"
+        title="Rejoindre l'Alliance — Artisans Validés"
         description="Arrêtez de payer pour des leads partagés. On verrouille votre ville, on vérifie vos assurances, vous signez les chantiers."
         canonical="https://artisansvalides.fr/devenir-artisan"
       />
@@ -263,8 +263,11 @@ const DevenirArtisan = () => {
                     <h2 className="text-lg md:text-xl font-bold text-navy mb-1 md:mb-2">
                       Votre secteur est-il encore disponible ?
                     </h2>
-                    <p className="text-xs md:text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground mb-2">
                       Remplissez ce formulaire, on vous rappelle sous 2h
+                    </p>
+                    <p className="text-xs text-gold font-medium italic">
+                      On ne cherche pas des dossiers parfaits, on cherche des artisans qui ont le goût du travail bien fait et qui respectent leurs clients.
                     </p>
                   </div>
 
@@ -326,7 +329,7 @@ const DevenirArtisan = () => {
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
-                        {isLoading ? "Vérification..." : "VÉRIFIER LA DISPONIBILITÉ DE MON SECTEUR"}
+                        {isLoading ? "Vérification..." : "JE VEUX ÊTRE VALIDÉ →"}
                       </Button>
                     </div>
 
@@ -350,7 +353,7 @@ const DevenirArtisan = () => {
                       }}
                     >
                       {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                      {isLoading ? "Vérification..." : "VÉRIFIER MON SECTEUR"}
+                      {isLoading ? "Vérification..." : "JE VEUX ÊTRE VALIDÉ →"}
                     </Button>
                   </div>
                 </div>
@@ -377,7 +380,7 @@ const DevenirArtisan = () => {
                 </div>
               </div>
               <p className="text-base md:text-lg font-medium text-foreground mb-2">
-                Ici, pas de plateforme robotisée. Un expert du bâtiment analyse votre candidature et vous rappelle sous 2h pour valider votre exclusivité.
+                Ici, pas de plateforme robotisée. Un expert du bâtiment étudie votre demande et vous rappelle sous 2h pour valider votre exclusivité.
               </p>
               <p className="text-sm text-muted-foreground">
                 Déjà plus de 50 artisans partenaires accompagnés cette année.
@@ -456,7 +459,7 @@ const DevenirArtisan = () => {
                       className="w-full !text-base !font-bold"
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
-                      Vérifier la disponibilité
+                      Accéder au réseau
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                   </CardFooter>
@@ -524,9 +527,9 @@ const DevenirArtisan = () => {
 
             <div className="grid md:grid-cols-4 gap-8">
               {[
-                { step: "01", title: "Candidature", desc: "Remplissez le formulaire en 30 secondes" },
+                { step: "01", title: "Demander mon accès", desc: "Remplissez le formulaire en 30 secondes" },
                 { step: "02", title: "Rappel sous 2h", desc: "On vous appelle pour vérifier votre secteur" },
-                { step: "03", title: "Vérification", desc: "On contrôle SIRET, assurances et références" },
+                { step: "03", title: "Vérification", desc: "On contrôle assurances décennales, références chantiers et avis clients" },
                 { step: "04", title: "C'est parti", desc: "Votre profil est live, les clients vous appellent" },
               ].map((item, index) => (
                 <motion.div
@@ -563,7 +566,7 @@ const DevenirArtisan = () => {
                   2 places max par secteur. Quand c'est pris, c'est pris.
                 </p>
                 <Button variant="gold" size="xl" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                  VÉRIFIER MON SECTEUR
+                  REJOINDRE L'ALLIANCE
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>

@@ -57,9 +57,10 @@ const AllianceSection = () => {
 
             <ul className="space-y-3 text-muted-foreground">
               {[
-                "Vérification décennale & RC Pro",
-                "Analyse de santé financière (SIRET & solidité)",
-                "Références clients et réalisations auditées",
+                "Validité des assurances décennales & RC Pro",
+                "Solidité de l'entreprise — professionnalisme vérifié",
+                "Références de chantiers réels et savoir-faire concret",
+                "Satisfaction des clients précédents",
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3">
                   <ShieldCheck className="w-5 h-5 text-gold shrink-0" />
