@@ -147,23 +147,23 @@ const HeroSection = () => {
                     <Shield className="w-8 h-8 text-navy-dark" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-navy">Jean-Pierre Martin</h3>
-                    <p className="text-sm text-muted-foreground">Plombier · Paris 15</p>
+                    <h3 className="font-semibold text-navy">Andrea : Ton assistante de choc</h3>
+                    <p className="text-sm text-muted-foreground">IA Expert Bâtiment · L'Alliance</p>
                     <div className="flex items-center gap-1 mt-1">
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} className="w-4 h-4 fill-gold text-gold" />
                       ))}
-                      <span className="text-sm text-muted-foreground ml-1">(127 avis)</span>
+                      <span className="text-sm text-muted-foreground ml-1">20 ans d'expertise</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  {["Expérience", "Tarif/h", "Délai"].map((label, i) => (
+                  {["Vérifications", "Artisans", "Réponse"].map((label, i) => (
                     <div key={label} className="text-center p-3 rounded-lg bg-muted">
                       <div className="text-sm text-muted-foreground">{label}</div>
                       <div className="font-semibold text-navy">
-                        {i === 0 ? "15 ans" : i === 1 ? "45€" : "24h"}
+                        {i === 0 ? "500+/mois" : i === 1 ? "Triés" : "< 30s"}
                       </div>
                     </div>
                   ))}
@@ -180,7 +180,7 @@ const HeroSection = () => {
                   </div>
                 </div>
 
-                <Button variant="gold" className="w-full">Demander un devis</Button>
+                <Button variant="gold" className="w-full" onClick={() => document.getElementById('expert-andrea')?.scrollIntoView({ behavior: 'smooth' })}>Parler à Andrea</Button>
               </div>
 
               {/* Floating Elements */}
