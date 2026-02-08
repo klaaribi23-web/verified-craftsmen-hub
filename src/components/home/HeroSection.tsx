@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
 
 const HeroSection = () => {
-  const { startConversation, isConnecting, isConnected, isSpeaking, micActive, endConversation } = useAndreaVoiceAgent();
+  const { startConversation, isConnecting, isConnected, isSpeaking, micActive, endConversation, micPermission, requestMicPermission } = useAndreaVoiceAgent();
 
   const getVoiceLabel = () => {
     if (isConnecting) return "Connexion...";
@@ -126,25 +126,36 @@ const HeroSection = () => {
 
             {/* Mobile-only Andrea CTA */}
             <div className="block lg:hidden mb-6">
-              <Button
-                size="lg"
-                className={`w-full font-bold text-base py-7 border-2 transition-all gap-2 shadow-lg ${
-                  isConnected
-                    ? "bg-gold text-navy-dark border-gold animate-pulse"
-                    : isConnecting
-                    ? "bg-navy/80 text-white border-gold/60"
-                    : "bg-navy text-white border-gold/40 hover:bg-navy-dark hover:border-gold/60"
-                }`}
-                onClick={isConnected ? endConversation : startConversation}
-                disabled={isConnecting}
-              >
-                {isConnecting ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-gold" />
-                ) : (
-                  <Mic className={`w-5 h-5 ${isConnected ? "text-navy-dark" : "text-gold"} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
-                )}
-                {getVoiceLabel()}
-              </Button>
+              {micPermission === "denied" ? (
+                <Button
+                  size="lg"
+                  className="w-full font-bold text-base py-7 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-2 border-destructive gap-2"
+                  onClick={requestMicPermission}
+                >
+                  <Mic className="w-5 h-5" />
+                  Activer le micro 🔴
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  className={`w-full font-bold text-base py-7 border-2 transition-all gap-2 shadow-lg ${
+                    isConnected
+                      ? "bg-gold text-navy-dark border-gold animate-pulse"
+                      : isConnecting
+                      ? "bg-navy/80 text-white border-gold/60"
+                      : "bg-navy text-white border-gold/40 hover:bg-navy-dark hover:border-gold/60"
+                  }`}
+                  onClick={isConnected ? endConversation : startConversation}
+                  disabled={isConnecting}
+                >
+                  {isConnecting ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-gold" />
+                  ) : (
+                    <Mic className={`w-5 h-5 ${isConnected ? "text-navy-dark" : "text-gold"} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
+                  )}
+                  {getVoiceLabel()}
+                </Button>
+              )}
             </div>
 
             {/* Trust line */}
@@ -200,20 +211,32 @@ const HeroSection = () => {
                   ))}
                 </div>
 
-                <Button
-                  variant="gold"
-                  size="lg"
-                  className={`w-full text-base gap-2 ${isConnected ? "animate-pulse ring-2 ring-gold/50" : ""}`}
-                  onClick={isConnected ? endConversation : startConversation}
-                  disabled={isConnecting}
-                >
-                  {isConnecting ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Mic className={`w-5 h-5 ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
-                  )}
-                  {getVoiceLabel()}
-                </Button>
+                {micPermission === "denied" ? (
+                  <Button
+                    variant="destructive"
+                    size="lg"
+                    className="w-full text-base gap-2"
+                    onClick={requestMicPermission}
+                  >
+                    <Mic className="w-5 h-5" />
+                    Activer le micro 🔴
+                  </Button>
+                ) : (
+                  <Button
+                    variant="gold"
+                    size="lg"
+                    className={`w-full text-base gap-2 ${isConnected ? "animate-pulse ring-2 ring-gold/50" : ""}`}
+                    onClick={isConnected ? endConversation : startConversation}
+                    disabled={isConnecting}
+                  >
+                    {isConnecting ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Mic className={`w-5 h-5 ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
+                    )}
+                    {getVoiceLabel()}
+                  </Button>
+                )}
               </div>
 
               {/* Floating Element */}

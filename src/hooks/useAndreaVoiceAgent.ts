@@ -3,19 +3,41 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+type MicPermission = "granted" | "denied" | "prompt" | "unknown";
+
 export const useAndreaVoiceAgent = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [micActive, setMicActive] = useState(false);
+  const [micPermission, setMicPermission] = useState<MicPermission>("unknown");
   const analyserRef = useRef<AnalyserNode | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+
+  // Check mic permission on mount
+  useEffect(() => {
+    const checkPermission = async () => {
+      try {
+        if (navigator.permissions?.query) {
+          const result = await navigator.permissions.query({ name: "microphone" as PermissionName });
+          setMicPermission(result.state as MicPermission);
+          result.onchange = () => setMicPermission(result.state as MicPermission);
+        }
+      } catch {
+        // permissions.query not supported for microphone on some browsers
+        setMicPermission("unknown");
+      }
+    };
+    checkPermission();
+  }, []);
 
   const conversation = useConversation({
     onConnect: () => {
       console.log("[Andrea Voice] ✅ Connected to ElevenLabs agent");
       setError(null);
+      toast.success("Connexion ElevenLabs établie ✅", { duration: 3000 });
     },
     onDisconnect: () => {
       console.log("[Andrea Voice] Disconnected from agent");
@@ -28,11 +50,48 @@ export const useAndreaVoiceAgent = () => {
     onError: (error) => {
       console.error("[Andrea Voice] ❌ Agent error:", error);
       setError(String(error));
-      toast.error("Erreur de connexion vocale. Réessayez.");
+      toast.error("Erreur de connexion ElevenLabs ❌", { duration: 5000 });
     },
   });
 
-  // Monitor mic input volume to detect if mic is actually capturing
+  // Boost output volume to 150%
+  const boostOutputVolume = useCallback(() => {
+    try {
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      // Find all audio/video elements and boost via GainNode
+      const audioElements = document.querySelectorAll("audio, video");
+      audioElements.forEach((el) => {
+        const mediaEl = el as HTMLMediaElement;
+        if (!(mediaEl as any).__boosted) {
+          try {
+            const source = ctx.createMediaElementSource(mediaEl);
+            const gain = ctx.createGain();
+            gain.gain.value = 1.5; // 150%
+            source.connect(gain);
+            gain.connect(ctx.destination);
+            (mediaEl as any).__boosted = true;
+          } catch {}
+        }
+      });
+    } catch (e) {
+      console.warn("[Andrea Voice] Volume boost error:", e);
+    }
+  }, []);
+
+  // Set ElevenLabs SDK volume to max
+  useEffect(() => {
+    if (conversation.status === "connected") {
+      try {
+        conversation.setVolume({ volume: 1 });
+      } catch {}
+      // Also try boosting any audio elements
+      const timer = setInterval(boostOutputVolume, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [conversation.status, boostOutputVolume, conversation]);
+
+  // Monitor mic input volume
   const startMicMonitor = useCallback((stream: MediaStream) => {
     try {
       const ctx = audioCtxRef.current || new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -54,7 +113,6 @@ export const useAndreaVoiceAgent = () => {
           silentFrames = 0;
         } else {
           silentFrames++;
-          // After ~3 seconds of silence, flag mic as inactive
           if (silentFrames > 150) {
             setMicActive(false);
           }
@@ -85,12 +143,23 @@ export const useAndreaVoiceAgent = () => {
     };
   }, [stopMicMonitor]);
 
+  const requestMicPermission = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+      setMicPermission("granted");
+      toast.success("Micro activé ✅");
+    } catch {
+      setMicPermission("denied");
+      toast.error("Micro bloqué. Autorisez l'accès dans les paramètres.", { duration: 5000 });
+    }
+  }, []);
+
   const startConversation = useCallback(async () => {
-    // Always end any existing session first (avoid ghost connections)
+    // End existing session first
     if (conversation.status === "connected") {
       console.log("[Andrea Voice] Ending existing session before restart");
       try { await conversation.endSession(); } catch {}
-      // Small delay to let WebSocket close cleanly
       await new Promise((r) => setTimeout(r, 300));
     }
 
@@ -100,13 +169,12 @@ export const useAndreaVoiceAgent = () => {
     stopMicMonitor();
 
     try {
-      // 1. Force AudioContext activation (required for iOS/Android output audio)
+      // 1. Force AudioContext activation
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioCtxRef.current = audioCtx;
       if (audioCtx.state === "suspended") {
         await audioCtx.resume();
       }
-      // Play a silent buffer to unlock audio output on mobile
       const buffer = audioCtx.createBuffer(1, 1, 22050);
       const source = audioCtx.createBufferSource();
       source.buffer = buffer;
@@ -114,20 +182,26 @@ export const useAndreaVoiceAgent = () => {
       source.start(0);
       console.log("[Andrea Voice] AudioContext state:", audioCtx.state);
 
-      // 2. Request microphone permission
-      console.log("[Andrea Voice] Requesting microphone access...");
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // 2. Request microphone — FORCE MONO
+      console.log("[Andrea Voice] Requesting MONO microphone access...");
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
       micStreamRef.current = stream;
-      console.log("[Andrea Voice] ✅ Microphone access granted");
+      setMicPermission("granted");
+      console.log("[Andrea Voice] ✅ Mono mic access granted, tracks:", stream.getAudioTracks().map(t => t.getSettings()));
 
       // 3. Start mic activity monitor
       startMicMonitor(stream);
 
-      // 4. Get signed URL from edge function
-      console.log("[Andrea Voice] Fetching signed URL from edge function...");
-      const { data, error: fnError } = await supabase.functions.invoke(
-        "elevenlabs-conversation-token"
-      );
+      // 4. Get signed URL
+      console.log("[Andrea Voice] Fetching signed URL...");
+      const { data, error: fnError } = await supabase.functions.invoke("elevenlabs-conversation-token");
 
       if (fnError) {
         console.error("[Andrea Voice] ❌ Edge function error:", fnError);
@@ -136,12 +210,12 @@ export const useAndreaVoiceAgent = () => {
 
       if (!data?.signed_url) {
         console.error("[Andrea Voice] ❌ No signed_url received. Response:", data);
-        throw new Error("Pas de signed_url reçue. Vérifiez la clé API et l'Agent ID.");
+        throw new Error("Pas de signed_url reçue.");
       }
 
       console.log("[Andrea Voice] ✅ Signed URL obtained, starting session...");
 
-      // 5. Start conversation with language forced to French
+      // 5. Start conversation — French forced
       await conversation.startSession({
         signedUrl: data.signed_url,
         overrides: {
@@ -159,11 +233,12 @@ export const useAndreaVoiceAgent = () => {
       stopMicMonitor();
 
       if (msg.includes("Permission") || msg.includes("NotAllowed")) {
+        setMicPermission("denied");
         toast.error("Micro bloqué. Autorisez l'accès au microphone.", { duration: 5000 });
       } else if (msg.includes("API") || msg.includes("Token")) {
-        toast.error("Clé API ou Agent ID invalide. Contactez le support.");
+        toast.error("Erreur de connexion ElevenLabs ❌");
       } else {
-        toast.error("Impossible de démarrer la conversation vocale.");
+        toast.error("Erreur de connexion ElevenLabs ❌");
       }
     } finally {
       setIsConnecting(false);
@@ -182,6 +257,8 @@ export const useAndreaVoiceAgent = () => {
     isConnected: conversation.status === "connected",
     isSpeaking: conversation.isSpeaking,
     micActive,
+    micPermission,
+    requestMicPermission,
     status: conversation.status,
     error,
   };
