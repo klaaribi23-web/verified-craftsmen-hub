@@ -62,6 +62,7 @@ import { cn, DEFAULT_AVATAR } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
 import { InterventionMap } from "@/components/artisan-profile/InterventionMap";
 import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
+import AuditReportSection from "@/components/artisan-profile/AuditReportSection";
 
 const ArtisanPublicProfile = () => {
   const { slug } = useParams<{
@@ -520,6 +521,15 @@ const ArtisanPublicProfile = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Audit Report - Only for boost_annuel with audit */}
+              {artisan.subscription_tier === "boost_annuel" && (artisan as any).is_audited && (
+                <AuditReportSection
+                  businessName={artisan.business_name}
+                  city={artisan.city}
+                  category={artisan.category?.name}
+                />
+              )}
 
               {/* Le mot de l'artisan */}
               <Card id="description">
