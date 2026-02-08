@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.ask-expert-andrea]
 verify_jwt = false
+
+[functions.ask-expert-andrea-stream]
+verify_jwt = false
+
+[functions.elevenlabs-tts]
+verify_jwt = false
