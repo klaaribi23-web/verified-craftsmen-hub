@@ -65,16 +65,27 @@ const APropos = () => {
             once: true,
             margin: "-100px"
           }} variants={staggerContainer}>
-              <motion.p variants={fadeInUp} className="text-xl md:text-2xl text-foreground leading-relaxed mb-8">
-                Confier sa maison à quelqu'un,
+               <motion.p variants={fadeInUp} className="text-xl md:text-2xl text-foreground leading-relaxed mb-8">
+                On a créé ce qu'on aurait aimé avoir quand on était sur le terrain :
                 <br />
-                <span className="text-muted-foreground">ce n'est jamais un simple devis.</span>
+                <span className="text-gold font-bold">de la vraie transparence, pas des promesses en l'air.</span>
               </motion.p>
               
-              <motion.div variants={fadeInUp} className="space-y-3 text-lg text-muted-foreground">
-                <p>C'est une <span className="text-gold font-semibold">confiance donnée</span>.</p>
-                <p>C'est une <span className="text-gold font-semibold">clé remise</span>.</p>
-                <p>C'est un <span className="text-gold font-semibold">quotidien</span> que l'on met entre des mains.</p>
+              <motion.div variants={fadeInUp} className="bg-navy rounded-xl p-6 border-l-4 border-gold mb-6">
+                <p className="text-white font-bold italic text-lg leading-relaxed">
+                  « On en a eu marre des vendeurs de leads qui ne connaissent rien au bâtiment et qui vendent du vent aux artisans. »
+                </p>
+                <p className="text-gold font-semibold text-sm mt-2">— Andrea, Fondateur</p>
+              </motion.div>
+
+              <motion.div variants={fadeInUp} className="text-lg text-muted-foreground leading-relaxed">
+                <p>
+                  Ici, on ne vous vend pas des numéros de téléphone. On vous offre une vitrine auditée par un pro du métier.
+                  Quand je valide une entreprise, je mets mon expérience de 20 ans en jeu.{" "}
+                  <span className="text-foreground font-semibold">
+                    C'est pour ça que nos clients ont confiance : ils savent qu'un artisan Validé, c'est un artisan qui bosse vraiment.
+                  </span>
+                </p>
               </motion.div>
             </motion.div>
           </div>
@@ -414,10 +425,11 @@ const APropos = () => {
               </motion.div>
               
               <motion.div variants={fadeInUp}>
-                <p className="text-2xl md:text-3xl font-bold text-foreground mb-8">
-                  Artisans Validés
-                  <br />
-                  <span className="text-gold">Le choix éclairé pour vos travaux</span>
+                <p className="text-lg font-bold text-foreground mb-2">
+                  Andrea & Associée
+                </p>
+                <p className="text-gold font-semibold text-base mb-8">
+                  L'expertise du chantier au service du digital.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
