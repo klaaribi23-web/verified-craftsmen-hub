@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, CheckCircle2, Star, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send } from "lucide-react";
+import { Shield, CheckCircle2, Star, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
@@ -141,65 +141,52 @@ const HeroSection = () => {
           {/* Visual Card — Desktop only */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="relative hidden lg:block">
             <div className="relative">
-              <div className="bg-white rounded-2xl shadow-floating p-6 border border-border">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-gold flex items-center justify-center">
-                    <Shield className="w-8 h-8 text-navy-dark" />
+              <div className="bg-navy rounded-2xl shadow-floating p-8 border border-gold/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-navy-dark" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-navy">Andrea : Ton assistante de choc</h3>
-                    <p className="text-sm text-muted-foreground">IA Expert Bâtiment · L'Alliance</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-gold text-gold" />
-                      ))}
-                      <span className="text-sm text-muted-foreground ml-1">20 ans d'expertise</span>
-                    </div>
-                  </div>
+                  <h3 className="text-xl font-bold text-white">Andrea : Ton Assistante de Choc</h3>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                  {["Vérifications", "Artisans", "Réponse"].map((label, i) => (
-                    <div key={label} className="text-center p-3 rounded-lg bg-muted">
-                      <div className="text-sm text-muted-foreground">{label}</div>
-                      <div className="font-semibold text-navy">
-                        {i === 0 ? "500+/mois" : i === 1 ? "Triés" : "< 30s"}
-                      </div>
+                <p className="text-white/80 text-base leading-relaxed mb-6">
+                  Je suis l'intelligence qui audite vos devis et protège vos marges. Ne perdez plus de temps avec des leads bidons.
+                </p>
+
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {[
+                    { label: "Audits", value: "500+/mois" },
+                    { label: "Artisans", value: "Triés" },
+                    { label: "Réponse", value: "< 30s" },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="text-center p-3 rounded-lg bg-white/5 border border-white/10">
+                      <div className="text-xs text-white/50">{label}</div>
+                      <div className="font-semibold text-gold text-sm">{value}</div>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center gap-1 px-2 py-1 rounded bg-success/10 text-success text-xs font-medium">
-                    <CheckCircle2 className="w-3 h-3" />
-                    SIRET vérifié
-                  </div>
-                  <div className="flex items-center gap-1 px-2 py-1 rounded bg-success/10 text-success text-xs font-medium">
-                    <CheckCircle2 className="w-3 h-3" />
-                    Assurance contrôlée
-                  </div>
-                </div>
-
-                <Button variant="gold" className="w-full" onClick={() => document.getElementById('expert-andrea')?.scrollIntoView({ behavior: 'smooth' })}>Parler à Andrea</Button>
+                <Button
+                  variant="gold"
+                  size="lg"
+                  className="w-full text-base gap-2"
+                  onClick={() => document.getElementById('expert-andrea')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  <Mic className="w-5 h-5" />
+                  Parler à Andrea
+                </Button>
               </div>
 
-              {/* Floating Elements */}
-              <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-4 -right-4 bg-white rounded-xl shadow-elevated p-4 border border-border">
+              {/* Floating Element */}
+              <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-4 -right-4 bg-white rounded-xl shadow-elevated p-3 border border-border">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
-                    <CheckCircle2 className="w-4 h-4 text-success" />
+                  <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-gold" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-navy">Validé par notre équipe</div>
-                    <div className="text-xs text-muted-foreground">Profil contrôlé manuellement</div>
+                    <div className="text-sm font-medium text-navy">IA de confiance</div>
+                    <div className="text-xs text-muted-foreground">20 ans d'expertise terrain</div>
                   </div>
-                </div>
-              </motion.div>
-
-              <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 3.5, repeat: Infinity }} className="absolute -bottom-6 -left-6 bg-gradient-gold rounded-xl shadow-gold p-4">
-                <div className="flex items-center gap-3">
-                  <div className="text-2xl font-bold text-navy-dark">98%</div>
-                  <div className="text-sm text-navy-dark/80">de clients<br />satisfaits</div>
                 </div>
               </motion.div>
             </div>
