@@ -1,11 +1,16 @@
 import { useConversation } from "@elevenlabs/react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const useAndreaVoiceAgent = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [micActive, setMicActive] = useState(false);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   const conversation = useConversation({
     onConnect: () => {
@@ -14,6 +19,8 @@ export const useAndreaVoiceAgent = () => {
     },
     onDisconnect: () => {
       console.log("[Andrea Voice] Disconnected from agent");
+      setMicActive(false);
+      stopMicMonitor();
     },
     onMessage: (message) => {
       console.log("[Andrea Voice] Message:", message);
@@ -25,34 +32,98 @@ export const useAndreaVoiceAgent = () => {
     },
   });
 
+  // Monitor mic input volume to detect if mic is actually capturing
+  const startMicMonitor = useCallback((stream: MediaStream) => {
+    try {
+      const ctx = audioCtxRef.current || new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioCtxRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      let silentFrames = 0;
+
+      const check = () => {
+        analyser.getByteFrequencyData(dataArray);
+        const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+        if (avg > 2) {
+          setMicActive(true);
+          silentFrames = 0;
+        } else {
+          silentFrames++;
+          // After ~3 seconds of silence, flag mic as inactive
+          if (silentFrames > 150) {
+            setMicActive(false);
+          }
+        }
+        rafRef.current = requestAnimationFrame(check);
+      };
+      check();
+    } catch (e) {
+      console.warn("[Andrea Voice] Mic monitor error:", e);
+    }
+  }, []);
+
+  const stopMicMonitor = useCallback(() => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    analyserRef.current = null;
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      stopMicMonitor();
+    };
+  }, [stopMicMonitor]);
+
   const startConversation = useCallback(async () => {
+    // Always end any existing session first (avoid ghost connections)
     if (conversation.status === "connected") {
-      console.log("[Andrea Voice] Already connected, ending session");
-      await conversation.endSession();
-      return;
+      console.log("[Andrea Voice] Ending existing session before restart");
+      try { await conversation.endSession(); } catch {}
+      // Small delay to let WebSocket close cleanly
+      await new Promise((r) => setTimeout(r, 300));
     }
 
     setIsConnecting(true);
     setError(null);
+    setMicActive(false);
+    stopMicMonitor();
 
     try {
-      // Force AudioContext activation on mobile (user gesture required)
-      try {
-        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        if (audioCtx.state === "suspended") {
-          await audioCtx.resume();
-        }
-        console.log("[Andrea Voice] AudioContext state:", audioCtx.state);
-      } catch (audioErr) {
-        console.warn("[Andrea Voice] AudioContext init warning:", audioErr);
+      // 1. Force AudioContext activation (required for iOS/Android output audio)
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioCtxRef.current = audioCtx;
+      if (audioCtx.state === "suspended") {
+        await audioCtx.resume();
       }
+      // Play a silent buffer to unlock audio output on mobile
+      const buffer = audioCtx.createBuffer(1, 1, 22050);
+      const source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioCtx.destination);
+      source.start(0);
+      console.log("[Andrea Voice] AudioContext state:", audioCtx.state);
 
-      // Request microphone permission
+      // 2. Request microphone permission
       console.log("[Andrea Voice] Requesting microphone access...");
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = stream;
       console.log("[Andrea Voice] ✅ Microphone access granted");
 
-      // Get signed URL from edge function
+      // 3. Start mic activity monitor
+      startMicMonitor(stream);
+
+      // 4. Get signed URL from edge function
       console.log("[Andrea Voice] Fetching signed URL from edge function...");
       const { data, error: fnError } = await supabase.functions.invoke(
         "elevenlabs-conversation-token"
@@ -70,9 +141,14 @@ export const useAndreaVoiceAgent = () => {
 
       console.log("[Andrea Voice] ✅ Signed URL obtained, starting session...");
 
-      // Start the conversation via WebSocket
+      // 5. Start conversation with language forced to French
       await conversation.startSession({
         signedUrl: data.signed_url,
+        overrides: {
+          agent: {
+            language: "fr",
+          },
+        },
       });
 
       console.log("[Andrea Voice] ✅ Session started successfully");
@@ -80,6 +156,7 @@ export const useAndreaVoiceAgent = () => {
       console.error("[Andrea Voice] ❌ Failed to start conversation:", err);
       const msg = err?.message || "Erreur inconnue";
       setError(msg);
+      stopMicMonitor();
 
       if (msg.includes("Permission") || msg.includes("NotAllowed")) {
         toast.error("Micro bloqué. Autorisez l'accès au microphone.", { duration: 5000 });
@@ -91,11 +168,12 @@ export const useAndreaVoiceAgent = () => {
     } finally {
       setIsConnecting(false);
     }
-  }, [conversation]);
+  }, [conversation, startMicMonitor, stopMicMonitor]);
 
   const endConversation = useCallback(async () => {
-    await conversation.endSession();
-  }, [conversation]);
+    stopMicMonitor();
+    try { await conversation.endSession(); } catch {}
+  }, [conversation, stopMicMonitor]);
 
   return {
     startConversation,
@@ -103,6 +181,7 @@ export const useAndreaVoiceAgent = () => {
     isConnecting,
     isConnected: conversation.status === "connected",
     isSpeaking: conversation.isSpeaking,
+    micActive,
     status: conversation.status,
     error,
   };

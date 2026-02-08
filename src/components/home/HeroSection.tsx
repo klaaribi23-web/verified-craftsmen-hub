@@ -8,7 +8,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
 
 const HeroSection = () => {
-  const { startConversation, isConnecting, isConnected, isSpeaking, endConversation } = useAndreaVoiceAgent();
+  const { startConversation, isConnecting, isConnected, isSpeaking, micActive, endConversation } = useAndreaVoiceAgent();
+
+  const getVoiceLabel = () => {
+    if (isConnecting) return "Connexion...";
+    if (!isConnected) return "Parler à Andrea 🎙️";
+    if (isSpeaking) return "Andrea parle… 🔊";
+    if (!micActive) return "Micro non détecté ⚠️";
+    return "Andrea écoute… 🎙️";
+  };
 
   // Fetch real artisan count
   const { data: artisanCount } = useQuery({
@@ -133,15 +141,9 @@ const HeroSection = () => {
                 {isConnecting ? (
                   <Loader2 className="w-5 h-5 animate-spin text-gold" />
                 ) : (
-                  <Mic className={`w-5 h-5 ${isConnected ? "text-navy-dark" : "text-gold"}`} />
+                  <Mic className={`w-5 h-5 ${isConnected ? "text-navy-dark" : "text-gold"} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
                 )}
-                {isConnecting
-                  ? "Connexion..."
-                  : isConnected
-                  ? isSpeaking
-                    ? "Andrea parle… 🔊"
-                    : "Andrea écoute… 🎙️"
-                  : "Parler à Andrea 🎙️"}
+                {getVoiceLabel()}
               </Button>
             </div>
 
@@ -208,15 +210,9 @@ const HeroSection = () => {
                   {isConnecting ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    <Mic className="w-5 h-5" />
+                    <Mic className={`w-5 h-5 ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
                   )}
-                  {isConnecting
-                    ? "Connexion..."
-                    : isConnected
-                    ? isSpeaking
-                      ? "Andrea parle… 🔊"
-                      : "Andrea écoute… 🎙️"
-                    : "Parler à Andrea"}
+                  {getVoiceLabel()}
                 </Button>
               </div>
 
