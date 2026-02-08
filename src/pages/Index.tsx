@@ -9,6 +9,7 @@ import CTASection from "@/components/home/CTASection";
 import AllianceSection from "@/components/home/AllianceSection";
 import SocialProofBanner from "@/components/home/SocialProofBanner";
 import AskExpertSection from "@/components/home/AskExpertSection";
+import ExpertCaseStudy from "@/components/home/ExpertCaseStudy";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
@@ -97,6 +98,8 @@ const Index = () => {
         <TrustSection />
 
         <AllianceSection />
+
+        <ExpertCaseStudy />
 
         {/* Category Carousel - Plombiers */}
         <CategoryArtisansCarousel 

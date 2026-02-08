@@ -49,7 +49,12 @@ Les questions doivent couvrir ces thèmes (adapte-les au métier ${category}) :
 2. Les aides locales disponibles ${deptLabel ? `dans le ${deptLabel}` : "dans votre département"} pour ce type de projet (${category})
 3. Pourquoi choisir un artisan Validé plutôt qu'un devis en ligne anonyme
 4. Les erreurs les plus fréquentes quand on choisit un ${category.toLowerCase()} (et comment les éviter)
-5. Ce que comprend concrètement la certification Artisans Validés pour un ${category.toLowerCase()}
+5. Quel est le prix moyen d'un ${category.toLowerCase()} ${city ? `à ${locationLabel}` : ""} et comment éviter les arnaques
+
+IMPORTANT - RÈGLES OBLIGATOIRES POUR CHAQUE RÉPONSE :
+- Chaque réponse DOIT mentionner au moins une ville locale (${city ? `${locationLabel}, ou une ville voisine comme Roubaix, Tourcoing, Lille` : "Roubaix, Tourcoing, Lille"}).
+- Au moins 2 réponses doivent aborder le prix ou la sécurité (assurance décennale, conformité).
+- Exemple de mention locale : "À ${city || "Roubaix"}, je constate que les tarifs moyens pour un ${category.toLowerCase()} tournent autour de..."
 
 ${city ? `Inclus dans "nearby_cities" 3 à 5 villes géographiquement proches de ${locationLabel}. Ce doivent être de vraies villes françaises.` : 'Mets un tableau vide pour "nearby_cities".'}
 

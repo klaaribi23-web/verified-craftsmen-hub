@@ -102,6 +102,13 @@ const APropos = () => {
                 <motion.p variants={fadeInUp} className="mt-10 text-2xl md:text-3xl font-bold text-primary">
                   Nous avons dit stop.
                 </motion.p>
+                
+                <motion.div variants={fadeInUp} className="mt-8 bg-gradient-to-r from-gold/10 to-primary/10 p-6 rounded-xl border-l-4 border-gold">
+                  <p className="text-foreground italic text-lg leading-relaxed">
+                    « On a créé cette plateforme parce qu'on en avait marre des vendeurs de leads qui trompent les artisans. Ici, on parle vrai, on audite pour de vrai, et on protège les patrons qui bossent bien. »
+                  </p>
+                  <p className="text-gold font-semibold mt-3">— Andrea, Fondateur & Expert Terrain</p>
+                </motion.div>
               </motion.div>
               
               <motion.div initial={{
