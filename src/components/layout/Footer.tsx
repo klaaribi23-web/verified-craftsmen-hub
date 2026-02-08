@@ -57,10 +57,20 @@ const Footer = () => {
       href: "/confidentialite"
     }]
   };
+  const cityLinks = [
+    { label: "Lille", slug: "lille" },
+    { label: "Paris", slug: "paris" },
+    { label: "Lyon", slug: "lyon" },
+    { label: "Marseille", slug: "marseille" },
+    { label: "Toulouse", slug: "toulouse" },
+    { label: "Bordeaux", slug: "bordeaux" },
+    { label: "Nantes", slug: "nantes" },
+    { label: "Strasbourg", slug: "strasbourg" },
+  ];
   return <footer className="bg-navy text-white">
       {/* Main Footer */}
       <div className="container mx-auto px-4 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-6">
@@ -120,6 +130,18 @@ const Footer = () => {
               {footerLinks.legal.map(link => <li key={link.href}>
                   <Link to={link.href} className="text-sm text-white/70 hover:text-gold transition-colors">
                     {link.label}
+                  </Link>
+                </li>)}
+            </ul>
+          </nav>
+
+          {/* Cities */}
+          <nav aria-label="Villes populaires">
+            <h2 className="font-semibold text-white mb-4">Nos villes</h2>
+            <ul className="space-y-3">
+              {cityLinks.map(city => <li key={city.slug}>
+                  <Link to={`/artisans-ville/${city.slug}`} className="text-sm text-white/70 hover:text-gold transition-colors">
+                    {city.label}
                   </Link>
                 </li>)}
             </ul>
