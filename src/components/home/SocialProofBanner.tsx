@@ -94,6 +94,11 @@ const SocialProofBanner = () => {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
           )}
         >
+          <span className="relative flex h-2.5 w-2.5 mr-1">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+          </span>
+          <span className="text-[10px] font-bold text-green-400 uppercase tracking-wider mr-1.5">Live</span>
           <span className="text-base leading-none">{emoji}</span>
           <span className="font-medium">{current.text}</span>
           <ShieldCheck className="h-4 w-4 text-gold flex-shrink-0 ml-1" />

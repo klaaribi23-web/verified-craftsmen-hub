@@ -50,6 +50,9 @@ const HeroSection = () => {
               <span className="text-gradient-gold">votre anonymat en plus.</span>
             </h1>
 
+            <p className="text-sm md:text-base text-gold/80 font-medium mb-3 max-w-xl mx-auto lg:mx-0">
+              Le premier réseau d'artisans audités par Andrea, expert du bâtiment (20 ans de terrain) à Roubaix et dans les Hauts-de-France.
+            </p>
             <p className="text-base md:text-lg text-white/80 mb-6 md:mb-8 max-w-xl mx-auto lg:mx-0">
               Décrivez votre projet, recevez des devis, et ne partagez vos coordonnées que lorsque vous êtes prêt.
             </p>
@@ -58,7 +61,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-6 md:mb-8">
               <Button
                 size="lg"
-                className="bg-gradient-gold text-navy-dark font-bold text-base md:text-lg w-full sm:w-auto px-8 py-6 shadow-lg shadow-gold/30 hover:shadow-gold/50 transition-all hover:scale-[1.02] active:scale-[0.98] animate-[pulse-subtle_5s_ease-in-out_infinite]"
+                className="bg-gradient-gold text-navy-dark font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-gold/40 hover:shadow-gold/60 transition-all hover:scale-[1.03] active:scale-[0.98] animate-[pulse-subtle_5s_ease-in-out_infinite] ring-2 ring-gold/50 ring-offset-2 ring-offset-navy"
                 asChild
               >
                 <Link to="/demande-devis">
