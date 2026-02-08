@@ -64,7 +64,7 @@ import { AlertTriangle } from "lucide-react";
 const ITEMS_PER_PAGE = 30;
 
 // ── Demo missions displayed when DB is empty ──
-const BADGES = ["Vérifié par Andrea", "Audit Technique OK", "Priorité Qualité"] as const;
+const BADGES = ["Audit Technologique Certifié", "Validation Expertise Métier", "Algorithme de Confiance ✓"] as const;
 const randomBadge = (i: number) => BADGES[i % BADGES.length];
 
 const DEMO_MISSIONS = [
@@ -286,10 +286,11 @@ const NosMissions = () => {
   const { data: dbMissions, isLoading: missionsLoading } = useDemoMissions(user?.id, role);
   const { data: categories } = useCategoriesHierarchy();
 
-  // Merge DB missions with demo fallback when DB is empty
+  // Always show demo missions combined with DB missions for volume
   const missions = useMemo(() => {
-    if (dbMissions && dbMissions.length > 0) return dbMissions;
-    return DEMO_MISSIONS as any[];
+    const dbIds = new Set((dbMissions || []).map((m: any) => m.id));
+    const demos = DEMO_MISSIONS.filter(d => !dbIds.has(d.id));
+    return [...(dbMissions || []), ...demos] as any[];
   }, [dbMissions]);
 
   const missionCities = useMemo(() => {
@@ -701,7 +702,7 @@ const NosMissions = () => {
                                   mission.trust_badge === "En attente d'artisan" ? "text-amber-600" : "text-success"
                                 )}>
                                   <ShieldCheck className="w-4 h-4" />
-                                  <span>{mission.trust_badge || "Vérifié par Andrea"}</span>
+                                  <span>{mission.trust_badge || "Audit Technologique Certifié"}</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                   <Users className="w-3.5 h-3.5" />
@@ -710,7 +711,7 @@ const NosMissions = () => {
                               </div>
                               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <BadgeCheck className="w-3.5 h-3.5 text-gold" />
-                                <span>Le client garde la main sur ses coordonnées</span>
+                                <span>Le client garde la main sur ses coordonnées. Transmission après validation de votre profil.</span>
                               </div>
                             </div>
 
@@ -721,7 +722,7 @@ const NosMissions = () => {
                               onClick={() => handleViewMission(mission)}
                             >
                               <Send className="w-4 h-4" />
-                              Postuler à la mission
+                              Postuler à ce chantier
                             </Button>
                           </div>
                         </CardContent>
