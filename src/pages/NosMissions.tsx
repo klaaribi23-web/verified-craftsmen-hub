@@ -67,81 +67,13 @@ const ITEMS_PER_PAGE = 30;
 const DEMO_MISSIONS = [
   {
     id: "demo-1",
-    title: "Rénovation peinture appartement 70m²",
-    description: "Rénovation complète de la peinture d'un appartement de 70m² : lessivage des murs, rebouchage des fissures, application de deux couches de peinture acrylique dans toutes les pièces. Plafonds et boiseries inclus.",
-    city: "Lille (59000)",
+    title: "Installation Pompe à Chaleur Air/Eau – Maison 120m²",
+    description: "Maison 120m², remplacement chaudière fioul. Cherche installateur RGE pour aides CEE. Audit Andrea demandé. Maison bien isolée, garage disponible pour le groupe extérieur.",
+    city: "Lyon (69003)",
     budget: null,
-    budget_range: "3 000€ - 5 500€",
-    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1h ago
-    category: { id: "cat-peinture", name: "Peinture" },
-    client_name: "Client vérifié",
-    applicants_count: 3,
-    has_applied: false,
-    photos: null,
-    status: "published",
-    client_id: "",
-    fake_applicants_count: 0,
-  },
-  {
-    id: "demo-2",
-    title: "Pose de carrelage salle de bain + cuisine",
-    description: "Pose de carrelage au sol et murs dans une salle de bain de 8m² (faïence 60x30) et cuisine de 12m² (grès cérame 60x60). Dépose de l'ancien revêtement, ragréage et joints compris.",
-    city: "Roubaix (59100)",
-    budget: null,
-    budget_range: "4 500€ - 7 000€",
-    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3h ago
-    category: { id: "cat-carrelage", name: "Carrelage" },
-    client_name: "Client vérifié",
-    applicants_count: 5,
-    has_applied: false,
-    photos: null,
-    status: "published",
-    client_id: "",
-    fake_applicants_count: 0,
-  },
-  {
-    id: "demo-3",
-    title: "Installation pompe à chaleur Air/Eau",
-    description: "Installation d'une pompe à chaleur Air/Eau pour une maison de 120m². Comprend la dépose de l'ancienne chaudière fioul, le raccordement hydraulique et la mise en service. Maison bien isolée (RT 2012).",
-    city: "Tourcoing (59200)",
-    budget: null,
-    budget_range: "8 000€ - 12 000€",
-    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // today
+    budget_range: "9 000€ - 14 000€",
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     category: { id: "cat-chauffage", name: "Chauffage / Climatisation" },
-    client_name: "Client vérifié",
-    applicants_count: 2,
-    has_applied: false,
-    photos: null,
-    status: "published",
-    client_id: "",
-    fake_applicants_count: 0,
-  },
-  {
-    id: "demo-4",
-    title: "Réfection complète toiture ardoise",
-    description: "Réfection totale d'une toiture en ardoise naturelle sur une maison de ville (surface toiture environ 90m²). Charpente en bon état. Remplacement des ardoises, zinguerie et pose de fenêtres de toit Velux (x2).",
-    city: "Marcq-en-Barœul (59700)",
-    budget: null,
-    budget_range: "15 000€ - 22 000€",
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h ago
-    category: { id: "cat-couverture", name: "Couverture / Toiture" },
-    client_name: "Client vérifié",
-    applicants_count: 1,
-    has_applied: false,
-    photos: null,
-    status: "published",
-    client_id: "",
-    fake_applicants_count: 0,
-  },
-  {
-    id: "demo-5",
-    title: "Mise en conformité tableau électrique",
-    description: "Mise aux normes NF C 15-100 du tableau électrique principal. Remplacement du tableau vétuste, ajout de disjoncteurs différentiels, reprise du câblage et vérification de la terre. Maison des années 70.",
-    city: "Villeneuve-d'Ascq (59650)",
-    budget: null,
-    budget_range: "1 800€ - 3 200€",
-    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1h ago
-    category: { id: "cat-electricite", name: "Électricité" },
     client_name: "Client vérifié",
     applicants_count: 4,
     has_applied: false,
@@ -149,16 +81,17 @@ const DEMO_MISSIONS = [
     status: "published",
     client_id: "",
     fake_applicants_count: 0,
+    verified_by_andrea: true,
   },
   {
-    id: "demo-6",
-    title: "Aménagement de combles 45m²",
-    description: "Aménagement complet de combles perdus en espace habitable de 45m² : isolation par l'intérieur (laine de roche), pose de placo, création de deux pièces avec cloisons, électricité et finitions peinture.",
-    city: "Bondues (59910)",
+    id: "demo-2",
+    title: "Réparation Toiture Ardoise – Fuite versant Ouest",
+    description: "Fuite détectée sur versant Ouest. Ardoises cassées après coup de vent. Recherche couvreur sérieux pour réparation rapide. Accès facile, échafaudage possible côté jardin.",
+    city: "Rennes (35000)",
     budget: null,
-    budget_range: "18 000€ - 28 000€",
-    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // today
-    category: { id: "cat-amenagement", name: "Aménagement intérieur" },
+    budget_range: "2 500€ - 5 000€",
+    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    category: { id: "cat-couverture", name: "Couverture / Toiture" },
     client_name: "Client vérifié",
     applicants_count: 2,
     has_applied: false,
@@ -166,6 +99,61 @@ const DEMO_MISSIONS = [
     status: "published",
     client_id: "",
     fake_applicants_count: 0,
+    verified_by_andrea: true,
+  },
+  {
+    id: "demo-3",
+    title: "Changement Menuiseries Alu – 4 fenêtres + baie vitrée",
+    description: "Changement de 4 fenêtres et une baie vitrée coulissante. Priorité à l'isolation phonique car rue bruyante. Double vitrage acoustique souhaité. Maison de ville R+1.",
+    city: "Bordeaux (33000)",
+    budget: null,
+    budget_range: "6 000€ - 10 000€",
+    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    category: { id: "cat-menuiserie", name: "Menuiserie" },
+    client_name: "Client vérifié",
+    applicants_count: 3,
+    has_applied: false,
+    photos: null,
+    status: "published",
+    client_id: "",
+    fake_applicants_count: 0,
+    verified_by_andrea: true,
+  },
+  {
+    id: "demo-4",
+    title: "Ravalement Façade Crépi – Maison individuelle",
+    description: "Façade en crépi qui s'effrite sur maison individuelle. Besoin de nettoyage haute pression et peinture imperméable. Surface environ 80m². Accès dégagé sur 3 côtés.",
+    city: "Montpellier (34000)",
+    budget: null,
+    budget_range: "5 000€ - 8 500€",
+    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    category: { id: "cat-peinture", name: "Peinture" },
+    client_name: "Client vérifié",
+    applicants_count: 1,
+    has_applied: false,
+    photos: null,
+    status: "published",
+    client_id: "",
+    fake_applicants_count: 0,
+    verified_by_andrea: true,
+  },
+  {
+    id: "demo-5",
+    title: "Mise en Conformité Électrique – Studio 25m²",
+    description: "Mise en conformité totale d'un studio de 25m². Tableau électrique à refaire à neuf (NF C 15-100). Installation datant des années 60, câblage à reprendre intégralement.",
+    city: "Paris (75011)",
+    budget: null,
+    budget_range: "2 800€ - 4 500€",
+    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    category: { id: "cat-electricite", name: "Électricité" },
+    client_name: "Client vérifié",
+    applicants_count: 6,
+    has_applied: false,
+    photos: null,
+    status: "published",
+    client_id: "",
+    fake_applicants_count: 0,
+    verified_by_andrea: true,
   },
 ];
 
@@ -625,15 +613,21 @@ const NosMissions = () => {
                             {/* Spacer */}
                             <div className="flex-1" />
 
-                            {/* Trust badge + applicants */}
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center gap-1.5 text-xs text-success font-medium">
-                                <ShieldCheck className="w-4 h-4" />
-                                <span>Projet vérifié</span>
+                            {/* Trust badges */}
+                            <div className="flex flex-col gap-1.5 mb-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 text-xs text-success font-medium">
+                                  <ShieldCheck className="w-4 h-4" />
+                                  <span>Projet vérifié par l'Expert</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Users className="w-3.5 h-3.5" />
+                                  <span>{mission.applicants_count || 0} candidat{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <Users className="w-3.5 h-3.5" />
-                                <span>{mission.applicants_count || 0} candidat{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
+                              <div className="flex items-center gap-1.5 text-xs text-gold-dark font-medium">
+                                <BadgeCheck className="w-3.5 h-3.5" />
+                                <span>Coordonnées accessibles aux membres Validés</span>
                               </div>
                             </div>
 

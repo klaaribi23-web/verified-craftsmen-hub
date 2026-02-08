@@ -121,7 +121,16 @@ const AllianceSection = () => {
             </p>
           </div>
 
-          <p className="text-center text-foreground font-bold text-lg md:text-xl">
+          <div className="bg-card rounded-xl p-6 md:p-8 border border-border">
+            <p className="text-foreground leading-relaxed text-base md:text-lg">
+              De Lille à Marseille, nous validons les meilleurs.{" "}
+              <span className="font-bold text-gold">
+                Andrea supervise chaque dossier pour garantir que l'artisan qui entre chez vous est un vrai pro, peu importe sa région.
+              </span>
+            </p>
+          </div>
+
+          <p className="text-center text-foreground font-bold text-lg md:text-xl mt-6">
             Andrea & Associée — <span className="text-gold">L'expertise du chantier au service du digital.</span>
           </p>
         </motion.div>
