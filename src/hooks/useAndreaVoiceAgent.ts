@@ -449,6 +449,9 @@ export const useAndreaVoiceAgent = () => {
   const sendTextMessage = useCallback((text: string) => {
     if (conversation.status === "connected" && text.trim()) {
       try {
+        // Force audio unlock on text send (mobile fix)
+        warmupAudio();
+        forceAudioOutputSafe();
         conversation.sendUserMessage(text.trim());
         setIsThinking(true);
       } catch (e) {
