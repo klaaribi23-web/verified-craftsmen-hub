@@ -100,23 +100,7 @@ export const CookieConsent = () => {
 
   return (
     <>
-      {/* Discrete Cookie Settings Button - shown after consent */}
-      <AnimatePresence>
-        {hasConsented && !showBanner && !showSettings && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
-            onClick={openSettingsFromButton}
-            className="fixed bottom-4 left-4 z-40 p-3 bg-card border border-border rounded-full shadow-lg hover:shadow-xl hover:bg-muted transition-all group"
-            aria-label="Gérer les cookies"
-            title="Gérer les cookies"
-          >
-            <Cookie className="w-5 h-5 text-muted-foreground group-hover:text-navy transition-colors" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {/* No floating button - cookie management is accessible via Footer link */}
 
       {/* Cookie Banner */}
       <AnimatePresence>
