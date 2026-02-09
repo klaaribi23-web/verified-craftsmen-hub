@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2, Volume2, Phone } from "lucide-react";
+import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2, Phone } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
@@ -12,8 +12,8 @@ const HeroSection = () => {
   const {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
     micActive, micLevel, stopConversation, hardReset, micPermission,
-    requestMicPermission, lastAgentText,
-    showTextFallback, audioBlocked, audioCtxState, callingIndicator,
+    requestMicPermission, lastAgentText, error,
+    showTextFallback, audioBlocked, callingIndicator, micStatus,
   } = useAndreaVoiceAgent();
 
   const getVoiceLabel = () => {
@@ -21,7 +21,7 @@ const HeroSection = () => {
     if (!isConnected) return "Parler à Andrea 🎙️";
     if (isSpeaking) return "Andrea parle… 🔊";
     if (isThinking) return "Andrea réfléchit… 🧠";
-    if (!micActive) return "Micro non détecté ⚠️";
+    if (!micActive) return "En attente… 🎙️";
     return "Andrea écoute… 🎙️";
   };
 
@@ -56,7 +56,7 @@ const HeroSection = () => {
 
     return (
       <div className="space-y-2">
-        {/* Discreet "Calling..." indicator */}
+        {/* Discreet calling indicator */}
         {callingIndicator && !isConnected && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/30 text-xs text-gold animate-pulse w-fit">
             <Phone className="w-3 h-3" />
@@ -81,6 +81,9 @@ const HeroSection = () => {
             onClick={() => {
               if (isConnected) {
                 stopConversation();
+              } else if (error) {
+                // Retry on error
+                startConversation();
               } else {
                 startConversation();
               }
@@ -89,10 +92,14 @@ const HeroSection = () => {
           >
             {isConnecting ? (
               <Loader2 className="w-5 h-5 animate-spin text-gold" />
+            ) : error && !isConnected ? (
+              <>🔄 Réessayer</>
             ) : (
-              <Mic className={`w-5 h-5 ${isConnected && mobile ? "text-navy-dark" : ""} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
+              <>
+                <Mic className={`w-5 h-5 ${isConnected && mobile ? "text-navy-dark" : ""} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
+                {isConnected ? "Arrêter Andrea ⏹️" : getVoiceLabel()}
+              </>
             )}
-            {isConnected ? "Arrêter Andrea ⏹️" : getVoiceLabel()}
           </Button>
           {isConnected && (
             <Button
@@ -115,19 +122,20 @@ const HeroSection = () => {
             className="justify-center"
           />
         )}
-        {/* Agent text with audio status indicator */}
+        {/* Mic status bubble */}
+        {isConnected && micStatus && (
+          <div className="text-xs text-gold/80 animate-pulse text-center">
+            {micStatus}
+          </div>
+        )}
+        {/* Agent text */}
         {showTextFallback && lastAgentText && (
           <div className="mt-2 p-3 rounded-lg bg-gold/10 border border-gold/20 text-sm text-white/90 max-w-md animate-fade-in">
-            <div className="flex items-center gap-2 mb-1">
-              <p className="text-xs text-gold/60">💬 Andrea :</p>
-              {audioBlocked && audioCtxState !== "running" && (
-                <Volume2 className="w-4 h-4 text-destructive animate-pulse" />
-              )}
-              {audioBlocked && audioCtxState === "running" && (
-                <Volume2 className="w-4 h-4 text-amber-400 animate-pulse" />
-              )}
-            </div>
+            <p className="text-xs text-gold/60 mb-1">💬 Andrea :</p>
             <p className="leading-relaxed">{lastAgentText}</p>
+            {audioBlocked && (
+              <p className="text-xs text-amber-400/80 mt-1 animate-pulse">🔇 Son non détecté — vérifiez le volume</p>
+            )}
           </div>
         )}
       </div>
@@ -136,7 +144,6 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center pt-32 lg:pt-20 overflow-hidden">
-      {/* Background Image */}
       <div className="absolute inset-0">
         <img src={heroBackground} alt="Artisan professionnel qualifié au travail" width={1920} height={1080} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/85 to-navy/70" />
@@ -147,14 +154,10 @@ const HeroSection = () => {
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
-          {/* Content */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center lg:text-left">
-            {/* Trust Badge */}
             <div className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gold/20 border border-gold/30 mb-4 md:mb-6">
               <Shield className="w-3 h-3 md:w-4 md:h-4 text-gold" />
-              <span className="text-xs md:text-sm font-medium text-white">
-                Votre anonymat garanti jusqu'au dernier moment
-              </span>
+              <span className="text-xs md:text-sm font-medium text-white">Votre anonymat garanti jusqu'au dernier moment</span>
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-white leading-tight mb-4 md:mb-6">
@@ -169,7 +172,6 @@ const HeroSection = () => {
               Décrivez votre projet, recevez des devis, et ne partagez vos coordonnées que lorsque vous êtes prêt.
             </p>
 
-            {/* Expert Andrea Module */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6 md:mb-8 border border-gold/20 max-w-xl mx-auto lg:mx-0 shadow-[0_0_20px_rgba(212,175,55,0.08)]">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-gold" />
@@ -191,29 +193,17 @@ const HeroSection = () => {
                 }}
                 className="flex gap-2"
               >
-                <input
-                  name="question"
-                  type="text"
-                  placeholder="Ex : Comment vérifier une décennale ?"
-                  className="flex-1 rounded-lg bg-white/10 border border-gold/20 text-white placeholder:text-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
-                />
-                <button
-                  type="submit"
-                  className="bg-gradient-gold text-navy-dark font-bold px-5 py-2.5 rounded-lg text-sm hover:scale-[1.02] transition-transform flex items-center gap-1.5"
-                >
+                <input name="question" type="text" placeholder="Ex : Comment vérifier une décennale ?"
+                  className="flex-1 rounded-lg bg-white/10 border border-gold/20 text-white placeholder:text-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50" />
+                <button type="submit" className="bg-gradient-gold text-navy-dark font-bold px-5 py-2.5 rounded-lg text-sm hover:scale-[1.02] transition-transform flex items-center gap-1.5">
                   <Send className="w-4 h-4" />
                   Demander
                 </button>
               </form>
             </div>
 
-            {/* Main CTA */}
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-8">
-              <Button
-                size="lg"
-                className="bg-gradient-gold text-navy-dark font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-gold/40 hover:shadow-gold/60 transition-all hover:scale-[1.03] active:scale-[0.98] animate-[pulse-subtle_5s_ease-in-out_infinite] ring-2 ring-gold/50 ring-offset-2 ring-offset-navy"
-                asChild
-              >
+              <Button size="lg" className="bg-gradient-gold text-navy-dark font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-gold/40 hover:shadow-gold/60 transition-all hover:scale-[1.03] active:scale-[0.98] animate-[pulse-subtle_5s_ease-in-out_infinite] ring-2 ring-gold/50 ring-offset-2 ring-offset-navy" asChild>
                 <Link to="/demande-devis">
                   Lancer mon projet
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -224,18 +214,15 @@ const HeroSection = () => {
               </Button>
             </div>
 
-            {/* Mobile-only Andrea CTA */}
             <div className="block lg:hidden mb-6">
               <VoiceButton mobile />
             </div>
 
-            {/* Trust line */}
             <p className="text-sm md:text-base text-white/70 mb-8 md:mb-10">
               <CheckCircle2 className="w-4 h-4 text-gold inline mr-1.5 -mt-0.5" />
               Déjà <span className="text-gold font-bold">+{displayCount}</span> artisans validés et vérifiés par nos soins.
             </p>
 
-            {/* How it works mini */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-5 border border-white/20">
               <div className="grid grid-cols-3 gap-3 md:gap-6">
                 {[
@@ -254,7 +241,6 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Visual Card — Desktop only */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="relative hidden lg:block">
             <div className="relative">
               <div className="bg-navy rounded-2xl shadow-floating p-8 border border-gold/20">
@@ -264,11 +250,9 @@ const HeroSection = () => {
                   </div>
                   <h3 className="text-xl font-bold text-white">Andrea : Ton Assistante de Choc</h3>
                 </div>
-
                 <p className="text-white/80 text-base leading-relaxed mb-6">
                   Je suis l'intelligence qui audite vos devis et protège vos marges. Ne perdez plus de temps avec des leads bidons.
                 </p>
-
                 <div className="grid grid-cols-3 gap-3 mb-6">
                   {[
                     { label: "Audits", value: "500+/mois" },
@@ -281,11 +265,8 @@ const HeroSection = () => {
                     </div>
                   ))}
                 </div>
-
                 <VoiceButton />
               </div>
-
-              {/* Floating Element */}
               <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-4 -right-4 bg-white rounded-xl shadow-elevated p-3 border border-border">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">

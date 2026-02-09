@@ -21,11 +21,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`[ElevenLabs Token] Requesting WebRTC conversation token for agent ${AGENT_ID}`);
+    console.log(`[ElevenLabs Token] Requesting signed URL for agent ${AGENT_ID}`);
 
-    // Use WebRTC token endpoint instead of signed URL
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${AGENT_ID}`,
+      `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${AGENT_ID}`,
       {
         headers: {
           "xi-api-key": ELEVENLABS_API_KEY,
@@ -37,16 +36,16 @@ Deno.serve(async (req) => {
       const errorText = await response.text();
       console.error(`[ElevenLabs Token] API error ${response.status}: ${errorText}`);
       return new Response(
-        JSON.stringify({ error: `ElevenLabs API error: ${response.status}`, details: errorText }),
+        JSON.stringify({ error: `ElevenLabs API error: ${response.status}` }),
         { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const data = await response.json();
-    console.log("[ElevenLabs Token] WebRTC token obtained successfully");
+    console.log("[ElevenLabs Token] Signed URL obtained successfully");
 
     return new Response(
-      JSON.stringify({ token: data.token }),
+      JSON.stringify({ signed_url: data.signed_url }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
