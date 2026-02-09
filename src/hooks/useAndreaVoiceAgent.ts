@@ -84,6 +84,8 @@ export const useAndreaVoiceAgent = () => {
           setLastAgentText(cleanText);
           setShowTextFallback(true);
           setIsThinking(false);
+          // Force audio output on every agent message
+          setTimeout(() => forceAudioOutputSafe(), 100);
           hasSpokenRef.current = false;
           clearResponseTimeoutSafe();
           startResponseTimeoutSafe();

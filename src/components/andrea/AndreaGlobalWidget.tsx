@@ -129,7 +129,7 @@ const AndreaGlobalWidget = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            className="fixed bottom-6 right-6 z-50"
+            className="fixed bottom-6 right-6 z-[9999]"
           >
             <button
               onClick={handleOpen}
@@ -164,7 +164,7 @@ const AndreaGlobalWidget = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] rounded-2xl overflow-hidden shadow-2xl border border-gold/20 bg-card flex flex-col"
+            className="fixed bottom-6 right-6 z-[9999] w-[380px] max-w-[calc(100vw-2rem)] rounded-2xl overflow-hidden shadow-2xl border border-gold/20 bg-card flex flex-col"
             style={{ maxHeight: "min(560px, calc(100vh - 6rem))" }}
           >
             {/* Header */}
@@ -274,7 +274,7 @@ const AndreaGlobalWidget = () => {
 
               {/* Agent text bubble (SMS-style) */}
               <AnimatePresence>
-                {showTextFallback && lastAgentText && (
+                {lastAgentText && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
