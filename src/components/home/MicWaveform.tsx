@@ -4,30 +4,40 @@ import { RefreshCw } from "lucide-react";
 interface MicWaveformProps {
   level: number; // 0-1
   isActive: boolean;
+  isThinking?: boolean; // Agent is processing, not yet speaking
   onReset: () => void;
   className?: string;
 }
 
-const MicWaveform = ({ level, isActive, onReset, className = "" }: MicWaveformProps) => {
+const MicWaveform = ({ level, isActive, isThinking = false, onReset, className = "" }: MicWaveformProps) => {
   const bars = 5;
+
+  // Determine bar color: gold=listening, blue=thinking, dim=silent
+  const barColor = isThinking ? "bg-blue-400" : "bg-gold";
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="flex items-end gap-0.5 h-5">
         {Array.from({ length: bars }).map((_, i) => {
-          // Stagger bar heights based on level
-          const barLevel = isActive ? Math.min(1, level * (1 + Math.sin(i * 1.2) * 0.5)) : 0.08;
+          const barLevel = isThinking
+            ? 0.3 + 0.3 * Math.sin((Date.now() / 200) + i * 1.2) // gentle wave while thinking
+            : isActive
+            ? Math.min(1, level * (1 + Math.sin(i * 1.2) * 0.5))
+            : 0.08;
           return (
             <motion.div
               key={i}
-              className="w-1 rounded-full bg-gold"
+              className={`w-1 rounded-full ${barColor} ${isThinking ? "animate-pulse" : ""}`}
               animate={{ height: `${Math.max(3, barLevel * 20)}px` }}
-              transition={{ duration: 0.1 }}
+              transition={{ duration: isThinking ? 0.3 : 0.1 }}
             />
           );
         })}
       </div>
-      {!isActive && (
+      {isThinking && (
+        <span className="text-xs text-blue-300 animate-pulse">Andrea réfléchit…</span>
+      )}
+      {!isActive && !isThinking && (
         <button
           onClick={(e) => {
             e.stopPropagation();

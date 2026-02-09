@@ -13,6 +13,7 @@ export const useAndreaVoiceAgent = () => {
   const [micLevel, setMicLevel] = useState(0);
   const [lastAgentText, setLastAgentText] = useState<string | null>(null);
   const [showTextFallback, setShowTextFallback] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -84,14 +85,19 @@ export const useAndreaVoiceAgent = () => {
       if (message?.source === "ai" || message?.role === "agent") {
         const text = message?.message || message?.agent_response_event?.agent_response || message?.text;
         if (text) {
-          // Clean quotes from the text
           const cleanText = typeof text === "string" ? text.replace(/^"|"$/g, "") : String(text);
           setLastAgentText(cleanText);
+          setIsThinking(false); // Got response, no longer thinking
           console.log("[Andrea Voice] 💬 Agent text:", cleanText);
-          // Start timeout: if no audio plays within 4s, show text
           hasSpokenRef.current = false;
           startResponseTimeout();
         }
+      }
+
+      // Detect user speech end → agent is now "thinking"
+      if (message?.type === "user_transcript" || (message?.source === "user" && message?.role === "user")) {
+        setIsThinking(true);
+        console.log("[Andrea Voice] 🧠 User finished speaking, agent thinking...");
       }
 
       // Surface quota/API errors as toasts
@@ -229,9 +235,12 @@ export const useAndreaVoiceAgent = () => {
     if (conversation.isSpeaking) {
       hasSpokenRef.current = true;
       setShowTextFallback(false);
+      setIsThinking(false);
       clearResponseTimeout();
+      // Force speaker output on mobile when audio starts playing
+      forceAudioOutput();
     }
-  }, [conversation.isSpeaking, clearResponseTimeout]);
+  }, [conversation.isSpeaking, clearResponseTimeout, forceAudioOutput]);
 
   const requestMicPermission = useCallback(async () => {
     try {
@@ -344,6 +353,7 @@ export const useAndreaVoiceAgent = () => {
     isConnecting,
     isConnected: conversation.status === "connected",
     isSpeaking: conversation.isSpeaking,
+    isThinking,
     micActive,
     micLevel,
     micPermission,
