@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw, AlertTriangle } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw, AlertTriangle, ImageDown } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -210,6 +210,9 @@ const AdminApprovals = () => {
   const [showDeletePendingDialog, setShowDeletePendingDialog] = useState(false);
   const [pendingArtisanToDelete, setPendingArtisanToDelete] = useState<PendingArtisan | null>(null);
   const [isDeletingPending, setIsDeletingPending] = useState(false);
+
+  // Media sync state
+  const [syncingArtisanId, setSyncingArtisanId] = useState<string | null>(null);
 
   // Pagination state for prospects
   const [prospectPage, setProspectPage] = useState(0);
@@ -1736,7 +1739,7 @@ const AdminApprovals = () => {
                                     {prospect.portfolio_images && prospect.portfolio_images.length > 0 && <span>• {prospect.portfolio_images.length} photo(s)</span>}
                                   </div>
 
-                                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                                     <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => window.open(`/artisan/${prospect.slug}`, '_blank')}>
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                       <span className="hidden sm:inline">Voir</span>
@@ -1771,6 +1774,41 @@ const AdminApprovals = () => {
                                     <Button variant="destructive" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => setProspectToDelete(prospect)}>
                                       <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                       <span className="hidden sm:inline">Supprimer</span>
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 text-purple-600 border-purple-300 hover:bg-purple-50" disabled={syncingArtisanId === prospect.id} onClick={async () => {
+                                      setSyncingArtisanId(prospect.id);
+                                      try {
+                                        const { data, error } = await supabase.functions.invoke("sync-artisan-media", {
+                                          body: { artisanId: prospect.id }
+                                        });
+                                        if (error) throw error;
+                                        if (data?.error && !data?.success) {
+                                          toast.error(data.error);
+                                        } else {
+                                          const parts = [];
+                                          if (data.photos_added > 0) parts.push(`${data.photos_added} photo(s)`);
+                                          if (data.videos_added > 0) parts.push(`${data.videos_added} vidéo(s)`);
+                                          if (data.description_generated) parts.push("description SEO");
+                                          if (parts.length > 0) {
+                                            toast.success(`Sync réussie : ${parts.join(", ")} ajouté(s)`);
+                                          } else {
+                                            toast.info("Aucun nouveau média trouvé sur le site");
+                                          }
+                                          queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+                                        }
+                                      } catch (err) {
+                                        console.error("Sync error:", err);
+                                        toast.error("Erreur lors de la synchronisation");
+                                      } finally {
+                                        setSyncingArtisanId(null);
+                                      }
+                                    }}>
+                                      {syncingArtisanId === prospect.id ? (
+                                        <Loader2 className="h-3.5 w-3.5 md:h-4 md:w-4 animate-spin sm:mr-1" />
+                                      ) : (
+                                        <ImageDown className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                      )}
+                                      <span className="hidden sm:inline">Sync</span>
                                     </Button>
                                   </div>
                                 </div>

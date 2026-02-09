@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.save-andrea-lead]
 verify_jwt = false
+
+[functions.sync-artisan-media]
+verify_jwt = false
