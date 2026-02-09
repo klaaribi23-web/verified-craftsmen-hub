@@ -165,8 +165,8 @@ const AndreaGlobalWidget = () => {
     recognition.onresult = (event: any) => {
       const transcript = event.results[0]?.[0]?.transcript;
       if (transcript) {
-        handleAsk(transcript);
-        toast.success("🎙️ Question envoyée !");
+        setTextInput(transcript);
+        toast.success("🎙️ Texte dicté — cliquez sur Envoyer !");
       }
     };
     recognition.onerror = (event: any) => {
