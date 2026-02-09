@@ -24,6 +24,7 @@ Deno.serve(async (req) => {
     console.log(`[ElevenLabs Token] Requesting conversation token for agent ${AGENT_ID}`);
 
     // Use conversation token endpoint (WebRTC) — more reliable audio than WebSocket signed URL
+    // WebRTC handles ICE/STUN/TURN internally via ElevenLabs infrastructure
     const response = await fetch(
       `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${AGENT_ID}`,
       {
