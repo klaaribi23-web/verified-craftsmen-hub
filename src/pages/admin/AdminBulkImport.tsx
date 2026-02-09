@@ -38,6 +38,7 @@ interface ParsedArtisan {
   googleId: string;
   googleMapsUrl: string;
   portfolioImages: string[];
+  googleRating: number | null;
 }
 
 const DEFAULT_DESCRIPTION = "Professionnel qualifié à votre service. N'hésitez pas à me contacter pour discuter de votre projet et obtenir un devis personnalisé.";
@@ -96,6 +97,9 @@ const SERVICE_TO_CATEGORY_MAP: Record<string, string> = {
   // Menuiserie
   menuiserie: "Menuisier",
   menuisier: "Menuisier",
+  "menuiserie pvc/alu": "Menuisier",
+  "menuiserie pvc": "Menuisier",
+  "menuiserie alu": "Menuisier",
   // Couverture
   couverture: "Couvreur / Zingueur",
   couvreur: "Couvreur / Zingueur",
@@ -145,6 +149,7 @@ const SERVICE_TO_CATEGORY_MAP: Record<string, string> = {
   solaire: "Panneaux solaires / photovoltaïque",
   photovoltaïque: "Panneaux solaires / photovoltaïque",
   photovoltaique: "Panneaux solaires / photovoltaïque",
+  "panneaux solaires": "Panneaux solaires / photovoltaïque",
   // Poêles
   poêle: "Poêles & cheminées",
   poele: "Poêles & cheminées",
@@ -182,6 +187,7 @@ const AdminBulkImport = () => {
       googleId: item.google_id || item.googleId || "",
       googleMapsUrl: item.link || item.google_maps_url || item.googleMapsUrl || "",
       portfolioImages: item.portfolio_images || item.portfolioImages || [],
+      googleRating: item.google_rating || item.googleRating || item.note_google || null,
     }));
   };
 
@@ -214,6 +220,9 @@ const AdminBulkImport = () => {
       prestations: "services",
       categorie: "services",
       catégorie: "services",
+      métier: "services",
+      metier: "services",
+      secteur: "services",
       linkedin: "linkedinUrl",
       linkedin_url: "linkedinUrl",
       facebook: "facebookUrl",
@@ -229,6 +238,11 @@ const AdminBulkImport = () => {
       google_maps_url: "googleMapsUrl",
       "google maps": "googleMapsUrl",
       "lien google": "googleMapsUrl",
+      note_google: "googleRating",
+      "note google": "googleRating",
+      google_rating: "googleRating",
+      rating: "googleRating",
+      note: "googleRating",
     };
 
     const columnIndexes: Partial<Record<keyof ParsedArtisan, number>> = {};
@@ -273,6 +287,9 @@ const AdminBulkImport = () => {
               .filter(Boolean)
           : [];
 
+        const ratingStr = getValue("googleRating");
+        const googleRating = ratingStr ? parseFloat(ratingStr.replace(",", ".")) : null;
+
         return {
           businessName: getValue("businessName"),
           email: getValue("email"),
@@ -285,7 +302,8 @@ const AdminBulkImport = () => {
           websiteUrl: getValue("websiteUrl"),
           googleId: getValue("googleId"),
           googleMapsUrl: getValue("googleMapsUrl"),
-          portfolioImages: [], // CSV support for arrays is complex, skipping for now
+          portfolioImages: [],
+          googleRating: googleRating && !isNaN(googleRating) ? googleRating : null,
         };
       })
       .filter((a) => a.businessName || a.city);
@@ -504,6 +522,9 @@ const AdminBulkImport = () => {
           if (enabledColumns.includes("googleMapsUrl") && artisan.googleMapsUrl) {
             artisanData.google_maps_url = artisan.googleMapsUrl;
           }
+          if (artisan.googleRating) {
+            artisanData.google_rating = artisan.googleRating;
+          }
           if (enabledColumns.includes("portfolioImages") && artisan.portfolioImages.length > 0) {
             artisanData.portfolio_images = artisan.portfolioImages;
           }
@@ -630,6 +651,26 @@ const AdminBulkImport = () => {
     document.body.removeChild(link);
   };
 
+  const downloadChasseurTemplate = () => {
+    const BOM = "\uFEFF";
+    const header = "Nom;Telephone;Ville;Services;Note_Google;Site Web";
+    const examples = [
+      "Solaire Express;0612345678;Lille;Panneaux solaires;4.8;https://solaire-express.fr",
+      "PAC du Nord;0698765432;Arras;Pompe à chaleur;4.6;https://pac-nord.fr",
+      "Menuiseries Picardes;0654321098;Amiens;Menuiserie PVC/Alu;4.9;https://menuiseries-picardes.fr",
+    ];
+    const csvContent = BOM + [header, ...examples].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "modele_chasseur_talents_HDF.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <>
       <Navbar />
@@ -676,9 +717,14 @@ const AdminBulkImport = () => {
                     </Button>
                   </label>
                   <p className="text-xs text-muted-foreground mt-6">
-                    <strong>CSV :</strong> Colonnes attendues : nom, email, telephone, ville, code_postal, adresse,
-                    siret, services
+                    <strong>CSV :</strong> Colonnes attendues : nom, telephone, ville, services, note_google, site web
                   </p>
+                  <div className="mt-4 flex gap-3 justify-center">
+                    <Button variant="outline" size="sm" onClick={downloadChasseurTemplate}>
+                      <Download className="h-4 w-4 mr-2" />
+                      📋 Modèle Chasseur de Talents (CSV)
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
