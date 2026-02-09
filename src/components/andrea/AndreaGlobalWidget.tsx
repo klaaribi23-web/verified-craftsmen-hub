@@ -40,7 +40,7 @@ const AndreaGlobalWidget = () => {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
     micActive, micLevel, stopConversation, hardReset, micPermission,
     requestMicPermission, lastAgentText, error,
-    showTextFallback, audioBlocked, callingIndicator, micStatus,
+    callingIndicator, micStatus,
     sendTextMessage,
   } = useAndreaVoiceAgent();
 
@@ -200,7 +200,7 @@ const AndreaGlobalWidget = () => {
             )}
 
             {/* Content area */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[140px]">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[140px] flex flex-col">
               {/* Voice controls */}
               <VoiceErrorBoundary>
                 <div className="space-y-2">
@@ -272,25 +272,23 @@ const AndreaGlobalWidget = () => {
                 </div>
               </VoiceErrorBoundary>
 
-              {/* Agent text bubble (SMS-style) */}
+              {/* Agent text bubble (SMS-style WhatsApp) */}
               <AnimatePresence>
                 {lastAgentText && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="rounded-2xl rounded-bl-sm bg-navy-dark/95 border border-gold/20 px-4 py-3"
+                    className="self-start w-[92%] rounded-2xl rounded-bl-sm px-4 py-3"
+                    style={{ backgroundColor: "#1A1A1A" }}
                   >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shrink-0">
                         <Sparkles className="w-3 h-3 text-navy-dark" />
                       </div>
                       <span className="text-[11px] font-semibold text-gold/80">Andrea</span>
                     </div>
-                    <p className="text-white text-sm leading-relaxed">{lastAgentText}</p>
-                    {audioBlocked && (
-                      <p className="text-[10px] text-amber-400/80 mt-2 animate-pulse">🔇 Son bloqué — lisez ci-dessus</p>
-                    )}
+                    <p className="text-white text-[13.5px] leading-relaxed">{lastAgentText}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -333,26 +331,23 @@ const AndreaGlobalWidget = () => {
             </div>
 
             {/* Text input — always visible */}
-            <div className="p-3 border-t border-border">
+            <div className="p-3 border-t border-border/50" style={{ backgroundColor: "#1A1A1A" }}>
               <form onSubmit={handleTextSubmit} className="flex gap-2">
                 <input
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   placeholder="Écrivez votre question ici…"
-                  className="flex-1 h-9 rounded-lg bg-muted border border-border text-sm px-3 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gold/40"
+                  className="flex-1 h-10 rounded-full bg-white/10 border border-white/15 text-white text-sm px-4 placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-gold/40"
                 />
                 <Button
                   type="submit"
                   size="icon"
-                  className="h-9 w-9 shrink-0 bg-gold hover:bg-gold/90 text-navy-dark"
+                  className="h-10 w-10 shrink-0 rounded-full bg-gold hover:bg-gold/90 text-navy-dark"
                   disabled={!textInput.trim()}
                 >
                   <Send className="h-4 w-4" />
                 </Button>
               </form>
-              <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-                ⚡ Expert IA · Voix + Texte · Qualification auto
-              </p>
             </div>
           </motion.div>
         )}
