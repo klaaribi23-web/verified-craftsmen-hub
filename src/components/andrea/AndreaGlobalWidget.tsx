@@ -169,27 +169,39 @@ const AndreaGlobalWidget = () => {
     setTextInput("");
   };
 
-  // Speech-to-Text toggle
+  // Speech-to-Text toggle — Web Speech API only, zero ElevenLabs
   const toggleListening = useCallback(() => {
-    if (isListening) {
-      recognitionRef.current?.stop();
+    if (isListening && recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch { /* already stopped */ }
+      recognitionRef.current = null;
       setIsListening(false);
       return;
     }
+
+    // Clean up any leftover instance
+    if (recognitionRef.current) {
+      try { recognitionRef.current.abort?.(); recognitionRef.current.stop(); } catch { /* ok */ }
+      recognitionRef.current = null;
+    }
+
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) { toast.error("Reconnaissance vocale non supportée.", { duration: 2000 }); return; }
+
     const recognition = new SR();
     recognition.lang = "fr-FR";
     recognition.continuous = true;
     recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
 
     let finalTranscript = "";
     let silenceTimer: ReturnType<typeof setTimeout> | null = null;
 
+    const clearSilence = () => { if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; } };
+
     const resetSilenceTimer = () => {
-      if (silenceTimer) clearTimeout(silenceTimer);
+      clearSilence();
       silenceTimer = setTimeout(() => {
-        recognition.stop();
+        try { recognition.stop(); } catch { /* ok */ }
       }, 2000);
     };
 
@@ -197,27 +209,41 @@ const AndreaGlobalWidget = () => {
       resetSilenceTimer();
       let interim = "";
       for (let i = 0; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          finalTranscript += result[0].transcript;
+        const r = event.results[i];
+        if (r.isFinal) {
+          finalTranscript += r[0].transcript;
         } else {
-          interim += result[0].transcript;
+          interim += r[0].transcript;
         }
       }
       setTextInput(finalTranscript + interim);
     };
+
     recognition.onerror = (event: any) => {
-      if (silenceTimer) clearTimeout(silenceTimer);
+      clearSilence();
+      console.warn("[STT] error:", event.error);
+      recognitionRef.current = null;
       setIsListening(false);
-      if (event.error === "not-allowed" || event.error === "denied") toast.error("Micro bloqué. Autorisez l'accès.", { duration: 2000 });
+      if (event.error === "not-allowed" || event.error === "denied") {
+        toast.error("Micro bloqué. Autorisez l'accès dans les paramètres.", { duration: 2000 });
+      }
     };
+
     recognition.onend = () => {
-      if (silenceTimer) clearTimeout(silenceTimer);
+      clearSilence();
+      recognitionRef.current = null;
       setIsListening(false);
     };
+
     recognitionRef.current = recognition;
-    try { recognition.start(); setIsListening(true); }
-    catch { toast.error("Micro bloqué.", { duration: 2000 }); }
+    try {
+      recognition.start();
+      setIsListening(true);
+    } catch (e) {
+      console.error("[STT] start failed:", e);
+      recognitionRef.current = null;
+      toast.error("Impossible d'activer le micro.", { duration: 2000 });
+    }
   }, [isListening]);
 
   const handleOpen = () => { setIsOpen(true); setHasNewResponse(false); };
