@@ -145,8 +145,14 @@ export const useAndreaVoiceAgent = () => {
       audioElements.forEach((el) => {
         el.volume = 1.0;
         el.muted = false;
+        el.setAttribute("playsinline", "");
+        el.setAttribute("webkit-playsinline", "");
         if ((el as any).setSinkId) {
           (el as any).setSinkId("default").catch(() => {});
+        }
+        // Force play if paused
+        if (el.paused && el.src) {
+          el.play().catch(() => {});
         }
       });
       console.log("[Andrea Voice] 🔊 Audio output forced, found", audioElements.length, "audio elements");
@@ -157,15 +163,20 @@ export const useAndreaVoiceAgent = () => {
             if (node instanceof HTMLAudioElement) {
               node.volume = 1.0;
               node.muted = false;
+              node.setAttribute("playsinline", "");
+              node.setAttribute("webkit-playsinline", "");
               if ((node as any).setSinkId) {
                 (node as any).setSinkId("default").catch(() => {});
               }
+              // Auto-play new audio elements
+              node.play().catch(() => {});
+              console.log("[Andrea Voice] 🔊 New audio element auto-played");
             }
           });
         });
       });
       observer.observe(document.body, { childList: true, subtree: true });
-      setTimeout(() => observer.disconnect(), 30000);
+      setTimeout(() => observer.disconnect(), 60000);
     } catch (e) {
       console.warn("[Andrea Voice] setSinkId not supported:", e);
     }

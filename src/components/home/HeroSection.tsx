@@ -113,9 +113,9 @@ const HeroSection = () => {
             {audioBlocked && (
               <button
                 onClick={unlockAudio}
-                className="mb-2 px-3 py-1.5 rounded-md bg-gold text-navy-dark text-xs font-bold hover:bg-gold/90 transition-colors flex items-center gap-1.5"
+                className="mb-2 px-4 py-2 rounded-md bg-red-600 text-white text-sm font-bold hover:bg-red-500 transition-colors flex items-center gap-2 animate-pulse shadow-lg shadow-red-600/50 border-2 border-red-400"
               >
-                🔊 Activer le son
+                🔊 SON BLOQUÉ — Cliquez ici pour activer !
               </button>
             )}
             <p className="text-xs text-gold/60 mb-1">💬 Andrea :</p>
