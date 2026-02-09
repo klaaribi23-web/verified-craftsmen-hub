@@ -55,6 +55,7 @@ import AdminRecommendations from "./pages/admin/AdminRecommendations";
 import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
 import AdminProjectStats from "./pages/admin/AdminProjectStats";
 import AdminLeads from "./pages/admin/AdminLeads";
+import AdminPartners from "./pages/admin/AdminPartners";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ActivateAccount from "./pages/ActivateAccount";
@@ -294,6 +295,11 @@ const App = () => (
           <Route path="/admin/leads-andrea" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminLeads />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/partenaires" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminPartners />
             </ProtectedRoute>
           } />
           

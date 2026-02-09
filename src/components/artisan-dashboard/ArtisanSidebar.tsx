@@ -54,7 +54,7 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
     { icon: MessageSquare, label: "Messagerie", path: "/artisan/messagerie" },
     { icon: ClipboardList, label: "Mes devis", path: "/artisan/devis" },
     { icon: Crown, label: "Mon abonnement", path: "/artisan/abonnement", verified: hasProAccess },
-    { icon: Gift, label: "Offres partenaires", path: "/artisan/offres-partenaires", verified: hasProAccess },
+    { icon: Gift, label: "Avantages Club", path: "/artisan/offres-partenaires", verified: hasProAccess },
     { icon: Settings, label: "Paramètres", path: "/artisan/parametres" },
   ];
 

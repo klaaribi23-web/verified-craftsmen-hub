@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Shield, Zap, Users, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Shield, Zap, Users, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import Footer from "@/components/layout/Footer";
+import { ANDREA_INSCRIPTION_SUCCESS } from "@/config/andreaMessages";
 
 const BENEFITS = [
   { icon: Zap, label: "Andrea travaille pour vous 24h/24 pendant que vous êtes sur le chantier" },
@@ -21,6 +22,7 @@ const InscriptionArtisan = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ siret: "", business_name: "", metier: "", ville: "", phone: "" });
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -42,8 +44,8 @@ const InscriptionArtisan = () => {
         phone: form.phone,
       });
       if (error) throw error;
+      setShowSuccess(true);
       toast.success("Demande envoyée ! Notre équipe vous recontactera sous 24h.");
-      navigate("/connexion");
     } catch (err: any) {
       toast.error(err?.message || "Erreur lors de l'envoi");
     } finally {
@@ -60,6 +62,25 @@ const InscriptionArtisan = () => {
       <Navbar />
       <main className="min-h-screen bg-background pt-24 pb-16">
         <div className="container max-w-4xl mx-auto px-4">
+          {/* Andrea success message after inscription */}
+          {showSuccess && (
+            <div className="mb-8 p-6 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5 text-navy-dark" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground mb-1">Andrea — Votre IA Experte</p>
+                  <p className="text-foreground/80">{ANDREA_INSCRIPTION_SUCCESS}</p>
+                  <div className="flex gap-3 mt-4">
+                    <Button onClick={() => navigate("/connexion")} className="gap-2">
+                      Se connecter <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Hero */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-sm font-medium mb-4">
