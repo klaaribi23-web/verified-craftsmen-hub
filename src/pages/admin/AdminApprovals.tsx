@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw, AlertTriangle, ImageDown } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw, AlertTriangle, ImageDown, MessageCircle } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -48,6 +48,10 @@ interface ProspectArtisan {
   business_name: string;
   city: string;
   email: string | null;
+  phone: string | null;
+  google_rating: number | null;
+  source: string | null;
+  category_id: string | null;
   description: string | null;
   photo_url: string | null;
   portfolio_images: string[] | null;
@@ -393,6 +397,10 @@ const AdminApprovals = () => {
           business_name,
           city,
           email,
+          phone,
+          google_rating,
+          source,
+          category_id,
           description,
           photo_url,
           portfolio_images,
@@ -413,6 +421,49 @@ const AdminApprovals = () => {
       return data as ProspectArtisan[];
     }
   });
+
+  // Fetch exclusivity counts (artisans per city/category for prospect status)
+  const { data: exclusivityMap = {} } = useQuery({
+    queryKey: ["exclusivity-counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("artisans")
+        .select("city, category_id")
+        .in("status", ["active", "prospect"]);
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      data?.forEach(a => {
+        if (a.category_id) {
+          const key = `${a.city.toLowerCase().trim()}|${a.category_id}`;
+          counts[key] = (counts[key] || 0) + 1;
+        }
+      });
+      return counts;
+    },
+  });
+
+  // Helper: Generate WhatsApp link with pre-filled message
+  const getWhatsAppLink = (prospect: ProspectArtisan) => {
+    const phone = prospect.phone?.replace(/[\s.-]/g, "");
+    if (!phone) return null;
+    // Convert to international format
+    let intlPhone = phone;
+    if (phone.startsWith("0")) {
+      intlPhone = `33${phone.slice(1)}`;
+    } else if (!phone.startsWith("33") && !phone.startsWith("+")) {
+      intlPhone = `33${phone}`;
+    }
+    intlPhone = intlPhone.replace("+", "");
+    
+    const metier = prospect.category?.name || "votre secteur";
+    const ville = prospect.city;
+    const lienVitrine = `https://verified-craftsmen-hub.lovable.app/artisan/${prospect.slug}`;
+    const message = `Bonjour, j'ai sélectionné votre entreprise pour représenter le secteur ${metier} sur la ville de ${ville} sur notre plateforme Artisans Validés. Votre vitrine est déjà prête ici : ${lienVitrine}. Il ne reste qu'une place disponible sur votre secteur. On l'active ?`;
+    return `https://wa.me/${intlPhone}?text=${encodeURIComponent(message)}`;
+  };
+
+
+
 
   // Fetch total count of WAITING artisans (email sent, no account yet)
   const {
@@ -1724,10 +1775,27 @@ const AdminApprovals = () => {
                                         {prospect.category && <Badge variant="secondary" className="text-xs px-1.5 py-0 shrink-0">{prospect.category.name}</Badge>}
                                       </div>
                                     </div>
-                                    <Badge variant="outline" className="gap-1 text-xs shrink-0 bg-amber-500/10 text-amber-600 border-amber-500/30 self-start">
-                                      <Store className="h-2.5 w-2.5" />
-                                      Vitrine
-                                    </Badge>
+                                    <div className="flex flex-wrap gap-1.5 self-start">
+                                      <Badge variant="outline" className="gap-1 text-xs shrink-0 bg-amber-500/10 text-amber-600 border-amber-500/30">
+                                        <Store className="h-2.5 w-2.5" />
+                                        À contacter
+                                      </Badge>
+                                      {prospect.google_rating && prospect.google_rating >= 4.5 && (
+                                        <Badge variant="outline" className="gap-1 text-xs shrink-0 bg-yellow-500/10 text-yellow-700 border-yellow-500/30">
+                                          ⭐ {prospect.google_rating}
+                                        </Badge>
+                                      )}
+                                      {prospect.category_id && (() => {
+                                        const key = `${prospect.city.toLowerCase().trim()}|${prospect.category_id}`;
+                                        const count = exclusivityMap[key] || 0;
+                                        return (
+                                          <Badge variant="outline" className={`gap-1 text-xs shrink-0 ${count >= 2 ? 'bg-destructive/10 text-destructive border-destructive/30' : 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30'}`}>
+                                            <Users className="h-2.5 w-2.5" />
+                                            {count}/2
+                                          </Badge>
+                                        );
+                                      })()}
+                                    </div>
                                   </div>
 
                                   {prospect.description && <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-2 md:mb-3">
@@ -1737,9 +1805,25 @@ const AdminApprovals = () => {
                                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-3">
                                     <span>Créée le {new Date(prospect.created_at).toLocaleDateString('fr-FR')}</span>
                                     {prospect.portfolio_images && prospect.portfolio_images.length > 0 && <span>• {prospect.portfolio_images.length} photo(s)</span>}
+                                    {prospect.phone && <span className="flex items-center gap-1">• <Phone className="h-3 w-3" /> {prospect.phone}</span>}
                                   </div>
 
-                                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                                  <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                                    {/* WhatsApp Button */}
+                                    {(() => {
+                                      const waLink = getWhatsAppLink(prospect);
+                                      return waLink ? (
+                                        <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 bg-[#25D366] hover:bg-[#1da851] text-white" onClick={() => window.open(waLink, '_blank')}>
+                                          <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
+                                          <span className="hidden sm:inline">WhatsApp</span>
+                                        </Button>
+                                      ) : (
+                                        <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" variant="outline" disabled title="Pas de numéro de téléphone">
+                                          <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1 opacity-40" />
+                                          <span className="hidden sm:inline opacity-40">WhatsApp</span>
+                                        </Button>
+                                      );
+                                    })()}
                                     <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" onClick={() => window.open(`/artisan/${prospect.slug}`, '_blank')}>
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                       <span className="hidden sm:inline">Voir</span>
@@ -1945,6 +2029,20 @@ const AdminApprovals = () => {
                                     </p>}
 
                                   <div className="flex flex-wrap gap-2">
+                                    {/* WhatsApp button for waiting artisan */}
+                                    {artisan.phone && (() => {
+                                      let intlPhone = artisan.phone.replace(/[\s.-]/g, "");
+                                      if (intlPhone.startsWith("0")) intlPhone = `33${intlPhone.slice(1)}`;
+                                      else if (!intlPhone.startsWith("33") && !intlPhone.startsWith("+")) intlPhone = `33${intlPhone}`;
+                                      intlPhone = intlPhone.replace("+", "");
+                                      const msg = `Bonjour, j'ai sélectionné votre entreprise pour représenter le secteur ${artisan.category?.name || "votre métier"} sur la ville de ${artisan.city} sur notre plateforme Artisans Validés. Votre vitrine est déjà prête ici : https://verified-craftsmen-hub.lovable.app/artisan/${artisan.slug}. Il ne reste qu'une place disponible sur votre secteur. On l'active ?`;
+                                      return (
+                                        <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-3 bg-[#25D366] hover:bg-[#1da851] text-white" onClick={() => window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`, '_blank')}>
+                                          <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                          WhatsApp
+                                        </Button>
+                                      );
+                                    })()}
                                     <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-3" onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}>
                                       <ExternalLink className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
                                       Voir la fiche
