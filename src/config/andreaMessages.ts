@@ -38,3 +38,7 @@ export const ANDREA_CONVERSION_RAPPEL =
 /** Message post-inscription artisan réussie */
 export const ANDREA_INSCRIPTION_SUCCESS =
   "Félicitations ! Votre compte est créé. Profitez dès maintenant de nos tarifs négociés sur vos assurances et matériaux dans votre espace Avantages.";
+
+/** Message Andrea pour artisans sans photos mais avec site web */
+export const ANDREA_PHOTO_SCRAPE_SUGGESTION =
+  "J'ai vu votre site web. Voulez-vous que je récupère vos photos de chantiers pour illustrer votre fiche Artisans Validés ?";
