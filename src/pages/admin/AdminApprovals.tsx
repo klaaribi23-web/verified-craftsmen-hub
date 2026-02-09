@@ -1813,10 +1813,12 @@ const AdminApprovals = () => {
                                     {(() => {
                                       const waLink = getWhatsAppLink(prospect);
                                       return waLink ? (
-                                        <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 bg-[#25D366] hover:bg-[#1da851] text-white" onClick={() => window.open(waLink, '_blank')}>
+                                        <a href={waLink} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 bg-[#25D366] hover:bg-[#1da851] text-white" type="button">
                                           <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1" />
                                           <span className="hidden sm:inline">WhatsApp</span>
                                         </Button>
+                                        </a>
                                       ) : (
                                         <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-2 md:px-3" variant="outline" disabled title="Pas de numéro de téléphone">
                                           <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-1 opacity-40" />
@@ -2037,10 +2039,12 @@ const AdminApprovals = () => {
                                       intlPhone = intlPhone.replace("+", "");
                                       const msg = `Bonjour, j'ai sélectionné votre entreprise pour représenter le secteur ${artisan.category?.name || "votre métier"} sur la ville de ${artisan.city} sur notre plateforme Artisans Validés. Votre vitrine est déjà prête ici : https://verified-craftsmen-hub.lovable.app/artisan/${artisan.slug}. Il ne reste qu'une place disponible sur votre secteur. On l'active ?`;
                                       return (
-                                        <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-3 bg-[#25D366] hover:bg-[#1da851] text-white" onClick={() => window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`, '_blank')}>
-                                          <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
-                                          WhatsApp
-                                        </Button>
+                                        <a href={`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener noreferrer">
+                                          <Button size="sm" className="text-xs md:text-sm h-8 md:h-9 px-3 bg-[#25D366] hover:bg-[#1da851] text-white" type="button">
+                                            <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
+                                            WhatsApp
+                                          </Button>
+                                        </a>
                                       );
                                     })()}
                                     <Button variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9 px-3" onClick={() => window.open(`/artisan/${artisan.slug}`, '_blank')}>
