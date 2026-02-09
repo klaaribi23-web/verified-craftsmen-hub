@@ -14,6 +14,7 @@ export const useAndreaVoiceAgent = () => {
   const [lastAgentText, setLastAgentText] = useState<string | null>(null);
   const [showTextFallback, setShowTextFallback] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  const [audioBlocked, setAudioBlocked] = useState(false);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -59,6 +60,7 @@ export const useAndreaVoiceAgent = () => {
     onConnect: () => {
       console.log("[Andrea Voice] ✅ Connected to ElevenLabs agent");
       setError(null);
+      setAudioBlocked(false);
       toast.success("Connexion ElevenLabs établie ✅", { duration: 3000 });
 
       // Start mic monitor AFTER SDK has connected (avoid mic conflict)
@@ -235,12 +237,20 @@ export const useAndreaVoiceAgent = () => {
     if (conversation.isSpeaking) {
       hasSpokenRef.current = true;
       setShowTextFallback(false);
+      setAudioBlocked(false);
       setIsThinking(false);
       clearResponseTimeout();
       // Force speaker output on mobile when audio starts playing
       forceAudioOutput();
     }
   }, [conversation.isSpeaking, clearResponseTimeout, forceAudioOutput]);
+
+  // Detect audio blocked: text arrived but no audio after timeout
+  useEffect(() => {
+    if (showTextFallback && lastAgentText && !conversation.isSpeaking) {
+      setAudioBlocked(true);
+    }
+  }, [showTextFallback, lastAgentText, conversation.isSpeaking]);
 
   const requestMicPermission = useCallback(async () => {
     try {
@@ -286,13 +296,19 @@ export const useAndreaVoiceAgent = () => {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioCtxRef.current = audioCtx;
       if (audioCtx.state === "suspended") await audioCtx.resume();
-      // Play silent buffer to unlock audio output on iOS/Android
-      const buffer = audioCtx.createBuffer(1, 1, 22050);
+      // Play silent buffer (0.1s) to unlock audio output on iOS/Android
+      const sampleRate = audioCtx.sampleRate;
+      const buffer = audioCtx.createBuffer(1, Math.ceil(sampleRate * 0.1), sampleRate);
+      const channelData = buffer.getChannelData(0);
+      // Fill with near-silent noise to trick iOS into enabling speaker
+      for (let i = 0; i < channelData.length; i++) {
+        channelData[i] = (Math.random() - 0.5) * 0.001;
+      }
       const silentSource = audioCtx.createBufferSource();
       silentSource.buffer = buffer;
       silentSource.connect(audioCtx.destination);
       silentSource.start(0);
-      console.log("[Andrea Voice] AudioContext state:", audioCtx.state);
+      console.log("[Andrea Voice] AudioContext unlocked, sampleRate:", sampleRate, "state:", audioCtx.state);
 
       // 2. Get signed URL FIRST (don't grab mic yet — let SDK do it)
       console.log("[Andrea Voice] Fetching signed URL...");
@@ -346,10 +362,27 @@ export const useAndreaVoiceAgent = () => {
     try { await conversation.endSession(); } catch {}
   }, [conversation, stopMicMonitor, clearResponseTimeout]);
 
+  // Manual unlock audio for "Activer le son" button
+  const unlockAudio = useCallback(() => {
+    console.log("[Andrea Voice] 🔓 Manual audio unlock requested");
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const buf = audioCtx.createBuffer(1, Math.ceil(audioCtx.sampleRate * 0.1), audioCtx.sampleRate);
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    src.connect(audioCtx.destination);
+    src.start(0);
+    forceAudioOutput();
+    setAudioBlocked(false);
+    setShowTextFallback(false);
+    toast.success("Son activé 🔊");
+  }, [forceAudioOutput]);
+
   return {
     startConversation,
     endConversation,
     resetMic,
+    unlockAudio,
     isConnecting,
     isConnected: conversation.status === "connected",
     isSpeaking: conversation.isSpeaking,
@@ -362,5 +395,6 @@ export const useAndreaVoiceAgent = () => {
     error,
     lastAgentText,
     showTextFallback,
+    audioBlocked,
   };
 };
