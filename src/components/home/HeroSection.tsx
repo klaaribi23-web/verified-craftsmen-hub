@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2, Phone } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,7 +82,6 @@ const HeroSection = () => {
               if (isConnected) {
                 stopConversation();
               } else if (error) {
-                // Retry on error
                 startConversation();
               } else {
                 startConversation();
@@ -97,7 +96,7 @@ const HeroSection = () => {
             ) : (
               <>
                 <Mic className={`w-5 h-5 ${isConnected && mobile ? "text-navy-dark" : ""} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
-                {isConnected ? "Arrêter Andrea ⏹️" : getVoiceLabel()}
+                {isConnected ? "Arrêter ⏹️" : getVoiceLabel()}
               </>
             )}
           </Button>
@@ -126,16 +125,6 @@ const HeroSection = () => {
         {isConnected && micStatus && (
           <div className="text-xs text-gold/80 animate-pulse text-center">
             {micStatus}
-          </div>
-        )}
-        {/* Agent text */}
-        {showTextFallback && lastAgentText && (
-          <div className="mt-2 p-3 rounded-lg bg-gold/10 border border-gold/20 text-sm text-white/90 max-w-md animate-fade-in">
-            <p className="text-xs text-gold/60 mb-1">💬 Andrea :</p>
-            <p className="leading-relaxed">{lastAgentText}</p>
-            {audioBlocked && (
-              <p className="text-xs text-amber-400/80 mt-1 animate-pulse">🔇 Son non détecté — vérifiez le volume</p>
-            )}
           </div>
         )}
       </div>
@@ -282,6 +271,26 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* ====== BACKUP BUBBLE — large centered text overlay ====== */}
+      <AnimatePresence>
+        {showTextFallback && lastAgentText && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 left-4 right-4 z-50 flex justify-center pointer-events-none"
+          >
+            <div className="pointer-events-auto max-w-lg w-full rounded-2xl bg-navy/95 backdrop-blur-md border border-gold/30 shadow-2xl p-5">
+              <p className="text-xs text-gold/60 mb-1.5 font-medium">💬 Andrea répond :</p>
+              <p className="text-white text-base md:text-lg leading-relaxed font-medium">{lastAgentText}</p>
+              {audioBlocked && (
+                <p className="text-xs text-amber-400/80 mt-2 animate-pulse">🔇 Son bloqué — lisez la réponse ci-dessus</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

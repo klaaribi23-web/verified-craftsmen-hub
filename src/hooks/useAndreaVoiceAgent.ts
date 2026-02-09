@@ -5,6 +5,38 @@ import { toast } from "sonner";
 
 type MicPermission = "granted" | "denied" | "prompt" | "unknown";
 
+// Global audio warmup — runs once on first user interaction anywhere
+let audioWarmedUp = false;
+const warmupAudio = () => {
+  if (audioWarmedUp) return;
+  audioWarmedUp = true;
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.25), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = 0;
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.start(0);
+    src.onended = () => ctx.close().catch(() => {});
+    console.log("[Andrea Voice] 🔊 Audio warmup done");
+  } catch (e) {
+    console.warn("[Andrea Voice] Warmup failed:", e);
+  }
+};
+
+// Attach warmup to first user gesture (once)
+if (typeof window !== "undefined") {
+  const handler = () => {
+    warmupAudio();
+    document.removeEventListener("click", handler, true);
+    document.removeEventListener("touchstart", handler, true);
+  };
+  document.addEventListener("click", handler, true);
+  document.addEventListener("touchstart", handler, true);
+}
+
 export const useAndreaVoiceAgent = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +59,8 @@ export const useAndreaVoiceAgent = () => {
   const hasSpokenRef = useRef(false);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoCommitSentRef = useRef(false);
+  const stopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isStopping = useRef(false);
 
   // Check mic permission on mount
   useEffect(() => {
@@ -44,7 +78,7 @@ export const useAndreaVoiceAgent = () => {
     checkPermission();
   }, []);
 
-  // Force volume 100% on all audio elements on page load
+  // Force volume 100% on all audio elements
   useEffect(() => {
     const forceAllVolume = () => {
       document.querySelectorAll("audio, video").forEach((el) => {
@@ -116,6 +150,70 @@ export const useAndreaVoiceAgent = () => {
     }, 4000);
   }, [clearResponseTimeout]);
 
+  // ====== STOP MIC MONITOR ======
+  const stopMicMonitor = useCallback(() => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    analyserRef.current = null;
+    setMicLevel(0);
+    setMicStatus(null);
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+    }
+    clearSilenceTimer();
+  }, [clearSilenceTimer]);
+
+  // ====== NUCLEAR CLEANUP — destroys everything ======
+  const nuclearCleanup = useCallback(() => {
+    console.log("[Andrea Voice] ☢️ Nuclear cleanup");
+    // Stop all monitoring
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    analyserRef.current = null;
+
+    // Kill mic streams
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+    }
+
+    // Stop keep-alive
+    if (keepAliveRef.current) {
+      try { keepAliveRef.current.stop(); } catch {}
+      keepAliveRef.current = null;
+    }
+
+    // Close AudioContext
+    if (audioCtxRef.current) {
+      try { audioCtxRef.current.close(); } catch {}
+      audioCtxRef.current = null;
+    }
+
+    // Kill all audio elements on the page
+    document.querySelectorAll("audio").forEach((el) => {
+      try { el.pause(); el.src = ""; el.remove(); } catch {}
+    });
+
+    // Clear all timers
+    if (responseTimeoutRef.current) { clearTimeout(responseTimeoutRef.current); responseTimeoutRef.current = null; }
+    if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
+    if (stopTimeoutRef.current) { clearTimeout(stopTimeoutRef.current); stopTimeoutRef.current = null; }
+
+    // Reset all state
+    setMicActive(false);
+    setMicLevel(0);
+    setIsThinking(false);
+    setAudioBlocked(false);
+    setCallingIndicator(false);
+    setMicStatus(null);
+    setError(null);
+    setIsConnecting(false);
+    autoCommitSentRef.current = false;
+    isStopping.current = false;
+  }, []);
+
   const conversation = useConversation({
     onConnect: () => {
       console.log("[Andrea Voice] ✅ Connected");
@@ -132,14 +230,7 @@ export const useAndreaVoiceAgent = () => {
     },
     onDisconnect: () => {
       console.log("[Andrea Voice] Disconnected");
-      setMicActive(false);
-      setMicLevel(0);
-      setCallingIndicator(false);
-      setMicStatus(null);
-      clearSilenceTimer();
-      stopMicMonitor();
-      stopKeepAlive();
-      clearResponseTimeout();
+      nuclearCleanup();
     },
     onMessage: (message: any) => {
       const raw = JSON.stringify(message);
@@ -233,13 +324,8 @@ export const useAndreaVoiceAgent = () => {
               }, 200);
             }
           }
-          if (silentFrames > 60) {
-            setMicStatus(null);
-          }
-          if (silentFrames > 300) {
-            setMicActive(false);
-            wasActive = false;
-          }
+          if (silentFrames > 60) setMicStatus(null);
+          if (silentFrames > 300) { setMicActive(false); wasActive = false; }
         }
         rafRef.current = requestAnimationFrame(check);
       };
@@ -250,29 +336,11 @@ export const useAndreaVoiceAgent = () => {
     }
   }, [clearSilenceTimer, triggerAutoCommit]);
 
-  const stopMicMonitor = useCallback(() => {
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-    analyserRef.current = null;
-    setMicLevel(0);
-    setMicStatus(null);
-    if (micStreamRef.current) {
-      micStreamRef.current.getTracks().forEach((t) => t.stop());
-      micStreamRef.current = null;
-    }
-    clearSilenceTimer();
-  }, [clearSilenceTimer]);
-
   useEffect(() => {
     return () => {
-      stopMicMonitor();
-      stopKeepAlive();
-      clearResponseTimeout();
-      clearSilenceTimer();
+      nuclearCleanup();
     };
-  }, [stopMicMonitor, stopKeepAlive, clearResponseTimeout, clearSilenceTimer]);
+  }, [nuclearCleanup]);
 
   // Track when agent speaks → audio works
   useEffect(() => {
@@ -298,39 +366,59 @@ export const useAndreaVoiceAgent = () => {
     }
   }, []);
 
-  // Hard reset - clean everything
+  // ====== HARD RESET — nuclear option ======
   const hardReset = useCallback(async () => {
     console.log("[Andrea Voice] 💥 Hard reset");
+    isStopping.current = true;
     try { await conversation.endSession(); } catch {}
-    stopMicMonitor();
-    stopKeepAlive();
-    if (audioCtxRef.current) {
-      try { audioCtxRef.current.close(); } catch {}
-      audioCtxRef.current = null;
-    }
-    document.querySelectorAll("audio").forEach((el) => {
-      el.pause(); el.src = ""; el.remove();
-    });
-    clearResponseTimeout();
-    clearSilenceTimer();
-    setMicActive(false);
-    setMicLevel(0);
+    nuclearCleanup();
     setLastAgentText(null);
     setShowTextFallback(false);
-    setIsThinking(false);
-    setAudioBlocked(false);
-    setCallingIndicator(false);
-    setMicStatus(null);
-    setError(null);
-    autoCommitSentRef.current = false;
-  }, [conversation, stopMicMonitor, stopKeepAlive, clearResponseTimeout, clearSilenceTimer]);
+  }, [conversation, nuclearCleanup]);
 
-  // Start conversation: double mic trigger + audio unlock + WebSocket
+  // ====== STOP CONVERSATION — with 0.5s safety net ======
+  const stopConversation = useCallback(async () => {
+    if (isStopping.current) return;
+    isStopping.current = true;
+    console.log("[Andrea Voice] ⏹️ Stopping...");
+
+    // Set a 500ms safety net — if session doesn't close, force nuclear cleanup
+    stopTimeoutRef.current = setTimeout(() => {
+      console.warn("[Andrea Voice] ⚠️ Stop timeout — forcing nuclear cleanup");
+      nuclearCleanup();
+      try { conversation.endSession(); } catch {}
+      setLastAgentText((prev) => prev);
+      setShowTextFallback(true);
+      isStopping.current = false;
+    }, 500);
+
+    try {
+      stopMicMonitor();
+      stopKeepAlive();
+      clearResponseTimeout();
+      clearSilenceTimer();
+      setCallingIndicator(false);
+      setMicStatus(null);
+      await conversation.endSession();
+      // If we got here, clear the safety net
+      if (stopTimeoutRef.current) { clearTimeout(stopTimeoutRef.current); stopTimeoutRef.current = null; }
+      nuclearCleanup();
+      if (lastAgentText) setShowTextFallback(true);
+    } catch (err) {
+      console.error("[Andrea Voice] Stop error:", err);
+      // Safety net will handle it
+    }
+  }, [conversation, stopMicMonitor, stopKeepAlive, clearResponseTimeout, clearSilenceTimer, nuclearCleanup, lastAgentText]);
+
+  // ====== START CONVERSATION ======
   const startConversation = useCallback(async () => {
     if (conversation.status === "connected") {
       try { await conversation.endSession(); } catch {}
       await new Promise((r) => setTimeout(r, 300));
     }
+
+    // Ensure warmup ran
+    warmupAudio();
 
     setIsConnecting(true);
     setCallingIndicator(true);
@@ -342,8 +430,10 @@ export const useAndreaVoiceAgent = () => {
     setAudioBlocked(false);
     setMicStatus(null);
     autoCommitSentRef.current = false;
+    isStopping.current = false;
     stopMicMonitor();
     stopKeepAlive();
+
     // Clean stale AudioContext
     if (audioCtxRef.current) {
       try { audioCtxRef.current.close(); } catch {}
@@ -355,7 +445,6 @@ export const useAndreaVoiceAgent = () => {
       const stream1 = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream1.getTracks().forEach((t) => t.stop());
       const stream2 = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Keep stream2 alive briefly to force hardware wake
       setTimeout(() => stream2.getTracks().forEach((t) => t.stop()), 2000);
       setMicPermission("granted");
 
@@ -378,7 +467,7 @@ export const useAndreaVoiceAgent = () => {
 
       console.log("[Andrea Voice] Audio unlocked + double mic trigger, state:", audioCtx.state);
 
-      // 5. Get signed URL (WebSocket)
+      // 5. Get signed URL
       const { data, error: fnError } = await supabase.functions.invoke("elevenlabs-conversation-token");
       if (fnError) throw new Error(`Token error: ${fnError.message}`);
       if (!data?.signed_url) throw new Error("Pas de signed_url reçue.");
@@ -396,8 +485,7 @@ export const useAndreaVoiceAgent = () => {
       console.error("[Andrea Voice] ❌ Failed:", err);
       setError(err?.message || "Erreur inconnue");
       setCallingIndicator(false);
-      stopMicMonitor();
-      stopKeepAlive();
+      nuclearCleanup();
 
       if (String(err?.message).includes("Permission") || String(err?.message).includes("NotAllowed")) {
         setMicPermission("denied");
@@ -405,18 +493,7 @@ export const useAndreaVoiceAgent = () => {
     } finally {
       setIsConnecting(false);
     }
-  }, [conversation, stopMicMonitor, stopKeepAlive, startKeepAlive]);
-
-  const stopConversation = useCallback(async () => {
-    stopMicMonitor();
-    stopKeepAlive();
-    clearResponseTimeout();
-    clearSilenceTimer();
-    setCallingIndicator(false);
-    setMicStatus(null);
-    if (lastAgentText) setShowTextFallback(true);
-    try { await conversation.endSession(); } catch {}
-  }, [conversation, stopMicMonitor, stopKeepAlive, clearResponseTimeout, clearSilenceTimer, lastAgentText]);
+  }, [conversation, stopMicMonitor, stopKeepAlive, startKeepAlive, nuclearCleanup]);
 
   return {
     startConversation,
