@@ -48,6 +48,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import CategoryIcon from "@/components/categories/CategoryIcon";
 import RecommendationsSection from "@/components/artisan-profile/RecommendationsSection";
 import { PortfolioCarousel } from "@/components/artisan-profile/PortfolioCarousel";
+import PortfolioPlaceholder from "@/components/artisan-profile/PortfolioPlaceholder";
+import YouTubeEmbed from "@/components/artisan-profile/YouTubeEmbed";
+import { isYouTubeUrl } from "@/lib/youtubeEmbed";
 import { Video } from "lucide-react";
 import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisansCarousel";
 import { fr } from "date-fns/locale";
@@ -106,7 +109,7 @@ const ArtisanPublicProfile = () => {
     const sections: string[] = ["description"]; // Always show description
     if (secondarySkills.length > 0) sections.push("competences");
     sections.push("prestations"); // Always show prestations
-    if (portfolio.length > 0) sections.push("realisations");
+    sections.push("realisations"); // Always show (placeholder if no photos)
     if (artisan.portfolio_videos && artisan.portfolio_videos.length > 0) sections.push("videos");
     if (hasWorkingHours) sections.push("horaires");
     sections.push("avis"); // Always show avis
@@ -693,15 +696,15 @@ const ArtisanPublicProfile = () => {
               </Card>
 
               {/* Portfolio Section - Photos */}
-              {portfolio.length > 0 && (
-                <Card id="realisations">
-                  <CardHeader className="p-4 md:p-6">
-                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                      <FileCheck className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                      Mes réalisations
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
+              <Card id="realisations">
+                <CardHeader className="p-4 md:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                    <FileCheck className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                    Mes réalisations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {portfolio.length > 0 ? (
                     <PortfolioCarousel
                       items={portfolio}
                       type="image"
@@ -716,11 +719,16 @@ const ArtisanPublicProfile = () => {
                         department: artisan.department || artisan.postal_code?.substring(0, 2),
                       }}
                     />
-                  </CardContent>
-                </Card>
-              )}
+                  ) : (
+                    <PortfolioPlaceholder
+                      businessName={artisan.business_name}
+                      category={artisan.category?.name}
+                    />
+                  )}
+                </CardContent>
+              </Card>
 
-              {/* Portfolio Section - Videos */}
+              {/* Portfolio Section - Videos with YouTube Embeds */}
               {artisan.portfolio_videos && artisan.portfolio_videos.length > 0 && (
                 <Card id="videos">
                   <CardHeader className="p-4 md:p-6">
@@ -730,17 +738,33 @@ const ArtisanPublicProfile = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <PortfolioCarousel
-                      items={artisan.portfolio_videos}
-                      type="video"
-                      onItemClick={(video) => setSelectedVideo(video)}
-                      artisanContext={{
-                        businessName: artisan.business_name,
-                        city: artisan.city,
-                        category: artisan.category?.name,
-                        department: artisan.department || artisan.postal_code?.substring(0, 2),
-                      }}
-                    />
+                    {/* YouTube embeds displayed inline */}
+                    {artisan.portfolio_videos.some(v => isYouTubeUrl(v)) && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        {artisan.portfolio_videos.filter(v => isYouTubeUrl(v)).map((video, i) => (
+                          <div key={i} className="aspect-video rounded-xl overflow-hidden">
+                            <YouTubeEmbed
+                              url={video}
+                              title={`${artisan.business_name} - Vidéo ${i + 1}`}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Non-YouTube videos in carousel */}
+                    {artisan.portfolio_videos.some(v => !isYouTubeUrl(v)) && (
+                      <PortfolioCarousel
+                        items={artisan.portfolio_videos.filter(v => !isYouTubeUrl(v))}
+                        type="video"
+                        onItemClick={(video) => setSelectedVideo(video)}
+                        artisanContext={{
+                          businessName: artisan.business_name,
+                          city: artisan.city,
+                          category: artisan.category?.name,
+                          department: artisan.department || artisan.postal_code?.substring(0, 2),
+                        }}
+                      />
+                    )}
                   </CardContent>
                 </Card>
               )}
