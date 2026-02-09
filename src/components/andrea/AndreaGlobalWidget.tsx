@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Send, ShieldCheck, ArrowRight, FileText, PhoneCall, CheckCircle2, Phone, Sparkles, ClipboardCheck } from "lucide-react";
+import { X, Send, ShieldCheck, ArrowRight, FileText, PhoneCall, CheckCircle2, Phone, Sparkles } from "lucide-react";
 import {
   ANDREA_TOOLTIP,
   ANDREA_WELCOME,
@@ -22,7 +22,7 @@ const AndreaBubbleWrapper = ({ children, className = "", glowing = false }: { ch
     <div
       className="relative px-4 py-3 rounded-2xl overflow-hidden"
       style={{
-        background: "hsla(265, 30%, 8%, 0.7)",
+        background: "linear-gradient(160deg, hsla(265, 35%, 10%, 0.75), hsla(0, 0%, 0%, 0.85))",
         backdropFilter: "blur(20px) saturate(1.4)",
         WebkitBackdropFilter: "blur(20px) saturate(1.4)",
         border: "1px solid hsla(265, 80%, 60%, 0.2)",
@@ -498,7 +498,7 @@ const AndreaGlobalWidget = () => {
                           className="w-2 h-2 rounded-full"
                           style={{ background: "linear-gradient(135deg, hsl(265, 85%, 55%), hsl(220, 90%, 55%))" }}
                           animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.3, 0.8], y: [0, -5, 0] }}
-                          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
+                          transition={{ duration: 0.55, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
                         />
                       ))}
                     </div>
@@ -546,13 +546,13 @@ const AndreaGlobalWidget = () => {
                 )}
               </AnimatePresence>
 
-              {/* Artisan CTA — "Obtenir mon audit de chantier gratuit" avec shimmer */}
+              {/* Artisan CTA — "Je veux être validé" avec shimmer */}
               <AnimatePresence>
                 {showArtisanCTA && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="w-full">
                     <Button
                       onClick={() => { setIsOpen(false); navigate("/inscription-artisan"); }}
-                      className="relative w-full text-white font-black gap-2 h-12 text-sm hover:opacity-90 tracking-wide uppercase rounded-xl overflow-hidden"
+                      className="relative w-full text-white font-black gap-2 h-10 text-sm hover:opacity-90 tracking-wide uppercase rounded-xl overflow-hidden"
                       style={{
                         background: "linear-gradient(135deg, hsl(265, 80%, 50%), hsl(220, 85%, 50%))",
                         boxShadow: "0 0 24px hsla(265, 85%, 50%, 0.3)",
@@ -567,8 +567,8 @@ const AndreaGlobalWidget = () => {
                           animation: "shimmer 2.5s infinite linear",
                         }}
                       />
-                      <ClipboardCheck className="w-4 h-4 relative z-10" />
-                      <span className="relative z-10">Obtenir mon audit chantier gratuit</span>
+                      <ShieldCheck className="w-4 h-4 relative z-10" />
+                      <span className="relative z-10">Je veux être validé</span>
                       <ArrowRight className="w-4 h-4 relative z-10" />
                     </Button>
                   </motion.div>
@@ -625,8 +625,8 @@ const AndreaGlobalWidget = () => {
                   <Send className="h-5 w-5" />
                 </Button>
               </form>
-              <p className="text-[9px] text-white/20 text-center mt-2 tracking-widest uppercase">
-                20 ans de terrain · Roubaix · Hauts-de-France
+              <p className="text-[9px] text-white/25 text-center mt-1.5 tracking-wide">
+                🔒 Vos données sont protégées. Échanges 100% anonymes.
               </p>
             </div>
           </motion.div>
