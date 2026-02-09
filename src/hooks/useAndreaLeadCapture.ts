@@ -87,9 +87,8 @@ export const useAndreaLeadCapture = () => {
       if (savedRef.current || isSaving) return;
       if (!leadData.lead_type) return;
 
-      // Need at least one contact info
-      const hasContact = leadData.telephone || leadData.email;
-      if (!hasContact) return;
+      // Phone is MANDATORY — never save without it
+      if (!leadData.telephone) return;
 
       setIsSaving(true);
       savedRef.current = true;

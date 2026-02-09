@@ -26,6 +26,14 @@ serve(async (req) => {
       });
     }
 
+    // Phone is MANDATORY — reject if missing
+    if (!data.telephone) {
+      return new Response(JSON.stringify({ error: "Le numéro de téléphone est obligatoire" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
