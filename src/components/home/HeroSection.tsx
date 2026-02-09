@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2, Volume2 } from "lucide-react";
+import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2, Volume2, Phone } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
@@ -12,8 +12,8 @@ const HeroSection = () => {
   const {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
     micActive, micLevel, stopConversation, hardReset, micPermission,
-    requestMicPermission, dismissMuteAlert, lastAgentText, lastRawMessage,
-    showTextFallback, audioBlocked, showMuteAlert, audioCtxState,
+    requestMicPermission, lastAgentText,
+    showTextFallback, audioBlocked, audioCtxState, callingIndicator,
   } = useAndreaVoiceAgent();
 
   const getVoiceLabel = () => {
@@ -56,6 +56,14 @@ const HeroSection = () => {
 
     return (
       <div className="space-y-2">
+        {/* Discreet "Calling..." indicator */}
+        {callingIndicator && !isConnected && (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/30 text-xs text-gold animate-pulse w-fit">
+            <Phone className="w-3 h-3" />
+            Appel en cours...
+          </div>
+        )}
+
         <div className="flex gap-2">
           <Button
             size="lg"
@@ -107,43 +115,19 @@ const HeroSection = () => {
             className="justify-center"
           />
         )}
-        {/* Always show text when available (diagnostic mode) */}
+        {/* Agent text with audio status indicator */}
         {showTextFallback && lastAgentText && (
           <div className="mt-2 p-3 rounded-lg bg-gold/10 border border-gold/20 text-sm text-white/90 max-w-md animate-fade-in">
             <div className="flex items-center gap-2 mb-1">
               <p className="text-xs text-gold/60">💬 Andrea :</p>
-              {audioCtxState !== "running" && (
+              {audioBlocked && audioCtxState !== "running" && (
                 <Volume2 className="w-4 h-4 text-destructive animate-pulse" />
               )}
               {audioBlocked && audioCtxState === "running" && (
-                <Volume2 className="w-4 h-4 text-orange-400 animate-pulse" />
+                <Volume2 className="w-4 h-4 text-amber-400 animate-pulse" />
               )}
             </div>
             <p className="leading-relaxed">{lastAgentText}</p>
-          </div>
-        )}
-        {lastRawMessage && (
-          <p className="text-[10px] text-white/30 font-mono truncate max-w-md mt-1" title={lastRawMessage}>
-            📡 {lastRawMessage}
-          </p>
-        )}
-        {/* Full-screen mute alert */}
-        {showMuteAlert && (
-          <div className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-6" onClick={dismissMuteAlert}>
-            <div className="bg-white rounded-2xl p-8 max-w-sm text-center shadow-2xl animate-fade-in" onClick={(e) => e.stopPropagation()}>
-              <div className="text-6xl mb-4">🔇</div>
-              <h3 className="text-xl font-bold text-foreground mb-3">Son bloqué par votre téléphone</h3>
-              <p className="text-muted-foreground mb-4 leading-relaxed">
-                Andrea vous répond mais le son ne sort pas.<br />
-                <strong>Désactivez le mode silencieux</strong> (bouton physique sur le côté de votre téléphone).
-              </p>
-              <button
-                onClick={dismissMuteAlert}
-                className="w-full py-3 rounded-xl bg-gold text-navy-dark font-bold text-base hover:bg-gold/90 transition-colors"
-              >
-                J'ai désactivé le silencieux ✅
-              </button>
-            </div>
           </div>
         )}
       </div>
