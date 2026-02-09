@@ -570,56 +570,54 @@ const AndreaGlobalWidget = () => {
 
             {/* Input bar */}
             <div className="p-3" style={{ borderTop: "1px solid hsla(265, 90%, 65%, 0.15)", backgroundColor: "hsla(222, 47%, 8%, 0.9)" }}>
-              {/* Mic listening indicator */}
-              <AnimatePresence>
-                {isListening && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 4 }}
-                    className="text-[11px] text-red-400 text-center mb-2 flex items-center justify-center gap-2"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    <span>Parlez maintenant…</span>
-                    {/* Sound wave */}
-                    <span className="flex items-center gap-[2px] h-4">
-                      {[0, 1, 2, 3, 4].map((i) => (
-                        <motion.span
-                          key={i}
-                          className="w-[2px] rounded-full bg-red-400"
-                          animate={{ height: ["4px", "14px", "4px"] }}
-                          transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.08, ease: "easeInOut" }}
-                        />
-                      ))}
-                    </span>
-                    <span className="text-white/40">(cliquez 🎙️ pour arrêter)</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
               <form onSubmit={handleTextSubmit} className="flex gap-2 items-center">
-                <input
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Posez votre question ici…"
-                  className="flex-1 h-11 rounded-full border text-sm px-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-                  style={{
-                    borderColor: "hsla(265, 90%, 65%, 0.3)",
-                    backgroundColor: "hsla(0, 0%, 100%, 0.12)",
-                    color: "#ffffff",
-                    caretColor: "#ffffff",
-                  }}
-                  disabled={isLoading}
-                />
+                <div className="relative flex-1">
+                  <input
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    placeholder={isListening ? "🎙️ Parlez…" : "Posez votre question ici…"}
+                    className="w-full h-11 rounded-full border text-sm px-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                    style={{
+                      borderColor: isListening ? "hsla(265, 85%, 55%, 0.7)" : "hsla(265, 90%, 65%, 0.3)",
+                      backgroundColor: "hsla(0, 0%, 100%, 0.12)",
+                      color: "#ffffff",
+                      caretColor: "#ffffff",
+                      boxShadow: isListening ? "0 0 12px hsla(265, 85%, 55%, 0.35)" : "none",
+                    }}
+                    disabled={isLoading}
+                  />
+                  {/* Purple wave inside input when listening */}
+                  <AnimatePresence>
+                    {isListening && (
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-[2px] h-5 pointer-events-none"
+                      >
+                        {[0, 1, 2, 3, 4].map((i) => (
+                          <motion.span
+                            key={i}
+                            className="w-[2.5px] rounded-full"
+                            style={{ backgroundColor: "hsl(265, 85%, 55%)" }}
+                            animate={{ height: ["4px", "16px", "4px"] }}
+                            transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.09, ease: "easeInOut" }}
+                          />
+                        ))}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
                 <button
                   type="button"
                   onClick={toggleListening}
                   disabled={isLoading}
                   className={`h-11 w-11 shrink-0 rounded-full flex items-center justify-center transition-all ${
                     isListening
-                      ? "bg-red-500 hover:bg-red-600 text-white shadow-[0_0_16px_hsla(0,80%,50%,0.5)]"
+                      ? "text-white"
                       : "bg-white/10 hover:bg-white/15 text-white/70"
                   }`}
-                  style={isListening ? { animation: "pulse 1s ease-in-out infinite" } : undefined}
+                  style={isListening ? { background: "hsl(265, 85%, 55%)", animation: "pulse 1s ease-in-out infinite", boxShadow: "0 0 16px hsla(265, 85%, 55%, 0.5)" } : undefined}
                   aria-label={isListening ? "Arrêter le micro" : "Dicter ma question"}
                 >
                   {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
