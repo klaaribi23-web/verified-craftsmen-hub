@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2 } from "lucide-react";
+import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +13,7 @@ const HeroSection = () => {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
     micActive, micLevel, stopConversation, hardReset, micPermission,
     requestMicPermission, dismissMuteAlert, lastAgentText, lastRawMessage,
-    showTextFallback, audioBlocked, showMuteAlert,
+    showTextFallback, audioBlocked, showMuteAlert, audioCtxState,
   } = useAndreaVoiceAgent();
 
   const getVoiceLabel = () => {
@@ -110,7 +110,15 @@ const HeroSection = () => {
         {/* Always show text when available (diagnostic mode) */}
         {showTextFallback && lastAgentText && (
           <div className="mt-2 p-3 rounded-lg bg-gold/10 border border-gold/20 text-sm text-white/90 max-w-md animate-fade-in">
-            <p className="text-xs text-gold/60 mb-1">💬 Andrea :</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-xs text-gold/60">💬 Andrea :</p>
+              {audioCtxState !== "running" && (
+                <Volume2 className="w-4 h-4 text-destructive animate-pulse" />
+              )}
+              {audioBlocked && audioCtxState === "running" && (
+                <Volume2 className="w-4 h-4 text-orange-400 animate-pulse" />
+              )}
+            </div>
             <p className="leading-relaxed">{lastAgentText}</p>
           </div>
         )}

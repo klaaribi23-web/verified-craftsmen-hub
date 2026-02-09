@@ -21,7 +21,9 @@ export const useAndreaVoiceAgent = () => {
   const micStreamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
   const keepAliveRef = useRef<AudioBufferSourceNode | null>(null);
+  const [audioCtxState, setAudioCtxState] = useState<string>("suspended");
   const responseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const muteAlertTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasSpokenRef = useRef(false);
@@ -58,28 +60,50 @@ export const useAndreaVoiceAgent = () => {
     }
   }, []);
 
+  // Create a GainNode for volume boosting (2.0x)
+  const ensureGainNode = useCallback((ctx: AudioContext): GainNode => {
+    if (!gainNodeRef.current) {
+      const gain = ctx.createGain();
+      gain.gain.value = 2.0; // 200% volume boost
+      gain.connect(ctx.destination);
+      gainNodeRef.current = gain;
+      console.log("[Andrea Voice] 🔊 GainNode created at 2.0x");
+    }
+    return gainNodeRef.current;
+  }, []);
+
+  // Track AudioContext state changes
+  const trackAudioCtxState = useCallback((ctx: AudioContext) => {
+    setAudioCtxState(ctx.state);
+    ctx.onstatechange = () => {
+      setAudioCtxState(ctx.state);
+      console.log("[Andrea Voice] AudioContext state:", ctx.state);
+    };
+  }, []);
+
   // Start a looping silent tone to keep the audio session alive on mobile
   const startKeepAlive = useCallback((ctx: AudioContext) => {
     try {
       stopKeepAlive();
+      const gain = ensureGainNode(ctx);
       const sampleRate = ctx.sampleRate;
-      const duration = 0.1; // 100ms
+      const duration = 0.1;
       const buffer = ctx.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < data.length; i++) {
-        data[i] = (Math.random() - 0.5) * 0.0005; // near-silent noise
+        data[i] = (Math.random() - 0.5) * 0.0005;
       }
       const source = ctx.createBufferSource();
       source.buffer = buffer;
       source.loop = true;
-      source.connect(ctx.destination);
+      source.connect(gain); // Route through gain node
       source.start(0);
       keepAliveRef.current = source;
-      console.log("[Andrea Voice] 🔁 Keep-alive silent loop started");
+      console.log("[Andrea Voice] 🔁 Keep-alive started through GainNode");
     } catch (e) {
       console.warn("[Andrea Voice] Keep-alive failed:", e);
     }
-  }, []);
+  }, [ensureGainNode]);
 
   const stopKeepAlive = useCallback(() => {
     if (keepAliveRef.current) {
@@ -178,35 +202,57 @@ export const useAndreaVoiceAgent = () => {
     },
   });
 
-  // Force audio output to default device
+  // Reroute an audio element through our boosted AudioContext
+  const rerouteAudioElement = useCallback((el: HTMLAudioElement) => {
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    try {
+      // Only reroute if not already connected
+      if ((el as any).__andrea_rerouted) return;
+      (el as any).__andrea_rerouted = true;
+      
+      const source = ctx.createMediaElementSource(el);
+      const gain = ensureGainNode(ctx);
+      source.connect(gain);
+      
+      el.volume = 1.0;
+      el.muted = false;
+      el.setAttribute("playsinline", "");
+      el.setAttribute("webkit-playsinline", "");
+      
+      if (el.paused && el.src) {
+        el.play().catch(() => {});
+      }
+      console.log("[Andrea Voice] 🔊 Audio element rerouted through GainNode");
+    } catch (e) {
+      // Fallback: just set volume high
+      el.volume = 1.0;
+      el.muted = false;
+      el.setAttribute("playsinline", "");
+      el.setAttribute("webkit-playsinline", "");
+      if ((el as any).setSinkId) {
+        (el as any).setSinkId("default").catch(() => {});
+      }
+      if (el.paused && el.src) {
+        el.play().catch(() => {});
+      }
+    }
+  }, [ensureGainNode]);
+
+  // Force audio output to default device + reroute through gain
   const forceAudioOutput = useCallback(() => {
     try {
-      const audioElements = document.querySelectorAll("audio");
-      audioElements.forEach((el) => {
-        el.volume = 1.0;
-        el.muted = false;
-        el.setAttribute("playsinline", "");
-        el.setAttribute("webkit-playsinline", "");
-        if ((el as any).setSinkId) {
-          (el as any).setSinkId("default").catch(() => {});
-        }
-        if (el.paused && el.src) {
-          el.play().catch(() => {});
-        }
-      });
+      document.querySelectorAll("audio").forEach(rerouteAudioElement);
 
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((m) => {
           m.addedNodes.forEach((node) => {
             if (node instanceof HTMLAudioElement) {
-              node.volume = 1.0;
-              node.muted = false;
-              node.setAttribute("playsinline", "");
-              node.setAttribute("webkit-playsinline", "");
-              if ((node as any).setSinkId) {
-                (node as any).setSinkId("default").catch(() => {});
-              }
-              node.play().catch(() => {});
+              rerouteAudioElement(node);
+            }
+            // Also check children
+            if (node instanceof HTMLElement) {
+              node.querySelectorAll?.("audio")?.forEach(rerouteAudioElement);
             }
           });
         });
@@ -216,7 +262,7 @@ export const useAndreaVoiceAgent = () => {
     } catch (e) {
       console.warn("[Andrea Voice] forceAudioOutput error:", e);
     }
-  }, []);
+  }, [rerouteAudioElement]);
 
   // Auto-trigger after silence
   const triggerAutoCommit = useCallback(() => {
@@ -416,12 +462,14 @@ export const useAndreaVoiceAgent = () => {
     stopKeepAlive();
 
     try {
-      // 1. Create AudioContext and unlock it (MUST happen in user gesture)
+      // 1. Create AudioContext and GainNode in user gesture (CRITICAL for mobile)
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioCtxRef.current = audioCtx;
+      trackAudioCtxState(audioCtx);
       if (audioCtx.state === "suspended") await audioCtx.resume();
+      ensureGainNode(audioCtx);
 
-      // 2. Play a one-shot silent buffer to unlock speakers
+      // 2. Play a one-shot silent buffer through gain to unlock speakers
       const sampleRate = audioCtx.sampleRate;
       const buffer = audioCtx.createBuffer(1, Math.ceil(sampleRate * 0.1), sampleRate);
       const channelData = buffer.getChannelData(0);
@@ -430,13 +478,14 @@ export const useAndreaVoiceAgent = () => {
       }
       const silentSource = audioCtx.createBufferSource();
       silentSource.buffer = buffer;
-      silentSource.connect(audioCtx.destination);
+      const gain = gainNodeRef.current!;
+      silentSource.connect(gain);
       silentSource.start(0);
 
-      // 3. Start keep-alive loop to prevent mobile speaker sleep
+      // 3. Start keep-alive loop through gain to prevent mobile speaker sleep
       startKeepAlive(audioCtx);
 
-      console.log("[Andrea Voice] AudioContext unlocked + keep-alive started, sampleRate:", sampleRate);
+      console.log("[Andrea Voice] AudioContext unlocked + GainNode 2.0x + keep-alive, state:", audioCtx.state);
 
       // 4. Get signed URL
       const { data, error: fnError } = await supabase.functions.invoke("elevenlabs-conversation-token");
@@ -472,7 +521,7 @@ export const useAndreaVoiceAgent = () => {
     } finally {
       setIsConnecting(false);
     }
-  }, [conversation, stopMicMonitor, stopKeepAlive, startKeepAlive]);
+  }, [conversation, stopMicMonitor, stopKeepAlive, startKeepAlive, ensureGainNode, trackAudioCtxState]);
 
   // Stop: end session but keep last text visible
   const stopConversation = useCallback(async () => {
@@ -520,5 +569,6 @@ export const useAndreaVoiceAgent = () => {
     showTextFallback,
     audioBlocked,
     showMuteAlert,
+    audioCtxState,
   };
 };
