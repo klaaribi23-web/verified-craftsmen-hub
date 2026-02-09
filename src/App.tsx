@@ -69,7 +69,7 @@ import CGU from "./pages/CGU";
 import CGV from "./pages/CGV";
 import Confidentialite from "./pages/Confidentialite";
 import CookieConsent from "./components/cookies/CookieConsent";
-import AndreaExpertBubble from "./components/home/AndreaExpertBubble";
+import AndreaGlobalWidget from "./components/andrea/AndreaGlobalWidget";
 
 const queryClient = new QueryClient();
 
@@ -296,8 +296,8 @@ const App = () => (
         {/* Global Mobile Navbar for authenticated clients & artisans */}
         <GlobalMobileNavbar />
         
-        {/* Andrea Expert Floating Bubble */}
-        <AndreaExpertBubble />
+        {/* Andrea Expert Global Widget — Voice + Text */}
+        <AndreaGlobalWidget />
         
         {/* GDPR Cookie Consent Banner */}
         <CookieConsent />

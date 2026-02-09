@@ -444,6 +444,17 @@ export const useAndreaVoiceAgent = () => {
     }
   }, [conversation, stopMicMonitor, stopKeepAlive, startKeepAlive]);
 
+  const sendTextMessage = useCallback((text: string) => {
+    if (conversation.status === "connected" && text.trim()) {
+      try {
+        conversation.sendUserMessage(text.trim());
+        setIsThinking(true);
+      } catch (e) {
+        console.warn("[Andrea Voice] sendUserMessage failed:", e);
+      }
+    }
+  }, [conversation]);
+
   return {
     startConversation,
     stopConversation,
@@ -462,5 +473,6 @@ export const useAndreaVoiceAgent = () => {
     audioBlocked,
     callingIndicator,
     micStatus,
+    sendTextMessage,
   };
 };
