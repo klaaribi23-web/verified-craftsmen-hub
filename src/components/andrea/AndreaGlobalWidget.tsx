@@ -59,7 +59,7 @@ const AndreaGlobalWidget = () => {
 
   const {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
-    micActive, micLevel, stopConversation, hardReset, micPermission,
+    isGeneratingAudio, micActive, micLevel, stopConversation, hardReset, micPermission,
     requestMicPermission, lastAgentText, error,
     callingIndicator, micStatus,
     sendTextMessage,
@@ -368,7 +368,19 @@ const AndreaGlobalWidget = () => {
                       <span className="text-xs text-gold/70">Andrea réfléchit…</span>
                     </div>
                   )}
-                  {isConnected && micStatus && !isThinking && (
+                  {isConnected && isGeneratingAudio && !isSpeaking && (
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" />
+                      <span className="text-xs text-teal-400 animate-pulse">🔊 Synthèse vocale en cours…</span>
+                    </div>
+                  )}
+                  {isConnected && isSpeaking && (
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-teal-400" />
+                      <span className="text-xs text-teal-400 font-medium">🗣️ Andrea parle…</span>
+                    </div>
+                  )}
+                  {isConnected && micStatus && !isThinking && !isGeneratingAudio && !isSpeaking && (
                     <div className="text-xs text-gold/80 animate-pulse text-center">{micStatus}</div>
                   )}
                 </div>

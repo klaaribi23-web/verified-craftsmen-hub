@@ -21,10 +21,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`[ElevenLabs Token] Requesting signed URL for agent ${AGENT_ID}`);
+    console.log(`[ElevenLabs Token] Requesting conversation token for agent ${AGENT_ID}`);
 
+    // Use conversation token endpoint (WebRTC) — more reliable audio than WebSocket signed URL
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${AGENT_ID}`,
+      `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${AGENT_ID}`,
       {
         headers: {
           "xi-api-key": ELEVENLABS_API_KEY,
@@ -35,17 +36,36 @@ Deno.serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`[ElevenLabs Token] API error ${response.status}: ${errorText}`);
+
+      // Fallback to signed URL if token endpoint fails
+      console.log("[ElevenLabs Token] Falling back to signed URL...");
+      const fallbackResponse = await fetch(
+        `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${AGENT_ID}`,
+        { headers: { "xi-api-key": ELEVENLABS_API_KEY } }
+      );
+
+      if (!fallbackResponse.ok) {
+        const fallbackError = await fallbackResponse.text();
+        console.error(`[ElevenLabs Token] Fallback also failed: ${fallbackError}`);
+        return new Response(
+          JSON.stringify({ error: `ElevenLabs API error: ${response.status}` }),
+          { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const fallbackData = await fallbackResponse.json();
+      console.log("[ElevenLabs Token] Signed URL fallback obtained");
       return new Response(
-        JSON.stringify({ error: `ElevenLabs API error: ${response.status}` }),
-        { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ signed_url: fallbackData.signed_url, mode: "websocket" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const data = await response.json();
-    console.log("[ElevenLabs Token] Signed URL obtained successfully");
+    console.log("[ElevenLabs Token] Conversation token obtained successfully");
 
     return new Response(
-      JSON.stringify({ signed_url: data.signed_url }),
+      JSON.stringify({ token: data.token, mode: "webrtc" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
