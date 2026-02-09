@@ -1,187 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send, Mic, Loader2, Phone } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send } from "lucide-react";
+import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
-import MicWaveform from "./MicWaveform";
-import VoiceErrorBoundary from "./VoiceErrorBoundary";
-import ThinkingDots from "./ThinkingDots";
-import { useEffect, useRef } from "react";
-
-const VoiceSection = ({ mobile = false }: { mobile?: boolean }) => {
-  const {
-    startConversation, isConnecting, isConnected, isSpeaking, isThinking,
-    micActive, micLevel, stopConversation, hardReset, micPermission,
-    requestMicPermission, lastAgentText, error,
-    showTextFallback, audioBlocked, callingIndicator, micStatus,
-  } = useAndreaVoiceAgent();
-
-  const getVoiceLabel = () => {
-    if (isConnecting) return "Connexion...";
-    if (!isConnected) return "Parler à Andrea 🎙️";
-    if (isSpeaking) return "Andrea parle… 🔊";
-    if (isThinking) return "Andrea réfléchit… 🧠";
-    if (!micActive) return "En attente… 🎙️";
-    return "Andrea écoute… 🎙️";
-  };
-
-  if (micPermission === "denied") {
-    return (
-      <Button
-        size="lg"
-        variant={mobile ? "default" : "destructive"}
-        className={`${mobile ? "w-full font-bold text-base py-7 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-2 border-destructive" : "w-full text-base"} gap-2`}
-        onClick={requestMicPermission}
-      >
-        <Mic className="w-5 h-5" />
-        Activer le micro 🔴
-      </Button>
-    );
-  }
-
-  return (
-    <>
-      <div className="space-y-2">
-        {callingIndicator && !isConnected && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/30 text-xs text-gold animate-pulse w-fit">
-            <Phone className="w-3 h-3" />
-            Appel en cours...
-          </div>
-        )}
-
-        <div className="flex gap-2">
-          <Button
-            size="lg"
-            variant={mobile ? "default" : "gold"}
-            className={mobile
-              ? `flex-1 font-bold text-base py-7 border-2 transition-all gap-2 shadow-lg ${
-                  isConnected
-                    ? isSpeaking
-                      ? "bg-teal-600 text-white border-teal-400"
-                      : isThinking
-                      ? "bg-navy/80 text-white border-gold/60 animate-pulse"
-                      : "bg-gold text-navy-dark border-gold"
-                    : isConnecting
-                    ? "bg-navy/80 text-white border-gold/60"
-                    : "bg-navy text-white border-gold/40 hover:bg-navy-dark hover:border-gold/60"
-                }`
-              : `flex-1 text-base gap-2 ${
-                  isConnected
-                    ? isSpeaking
-                      ? "ring-2 ring-teal-400/50 bg-teal-600/20"
-                      : isThinking
-                      ? "animate-pulse ring-2 ring-gold/30"
-                      : "ring-2 ring-gold/50"
-                    : ""
-                }`
-            }
-            onClick={() => {
-              if (isConnected) {
-                stopConversation();
-              } else {
-                startConversation();
-              }
-            }}
-            disabled={isConnecting}
-          >
-            {isConnecting ? (
-              <Loader2 className="w-5 h-5 animate-spin text-gold" />
-            ) : error && !isConnected ? (
-              <>🔄 Réessayer</>
-            ) : (
-              <>
-                <Mic className={`w-5 h-5 ${isConnected && mobile ? "text-navy-dark" : ""} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
-                {isConnected ? "Arrêter ⏹️" : getVoiceLabel()}
-              </>
-            )}
-          </Button>
-          {isConnected && (
-            <Button
-              size="lg"
-              variant="destructive"
-              className={mobile ? "py-7 px-4" : "px-4"}
-              onClick={hardReset}
-              title="Reset complet"
-            >
-              ✕
-            </Button>
-          )}
-        </div>
-        {isConnected && (
-          <MicWaveform
-            level={micLevel}
-            isActive={micActive}
-            isThinking={isThinking}
-            isSpeaking={isSpeaking}
-            onReset={hardReset}
-            className="justify-center"
-          />
-        )}
-        {isConnected && isThinking && (
-          <div className="flex items-center justify-center gap-2">
-            <ThinkingDots />
-            <span className="text-xs text-gold/70">Andrea réfléchit…</span>
-          </div>
-        )}
-        {isConnected && micStatus && !isThinking && (
-          <div className="text-xs text-gold/80 animate-pulse text-center">
-            {micStatus}
-          </div>
-        )}
-      </div>
-
-      {/* SMS-Pro backup bubble — fixed at bottom */}
-      <AgentTextBubble text={lastAgentText} show={showTextFallback} audioBlocked={audioBlocked} />
-    </>
-  );
-};
-
-/** Auto-scrolling SMS-style bubble for Andrea's responses */
-const AgentTextBubble = ({ text, show, audioBlocked }: { text: string | null; show: boolean; audioBlocked: boolean }) => {
-  const bubbleRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (show && bubbleRef.current) {
-      bubbleRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, [show, text]);
-
-  return (
-    <AnimatePresence>
-      {show && text && (
-        <motion.div
-          ref={bubbleRef}
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-          className="fixed bottom-6 left-3 right-3 z-50 flex justify-center pointer-events-none"
-        >
-          <div className="pointer-events-auto max-w-2xl w-full rounded-2xl rounded-bl-sm bg-navy-dark/95 backdrop-blur-lg border border-gold/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] px-5 py-4">
-            {/* Chat-style header */}
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5 text-navy-dark" />
-              </div>
-              <span className="text-xs font-semibold text-gold/80">Andrea</span>
-              <span className="text-[10px] text-white/30 ml-auto">maintenant</span>
-            </div>
-            {/* Message text */}
-            <p className="text-white text-base md:text-lg leading-relaxed font-medium">{text}</p>
-            {audioBlocked && (
-              <p className="text-xs text-amber-400/80 mt-2.5 animate-pulse flex items-center gap-1.5">
-                🔇 Son bloqué — lisez la réponse ci-dessus
-              </p>
-            )}
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
 
 const HeroSection = () => {
   const { data: artisanCount } = useQuery({
@@ -270,12 +93,6 @@ const HeroSection = () => {
               </Button>
             </div>
 
-            <div className="block lg:hidden mb-6">
-              <VoiceErrorBoundary>
-                <VoiceSection mobile />
-              </VoiceErrorBoundary>
-            </div>
-
             <p className="text-sm md:text-base text-white/70 mb-8 md:mb-10">
               <CheckCircle2 className="w-4 h-4 text-gold inline mr-1.5 -mt-0.5" />
               Déjà <span className="text-gold font-bold">+{displayCount}</span> artisans validés et vérifiés par nos soins.
@@ -323,9 +140,9 @@ const HeroSection = () => {
                     </div>
                   ))}
                 </div>
-                <VoiceErrorBoundary>
-                  <VoiceSection />
-                </VoiceErrorBoundary>
+                <p className="text-sm text-white/60 text-center">
+                  💬 Cliquez sur l'icône Andrea en bas à droite pour démarrer
+                </p>
               </div>
               <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-4 -right-4 bg-white rounded-xl shadow-elevated p-3 border border-border">
                 <div className="flex items-center gap-2">
