@@ -10,7 +10,7 @@ import MicWaveform from "./MicWaveform";
 
 const HeroSection = () => {
   const {
-    startConversation, isConnecting, isConnected, isSpeaking,
+    startConversation, isConnecting, isConnected, isSpeaking, isThinking,
     micActive, micLevel, endConversation, micPermission,
     requestMicPermission, resetMic, lastAgentText, showTextFallback,
   } = useAndreaVoiceAgent();
@@ -19,6 +19,7 @@ const HeroSection = () => {
     if (isConnecting) return "Connexion...";
     if (!isConnected) return "Parler à Andrea 🎙️";
     if (isSpeaking) return "Andrea parle… 🔊";
+    if (isThinking) return "Andrea réfléchit… 🧠";
     if (!micActive) return "Micro non détecté ⚠️";
     return "Andrea écoute… 🎙️";
   };
@@ -81,6 +82,7 @@ const HeroSection = () => {
           <MicWaveform
             level={micLevel}
             isActive={micActive}
+            isThinking={isThinking}
             onReset={resetMic}
             className="justify-center"
           />
