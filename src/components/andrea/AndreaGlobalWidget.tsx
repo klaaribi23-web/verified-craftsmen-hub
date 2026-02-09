@@ -7,6 +7,7 @@ import {
   ANDREA_ARTISAN_PITCH,
   ANDREA_PARTICULIER_PITCH,
   ANDREA_HEADER_SUBTITLE,
+  ANDREA_PHONE_RELANCE,
 } from "@/config/andreaMessages";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,6 +43,7 @@ const AndreaGlobalWidget = () => {
   const [textInput, setTextInput] = useState("");
   const [hasNewResponse, setHasNewResponse] = useState(false);
   const [showArtisanCTA, setShowArtisanCTA] = useState(false);
+  const [phoneRelanceShown, setPhoneRelanceShown] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -67,12 +69,16 @@ const AndreaGlobalWidget = () => {
     }
   }, [lastAgentText, processAgentText]);
 
-  // Auto-save lead when conversation ends and we have data
+  // Auto-save lead when conversation ends and we have phone (mandatory)
   useEffect(() => {
-    if (!isConnected && leadData.lead_type && (leadData.telephone || leadData.email) && !savedId) {
+    if (!isConnected && leadData.lead_type && leadData.telephone && !savedId) {
       saveLead(undefined, location.pathname);
     }
-  }, [isConnected, leadData, savedId, saveLead, location.pathname]);
+    // Phone relance: if conversation ends with lead_type but no phone, show relance
+    if (!isConnected && leadData.lead_type && !leadData.telephone && !phoneRelanceShown && lastAgentText) {
+      setPhoneRelanceShown(true);
+    }
+  }, [isConnected, leadData, savedId, saveLead, location.pathname, phoneRelanceShown, lastAgentText]);
 
   // Show artisan CTA when lead type is artisan or on relevant pages
   useEffect(() => {
@@ -129,6 +135,7 @@ const AndreaGlobalWidget = () => {
     hardReset();
     resetLead();
     setShowArtisanCTA(false);
+    setPhoneRelanceShown(false);
   };
 
   // Don't show on admin pages
@@ -354,7 +361,25 @@ const AndreaGlobalWidget = () => {
                 )}
               </AnimatePresence>
 
-              {/* Artisan CTA — in-chat action button */}
+              {/* Phone relance — shown when lead detected but no phone */}
+              <AnimatePresence>
+                {phoneRelanceShown && !leadData.telephone && !savedId && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="self-start w-[92%] rounded-2xl rounded-bl-sm px-4 py-3 border border-amber-500/30"
+                    style={{ backgroundColor: "#1A1A1A" }}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Phone className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="text-[11px] font-semibold text-amber-400">Téléphone requis</span>
+                    </div>
+                    <p className="text-white text-[13px] leading-relaxed">{ANDREA_PHONE_RELANCE}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <AnimatePresence>
                 {showArtisanCTA && (
                   <motion.div

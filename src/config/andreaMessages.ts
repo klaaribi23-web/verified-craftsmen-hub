@@ -14,3 +14,6 @@ export const ANDREA_PARTICULIER_PITCH =
   "Je vous accompagne pour obtenir vos aides (MaPrimeRénov, CEE) et vous mettre en relation avec l'artisan validé le plus proche. Je peux aussi réduire vos factures d'énergie.";
 
 export const ANDREA_HEADER_SUBTITLE = "Super-IA Experte · Bâtiment & Énergie";
+
+export const ANDREA_PHONE_RELANCE =
+  "Pour vous mettre en relation avec nos experts d'Artisans Validés, j'ai impérativement besoin de votre numéro de téléphone. C'est le seul moyen de sécuriser votre projet.";
