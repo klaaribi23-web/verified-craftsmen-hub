@@ -381,7 +381,7 @@ const AndreaGlobalWidget = () => {
                     </div>
                   )}
                   {/* Audio blocked alert + test sound */}
-                  {audioBlocked && isConnected && (
+                   {audioBlocked && isConnected && (
                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive">
                       <span>⚠️ Son bloqué par le navigateur.</span>
                       <button
@@ -390,10 +390,24 @@ const AndreaGlobalWidget = () => {
                             const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
                             const osc = ctx.createOscillator();
                             osc.frequency.value = 440;
-                            osc.connect(ctx.destination);
+                            const gain = ctx.createGain();
+                            gain.gain.value = 0.15;
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
                             osc.start();
                             setTimeout(() => { osc.stop(); ctx.close(); }, 200);
-                            toast.success("Son OK ✅");
+                            // Force all audio elements to play after unlock
+                            document.querySelectorAll("audio, video").forEach((el) => {
+                              const media = el as HTMLMediaElement;
+                              media.volume = 1.0;
+                              media.muted = false;
+                              if (media.paused && media.src) media.play().catch(() => {});
+                            });
+                            // Ask Andrea to speak a confirmation phrase
+                            setTimeout(() => {
+                              sendTextMessage("[SYSTÈME] L'utilisateur a cliqué sur Test Son. Dis exactement : Le son est maintenant activé, je vous écoute !");
+                            }, 300);
+                            toast.success("Son déverrouillé ✅ Andrea va parler…");
                           } catch {
                             toast.error("Audio impossible — vérifiez vos paramètres");
                           }
