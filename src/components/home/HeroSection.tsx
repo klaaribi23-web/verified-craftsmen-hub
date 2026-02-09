@@ -11,9 +11,9 @@ import MicWaveform from "./MicWaveform";
 const HeroSection = () => {
   const {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
-    micActive, micLevel, endConversation, micPermission,
-    requestMicPermission, resetMic, lastAgentText, showTextFallback,
-    audioBlocked, unlockAudio,
+    micActive, micLevel, endConversation, forceCommit, micPermission,
+    requestMicPermission, resetMic, lastAgentText, lastRawMessage,
+    showTextFallback, audioBlocked, unlockAudio,
   } = useAndreaVoiceAgent();
 
   const getVoiceLabel = () => {
@@ -56,29 +56,48 @@ const HeroSection = () => {
 
     return (
       <div className="space-y-2">
-        <Button
-          size="lg"
-          variant={mobile ? "default" : "gold"}
-          className={mobile
-            ? `w-full font-bold text-base py-7 border-2 transition-all gap-2 shadow-lg ${
-                isConnected
-                  ? "bg-gold text-navy-dark border-gold animate-pulse"
-                  : isConnecting
-                  ? "bg-navy/80 text-white border-gold/60"
-                  : "bg-navy text-white border-gold/40 hover:bg-navy-dark hover:border-gold/60"
-              }`
-            : `w-full text-base gap-2 ${isConnected ? "animate-pulse ring-2 ring-gold/50" : ""}`
-          }
-          onClick={isConnected ? endConversation : startConversation}
-          disabled={isConnecting}
-        >
-          {isConnecting ? (
-            <Loader2 className="w-5 h-5 animate-spin text-gold" />
-          ) : (
-            <Mic className={`w-5 h-5 ${isConnected && mobile ? "text-navy-dark" : ""} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
+        <div className="flex gap-2">
+          <Button
+            size="lg"
+            variant={mobile ? "default" : "gold"}
+            className={mobile
+              ? `flex-1 font-bold text-base py-7 border-2 transition-all gap-2 shadow-lg ${
+                  isConnected
+                    ? "bg-gold text-navy-dark border-gold animate-pulse"
+                    : isConnecting
+                    ? "bg-navy/80 text-white border-gold/60"
+                    : "bg-navy text-white border-gold/40 hover:bg-navy-dark hover:border-gold/60"
+                }`
+              : `flex-1 text-base gap-2 ${isConnected ? "animate-pulse ring-2 ring-gold/50" : ""}`
+            }
+            onClick={() => {
+              if (isConnected) {
+                // If connected and listening, force commit; long press or double = end
+                forceCommit();
+              } else {
+                startConversation();
+              }
+            }}
+            disabled={isConnecting}
+          >
+            {isConnecting ? (
+              <Loader2 className="w-5 h-5 animate-spin text-gold" />
+            ) : (
+              <Mic className={`w-5 h-5 ${isConnected && mobile ? "text-navy-dark" : ""} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
+            )}
+            {isConnected ? "Forcer la réponse 📤" : getVoiceLabel()}
+          </Button>
+          {isConnected && (
+            <Button
+              size="lg"
+              variant="destructive"
+              className={mobile ? "py-7 px-4" : "px-4"}
+              onClick={endConversation}
+            >
+              ✕
+            </Button>
           )}
-          {getVoiceLabel()}
-        </Button>
+        </div>
         {isConnected && (
           <MicWaveform
             level={micLevel}
@@ -101,6 +120,11 @@ const HeroSection = () => {
             <p className="text-xs text-gold/60 mb-1">💬 Andrea (texte) :</p>
             <p className="leading-relaxed">{lastAgentText}</p>
           </div>
+        )}
+        {isConnected && lastRawMessage && (
+          <p className="text-[10px] text-white/30 font-mono truncate max-w-md mt-1" title={lastRawMessage}>
+            📡 {lastRawMessage}
+          </p>
         )}
       </div>
     );
