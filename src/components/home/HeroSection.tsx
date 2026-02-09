@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
 import MicWaveform from "./MicWaveform";
 import VoiceErrorBoundary from "./VoiceErrorBoundary";
+import ThinkingDots from "./ThinkingDots";
+import { useEffect, useRef } from "react";
 
 const VoiceSection = ({ mobile = false }: { mobile?: boolean }) => {
   const {
@@ -57,12 +59,24 @@ const VoiceSection = ({ mobile = false }: { mobile?: boolean }) => {
             className={mobile
               ? `flex-1 font-bold text-base py-7 border-2 transition-all gap-2 shadow-lg ${
                   isConnected
-                    ? "bg-gold text-navy-dark border-gold animate-pulse"
+                    ? isSpeaking
+                      ? "bg-teal-600 text-white border-teal-400"
+                      : isThinking
+                      ? "bg-navy/80 text-white border-gold/60 animate-pulse"
+                      : "bg-gold text-navy-dark border-gold"
                     : isConnecting
                     ? "bg-navy/80 text-white border-gold/60"
                     : "bg-navy text-white border-gold/40 hover:bg-navy-dark hover:border-gold/60"
                 }`
-              : `flex-1 text-base gap-2 ${isConnected ? "animate-pulse ring-2 ring-gold/50" : ""}`
+              : `flex-1 text-base gap-2 ${
+                  isConnected
+                    ? isSpeaking
+                      ? "ring-2 ring-teal-400/50 bg-teal-600/20"
+                      : isThinking
+                      ? "animate-pulse ring-2 ring-gold/30"
+                      : "ring-2 ring-gold/50"
+                    : ""
+                }`
             }
             onClick={() => {
               if (isConnected) {
@@ -101,37 +115,71 @@ const VoiceSection = ({ mobile = false }: { mobile?: boolean }) => {
             level={micLevel}
             isActive={micActive}
             isThinking={isThinking}
+            isSpeaking={isSpeaking}
             onReset={hardReset}
             className="justify-center"
           />
         )}
-        {isConnected && micStatus && (
+        {isConnected && isThinking && (
+          <div className="flex items-center justify-center gap-2">
+            <ThinkingDots />
+            <span className="text-xs text-gold/70">Andrea réfléchit…</span>
+          </div>
+        )}
+        {isConnected && micStatus && !isThinking && (
           <div className="text-xs text-gold/80 animate-pulse text-center">
             {micStatus}
           </div>
         )}
       </div>
 
-      {/* Backup bubble — fixed at bottom */}
-      <AnimatePresence>
-        {showTextFallback && lastAgentText && (
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-4 right-4 z-50 flex justify-center pointer-events-none"
-          >
-            <div className="pointer-events-auto max-w-lg w-full rounded-2xl bg-navy/95 backdrop-blur-md border border-gold/30 shadow-2xl p-5">
-              <p className="text-xs text-gold/60 mb-1.5 font-medium">💬 Andrea répond :</p>
-              <p className="text-white text-base md:text-lg leading-relaxed font-medium">{lastAgentText}</p>
-              {audioBlocked && (
-                <p className="text-xs text-amber-400/80 mt-2 animate-pulse">🔇 Son bloqué — lisez la réponse ci-dessus</p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* SMS-Pro backup bubble — fixed at bottom */}
+      <AgentTextBubble text={lastAgentText} show={showTextFallback} audioBlocked={audioBlocked} />
     </>
+  );
+};
+
+/** Auto-scrolling SMS-style bubble for Andrea's responses */
+const AgentTextBubble = ({ text, show, audioBlocked }: { text: string | null; show: boolean; audioBlocked: boolean }) => {
+  const bubbleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (show && bubbleRef.current) {
+      bubbleRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [show, text]);
+
+  return (
+    <AnimatePresence>
+      {show && text && (
+        <motion.div
+          ref={bubbleRef}
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="fixed bottom-6 left-3 right-3 z-50 flex justify-center pointer-events-none"
+        >
+          <div className="pointer-events-auto max-w-2xl w-full rounded-2xl rounded-bl-sm bg-navy-dark/95 backdrop-blur-lg border border-gold/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] px-5 py-4">
+            {/* Chat-style header */}
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-navy-dark" />
+              </div>
+              <span className="text-xs font-semibold text-gold/80">Andrea</span>
+              <span className="text-[10px] text-white/30 ml-auto">maintenant</span>
+            </div>
+            {/* Message text */}
+            <p className="text-white text-base md:text-lg leading-relaxed font-medium">{text}</p>
+            {audioBlocked && (
+              <p className="text-xs text-amber-400/80 mt-2.5 animate-pulse flex items-center gap-1.5">
+                🔇 Son bloqué — lisez la réponse ci-dessus
+              </p>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
