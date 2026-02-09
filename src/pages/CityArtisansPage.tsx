@@ -186,8 +186,8 @@ const CityArtisansPage = () => {
                       portfolioVideos={artisan.portfolio_videos || undefined}
                       distance={null}
                       subscriptionTier={artisan.subscription_tier}
-                      phone={artisan.phone}
-                      siret={artisan.siret}
+                      phone={undefined}
+                      siret={undefined}
                       facebookUrl={artisan.facebook_url}
                       instagramUrl={artisan.instagram_url}
                       linkedinUrl={artisan.linkedin_url}
