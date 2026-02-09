@@ -7,8 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
 import MicWaveform from "./MicWaveform";
+import VoiceErrorBoundary from "./VoiceErrorBoundary";
 
-const HeroSection = () => {
+const VoiceSection = ({ mobile = false }: { mobile?: boolean }) => {
   const {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
     micActive, micLevel, stopConversation, hardReset, micPermission,
@@ -25,38 +26,23 @@ const HeroSection = () => {
     return "Andrea écoute… 🎙️";
   };
 
-  const { data: artisanCount } = useQuery({
-    queryKey: ["artisan-count-hero"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("artisans")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "active");
-      return count || 0;
-    },
-    staleTime: 60000,
-  });
-
-  const displayCount = artisanCount && artisanCount > 0 ? artisanCount : 200;
-
-  const VoiceButton = ({ mobile = false }: { mobile?: boolean }) => {
-    if (micPermission === "denied") {
-      return (
-        <Button
-          size="lg"
-          variant={mobile ? "default" : "destructive"}
-          className={`${mobile ? "w-full font-bold text-base py-7 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-2 border-destructive" : "w-full text-base"} gap-2`}
-          onClick={requestMicPermission}
-        >
-          <Mic className="w-5 h-5" />
-          Activer le micro 🔴
-        </Button>
-      );
-    }
-
+  if (micPermission === "denied") {
     return (
+      <Button
+        size="lg"
+        variant={mobile ? "default" : "destructive"}
+        className={`${mobile ? "w-full font-bold text-base py-7 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-2 border-destructive" : "w-full text-base"} gap-2`}
+        onClick={requestMicPermission}
+      >
+        <Mic className="w-5 h-5" />
+        Activer le micro 🔴
+      </Button>
+    );
+  }
+
+  return (
+    <>
       <div className="space-y-2">
-        {/* Discreet calling indicator */}
         {callingIndicator && !isConnected && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/30 text-xs text-gold animate-pulse w-fit">
             <Phone className="w-3 h-3" />
@@ -81,8 +67,6 @@ const HeroSection = () => {
             onClick={() => {
               if (isConnected) {
                 stopConversation();
-              } else if (error) {
-                startConversation();
               } else {
                 startConversation();
               }
@@ -121,15 +105,50 @@ const HeroSection = () => {
             className="justify-center"
           />
         )}
-        {/* Mic status bubble */}
         {isConnected && micStatus && (
           <div className="text-xs text-gold/80 animate-pulse text-center">
             {micStatus}
           </div>
         )}
       </div>
-    );
-  };
+
+      {/* Backup bubble — fixed at bottom */}
+      <AnimatePresence>
+        {showTextFallback && lastAgentText && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 left-4 right-4 z-50 flex justify-center pointer-events-none"
+          >
+            <div className="pointer-events-auto max-w-lg w-full rounded-2xl bg-navy/95 backdrop-blur-md border border-gold/30 shadow-2xl p-5">
+              <p className="text-xs text-gold/60 mb-1.5 font-medium">💬 Andrea répond :</p>
+              <p className="text-white text-base md:text-lg leading-relaxed font-medium">{lastAgentText}</p>
+              {audioBlocked && (
+                <p className="text-xs text-amber-400/80 mt-2 animate-pulse">🔇 Son bloqué — lisez la réponse ci-dessus</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+const HeroSection = () => {
+  const { data: artisanCount } = useQuery({
+    queryKey: ["artisan-count-hero"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("artisans")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "active");
+      return count || 0;
+    },
+    staleTime: 60000,
+  });
+
+  const displayCount = artisanCount && artisanCount > 0 ? artisanCount : 200;
 
   return (
     <section className="relative min-h-screen flex items-center pt-32 lg:pt-20 overflow-hidden">
@@ -204,7 +223,9 @@ const HeroSection = () => {
             </div>
 
             <div className="block lg:hidden mb-6">
-              <VoiceButton mobile />
+              <VoiceErrorBoundary>
+                <VoiceSection mobile />
+              </VoiceErrorBoundary>
             </div>
 
             <p className="text-sm md:text-base text-white/70 mb-8 md:mb-10">
@@ -254,7 +275,9 @@ const HeroSection = () => {
                     </div>
                   ))}
                 </div>
-                <VoiceButton />
+                <VoiceErrorBoundary>
+                  <VoiceSection />
+                </VoiceErrorBoundary>
               </div>
               <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-4 -right-4 bg-white rounded-xl shadow-elevated p-3 border border-border">
                 <div className="flex items-center gap-2">
@@ -271,26 +294,6 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* ====== BACKUP BUBBLE — large centered text overlay ====== */}
-      <AnimatePresence>
-        {showTextFallback && lastAgentText && (
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-4 right-4 z-50 flex justify-center pointer-events-none"
-          >
-            <div className="pointer-events-auto max-w-lg w-full rounded-2xl bg-navy/95 backdrop-blur-md border border-gold/30 shadow-2xl p-5">
-              <p className="text-xs text-gold/60 mb-1.5 font-medium">💬 Andrea répond :</p>
-              <p className="text-white text-base md:text-lg leading-relaxed font-medium">{lastAgentText}</p>
-              {audioBlocked && (
-                <p className="text-xs text-amber-400/80 mt-2 animate-pulse">🔇 Son bloqué — lisez la réponse ci-dessus</p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 };
