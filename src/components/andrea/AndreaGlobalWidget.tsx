@@ -177,26 +177,48 @@ const AndreaGlobalWidget = () => {
       return;
     }
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) { toast.error("Reconnaissance vocale non supportée."); return; }
+    if (!SR) { toast.error("Reconnaissance vocale non supportée.", { duration: 2000 }); return; }
     const recognition = new SR();
     recognition.lang = "fr-FR";
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    let finalTranscript = "";
+    let silenceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const resetSilenceTimer = () => {
+      if (silenceTimer) clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => {
+        recognition.stop();
+      }, 2000);
+    };
+
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0]?.[0]?.transcript;
-      if (transcript) {
-        setTextInput(transcript);
+      resetSilenceTimer();
+      let interim = "";
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript;
+        } else {
+          interim += result[0].transcript;
+        }
       }
+      setTextInput(finalTranscript + interim);
     };
     recognition.onerror = (event: any) => {
+      if (silenceTimer) clearTimeout(silenceTimer);
       setIsListening(false);
       if (event.error === "not-allowed" || event.error === "denied") toast.error("Micro bloqué. Autorisez l'accès.", { duration: 2000 });
     };
-    recognition.onend = () => setIsListening(false);
+    recognition.onend = () => {
+      if (silenceTimer) clearTimeout(silenceTimer);
+      setIsListening(false);
+    };
     recognitionRef.current = recognition;
     try { recognition.start(); setIsListening(true); }
     catch { toast.error("Micro bloqué.", { duration: 2000 }); }
-  }, [isListening, handleAsk]);
+  }, [isListening]);
 
   const handleOpen = () => { setIsOpen(true); setHasNewResponse(false); };
 
@@ -551,15 +573,27 @@ const AndreaGlobalWidget = () => {
               {/* Mic listening indicator */}
               <AnimatePresence>
                 {isListening && (
-                  <motion.p
+                  <motion.div
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
-                    className="text-[11px] text-red-400 text-center mb-2 flex items-center justify-center gap-1.5"
+                    className="text-[11px] text-red-400 text-center mb-2 flex items-center justify-center gap-2"
                   >
                     <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    Parlez maintenant… (cliquez 🎙️ pour arrêter)
-                  </motion.p>
+                    <span>Parlez maintenant…</span>
+                    {/* Sound wave */}
+                    <span className="flex items-center gap-[2px] h-4">
+                      {[0, 1, 2, 3, 4].map((i) => (
+                        <motion.span
+                          key={i}
+                          className="w-[2px] rounded-full bg-red-400"
+                          animate={{ height: ["4px", "14px", "4px"] }}
+                          transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.08, ease: "easeInOut" }}
+                        />
+                      ))}
+                    </span>
+                    <span className="text-white/40">(cliquez 🎙️ pour arrêter)</span>
+                  </motion.div>
                 )}
               </AnimatePresence>
               <form onSubmit={handleTextSubmit} className="flex gap-2 items-center">
