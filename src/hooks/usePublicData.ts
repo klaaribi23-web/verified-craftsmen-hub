@@ -53,7 +53,6 @@ export interface ArtisanPublic {
   category_id: string | null;
   created_at: string;
   updated_at: string;
-  google_id: string | null;
   google_maps_url: string | null;
   google_rating: number | null;
   google_review_count: number | null;
@@ -62,10 +61,8 @@ export interface ArtisanPublic {
   intervention_radius?: number | null;
   latitude?: number | null;
   longitude?: number | null;
-  phone?: string | null;
-  email?: string | null;
-  siret?: string | null;
   is_audited?: boolean;
+  profile_id?: string | null;
   category?: {
     id: string;
     name: string;

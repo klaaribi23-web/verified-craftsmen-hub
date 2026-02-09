@@ -1570,10 +1570,8 @@ export type Database = {
           department: string | null
           description: string | null
           display_priority: number | null
-          email: string | null
           experience_years: number | null
           facebook_url: string | null
-          google_id: string | null
           google_maps_url: string | null
           google_rating: number | null
           google_review_count: number | null
@@ -1587,7 +1585,6 @@ export type Database = {
           linkedin_url: string | null
           longitude: number | null
           missions_completed: number | null
-          phone: string | null
           photo_url: string | null
           portfolio_images: string[] | null
           portfolio_videos: string[] | null
@@ -1597,12 +1594,10 @@ export type Database = {
           rating: number | null
           region: string | null
           review_count: number | null
-          siret: string | null
           slug: string | null
           status: Database["public"]["Enums"]["artisan_status"] | null
           subscription_tier: string | null
           updated_at: string | null
-          user_id: string | null
           website_url: string | null
           working_hours: Json | null
         }
@@ -1615,10 +1610,8 @@ export type Database = {
           department?: string | null
           description?: string | null
           display_priority?: number | null
-          email?: never
           experience_years?: number | null
           facebook_url?: string | null
-          google_id?: never
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
@@ -1632,7 +1625,6 @@ export type Database = {
           linkedin_url?: string | null
           longitude?: number | null
           missions_completed?: number | null
-          phone?: never
           photo_url?: string | null
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
@@ -1642,12 +1634,10 @@ export type Database = {
           rating?: number | null
           region?: string | null
           review_count?: number | null
-          siret?: never
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
           subscription_tier?: string | null
           updated_at?: string | null
-          user_id?: string | null
           website_url?: string | null
           working_hours?: Json | null
         }
@@ -1660,10 +1650,8 @@ export type Database = {
           department?: string | null
           description?: string | null
           display_priority?: number | null
-          email?: never
           experience_years?: number | null
           facebook_url?: string | null
-          google_id?: never
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
@@ -1677,7 +1665,6 @@ export type Database = {
           linkedin_url?: string | null
           longitude?: number | null
           missions_completed?: number | null
-          phone?: never
           photo_url?: string | null
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
@@ -1687,12 +1674,10 @@ export type Database = {
           rating?: number | null
           region?: string | null
           review_count?: number | null
-          siret?: never
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
           subscription_tier?: string | null
           updated_at?: string | null
-          user_id?: string | null
           website_url?: string | null
           working_hours?: Json | null
         }
