@@ -11,8 +11,8 @@ import MicWaveform from "./MicWaveform";
 const HeroSection = () => {
   const {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
-    micActive, micLevel, endConversation, forceCommit, micPermission,
-    requestMicPermission, resetMic, lastAgentText, lastRawMessage,
+    micActive, micLevel, stopConversation, hardReset, micPermission,
+    requestMicPermission, lastAgentText, lastRawMessage,
     showTextFallback, audioBlocked, unlockAudio,
   } = useAndreaVoiceAgent();
 
@@ -72,8 +72,7 @@ const HeroSection = () => {
             }
             onClick={() => {
               if (isConnected) {
-                // If connected and listening, force commit; long press or double = end
-                forceCommit();
+                stopConversation();
               } else {
                 startConversation();
               }
@@ -85,14 +84,15 @@ const HeroSection = () => {
             ) : (
               <Mic className={`w-5 h-5 ${isConnected && mobile ? "text-navy-dark" : ""} ${isConnected && micActive && !isSpeaking ? "animate-pulse" : ""}`} />
             )}
-            {isConnected ? "Forcer la réponse 📤" : getVoiceLabel()}
+            {isConnected ? "Arrêter Andrea ⏹️" : getVoiceLabel()}
           </Button>
           {isConnected && (
             <Button
               size="lg"
               variant="destructive"
               className={mobile ? "py-7 px-4" : "px-4"}
-              onClick={endConversation}
+              onClick={hardReset}
+              title="Reset complet"
             >
               ✕
             </Button>
@@ -103,11 +103,12 @@ const HeroSection = () => {
             level={micLevel}
             isActive={micActive}
             isThinking={isThinking}
-            onReset={resetMic}
+            onReset={hardReset}
             className="justify-center"
           />
         )}
-        {isConnected && showTextFallback && lastAgentText && (
+        {/* Always show text when available (diagnostic mode) */}
+        {showTextFallback && lastAgentText && (
           <div className="mt-2 p-3 rounded-lg bg-gold/10 border border-gold/20 text-sm text-white/90 max-w-md animate-fade-in">
             {audioBlocked && (
               <button
@@ -117,11 +118,11 @@ const HeroSection = () => {
                 🔊 Activer le son
               </button>
             )}
-            <p className="text-xs text-gold/60 mb-1">💬 Andrea (texte) :</p>
+            <p className="text-xs text-gold/60 mb-1">💬 Andrea :</p>
             <p className="leading-relaxed">{lastAgentText}</p>
           </div>
         )}
-        {isConnected && lastRawMessage && (
+        {lastRawMessage && (
           <p className="text-[10px] text-white/30 font-mono truncate max-w-md mt-1" title={lastRawMessage}>
             📡 {lastRawMessage}
           </p>

@@ -22,6 +22,8 @@ export const useAndreaVoiceAgent = () => {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const responseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasSpokenRef = useRef(false);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoCommitSentRef = useRef(false);
 
   // Check mic permission on mount
   useEffect(() => {
@@ -46,10 +48,16 @@ export const useAndreaVoiceAgent = () => {
     }
   }, []);
 
+  const clearSilenceTimer = useCallback(() => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+  }, []);
+
   const startResponseTimeout = useCallback(() => {
     clearResponseTimeout();
     responseTimeoutRef.current = setTimeout(() => {
-      // If agent hasn't started speaking after 4s, show text fallback
       if (!hasSpokenRef.current) {
         console.warn("[Andrea Voice] ⚠️ No audio response after 4s, showing text fallback");
         setShowTextFallback(true);
@@ -62,9 +70,9 @@ export const useAndreaVoiceAgent = () => {
       console.log("[Andrea Voice] ✅ Connected to ElevenLabs agent");
       setError(null);
       setAudioBlocked(false);
-      toast.success("Connexion ElevenLabs établie ✅", { duration: 3000 });
+      autoCommitSentRef.current = false;
+      toast.success("Connexion établie ✅", { duration: 3000 });
 
-      // Start mic monitor AFTER SDK has connected (avoid mic conflict)
       setTimeout(() => {
         startMicMonitorFromNewStream();
         forceAudioOutput();
@@ -74,8 +82,7 @@ export const useAndreaVoiceAgent = () => {
       console.log("[Andrea Voice] ⚠️ Disconnected from agent");
       setMicActive(false);
       setMicLevel(0);
-      setShowTextFallback(false);
-      setLastAgentText(null);
+      clearSilenceTimer();
       stopMicMonitor();
       clearResponseTimeout();
       toast("Andrea déconnectée", { duration: 3000 });
@@ -84,15 +91,15 @@ export const useAndreaVoiceAgent = () => {
       const raw = JSON.stringify(message);
       console.log("[Andrea Voice] Message:", raw);
       setLastRawMessage(raw.slice(0, 200));
-      const msgStr = typeof message === "string" ? message : JSON.stringify(message);
 
-      // Capture agent text responses for fallback display
+      // Capture agent text — ALWAYS show it (diagnostic mode)
       if (message?.source === "ai" || message?.role === "agent") {
         const text = message?.message || message?.agent_response_event?.agent_response || message?.text;
         if (text) {
           const cleanText = typeof text === "string" ? text.replace(/^"|"$/g, "") : String(text);
           setLastAgentText(cleanText);
-          setIsThinking(false); // Got response, no longer thinking
+          setShowTextFallback(true); // Always show text for diagnostic
+          setIsThinking(false);
           console.log("[Andrea Voice] 💬 Agent text:", cleanText);
           hasSpokenRef.current = false;
           startResponseTimeout();
@@ -102,12 +109,14 @@ export const useAndreaVoiceAgent = () => {
       // Detect user speech end → agent is now "thinking"
       if (message?.type === "user_transcript" || (message?.source === "user" && message?.role === "user")) {
         setIsThinking(true);
+        autoCommitSentRef.current = false; // Reset for next silence cycle
         console.log("[Andrea Voice] 🧠 User finished speaking, agent thinking...");
       }
 
-      // Surface quota/API errors as toasts
+      // Surface errors
+      const msgStr = raw;
       if (/quota/i.test(msgStr) || /exceeded/i.test(msgStr)) {
-        toast.error("⚠️ Crédits ElevenLabs épuisés (Quota Exceeded)", { duration: 8000 });
+        toast.error("⚠️ Crédits ElevenLabs épuisés", { duration: 8000 });
         setError("Quota exceeded");
       }
       if (/api.key/i.test(msgStr) || /unauthorized/i.test(msgStr) || /invalid.*key/i.test(msgStr)) {
@@ -124,7 +133,7 @@ export const useAndreaVoiceAgent = () => {
       } else if (/key/i.test(errStr) || /unauthorized/i.test(errStr)) {
         toast.error("⚠️ Erreur clé API ElevenLabs", { duration: 8000 });
       } else {
-        toast.error(`Erreur ElevenLabs: ${errStr.slice(0, 80)}`, { duration: 5000 });
+        toast.error(`Erreur: ${errStr.slice(0, 80)}`, { duration: 5000 });
       }
     },
   });
@@ -142,7 +151,6 @@ export const useAndreaVoiceAgent = () => {
       });
       console.log("[Andrea Voice] 🔊 Audio output forced, found", audioElements.length, "audio elements");
 
-      // Also observe for new audio elements added by the SDK
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((m) => {
           m.addedNodes.forEach((node) => {
@@ -152,20 +160,32 @@ export const useAndreaVoiceAgent = () => {
               if ((node as any).setSinkId) {
                 (node as any).setSinkId("default").catch(() => {});
               }
-              console.log("[Andrea Voice] 🔊 New audio element detected and configured");
             }
           });
         });
       });
       observer.observe(document.body, { childList: true, subtree: true });
-      // Stop observing after 30s
       setTimeout(() => observer.disconnect(), 30000);
     } catch (e) {
       console.warn("[Andrea Voice] setSinkId not supported:", e);
     }
   }, []);
 
-  // Start mic monitor from a NEW stream (separate from SDK's stream)
+  // Auto-trigger: send invisible message after 1.5s of silence
+  const triggerAutoCommit = useCallback(() => {
+    if (conversation.status === "connected" && !autoCommitSentRef.current && !conversation.isSpeaking) {
+      autoCommitSentRef.current = true;
+      console.log("[Andrea Voice] 🤖 Auto-commit: silence >1.5s, sending trigger message");
+      try {
+        conversation.sendUserMessage("...");
+        setIsThinking(true);
+      } catch (e) {
+        console.error("[Andrea Voice] Auto-commit failed:", e);
+      }
+    }
+  }, [conversation]);
+
+  // Start mic monitor with auto-silence detection
   const startMicMonitorFromNewStream = useCallback(async () => {
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -187,6 +207,7 @@ export const useAndreaVoiceAgent = () => {
 
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
       let silentFrames = 0;
+      let wasActive = false;
       let frameCount = 0;
 
       const check = () => {
@@ -201,10 +222,27 @@ export const useAndreaVoiceAgent = () => {
 
         if (max > 1) {
           setMicActive(true);
+          wasActive = true;
           silentFrames = 0;
+          // User started talking again, reset auto-commit
+          autoCommitSentRef.current = false;
+          clearSilenceTimer();
         } else {
           silentFrames++;
-          if (silentFrames > 300) setMicActive(false);
+          // ~90 frames ≈ 1.5s at 60fps
+          if (silentFrames > 90 && wasActive && !autoCommitSentRef.current) {
+            // Silence detected after speech → auto-trigger
+            if (!silenceTimerRef.current) {
+              silenceTimerRef.current = setTimeout(() => {
+                triggerAutoCommit();
+                silenceTimerRef.current = null;
+              }, 200); // Small debounce
+            }
+          }
+          if (silentFrames > 300) {
+            setMicActive(false);
+            wasActive = false;
+          }
         }
         rafRef.current = requestAnimationFrame(check);
       };
@@ -213,7 +251,7 @@ export const useAndreaVoiceAgent = () => {
     } catch (e) {
       console.warn("[Andrea Voice] Mic monitor error:", e);
     }
-  }, []);
+  }, [clearSilenceTimer, triggerAutoCommit]);
 
   const stopMicMonitor = useCallback(() => {
     if (rafRef.current) {
@@ -226,31 +264,31 @@ export const useAndreaVoiceAgent = () => {
       micStreamRef.current.getTracks().forEach((t) => t.stop());
       micStreamRef.current = null;
     }
-  }, []);
+    clearSilenceTimer();
+  }, [clearSilenceTimer]);
 
   useEffect(() => {
     return () => {
       stopMicMonitor();
       clearResponseTimeout();
+      clearSilenceTimer();
     };
-  }, [stopMicMonitor, clearResponseTimeout]);
+  }, [stopMicMonitor, clearResponseTimeout, clearSilenceTimer]);
 
-  // Track when agent starts speaking to cancel text fallback
+  // Track when agent starts speaking
   useEffect(() => {
     if (conversation.isSpeaking) {
       hasSpokenRef.current = true;
-      setShowTextFallback(false);
       setAudioBlocked(false);
       setIsThinking(false);
       clearResponseTimeout();
-      // Force speaker output on mobile when audio starts playing
       forceAudioOutput();
     }
   }, [conversation.isSpeaking, clearResponseTimeout, forceAudioOutput]);
 
   // Detect audio blocked: text arrived but no audio after timeout
   useEffect(() => {
-    if (showTextFallback && lastAgentText && !conversation.isSpeaking) {
+    if (showTextFallback && lastAgentText && !conversation.isSpeaking && !hasSpokenRef.current) {
       setAudioBlocked(true);
     }
   }, [showTextFallback, lastAgentText, conversation.isSpeaking]);
@@ -267,19 +305,40 @@ export const useAndreaVoiceAgent = () => {
     }
   }, []);
 
-  const resetMic = useCallback(async () => {
-    console.log("[Andrea Voice] 🔄 Resetting microphone...");
+  // Hard reset: close everything, clear all caches
+  const hardReset = useCallback(async () => {
+    console.log("[Andrea Voice] 💥 Hard reset requested");
+    // 1. End session
+    try { await conversation.endSession(); } catch {}
+    // 2. Stop mic monitor
     stopMicMonitor();
+    // 3. Close audio context
     if (audioCtxRef.current) {
       try { audioCtxRef.current.close(); } catch {}
       audioCtxRef.current = null;
     }
-    await startMicMonitorFromNewStream();
-    toast.success("Micro réinitialisé ✅");
-  }, [stopMicMonitor, startMicMonitorFromNewStream]);
+    // 4. Kill all audio elements created by SDK
+    document.querySelectorAll("audio").forEach((el) => {
+      el.pause();
+      el.src = "";
+      el.remove();
+    });
+    // 5. Reset all state
+    clearResponseTimeout();
+    clearSilenceTimer();
+    setMicActive(false);
+    setMicLevel(0);
+    setLastAgentText(null);
+    setShowTextFallback(false);
+    setIsThinking(false);
+    setAudioBlocked(false);
+    setLastRawMessage(null);
+    setError(null);
+    autoCommitSentRef.current = false;
+    toast.success("Session réinitialisée 🔄", { duration: 2000 });
+  }, [conversation, stopMicMonitor, clearResponseTimeout, clearSilenceTimer]);
 
   const startConversation = useCallback(async () => {
-    // End existing session first
     if (conversation.status === "connected") {
       console.log("[Andrea Voice] Ending existing session before restart");
       try { await conversation.endSession(); } catch {}
@@ -292,18 +351,17 @@ export const useAndreaVoiceAgent = () => {
     setMicLevel(0);
     setLastAgentText(null);
     setShowTextFallback(false);
+    setLastRawMessage(null);
+    autoCommitSentRef.current = false;
     stopMicMonitor();
 
     try {
-      // 1. Force AudioContext activation (mobile audio unlock)
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioCtxRef.current = audioCtx;
       if (audioCtx.state === "suspended") await audioCtx.resume();
-      // Play silent buffer (0.1s) to unlock audio output on iOS/Android
       const sampleRate = audioCtx.sampleRate;
       const buffer = audioCtx.createBuffer(1, Math.ceil(sampleRate * 0.1), sampleRate);
       const channelData = buffer.getChannelData(0);
-      // Fill with near-silent noise to trick iOS into enabling speaker
       for (let i = 0; i < channelData.length; i++) {
         channelData[i] = (Math.random() - 0.5) * 0.001;
       }
@@ -311,24 +369,16 @@ export const useAndreaVoiceAgent = () => {
       silentSource.buffer = buffer;
       silentSource.connect(audioCtx.destination);
       silentSource.start(0);
-      console.log("[Andrea Voice] AudioContext unlocked, sampleRate:", sampleRate, "state:", audioCtx.state);
+      console.log("[Andrea Voice] AudioContext unlocked, sampleRate:", sampleRate);
 
-      // 2. Get signed URL FIRST (don't grab mic yet — let SDK do it)
       console.log("[Andrea Voice] Fetching signed URL...");
       const { data, error: fnError } = await supabase.functions.invoke("elevenlabs-conversation-token");
 
-      if (fnError) {
-        console.error("[Andrea Voice] ❌ Edge function error:", fnError);
-        throw new Error(`Token error: ${fnError.message}`);
-      }
-      if (!data?.signed_url) {
-        console.error("[Andrea Voice] ❌ No signed_url received. Response:", data);
-        throw new Error("Pas de signed_url reçue.");
-      }
+      if (fnError) throw new Error(`Token error: ${fnError.message}`);
+      if (!data?.signed_url) throw new Error("Pas de signed_url reçue.");
 
       console.log("[Andrea Voice] ✅ Signed URL obtained, starting session...");
 
-      // 3. Start conversation — SDK handles mic internally
       await conversation.startSession({
         signedUrl: data.signed_url,
         overrides: {
@@ -339,9 +389,8 @@ export const useAndreaVoiceAgent = () => {
       });
 
       console.log("[Andrea Voice] ✅ Session started successfully");
-      // Mic monitor + audio output fix happen in onConnect callback
     } catch (err: any) {
-      console.error("[Andrea Voice] ❌ Failed to start conversation:", err);
+      console.error("[Andrea Voice] ❌ Failed to start:", err);
       const msg = err?.message || "Erreur inconnue";
       setError(msg);
       stopMicMonitor();
@@ -350,37 +399,25 @@ export const useAndreaVoiceAgent = () => {
         setMicPermission("denied");
         toast.error("Micro bloqué. Autorisez l'accès au microphone.", { duration: 5000 });
       } else {
-        toast.error("Erreur de connexion ElevenLabs ❌");
+        toast.error("Erreur de connexion ❌");
       }
     } finally {
       setIsConnecting(false);
     }
   }, [conversation, stopMicMonitor]);
 
-  const endConversation = useCallback(async () => {
+  // Stop: end session but keep last text visible
+  const stopConversation = useCallback(async () => {
     stopMicMonitor();
     clearResponseTimeout();
-    setLastAgentText(null);
-    setShowTextFallback(false);
-    setLastRawMessage(null);
-    try { await conversation.endSession(); } catch {}
-  }, [conversation, stopMicMonitor, clearResponseTimeout]);
-
-  // Force commit: send empty message to trigger agent response
-  const forceCommit = useCallback(() => {
-    if (conversation.status === "connected") {
-      console.log("[Andrea Voice] 🔨 Force commit: sending empty user message");
-      try {
-        conversation.sendUserMessage("...");
-        setIsThinking(true);
-        toast("Commit envoyé à Andrea 📤", { duration: 2000 });
-      } catch (e) {
-        console.error("[Andrea Voice] Force commit failed:", e);
-      }
+    clearSilenceTimer();
+    // Keep lastAgentText visible, force show it
+    if (lastAgentText) {
+      setShowTextFallback(true);
     }
-  }, [conversation]);
+    try { await conversation.endSession(); } catch {}
+  }, [conversation, stopMicMonitor, clearResponseTimeout, clearSilenceTimer, lastAgentText]);
 
-  // Manual unlock audio for "Activer le son" button
   const unlockAudio = useCallback(() => {
     console.log("[Andrea Voice] 🔓 Manual audio unlock requested");
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -392,15 +429,13 @@ export const useAndreaVoiceAgent = () => {
     src.start(0);
     forceAudioOutput();
     setAudioBlocked(false);
-    setShowTextFallback(false);
     toast.success("Son activé 🔊");
   }, [forceAudioOutput]);
 
   return {
     startConversation,
-    endConversation,
-    forceCommit,
-    resetMic,
+    stopConversation,
+    hardReset,
     unlockAudio,
     isConnecting,
     isConnected: conversation.status === "connected",
