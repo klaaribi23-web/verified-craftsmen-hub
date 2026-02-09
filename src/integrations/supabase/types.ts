@@ -605,6 +605,141 @@ export type Database = {
         }
         Relationships: []
       }
+      leads_artisans: {
+        Row: {
+          a_assurance: boolean | null
+          annees_existence: number | null
+          chiffre_affaires: string | null
+          code_postal: string | null
+          conversation_id: string | null
+          created_at: string
+          departement: string | null
+          email: string | null
+          id: string
+          metier: string | null
+          nom: string | null
+          nombre_salaries: string | null
+          notes: string | null
+          prenom: string | null
+          siret: string | null
+          societe: string | null
+          source_page: string | null
+          specialites: string | null
+          status: string
+          telephone: string | null
+          updated_at: string
+          ville: string | null
+        }
+        Insert: {
+          a_assurance?: boolean | null
+          annees_existence?: number | null
+          chiffre_affaires?: string | null
+          code_postal?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          departement?: string | null
+          email?: string | null
+          id?: string
+          metier?: string | null
+          nom?: string | null
+          nombre_salaries?: string | null
+          notes?: string | null
+          prenom?: string | null
+          siret?: string | null
+          societe?: string | null
+          source_page?: string | null
+          specialites?: string | null
+          status?: string
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Update: {
+          a_assurance?: boolean | null
+          annees_existence?: number | null
+          chiffre_affaires?: string | null
+          code_postal?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          departement?: string | null
+          email?: string | null
+          id?: string
+          metier?: string | null
+          nom?: string | null
+          nombre_salaries?: string | null
+          notes?: string | null
+          prenom?: string | null
+          siret?: string | null
+          societe?: string | null
+          source_page?: string | null
+          specialites?: string | null
+          status?: string
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Relationships: []
+      }
+      leads_particuliers: {
+        Row: {
+          budget_estime: string | null
+          code_postal: string | null
+          conversation_id: string | null
+          created_at: string
+          delai: string | null
+          description_projet: string | null
+          email: string | null
+          id: string
+          nom: string | null
+          notes: string | null
+          prenom: string | null
+          source_page: string | null
+          status: string
+          telephone: string | null
+          type_projet: string | null
+          updated_at: string
+          ville: string | null
+        }
+        Insert: {
+          budget_estime?: string | null
+          code_postal?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          delai?: string | null
+          description_projet?: string | null
+          email?: string | null
+          id?: string
+          nom?: string | null
+          notes?: string | null
+          prenom?: string | null
+          source_page?: string | null
+          status?: string
+          telephone?: string | null
+          type_projet?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Update: {
+          budget_estime?: string | null
+          code_postal?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          delai?: string | null
+          description_projet?: string | null
+          email?: string | null
+          id?: string
+          nom?: string | null
+          notes?: string | null
+          prenom?: string | null
+          source_page?: string | null
+          status?: string
+          telephone?: string | null
+          type_projet?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Relationships: []
+      }
       login_attempts: {
         Row: {
           attempted_at: string | null
