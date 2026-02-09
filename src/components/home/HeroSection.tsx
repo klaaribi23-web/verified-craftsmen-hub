@@ -13,6 +13,7 @@ const HeroSection = () => {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
     micActive, micLevel, endConversation, micPermission,
     requestMicPermission, resetMic, lastAgentText, showTextFallback,
+    audioBlocked, unlockAudio,
   } = useAndreaVoiceAgent();
 
   const getVoiceLabel = () => {
@@ -89,6 +90,14 @@ const HeroSection = () => {
         )}
         {isConnected && showTextFallback && lastAgentText && (
           <div className="mt-2 p-3 rounded-lg bg-gold/10 border border-gold/20 text-sm text-white/90 max-w-md animate-fade-in">
+            {audioBlocked && (
+              <button
+                onClick={unlockAudio}
+                className="mb-2 px-3 py-1.5 rounded-md bg-gold text-navy-dark text-xs font-bold hover:bg-gold/90 transition-colors flex items-center gap-1.5"
+              >
+                🔊 Activer le son
+              </button>
+            )}
             <p className="text-xs text-gold/60 mb-1">💬 Andrea (texte) :</p>
             <p className="leading-relaxed">{lastAgentText}</p>
           </div>
