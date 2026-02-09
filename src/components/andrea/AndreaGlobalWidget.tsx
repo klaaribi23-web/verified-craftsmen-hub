@@ -1,6 +1,13 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Sparkles, X, Mic, Loader2, Phone, Send, CheckCircle2, ShieldCheck, ArrowRight } from "lucide-react";
+import {
+  ANDREA_TOOLTIP,
+  ANDREA_WELCOME,
+  ANDREA_ARTISAN_PITCH,
+  ANDREA_PARTICULIER_PITCH,
+  ANDREA_HEADER_SUBTITLE,
+} from "@/config/andreaMessages";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
@@ -141,8 +148,12 @@ const AndreaGlobalWidget = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            className="fixed bottom-6 right-6 z-[9999]"
+            className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2"
           >
+            {/* Permanent tooltip */}
+            <div className="max-w-[260px] rounded-xl px-3 py-2 text-[11px] font-medium text-white shadow-lg" style={{ backgroundColor: "#1A1A1A" }}>
+              {ANDREA_TOOLTIP}
+            </div>
             <button
               onClick={handleOpen}
               className="relative h-14 w-14 rounded-full bg-gradient-to-br from-gold to-gold-light shadow-lg shadow-gold/30 flex items-center justify-center hover:scale-110 transition-transform"
@@ -192,10 +203,10 @@ const AndreaGlobalWidget = () => {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-400 animate-pulse" : "bg-white/40"}`} />
-                  <span className="text-[11px] text-white/70">
-                    {isConnected
+                   <span className="text-[11px] text-white/70">
+                    {isConnected 
                       ? isSpeaking ? "Parle…" : isThinking ? "Réfléchit…" : "Connectée"
-                      : "Super-IA Experte · Bâtiment & Énergie"}
+                      : ANDREA_HEADER_SUBTITLE}
                   </span>
                 </div>
               </div>
@@ -287,6 +298,39 @@ const AndreaGlobalWidget = () => {
                   )}
                 </div>
               </VoiceErrorBoundary>
+
+              {/* Welcome message — before any agent response */}
+              {!lastAgentText && !isConnected && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="self-start w-[92%] rounded-2xl rounded-bl-sm px-4 py-3"
+                  style={{ backgroundColor: "#1A1A1A" }}
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shrink-0">
+                      <Sparkles className="w-3 h-3 text-navy-dark" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-gold/80">Andrea</span>
+                    <ShieldCheck className="w-3 h-3 text-teal-400" />
+                  </div>
+                  <p className="text-white text-[13.5px] leading-relaxed mb-3">{ANDREA_WELCOME}</p>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => { sendTextMessage(ANDREA_PARTICULIER_PITCH); startConversation(); }}
+                      className="w-full text-left text-[12px] px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 transition-colors"
+                    >
+                      🏠 Je suis un <strong>particulier</strong> — travaux, aides, économies
+                    </button>
+                    <button
+                      onClick={() => { setShowArtisanCTA(true); startConversation(); }}
+                      className="w-full text-left text-[12px] px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 transition-colors"
+                    >
+                      🔧 Je suis un <strong>artisan</strong> — chantiers & avantages Pro
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Agent text bubble (SMS-style WhatsApp) */}
               <AnimatePresence>
