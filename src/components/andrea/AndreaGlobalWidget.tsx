@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
-import { Sparkles, X, Mic, Loader2, Phone, Send, CheckCircle2 } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Sparkles, X, Mic, Loader2, Phone, Send, CheckCircle2, ShieldCheck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
@@ -12,13 +12,15 @@ import { Progress } from "@/components/ui/progress";
 
 const PAGE_CONTEXT: Record<string, string> = {
   "/nos-missions": "L'utilisateur consulte les missions/chantiers disponibles. Aide-le à trouver des chantiers adaptés.",
-  "/trouver-artisan": "L'utilisateur recherche un artisan. Aide-le à trouver le bon professionnel.",
-  "/demande-devis": "L'utilisateur veut déposer un projet ou demander un devis.",
-  "/devenir-artisan": "L'utilisateur est un artisan qui veut rejoindre le réseau. Qualifie-le comme lead artisan.",
+  "/trouver-artisan": "L'utilisateur recherche un artisan. Aide-le à trouver le bon professionnel. Tu peux aussi le conseiller sur les aides d'État (MaPrimeRénov, CEE) et les économies d'énergie.",
+  "/demande-devis": "L'utilisateur veut déposer un projet ou demander un devis. Propose-lui aussi un Appel Expert si besoin d'aide sur MaPrimeRénov ou économies d'énergie.",
+  "/devenir-artisan": "L'utilisateur est un artisan qui veut rejoindre le réseau. Mets en avant la technologie exclusive : Andrea travaille pour lui pendant qu'il est sur le chantier. Qualifie-le comme lead artisan.",
+  "/inscription-artisan": "L'utilisateur est sur la page d'inscription artisan. Encourage-le à finaliser son inscription Pro.",
   "/artisan/dashboard": "L'utilisateur est un artisan connecté sur son tableau de bord.",
   "/artisan/abonnement": "L'utilisateur consulte les offres d'abonnement artisan.",
   "/client/dashboard": "L'utilisateur est un client connecté.",
-  "/comment-ca-marche": "L'utilisateur veut comprendre le fonctionnement.",
+  "/comment-ca-marche": "L'utilisateur veut comprendre le fonctionnement. Mentionne les aides d'État et économies d'énergie si pertinent.",
+  "/": "Page d'accueil. Tu es Andrea, Super-IA Experte en bâtiment. Tu conseilles sur les travaux, les aides d'État (MaPrimeRénov, CEE), les économies d'énergie (comparatif gaz/élec/téléphonie) et tu qualifies les leads.",
 };
 
 const getPageContext = (pathname: string): string | null => {
@@ -32,7 +34,9 @@ const AndreaGlobalWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [textInput, setTextInput] = useState("");
   const [hasNewResponse, setHasNewResponse] = useState(false);
+  const [showArtisanCTA, setShowArtisanCTA] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevTextRef = useRef<string | null>(null);
 
@@ -62,6 +66,13 @@ const AndreaGlobalWidget = () => {
       saveLead(undefined, location.pathname);
     }
   }, [isConnected, leadData, savedId, saveLead, location.pathname]);
+
+  // Show artisan CTA when lead type is artisan or on relevant pages
+  useEffect(() => {
+    if (leadData.lead_type === "artisan" || location.pathname === "/devenir-artisan") {
+      setShowArtisanCTA(true);
+    }
+  }, [leadData.lead_type, location.pathname]);
 
   // Detect new response for mini-icon pulse
   useEffect(() => {
@@ -110,6 +121,7 @@ const AndreaGlobalWidget = () => {
   const handleReset = () => {
     hardReset();
     resetLead();
+    setShowArtisanCTA(false);
   };
 
   // Don't show on admin pages
@@ -165,7 +177,7 @@ const AndreaGlobalWidget = () => {
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed bottom-6 right-6 z-[9999] w-[380px] max-w-[calc(100vw-2rem)] rounded-2xl overflow-hidden shadow-2xl border border-gold/20 bg-card flex flex-col"
-            style={{ maxHeight: "min(560px, calc(100vh - 6rem))" }}
+            style={{ maxHeight: "min(580px, calc(100vh - 6rem))" }}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-navy to-navy-dark p-3 flex items-center gap-3">
@@ -173,13 +185,17 @@ const AndreaGlobalWidget = () => {
                 <Sparkles className="h-4 w-4 text-navy-dark" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-sm">Andrea — Expert Vocal</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="font-semibold text-white text-sm">Andrea</p>
+                  <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+                  <span className="text-[9px] font-bold text-teal-400 uppercase tracking-wider">Expert</span>
+                </div>
                 <div className="flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-400 animate-pulse" : "bg-white/40"}`} />
                   <span className="text-[11px] text-white/70">
                     {isConnected
                       ? isSpeaking ? "Parle…" : isThinking ? "Réfléchit…" : "Connectée"
-                      : "Prête à vous aider"}
+                      : "Super-IA Experte · Bâtiment & Énergie"}
                   </span>
                 </div>
               </div>
@@ -287,8 +303,32 @@ const AndreaGlobalWidget = () => {
                         <Sparkles className="w-3 h-3 text-navy-dark" />
                       </div>
                       <span className="text-[11px] font-semibold text-gold/80">Andrea</span>
+                      <ShieldCheck className="w-3 h-3 text-teal-400" />
                     </div>
                     <p className="text-white text-[13.5px] leading-relaxed">{lastAgentText}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Artisan CTA — in-chat action button */}
+              <AnimatePresence>
+                {showArtisanCTA && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <Button
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate("/inscription-artisan");
+                      }}
+                      className="w-full bg-gradient-to-r from-gold to-gold-light text-navy-dark font-semibold gap-2 rounded-xl h-10 text-sm hover:opacity-90"
+                    >
+                      <ShieldCheck className="w-4 h-4" />
+                      Créer mon compte Pro & Activer mes avantages
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
                   </motion.div>
                 )}
               </AnimatePresence>

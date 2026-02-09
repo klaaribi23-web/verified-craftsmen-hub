@@ -605,6 +605,60 @@ export type Database = {
         }
         Relationships: []
       }
+      expert_calls: {
+        Row: {
+          code_postal: string | null
+          conversation_id: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          nom: string | null
+          notes: string | null
+          prenom: string | null
+          source_page: string | null
+          status: string
+          telephone: string | null
+          type_demande: string
+          updated_at: string
+          ville: string | null
+        }
+        Insert: {
+          code_postal?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          nom?: string | null
+          notes?: string | null
+          prenom?: string | null
+          source_page?: string | null
+          status?: string
+          telephone?: string | null
+          type_demande?: string
+          updated_at?: string
+          ville?: string | null
+        }
+        Update: {
+          code_postal?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          nom?: string | null
+          notes?: string | null
+          prenom?: string | null
+          source_page?: string | null
+          status?: string
+          telephone?: string | null
+          type_demande?: string
+          updated_at?: string
+          ville?: string | null
+        }
+        Relationships: []
+      }
       leads_artisans: {
         Row: {
           a_assurance: boolean | null
