@@ -16,22 +16,22 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-/* ─── Futuristic Andrea bubble: noir pur 80% + bordure violet/argent + angles vifs ─── */
-const AndreaBubbleWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+/* ─── Glassmorphism Andrea bubble ─── */
+const AndreaBubbleWrapper = ({ children, className = "", glowing = false }: { children: React.ReactNode; className?: string; glowing?: boolean }) => (
   <div className={`relative ${className}`}>
-    {/* Violet/silver gradient border glow */}
-    <div className="absolute -inset-[1px] pointer-events-none"
+    <div
+      className="relative px-4 py-3 rounded-2xl overflow-hidden"
       style={{
-        background: "linear-gradient(145deg, hsla(265, 90%, 65%, 0.55), hsla(0, 0%, 82%, 0.3), hsla(265, 80%, 55%, 0.45))",
-        clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
+        background: "hsla(265, 30%, 8%, 0.7)",
+        backdropFilter: "blur(20px) saturate(1.4)",
+        WebkitBackdropFilter: "blur(20px) saturate(1.4)",
+        border: "1px solid hsla(265, 80%, 60%, 0.2)",
+        boxShadow: glowing
+          ? "0 0 24px hsla(265, 85%, 55%, 0.35), 0 0 48px hsla(265, 85%, 55%, 0.1), inset 0 1px 0 hsla(265, 80%, 70%, 0.08)"
+          : "0 4px 24px hsla(0, 0%, 0%, 0.2), inset 0 1px 0 hsla(265, 80%, 70%, 0.05)",
+        transition: "box-shadow 0.6s ease",
       }}
-    />
-    <div className="relative px-4 py-3 overflow-hidden"
-      style={{
-        background: "hsla(0, 0%, 0%, 0.82)",
-        clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
-        boxShadow: "inset 0 1px 0 hsla(265, 80%, 60%, 0.08), 0 8px 32px -4px hsla(265, 85%, 40%, 0.2)",
-      }}>
+    >
       {children}
     </div>
   </div>
@@ -39,11 +39,13 @@ const AndreaBubbleWrapper = ({ children, className = "" }: { children: React.Rea
 
 /* ─── Andrea header badge ─── */
 const AndreaAvatar = () => (
-  <div className="w-6 h-6 flex items-center justify-center shrink-0"
+  <div
+    className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
     style={{
       background: "linear-gradient(145deg, hsl(265, 80%, 50%), hsl(220, 85%, 50%))",
-      clipPath: "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
-    }}>
+      boxShadow: "0 0 12px hsla(265, 85%, 55%, 0.4)",
+    }}
+  >
     <Sparkles className="w-3 h-3 text-white" />
   </div>
 );
@@ -65,7 +67,7 @@ const AndreaGlobalWidget = () => {
   const [showConversionActions, setShowConversionActions] = useState(false);
   const [callbackRequested, setCallbackRequested] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [messages, setMessages] = useState<{ role: "user" | "andrea"; text: string }[]>([]);
   const [streamingText, setStreamingText] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -111,6 +113,9 @@ const AndreaGlobalWidget = () => {
     const trimmed = question.trim();
     if (!trimmed || isLoading) return;
 
+    // Pad very short questions so the backend doesn't reject them
+    const safeQuestion = trimmed.length < 5 ? trimmed + " (détails)" : trimmed;
+
     setMessages(prev => [...prev, { role: "user", text: trimmed }]);
     setIsLoading(true);
     setIsStreaming(true);
@@ -129,7 +134,7 @@ const AndreaGlobalWidget = () => {
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ question: trimmed }),
+          body: JSON.stringify({ question: safeQuestion }),
           signal: controller.signal,
         }
       );
@@ -137,7 +142,19 @@ const AndreaGlobalWidget = () => {
       if (!response.ok) {
         const errBody = await response.text().catch(() => "");
         console.error("[Andrea] HTTP error", response.status, errBody);
-        throw new Error(`HTTP ${response.status}`);
+
+        if (response.status === 429) {
+          setMessages(prev => [...prev, { role: "andrea", text: "Trop de requêtes en ce moment. Réessayez dans quelques secondes." }]);
+        } else if (response.status === 402) {
+          setMessages(prev => [...prev, { role: "andrea", text: "Service temporairement indisponible. Réessayez plus tard." }]);
+        } else {
+          setMessages(prev => [...prev, { role: "andrea", text: "Je n'ai pas pu traiter votre demande. Reformulez votre question et réessayez." }]);
+        }
+        setIsStreaming(false);
+        setStreamingText("");
+        setIsLoading(false);
+        abortRef.current = null;
+        return;
       }
 
       if (!response.body) throw new Error("No response body");
@@ -186,7 +203,7 @@ const AndreaGlobalWidget = () => {
     } catch (err: any) {
       console.error("[Andrea] Error:", err);
       if (err.name !== "AbortError") {
-        setMessages(prev => [...prev, { role: "andrea", text: "⚠️ Connexion perdue. Réessayez dans un instant." }]);
+        setMessages(prev => [...prev, { role: "andrea", text: "Connexion interrompue. Vérifiez votre réseau et réessayez." }]);
       }
       setIsStreaming(false);
       setStreamingText("");
@@ -247,9 +264,12 @@ const AndreaGlobalWidget = () => {
 
   const hasMessages = messages.length > 0 || isStreaming;
 
+  /* Is Andrea currently "speaking"? Used to trigger reactive neon glow */
+  const isSpeaking = isStreaming && streamingText.length > 0;
+
   return (
     <>
-      {/* ═══════ Floating Bubble ═══════ */}
+      {/* ═══════ Floating Bubble — Glassmorphism round ═══════ */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
@@ -262,37 +282,31 @@ const AndreaGlobalWidget = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="hidden md:block px-4 py-2 text-xs tracking-[0.06em] text-white/70 backdrop-blur-2xl border border-white/8"
-              style={{
-                background: "hsla(0, 0%, 0%, 0.6)",
-                clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-              }}
+              className="hidden md:block px-4 py-2 rounded-xl text-xs tracking-wide text-white/70 backdrop-blur-2xl border border-white/10"
+              style={{ background: "hsla(265, 25%, 10%, 0.6)" }}
             >
               Expertise terrain · <span className="font-bold text-white">Andrea</span>
             </motion.div>
 
             <button
               onClick={handleOpen}
-              className="relative h-16 w-16 flex items-center justify-center hover:scale-110 transition-transform"
+              className="relative h-16 w-16 rounded-2xl flex items-center justify-center hover:scale-110 transition-transform"
               style={{
-                background: "linear-gradient(145deg, hsla(265, 80%, 50%, 0.8), hsla(220, 85%, 45%, 0.8))",
+                background: "linear-gradient(145deg, hsla(265, 80%, 50%, 0.85), hsla(220, 85%, 45%, 0.85))",
                 backdropFilter: "blur(20px) saturate(2)",
                 WebkitBackdropFilter: "blur(20px) saturate(2)",
-                clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
               }}
               aria-label="Parler à Andrea"
             >
+              {/* Neon pulse ring */}
               <motion.span
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
-                  border: "1.5px solid hsla(265, 85%, 60%, 0.5)",
-                }}
+                className="absolute inset-0 rounded-2xl pointer-events-none"
+                style={{ border: "1.5px solid hsla(265, 85%, 60%, 0.5)" }}
                 animate={{
                   boxShadow: [
-                    "0 0 10px hsla(265,85%,55%,0.25), 0 0 4px hsla(0,0%,80%,0.15)",
-                    "0 0 30px hsla(265,85%,55%,0.5), 0 0 12px hsla(0,0%,80%,0.3)",
-                    "0 0 10px hsla(265,85%,55%,0.25), 0 0 4px hsla(0,0%,80%,0.15)",
+                    "0 0 8px hsla(265,85%,55%,0.3), 0 0 3px hsla(265,60%,80%,0.2)",
+                    "0 0 24px hsla(265,85%,55%,0.6), 0 0 8px hsla(265,60%,80%,0.35)",
+                    "0 0 8px hsla(265,85%,55%,0.3), 0 0 3px hsla(265,60%,80%,0.2)",
                   ],
                 }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -303,8 +317,7 @@ const AndreaGlobalWidget = () => {
                   <motion.span
                     initial={{ scale: 0 }} animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 2, repeat: Infinity }} exit={{ scale: 0 }}
-                    className="absolute -top-1 -right-1 h-4 w-4 bg-teal-400 ring-2 ring-background"
-                    style={{ clipPath: "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))" }}
+                    className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-teal-400 ring-2 ring-background"
                   />
                 )}
               </AnimatePresence>
@@ -313,59 +326,66 @@ const AndreaGlobalWidget = () => {
         )}
       </AnimatePresence>
 
-      {/* ═══════ Chat Panel — Noir pur + angles vifs ═══════ */}
+      {/* ═══════ Chat Panel — Cyber-Artisan Glassmorphism ═══════ */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 60, scale: 0.8, rotateX: 12 }}
-            animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-            exit={{ opacity: 0, y: 60, scale: 0.8, rotateX: 12 }}
-            transition={{ type: "spring", damping: 20, stiffness: 240, mass: 0.7 }}
-            className="fixed bottom-6 right-6 z-[9999] w-[440px] max-w-[calc(100vw-2rem)] overflow-hidden flex flex-col"
+            initial={{ opacity: 0, y: 40, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 40, scale: 0.92 }}
+            transition={{ type: "spring", damping: 22, stiffness: 280, mass: 0.6 }}
+            className="fixed bottom-6 right-6 z-[9999] w-[440px] max-w-[calc(100vw-2rem)] rounded-2xl overflow-hidden flex flex-col"
             style={{
               maxHeight: "min(640px, calc(100vh - 6rem))",
-              background: "hsla(0, 0%, 0%, 0.92)",
-              backdropFilter: "blur(28px) saturate(1.6)",
-              WebkitBackdropFilter: "blur(28px) saturate(1.6)",
-              clipPath: "polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))",
-              boxShadow: "0 0 40px hsla(265, 85%, 40%, 0.2), 0 40px 80px -16px rgba(0,0,0,0.6)",
+              background: "hsla(265, 25%, 6%, 0.78)",
+              backdropFilter: "blur(28px) saturate(1.8)",
+              WebkitBackdropFilter: "blur(28px) saturate(1.8)",
+              boxShadow: isSpeaking
+                ? "0 0 40px hsla(265, 85%, 55%, 0.45), 0 0 80px hsla(265, 85%, 55%, 0.15), 0 40px 80px -16px rgba(0,0,0,0.5)"
+                : "0 0 20px hsla(265, 85%, 40%, 0.15), 0 40px 80px -16px rgba(0,0,0,0.5)",
+              transition: "box-shadow 0.5s ease",
             }}
           >
-            {/* Gradient border overlay */}
-            <div className="absolute inset-0 pointer-events-none"
-              style={{
-                clipPath: "polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))",
-                border: "1px solid transparent",
-                background: "linear-gradient(160deg, hsla(265, 90%, 65%, 0.4), hsla(0, 0%, 85%, 0.2), hsla(220, 85%, 55%, 0.3)) border-box",
-                WebkitMask: "linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)",
-                WebkitMaskComposite: "xor",
-                maskComposite: "exclude",
+            {/* Reactive neon border — glows when Andrea speaks */}
+            <motion.div
+              className="absolute inset-0 rounded-2xl pointer-events-none z-10"
+              animate={{
+                boxShadow: isSpeaking
+                  ? [
+                      "inset 0 0 0 1px hsla(265, 85%, 60%, 0.5)",
+                      "inset 0 0 0 1.5px hsla(265, 85%, 65%, 0.7)",
+                      "inset 0 0 0 1px hsla(265, 85%, 60%, 0.5)",
+                    ]
+                  : "inset 0 0 0 1px hsla(265, 75%, 50%, 0.2)",
               }}
+              transition={isSpeaking ? { duration: 1.5, repeat: Infinity, ease: "easeInOut" } : { duration: 0.5 }}
             />
 
             {/* Header */}
-            <div className="relative p-3.5 flex items-center gap-3"
+            <div
+              className="relative p-3.5 flex items-center gap-3 z-20"
               style={{
-                background: "linear-gradient(135deg, hsla(265, 75%, 40%, 0.15), hsla(0, 0%, 50%, 0.04))",
+                background: "linear-gradient(135deg, hsla(265, 60%, 20%, 0.25), hsla(220, 50%, 15%, 0.15))",
                 borderBottom: "1px solid hsla(265, 75%, 55%, 0.12)",
               }}
             >
-              <div className="w-9 h-9 flex items-center justify-center shrink-0"
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                 style={{
                   background: "linear-gradient(145deg, hsl(265, 80%, 50%), hsl(220, 85%, 50%))",
-                  clipPath: "polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px))",
-                  boxShadow: "0 0 18px hsla(265, 85%, 55%, 0.3)",
-                }}>
+                  boxShadow: "0 0 18px hsla(265, 85%, 55%, 0.35)",
+                }}
+              >
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <p className="font-black text-white text-sm tracking-[0.06em] uppercase">Andrea</p>
+                  <p className="font-black text-white text-sm tracking-wide uppercase">Andrea</p>
                   <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 bg-green-400 animate-pulse" style={{ clipPath: "polygon(0 0, calc(100% - 2px) 0, 100% 2px, 100% 100%, 2px 100%, 0 calc(100% - 2px))" }} />
-                  <span className="text-[10px] text-white/40 tracking-[0.08em] uppercase">{ANDREA_HEADER_SUBTITLE}</span>
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-[10px] text-white/40 tracking-wide">{ANDREA_HEADER_SUBTITLE}</span>
                 </div>
               </div>
               <button onClick={() => setIsOpen(false)} className="text-white/30 hover:text-white transition-colors">
@@ -375,8 +395,8 @@ const AndreaGlobalWidget = () => {
 
             {/* Lead bar */}
             {leadData.lead_type && completionPercent > 0 && (
-              <div className="px-4 pt-2 relative">
-                <div className="flex items-center justify-between text-[9px] text-white/35 mb-1 tracking-[0.1em] uppercase">
+              <div className="px-4 pt-2 relative z-20">
+                <div className="flex items-center justify-between text-[9px] text-white/35 mb-1 tracking-widest uppercase">
                   <span>{leadData.lead_type === "particulier" ? "Dossier Client" : "Dossier Pro"}</span>
                   <span>{completionPercent}%</span>
                 </div>
@@ -385,7 +405,7 @@ const AndreaGlobalWidget = () => {
             )}
 
             {/* ─── Content ─── */}
-            <div ref={scrollRef} className="relative flex-1 overflow-y-auto p-4 space-y-3 min-h-[140px] flex flex-col">
+            <div ref={scrollRef} className="relative flex-1 overflow-y-auto p-4 space-y-3 min-h-[140px] flex flex-col z-20">
 
               {/* Welcome */}
               {!hasMessages && (
@@ -400,15 +420,13 @@ const AndreaGlobalWidget = () => {
                     <div className="space-y-2">
                       <button
                         onClick={() => { updateLead({ lead_type: "particulier" }); }}
-                        className="w-full text-left text-[12px] px-3 py-2.5 bg-white/4 hover:bg-white/8 text-white/80 border border-white/6 transition-all hover:border-purple-500/25 tracking-wide"
-                        style={{ clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))" }}
+                        className="w-full text-left text-[12px] px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 border border-white/8 transition-all hover:border-purple-500/30 tracking-wide"
                       >
                         🏠 Je suis un <strong className="text-white">particulier</strong> — travaux, aides, économies
                       </button>
                       <button
                         onClick={() => { updateLead({ lead_type: "artisan" }); setShowArtisanCTA(true); }}
-                        className="w-full text-left text-[12px] px-3 py-2.5 bg-white/4 hover:bg-white/8 text-white/80 border border-white/6 transition-all hover:border-purple-500/25 tracking-wide"
-                        style={{ clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))" }}
+                        className="w-full text-left text-[12px] px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 border border-white/8 transition-all hover:border-purple-500/30 tracking-wide"
                       >
                         🔧 Je suis un <strong className="text-white">artisan</strong> — chantiers & avantages Pro
                       </button>
@@ -437,12 +455,13 @@ const AndreaGlobalWidget = () => {
                       >{msg.text}</motion.p>
                     </AndreaBubbleWrapper>
                   ) : (
-                    <div className="px-4 py-3"
+                    <div
+                      className="px-4 py-3 rounded-2xl"
                       style={{
-                        background: "hsla(0, 0%, 100%, 0.06)",
-                        border: "1px solid hsla(0, 0%, 100%, 0.08)",
-                        clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)",
-                      }}>
+                        background: "hsla(220, 60%, 45%, 0.2)",
+                        border: "1px solid hsla(220, 60%, 55%, 0.15)",
+                      }}
+                    >
                       <p className="text-white text-[13px] leading-relaxed">{msg.text}</p>
                     </div>
                   )}
@@ -452,13 +471,13 @@ const AndreaGlobalWidget = () => {
               {/* Streaming */}
               {isStreaming && streamingText && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="self-start w-full">
-                  <AndreaBubbleWrapper>
+                  <AndreaBubbleWrapper glowing>
                     <AndreaLabel />
                     <p className="text-white text-[13px] leading-relaxed">
                       {streamingText}
                       <motion.span
-                        className="inline-block w-1.5 h-4 ml-0.5 align-text-bottom"
-                        style={{ backgroundColor: "hsl(265, 85%, 55%)" }}
+                        className="inline-block w-1.5 h-4 ml-0.5 align-text-bottom rounded-sm"
+                        style={{ backgroundColor: "hsl(265, 85%, 60%)" }}
                         animate={{ opacity: [1, 0] }}
                         transition={{ duration: 0.5, repeat: Infinity }}
                       />
@@ -476,11 +495,8 @@ const AndreaGlobalWidget = () => {
                       {[0, 1, 2].map((i) => (
                         <motion.span
                           key={i}
-                          className="w-2 h-2"
-                          style={{
-                            background: "linear-gradient(135deg, hsl(265, 85%, 55%), hsl(220, 90%, 55%))",
-                            clipPath: "polygon(0 0, calc(100% - 2px) 0, 100% 2px, 100% 100%, 2px 100%, 0 calc(100% - 2px))",
-                          }}
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: "linear-gradient(135deg, hsl(265, 85%, 55%), hsl(220, 90%, 55%))" }}
                           animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.3, 0.8], y: [0, -5, 0] }}
                           transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
                         />
@@ -497,7 +513,7 @@ const AndreaGlobalWidget = () => {
                     <AndreaBubbleWrapper>
                       <div className="flex items-center gap-2 mb-1.5">
                         <Phone className="w-3.5 h-3.5 text-amber-400" />
-                        <span className="text-[11px] font-black text-amber-400 tracking-[0.1em] uppercase">Téléphone requis</span>
+                        <span className="text-[11px] font-black text-amber-400 tracking-widest uppercase">Téléphone requis</span>
                       </div>
                       <p className="text-white text-[13px] leading-relaxed">{ANDREA_PHONE_RELANCE}</p>
                     </AndreaBubbleWrapper>
@@ -512,22 +528,17 @@ const AndreaGlobalWidget = () => {
                     <AndreaBubbleWrapper className="self-start w-full">
                       <p className="text-white text-[13px] leading-relaxed mb-2">{ANDREA_CONVERSION_ANNONCE}</p>
                       <Button size="sm" onClick={() => { setIsOpen(false); navigate("/demande-devis"); }}
-                        className="w-full gap-2 text-white font-bold text-xs h-9"
-                        style={{
-                          background: "linear-gradient(135deg, hsl(265, 80%, 50%), hsl(220, 85%, 50%))",
-                          clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-                          borderRadius: 0,
-                        }}>
+                        className="w-full gap-2 rounded-xl text-white font-bold text-xs h-9"
+                        style={{ background: "linear-gradient(135deg, hsl(265, 80%, 50%), hsl(220, 85%, 50%))" }}>
                         <FileText className="w-3.5 h-3.5" /> Déposer une annonce
                       </Button>
                     </AndreaBubbleWrapper>
                     <AndreaBubbleWrapper className="self-start w-full">
                       <p className="text-white text-[13px] leading-relaxed mb-2">{ANDREA_CONVERSION_RAPPEL}</p>
                       <Button size="sm" onClick={handleRequestCallback} disabled={callbackRequested}
-                        className={`w-full gap-2 text-xs h-9 font-bold ${
+                        className={`w-full gap-2 rounded-xl text-xs h-9 font-bold ${
                           callbackRequested ? "bg-green-600/20 text-green-400 border border-green-500/30" : "bg-teal-600 hover:bg-teal-500 text-white"
-                        }`}
-                        style={{ clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))", borderRadius: 0 }}>
+                        }`}>
                         {callbackRequested ? (<><CheckCircle2 className="w-3.5 h-3.5" /> Demande enregistrée ✓</>) : (<><PhoneCall className="w-3.5 h-3.5" /> Être rappelé par un expert</>)}
                       </Button>
                     </AndreaBubbleWrapper>
@@ -535,20 +546,30 @@ const AndreaGlobalWidget = () => {
                 )}
               </AnimatePresence>
 
-              {/* Artisan CTA — "Obtenir mon audit de chantier gratuit" */}
+              {/* Artisan CTA — "Obtenir mon audit de chantier gratuit" avec shimmer */}
               <AnimatePresence>
                 {showArtisanCTA && (
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="w-full">
                     <Button
                       onClick={() => { setIsOpen(false); navigate("/inscription-artisan"); }}
-                      className="w-full text-white font-black gap-2 h-11 text-sm hover:opacity-90 tracking-[0.04em] uppercase"
+                      className="relative w-full text-white font-black gap-2 h-12 text-sm hover:opacity-90 tracking-wide uppercase rounded-xl overflow-hidden"
                       style={{
                         background: "linear-gradient(135deg, hsl(265, 80%, 50%), hsl(220, 85%, 50%))",
-                        clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
-                        borderRadius: 0,
-                        boxShadow: "0 0 20px hsla(265, 85%, 50%, 0.25)",
-                      }}>
-                      <ClipboardCheck className="w-4 h-4" /> Obtenir mon audit de chantier gratuit <ArrowRight className="w-4 h-4" />
+                        boxShadow: "0 0 24px hsla(265, 85%, 50%, 0.3)",
+                      }}
+                    >
+                      {/* Shimmer effect */}
+                      <span
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          background: "linear-gradient(100deg, transparent 30%, hsla(0, 0%, 100%, 0.15) 50%, transparent 70%)",
+                          backgroundSize: "200% 100%",
+                          animation: "shimmer 2.5s infinite linear",
+                        }}
+                      />
+                      <ClipboardCheck className="w-4 h-4 relative z-10" />
+                      <span className="relative z-10">Obtenir mon audit chantier gratuit</span>
+                      <ArrowRight className="w-4 h-4 relative z-10" />
                     </Button>
                   </motion.div>
                 )}
@@ -558,8 +579,7 @@ const AndreaGlobalWidget = () => {
               {extractedFields.length > 0 && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-wrap gap-1.5">
                   {extractedFields.slice(0, 6).map(({ key, value }) => (
-                    <span key={key} className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-500/12 text-teal-300 text-[10px] border border-teal-500/15 tracking-[0.06em]"
-                      style={{ clipPath: "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))" }}>
+                    <span key={key} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-teal-500/12 text-teal-300 text-[10px] border border-teal-500/15 tracking-wide">
                       <CheckCircle2 className="w-2.5 h-2.5" />
                       {key}: {value.length > 15 ? value.slice(0, 15) + "…" : value}
                     </span>
@@ -569,48 +589,43 @@ const AndreaGlobalWidget = () => {
 
               {savedId && (
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-2 px-3 py-2 bg-green-500/12 border border-green-500/15 text-green-400 text-xs tracking-[0.06em]"
-                  style={{ clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))" }}>
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-500/12 border border-green-500/15 text-green-400 text-xs tracking-wide">
                   <CheckCircle2 className="w-4 h-4" /> Dossier validé ✓
                 </motion.div>
               )}
             </div>
 
             {/* ─── Input bar ─── */}
-            <div className="relative p-3" style={{ borderTop: "1px solid hsla(265, 75%, 50%, 0.1)", background: "hsla(0, 0%, 0%, 0.95)" }}>
+            <div className="relative p-3 z-20" style={{ borderTop: "1px solid hsla(265, 75%, 50%, 0.1)", background: "hsla(265, 20%, 5%, 0.6)" }}>
               <form onSubmit={handleTextSubmit} className="flex gap-2 items-center">
                 <input
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   placeholder="Décrivez votre projet à Andrea..."
-                  className="flex-1 h-12 border text-[13px] px-5 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all placeholder:text-white/20"
+                  className="flex-1 h-12 rounded-xl text-[13px] px-5 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all placeholder:text-white/25"
                   style={{
-                    borderColor: "hsla(265, 75%, 50%, 0.15)",
-                    backgroundColor: "hsla(0, 0%, 100%, 0.05)",
+                    border: "1px solid hsla(265, 75%, 50%, 0.15)",
+                    backgroundColor: "hsla(0, 0%, 100%, 0.06)",
                     color: "#ffffff",
                     caretColor: "#ffffff",
                     letterSpacing: "0.02em",
-                    clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-                    borderRadius: 0,
                   }}
                   disabled={isLoading}
                 />
                 <Button
                   type="submit"
                   size="icon"
-                  className="h-12 w-12 shrink-0 text-white shadow-lg hover:scale-105 transition-transform"
+                  className="h-12 w-12 rounded-xl shrink-0 text-white shadow-lg hover:scale-105 transition-transform"
                   style={{
-                    background: "linear-gradient(145deg, hsl(220, 85%, 50%), hsl(265, 80%, 50%))",
-                    boxShadow: "0 0 18px hsla(265, 85%, 50%, 0.25)",
-                    clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-                    borderRadius: 0,
+                    background: "linear-gradient(145deg, hsl(265, 80%, 55%), hsl(265, 85%, 45%))",
+                    boxShadow: "0 0 18px hsla(265, 85%, 50%, 0.3)",
                   }}
                   disabled={isLoading || !textInput.trim()}
                 >
                   <Send className="h-5 w-5" />
                 </Button>
               </form>
-              <p className="text-[9px] text-white/20 text-center mt-2 tracking-[0.12em] uppercase">
+              <p className="text-[9px] text-white/20 text-center mt-2 tracking-widest uppercase">
                 20 ans de terrain · Roubaix · Hauts-de-France
               </p>
             </div>
