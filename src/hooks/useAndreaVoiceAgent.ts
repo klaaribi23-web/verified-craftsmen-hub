@@ -15,6 +15,7 @@ export const useAndreaVoiceAgent = () => {
   const [showTextFallback, setShowTextFallback] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const [lastRawMessage, setLastRawMessage] = useState<string | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -80,7 +81,9 @@ export const useAndreaVoiceAgent = () => {
       toast("Andrea déconnectée", { duration: 3000 });
     },
     onMessage: (message: any) => {
-      console.log("[Andrea Voice] Message:", JSON.stringify(message));
+      const raw = JSON.stringify(message);
+      console.log("[Andrea Voice] Message:", raw);
+      setLastRawMessage(raw.slice(0, 200));
       const msgStr = typeof message === "string" ? message : JSON.stringify(message);
 
       // Capture agent text responses for fallback display
@@ -359,8 +362,23 @@ export const useAndreaVoiceAgent = () => {
     clearResponseTimeout();
     setLastAgentText(null);
     setShowTextFallback(false);
+    setLastRawMessage(null);
     try { await conversation.endSession(); } catch {}
   }, [conversation, stopMicMonitor, clearResponseTimeout]);
+
+  // Force commit: send empty message to trigger agent response
+  const forceCommit = useCallback(() => {
+    if (conversation.status === "connected") {
+      console.log("[Andrea Voice] 🔨 Force commit: sending empty user message");
+      try {
+        conversation.sendUserMessage("...");
+        setIsThinking(true);
+        toast("Commit envoyé à Andrea 📤", { duration: 2000 });
+      } catch (e) {
+        console.error("[Andrea Voice] Force commit failed:", e);
+      }
+    }
+  }, [conversation]);
 
   // Manual unlock audio for "Activer le son" button
   const unlockAudio = useCallback(() => {
@@ -381,6 +399,7 @@ export const useAndreaVoiceAgent = () => {
   return {
     startConversation,
     endConversation,
+    forceCommit,
     resetMic,
     unlockAudio,
     isConnecting,
@@ -394,6 +413,7 @@ export const useAndreaVoiceAgent = () => {
     status: conversation.status,
     error,
     lastAgentText,
+    lastRawMessage,
     showTextFallback,
     audioBlocked,
   };
