@@ -169,68 +169,45 @@ const AndreaGlobalWidget = () => {
     setTextInput("");
   };
 
-  // Speech-to-Text toggle — Web Speech API only, zero ElevenLabs
+  // Speech-to-Text — brute webkitSpeechRecognition, zero abstraction
   const toggleListening = useCallback(() => {
+    console.log("[STT] toggle called, isListening=", isListening);
+
     if (isListening && recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch { /* already stopped */ }
+      console.log("[STT] Stopping recognition...");
+      try { recognitionRef.current.stop(); } catch (e) { console.error("[STT] stop error:", e); }
       recognitionRef.current = null;
       setIsListening(false);
       return;
     }
 
-    // Clean up any leftover instance
-    if (recognitionRef.current) {
-      try { recognitionRef.current.abort?.(); recognitionRef.current.stop(); } catch { /* ok */ }
-      recognitionRef.current = null;
-    }
-
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) { toast.error("Reconnaissance vocale non supportée.", { duration: 2000 }); return; }
+    const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    console.log("[STT] webkitSpeechRecognition available:", !!SR);
+    if (!SR) { toast.error("Reconnaissance vocale non supportée."); return; }
 
     const recognition = new SR();
     recognition.lang = "fr-FR";
-    recognition.continuous = true;
+    recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
 
-    let finalTranscript = "";
-    let silenceTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const clearSilence = () => { if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; } };
-
-    const resetSilenceTimer = () => {
-      clearSilence();
-      silenceTimer = setTimeout(() => {
-        try { recognition.stop(); } catch { /* ok */ }
-      }, 2000);
+    recognition.onstart = () => {
+      console.log("[STT] ✅ onstart fired — listening");
     };
 
     recognition.onresult = (event: any) => {
-      resetSilenceTimer();
-      let interim = "";
-      for (let i = 0; i < event.results.length; i++) {
-        const r = event.results[i];
-        if (r.isFinal) {
-          finalTranscript += r[0].transcript;
-        } else {
-          interim += r[0].transcript;
-        }
-      }
-      setTextInput(finalTranscript + interim);
+      const transcript = event.results[0][0].transcript;
+      console.log("[STT] 📝 onresult:", transcript);
+      setTextInput(transcript);
     };
 
     recognition.onerror = (event: any) => {
-      clearSilence();
-      console.warn("[STT] error:", event.error);
+      console.error("[STT] ❌ onerror:", event.error);
       recognitionRef.current = null;
       setIsListening(false);
-      if (event.error === "not-allowed" || event.error === "denied") {
-        toast.error("Micro bloqué. Autorisez l'accès dans les paramètres.", { duration: 2000 });
-      }
     };
 
     recognition.onend = () => {
-      clearSilence();
+      console.log("[STT] 🔴 onend fired");
       recognitionRef.current = null;
       setIsListening(false);
     };
@@ -239,10 +216,11 @@ const AndreaGlobalWidget = () => {
     try {
       recognition.start();
       setIsListening(true);
+      console.log("[STT] 🎙️ start() OK");
     } catch (e) {
-      console.error("[STT] start failed:", e);
+      console.error("[STT] ❌ start() failed:", e);
       recognitionRef.current = null;
-      toast.error("Impossible d'activer le micro.", { duration: 2000 });
+      toast.error("Impossible d'activer le micro.");
     }
   }, [isListening]);
 
