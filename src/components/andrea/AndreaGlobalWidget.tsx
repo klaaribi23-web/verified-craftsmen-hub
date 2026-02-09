@@ -100,39 +100,59 @@ const AndreaGlobalWidget = () => {
         }
       );
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) {
+        const errBody = await response.text().catch(() => "");
+        console.error("[Andrea] HTTP error", response.status, errBody);
+        throw new Error(`HTTP ${response.status}`);
+      }
 
-      const reader = response.body!.getReader();
+      if (!response.body) throw new Error("No response body");
+
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullText = "";
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n");
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6).trim();
-            if (data === "[DONE]") continue;
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.text) {
-                fullText += parsed.text;
-                setStreamingText(fullText);
-              }
-            } catch {}
+        buffer += decoder.decode(value, { stream: true });
+
+        let newlineIdx: number;
+        while ((newlineIdx = buffer.indexOf("\n")) !== -1) {
+          let line = buffer.slice(0, newlineIdx);
+          buffer = buffer.slice(newlineIdx + 1);
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (!line.startsWith("data: ")) continue;
+
+          const data = line.slice(6).trim();
+          if (data === "[DONE]") continue;
+
+          try {
+            const parsed = JSON.parse(data);
+            const content = parsed.text || parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              fullText += content;
+              setStreamingText(fullText);
+            }
+          } catch {
+            // partial JSON, skip
           }
         }
       }
 
-      setMessages(prev => [...prev, { role: "andrea", text: fullText }]);
+      if (fullText) {
+        setMessages(prev => [...prev, { role: "andrea", text: fullText }]);
+      } else {
+        setMessages(prev => [...prev, { role: "andrea", text: "Désolé, je n'ai pas pu formuler de réponse. Réessayez." }]);
+      }
       setStreamingText("");
       setIsStreaming(false);
       if (!isOpen) setHasNewResponse(true);
     } catch (err: any) {
+      console.error("[Andrea] Error:", err);
       if (err.name !== "AbortError") {
-        toast.error("Impossible de contacter Andrea. Réessayez.");
+        setMessages(prev => [...prev, { role: "andrea", text: "⚠️ Connexion perdue. Réessayez dans un instant." }]);
       }
       setIsStreaming(false);
       setStreamingText("");
@@ -527,37 +547,57 @@ const AndreaGlobalWidget = () => {
             </div>
 
             {/* Input bar */}
-            <div className="p-3" style={{ borderTop: "1px solid hsla(265, 90%, 65%, 0.15)", backgroundColor: "hsla(222, 47%, 8%, 0.6)" }}>
-              <form onSubmit={handleTextSubmit} className="flex gap-2">
+            <div className="p-3" style={{ borderTop: "1px solid hsla(265, 90%, 65%, 0.15)", backgroundColor: "hsla(222, 47%, 8%, 0.9)" }}>
+              {/* Mic listening indicator */}
+              <AnimatePresence>
+                {isListening && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    className="text-[11px] text-red-400 text-center mb-2 flex items-center justify-center gap-1.5"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    Parlez maintenant… (cliquez 🎙️ pour arrêter)
+                  </motion.p>
+                )}
+              </AnimatePresence>
+              <form onSubmit={handleTextSubmit} className="flex gap-2 items-center">
                 <input
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   placeholder="Posez votre question ici…"
-                  className="flex-1 h-10 rounded-full bg-white/8 border text-white text-sm px-4 placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-                  style={{ borderColor: "hsla(265, 90%, 65%, 0.2)" }}
+                  className="flex-1 h-11 rounded-full border text-sm px-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                  style={{
+                    borderColor: "hsla(265, 90%, 65%, 0.3)",
+                    backgroundColor: "hsla(0, 0%, 100%, 0.12)",
+                    color: "#ffffff",
+                    caretColor: "#ffffff",
+                  }}
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={toggleListening}
                   disabled={isLoading}
-                  className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center transition-all ${
+                  className={`h-11 w-11 shrink-0 rounded-full flex items-center justify-center transition-all ${
                     isListening
-                      ? "bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-[0_0_12px_hsla(0,80%,50%,0.4)]"
+                      ? "bg-red-500 hover:bg-red-600 text-white shadow-[0_0_16px_hsla(0,80%,50%,0.5)]"
                       : "bg-white/10 hover:bg-white/15 text-white/70"
                   }`}
+                  style={isListening ? { animation: "pulse 1s ease-in-out infinite" } : undefined}
                   aria-label={isListening ? "Arrêter le micro" : "Dicter ma question"}
                 >
-                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
                 </button>
                 <Button
                   type="submit"
                   size="icon"
-                  className="h-10 w-10 shrink-0 rounded-full text-white"
-                  style={{ background: "linear-gradient(135deg, hsl(265, 85%, 55%), hsl(220, 90%, 55%))" }}
+                  className="h-12 w-12 shrink-0 rounded-full text-white shadow-lg hover:scale-105 transition-transform"
+                  style={{ background: "linear-gradient(135deg, hsl(220, 90%, 55%), hsl(265, 85%, 55%))" }}
                   disabled={isLoading || !textInput.trim()}
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-5 w-5" />
                 </Button>
               </form>
               <p className="text-[10px] text-white/30 text-center mt-2">
