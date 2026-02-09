@@ -92,6 +92,28 @@ serve(async (req) => {
 
       if (error) throw error;
       insertResult = inserted;
+    } else if (lead_type === "expert_call") {
+      // Expert callback request — marked as prioritaire
+      const { data: inserted, error } = await supabase
+        .from("expert_calls")
+        .insert([{
+          nom: data.nom || null,
+          prenom: data.prenom || null,
+          telephone: data.telephone || null,
+          email: data.email || null,
+          ville: data.ville || null,
+          code_postal: data.code_postal || null,
+          description: data.description || null,
+          type_demande: data.type_demande || "rappel_expert",
+          status: "prioritaire",
+          source_page: source_page || null,
+          conversation_id: conversation_id || null,
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      insertResult = inserted;
     } else {
       return new Response(JSON.stringify({ error: "Invalid lead_type" }), {
         status: 400,
