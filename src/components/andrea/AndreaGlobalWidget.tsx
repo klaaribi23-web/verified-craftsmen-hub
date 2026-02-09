@@ -109,6 +109,14 @@ const AndreaGlobalWidget = () => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, streamingText, isLoading]);
 
+  // Mobile keyboard: update --vh custom property so chat resizes when virtual keyboard opens
+  useEffect(() => {
+    const setVh = () => document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+    setVh();
+    window.addEventListener("resize", setVh);
+    return () => window.removeEventListener("resize", setVh);
+  }, []);
+
   const handleAsk = useCallback(async (question: string) => {
     const trimmed = question.trim();
     if (!trimmed || isLoading) return;
@@ -334,9 +342,9 @@ const AndreaGlobalWidget = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.92 }}
             transition={{ type: "spring", damping: 22, stiffness: 280, mass: 0.6 }}
-            className="fixed bottom-6 right-6 z-[9999] w-[440px] max-w-[calc(100vw-2rem)] rounded-2xl overflow-hidden flex flex-col"
+            className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-[9999] w-full sm:w-[440px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl rounded-t-2xl overflow-hidden flex flex-col"
             style={{
-              maxHeight: "min(640px, calc(100vh - 6rem))",
+              maxHeight: "min(640px, calc(var(--vh, 1vh) * 100 - 2rem))",
               background: "hsla(222, 30%, 8%, 0.82)",
               backdropFilter: "blur(28px) saturate(1.8)",
               WebkitBackdropFilter: "blur(28px) saturate(1.8)",
@@ -549,13 +557,17 @@ const AndreaGlobalWidget = () => {
               {/* Artisan CTA — "Je veux être validé" avec shimmer */}
               <AnimatePresence>
                 {showArtisanCTA && (
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="w-full">
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="w-full space-y-1.5">
+                    <p className="text-[10px] text-center tracking-wide" style={{ color: "hsla(45, 90%, 65%, 0.7)" }}>
+                      Déjà +200 artisans labellisés dans les Hauts-de-France
+                    </p>
                     <Button
                       onClick={() => { setIsOpen(false); navigate("/inscription-artisan"); }}
-                      className="relative w-full text-white font-black gap-2 h-10 text-sm hover:opacity-90 tracking-wide uppercase rounded-xl overflow-hidden"
+                      className="relative w-full font-black gap-2 h-10 text-sm hover:opacity-90 tracking-wide uppercase rounded-xl overflow-hidden"
                       style={{
-                        background: "linear-gradient(135deg, hsl(265, 80%, 50%), hsl(220, 85%, 50%))",
-                        boxShadow: "0 0 24px hsla(265, 85%, 50%, 0.3)",
+                        background: "linear-gradient(135deg, hsl(30, 90%, 50%), hsl(45, 93%, 47%))",
+                        boxShadow: "0 0 24px hsla(35, 90%, 50%, 0.35)",
+                        color: "#ffffff",
                       }}
                     >
                       {/* Shimmer effect */}
