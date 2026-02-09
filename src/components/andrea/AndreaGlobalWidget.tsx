@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Sparkles, X, Mic, Loader2, Phone, Send, CheckCircle2, ShieldCheck, ArrowRight } from "lucide-react";
+import { Sparkles, X, Mic, Loader2, Phone, Send, CheckCircle2, ShieldCheck, ArrowRight, FileText, PhoneCall } from "lucide-react";
 import {
   ANDREA_TOOLTIP,
   ANDREA_WELCOME,
@@ -8,6 +8,10 @@ import {
   ANDREA_PARTICULIER_PITCH,
   ANDREA_HEADER_SUBTITLE,
   ANDREA_PHONE_RELANCE,
+  ANDREA_STEP_BY_STEP_PARTICULIER,
+  ANDREA_STEP_BY_STEP_ARTISAN,
+  ANDREA_CONVERSION_ANNONCE,
+  ANDREA_CONVERSION_RAPPEL,
 } from "@/config/andreaMessages";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,18 +21,20 @@ import MicWaveform from "@/components/home/MicWaveform";
 import ThinkingDots from "@/components/home/ThinkingDots";
 import VoiceErrorBoundary from "@/components/home/VoiceErrorBoundary";
 import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const PAGE_CONTEXT: Record<string, string> = {
-  "/nos-missions": "L'utilisateur consulte les missions/chantiers disponibles. Aide-le à trouver des chantiers adaptés.",
-  "/trouver-artisan": "L'utilisateur recherche un artisan. Aide-le à trouver le bon professionnel. Tu peux aussi le conseiller sur les aides d'État (MaPrimeRénov, CEE) et les économies d'énergie.",
-  "/demande-devis": "L'utilisateur veut déposer un projet ou demander un devis. Propose-lui aussi un Appel Expert si besoin d'aide sur MaPrimeRénov ou économies d'énergie.",
-  "/devenir-artisan": "L'utilisateur est un artisan qui veut rejoindre le réseau. Mets en avant la technologie exclusive : Andrea travaille pour lui pendant qu'il est sur le chantier. Qualifie-le comme lead artisan.",
-  "/inscription-artisan": "L'utilisateur est sur la page d'inscription artisan. Encourage-le à finaliser son inscription Pro.",
-  "/artisan/dashboard": "L'utilisateur est un artisan connecté sur son tableau de bord.",
-  "/artisan/abonnement": "L'utilisateur consulte les offres d'abonnement artisan.",
+  "/nos-missions": "L'utilisateur consulte les missions/chantiers disponibles.",
+  "/trouver-artisan": "L'utilisateur recherche un artisan. Conseille aussi sur MaPrimeRénov, CEE et économies d'énergie.",
+  "/demande-devis": "L'utilisateur veut un devis. Propose un Appel Expert si besoin.",
+  "/devenir-artisan": "L'utilisateur est un artisan. Mets en avant la technologie exclusive.",
+  "/inscription-artisan": "L'utilisateur est sur la page d'inscription artisan.",
+  "/artisan/dashboard": "L'utilisateur est un artisan connecté.",
+  "/artisan/abonnement": "L'utilisateur consulte les offres d'abonnement.",
   "/client/dashboard": "L'utilisateur est un client connecté.",
-  "/comment-ca-marche": "L'utilisateur veut comprendre le fonctionnement. Mentionne les aides d'État et économies d'énergie si pertinent.",
-  "/": "Page d'accueil. Tu es Andrea, Super-IA Experte en bâtiment. Tu conseilles sur les travaux, les aides d'État (MaPrimeRénov, CEE), les économies d'énergie (comparatif gaz/élec/téléphonie) et tu qualifies les leads.",
+  "/comment-ca-marche": "L'utilisateur veut comprendre le fonctionnement.",
+  "/": "Page d'accueil.",
 };
 
 const getPageContext = (pathname: string): string | null => {
@@ -44,6 +50,8 @@ const AndreaGlobalWidget = () => {
   const [hasNewResponse, setHasNewResponse] = useState(false);
   const [showArtisanCTA, setShowArtisanCTA] = useState(false);
   const [phoneRelanceShown, setPhoneRelanceShown] = useState(false);
+  const [showConversionActions, setShowConversionActions] = useState(false);
+  const [callbackRequested, setCallbackRequested] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -80,6 +88,13 @@ const AndreaGlobalWidget = () => {
     }
   }, [isConnected, leadData, savedId, saveLead, location.pathname, phoneRelanceShown, lastAgentText]);
 
+  // Show conversion actions after lead is saved for particuliers
+  useEffect(() => {
+    if (savedId && leadData.lead_type === "particulier") {
+      setShowConversionActions(true);
+    }
+  }, [savedId, leadData.lead_type]);
+
   // Show artisan CTA when lead type is artisan or on relevant pages
   useEffect(() => {
     if (leadData.lead_type === "artisan" || location.pathname === "/devenir-artisan") {
@@ -95,14 +110,14 @@ const AndreaGlobalWidget = () => {
     }
   }, [lastAgentText, isOpen]);
 
-  // Auto-scroll text bubble
+  // Auto-scroll to TOP of new message so user reads from the beginning
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTop = 0;
     }
   }, [lastAgentText, isThinking]);
 
-  // Send page context when connecting
+  // Send page context + step-by-step instructions when connecting
   useEffect(() => {
     if (isConnected) {
       const ctx = getPageContext(location.pathname);
@@ -114,6 +129,28 @@ const AndreaGlobalWidget = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, location.pathname]);
+
+  const handleStartParticulier = useCallback(() => {
+    updateLead({ lead_type: "particulier" });
+    startConversation();
+    // Send step-by-step instructions after a small delay for connection
+    setTimeout(() => {
+      try {
+        sendTextMessage(ANDREA_STEP_BY_STEP_PARTICULIER);
+      } catch {}
+    }, 1500);
+  }, [startConversation, sendTextMessage, updateLead]);
+
+  const handleStartArtisan = useCallback(() => {
+    updateLead({ lead_type: "artisan" });
+    setShowArtisanCTA(true);
+    startConversation();
+    setTimeout(() => {
+      try {
+        sendTextMessage(ANDREA_STEP_BY_STEP_ARTISAN);
+      } catch {}
+    }, 1500);
+  }, [startConversation, sendTextMessage, updateLead, setShowArtisanCTA]);
 
   const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,7 +173,38 @@ const AndreaGlobalWidget = () => {
     resetLead();
     setShowArtisanCTA(false);
     setPhoneRelanceShown(false);
+    setShowConversionActions(false);
+    setCallbackRequested(false);
   };
+
+  // Expert callback — mark lead as prioritaire
+  const handleRequestCallback = useCallback(async () => {
+    if (!savedId || callbackRequested) return;
+    setCallbackRequested(true);
+    try {
+      // Save as expert_call with status prioritaire
+      await supabase.functions.invoke("save-andrea-lead", {
+        body: {
+          lead_type: "expert_call",
+          data: {
+            nom: leadData.nom || null,
+            prenom: leadData.prenom || null,
+            telephone: leadData.telephone || null,
+            email: leadData.email || null,
+            ville: leadData.ville || null,
+            code_postal: leadData.code_postal || null,
+            description: leadData.description_projet || leadData.type_projet || null,
+            type_demande: "rappel_expert",
+          },
+          source_page: location.pathname,
+        },
+      });
+      toast.success("Un expert vous rappellera très bientôt !");
+    } catch {
+      toast.error("Erreur, réessayez.");
+      setCallbackRequested(false);
+    }
+  }, [savedId, callbackRequested, leadData, location.pathname]);
 
   // Don't show on admin pages
   if (location.pathname.startsWith("/admin")) return null;
@@ -324,13 +392,13 @@ const AndreaGlobalWidget = () => {
                   <p className="text-white text-[13.5px] leading-relaxed mb-3">{ANDREA_WELCOME}</p>
                   <div className="space-y-2">
                     <button
-                      onClick={() => { sendTextMessage(ANDREA_PARTICULIER_PITCH); startConversation(); }}
+                      onClick={handleStartParticulier}
                       className="w-full text-left text-[12px] px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 transition-colors"
                     >
                       🏠 Je suis un <strong>particulier</strong> — travaux, aides, économies
                     </button>
                     <button
-                      onClick={() => { setShowArtisanCTA(true); startConversation(); }}
+                      onClick={handleStartArtisan}
                       className="w-full text-left text-[12px] px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 transition-colors"
                     >
                       🔧 Je suis un <strong>artisan</strong> — chantiers & avantages Pro
@@ -380,6 +448,65 @@ const AndreaGlobalWidget = () => {
                 )}
               </AnimatePresence>
 
+              {/* Post-capture conversion actions for particuliers */}
+              <AnimatePresence>
+                {showConversionActions && leadData.lead_type === "particulier" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="space-y-2"
+                  >
+                    <div
+                      className="self-start w-[92%] rounded-2xl rounded-bl-sm px-4 py-3"
+                      style={{ backgroundColor: "#1A1A1A" }}
+                    >
+                      <p className="text-white text-[13px] leading-relaxed mb-2">{ANDREA_CONVERSION_ANNONCE}</p>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setIsOpen(false);
+                          navigate("/demande-devis");
+                        }}
+                        className="w-full gap-2 bg-gold hover:bg-gold/90 text-navy-dark font-semibold text-xs h-9 rounded-lg"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        Déposer une annonce
+                      </Button>
+                    </div>
+                    <div
+                      className="self-start w-[92%] rounded-2xl rounded-bl-sm px-4 py-3"
+                      style={{ backgroundColor: "#1A1A1A" }}
+                    >
+                      <p className="text-white text-[13px] leading-relaxed mb-2">{ANDREA_CONVERSION_RAPPEL}</p>
+                      <Button
+                        size="sm"
+                        onClick={handleRequestCallback}
+                        disabled={callbackRequested}
+                        className={`w-full gap-2 text-xs h-9 rounded-lg font-semibold ${
+                          callbackRequested
+                            ? "bg-green-600/20 text-green-400 border border-green-500/30"
+                            : "bg-teal-600 hover:bg-teal-500 text-white"
+                        }`}
+                      >
+                        {callbackRequested ? (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Demande enregistrée ✓
+                          </>
+                        ) : (
+                          <>
+                            <PhoneCall className="w-3.5 h-3.5" />
+                            Être rappelé par un expert
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Artisan CTA */}
               <AnimatePresence>
                 {showArtisanCTA && (
                   <motion.div
