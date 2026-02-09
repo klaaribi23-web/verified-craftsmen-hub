@@ -60,7 +60,7 @@ const AndreaGlobalWidget = () => {
   const {
     startConversation, isConnecting, isConnected, isSpeaking, isThinking,
     isGeneratingAudio, micActive, micLevel, stopConversation, hardReset, micPermission,
-    requestMicPermission, lastAgentText, error,
+    requestMicPermission, lastAgentText, error, audioBlocked,
     callingIndicator, micStatus,
     sendTextMessage,
   } = useAndreaVoiceAgent();
@@ -378,6 +378,30 @@ const AndreaGlobalWidget = () => {
                     <div className="flex items-center justify-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-teal-400" />
                       <span className="text-xs text-teal-400 font-medium">🗣️ Andrea parle…</span>
+                    </div>
+                  )}
+                  {/* Audio blocked alert + test sound */}
+                  {audioBlocked && isConnected && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive">
+                      <span>⚠️ Son bloqué par le navigateur.</span>
+                      <button
+                        onClick={() => {
+                          try {
+                            const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+                            const osc = ctx.createOscillator();
+                            osc.frequency.value = 440;
+                            osc.connect(ctx.destination);
+                            osc.start();
+                            setTimeout(() => { osc.stop(); ctx.close(); }, 200);
+                            toast.success("Son OK ✅");
+                          } catch {
+                            toast.error("Audio impossible — vérifiez vos paramètres");
+                          }
+                        }}
+                        className="underline font-semibold whitespace-nowrap"
+                      >
+                        Test Son 🔈
+                      </button>
                     </div>
                   )}
                   {isConnected && micStatus && !isThinking && !isGeneratingAudio && !isSpeaking && (
