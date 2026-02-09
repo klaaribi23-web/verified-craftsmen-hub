@@ -4,16 +4,17 @@ import { RefreshCw } from "lucide-react";
 interface MicWaveformProps {
   level: number; // 0-1
   isActive: boolean;
-  isThinking?: boolean; // Agent is processing, not yet speaking
+  isThinking?: boolean;
+  isSpeaking?: boolean;
   onReset: () => void;
   className?: string;
 }
 
-const MicWaveform = ({ level, isActive, isThinking = false, onReset, className = "" }: MicWaveformProps) => {
+const MicWaveform = ({ level, isActive, isThinking = false, isSpeaking = false, onReset, className = "" }: MicWaveformProps) => {
   const bars = 5;
 
-  // Determine bar color: gold=listening, blue=thinking, dim=silent
-  const barColor = isThinking ? "bg-blue-400" : "bg-gold";
+  // Determine bar color: gold=listening, turquoise=speaking, blue=thinking
+  const barColor = isThinking ? "bg-blue-400" : isSpeaking ? "bg-teal-400" : "bg-gold";
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
