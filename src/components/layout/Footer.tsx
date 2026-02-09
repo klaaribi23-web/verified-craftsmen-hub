@@ -134,11 +134,22 @@ const Footer = () => {
           <nav aria-label="Informations légales">
             <h2 className="font-semibold text-white mb-4">Informations</h2>
             <ul className="space-y-3">
-              {footerLinks.legal.map(link => <li key={link.href}>
+          {footerLinks.legal.map(link => <li key={link.href}>
                   <Link to={link.href} className="text-sm text-white/70 hover:text-gold transition-colors">
                     {link.label}
                   </Link>
                 </li>)}
+              <li>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("artisans-valides-cookie-preferences");
+                    window.location.reload();
+                  }}
+                  className="text-sm text-white/70 hover:text-gold transition-colors cursor-pointer bg-transparent border-none p-0"
+                >
+                  Gestion des cookies
+                </button>
+              </li>
             </ul>
           </nav>
 
