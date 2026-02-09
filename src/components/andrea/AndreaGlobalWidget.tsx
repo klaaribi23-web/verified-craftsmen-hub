@@ -62,7 +62,7 @@ const AndreaGlobalWidget = () => {
     isGeneratingAudio, micActive, micLevel, stopConversation, hardReset, micPermission,
     requestMicPermission, lastAgentText, error, audioBlocked,
     callingIndicator, micStatus,
-    sendTextMessage,
+    sendTextMessage, ttsLoading, ttsProgress, playTtsFallback,
   } = useAndreaVoiceAgent();
 
   const {
@@ -368,10 +368,19 @@ const AndreaGlobalWidget = () => {
                       <span className="text-xs text-gold/70">Andrea réfléchit…</span>
                     </div>
                   )}
-                  {isConnected && isGeneratingAudio && !isSpeaking && (
+                  {isConnected && isGeneratingAudio && !isSpeaking && !ttsLoading && (
                     <div className="flex items-center justify-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" />
                       <span className="text-xs text-teal-400 animate-pulse">🔊 Synthèse vocale en cours…</span>
+                    </div>
+                  )}
+                  {ttsLoading && (
+                    <div className="space-y-1.5 px-1">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-3 h-3 text-teal-400 animate-spin" />
+                        <span className="text-xs text-teal-400">Chargement audio MP3… {ttsProgress}%</span>
+                      </div>
+                      <Progress value={ttsProgress} className="h-1.5" />
                     </div>
                   )}
                   {isConnected && isSpeaking && (
@@ -380,42 +389,38 @@ const AndreaGlobalWidget = () => {
                       <span className="text-xs text-teal-400 font-medium">🗣️ Andrea parle…</span>
                     </div>
                   )}
-                  {/* Audio blocked alert + test sound */}
+                  {/* Audio blocked alert + test sound → now triggers MP3 fallback */}
                    {audioBlocked && isConnected && (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive">
-                      <span>⚠️ Son bloqué par le navigateur.</span>
-                      <button
-                        onClick={() => {
-                          try {
-                            const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-                            const osc = ctx.createOscillator();
-                            osc.frequency.value = 440;
-                            const gain = ctx.createGain();
-                            gain.gain.value = 0.15;
-                            osc.connect(gain);
-                            gain.connect(ctx.destination);
-                            osc.start();
-                            setTimeout(() => { osc.stop(); ctx.close(); }, 200);
-                            // Force all audio elements to play after unlock
-                            document.querySelectorAll("audio, video").forEach((el) => {
-                              const media = el as HTMLMediaElement;
-                              media.volume = 1.0;
-                              media.muted = false;
-                              if (media.paused && media.src) media.play().catch(() => {});
-                            });
-                            // Ask Andrea to speak a confirmation phrase
-                            setTimeout(() => {
-                              sendTextMessage("[SYSTÈME] L'utilisateur a cliqué sur Test Son. Dis exactement : Le son est maintenant activé, je vous écoute !");
-                            }, 300);
-                            toast.success("Son déverrouillé ✅ Andrea va parler…");
-                          } catch {
-                            toast.error("Audio impossible — vérifiez vos paramètres");
-                          }
-                        }}
-                        className="underline font-semibold whitespace-nowrap"
-                      >
-                        Test Son 🔈
-                      </button>
+                    <div className="flex flex-col gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive">
+                      <div className="flex items-center gap-2">
+                        <span>⚠️ Son WebRTC bloqué — utilisation du mode MP3 direct.</span>
+                        <button
+                          onClick={() => {
+                            try {
+                              // Beep to unlock audio pipeline
+                              const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+                              const osc = ctx.createOscillator();
+                              osc.frequency.value = 440;
+                              const gain = ctx.createGain();
+                              gain.gain.value = 0.15;
+                              osc.connect(gain);
+                              gain.connect(ctx.destination);
+                              osc.start();
+                              setTimeout(() => { osc.stop(); ctx.close(); }, 200);
+                              // Trigger MP3 TTS fallback with confirmation phrase
+                              setTimeout(() => {
+                                playTtsFallback("Le son est maintenant activé, je vous écoute !");
+                              }, 300);
+                              toast.success("Son déverrouillé ✅ Lecture MP3…");
+                            } catch {
+                              toast.error("Audio impossible — vérifiez vos paramètres");
+                            }
+                          }}
+                          className="underline font-semibold whitespace-nowrap"
+                        >
+                          Test Son 🔈
+                        </button>
+                      </div>
                     </div>
                   )}
                   {isConnected && micStatus && !isThinking && !isGeneratingAudio && !isSpeaking && (

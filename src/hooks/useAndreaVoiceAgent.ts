@@ -47,6 +47,10 @@ export const useAndreaVoiceAgent = () => {
   const [callingIndicator, setCallingIndicator] = useState(false);
   const [micStatus, setMicStatus] = useState<string | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [ttsLoading, setTtsLoading] = useState(false);
+  const [ttsProgress, setTtsProgress] = useState(0);
+  const ttsFallbackTriedRef = useRef<string | null>(null);
+  const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const analyserRef = useRef<AnalyserNode | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
@@ -341,27 +345,72 @@ export const useAndreaVoiceAgent = () => {
     }
   }, [conversation.isSpeaking, conversation]);
 
-  // Detect stuck "generating" state — if isGeneratingAudio stays true for 10s without isSpeaking, force fallback
+  // Direct MP3 TTS fallback — bypasses WebRTC audio entirely
+  const playTtsFallback = useCallback(async (text: string) => {
+    if (ttsLoading || ttsFallbackTriedRef.current === text) return;
+    ttsFallbackTriedRef.current = text;
+    setTtsLoading(true);
+    setTtsProgress(10);
+    console.log("[Andrea Voice] 🔊 TTS fallback — downloading MP3 directly");
+    try {
+      setTtsProgress(30);
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
+      setTtsProgress(70);
+      if (!response.ok) throw new Error(`TTS HTTP ${response.status}`);
+      const blob = await response.blob();
+      setTtsProgress(90);
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.volume = 1.0;
+      ttsAudioRef.current = audio;
+      audio.onended = () => {
+        URL.revokeObjectURL(url);
+        setTtsLoading(false);
+        setTtsProgress(0);
+        setIsGeneratingAudio(false);
+      };
+      audio.onerror = () => {
+        console.error("[Andrea Voice] TTS audio playback error");
+        setTtsLoading(false);
+        setTtsProgress(0);
+      };
+      setTtsProgress(100);
+      await audio.play();
+      setAudioBlocked(false);
+      setIsGeneratingAudio(false);
+      console.log("[Andrea Voice] ✅ TTS fallback playing");
+    } catch (e) {
+      console.error("[Andrea Voice] TTS fallback failed:", e);
+      setTtsLoading(false);
+      setTtsProgress(0);
+      setShowTextFallback(true);
+    }
+  }, [ttsLoading]);
+
+  // Detect stuck "generating" state — if isGeneratingAudio stays true for 6s without isSpeaking, use TTS fallback
   useEffect(() => {
     if (isGeneratingAudio && !conversation.isSpeaking) {
       const stuckTimer = setTimeout(() => {
-        if (isGeneratingAudio && !conversation.isSpeaking) {
-          console.warn("[Andrea Voice] ⚠️ Stuck in generating state — forcing text fallback");
-          setIsGeneratingAudio(false);
+        if (isGeneratingAudio && !conversation.isSpeaking && lastAgentText) {
+          console.warn("[Andrea Voice] ⚠️ WebRTC audio stuck — triggering MP3 fallback");
+          playTtsFallback(lastAgentText);
           setShowTextFallback(true);
-          setAudioBlocked(true);
-          // Last-chance: force-play any audio elements and re-unlock audio context
-          document.querySelectorAll("audio").forEach((el) => {
-            const media = el as HTMLMediaElement;
-            media.volume = 1.0;
-            media.muted = false;
-            if (media.paused && media.src) media.play().catch(() => {});
-          });
         }
-      }, 12000); // 12s watchdog (longer than 10s response timeout)
+      }, 6000); // 6s — fast fallback to MP3
       return () => clearTimeout(stuckTimer);
     }
-  }, [isGeneratingAudio, conversation.isSpeaking]);
+  }, [isGeneratingAudio, conversation.isSpeaking, lastAgentText, playTtsFallback]);
 
   // onConnect side-effect: start mic monitor after connection
   useEffect(() => {
@@ -572,5 +621,8 @@ export const useAndreaVoiceAgent = () => {
     callingIndicator,
     micStatus,
     sendTextMessage,
+    ttsLoading,
+    ttsProgress,
+    playTtsFallback,
   };
 };

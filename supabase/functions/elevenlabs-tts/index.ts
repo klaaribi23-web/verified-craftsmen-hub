@@ -24,8 +24,8 @@ Deno.serve(async (req) => {
       throw new Error("ELEVENLABS_API_KEY is not configured");
     }
 
-    // Laura - female, mature, professional French voice
-    const voiceId = "FGY2WhTYpPnrIDTdsKH5";
+    // Sarah - clear, reliable female voice (switched from Laura for reliability)
+    const voiceId = "EXAVITQu4vr4xnSDxMaL";
 
     console.log(`[ElevenLabs TTS] Generating speech for ${text.length} chars`);
 
