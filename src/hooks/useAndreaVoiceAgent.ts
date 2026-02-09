@@ -184,7 +184,7 @@ export const useAndreaVoiceAgent = () => {
           }
         });
       }
-    }, 8000); // 8s timeout for WebRTC audio setup
+    }, 10000); // 10s timeout for WebRTC audio setup
   };
 
   const clearSilenceTimer = useCallback(() => {
@@ -350,8 +350,15 @@ export const useAndreaVoiceAgent = () => {
           setIsGeneratingAudio(false);
           setShowTextFallback(true);
           setAudioBlocked(true);
+          // Last-chance: force-play any audio elements and re-unlock audio context
+          document.querySelectorAll("audio").forEach((el) => {
+            const media = el as HTMLMediaElement;
+            media.volume = 1.0;
+            media.muted = false;
+            if (media.paused && media.src) media.play().catch(() => {});
+          });
         }
-      }, 10000);
+      }, 12000); // 12s watchdog (longer than 10s response timeout)
       return () => clearTimeout(stuckTimer);
     }
   }, [isGeneratingAudio, conversation.isSpeaking]);
