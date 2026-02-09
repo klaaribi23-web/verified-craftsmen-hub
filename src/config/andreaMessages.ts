@@ -34,3 +34,7 @@ export const ANDREA_CONVERSION_ANNONCE =
 
 export const ANDREA_CONVERSION_RAPPEL =
   "Souhaitez-vous être rappelé par un expert de la plateforme pour vous accompagner ?";
+
+/** Message post-inscription artisan réussie */
+export const ANDREA_INSCRIPTION_SUCCESS =
+  "Félicitations ! Votre compte est créé. Profitez dès maintenant de nos tarifs négociés sur vos assurances et matériaux dans votre espace Avantages.";

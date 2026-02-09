@@ -14,6 +14,7 @@ import {
   User,
   CreditCard,
   FileText,
+  Gift,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,6 +36,7 @@ const menuItems = [
   { icon: MessageCircle, label: "Messagerie", path: "/admin/messagerie" },
   { icon: UserPlus, label: "Ajouter artisan", path: "/admin/ajouter-artisan" },
   { icon: Upload, label: "Import massif", path: "/admin/import-massif" },
+  { icon: Gift, label: "Partenaires", path: "/admin/partenaires" },
   { icon: Settings, label: "Paramètres", path: "/admin/parametres" },
 ];
 

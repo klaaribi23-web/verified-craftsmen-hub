@@ -1089,6 +1089,51 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_offers: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          discount_label: string
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          link_url: string | null
+          logo_url: string | null
+          name: string
+          promo_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          discount_label: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          link_url?: string | null
+          logo_url?: string | null
+          name: string
+          promo_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          discount_label?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          link_url?: string | null
+          logo_url?: string | null
+          name?: string
+          promo_code?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
