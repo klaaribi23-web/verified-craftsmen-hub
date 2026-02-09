@@ -139,31 +139,31 @@ export const CookieConsent = () => {
                     </div>
                   </div>
 
-                  {/* Buttons - stacked on mobile, row on desktop */}
+                  {/* Buttons - Accept first on mobile for visibility */}
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+                    <Button
+                      size="sm"
+                      onClick={acceptAll}
+                      className="bg-navy hover:bg-navy/90 text-white font-semibold sm:order-3"
+                    >
+                      ✓ Tout accepter
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={rejectNonEssential}
                       className="sm:order-1"
                     >
-                      Refuser
+                      Tout refuser
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={() => setShowSettings(true)}
-                      className="sm:order-2 gap-2"
+                      className="sm:order-2 gap-2 text-muted-foreground"
                     >
                       <Settings className="w-4 h-4" />
                       Personnaliser
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={acceptAll}
-                      className="sm:order-3 bg-navy hover:bg-navy/90"
-                    >
-                      Tout accepter
                     </Button>
                   </div>
                 </div>
