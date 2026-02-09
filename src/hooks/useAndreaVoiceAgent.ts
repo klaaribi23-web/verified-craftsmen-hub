@@ -247,17 +247,25 @@ export const useAndreaVoiceAgent = () => {
       let silentFrames = 0;
       let wasActive = false;
       let frameCount = 0;
+      // Higher threshold to ignore background noise on mobile (was 1)
+      const VOICE_THRESHOLD = 25;
+      // Silence frames before auto-commit (~1.5s at 60fps)
+      const SILENCE_COMMIT_FRAMES = 90;
+      // Silence frames before mic deactivates (~2.5s)
+      const SILENCE_DEACTIVATE_FRAMES = 150;
 
       const check = () => {
         analyser.getByteFrequencyData(dataArray);
-        let max = 0;
+        // Use RMS instead of max for more stable voice detection
+        let sum = 0;
         for (let i = 0; i < dataArray.length; i++) {
-          if (dataArray[i] > max) max = dataArray[i];
+          sum += dataArray[i] * dataArray[i];
         }
+        const rms = Math.sqrt(sum / dataArray.length);
         frameCount++;
-        if (frameCount % 3 === 0) setMicLevel(max / 255);
+        if (frameCount % 3 === 0) setMicLevel(Math.min(1, rms / 128));
 
-        if (max > 1) {
+        if (rms > VOICE_THRESHOLD) {
           setMicActive(true);
           setMicStatus("Je t'écoute... 🎤");
           wasActive = true;
@@ -266,16 +274,16 @@ export const useAndreaVoiceAgent = () => {
           clearSilenceTimer();
         } else {
           silentFrames++;
-          if (silentFrames > 90 && wasActive && !autoCommitSentRef.current) {
+          if (silentFrames > SILENCE_COMMIT_FRAMES && wasActive && !autoCommitSentRef.current) {
             if (!silenceTimerRef.current) {
               silenceTimerRef.current = setTimeout(() => {
                 triggerAutoCommit();
                 silenceTimerRef.current = null;
-              }, 200);
+              }, 300);
             }
           }
           if (silentFrames > 60) setMicStatus(null);
-          if (silentFrames > 300) { setMicActive(false); wasActive = false; }
+          if (silentFrames > SILENCE_DEACTIVATE_FRAMES) { setMicActive(false); wasActive = false; }
         }
         rafRef.current = requestAnimationFrame(check);
       };
@@ -352,9 +360,9 @@ export const useAndreaVoiceAgent = () => {
     autoCommitSentRef.current = false;
   }, [conversation, stopMicMonitor, stopKeepAlive, clearSilenceTimer]);
 
-  // Stop conversation
+  // Stop conversation — force Andrea to respond with what she heard
   const stopConversation = useCallback(async () => {
-    console.log("[Andrea Voice] ⏹️ Stopping...");
+    console.log("[Andrea Voice] ⏹️ Stopping — forcing final response...");
     stopMicMonitor();
     stopKeepAlive();
     clearResponseTimeoutSafe();
@@ -362,6 +370,18 @@ export const useAndreaVoiceAgent = () => {
     setCallingIndicator(false);
     setMicStatus(null);
     setIsGeneratingAudio(false);
+
+    // Force a commit so Andrea responds with whatever she heard
+    if (conversation.status === "connected" && !autoCommitSentRef.current) {
+      try {
+        conversation.sendUserMessage("...");
+        autoCommitSentRef.current = true;
+        setIsThinking(true);
+        // Give Andrea time to respond before ending
+        await new Promise((r) => setTimeout(r, 3000));
+      } catch {}
+    }
+
     if (lastAgentText) setShowTextFallback(true);
     try { await conversation.endSession(); } catch (err) {
       console.warn("[Andrea Voice] endSession error (ignored):", err);
@@ -432,6 +452,7 @@ export const useAndreaVoiceAgent = () => {
       console.log("[Andrea Voice] Token response mode:", data?.mode);
 
       // Start session — prefer WebRTC (token), fallback to WebSocket (signed_url)
+      // Use explicit STUN/TURN for mobile 4G/5G NAT traversal
       if (data?.token && data?.mode === "webrtc") {
         console.log("[Andrea Voice] 🚀 Starting WebRTC session");
         await conversation.startSession({
