@@ -135,18 +135,30 @@ export const useAndreaVoiceAgent = () => {
     checkPermission();
   }, []);
 
-  // Force volume 100% on all audio elements
+  // Force volume 100% on all audio elements + detect stuck audio
   useEffect(() => {
     const forceAllVolume = () => {
       document.querySelectorAll("audio, video").forEach((el) => {
-        (el as HTMLMediaElement).volume = 1.0;
-        (el as HTMLMediaElement).muted = false;
+        const media = el as HTMLMediaElement;
+        media.volume = 1.0;
+        media.muted = false;
+        // Force play if paused and has data (browser blocked autoplay)
+        if (media.paused && media.readyState >= 2 && media.src) {
+          media.play().catch(() => {
+            console.warn("[Andrea Voice] Browser blocked audio autoplay");
+            setAudioBlocked(true);
+          });
+        }
       });
     };
     forceAllVolume();
+    const interval = setInterval(forceAllVolume, 500);
     const observer = new MutationObserver(() => forceAllVolume());
     observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      clearInterval(interval);
+    };
   }, []);
 
   // Safe helper functions
@@ -160,11 +172,19 @@ export const useAndreaVoiceAgent = () => {
   const startResponseTimeoutSafe = () => {
     responseTimeoutRef.current = setTimeout(() => {
       if (!hasSpokenRef.current) {
+        console.warn("[Andrea Voice] ⚠️ Audio timeout — no sound detected after 8s");
         setShowTextFallback(true);
         setAudioBlocked(true);
         setIsGeneratingAudio(false);
+        // Try to force-play any existing audio elements one last time
+        document.querySelectorAll("audio").forEach((el) => {
+          const media = el as HTMLMediaElement;
+          if (media.paused && media.src) {
+            media.play().catch(() => {});
+          }
+        });
       }
-    }, 6000); // Increased to 6s to allow for WebRTC audio setup
+    }, 8000); // 8s timeout for WebRTC audio setup
   };
 
   const clearSilenceTimer = useCallback(() => {
@@ -310,11 +330,31 @@ export const useAndreaVoiceAgent = () => {
       hasSpokenRef.current = true;
       setAudioBlocked(false);
       setIsThinking(false);
-      setIsGeneratingAudio(false); // Audio is now playing, no longer "generating"
+      setIsGeneratingAudio(false);
       clearResponseTimeoutSafe();
+      // Force max volume on SDK + all audio elements
       try { conversation.setVolume({ volume: 1.0 }); } catch {}
+      document.querySelectorAll("audio, video").forEach((el) => {
+        (el as HTMLMediaElement).volume = 1.0;
+        (el as HTMLMediaElement).muted = false;
+      });
     }
   }, [conversation.isSpeaking, conversation]);
+
+  // Detect stuck "generating" state — if isGeneratingAudio stays true for 10s without isSpeaking, force fallback
+  useEffect(() => {
+    if (isGeneratingAudio && !conversation.isSpeaking) {
+      const stuckTimer = setTimeout(() => {
+        if (isGeneratingAudio && !conversation.isSpeaking) {
+          console.warn("[Andrea Voice] ⚠️ Stuck in generating state — forcing text fallback");
+          setIsGeneratingAudio(false);
+          setShowTextFallback(true);
+          setAudioBlocked(true);
+        }
+      }, 10000);
+      return () => clearTimeout(stuckTimer);
+    }
+  }, [isGeneratingAudio, conversation.isSpeaking]);
 
   // onConnect side-effect: start mic monitor after connection
   useEffect(() => {
@@ -432,18 +472,24 @@ export const useAndreaVoiceAgent = () => {
       audioCtxRef.current = audioCtx;
       if (audioCtx.state === "suspended") await audioCtx.resume();
 
-      // Silent buffer to unlock speakers (mobile auto-play policy)
-      const buffer = audioCtx.createBuffer(1, Math.ceil(audioCtx.sampleRate * 0.1), audioCtx.sampleRate);
+      // Audible micro-beep to force-unlock speakers (browser auto-play policy)
+      const buffer = audioCtx.createBuffer(1, Math.ceil(audioCtx.sampleRate * 0.15), audioCtx.sampleRate);
       const ch = buffer.getChannelData(0);
-      for (let i = 0; i < ch.length; i++) ch[i] = (Math.random() - 0.5) * 0.001;
+      // Short 440Hz tone at low volume — just enough to unlock audio pipeline
+      for (let i = 0; i < ch.length; i++) {
+        ch[i] = Math.sin(2 * Math.PI * 440 * i / audioCtx.sampleRate) * 0.02;
+      }
       const src = audioCtx.createBufferSource();
       src.buffer = buffer;
-      src.connect(audioCtx.destination);
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.value = 0.05; // Very low volume unlock beep
+      src.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
       src.start(0);
 
       startKeepAlive(audioCtx);
 
-      console.log("[Andrea Voice] Audio unlocked, state:", audioCtx.state);
+      console.log("[Andrea Voice] Audio unlocked with beep, state:", audioCtx.state);
 
       // Get token from edge function
       const { data, error: fnError } = await supabase.functions.invoke("elevenlabs-conversation-token");
