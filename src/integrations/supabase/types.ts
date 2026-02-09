@@ -1711,6 +1711,7 @@ export type Database = {
         }
         Returns: string
       }
+      cleanup_old_expert_calls: { Args: never; Returns: undefined }
       cleanup_old_login_attempts: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_security_logs: { Args: never; Returns: undefined }
