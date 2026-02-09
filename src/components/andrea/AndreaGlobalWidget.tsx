@@ -607,8 +607,49 @@ const AndreaGlobalWidget = () => {
               )}
             </div>
 
-            {/* ─── Input bar ─── */}
+            {/* ─── Dual CTA + Input bar ─── */}
             <div className="relative p-3 z-20" style={{ borderTop: "1px solid hsla(45, 90%, 50%, 0.08)", background: "hsla(222, 30%, 6%, 0.6)" }}>
+              {/* Quick-action dual buttons */}
+              {!savedId && (
+                <div className="flex gap-2 mb-2">
+                  <button
+                    onClick={() => {
+                      updateLead({ lead_type: "artisan" });
+                      setShowArtisanCTA(true);
+                      handleAsk("Je veux être validé en tant qu'artisan");
+                    }}
+                    disabled={isLoading}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    style={{
+                      background: "linear-gradient(135deg, hsla(30, 90%, 50%, 0.85), hsla(45, 93%, 47%, 0.85))",
+                      backdropFilter: "blur(12px)",
+                      border: "1px solid hsla(45, 90%, 55%, 0.3)",
+                      color: "#ffffff",
+                      boxShadow: "0 0 12px hsla(35, 90%, 50%, 0.2)",
+                    }}
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Je veux être validé
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateLead({ lead_type: "particulier" });
+                      handleAsk("Je veux déposer mon projet de travaux");
+                    }}
+                    disabled={isLoading}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    style={{
+                      background: "hsla(0, 0%, 100%, 0.06)",
+                      backdropFilter: "blur(12px)",
+                      border: "1px solid hsla(45, 90%, 50%, 0.25)",
+                      color: "hsla(0, 0%, 100%, 0.85)",
+                    }}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    Je dépose mon projet
+                  </button>
+                </div>
+              )}
               <form onSubmit={handleTextSubmit} className="flex gap-2 items-center">
                 <input
                   value={textInput}
