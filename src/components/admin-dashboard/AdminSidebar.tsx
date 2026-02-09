@@ -31,6 +31,7 @@ const menuItems = [
   { icon: UserCheck, label: "Clients", path: "/admin/clients" },
   { icon: BarChart3, label: "Statistiques", path: "/admin/statistiques" },
   { icon: FileText, label: "Demandes projets", path: "/admin/demandes-projets" },
+  { icon: MessageCircle, label: "Leads Andrea", path: "/admin/leads-andrea" },
   { icon: MessageCircle, label: "Messagerie", path: "/admin/messagerie" },
   { icon: UserPlus, label: "Ajouter artisan", path: "/admin/ajouter-artisan" },
   { icon: Upload, label: "Import massif", path: "/admin/import-massif" },

@@ -1,18 +1,20 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { Sparkles, X, Mic, Loader2, Phone, Send, MicOff } from "lucide-react";
+import { Sparkles, X, Mic, Loader2, Phone, Send, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAndreaVoiceAgent } from "@/hooks/useAndreaVoiceAgent";
+import { useAndreaLeadCapture } from "@/hooks/useAndreaLeadCapture";
 import MicWaveform from "@/components/home/MicWaveform";
 import ThinkingDots from "@/components/home/ThinkingDots";
 import VoiceErrorBoundary from "@/components/home/VoiceErrorBoundary";
+import { Progress } from "@/components/ui/progress";
 
 const PAGE_CONTEXT: Record<string, string> = {
-  "/nos-missions": "L'utilisateur consulte les missions/chantiers disponibles.",
-  "/trouver-artisan": "L'utilisateur recherche un artisan.",
+  "/nos-missions": "L'utilisateur consulte les missions/chantiers disponibles. Aide-le à trouver des chantiers adaptés.",
+  "/trouver-artisan": "L'utilisateur recherche un artisan. Aide-le à trouver le bon professionnel.",
   "/demande-devis": "L'utilisateur veut déposer un projet ou demander un devis.",
-  "/devenir-artisan": "L'utilisateur est un artisan qui veut rejoindre le réseau.",
+  "/devenir-artisan": "L'utilisateur est un artisan qui veut rejoindre le réseau. Qualifie-le comme lead artisan.",
   "/artisan/dashboard": "L'utilisateur est un artisan connecté sur son tableau de bord.",
   "/artisan/abonnement": "L'utilisateur consulte les offres d'abonnement artisan.",
   "/client/dashboard": "L'utilisateur est un client connecté.",
@@ -42,6 +44,25 @@ const AndreaGlobalWidget = () => {
     sendTextMessage,
   } = useAndreaVoiceAgent();
 
+  const {
+    leadData, updateLead, processAgentText, saveLead, resetLead,
+    isSaving, savedId, completionPercent,
+  } = useAndreaLeadCapture();
+
+  // Process agent text for lead extraction
+  useEffect(() => {
+    if (lastAgentText) {
+      processAgentText(lastAgentText);
+    }
+  }, [lastAgentText, processAgentText]);
+
+  // Auto-save lead when conversation ends and we have data
+  useEffect(() => {
+    if (!isConnected && leadData.lead_type && (leadData.telephone || leadData.email) && !savedId) {
+      saveLead(undefined, location.pathname);
+    }
+  }, [isConnected, leadData, savedId, saveLead, location.pathname]);
+
   // Detect new response for mini-icon pulse
   useEffect(() => {
     if (lastAgentText && lastAgentText !== prevTextRef.current) {
@@ -63,12 +84,10 @@ const AndreaGlobalWidget = () => {
       const ctx = getPageContext(location.pathname);
       if (ctx) {
         try {
-          // Use sendContextualUpdate-style: send as silent context
           sendTextMessage(`[CONTEXTE PAGE] ${ctx}`);
         } catch {}
       }
     }
-  // only on connect + page change
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, location.pathname]);
 
@@ -76,7 +95,6 @@ const AndreaGlobalWidget = () => {
     e.preventDefault();
     if (!textInput.trim()) return;
     if (!isConnected) {
-      // Start conversation first, then send text after connection
       startConversation();
     } else {
       sendTextMessage(textInput);
@@ -89,12 +107,22 @@ const AndreaGlobalWidget = () => {
     setHasNewResponse(false);
   };
 
+  const handleReset = () => {
+    hardReset();
+    resetLead();
+  };
+
   // Don't show on admin pages
   if (location.pathname.startsWith("/admin")) return null;
 
+  // Extracted data badges
+  const extractedFields = Object.entries(leadData)
+    .filter(([k, v]) => k !== "lead_type" && v != null && v !== "" && v !== false)
+    .map(([k, v]) => ({ key: k, value: String(v) }));
+
   return (
     <>
-      {/* Mini floating icon — visible when widget is closed */}
+      {/* Mini floating icon */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
@@ -109,11 +137,9 @@ const AndreaGlobalWidget = () => {
               aria-label="Parler à Andrea"
             >
               <Sparkles className="h-6 w-6 text-navy-dark" />
-              {/* Gentle pulse when connected */}
               {isConnected && (
                 <span className="absolute inset-0 rounded-full animate-ping bg-gold/20 pointer-events-none" />
               )}
-              {/* New response indicator */}
               <AnimatePresence>
                 {hasNewResponse && !isConnected && (
                   <motion.span
@@ -139,7 +165,7 @@ const AndreaGlobalWidget = () => {
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] rounded-2xl overflow-hidden shadow-2xl border border-gold/20 bg-card flex flex-col"
-            style={{ maxHeight: "min(520px, calc(100vh - 6rem))" }}
+            style={{ maxHeight: "min(560px, calc(100vh - 6rem))" }}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-navy to-navy-dark p-3 flex items-center gap-3">
@@ -161,6 +187,17 @@ const AndreaGlobalWidget = () => {
                 <X className="h-5 w-5" />
               </button>
             </div>
+
+            {/* Lead completion bar */}
+            {leadData.lead_type && completionPercent > 0 && (
+              <div className="px-3 pt-2">
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+                  <span>Fiche {leadData.lead_type === "particulier" ? "Particulier" : "Artisan"}</span>
+                  <span>{completionPercent}%</span>
+                </div>
+                <Progress value={completionPercent} className="h-1.5" />
+              </div>
+            )}
 
             {/* Content area */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[140px]">
@@ -207,7 +244,7 @@ const AndreaGlobalWidget = () => {
                           {isConnected ? "Arrêter ⏹️" : "Parler à Andrea 🎙️"}
                         </Button>
                         {isConnected && (
-                          <Button size="sm" variant="destructive" className="px-3" onClick={hardReset} title="Reset">✕</Button>
+                          <Button size="sm" variant="destructive" className="px-3" onClick={handleReset} title="Reset">✕</Button>
                         )}
                       </>
                     )}
@@ -219,7 +256,7 @@ const AndreaGlobalWidget = () => {
                       isActive={micActive}
                       isThinking={isThinking}
                       isSpeaking={isSpeaking}
-                      onReset={hardReset}
+                      onReset={handleReset}
                       className="justify-center"
                     />
                   )}
@@ -258,6 +295,37 @@ const AndreaGlobalWidget = () => {
                 )}
               </AnimatePresence>
 
+              {/* Extracted data chips — real-time validation */}
+              {extractedFields.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-wrap gap-1.5"
+                >
+                  {extractedFields.slice(0, 6).map(({ key, value }) => (
+                    <span
+                      key={key}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 text-[10px] border border-teal-500/20"
+                    >
+                      <CheckCircle2 className="w-2.5 h-2.5" />
+                      {key}: {value.length > 15 ? value.slice(0, 15) + "…" : value}
+                    </span>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Saved confirmation */}
+              {savedId && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/15 border border-green-500/20 text-green-400 text-xs"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Fiche enregistrée ✓
+                </motion.div>
+              )}
+
               {/* Error display */}
               {error && !isConnected && (
                 <p className="text-xs text-destructive text-center">{error}</p>
@@ -283,7 +351,7 @@ const AndreaGlobalWidget = () => {
                 </Button>
               </form>
               <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-                ⚡ Expert IA · Voix + Texte · Toutes pages
+                ⚡ Expert IA · Voix + Texte · Qualification auto
               </p>
             </div>
           </motion.div>
