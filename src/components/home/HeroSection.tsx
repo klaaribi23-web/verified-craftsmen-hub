@@ -12,7 +12,7 @@ const HeroSection = () => {
   const {
     startConversation, isConnecting, isConnected, isSpeaking,
     micActive, micLevel, endConversation, micPermission,
-    requestMicPermission, resetMic,
+    requestMicPermission, resetMic, lastAgentText, showTextFallback,
   } = useAndreaVoiceAgent();
 
   const getVoiceLabel = () => {
@@ -84,6 +84,12 @@ const HeroSection = () => {
             onReset={resetMic}
             className="justify-center"
           />
+        )}
+        {isConnected && showTextFallback && lastAgentText && (
+          <div className="mt-2 p-3 rounded-lg bg-gold/10 border border-gold/20 text-sm text-white/90 max-w-md animate-fade-in">
+            <p className="text-xs text-gold/60 mb-1">💬 Andrea (texte) :</p>
+            <p className="leading-relaxed">{lastAgentText}</p>
+          </div>
         )}
       </div>
     );
