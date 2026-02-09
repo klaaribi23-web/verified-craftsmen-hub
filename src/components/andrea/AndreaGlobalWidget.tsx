@@ -166,18 +166,16 @@ const AndreaGlobalWidget = () => {
       const transcript = event.results[0]?.[0]?.transcript;
       if (transcript) {
         setTextInput(transcript);
-        toast.success("🎙️ Texte dicté — cliquez sur Envoyer !");
       }
     };
     recognition.onerror = (event: any) => {
       setIsListening(false);
-      if (event.error === "not-allowed" || event.error === "denied") toast.error("Micro bloqué. Autorisez l'accès.", { duration: 5000 });
-      else if (event.error !== "no-speech") toast.error("Erreur vocale.");
+      if (event.error === "not-allowed" || event.error === "denied") toast.error("Micro bloqué. Autorisez l'accès.", { duration: 2000 });
     };
     recognition.onend = () => setIsListening(false);
     recognitionRef.current = recognition;
-    try { recognition.start(); setIsListening(true); toast.info("🎙️ Parlez maintenant..."); }
-    catch { toast.error("Micro bloqué.", { duration: 5000 }); }
+    try { recognition.start(); setIsListening(true); }
+    catch { toast.error("Micro bloqué.", { duration: 2000 }); }
   }, [isListening, handleAsk]);
 
   const handleOpen = () => { setIsOpen(true); setHasNewResponse(false); };
