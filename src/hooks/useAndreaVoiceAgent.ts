@@ -39,18 +39,39 @@ export const useAndreaVoiceAgent = () => {
       toast.success("Connexion ElevenLabs établie ✅", { duration: 3000 });
     },
     onDisconnect: () => {
-      console.log("[Andrea Voice] Disconnected from agent");
+      console.log("[Andrea Voice] ⚠️ Disconnected from agent");
       setMicActive(false);
       setMicLevel(0);
       stopMicMonitor();
+      toast("Andrea déconnectée", { duration: 3000 });
     },
-    onMessage: (message) => {
-      console.log("[Andrea Voice] Message:", message);
+    onMessage: (message: any) => {
+      console.log("[Andrea Voice] Message:", JSON.stringify(message));
+      // Surface quota/API errors as toasts
+      const msgStr = typeof message === "string" ? message : JSON.stringify(message);
+      if (/quota/i.test(msgStr) || /exceeded/i.test(msgStr)) {
+        toast.error("⚠️ Crédits ElevenLabs épuisés (Quota Exceeded)", { duration: 8000 });
+        setError("Quota exceeded");
+      }
+      if (/api.key/i.test(msgStr) || /unauthorized/i.test(msgStr) || /invalid.*key/i.test(msgStr)) {
+        toast.error("⚠️ Erreur clé API ElevenLabs", { duration: 8000 });
+        setError("API Key error");
+      }
+      if (/error/i.test(msgStr) && !/no error/i.test(msgStr)) {
+        console.warn("[Andrea Voice] Possible error in message:", msgStr);
+      }
     },
-    onError: (error) => {
-      console.error("[Andrea Voice] ❌ Agent error:", error);
-      setError(String(error));
-      toast.error("Erreur de connexion ElevenLabs ❌", { duration: 5000 });
+    onError: (error: any) => {
+      const errStr = String(error?.message || error);
+      console.error("[Andrea Voice] ❌ Agent error:", errStr);
+      setError(errStr);
+      if (/quota/i.test(errStr) || /exceeded/i.test(errStr)) {
+        toast.error("⚠️ Crédits ElevenLabs épuisés", { duration: 8000 });
+      } else if (/key/i.test(errStr) || /unauthorized/i.test(errStr)) {
+        toast.error("⚠️ Erreur clé API ElevenLabs", { duration: 8000 });
+      } else {
+        toast.error(`Erreur ElevenLabs: ${errStr.slice(0, 80)}`, { duration: 5000 });
+      }
     },
   });
 
@@ -235,7 +256,7 @@ export const useAndreaVoiceAgent = () => {
 
       console.log("[Andrea Voice] ✅ Signed URL obtained, starting session...");
 
-      // 5. Start conversation — French forced
+      // 5. Start conversation — French forced, WebRTC for low latency
       await conversation.startSession({
         signedUrl: data.signed_url,
         overrides: {
@@ -246,6 +267,20 @@ export const useAndreaVoiceAgent = () => {
       });
 
       console.log("[Andrea Voice] ✅ Session started successfully");
+
+      // 6. Force audio output to default device (mobile fix)
+      try {
+        const audioElements = document.querySelectorAll("audio");
+        audioElements.forEach((el) => {
+          el.volume = 1.0;
+          if ((el as any).setSinkId) {
+            (el as any).setSinkId("default").catch(() => {});
+          }
+        });
+        console.log("[Andrea Voice] Audio output forced to default device, found", audioElements.length, "audio elements");
+      } catch (e) {
+        console.warn("[Andrea Voice] setSinkId not supported:", e);
+      }
     } catch (err: any) {
       console.error("[Andrea Voice] ❌ Failed to start conversation:", err);
       const msg = err?.message || "Erreur inconnue";
