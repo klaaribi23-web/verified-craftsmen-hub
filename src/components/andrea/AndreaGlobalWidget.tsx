@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Mic, MicOff, Send, ShieldCheck, ArrowRight, FileText, PhoneCall, CheckCircle2, Phone, Sparkles } from "lucide-react";
+import { X, Send, ShieldCheck, ArrowRight, FileText, PhoneCall, CheckCircle2, Phone, Sparkles } from "lucide-react";
 import {
   ANDREA_TOOLTIP,
   ANDREA_WELCOME,
@@ -25,7 +25,7 @@ const AndreaGlobalWidget = () => {
   const [showConversionActions, setShowConversionActions] = useState(false);
   const [callbackRequested, setCallbackRequested] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isListening, setIsListening] = useState(false);
+  
   const [messages, setMessages] = useState<{ role: "user" | "andrea"; text: string }[]>([]);
   const [streamingText, setStreamingText] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -33,7 +33,7 @@ const AndreaGlobalWidget = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<any>(null);
+  
   const abortRef = useRef<AbortController | null>(null);
 
   const {
@@ -169,60 +169,6 @@ const AndreaGlobalWidget = () => {
     setTextInput("");
   };
 
-  // Speech-to-Text — brute webkitSpeechRecognition, zero abstraction
-  const toggleListening = useCallback(() => {
-    console.log("[STT] toggle called, isListening=", isListening);
-
-    if (isListening && recognitionRef.current) {
-      console.log("[STT] Stopping recognition...");
-      try { recognitionRef.current.stop(); } catch (e) { console.error("[STT] stop error:", e); }
-      recognitionRef.current = null;
-      setIsListening(false);
-      return;
-    }
-
-    const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-    console.log("[STT] webkitSpeechRecognition available:", !!SR);
-    if (!SR) { toast.error("Reconnaissance vocale non supportée."); return; }
-
-    const recognition = new SR();
-    recognition.lang = "fr-FR";
-    recognition.continuous = false;
-    recognition.interimResults = true;
-
-    recognition.onstart = () => {
-      console.log("[STT] ✅ onstart fired — listening");
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      console.log("[STT] 📝 onresult:", transcript);
-      setTextInput(transcript);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error("[STT] ❌ onerror:", event.error);
-      recognitionRef.current = null;
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      console.log("[STT] 🔴 onend fired");
-      recognitionRef.current = null;
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-    try {
-      recognition.start();
-      setIsListening(true);
-      console.log("[STT] 🎙️ start() OK");
-    } catch (e) {
-      console.error("[STT] ❌ start() failed:", e);
-      recognitionRef.current = null;
-      toast.error("Impossible d'activer le micro.");
-    }
-  }, [isListening]);
 
   const handleOpen = () => { setIsOpen(true); setHasNewResponse(false); };
 
@@ -292,20 +238,26 @@ const AndreaGlobalWidget = () => {
               Besoin d'un artisan ? <span className="font-semibold text-white">Demandez à Andrea</span>
             </motion.div>
 
-            {/* Bubble */}
+             {/* Bubble — Glassmorphism bijou with pulsing neon border */}
             <button
               onClick={handleOpen}
-              className="relative h-16 w-16 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_30px_hsla(265,85%,55%,0.4)]"
+              className="relative h-16 w-16 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
               style={{
-                background: "linear-gradient(135deg, hsl(265, 85%, 55%), hsl(220, 90%, 55%))",
-                border: "1px solid hsla(265, 90%, 70%, 0.5)",
-                backdropFilter: "blur(12px)",
+                background: "linear-gradient(135deg, hsla(265, 85%, 55%, 0.6), hsla(220, 90%, 55%, 0.6))",
+                backdropFilter: "blur(16px) saturate(1.8)",
+                WebkitBackdropFilter: "blur(16px) saturate(1.8)",
+                boxShadow: "0 0 25px hsla(265, 85%, 55%, 0.35), inset 0 0 20px hsla(265, 90%, 70%, 0.15)",
               }}
               aria-label="Parler à Andrea"
             >
-              <Mic className="h-7 w-7 text-white" />
-              <span className="absolute inset-0 rounded-full animate-[ping_3s_ease-in-out_infinite] pointer-events-none"
-                style={{ background: "hsla(265, 85%, 55%, 0.15)" }} />
+              {/* Pulsing neon border ring */}
+              <motion.span
+                className="absolute inset-0 rounded-full pointer-events-none"
+                style={{ border: "1.5px solid hsla(265, 90%, 65%, 0.6)" }}
+                animate={{ boxShadow: ["0 0 8px hsla(265,85%,55%,0.3)", "0 0 20px hsla(265,85%,55%,0.6)", "0 0 8px hsla(265,85%,55%,0.3)"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <Sparkles className="h-6 w-6 text-white" />
               <AnimatePresence>
                 {hasNewResponse && (
                   <motion.span
@@ -443,7 +395,12 @@ const AndreaGlobalWidget = () => {
                       <ShieldCheck className="w-3 h-3 text-teal-400" />
                     </div>
                   )}
-                  <p className="text-white/90 text-[13.5px] leading-relaxed">{msg.text}</p>
+                  <motion.p
+                    initial={msg.role === "andrea" ? { opacity: 0 } : undefined}
+                    animate={{ opacity: 1 }}
+                    transition={msg.role === "andrea" ? { duration: 0.6, ease: "easeOut" } : undefined}
+                    className="text-white/90 text-[13.5px] leading-relaxed"
+                  >{msg.text}</motion.p>
                 </motion.div>
               ))}
 
@@ -475,25 +432,33 @@ const AndreaGlobalWidget = () => {
                 </motion.div>
               )}
 
-              {/* Loading indicator */}
+              {/* Typing indicator — dancing dots */}
               {isLoading && !isStreaming && (
-                <div className="flex justify-start">
-                  <div className="rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-3 text-white/60 text-sm"
-                    style={{ backgroundColor: "hsla(265, 50%, 20%, 0.4)" }}>
-                    <div className="flex items-center gap-[3px] h-5">
-                      {[0, 1, 2, 3, 4].map((i) => (
-                        <motion.div
-                          key={i}
-                          className="w-[3px] rounded-full"
-                          style={{ backgroundColor: "hsl(265, 85%, 55%)" }}
-                          animate={{ height: ["6px", "16px", "6px"] }}
-                          transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
-                        />
-                      ))}
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="self-start rounded-2xl rounded-bl-sm px-4 py-3"
+                  style={{ backgroundColor: "hsla(265, 50%, 20%, 0.4)", border: "1px solid hsla(265, 90%, 65%, 0.15)" }}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: "linear-gradient(135deg, hsl(265, 85%, 55%), hsl(220, 90%, 55%))" }}>
+                      <Sparkles className="w-3 h-3 text-white" />
                     </div>
-                    <span>Andrea prépare sa réponse…</span>
+                    <span className="text-[11px] font-semibold text-purple-300">Andrea</span>
                   </div>
-                </div>
+                  <div className="flex items-center gap-1.5 px-1 py-1">
+                    {[0, 1, 2].map((i) => (
+                      <motion.span
+                        key={i}
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: "hsl(265, 85%, 55%)" }}
+                        animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8], y: [0, -4, 0] }}
+                        transition={{ duration: 1, repeat: Infinity, delay: i * 0.2, ease: "easeInOut" }}
+                      />
+                    ))}
+                  </div>
+                </motion.div>
               )}
 
               {/* Phone relance */}
@@ -575,57 +540,19 @@ const AndreaGlobalWidget = () => {
             {/* Input bar */}
             <div className="p-3" style={{ borderTop: "1px solid hsla(265, 90%, 65%, 0.15)", backgroundColor: "hsla(222, 47%, 8%, 0.9)" }}>
               <form onSubmit={handleTextSubmit} className="flex gap-2 items-center">
-                <div className="relative flex-1">
-                  <input
-                    value={textInput}
-                    onChange={(e) => setTextInput(e.target.value)}
-                    placeholder={isListening ? "🎙️ Parlez…" : "Posez votre question ici…"}
-                    className="w-full h-11 rounded-full border text-sm px-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-                    style={{
-                      borderColor: isListening ? "hsla(265, 85%, 55%, 0.7)" : "hsla(265, 90%, 65%, 0.3)",
-                      backgroundColor: "hsla(0, 0%, 100%, 0.12)",
-                      color: "#ffffff",
-                      caretColor: "#ffffff",
-                      boxShadow: isListening ? "0 0 12px hsla(265, 85%, 55%, 0.35)" : "none",
-                    }}
-                    disabled={isLoading}
-                  />
-                  {/* Purple wave inside input when listening */}
-                  <AnimatePresence>
-                    {isListening && (
-                      <motion.span
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-[2px] h-5 pointer-events-none"
-                      >
-                        {[0, 1, 2, 3, 4].map((i) => (
-                          <motion.span
-                            key={i}
-                            className="w-[2.5px] rounded-full"
-                            style={{ backgroundColor: "hsl(265, 85%, 55%)" }}
-                            animate={{ height: ["4px", "16px", "4px"] }}
-                            transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.09, ease: "easeInOut" }}
-                          />
-                        ))}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </div>
-                <button
-                  type="button"
-                  onClick={toggleListening}
+                <input
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  placeholder="Décrivez votre projet à Andrea..."
+                  className="flex-1 h-12 rounded-full border text-sm px-5 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                  style={{
+                    borderColor: "hsla(265, 90%, 65%, 0.3)",
+                    backgroundColor: "hsla(0, 0%, 100%, 0.12)",
+                    color: "#ffffff",
+                    caretColor: "#ffffff",
+                  }}
                   disabled={isLoading}
-                  className={`h-11 w-11 shrink-0 rounded-full flex items-center justify-center transition-all ${
-                    isListening
-                      ? "text-white"
-                      : "bg-white/10 hover:bg-white/15 text-white/70"
-                  }`}
-                  style={isListening ? { background: "hsl(265, 85%, 55%)", animation: "pulse 1s ease-in-out infinite", boxShadow: "0 0 16px hsla(265, 85%, 55%, 0.5)" } : undefined}
-                  aria-label={isListening ? "Arrêter le micro" : "Dicter ma question"}
-                >
-                  {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-                </button>
+                />
                 <Button
                   type="submit"
                   size="icon"
@@ -637,7 +564,7 @@ const AndreaGlobalWidget = () => {
                 </Button>
               </form>
               <p className="text-[10px] text-white/30 text-center mt-2">
-                ⚡ IA experte · Réponse instantanée · 🎙️ Dictez votre question
+                ⚡ IA experte · Réponse instantanée
               </p>
             </div>
           </motion.div>
