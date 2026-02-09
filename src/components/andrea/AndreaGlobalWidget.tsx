@@ -26,7 +26,7 @@ const AndreaGlobalWidget = () => {
   const [callbackRequested, setCallbackRequested] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [lastAgentText, setLastAgentText] = useState<string | null>(null);
+  const [messages, setMessages] = useState<{ role: "user" | "andrea"; text: string }[]>([]);
   const [streamingText, setStreamingText] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
 
@@ -41,20 +41,22 @@ const AndreaGlobalWidget = () => {
     isSaving, savedId, completionPercent,
   } = useAndreaLeadCapture();
 
+  const lastAndreaText = messages.filter(m => m.role === "andrea").at(-1)?.text ?? null;
+
   // Process agent text for lead extraction
   useEffect(() => {
-    if (lastAgentText) processAgentText(lastAgentText);
-  }, [lastAgentText, processAgentText]);
+    if (lastAndreaText) processAgentText(lastAndreaText);
+  }, [lastAndreaText, processAgentText]);
 
   // Auto-save lead
   useEffect(() => {
     if (leadData.lead_type && leadData.telephone && !savedId) {
       saveLead(undefined, location.pathname);
     }
-    if (leadData.lead_type && !leadData.telephone && !phoneRelanceShown && lastAgentText) {
+    if (leadData.lead_type && !leadData.telephone && !phoneRelanceShown && lastAndreaText) {
       setPhoneRelanceShown(true);
     }
-  }, [leadData, savedId, saveLead, location.pathname, phoneRelanceShown, lastAgentText]);
+  }, [leadData, savedId, saveLead, location.pathname, phoneRelanceShown, lastAndreaText]);
 
   useEffect(() => {
     if (savedId && leadData.lead_type === "particulier") setShowConversionActions(true);
@@ -67,13 +69,15 @@ const AndreaGlobalWidget = () => {
   // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [lastAgentText, streamingText, isLoading]);
+  }, [messages, streamingText, isLoading]);
 
   // Streaming text ask
   const handleAsk = useCallback(async (question: string) => {
     const trimmed = question.trim();
     if (!trimmed || isLoading) return;
 
+    // Add user message to chat
+    setMessages(prev => [...prev, { role: "user", text: trimmed }]);
     setIsLoading(true);
     setIsStreaming(true);
     setStreamingText("");
@@ -122,7 +126,7 @@ const AndreaGlobalWidget = () => {
         }
       }
 
-      setLastAgentText(fullText);
+      setMessages(prev => [...prev, { role: "andrea", text: fullText }]);
       setStreamingText("");
       setIsStreaming(false);
       if (!isOpen) setHasNewResponse(true);
@@ -180,7 +184,7 @@ const AndreaGlobalWidget = () => {
 
   const handleReset = () => {
     resetLead();
-    setLastAgentText(null);
+    setMessages([]);
     setStreamingText("");
     setShowArtisanCTA(false);
     setPhoneRelanceShown(false);
@@ -218,7 +222,7 @@ const AndreaGlobalWidget = () => {
     .filter(([k, v]) => k !== "lead_type" && v != null && v !== "" && v !== false)
     .map(([k, v]) => ({ key: k, value: String(v) }));
 
-  const displayText = isStreaming ? streamingText : lastAgentText;
+  const hasMessages = messages.length > 0 || isStreaming;
 
   return (
     <>
@@ -339,7 +343,7 @@ const AndreaGlobalWidget = () => {
             {/* Content area */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[140px] flex flex-col">
               {/* Welcome message */}
-              {!displayText && (
+              {!hasMessages && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -372,16 +376,20 @@ const AndreaGlobalWidget = () => {
                 </motion.div>
               )}
 
-              {/* Agent text bubble — streaming word-by-word */}
-              <AnimatePresence>
-                {displayText && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="self-start w-[92%] rounded-2xl rounded-bl-sm px-4 py-3"
-                    style={{ backgroundColor: "hsla(265, 50%, 20%, 0.4)", border: "1px solid hsla(265, 90%, 65%, 0.15)" }}
-                  >
+              {/* Message history */}
+              {messages.map((msg, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`w-[92%] rounded-2xl px-4 py-3 ${
+                    msg.role === "user"
+                      ? "self-end rounded-br-sm bg-white/10 border border-white/10"
+                      : "self-start rounded-bl-sm"
+                  }`}
+                  style={msg.role === "andrea" ? { backgroundColor: "hsla(265, 50%, 20%, 0.4)", border: "1px solid hsla(265, 90%, 65%, 0.15)" } : undefined}
+                >
+                  {msg.role === "andrea" && (
                     <div className="flex items-center gap-2 mb-1.5">
                       <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
                         style={{ background: "linear-gradient(135deg, hsl(265, 85%, 55%), hsl(220, 90%, 55%))" }}>
@@ -390,20 +398,38 @@ const AndreaGlobalWidget = () => {
                       <span className="text-[11px] font-semibold text-purple-300">Andrea</span>
                       <ShieldCheck className="w-3 h-3 text-teal-400" />
                     </div>
-                    <p className="text-white/90 text-[13.5px] leading-relaxed">
-                      {displayText}
-                      {isStreaming && (
-                        <motion.span
-                          className="inline-block w-1.5 h-4 ml-0.5 align-text-bottom rounded-sm"
-                          style={{ backgroundColor: "hsl(265, 85%, 55%)" }}
-                          animate={{ opacity: [1, 0] }}
-                          transition={{ duration: 0.5, repeat: Infinity }}
-                        />
-                      )}
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  )}
+                  <p className="text-white/90 text-[13.5px] leading-relaxed">{msg.text}</p>
+                </motion.div>
+              ))}
+
+              {/* Streaming bubble */}
+              {isStreaming && streamingText && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="self-start w-[92%] rounded-2xl rounded-bl-sm px-4 py-3"
+                  style={{ backgroundColor: "hsla(265, 50%, 20%, 0.4)", border: "1px solid hsla(265, 90%, 65%, 0.15)" }}
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: "linear-gradient(135deg, hsl(265, 85%, 55%), hsl(220, 90%, 55%))" }}>
+                      <Sparkles className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-purple-300">Andrea</span>
+                    <ShieldCheck className="w-3 h-3 text-teal-400" />
+                  </div>
+                  <p className="text-white/90 text-[13.5px] leading-relaxed">
+                    {streamingText}
+                    <motion.span
+                      className="inline-block w-1.5 h-4 ml-0.5 align-text-bottom rounded-sm"
+                      style={{ backgroundColor: "hsl(265, 85%, 55%)" }}
+                      animate={{ opacity: [1, 0] }}
+                      transition={{ duration: 0.5, repeat: Infinity }}
+                    />
+                  </p>
+                </motion.div>
+              )}
 
               {/* Loading indicator */}
               {isLoading && !isStreaming && (
