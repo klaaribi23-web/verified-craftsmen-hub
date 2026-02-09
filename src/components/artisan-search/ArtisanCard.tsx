@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
-import { cn } from "@/lib/utils";
+import { cn, ensureHttps } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
 import AuditSummaryDialog from "@/components/artisan-search/AuditSummaryDialog";
 
@@ -339,22 +339,22 @@ const ArtisanCard = ({
         {/* Social Icons Bar - reserved height even when empty */}
         <div className="flex items-center gap-1.5 mb-3 min-h-[24px]">
           {instagramUrl && (
-            <a href={instagramUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Instagram">
+            <a href={ensureHttps(instagramUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Instagram">
               <Instagram className="w-3 h-3 text-muted-foreground" />
             </a>
           )}
           {facebookUrl && (
-            <a href={facebookUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Facebook">
+            <a href={ensureHttps(facebookUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Facebook">
               <Facebook className="w-3 h-3 text-muted-foreground" />
             </a>
           )}
           {linkedinUrl && (
-            <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="LinkedIn">
+            <a href={ensureHttps(linkedinUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="LinkedIn">
               <Linkedin className="w-3 h-3 text-muted-foreground" />
             </a>
           )}
           {websiteUrl && (
-            <a href={websiteUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Site web">
+            <a href={ensureHttps(websiteUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Site web">
               <Globe className="w-3 h-3 text-muted-foreground" />
             </a>
           )}

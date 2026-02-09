@@ -61,7 +61,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 import { supabase } from "@/integrations/supabase/client";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
-import { cn, DEFAULT_AVATAR } from "@/lib/utils";
+import { cn, DEFAULT_AVATAR, ensureHttps } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
 import { InterventionMap } from "@/components/artisan-profile/InterventionMap";
 import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
@@ -371,7 +371,7 @@ const ArtisanPublicProfile = () => {
                       <div className="flex items-center justify-center md:justify-start gap-3 mt-4">
                         {artisan.facebook_url && (
                           <a
-                            href={artisan.facebook_url}
+                            href={ensureHttps(artisan.facebook_url)!}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="h-10 w-10 rounded-full bg-[#1877F2]/10 flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors group"
@@ -382,7 +382,7 @@ const ArtisanPublicProfile = () => {
                         )}
                         {artisan.instagram_url && (
                           <a
-                            href={artisan.instagram_url}
+                            href={ensureHttps(artisan.instagram_url)!}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="h-10 w-10 rounded-full bg-gradient-to-br from-[#F58529]/10 via-[#DD2A7B]/10 to-[#8134AF]/10 flex items-center justify-center hover:bg-gradient-to-br hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF] hover:text-white transition-colors group"
@@ -393,7 +393,7 @@ const ArtisanPublicProfile = () => {
                         )}
                         {artisan.linkedin_url && (
                           <a
-                            href={artisan.linkedin_url}
+                            href={ensureHttps(artisan.linkedin_url)!}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="h-10 w-10 rounded-full bg-[#0A66C2]/10 flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-colors group"
@@ -404,7 +404,7 @@ const ArtisanPublicProfile = () => {
                         )}
                         {artisan.website_url && (
                           <a
-                            href={artisan.website_url}
+                            href={ensureHttps(artisan.website_url)!}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="h-10 w-10 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
@@ -415,7 +415,7 @@ const ArtisanPublicProfile = () => {
                         )}
                         {(artisan as any).google_maps_url && (
                           <a
-                            href={(artisan as any).google_maps_url}
+                            href={ensureHttps((artisan as any).google_maps_url)!}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-border shadow-sm hover:shadow-md hover:border-[#4285F4]/30 transition-all group"
