@@ -211,7 +211,7 @@ const ArtisanContactForm = ({
           </Button>
 
           <p className="text-[11px] text-muted-foreground text-center">
-            Gratuit et sans engagement. Vos donn\u00e9es restent confidentielles.
+            {"Gratuit et sans engagement. Vos données restent confidentielles."}
           </p>
         </form>
       </CardContent>
