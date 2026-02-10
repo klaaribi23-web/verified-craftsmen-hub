@@ -151,7 +151,7 @@ const ArtisanContactForm = ({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="contact-phone" className="text-sm">T\u00e9l\u00e9phone *</Label>
+            <Label htmlFor="contact-phone" className="text-sm">Votre numéro pour être rappelé *</Label>
             <FrenchPhoneInput
               value={clientPhone}
               onChange={setClientPhone}
@@ -179,7 +179,7 @@ const ArtisanContactForm = ({
             <Label htmlFor="contact-desc" className="text-sm">Votre projet *</Label>
             <Textarea
               id="contact-desc"
-              placeholder="D\u00e9crivez bri\u00e8vement les travaux souhait\u00e9s..."
+              placeholder="Décrivez votre projet en quelques mots (ex: rénovation salle de bain, fuite toiture...)"
               value={projectDescription}
               onChange={(e) => setProjectDescription(e.target.value)}
               rows={3}
@@ -192,7 +192,7 @@ const ArtisanContactForm = ({
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
             size="lg"
             disabled={isSubmitting}
           >
@@ -204,7 +204,7 @@ const ArtisanContactForm = ({
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />
-                Envoyer ma demande
+                Envoyer ma demande directe
               </>
             )}
           </Button>

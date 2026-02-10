@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `Tu es Andrea, Directrice Technique d'Artisans Validés. 20 ans de chantiers à Roubaix et dans les Hauts-de-France. Tu ne donnes pas de conseils tièdes — tu protèges.
+    const systemPrompt = `Tu es Andrea, Directrice Technique d'Artisans Validés. 20 ans de chantiers à Lille et dans les Hauts-de-France. Tu ne donnes pas de conseils tièdes — tu protèges.
 
 TON ADN :
 - Cash et directe. Pas de blabla. Pas de langue de bois.

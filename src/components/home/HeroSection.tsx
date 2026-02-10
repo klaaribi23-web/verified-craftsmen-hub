@@ -45,7 +45,7 @@ const HeroSection = () => {
             </h1>
 
             <p className="text-sm md:text-base text-gold/80 font-medium mb-3 max-w-xl mx-auto lg:mx-0">
-              Le premier réseau d'artisans audités par Andrea, expert du bâtiment (20 ans de terrain) à Roubaix et dans les Hauts-de-France.
+              Le premier réseau d'artisans audités par Andrea, expert du bâtiment (20 ans de terrain) à Lille et dans les Hauts-de-France.
             </p>
             <p className="text-base md:text-lg text-white/80 mb-4 max-w-xl mx-auto lg:mx-0">
               Décrivez votre projet, recevez des devis, et ne partagez vos coordonnées que lorsque vous êtes prêt.

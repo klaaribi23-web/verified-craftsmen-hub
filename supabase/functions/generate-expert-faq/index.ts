@@ -52,9 +52,9 @@ Les questions doivent couvrir ces thèmes (adapte-les au métier ${category}) :
 5. Quel est le prix moyen d'un ${category.toLowerCase()} ${city ? `à ${locationLabel}` : ""} et comment éviter les arnaques
 
 IMPORTANT - RÈGLES OBLIGATOIRES POUR CHAQUE RÉPONSE :
-- Chaque réponse DOIT mentionner au moins une ville locale (${city ? `${locationLabel}, ou une ville voisine comme Roubaix, Tourcoing, Lille` : "Roubaix, Tourcoing, Lille"}).
+- Chaque réponse DOIT mentionner au moins une ville locale (${city ? `${locationLabel}, ou une ville voisine comme Lille, Tourcoing, Roubaix` : "Lille, Tourcoing, Roubaix"}).
 - Au moins 2 réponses doivent aborder le prix ou la sécurité (assurance décennale, conformité).
-- Exemple de mention locale : "À ${city || "Roubaix"}, je constate que les tarifs moyens pour un ${category.toLowerCase()} tournent autour de..."
+- Exemple de mention locale : "À ${city || "Lille"}, je constate que les tarifs moyens pour un ${category.toLowerCase()} tournent autour de..."
 
 ${city ? `Inclus dans "nearby_cities" 3 à 5 villes géographiquement proches de ${locationLabel}. Ce doivent être de vraies villes françaises.` : 'Mets un tableau vide pour "nearby_cities".'}
 
