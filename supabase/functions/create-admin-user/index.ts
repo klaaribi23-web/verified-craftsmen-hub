@@ -16,8 +16,24 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const email = "k.laaribi@gmail.com";
+    const newEmail = "k.laaribi23@gmail.com";
+    const oldEmail = "k.laaribi@gmail.com";
     const password = "LaaribiSeville1978*...";
+
+    // Step 1: Remove old admin if exists
+    const { data: allUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const oldUser = allUsers?.users?.find(u => u.email === oldEmail);
+    if (oldUser) {
+      // Remove role
+      await supabaseAdmin.from("user_roles").delete().eq("user_id", oldUser.id);
+      // Remove profile
+      await supabaseAdmin.from("profiles").delete().eq("user_id", oldUser.id);
+      // Delete auth user
+      await supabaseAdmin.auth.admin.deleteUser(oldUser.id);
+      console.log("Old admin deleted:", oldEmail);
+    }
+
+    const email = newEmail;
 
     // Check if user already exists
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
