@@ -10,6 +10,12 @@ import {
   Briefcase,
   ArrowUpRight,
   HelpCircle,
+  Sun,
+  Thermometer,
+  Home,
+  Droplets,
+  Construction,
+  Cpu,
   LucideIcon
 } from "lucide-react";
 
@@ -18,6 +24,7 @@ const iconMap: Record<string, LucideIcon> = {
   "building-2": Building2,
   "hammer": Hammer,
   "door-open": DoorOpen,
+  "DoorOpen": DoorOpen,
   "trees": Trees,
   "wrench": Wrench,
   "paintbrush": Paintbrush,
@@ -25,6 +32,13 @@ const iconMap: Record<string, LucideIcon> = {
   "star": Star,
   "briefcase": Briefcase,
   "arrow-up-right": ArrowUpRight,
+  "Sun": Sun,
+  "Thermometer": Thermometer,
+  "home": Home,
+  "droplets": Droplets,
+  "construction": Construction,
+  "cpu": Cpu,
+  "Cpu": Cpu,
 };
 
 interface CategoryIconProps {
