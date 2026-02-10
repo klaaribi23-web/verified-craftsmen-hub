@@ -1,21 +1,18 @@
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import ArtisanFilters from "@/components/artisan-search/ArtisanFilters";
 import ArtisanCard from "@/components/artisan-search/ArtisanCard";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ArrowRight } from "lucide-react";
 import { usePublicArtisans } from "@/hooks/usePublicData";
-import { useCategoriesHierarchy, CategoryWithChildren } from "@/hooks/useCategories";
-import { CategoryIcon } from "@/components/categories/CategoryIcon";
+
 import { calculateDistance } from "@/lib/geoDistance";
 import { useCityCoordinatesCache } from "@/hooks/useCityCoordinatesCache";
 import DynamicFAQ from "@/components/artisan-search/DynamicFAQ";
@@ -23,8 +20,6 @@ import ExpertFAQSection from "@/components/artisan-search/ExpertFAQSection";
 
 const ITEMS_PER_PAGE = 21;
 const TrouverArtisan = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [locationSearch, setLocationSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
     category: "",
@@ -35,12 +30,6 @@ const TrouverArtisan = () => {
     coordinates: null as { lat: number; lng: number } | null
   });
 
-  // Suggestions state
-  const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
-  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const categoryInputRef = useRef<HTMLDivElement>(null);
-  const cityInputRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   // Fetch dynamic data
@@ -48,43 +37,7 @@ const TrouverArtisan = () => {
     data: artisansData,
     isLoading: artisansLoading
   } = usePublicArtisans();
-  const {
-    data: categoriesData,
-    isLoading: categoriesLoading
-  } = useCategoriesHierarchy();
 
-  // Flatten categories for display (parent categories + their subcategories as needed)
-  const categories = useMemo(() => {
-    if (!categoriesData) return [];
-    // Return parent categories with their icons
-    return categoriesData.map(cat => ({
-      id: cat.id,
-      icon: cat.icon,
-      title: cat.name,
-      count: cat.children?.length || 0,
-      children: cat.children || []
-    }));
-  }, [categoriesData]);
-
-  // Filter categories based on search
-  const filteredCategories = useMemo(() => {
-    if (!searchQuery) return categories;
-    return categories.filter(cat => cat.title.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [searchQuery, categories]);
-
-  // Close suggestions on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (categoryInputRef.current && !categoryInputRef.current.contains(event.target as Node)) {
-        setShowCategorySuggestions(false);
-      }
-      if (cityInputRef.current && !cityInputRef.current.contains(event.target as Node)) {
-        setShowCitySuggestions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
   const handleFiltersChange = useCallback((newFilters: {
     category: string;
     categoryName: string;
@@ -96,23 +49,6 @@ const TrouverArtisan = () => {
     setFilters(newFilters);
     setCurrentPage(1);
   }, []);
-  const handleSearch = () => {
-    // Update filters with search values
-    setFilters(prev => ({
-      ...prev,
-      category: searchQuery,
-      city: locationSearch
-    }));
-    setHasSearched(true);
-    setCurrentPage(1);
-
-    // Scroll to results
-    setTimeout(() => {
-      resultsRef.current?.scrollIntoView({
-        behavior: "smooth"
-      });
-    }, 100);
-  };
 
   // Extract artisan cities for preloading coordinates
   const artisanCities = useMemo(() => {
@@ -140,7 +76,7 @@ const TrouverArtisan = () => {
     
     const filtered = artisansData.filter(artisan => {
       // Filter by category from hero search or sidebar - use categoryName (not ID) for comparison
-      const categoryFilter = filters.categoryName || searchQuery;
+      const categoryFilter = filters.categoryName;
       if (categoryFilter && categoryFilter !== "all") {
         const filterLower = categoryFilter.toLowerCase();
 
@@ -203,11 +139,34 @@ const TrouverArtisan = () => {
     });
     
     return { filteredArtisans: filtered, artisanDistances: distances };
-  }, [artisansData, filters, searchQuery, getCoordinates]);
+  }, [artisansData, filters, getCoordinates]);
 
-  // Paginate filtered artisans
-  const totalPages = Math.ceil(filteredArtisans.length / ITEMS_PER_PAGE);
-  const paginatedArtisans = filteredArtisans.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  // Sort: audited first, then premium, then others
+  const sortedArtisans = useMemo(() => {
+    return [...filteredArtisans].sort((a, b) => {
+      // 1. Audited first
+      const aAudited = a.is_audited ? 1 : 0;
+      const bAudited = b.is_audited ? 1 : 0;
+      if (bAudited !== aAudited) return bAudited - aAudited;
+      
+      // 2. Premium tier next
+      const tierOrder = (tier: string | null | undefined) => {
+        if (tier === 'premium') return 2;
+        if (tier === 'standard') return 1;
+        return 0;
+      };
+      const aTier = tierOrder(a.subscription_tier);
+      const bTier = tierOrder(b.subscription_tier);
+      if (bTier !== aTier) return bTier - aTier;
+      
+      // 3. By rating
+      return (b.rating || 0) - (a.rating || 0);
+    });
+  }, [filteredArtisans]);
+
+  // Paginate sorted artisans
+  const totalPages = Math.ceil(sortedArtisans.length / ITEMS_PER_PAGE);
+  const paginatedArtisans = sortedArtisans.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   // Get total artisan count
   const totalArtisans = artisansData?.length || 0;
