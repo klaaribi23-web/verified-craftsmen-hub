@@ -66,7 +66,7 @@ const Index = () => {
                 <Star className="h-4 w-4 text-gold fill-gold" />
                 <span className="text-sm font-medium text-gold">Top artisans</span>
               </div>
-              <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">Nos artisans sélectionnés</h2>
+              <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">L'exclusivité de votre ville : nos artisans sélectionnés</h2>
               <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
                 Chaque profil est vérifié et validé par notre équipe avant d'intégrer le réseau
               </p>

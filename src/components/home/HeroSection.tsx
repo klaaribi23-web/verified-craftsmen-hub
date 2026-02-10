@@ -40,8 +40,8 @@ const HeroSection = () => {
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-white leading-tight mb-4 md:mb-6">
-              Le modèle de confiance né dans le Nord{" "}
-              <span className="text-gradient-gold">devient la norme nationale.</span>
+              Artisans : Récupérez 100% de votre marge.{" "}
+              <span className="text-gradient-gold">L'exclusivité de votre ville.</span>
             </h1>
 
             <p className="text-sm md:text-base text-gold/80 font-medium mb-3 max-w-xl mx-auto lg:mx-0">
