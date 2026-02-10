@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" } });
     }
 
     const supabase = createClient(
@@ -23,13 +23,13 @@ Deno.serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
     if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" } });
     }
 
     const { businessName, metier, city, department } = await req.json();
 
     if (!businessName || !city) {
-      return new Response(JSON.stringify({ error: "businessName and city are required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "businessName and city are required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" } });
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -51,26 +51,26 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Tu g\u00e9n\u00e8res des l\u00e9gendes courtes et professionnelles pour des photos/stories d'artisans du b\u00e2timent.
+            content: `Tu génères des légendes courtes et professionnelles pour des photos/stories d'artisans du bâtiment.
 
-R\u00e8gles strictes :
-- Maximum 120 caract\u00e8res
-- Structure obligatoire : [Action/M\u00e9tier] + [Type de mat\u00e9riel/travail] + [\u00e0 Ville (D\u00e9partement)]
+Règles strictes :
+- Maximum 120 caractères
+- Structure obligatoire : [Action/Métier] + [Type de matériel/travail] + [à Ville (Département)]
 - Ton professionnel mais accessible
 - Pas de guillemets
-- Utilise des verbes d'action : "Installation", "R\u00e9novation", "Pose", "Cr\u00e9ation", "R\u00e9paration", "Am\u00e9nagement"
-- Mentionne un mat\u00e9riau ou type de travail sp\u00e9cifique au m\u00e9tier
-- Termine TOUJOURS par "[\u00e0/\u00e0] [Ville] ([Code d\u00e9partement])"
+- Utilise des verbes d'action : "Installation", "Rénovation", "Pose", "Création", "Réparation", "Aménagement"
+- Mentionne un matériau ou type de travail spécifique au métier
+- Termine TOUJOURS par "[à] [Ville] ([Code département])"
 - Une seule phrase`
           },
           {
             role: "user",
-            content: `G\u00e9n\u00e8re une l\u00e9gende g\u00e9o-centr\u00e9e pour cette story artisan :
+            content: `Génère une légende géo-centrée pour cette story artisan :
 - Entreprise : ${businessName}
-- M\u00e9tier : ${metier || "artisan du b\u00e2timent"}
+- Métier : ${metier || "artisan du bâtiment"}
 - Ville : ${city}${deptSuffix}
 
-Exemple de format attendu : "Installation de panneaux solaires monocristallins r\u00e9alis\u00e9e par nos \u00e9quipes \u00e0 ${city}${deptSuffix}."`
+Exemple de format attendu : "Installation de panneaux solaires monocristallins réalisée par nos équipes à ${city}${deptSuffix}."`
           }
         ],
       }),
@@ -81,13 +81,13 @@ Exemple de format attendu : "Installation de panneaux solaires monocristallins r
       console.error("AI gateway error:", response.status, errorText);
       
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Trop de requ\u00eates, r\u00e9essayez dans quelques instants." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans quelques instants." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" } });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Cr\u00e9dits IA insuffisants." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ error: "Crédits IA insuffisants." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" } });
       }
       
-      return new Response(JSON.stringify({ error: "Erreur du service IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Erreur du service IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" } });
     }
 
     const data = await response.json();
@@ -99,13 +99,13 @@ Exemple de format attendu : "Installation de panneaux solaires monocristallins r
 
     return new Response(
       JSON.stringify({ caption }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" } }
     );
   } catch (error) {
     console.error("Error:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" } }
     );
   }
 });

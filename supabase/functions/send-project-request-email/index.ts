@@ -36,7 +36,7 @@ Deno.serve(async (req: Request) => {
       throw new Error("Missing required fields");
     }
 
-    const subject = `[Artisans Valid\u00e9s] Nouvelle demande de projet - ${clientCity}`;
+    const subject = `[Artisans Validés] Nouvelle demande de projet - ${clientCity}`;
 
     const html = `
 <!DOCTYPE html>
@@ -58,7 +58,7 @@ Deno.serve(async (req: Request) => {
                 <div style="background:linear-gradient(135deg,#D4AF37 0%,#F4D03F 100%);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;">
                   <span style="color:#182c44;font-weight:bold;font-size:16px;">AV</span>
                 </div>
-                <span style="color:#ffffff;font-size:20px;font-weight:700;">Artisans Valid\u00e9s</span>
+                <span style="color:#ffffff;font-size:20px;font-weight:700;">Artisans Validés</span>
               </div>
             </td>
           </tr>
@@ -66,7 +66,7 @@ Deno.serve(async (req: Request) => {
           <!-- Icon -->
           <tr>
             <td style="padding:30px 40px 0;text-align:center;">
-              <div style="display:inline-block;width:70px;height:70px;background-color:#16A34A15;border-radius:50%;line-height:70px;font-size:32px;">\ud83d\udce9</div>
+              <div style="display:inline-block;width:70px;height:70px;background-color:#16A34A15;border-radius:50%;line-height:70px;font-size:32px;">📩</div>
             </td>
           </tr>
 
@@ -80,7 +80,7 @@ Deno.serve(async (req: Request) => {
                 Nouvelle demande de projet
               </h2>
               <p style="margin:0;font-size:16px;color:#444;line-height:1.6;">
-                Un client souhaite vous contacter pour un projet \u00e0 <strong>${clientCity}</strong>.
+                Un client souhaite vous contacter pour un projet à <strong>${clientCity}</strong>.
               </p>
             </td>
           </tr>
@@ -91,9 +91,9 @@ Deno.serve(async (req: Request) => {
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;">
                 <tr>
                   <td style="padding:20px;">
-                    <p style="margin:0 0 12px;font-size:14px;font-weight:700;color:#182c44;">\ud83d\udc64 Coordonn\u00e9es du client</p>
+                    <p style="margin:0 0 12px;font-size:14px;font-weight:700;color:#182c44;">👤 Coordonnées du client</p>
                     <p style="margin:0 0 8px;font-size:15px;color:#333;"><strong>Nom :</strong> ${clientName}</p>
-                    <p style="margin:0 0 8px;font-size:15px;color:#333;"><strong>T\u00e9l\u00e9phone :</strong> <a href="tel:${clientPhone}" style="color:#16A34A;text-decoration:none;font-weight:600;">${clientPhone}</a></p>
+                    <p style="margin:0 0 8px;font-size:15px;color:#333;"><strong>Téléphone :</strong> <a href="tel:${clientPhone}" style="color:#16A34A;text-decoration:none;font-weight:600;">${clientPhone}</a></p>
                     <p style="margin:0 0 8px;font-size:15px;color:#333;"><strong>Ville :</strong> ${clientCity}</p>
                     <hr style="border:none;border-top:1px solid #bbf7d0;margin:12px 0;">
                     <p style="margin:0;font-size:14px;color:#333;"><strong>Projet :</strong></p>
@@ -108,7 +108,7 @@ Deno.serve(async (req: Request) => {
           <tr>
             <td style="padding:0 40px 30px;text-align:center;">
               <a href="tel:${clientPhone}" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#D4AF37 0%,#F4D03F 100%);color:#182c44;font-size:15px;font-weight:700;text-decoration:none;border-radius:10px;box-shadow:0 4px 16px rgba(212,175,55,0.35);">
-                \ud83d\udcde Rappeler le client
+                📞 Rappeler le client
               </a>
             </td>
           </tr>
@@ -120,7 +120,7 @@ Deno.serve(async (req: Request) => {
                 <tr>
                   <td style="padding:16px 20px;">
                     <p style="margin:0;font-size:13px;color:#666;text-align:center;">
-                      \ud83d\udca1 <strong>Astuce :</strong> Rappeler le client dans l'heure augmente vos chances de conclure de 80% !
+                      💡 <strong>Astuce :</strong> Rappeler le client dans l'heure augmente vos chances de conclure de 80% !
                     </p>
                   </td>
                 </tr>
@@ -131,8 +131,8 @@ Deno.serve(async (req: Request) => {
           <!-- Footer -->
           <tr>
             <td style="padding:24px 40px;text-align:center;background-color:#fafafa;">
-              <p style="margin:0 0 8px;font-size:13px;color:#182c44;font-weight:600;">Artisans Valid\u00e9s</p>
-              <p style="margin:0;font-size:10px;color:#ccc;">\u00a9 ${new Date().getFullYear()} Artisans Valid\u00e9s - Tous droits r\u00e9serv\u00e9s</p>
+              <p style="margin:0 0 8px;font-size:13px;color:#182c44;font-weight:600;">Artisans Validés</p>
+              <p style="margin:0;font-size:10px;color:#ccc;">© ${new Date().getFullYear()} Artisans Validés - Tous droits réservés</p>
             </td>
           </tr>
         </table>
@@ -145,11 +145,11 @@ Deno.serve(async (req: Request) => {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json; charset=utf-8",
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Artisans Valid\u00e9s <noreply@artisansvalides.fr>",
+        from: "Artisans Validés <noreply@artisansvalides.fr>",
         to: [artisanEmail],
         subject,
         html,
@@ -167,13 +167,13 @@ Deno.serve(async (req: Request) => {
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
+      headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders },
     });
   } catch (error: any) {
     console.error("[send-project-request-email] Error:", error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      { status: 500, headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders } }
     );
   }
 });

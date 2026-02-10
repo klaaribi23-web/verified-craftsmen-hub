@@ -124,7 +124,7 @@ const AdminProjectStats = () => {
         <main className="flex-1">
           <DashboardHeader
             title="Demandes de projets"
-            subtitle="Suivi des contacts re\u00e7us par vos artisans"
+            subtitle="Suivi des contacts reçus par vos artisans"
           />
           <div className="p-4 md:p-8 space-y-6">
             {/* Overview Cards */}
@@ -139,7 +139,7 @@ const AdminProjectStats = () => {
                       </p>
                       {stats && (
                         <p className={`text-xs md:text-sm mt-1 font-medium ${stats.trendPositive ? "text-green-500" : "text-destructive"}`}>
-                          {stats.trendPositive ? "+" : ""}{stats.trendPercent}% vs p\u00e9riode pr\u00e9c.
+                          {stats.trendPositive ? "+" : ""}{stats.trendPercent}% vs période préc.
                         </p>
                       )}
                     </div>
@@ -154,7 +154,7 @@ const AdminProjectStats = () => {
                 <CardContent className="p-4 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs md:text-sm text-muted-foreground">Artisans contact\u00e9s</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Artisans contactés</p>
                       <p className="text-3xl md:text-4xl font-bold mt-1">
                         {isLoading ? "..." : stats?.uniqueArtisans}
                       </p>
@@ -203,7 +203,7 @@ const AdminProjectStats = () => {
               {/* Artisan Ranking */}
               <Card className="lg:col-span-2">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base md:text-lg">Classement des artisans par contacts re\u00e7us</CardTitle>
+                  <CardTitle className="text-base md:text-lg">Classement des artisans par contacts reçus</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
@@ -222,7 +222,7 @@ const AdminProjectStats = () => {
                         {isLoading ? (
                           <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Chargement...</td></tr>
                         ) : stats?.ranking.length === 0 ? (
-                          <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Aucune donn\u00e9e</td></tr>
+                          <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Aucune donnée</td></tr>
                         ) : (
                           stats?.ranking.slice(0, 20).map((artisan, i) => (
                             <tr key={artisan.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
@@ -277,7 +277,7 @@ const AdminProjectStats = () => {
               {/* Recent Requests */}
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base md:text-lg">Derni\u00e8res demandes</CardTitle>
+                  <CardTitle className="text-base md:text-lg">Dernières demandes</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {isLoading ? (
@@ -291,10 +291,10 @@ const AdminProjectStats = () => {
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium truncate">{req.artisan_name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {req.client_name} \u00b7 <span className="font-semibold">{req.client_city}</span>
+                            {req.client_name} · <span className="font-semibold">{req.client_city}</span>
                           </p>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
-                            {format(new Date(req.created_at), "d MMM yyyy '\u00e0' HH:mm", { locale: fr })}
+                            {format(new Date(req.created_at), "d MMM yyyy 'à' HH:mm", { locale: fr })}
                           </p>
                         </div>
                       </div>

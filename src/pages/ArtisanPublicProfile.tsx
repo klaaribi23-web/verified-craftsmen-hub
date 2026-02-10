@@ -1083,7 +1083,7 @@ const ArtisanPublicProfile = () => {
 
           <img
             src={selectedImage}
-            alt={`${artisan.category?.name || "R\u00e9alisation"} par ${artisan.business_name} \u00e0 ${artisan.city}${artisan.department ? ` (${artisan.department})` : artisan.postal_code ? ` (${artisan.postal_code.substring(0, 2)})` : ""} - Photo ${selectedImageIndex + 1}`}
+            alt={`${artisan.category?.name || "Réalisation"} par ${artisan.business_name} à ${artisan.city}${artisan.department ? ` (${artisan.department})` : artisan.postal_code ? ` (${artisan.postal_code.substring(0, 2)})` : ""} - Photo ${selectedImageIndex + 1}`}
             className="max-w-full max-h-[90vh] rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />

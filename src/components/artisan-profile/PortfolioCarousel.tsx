@@ -17,13 +17,13 @@ interface PortfolioCarouselProps {
 
 export const PortfolioCarousel = ({ items, type, onItemClick, artisanContext }: PortfolioCarouselProps) => {
   const getAltText = (index: number) => {
-    if (!artisanContext) return type === "image" ? `R\u00e9alisation ${index + 1}` : `Vid\u00e9o ${index + 1}`;
+    if (!artisanContext) return type === "image" ? `Réalisation ${index + 1}` : `Vidéo ${index + 1}`;
     const { businessName, category, city, department } = artisanContext;
     const deptSuffix = department ? ` (${department})` : "";
     if (type === "image") {
-      return `${category || "Travaux"} par ${businessName} \u00e0 ${city}${deptSuffix} - R\u00e9alisation ${index + 1}`;
+      return `${category || "Travaux"} par ${businessName} à ${city}${deptSuffix} - Réalisation ${index + 1}`;
     }
-    return `Vid\u00e9o ${category || "chantier"} par ${businessName} \u00e0 ${city}${deptSuffix}`;
+    return `Vidéo ${category || "chantier"} par ${businessName} à ${city}${deptSuffix}`;
   };
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
