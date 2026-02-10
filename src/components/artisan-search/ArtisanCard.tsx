@@ -242,7 +242,7 @@ const ArtisanCard = ({
         )}
 
         {/* Status Badge - Audité (gold, top tier) OR Validé (green) - never both */}
-        {isPremium && isAudited ? (
+        {isAudited ? (
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAuditDialogOpen(true); }}
             className="absolute top-2 right-10 z-10 cursor-pointer"

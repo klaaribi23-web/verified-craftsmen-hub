@@ -124,9 +124,7 @@ Deno.serve(async (req) => {
       display_priority: displayPriority,
     };
 
-    if (isYearly) {
-      updateData.is_audited = true;
-    }
+    // is_audited is now exclusively controlled by admin, not by subscription type
 
     await supabaseClient
       .from("artisans")
