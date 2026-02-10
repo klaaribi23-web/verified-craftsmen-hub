@@ -1,0 +1,1 @@
+ALTER TABLE public.partner_candidacies ADD COLUMN email text;

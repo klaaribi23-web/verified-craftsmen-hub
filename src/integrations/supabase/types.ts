@@ -1053,6 +1053,7 @@ export type Database = {
           business_name: string
           city: string
           created_at: string
+          email: string | null
           id: string
           insurance_file_url: string | null
           metier: string
@@ -1066,6 +1067,7 @@ export type Database = {
           business_name: string
           city: string
           created_at?: string
+          email?: string | null
           id?: string
           insurance_file_url?: string | null
           metier: string
@@ -1079,6 +1081,7 @@ export type Database = {
           business_name?: string
           city?: string
           created_at?: string
+          email?: string | null
           id?: string
           insurance_file_url?: string | null
           metier?: string
