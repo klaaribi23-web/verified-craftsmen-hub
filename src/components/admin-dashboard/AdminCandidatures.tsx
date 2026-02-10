@@ -12,6 +12,7 @@ import { useState } from "react";
 interface Candidacy {
   id: string;
   business_name: string;
+  email: string | null;
   phone: string;
   city: string;
   metier: string;
@@ -142,6 +143,11 @@ export const AdminCandidatures = () => {
                       <MapPin className="h-3.5 w-3.5" />
                       {candidacy.city}
                     </span>
+                    {candidacy.email && (
+                      <span className="flex items-center gap-1 text-primary font-medium">
+                        ✉ {candidacy.email}
+                      </span>
+                    )}
                     <span className="flex items-center gap-1">
                       <Phone className="h-3.5 w-3.5" />
                       {candidacy.phone}
@@ -203,6 +209,10 @@ export const AdminCandidatures = () => {
                 <div>
                   <p className="text-muted-foreground">Métier</p>
                   <p className="font-medium">{selectedCandidacy.metier}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Email</p>
+                  <p className="font-medium">{selectedCandidacy.email || "—"}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Ville</p>

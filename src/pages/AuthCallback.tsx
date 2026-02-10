@@ -56,41 +56,44 @@ const AuthCallback = () => {
             .eq("user_id", session.user.id)
             .single();
 
+          // PRIORITY: Check if user has an artisan record — always redirect to artisan dashboard
+          const { data: artisanRecord } = await supabase
+            .from("artisans")
+            .select("id")
+            .eq("user_id", session.user.id)
+            .maybeSingle();
+
+          // If artisan record exists but role isn't artisan, fix it
+          if (artisanRecord && roles?.role !== "artisan" && roles?.role !== "admin") {
+            await supabase.from("user_roles").update({ role: "artisan" as any }).eq("user_id", session.user.id);
+          }
+
           // If artisan role, ensure artisan profile exists
-          if (roles?.role === "artisan") {
-            const { data: existingArtisan } = await supabase
-              .from("artisans")
-              .select("id")
+          if (roles?.role === "artisan" && !artisanRecord) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("id, city")
               .eq("user_id", session.user.id)
-              .maybeSingle();
+              .single();
 
-            // Create artisan profile if missing
-            if (!existingArtisan) {
-              const { data: profile } = await supabase
-                .from("profiles")
-                .select("id, city")
-                .eq("user_id", session.user.id)
-                .single();
-
-              if (profile) {
-                await supabase.from("artisans").insert([
-                  {
-                    user_id: session.user.id,
-                    profile_id: profile.id,
-                    business_name: "Non renseigné",
-                    city: profile.city || "Non renseigné",
-                    status: "pending",
-                  },
-                ]);
-              }
+            if (profile) {
+              await supabase.from("artisans").insert([
+                {
+                  user_id: session.user.id,
+                  profile_id: profile.id,
+                  business_name: "Non renseigné",
+                  city: profile.city || "Non renseigné",
+                  status: "pending",
+                },
+              ]);
             }
           }
 
-          // Determine target dashboard
+          // Determine target dashboard — artisan record takes PRIORITY
           let dashboard = "/client/dashboard";
           if (roles?.role === "admin") {
             dashboard = "/admin/dashboard";
-          } else if (roles?.role === "artisan") {
+          } else if (artisanRecord || roles?.role === "artisan") {
             dashboard = "/artisan/dashboard";
           }
 
