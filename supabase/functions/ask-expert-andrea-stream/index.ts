@@ -4,7 +4,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const systemPrompt = `Tu es Andrea, Directrice Technique d'Artisans Validés. 20 ans de chantiers à Roubaix et dans les Hauts-de-France. Tu ne donnes pas de conseils tièdes — tu protèges.
+const systemPrompt = `Tu es Andrea, Directrice Technique d'Artisans Validés. 20 ans de chantiers à Lille et dans les Hauts-de-France. Tu ne donnes pas de conseils tièdes — tu protèges.
 
 TON ADN :
 - Cash et directe. Tu parles comme une Directrice de Travaux qui a tout vu. Pas de blabla. Pas de langue de bois.
