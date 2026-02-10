@@ -40,12 +40,12 @@ const HeroSection = () => {
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-white leading-tight mb-4 md:mb-6">
-              Artisans : Récupérez 100% de votre marge.{" "}
-              <span className="text-gradient-gold">L'exclusivité de votre ville.</span>
+              Né dans le Nord pour devenir la norme.{" "}
+              <span className="text-gradient-gold">Récupérez 100% de votre marge.</span>
             </h1>
 
             <p className="text-sm md:text-base text-gold/80 font-medium mb-3 max-w-xl mx-auto lg:mx-0">
-              Artisans Validés déploie son expertise sur tout le territoire. Nous ne sélectionnons qu'un nombre limité de référents par secteur pour garantir l'excellence.
+              L'alliance de l'expertise métier et de la technologie exclusive pour protéger vos marges.
             </p>
 
             {/* Maillage Territorial */}
@@ -89,9 +89,9 @@ const HeroSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-8">
-              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98]" asChild>
-                <Link to="/demande-devis">
-                  Lancer votre projet
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98] animate-pulse hover:animate-none" asChild>
+                <Link to="/devenir-artisan">
+                  VÉRIFIER MA DISPONIBILITÉ
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
