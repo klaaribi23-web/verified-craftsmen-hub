@@ -26,12 +26,9 @@ serve(async (req) => {
       });
     }
 
-    // Phone is MANDATORY — reject if missing
+    // Phone is recommended but no longer blocks draft saves
     if (!data.telephone) {
-      return new Response(JSON.stringify({ error: "Le numéro de téléphone est obligatoire" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.log("[save-andrea-lead] Sauvegarde brouillon sans téléphone");
     }
 
     const supabase = createClient(

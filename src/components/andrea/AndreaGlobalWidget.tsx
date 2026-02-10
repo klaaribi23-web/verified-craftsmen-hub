@@ -92,6 +92,10 @@ const AndreaGlobalWidget = () => {
     if (leadData.lead_type && leadData.telephone && !savedId) {
       saveLead(undefined, location.pathname);
     }
+    // Save draft as soon as lead type is selected (even without phone)
+    if (leadData.lead_type && !leadData.telephone && !savedId && !phoneRelanceShown) {
+      saveLead(undefined, location.pathname, true);
+    }
     if (leadData.lead_type && !leadData.telephone && !phoneRelanceShown && lastAndreaText) {
       setPhoneRelanceShown(true);
     }

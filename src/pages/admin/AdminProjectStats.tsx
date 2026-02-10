@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { SEOHead } from "@/components/seo/SEOHead";
 import Navbar from "@/components/layout/Navbar";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, TrendingUp, Users, CheckCircle } from "lucide-react";
+import { FileText, TrendingUp, Users, CheckCircle, RefreshCw, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -114,6 +116,16 @@ const useProjectRequestStats = () => {
 
 const AdminProjectStats = () => {
   const { data: stats, isLoading } = useProjectRequestStats();
+  const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ["admin-project-request-stats"] });
+    setLastUpdated(new Date());
+    setIsRefreshing(false);
+  };
 
   return (
     <>
@@ -127,6 +139,17 @@ const AdminProjectStats = () => {
             subtitle="Suivi des contacts reçus par vos artisans"
           />
           <div className="p-4 md:p-8 space-y-6">
+            {/* Refresh button */}
+            <div className="flex items-center justify-end gap-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span className="hidden sm:inline">Mis à jour</span> {lastUpdated.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+              </div>
+              <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+                <span className="hidden sm:inline">Rafraîchir</span>
+              </Button>
+            </div>
             {/* Overview Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
               <Card>
