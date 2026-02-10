@@ -25,17 +25,17 @@ import { Badge } from "@/components/ui/badge";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin/dashboard" },
-  { icon: Settings, label: "Approbations", path: "/admin/approbations", badge: "approvals" },
-  { icon: ThumbsUp, label: "Recommandations", path: "/admin/recommandations", badge: "recommendations" },
+  { icon: Settings, label: "Validations", path: "/admin/approbations", badge: "approvals" },
+  { icon: ThumbsUp, label: "Avis clients", path: "/admin/recommandations", badge: "recommendations" },
   { icon: CreditCard, label: "Abonnements", path: "/admin/abonnements" },
   { icon: Users, label: "Artisans", path: "/admin/artisans" },
   { icon: UserCheck, label: "Clients", path: "/admin/clients" },
   { icon: BarChart3, label: "Statistiques", path: "/admin/statistiques" },
-  { icon: FileText, label: "Demandes projets", path: "/admin/demandes-projets" },
+  { icon: FileText, label: "Demandes de projets", path: "/admin/demandes-projets" },
   { icon: MessageCircle, label: "Leads Andrea", path: "/admin/leads-andrea" },
   { icon: MessageCircle, label: "Messagerie", path: "/admin/messagerie" },
-  { icon: UserPlus, label: "Ajouter artisan", path: "/admin/ajouter-artisan" },
-  { icon: Upload, label: "Import massif", path: "/admin/import-massif" },
+  { icon: UserPlus, label: "Ajouter un artisan", path: "/admin/ajouter-artisan" },
+  { icon: Upload, label: "Import en masse", path: "/admin/import-massif" },
   { icon: Gift, label: "Partenaires", path: "/admin/partenaires" },
   { icon: Settings, label: "Paramètres", path: "/admin/parametres" },
 ];
