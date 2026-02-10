@@ -180,10 +180,11 @@ const AndreaGlobalWidget = () => {
       setShowPreviewBubble(false);
       handleOpen();
       // Send contextual first message automatically
-      if (messages.length === 0 && artisanContext) {
+      setMessages(prev => {
+        if (prev.length > 0) return prev;
         const greeting = `Je vois que tu regardes le profil de ${artisanContext.business_name}. J'ai validé son dossier à ${artisanContext.city}. ${artisanContext.is_audited ? "Tu veux que je te dise pourquoi il est audité ?" : "Tu veux que je te mette en relation directe avec lui ?"}`;
-        setMessages([{ role: "andrea", text: greeting, time: getTime() }]);
-      }
+        return [{ role: "andrea", text: greeting, time: getTime() }];
+      });
     }, 3000);
     return () => { clearTimeout(previewTimer); clearTimeout(openTimer); };
   }, [artisanContext, isOpen, dismissedAutoOpen, location.pathname]);
@@ -411,7 +412,7 @@ const AndreaGlobalWidget = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] flex items-center gap-3"
+            className="fixed bottom-24 sm:bottom-6 right-4 sm:right-6 z-[9999] flex items-center gap-3"
           >
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -430,7 +431,7 @@ const AndreaGlobalWidget = () => {
                   initial={{ opacity: 0, y: 10, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                  className="absolute bottom-20 right-0 w-64 sm:w-72 px-4 py-3 rounded-2xl rounded-br-sm text-[13px] text-white/90 leading-snug cursor-pointer"
+                  className="absolute bottom-20 right-0 w-60 sm:w-72 px-4 py-3 rounded-2xl rounded-br-sm text-[13px] text-white/90 leading-snug cursor-pointer"
                   style={{
                     background: "hsla(222, 30%, 10%, 0.92)",
                     backdropFilter: "blur(20px)",
@@ -509,7 +510,7 @@ const AndreaGlobalWidget = () => {
             className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-[9999] w-full sm:w-[440px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl rounded-t-2xl overflow-hidden flex flex-col"
             style={{
               maxHeight: artisanContext 
-                ? "min(540px, calc(var(--vh, 1vh) * 75))"  /* Mobile: 75% height on artisan pages so user sees the profile behind */
+                ? "min(540px, calc(var(--vh, 1vh) * 80))"  /* Mobile: 80% height on artisan pages so user sees the profile behind */
                 : "min(640px, calc(var(--vh, 1vh) * 100 - 2rem))",
               background: "hsla(222, 30%, 8%, 0.82)",
               backdropFilter: "blur(28px) saturate(1.8)",
@@ -841,6 +842,7 @@ const AndreaGlobalWidget = () => {
                 <button
                   type="button"
                   onClick={toggleListening}
+                  onTouchStart={(e) => { e.preventDefault(); toggleListening(); }}
                   disabled={isLoading}
                   className={`shrink-0 h-11 w-11 rounded-full flex items-center justify-center transition-all ${
                     isListening
