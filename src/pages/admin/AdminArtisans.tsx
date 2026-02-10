@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +33,19 @@ import {
   CheckCircle,
   XCircle,
   ImageDown,
-  Loader2
+  Loader2,
+  Trash2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { useArtisans, useCategories, useUpdateArtisanStatus } from "@/hooks/useAdminData";
@@ -44,6 +55,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/layout/Navbar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminArtisans = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -51,6 +63,8 @@ const AdminArtisans = () => {
   const [selectedCity, setSelectedCity] = useState("Toutes");
   const [selectedStatus, setSelectedStatus] = useState("Tous");
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingArtisan, setDeletingArtisan] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedArtisan, setSelectedArtisan] = useState<any>(null);
   
@@ -117,6 +131,50 @@ const AdminArtisans = () => {
 
   const handleCall = (phone: string) => {
     window.location.href = `tel:${phone}`;
+  };
+
+  const handleDelete = (artisan: any) => {
+    setSelectedArtisan(artisan);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedArtisan) return;
+    setDeletingArtisan(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-delete-waiting-artisan`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ artisanId: selectedArtisan.id }),
+        }
+      );
+      const result = await res.json();
+      if (!res.ok || !result.success) throw new Error(result.error || "Échec");
+
+      await queryClient.refetchQueries({ queryKey: ["admin-artisans"] });
+      await queryClient.refetchQueries({ queryKey: ["admin-stats"] });
+
+      toast({
+        title: "Artisan supprimé",
+        description: `${selectedArtisan.business_name} a été supprimé définitivement.`,
+      });
+    } catch (error: any) {
+      console.error("[Admin] Delete error:", error);
+      toast({
+        title: "Erreur de suppression",
+        description: error.message || "La suppression a échoué.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingArtisan(false);
+      setDeleteDialogOpen(false);
+    }
   };
 
   const activeCount = artisans?.filter(a => a.status === "active").length || 0;
@@ -282,7 +340,7 @@ const AdminArtisans = () => {
                       </div>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-4 gap-2">
+                    <div className="mt-3 grid grid-cols-5 gap-2">
                       <Link to={`/artisan/${artisan.slug || artisan.id}`} className="w-full">
                         <Button size="icon" variant="outline" className="w-full" aria-label="Voir le profil">
                           <Eye className="h-4 w-4" />
@@ -317,6 +375,15 @@ const AdminArtisans = () => {
                         ) : (
                           <UserX className="h-4 w-4" />
                         )}
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="w-full"
+                        onClick={() => handleDelete(artisan)}
+                        aria-label="Supprimer définitivement"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -444,6 +511,14 @@ const AdminArtisans = () => {
                                 <UserX className="h-4 w-4" />
                               )}
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDelete(artisan)}
+                              title="Supprimer définitivement"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -483,6 +558,33 @@ const AdminArtisans = () => {
             </div>
             </DialogContent>
           </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer définitivement cet artisan ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Êtes-vous sûr de vouloir supprimer définitivement <strong>{selectedArtisan?.business_name}</strong> ? 
+                Cette action est irréversible. Toutes les données associées (profil, documents, avis, candidatures) seront effacées.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deletingArtisan}>Annuler</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDelete}
+                disabled={deletingArtisan}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deletingArtisan ? (
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Suppression...</>
+                ) : (
+                  "Supprimer définitivement"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Edit Artisan Dialog */}
         <AdminEditArtisanDialog
