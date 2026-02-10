@@ -507,6 +507,14 @@ const ArtisanPublicProfile = () => {
                         <FileText className="h-4 w-4" />
                         Demander un devis
                       </Button>
+                      {artisanContact.phone && (
+                        <a href={`tel:${artisanContact.phone}`} className="w-full">
+                          <Button variant="outline" className="w-full gap-2 text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700">
+                            <Phone className="h-4 w-4" />
+                            Appeler
+                          </Button>
+                        </a>
+                      )}
                       <Button
                         variant="outline"
                         className="w-full gap-2"
@@ -519,7 +527,7 @@ const ArtisanPublicProfile = () => {
                           setShowMobileContactDialog(true);
                         }}
                       >
-                        <Phone className="h-4 w-4" />
+                        <Mail className="h-4 w-4" />
                         Voir les coordonnées
                       </Button>
                     </div>
@@ -1032,6 +1040,7 @@ const ArtisanPublicProfile = () => {
                 artisanId={artisan.id}
                 artisanName={artisan.business_name}
                 artisanEmail={artisanContact.email}
+                artisanPhone={artisanContact.phone}
                 artisanCity={artisan.city}
                 isAudited={artisan.is_audited === true}
               />

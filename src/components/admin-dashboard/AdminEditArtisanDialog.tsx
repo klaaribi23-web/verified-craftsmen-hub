@@ -31,6 +31,7 @@ interface ArtisanData {
   portfolio_videos?: string[] | null;
   experience_years?: number | null;
   is_verified?: boolean | null;
+  phone?: string | null;
   facebook_url?: string | null;
   instagram_url?: string | null;
   linkedin_url?: string | null;
@@ -136,6 +137,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
         portfolio_videos: artisan.portfolio_videos || [],
         experience_years: artisan.experience_years || null,
         is_verified: artisan.is_verified || null,
+        phone: (artisan as any).phone || null,
         facebook_url: artisan.facebook_url || null,
         instagram_url: artisan.instagram_url || null,
         linkedin_url: artisan.linkedin_url || null,
@@ -188,6 +190,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
         .update({
           business_name: data.business_name,
           email: data.email,
+          phone: data.phone,
           description: data.description,
           category_id: data.primaryCategoryId,
           city: data.city,
@@ -451,6 +454,16 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                   value={formData.email || ""}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="email@exemple.fr"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Téléphone</Label>
+                <Input
+                  type="tel"
+                  value={formData.phone || ""}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="06 12 34 56 78"
                 />
               </div>
 
