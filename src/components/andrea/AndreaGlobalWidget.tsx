@@ -165,28 +165,61 @@ const AndreaGlobalWidget = () => {
     return () => window.removeEventListener("resize", setVh);
   }, []);
 
-  // Auto-open on artisan pages after 3s (only if not dismissed before)
+  // Track if user is interacting with call button (prevent Andrea from opening over it)
+  const isInteractingWithCallRef = useRef(false);
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target?.closest?.('[data-call-button]') || target?.closest?.('a[href^="tel:"]')) {
+        isInteractingWithCallRef.current = true;
+        setTimeout(() => { isInteractingWithCallRef.current = false; }, 3000);
+      }
+    };
+    document.addEventListener("pointerdown", handler, true);
+    return () => document.removeEventListener("pointerdown", handler, true);
+  }, []);
+
+  // Auto-open on artisan pages after 7s OR on 50% scroll (only if not dismissed before)
   useEffect(() => {
     if (!artisanContext || isOpen || dismissedAutoOpen) return;
-    // Check sessionStorage to see if user already dismissed on this page
     const dismissKey = `andrea_dismissed_${location.pathname}`;
     if (sessionStorage.getItem(dismissKey)) {
       setDismissedAutoOpen(true);
       return;
     }
-    // Show preview bubble after 1.5s, then auto-open after 3s
-    const previewTimer = setTimeout(() => setShowPreviewBubble(true), 1500);
-    const openTimer = setTimeout(() => {
+
+    let triggered = false;
+    const triggerAutoOpen = () => {
+      if (triggered || isInteractingWithCallRef.current) return;
+      triggered = true;
       setShowPreviewBubble(false);
       handleOpen();
-      // Send contextual first message automatically
       setMessages(prev => {
         if (prev.length > 0) return prev;
         const greeting = `Je vois que tu regardes le profil de ${artisanContext.business_name}. J'ai validé son dossier à ${artisanContext.city}. ${artisanContext.is_audited ? "Tu veux que je te dise pourquoi il est audité ?" : "Tu veux que je te mette en relation directe avec lui ?"}`;
         return [{ role: "andrea", text: greeting, time: getTime() }];
       });
-    }, 3000);
-    return () => { clearTimeout(previewTimer); clearTimeout(openTimer); };
+    };
+
+    // Preview bubble appears after 5s (2s before the 7s auto-open)
+    const previewTimer = setTimeout(() => setShowPreviewBubble(true), 5000);
+    // Full auto-open after 7s
+    const openTimer = setTimeout(triggerAutoOpen, 7000);
+
+    // Scroll trigger: open immediately if user scrolls past 50% of page
+    const scrollHandler = () => {
+      const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      if (scrollPercent >= 0.5) {
+        triggerAutoOpen();
+      }
+    };
+    window.addEventListener("scroll", scrollHandler, { passive: true });
+
+    return () => {
+      clearTimeout(previewTimer);
+      clearTimeout(openTimer);
+      window.removeEventListener("scroll", scrollHandler);
+    };
   }, [artisanContext, isOpen, dismissedAutoOpen, location.pathname]);
 
   const handleAsk = useCallback(async (question: string) => {
@@ -503,10 +536,10 @@ const AndreaGlobalWidget = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.92 }}
+            initial={{ opacity: 0, y: 80, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.92 }}
-            transition={{ type: "spring", damping: 22, stiffness: 280, mass: 0.6 }}
+            exit={{ opacity: 0, y: 80, scale: 0.95 }}
+            transition={{ type: "spring", damping: 28, stiffness: 200, mass: 0.8 }}
             className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-[9999] w-full sm:w-[440px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl rounded-t-2xl overflow-hidden flex flex-col"
             style={{
               maxHeight: artisanContext 
