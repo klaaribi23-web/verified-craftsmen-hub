@@ -233,6 +233,7 @@ export type Database = {
           insurance_number: string | null
           intervention_radius: number | null
           is_audited: boolean
+          is_permanent: boolean
           is_verified: boolean | null
           last_mission_reset: string | null
           latitude: number | null
@@ -289,6 +290,7 @@ export type Database = {
           insurance_number?: string | null
           intervention_radius?: number | null
           is_audited?: boolean
+          is_permanent?: boolean
           is_verified?: boolean | null
           last_mission_reset?: string | null
           latitude?: number | null
@@ -345,6 +347,7 @@ export type Database = {
           insurance_number?: string | null
           intervention_radius?: number | null
           is_audited?: boolean
+          is_permanent?: boolean
           is_verified?: boolean | null
           last_mission_reset?: string | null
           latitude?: number | null
