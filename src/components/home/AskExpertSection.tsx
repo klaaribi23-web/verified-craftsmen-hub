@@ -93,10 +93,10 @@ const AskExpertSection = () => {
             <span className="text-sm font-medium text-primary">Expert IA</span>
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-            Un doute sur vos travaux ?
+            Un doute sur vos travaux ? Pas de blabla.
           </h2>
           <p className="text-muted-foreground text-base md:text-lg">
-            Demandez conseil à notre <span className="font-semibold text-foreground">Expert Andrea</span> — 20 ans d'expérience terrain à votre service.
+            Posez votre question à <span className="font-semibold text-foreground">Andrea, Directrice du Réseau</span> — elle filtre le vrai du faux, sans langue de bois.
           </p>
         </motion.div>
 
@@ -182,7 +182,7 @@ const AskExpertSection = () => {
                     {answer}
                   </p>
                   <p className="text-sm text-muted-foreground italic mb-4">
-                    — Andrea, Fondateur & Expert Terrain
+                    — Andrea, Directrice du Réseau Artisans Validés
                   </p>
                   <Button asChild variant="gold" size="lg" className="w-full sm:w-auto group">
                     <Link to="/demande-devis">
@@ -206,7 +206,7 @@ const AskExpertSection = () => {
         >
           <Zap className="h-4 w-4 text-gold" />
           <p className="text-xs md:text-sm">
-            Andrea a déjà analysé <span className="font-bold text-foreground">+500 points de contrôle technique</span> ce mois-ci pour sécuriser nos chantiers.
+            <span className="font-bold text-foreground">500+ audits mensuels</span> · 70% des artisans refusés · Zéro commission sur vos devis.
           </p>
         </motion.div>
       </div>

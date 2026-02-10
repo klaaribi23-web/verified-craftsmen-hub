@@ -54,7 +54,10 @@ const AndreaLabel = () => (
   <div className="flex items-center gap-2 mb-2">
     <AndreaAvatar />
     <span className="text-[11px] font-black uppercase tracking-[0.12em]" style={{ color: "hsl(45, 93%, 60%)" }}>Andrea</span>
-    <ShieldCheck className="w-3 h-3" style={{ color: "hsl(142, 71%, 45%)" }} />
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider"
+      style={{ background: "hsla(142, 71%, 45%, 0.15)", color: "hsl(142, 71%, 55%)", border: "1px solid hsla(142, 71%, 45%, 0.25)" }}>
+      <ShieldCheck className="w-2.5 h-2.5" /> Vérifiée
+    </span>
   </div>
 );
 
@@ -393,7 +396,10 @@ const AndreaGlobalWidget = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <p className="font-black text-white text-sm tracking-wide uppercase">Andrea</p>
-                  <ShieldCheck className="w-3.5 h-3.5" style={{ color: "hsl(142, 71%, 45%)" }} />
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider"
+                    style={{ background: "hsla(142, 71%, 45%, 0.15)", color: "hsl(142, 71%, 55%)", border: "1px solid hsla(142, 71%, 45%, 0.25)" }}>
+                    <ShieldCheck className="w-2.5 h-2.5" /> Vérifiée
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "hsl(142, 71%, 45%)" }} />
@@ -563,7 +569,7 @@ const AndreaGlobalWidget = () => {
                 {showArtisanCTA && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="w-full space-y-1.5">
                     <p className="text-[10px] text-center tracking-wide" style={{ color: "hsla(45, 90%, 65%, 0.7)" }}>
-                      Déjà +200 artisans labellisés dans les Hauts-de-France
+                      500+ audits/mois · Seuls les meilleurs passent
                     </p>
                     <Button
                       onClick={() => { setIsOpen(false); navigate("/inscription-artisan"); }}
@@ -624,13 +630,12 @@ const AndreaGlobalWidget = () => {
                         handleAsk("Je veux être validé en tant qu'artisan");
                       }}
                       disabled={isLoading}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                       style={{
-                        background: "linear-gradient(135deg, hsla(30, 90%, 50%, 0.85), hsla(45, 93%, 47%, 0.85))",
-                        backdropFilter: "blur(12px)",
-                        border: "1px solid hsla(45, 90%, 55%, 0.3)",
+                        background: "linear-gradient(135deg, hsl(25, 95%, 53%), hsl(35, 90%, 50%))",
+                        border: "1px solid hsla(30, 90%, 55%, 0.4)",
                         color: "#ffffff",
-                        boxShadow: "0 0 12px hsla(35, 90%, 50%, 0.2)",
+                        boxShadow: "0 0 16px hsla(30, 95%, 53%, 0.3)",
                       }}
                     >
                       <HardHat className="w-3.5 h-3.5" />
@@ -639,16 +644,15 @@ const AndreaGlobalWidget = () => {
                     <button
                       onClick={() => {
                         updateLead({ lead_type: "particulier" });
-                        handleAsk("C'est parti. Pour vous trouver le meilleur artisan certifié, j'ai besoin de 3 infos : 1) Quel est votre code postal ? 2) Quel est le métier concerné ? 3) Quel est votre budget approximatif ?");
+                        handleAsk("Je cherche un artisan vérifié pour mon projet");
                       }}
                       disabled={isLoading}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                       style={{
-                        background: "hsla(160, 60%, 18%, 0.85)",
-                        backdropFilter: "blur(12px)",
-                        border: "1px solid hsla(45, 90%, 50%, 0.25)",
-                        color: "hsla(0, 0%, 100%, 0.9)",
-                        boxShadow: "0 0 10px hsla(160, 50%, 30%, 0.15)",
+                        background: "linear-gradient(135deg, hsl(142, 60%, 38%), hsl(152, 55%, 42%))",
+                        border: "1px solid hsla(142, 60%, 45%, 0.4)",
+                        color: "#ffffff",
+                        boxShadow: "0 0 14px hsla(142, 60%, 38%, 0.25)",
                       }}
                     >
                       <Home className="w-3.5 h-3.5" />
@@ -656,7 +660,7 @@ const AndreaGlobalWidget = () => {
                     </button>
                   </div>
                   <p className="text-[9px] text-center mb-2 tracking-wide" style={{ color: "hsla(45, 80%, 65%, 0.55)" }}>
-                    ✨ Andrea a déjà audité 542 chantiers ce mois-ci.
+                    🛡️ 500+ audits mensuels · 70% des artisans refusés · Zéro commission
                   </p>
                 </>
               )}
