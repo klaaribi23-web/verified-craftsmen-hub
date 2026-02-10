@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { question } = await req.json();
+    const { question, artisanContext } = await req.json();
 
     if (!question || typeof question !== "string" || question.trim().length < 5) {
       return new Response(
@@ -64,8 +64,13 @@ Deno.serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    console.log(`[Andrea Stream] Question: "${question.substring(0, 80)}..."`);
+    console.log(`[Andrea Stream] Question: "${question.substring(0, 80)}..." Context: ${artisanContext ? artisanContext.business_name : 'none'}`);
 
+    // Build system prompt with artisan context if available
+    let fullSystemPrompt = systemPrompt;
+    if (artisanContext && artisanContext.business_name) {
+      fullSystemPrompt += `\n\nCONTEXTE ACTUEL : L'utilisateur consulte la fiche de l'artisan "${artisanContext.business_name}" situé à ${artisanContext.city || "ville inconnue"}.${artisanContext.is_audited ? " Cet artisan est un MEMBRE D'ÉLITE — tu as vérifié son outillage sur le terrain." : ""} ${artisanContext.category ? `Métier : ${artisanContext.category}.` : ""} Adapte tes réponses à ce contexte. Si l'utilisateur veut être mis en relation, demande son numéro de téléphone.`;
+    }
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -76,7 +81,7 @@ Deno.serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         stream: true,
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: fullSystemPrompt },
           { role: "user", content: question },
         ],
       }),

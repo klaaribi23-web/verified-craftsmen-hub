@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { X, Send, ShieldCheck, ArrowRight, FileText, PhoneCall, CheckCircle2, Phone, Sparkles, HardHat, Home, Mic, MicOff, CheckCheck } from "lucide-react";
 import {
   ANDREA_TOOLTIP,
@@ -8,6 +8,7 @@ import {
   ANDREA_PHONE_RELANCE,
   ANDREA_CONVERSION_ANNONCE,
   ANDREA_CONVERSION_RAPPEL,
+  ANDREA_ARTISAN_CONTEXT,
 } from "@/config/andreaMessages";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -78,6 +79,14 @@ const AndreaGlobalWidget = () => {
   const [streamingText, setStreamingText] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
 
+  // Artisan context detection
+  const [artisanContext, setArtisanContext] = useState<{
+    business_name: string;
+    city: string;
+    is_audited: boolean;
+    category?: string;
+  } | null>(null);
+
   const location = useLocation();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -90,6 +99,32 @@ const AndreaGlobalWidget = () => {
   } = useAndreaLeadCapture();
 
   const lastAndreaText = messages.filter(m => m.role === "andrea").at(-1)?.text ?? null;
+
+  // Detect artisan page and fetch context
+  useEffect(() => {
+    const match = location.pathname.match(/^\/artisan\/(.+)$/);
+    if (!match) {
+      setArtisanContext(null);
+      return;
+    }
+    const slug = match[1];
+    const fetchArtisan = async () => {
+      const { data } = await supabase
+        .from("public_artisans")
+        .select("business_name, city, is_audited, category:categories(name)")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (data) {
+        setArtisanContext({
+          business_name: data.business_name || "",
+          city: data.city || "",
+          is_audited: data.is_audited || false,
+          category: (data.category as any)?.name || undefined,
+        });
+      }
+    };
+    fetchArtisan();
+  }, [location.pathname]);
 
   useEffect(() => {
     if (lastAndreaText) processAgentText(lastAndreaText);
@@ -153,7 +188,7 @@ const AndreaGlobalWidget = () => {
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ question: safeQuestion }),
+          body: JSON.stringify({ question: safeQuestion, artisanContext: artisanContext || undefined }),
           signal: controller.signal,
         }
       );
@@ -485,7 +520,9 @@ const AndreaGlobalWidget = () => {
                 >
                   <AndreaBubbleWrapper className="self-start w-full">
                     <AndreaLabel />
-                    <p className="text-white text-[13px] leading-relaxed mb-3">{ANDREA_WELCOME}</p>
+                    <p className="text-white text-[13px] leading-relaxed mb-3">
+                      {artisanContext ? ANDREA_ARTISAN_CONTEXT(artisanContext.business_name, artisanContext.city, artisanContext.is_audited) : ANDREA_WELCOME}
+                    </p>
                     <div className="space-y-2">
                       <button
                         onClick={() => { updateLead({ lead_type: "particulier" }); }}
