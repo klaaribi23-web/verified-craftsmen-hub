@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles, Send } from "lucide-react";
+import { Shield, CheckCircle2, ArrowRight, Camera, MessageSquare, UserCheck, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBackground from "@/assets/hero-artisan-bg.jpg";
 import { useQuery } from "@tanstack/react-query";
@@ -57,7 +57,7 @@ const HeroSection = () => {
                 <p className="text-sm text-gold font-semibold">Posez votre question à l'Expert</p>
               </div>
               <p className="text-xs text-white/60 mb-3 leading-relaxed">
-                Une question sur une assurance ? Un doute sur un devis ? Andrea, notre IA experte du bâtiment, vous répond sans langue de bois.
+                Une question sur une norme, un matériau ou un devis ? Andrea vous répond instantanément.
               </p>
               <form
                 onSubmit={(e) => {
@@ -74,17 +74,13 @@ const HeroSection = () => {
               >
                 <input name="question" type="text" placeholder="Ex : Comment vérifier une décennale ?"
                   className="flex-1 rounded-lg bg-white/10 border border-gold/20 text-white placeholder:text-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50" />
-                <button type="submit" className="bg-gradient-gold text-navy-dark font-bold px-5 py-2.5 rounded-lg text-sm hover:scale-[1.02] transition-transform flex items-center gap-1.5">
-                  <Send className="w-4 h-4" />
-                  Demander
-                </button>
               </form>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-8">
-              <Button size="lg" className="bg-gradient-gold text-navy-dark font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-gold/40 hover:shadow-gold/60 transition-all hover:scale-[1.03] active:scale-[0.98] animate-[pulse-subtle_5s_ease-in-out_infinite] ring-2 ring-gold/50 ring-offset-2 ring-offset-navy" asChild>
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98]" asChild>
                 <Link to="/demande-devis">
-                  Lancer mon projet
+                  Lancer votre projet
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
@@ -93,9 +89,9 @@ const HeroSection = () => {
               </Button>
             </div>
 
-            <p className="text-sm md:text-base text-white/70 mb-8 md:mb-10">
-              <CheckCircle2 className="w-4 h-4 text-gold inline mr-1.5 -mt-0.5" />
-              Déjà <span className="text-gold font-bold">+{displayCount}</span> artisans validés et vérifiés par nos soins.
+            <p className="text-sm md:text-base text-white/70 mb-8 md:mb-10 leading-snug">
+              <CheckCircle2 className="w-4 h-4 text-gold inline mr-1.5 -mt-0.5 shrink-0" />
+              L'élite de la région : <span className="text-gold font-bold">+{displayCount > 200 ? displayCount : 1000} Artisans Validés</span>
             </p>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-5 border border-white/20">
