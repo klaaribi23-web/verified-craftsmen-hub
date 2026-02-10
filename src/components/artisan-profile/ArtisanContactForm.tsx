@@ -14,10 +14,10 @@ const requestSchema = z.object({
   clientName: z.string().trim().min(2, "Nom requis").max(100, "Nom trop long"),
   clientPhone: z.string().trim().refine(
     (val) => validateFrenchPhone(val),
-    { message: "Num\u00e9ro fran\u00e7ais invalide (10 chiffres)" }
+    { message: "Numéro français invalide (10 chiffres)" }
   ),
   clientCity: z.string().trim().min(2, "Ville requise").max(100, "Ville trop longue"),
-  projectDescription: z.string().trim().min(10, "D\u00e9crivez bri\u00e8vement votre projet (min. 10 caract\u00e8res)").max(500, "Description trop longue (max. 500 caract\u00e8res)"),
+  projectDescription: z.string().trim().min(10, "Décrivez brièvement votre projet (min. 10 caractères)").max(500, "Description trop longue (max. 500 caractères)"),
 });
 
 interface ArtisanContactFormProps {
@@ -94,10 +94,10 @@ const ArtisanContactForm = ({
       }
 
       setIsSubmitted(true);
-      toast.success("Votre demande a \u00e9t\u00e9 envoy\u00e9e !");
+      toast.success("Votre demande a été envoyée !");
     } catch (error) {
       console.error("Error submitting project request:", error);
-      toast.error("Erreur lors de l'envoi. Veuillez r\u00e9essayer.");
+      toast.error("Erreur lors de l'envoi. Veuillez réessayer.");
     } finally {
       setIsSubmitting(false);
     }
@@ -110,9 +110,9 @@ const ArtisanContactForm = ({
           <div className="mx-auto w-16 h-16 rounded-full bg-success/10 flex items-center justify-center">
             <CheckCircle2 className="h-8 w-8 text-success" />
           </div>
-          <h3 className="text-lg font-bold text-foreground">Demande envoy\u00e9e !</h3>
+          <h3 className="text-lg font-bold text-foreground">Demande envoyée !</h3>
           <p className="text-sm text-muted-foreground">
-            <strong>{artisanName}</strong> a \u00e9t\u00e9 notifi\u00e9 et vous recontactera rapidement.
+            <strong>{artisanName}</strong> a été notifié et vous recontactera rapidement.
           </p>
         </CardContent>
       </Card>
@@ -127,7 +127,7 @@ const ArtisanContactForm = ({
           <div className="flex items-start gap-2 p-3 rounded-lg bg-success/10 border border-success/20">
             <Shield className="h-4 w-4 text-success mt-0.5 shrink-0" />
             <p className="text-xs text-success font-medium leading-relaxed">
-              Vous contactez un artisan audit\u00e9 sur le terrain. Votre demande est prioritaire.
+              Vous contactez un artisan audité sur le terrain. Votre demande est prioritaire.
             </p>
           </div>
         )}
@@ -180,7 +180,7 @@ const ArtisanContactForm = ({
             <Label htmlFor="contact-desc" className="text-sm">Votre projet *</Label>
             <Textarea
               id="contact-desc"
-              placeholder="Décrivez votre projet en quelques mots (ex: rénovation salle de bain, fuite toiture...)"
+              placeholder="Décrivez votre projet en quelques mots..."
               value={projectDescription}
               onChange={(e) => setProjectDescription(e.target.value)}
               rows={3}
