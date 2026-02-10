@@ -416,15 +416,15 @@ const DevenirArtisan = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <Card className="relative flex flex-col h-full border-2 border-gold/70 hover:border-gold shadow-lg shadow-gold/10">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-gold text-navy-dark px-5 py-2 rounded-full text-sm font-bold shadow-gold tracking-wide">
+                <Card className="relative flex flex-col h-full border-2 border-gold/70 hover:border-gold shadow-lg shadow-gold/10 mt-6">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-gold text-navy-dark px-5 py-2 rounded-full text-sm font-bold shadow-gold tracking-wide z-10">
                     👑 ACCÈS RÉSEAU & EXCLUSIVITÉ
                   </div>
-                  <p className="absolute top-8 left-1/2 -translate-x-1/2 text-xs text-gold font-medium whitespace-nowrap">
-                    Vérifiez si votre secteur est encore libre.
-                  </p>
 
-                  <CardHeader className="text-center pb-2 pt-10">
+                  <CardHeader className="text-center pb-2 pt-14">
+                    <p className="text-xs text-gold font-medium mb-4">
+                      Vérifiez si votre secteur est encore libre.
+                    </p>
                     <div className="flex justify-center mb-3">
                       <div className="p-3 rounded-full bg-gold/20">
                         <Crown className="w-10 h-10 text-gold" />
@@ -434,11 +434,11 @@ const DevenirArtisan = () => {
                       <span className="text-5xl font-bold text-navy">99€</span>
                       <span className="text-muted-foreground text-lg"> HT/mois</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-1">
+                    <p className="text-sm text-muted-foreground mb-2">
                       Possibilité d'activer des campagnes de RDV garantis après validation de votre secteur.
                     </p>
-                    <p className="text-xs font-semibold text-gold">
-                      Rentabilisé dès le premier petit chantier.
+                    <p className="text-sm font-bold text-emerald-600">
+                      ✅ Rentabilisé dès le premier petit chantier.
                     </p>
                   </CardHeader>
 
@@ -459,11 +459,11 @@ const DevenirArtisan = () => {
                     </ul>
                   </CardContent>
 
-                  <CardFooter className="pt-4">
+                  <CardFooter className="pt-4 mt-auto">
                     <Button
                       variant="gold"
                       size="lg"
-                      className="w-full !text-base !font-bold"
+                      className="w-full !text-base !font-bold !py-5"
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
                       Accéder au réseau
