@@ -152,6 +152,7 @@ const ArtisanContactForm = ({
 
           <div className="space-y-1.5">
             <Label htmlFor="contact-phone" className="text-sm">Votre numéro pour être rappelé *</Label>
+            <p className="text-xs text-muted-foreground">Laissez votre numéro, l'artisan vous rappelle directement.</p>
             <FrenchPhoneInput
               value={clientPhone}
               onChange={setClientPhone}
