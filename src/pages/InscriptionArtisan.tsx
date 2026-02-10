@@ -42,6 +42,7 @@ const InscriptionArtisan = () => {
         metier: form.metier,
         city: form.ville,
         phone: form.phone,
+        email: form.email,
       });
       if (error) throw error;
       setShowSuccess(true);
