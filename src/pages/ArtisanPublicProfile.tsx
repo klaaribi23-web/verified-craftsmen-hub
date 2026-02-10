@@ -535,8 +535,8 @@ const ArtisanPublicProfile = () => {
                 </Card>
               </div>
 
-              {/* Audit Report - Only for boost_annuel with audit */}
-              {artisan.subscription_tier === "boost_annuel" && (artisan as any).is_audited && (
+              {/* Audit Report - Only when is_audited is true */}
+              {(artisan as any).is_audited && (
                 <AuditReportSection
                   businessName={artisan.business_name}
                   city={artisan.city}

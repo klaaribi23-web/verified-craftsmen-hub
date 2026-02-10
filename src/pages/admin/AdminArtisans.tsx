@@ -48,7 +48,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import { useArtisans, useCategories, useUpdateArtisanStatus } from "@/hooks/useAdminData";
+import { useArtisans, useCategories, useUpdateArtisanStatus, useToggleArtisanAudit } from "@/hooks/useAdminData";
+import { Switch } from "@/components/ui/switch";
 import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -73,6 +74,7 @@ const AdminArtisans = () => {
   const { data: artisans, isLoading: artisansLoading } = useArtisans();
   const { data: categories } = useCategories();
   const updateStatus = useUpdateArtisanStatus();
+  const toggleAudit = useToggleArtisanAudit();
 
   // Get unique cities from artisans
   const cities = artisans 
@@ -340,7 +342,24 @@ const AdminArtisans = () => {
                       </div>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-5 gap-2">
+                    {/* Audit toggle */}
+                    <div className="mt-2 flex items-center justify-between px-1">
+                      <span className="text-xs text-muted-foreground">Audité</span>
+                      <Switch
+                        checked={(artisan as any).is_audited || false}
+                        onCheckedChange={(checked) => {
+                          toggleAudit.mutate(
+                            { id: artisan.id, is_audited: checked },
+                            {
+                              onSuccess: () => toast({ title: checked ? "Badge Audité activé" : "Badge Audité retiré" }),
+                              onError: () => toast({ title: "Erreur", variant: "destructive" }),
+                            }
+                          );
+                        }}
+                      />
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-5 gap-2">
                       <Link to={`/artisan/${artisan.slug || artisan.id}`} className="w-full">
                         <Button size="icon" variant="outline" className="w-full" aria-label="Voir le profil">
                           <Eye className="h-4 w-4" />
@@ -401,6 +420,7 @@ const AdminArtisans = () => {
                     <th className="text-left p-4 font-medium">Ville</th>
                     <th className="text-left p-4 font-medium">Inscrit le</th>
                     <th className="text-left p-4 font-medium">Statut</th>
+                    <th className="text-center p-4 font-medium">Audité</th>
                     <th className="text-left p-4 font-medium">Actions</th>
                   </tr>
                 </thead>
@@ -475,6 +495,20 @@ const AdminArtisans = () => {
                           {artisan.is_verified && (
                             <CheckCircle className="h-4 w-4 text-muted-foreground ml-2 inline" />
                           )}
+                        </td>
+                        <td className="p-4 text-center">
+                          <Switch
+                            checked={(artisan as any).is_audited || false}
+                            onCheckedChange={(checked) => {
+                              toggleAudit.mutate(
+                                { id: artisan.id, is_audited: checked },
+                                {
+                                  onSuccess: () => toast({ title: checked ? "Badge Audité activé" : "Badge Audité retiré" }),
+                                  onError: () => toast({ title: "Erreur", variant: "destructive" }),
+                                }
+                              );
+                            }}
+                          />
                         </td>
                         <td className="p-4">
                           <div className="flex items-center gap-2">

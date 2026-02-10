@@ -30,6 +30,7 @@ export interface Artisan {
   linkedin_url: string | null;
   website_url: string | null;
   working_hours: Record<string, unknown> | null;
+  is_audited: boolean;
   created_at: string;
   updated_at: string;
   category?: {
@@ -340,6 +341,28 @@ export const useUpdateArtisanStatus = () => {
     onError: (error) => {
       console.error("[Admin] Mutation error:", error);
     }
+  });
+};
+
+// Toggle artisan is_audited
+export const useToggleArtisanAudit = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, is_audited }: { id: string; is_audited: boolean }) => {
+      const { data, error } = await supabase
+        .from("artisans")
+        .update({ is_audited, updated_at: new Date().toISOString() })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-artisans"] });
+    },
   });
 };
 
