@@ -562,13 +562,13 @@ const Navbar = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="lg:hidden overflow-hidden"
               >
-                <div className="py-4 space-y-1">
-                  {navLinks.map((link) => (
+                <div className="py-3 space-y-0.5">
+                  {navLinks.slice(0, 3).map((link) => (
                     <Link
                       key={link.href}
                       to={link.href}
                       onClick={() => setIsOpen(false)}
-                      className={`block px-4 py-4 rounded-lg text-base font-medium transition-colors ${
+                      className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                         isActive(link.href)
                           ? "bg-gold/10 text-navy"
                           : "text-muted-foreground hover:bg-muted"
