@@ -74,6 +74,8 @@ const AndreaGlobalWidget = () => {
   const [callbackRequested, setCallbackRequested] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [showPreviewBubble, setShowPreviewBubble] = useState(false);
+  const [dismissedAutoOpen, setDismissedAutoOpen] = useState(false);
 
   const [messages, setMessages] = useState<{ role: "user" | "andrea"; text: string; time?: string }[]>([]);
   const [streamingText, setStreamingText] = useState("");
@@ -162,6 +164,29 @@ const AndreaGlobalWidget = () => {
     window.addEventListener("resize", setVh);
     return () => window.removeEventListener("resize", setVh);
   }, []);
+
+  // Auto-open on artisan pages after 3s (only if not dismissed before)
+  useEffect(() => {
+    if (!artisanContext || isOpen || dismissedAutoOpen) return;
+    // Check sessionStorage to see if user already dismissed on this page
+    const dismissKey = `andrea_dismissed_${location.pathname}`;
+    if (sessionStorage.getItem(dismissKey)) {
+      setDismissedAutoOpen(true);
+      return;
+    }
+    // Show preview bubble after 1.5s, then auto-open after 3s
+    const previewTimer = setTimeout(() => setShowPreviewBubble(true), 1500);
+    const openTimer = setTimeout(() => {
+      setShowPreviewBubble(false);
+      handleOpen();
+      // Send contextual first message automatically
+      if (messages.length === 0 && artisanContext) {
+        const greeting = `Je vois que tu regardes le profil de ${artisanContext.business_name}. J'ai validé son dossier à ${artisanContext.city}. ${artisanContext.is_audited ? "Tu veux que je te dise pourquoi il est audité ?" : "Tu veux que je te mette en relation directe avec lui ?"}`;
+        setMessages([{ role: "andrea", text: greeting, time: getTime() }]);
+      }
+    }, 3000);
+    return () => { clearTimeout(previewTimer); clearTimeout(openTimer); };
+  }, [artisanContext, isOpen, dismissedAutoOpen, location.pathname]);
 
   const handleAsk = useCallback(async (question: string) => {
     const trimmed = question.trim();
@@ -321,7 +346,16 @@ const AndreaGlobalWidget = () => {
     catch { toast.error("Micro bloqué.", { duration: 5000 }); }
   }, [isListening, isLoading]);
 
-  const handleOpen = () => { setIsOpen(true); setHasNewResponse(false); };
+  const handleOpen = () => { setIsOpen(true); setHasNewResponse(false); setShowPreviewBubble(false); };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    // Remember that user dismissed, so don't auto-open again
+    if (artisanContext) {
+      setDismissedAutoOpen(true);
+      sessionStorage.setItem(`andrea_dismissed_${location.pathname}`, "1");
+    }
+  };
 
   const handleReset = () => {
     resetLead();
@@ -389,6 +423,34 @@ const AndreaGlobalWidget = () => {
               Expertise terrain · <span className="font-bold text-white">Andrea</span>
             </motion.div>
 
+            {/* Preview Bubble — contextual teaser on artisan pages */}
+            <AnimatePresence>
+              {showPreviewBubble && artisanContext && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                  className="absolute bottom-20 right-0 w-64 sm:w-72 px-4 py-3 rounded-2xl rounded-br-sm text-[13px] text-white/90 leading-snug cursor-pointer"
+                  style={{
+                    background: "hsla(222, 30%, 10%, 0.92)",
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)",
+                    border: "1px solid hsla(45, 90%, 50%, 0.25)",
+                    boxShadow: "0 8px 32px hsla(0, 0%, 0%, 0.4)",
+                  }}
+                  onClick={handleOpen}
+                >
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <AndreaAvatar />
+                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "hsl(45, 93%, 60%)" }}>Andrea</span>
+                  </div>
+                  <p>Je connais bien <strong>{artisanContext.business_name}</strong>, on en parle ? 👇</p>
+                  {/* Little triangle pointer */}
+                  <div className="absolute -bottom-2 right-6 w-4 h-4 rotate-45" style={{ background: "hsla(222, 30%, 10%, 0.92)", borderRight: "1px solid hsla(45, 90%, 50%, 0.25)", borderBottom: "1px solid hsla(45, 90%, 50%, 0.25)" }} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <button
               onClick={handleOpen}
               className="relative h-16 w-16 rounded-2xl flex items-center justify-center hover:scale-110 transition-transform"
@@ -399,7 +461,7 @@ const AndreaGlobalWidget = () => {
               }}
               aria-label="Parler à Andrea"
             >
-              {/* Gold pulse ring */}
+              {/* Gold pulse ring + ping effect on artisan pages */}
               <motion.span
                 className="absolute inset-0 rounded-2xl pointer-events-none"
                 style={{ border: "1.5px solid hsla(45, 93%, 55%, 0.5)" }}
@@ -410,8 +472,17 @@ const AndreaGlobalWidget = () => {
                     "0 0 8px hsla(45,93%,50%,0.3), 0 0 3px hsla(45,80%,70%,0.2)",
                   ],
                 }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                transition={{ duration: artisanContext ? 1.5 : 3, repeat: Infinity, ease: "easeInOut" }}
               />
+              {/* Ping ring on artisan pages */}
+              {artisanContext && !dismissedAutoOpen && (
+                <motion.span
+                  className="absolute inset-0 rounded-2xl pointer-events-none"
+                  style={{ border: "2px solid hsla(45, 93%, 55%, 0.6)" }}
+                  animate={{ scale: [1, 1.4], opacity: [0.6, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+                />
+              )}
               <Sparkles className="h-6 w-6 text-white drop-shadow-lg" />
               <AnimatePresence>
                 {hasNewResponse && (
@@ -437,7 +508,9 @@ const AndreaGlobalWidget = () => {
             transition={{ type: "spring", damping: 22, stiffness: 280, mass: 0.6 }}
             className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-[9999] w-full sm:w-[440px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl rounded-t-2xl overflow-hidden flex flex-col"
             style={{
-              maxHeight: "min(640px, calc(var(--vh, 1vh) * 100 - 2rem))",
+              maxHeight: artisanContext 
+                ? "min(540px, calc(var(--vh, 1vh) * 75))"  /* Mobile: 75% height on artisan pages so user sees the profile behind */
+                : "min(640px, calc(var(--vh, 1vh) * 100 - 2rem))",
               background: "hsla(222, 30%, 8%, 0.82)",
               backdropFilter: "blur(28px) saturate(1.8)",
               WebkitBackdropFilter: "blur(28px) saturate(1.8)",
@@ -492,7 +565,7 @@ const AndreaGlobalWidget = () => {
                   <span className="text-[10px] text-white/40 tracking-wide">{ANDREA_HEADER_SUBTITLE}</span>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-white/30 hover:text-white transition-colors">
+              <button onClick={handleClose} className="text-white/30 hover:text-white transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
