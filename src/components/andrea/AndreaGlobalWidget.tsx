@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Send, ShieldCheck, ArrowRight, FileText, PhoneCall, CheckCircle2, Phone, Sparkles } from "lucide-react";
+import { X, Send, ShieldCheck, ArrowRight, FileText, PhoneCall, CheckCircle2, Phone, Sparkles, HardHat, Home } from "lucide-react";
 import {
   ANDREA_TOOLTIP,
   ANDREA_WELCOME,
@@ -611,45 +611,50 @@ const AndreaGlobalWidget = () => {
             <div className="relative p-3 z-20" style={{ borderTop: "1px solid hsla(45, 90%, 50%, 0.08)", background: "hsla(222, 30%, 6%, 0.6)" }}>
               {/* Quick-action dual buttons */}
               {!savedId && (
-                <div className="flex gap-2 mb-2">
-                  <button
-                    onClick={() => {
-                      updateLead({ lead_type: "artisan" });
-                      setShowArtisanCTA(true);
-                      handleAsk("Je veux être validé en tant qu'artisan");
-                    }}
-                    disabled={isLoading}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                    style={{
-                      background: "linear-gradient(135deg, hsla(30, 90%, 50%, 0.85), hsla(45, 93%, 47%, 0.85))",
-                      backdropFilter: "blur(12px)",
-                      border: "1px solid hsla(45, 90%, 55%, 0.3)",
-                      color: "#ffffff",
-                      boxShadow: "0 0 12px hsla(35, 90%, 50%, 0.2)",
-                    }}
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    Je veux être validé
-                  </button>
-                  <button
-                    onClick={() => {
-                      updateLead({ lead_type: "particulier" });
-                      handleAsk("Je veux déposer mon projet. Quel est le code postal de mon chantier ?");
-                    }}
-                    disabled={isLoading}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                    style={{
-                      background: "hsla(160, 60%, 18%, 0.85)",
-                      backdropFilter: "blur(12px)",
-                      border: "1px solid hsla(45, 90%, 50%, 0.25)",
-                      color: "hsla(0, 0%, 100%, 0.9)",
-                      boxShadow: "0 0 10px hsla(160, 50%, 30%, 0.15)",
-                    }}
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    Je dépose mon projet
-                  </button>
-                </div>
+                <>
+                  <div className="flex gap-2 mb-1.5">
+                    <button
+                      onClick={() => {
+                        updateLead({ lead_type: "artisan" });
+                        setShowArtisanCTA(true);
+                        handleAsk("Je veux être validé en tant qu'artisan");
+                      }}
+                      disabled={isLoading}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      style={{
+                        background: "linear-gradient(135deg, hsla(30, 90%, 50%, 0.85), hsla(45, 93%, 47%, 0.85))",
+                        backdropFilter: "blur(12px)",
+                        border: "1px solid hsla(45, 90%, 55%, 0.3)",
+                        color: "#ffffff",
+                        boxShadow: "0 0 12px hsla(35, 90%, 50%, 0.2)",
+                      }}
+                    >
+                      <HardHat className="w-3.5 h-3.5" />
+                      Je veux être validé
+                    </button>
+                    <button
+                      onClick={() => {
+                        updateLead({ lead_type: "particulier" });
+                        handleAsk("C'est parti. Pour vous trouver le meilleur artisan certifié, j'ai besoin de 3 infos : 1) Quel est votre code postal ? 2) Quel est le métier concerné ? 3) Quel est votre budget approximatif ?");
+                      }}
+                      disabled={isLoading}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                      style={{
+                        background: "hsla(160, 60%, 18%, 0.85)",
+                        backdropFilter: "blur(12px)",
+                        border: "1px solid hsla(45, 90%, 50%, 0.25)",
+                        color: "hsla(0, 0%, 100%, 0.9)",
+                        boxShadow: "0 0 10px hsla(160, 50%, 30%, 0.15)",
+                      }}
+                    >
+                      <Home className="w-3.5 h-3.5" />
+                      Je dépose mon projet
+                    </button>
+                  </div>
+                  <p className="text-[9px] text-center mb-2 tracking-wide" style={{ color: "hsla(45, 80%, 65%, 0.55)" }}>
+                    ✨ Andrea a déjà audité 542 chantiers ce mois-ci.
+                  </p>
+                </>
               )}
               <form onSubmit={handleTextSubmit} className="relative flex items-center">
                 <input
