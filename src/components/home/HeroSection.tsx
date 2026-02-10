@@ -39,70 +39,45 @@ const HeroSection = () => {
               <span className="text-xs md:text-sm font-medium text-white">Votre anonymat garanti jusqu'au dernier moment</span>
             </div>
 
-            <h1 className="text-[1.55rem] leading-[1.25] md:text-4xl lg:text-6xl font-bold text-white md:leading-tight mb-4 md:mb-6">
-              Né dans le Nord pour devenir la norme.{" "}
-              <span className="text-gradient-gold">Récupérez 100% de votre marge.</span>
+            <h1 className="text-[1.55rem] leading-[1.25] md:text-4xl lg:text-5xl font-bold text-white md:leading-tight mb-4 md:mb-6">
+              L'Alliance de l'Expertise Métier{" "}
+              <span className="text-gradient-gold">et de la Confiance Client.</span>
             </h1>
 
-            <p className="text-sm md:text-base text-gold/80 font-medium mb-3 max-w-xl mx-auto lg:mx-0">
-              L'alliance de l'expertise métier et de la technologie exclusive pour protéger vos marges.
-            </p>
-
-            {/* Maillage Territorial */}
-            <div className="flex flex-wrap gap-2 mb-4 justify-center lg:justify-start max-w-xl mx-auto lg:mx-0">
-              {[
-                { region: "Hauts-de-France", status: "Actif", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
-                { region: "Île-de-France", status: "Ouverture", color: "bg-gold/20 text-gold border-gold/30" },
-                { region: "Rhône-Alpes", status: "Sélection en cours", color: "bg-white/10 text-white/70 border-white/20" },
-              ].map(({ region, status, color }) => (
-                <span key={region} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${color}`}>
-                  <span className={status === "Actif" ? "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" : "w-1.5 h-1.5 rounded-full bg-current opacity-50"} />
-                  {region} — {status}
-                </span>
-              ))}
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6 md:mb-8 border border-gold/20 max-w-xl mx-auto lg:mx-0 shadow-[0_0_20px_rgba(212,175,55,0.08)]">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-gold" />
-                <p className="text-sm text-gold font-semibold">Posez votre question à l'Expert</p>
+            {/* Double-cible messaging */}
+            <div className="space-y-3 mb-6 md:mb-8 max-w-xl mx-auto lg:mx-0">
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                <p className="text-sm md:text-base text-white/90 leading-snug">
+                  <span className="text-white font-semibold">Particuliers :</span> Trouvez l'artisan audité sur le terrain qui réalisera vos travaux en toute sérénité.
+                </p>
               </div>
-              <p className="text-xs text-white/60 mb-3 leading-relaxed">
-                Une question sur une norme, un matériau ou un devis ? Andrea vous répond instantanément.
-              </p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const q = formData.get("question") as string;
-                  if (q?.trim()) {
-                    window.location.href = `/#expert-andrea?q=${encodeURIComponent(q.trim())}`;
-                    const section = document.getElementById("expert-andrea");
-                    if (section) section.scrollIntoView({ behavior: "smooth" });
-                  }
-                }}
-                className="flex gap-2"
-              >
-                <input name="question" type="text" placeholder="Ex : Comment vérifier une décennale ?"
-                  className="flex-1 rounded-lg bg-white/10 border border-gold/20 text-white placeholder:text-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50" />
-              </form>
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                <p className="text-sm md:text-base text-white/90 leading-snug">
+                  <span className="text-white font-semibold">Artisans :</span> Reprenez le contrôle de votre activité. Intégrez un réseau d'élite sans intermédiaire ni commission sur vos devis.
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-8">
-              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98] animate-pulse hover:animate-none min-h-[56px]" asChild>
-                <Link to="/devenir-artisan">
-                  VÉRIFIER MA DISPONIBILITÉ
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-6">
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98] min-h-[56px]" asChild>
+                <Link to="/trouver-artisan">
+                  Trouver un artisan audité
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" className="bg-white/10 text-white border-white/30 hover:bg-white/20 md:text-base" asChild>
-                <Link to="/trouver-artisan">Voir les Artisans</Link>
+              <Button variant="outline-gold" size="lg" className="w-full sm:w-auto md:text-base" asChild>
+                <Link to="/devenir-artisan">
+                  Rejoindre le réseau
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
               </Button>
             </div>
 
-            <p className="text-sm md:text-base text-white/70 mb-8 md:mb-10 leading-snug">
-              <CheckCircle2 className="w-4 h-4 text-gold inline mr-1.5 -mt-0.5 shrink-0" />
-              L'élite de la région : <span className="text-gold font-bold">+{displayCount > 200 ? displayCount : 1000} Artisans Validés</span>
+            <p className="text-sm text-white/70 mb-8 md:mb-10 leading-snug">
+              <Shield className="w-4 h-4 text-gold inline mr-1.5 -mt-0.5 shrink-0" />
+              Déjà <span className="text-gold font-bold">{displayCount > 40 ? displayCount : 44} artisans validés et audités</span> dans le Nord et l'Île-de-France.
             </p>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-5 border border-white/20">
