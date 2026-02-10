@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
-import { Shield, Send, CheckCircle2, Loader2, MapPin } from "lucide-react";
+import { Shield, Send, CheckCircle2, Loader2, MapPin, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ interface ArtisanContactFormProps {
   artisanId: string;
   artisanName: string;
   artisanEmail: string | null;
+  artisanPhone: string | null;
   artisanCity: string;
   isAudited: boolean;
 }
@@ -32,6 +33,7 @@ const ArtisanContactForm = ({
   artisanId,
   artisanName,
   artisanEmail,
+  artisanPhone,
   artisanCity,
   isAudited,
 }: ArtisanContactFormProps) => {
@@ -136,6 +138,15 @@ const ArtisanContactForm = ({
           <p className="text-sm text-muted-foreground">Besoin d'un devis ?</p>
           <p className="text-xl font-bold text-primary">Contactez {artisanName}</p>
         </div>
+
+        {artisanPhone && (
+          <a href={`tel:${artisanPhone}`} className="block">
+            <Button variant="outline" className="w-full gap-2 text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700" size="lg">
+              <Phone className="h-4 w-4" />
+              Appeler
+            </Button>
+          </a>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-1.5">
