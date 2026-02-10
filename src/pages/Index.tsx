@@ -22,7 +22,7 @@ import OrganizationSchema from "@/components/seo/OrganizationSchema";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <SEOHead
         title="Réseau Artisan sans commission — Rejoignez l'élite"
         description="Artisans Validés : le premier réseau artisan sans commission en France. Exclusivité sectorielle, zéro lead revendu, 100% de votre marge protégée. Vérifiez votre disponibilité."

@@ -288,7 +288,7 @@ const AndreaGlobalWidget = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            className="fixed bottom-6 right-6 z-[9999] flex items-center gap-3"
+            className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] flex items-center gap-3"
           >
             <motion.div
               initial={{ opacity: 0, x: 20 }}

@@ -22,7 +22,7 @@ const HeroSection = () => {
   const displayCount = artisanCount && artisanCount > 0 ? artisanCount : 200;
 
   return (
-    <section className="relative min-h-screen flex items-center pt-32 lg:pt-20 overflow-hidden">
+    <section className="relative min-h-screen flex items-center pt-24 md:pt-32 lg:pt-20 overflow-hidden overflow-x-hidden">
       <div className="absolute inset-0">
         <img src={heroBackground} alt="Artisan professionnel qualifié au travail" width={1920} height={1080} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/85 to-navy/70" />
@@ -39,7 +39,7 @@ const HeroSection = () => {
               <span className="text-xs md:text-sm font-medium text-white">Votre anonymat garanti jusqu'au dernier moment</span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-white leading-tight mb-4 md:mb-6">
+            <h1 className="text-[1.55rem] leading-[1.25] md:text-4xl lg:text-6xl font-bold text-white md:leading-tight mb-4 md:mb-6">
               Né dans le Nord pour devenir la norme.{" "}
               <span className="text-gradient-gold">Récupérez 100% de votre marge.</span>
             </h1>
@@ -88,8 +88,8 @@ const HeroSection = () => {
               </form>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-8">
-              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98] animate-pulse hover:animate-none" asChild>
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-8">
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98] animate-pulse hover:animate-none min-h-[56px]" asChild>
                 <Link to="/devenir-artisan">
                   VÉRIFIER MA DISPONIBILITÉ
                   <ArrowRight className="w-5 h-5 ml-2" />
