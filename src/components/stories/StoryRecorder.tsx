@@ -83,7 +83,7 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading, artisanContext
         setCaption(data.caption);
       }
     } catch (err) {
-      console.error("Erreur g\u00e9n\u00e9ration l\u00e9gende:", err);
+      console.error("Erreur génération légende:", err);
     } finally {
       setIsGeneratingCaption(false);
     }
@@ -533,7 +533,7 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading, artisanContext
             <div className="mb-4">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Ajouter une l\u00e9gende... (optionnel)"
+                  placeholder="Ajouter une légende... (optionnel)"
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
                   maxLength={150}
@@ -546,7 +546,7 @@ const StoryRecorder = ({ isOpen, onClose, onPublish, isUploading, artisanContext
                     onClick={handleGenerateCaption}
                     disabled={isGeneratingCaption}
                     className="border-white/30 text-white bg-white/10 hover:bg-white/20 shrink-0"
-                    title="G\u00e9n\u00e9rer une l\u00e9gende g\u00e9o-centr\u00e9e par IA"
+                    title="Générer une légende géo-centrée par IA"
                   >
                     {isGeneratingCaption ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

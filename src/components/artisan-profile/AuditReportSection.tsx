@@ -25,7 +25,7 @@ const AuditReportSection = ({ businessName, city, category }: AuditReportSection
           Rapport d'Audit Terrain
         </CardTitle>
         <p className="text-xs text-muted-foreground mt-1">
-          {`Cet artisan a \u00e9t\u00e9 audit\u00e9 sur place par un expert Artisans Valid\u00e9s`}
+          {`Cet artisan a été audité sur place par un expert Artisans Validés`}
         </p>
       </CardHeader>
       <CardContent className="p-4 md:p-6 pt-2 md:pt-2 space-y-4">
