@@ -41,3 +41,18 @@ export const ANDREA_INSCRIPTION_SUCCESS =
 /** Message Andrea pour artisans sans photos mais avec site web */
 export const ANDREA_PHOTO_SCRAPE_SUGGESTION =
   "J'ai vu votre site. Je peux récupérer vos photos de chantiers pour illustrer votre fiche — ça prend 30 secondes. On y va ?";
+
+/** Message contextuel quand l'utilisateur est sur une fiche artisan */
+export const ANDREA_ARTISAN_CONTEXT = (name: string, city: string, isAudited: boolean) => {
+  let msg = `Je connais bien ${name}. J'ai personnellement validé son dossier et ses références à ${city}. Vous voulez que je vous mette en relation directe avec lui ?`;
+  if (isAudited) {
+    msg += ` C'est un membre d'élite, j'ai même vérifié son outillage sur le terrain. C'est du sérieux.`;
+  }
+  return msg;
+};
+
+/** Réponse quand l'utilisateur accepte la mise en relation */
+export const ANDREA_MISE_EN_RELATION = "Parfait, je préviens le patron. Donnez-moi votre téléphone et je lui demande de vous rappeler en priorité.";
+
+/** Réponse vocale ultra-courte pour mise en relation */
+export const ANDREA_MISE_EN_RELATION_VOCAL = "C'est noté. Je m'en occupe tout de suite. Votre numéro ?";
