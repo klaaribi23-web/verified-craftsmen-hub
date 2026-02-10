@@ -38,8 +38,8 @@ const Index = () => {
         <section className="bg-navy py-6">
           <div className="container mx-auto px-4 text-center">
             <p className="text-white text-base md:text-lg font-medium">
-              Ici, on ne vous vend pas au plus offrant.{" "}
-              <span className="text-gold font-bold">On vous présente l'artisan local qu'on a personnellement validé.</span>
+              Ici, on ne vend pas vos coordonnées au plus offrant.{" "}
+              <span className="text-gold font-bold">On déploie un réseau d'élite, département par département.</span>
             </p>
           </div>
         </section>

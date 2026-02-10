@@ -40,16 +40,27 @@ const HeroSection = () => {
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-white leading-tight mb-4 md:mb-6">
-              Trouvez l'artisan idéal,{" "}
-              <span className="text-gradient-gold">votre anonymat en plus.</span>
+              Le modèle de confiance né dans le Nord{" "}
+              <span className="text-gradient-gold">devient la norme nationale.</span>
             </h1>
 
             <p className="text-sm md:text-base text-gold/80 font-medium mb-3 max-w-xl mx-auto lg:mx-0">
-              Le premier réseau d'artisans audités par Andrea, expert du bâtiment (20 ans de terrain) à Lille et dans les Hauts-de-France.
+              Artisans Validés déploie son expertise sur tout le territoire. Nous ne sélectionnons qu'un nombre limité de référents par secteur pour garantir l'excellence.
             </p>
-            <p className="text-base md:text-lg text-white/80 mb-4 max-w-xl mx-auto lg:mx-0">
-              Décrivez votre projet, recevez des devis, et ne partagez vos coordonnées que lorsque vous êtes prêt.
-            </p>
+
+            {/* Maillage Territorial */}
+            <div className="flex flex-wrap gap-2 mb-4 justify-center lg:justify-start max-w-xl mx-auto lg:mx-0">
+              {[
+                { region: "Hauts-de-France", status: "Actif", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+                { region: "Île-de-France", status: "Ouverture", color: "bg-gold/20 text-gold border-gold/30" },
+                { region: "Rhône-Alpes", status: "Sélection en cours", color: "bg-white/10 text-white/70 border-white/20" },
+              ].map(({ region, status, color }) => (
+                <span key={region} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${color}`}>
+                  <span className={status === "Actif" ? "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" : "w-1.5 h-1.5 rounded-full bg-current opacity-50"} />
+                  {region} — {status}
+                </span>
+              ))}
+            </div>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6 md:mb-8 border border-gold/20 max-w-xl mx-auto lg:mx-0 shadow-[0_0_20px_rgba(212,175,55,0.08)]">
               <div className="flex items-center gap-2 mb-2">
@@ -122,7 +133,7 @@ const HeroSection = () => {
                   <h3 className="text-xl font-bold text-white">Andrea : Ton Assistante de Choc</h3>
                 </div>
                 <p className="text-white/80 text-base leading-relaxed mb-6">
-                  Je suis l'intelligence qui audite vos devis et protège vos marges. Ne perdez plus de temps avec des leads bidons.
+                  Mon expertise est née sur les chantiers des Hauts-de-France. Aujourd'hui, je l'utilise pour valider les meilleurs pros de chaque département français.
                 </p>
                 <div className="grid grid-cols-3 gap-3 mb-6">
                   {[
