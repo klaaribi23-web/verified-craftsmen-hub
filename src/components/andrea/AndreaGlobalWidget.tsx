@@ -634,15 +634,16 @@ const AndreaGlobalWidget = () => {
                   <button
                     onClick={() => {
                       updateLead({ lead_type: "particulier" });
-                      handleAsk("Je veux déposer mon projet de travaux");
+                      handleAsk("Je veux déposer mon projet. Quel est le code postal de mon chantier ?");
                     }}
                     disabled={isLoading}
                     className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                     style={{
-                      background: "hsla(0, 0%, 100%, 0.06)",
+                      background: "hsla(160, 60%, 18%, 0.85)",
                       backdropFilter: "blur(12px)",
                       border: "1px solid hsla(45, 90%, 50%, 0.25)",
-                      color: "hsla(0, 0%, 100%, 0.85)",
+                      color: "hsla(0, 0%, 100%, 0.9)",
+                      boxShadow: "0 0 10px hsla(160, 50%, 30%, 0.15)",
                     }}
                   >
                     <FileText className="w-3.5 h-3.5" />
@@ -650,12 +651,12 @@ const AndreaGlobalWidget = () => {
                   </button>
                 </div>
               )}
-              <form onSubmit={handleTextSubmit} className="flex gap-2 items-center">
+              <form onSubmit={handleTextSubmit} className="relative flex items-center">
                 <input
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   placeholder="Décrivez votre projet à Andrea..."
-                  className="flex-1 h-12 rounded-xl text-[13px] px-5 focus:outline-none transition-all placeholder:text-white/25"
+                  className="w-full h-12 rounded-xl text-[13px] pl-5 pr-14 focus:outline-none transition-all placeholder:text-white/25"
                   style={{
                     border: "1px solid hsla(45, 90%, 50%, 0.12)",
                     backgroundColor: "hsla(0, 0%, 100%, 0.06)",
@@ -668,18 +669,18 @@ const AndreaGlobalWidget = () => {
                 <Button
                   type="submit"
                   size="icon"
-                  className="h-12 w-12 rounded-xl shrink-0 text-white shadow-lg hover:scale-105 transition-transform"
+                  className="absolute right-1.5 h-9 w-9 rounded-lg shrink-0 text-white hover:scale-105 transition-transform"
                   style={{
                     background: "linear-gradient(145deg, hsl(45, 93%, 47%), hsl(35, 85%, 42%))",
-                    boxShadow: "0 0 18px hsla(45, 93%, 47%, 0.3)",
+                    boxShadow: "0 0 12px hsla(45, 93%, 47%, 0.25)",
                   }}
                   disabled={isLoading || !textInput.trim()}
                 >
-                  <Send className="h-5 w-5" />
+                  <Send className="h-4 w-4" />
                 </Button>
               </form>
-              <p className="text-[9px] text-white/25 text-center mt-1.5 tracking-wide">
-                🔒 Vos données sont protégées. Échanges 100% anonymes.
+              <p className="text-[9px] text-white/20 text-center mt-1.5 tracking-widest uppercase">
+                Expertise terrain Andrea · Réponse instantanée
               </p>
             </div>
           </motion.div>
