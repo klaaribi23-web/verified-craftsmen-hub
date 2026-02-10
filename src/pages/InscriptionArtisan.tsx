@@ -20,7 +20,7 @@ const BENEFITS = [
 
 const InscriptionArtisan = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ siret: "", business_name: "", metier: "", ville: "", phone: "" });
+  const [form, setForm] = useState({ siret: "", business_name: "", metier: "", ville: "", phone: "", email: "" });
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -30,7 +30,7 @@ const InscriptionArtisan = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.siret || !form.business_name || !form.metier || !form.ville || !form.phone) {
+    if (!form.siret || !form.business_name || !form.metier || !form.ville || !form.phone || !form.email) {
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
@@ -130,6 +130,10 @@ const InscriptionArtisan = () => {
                 <div>
                   <Label htmlFor="ville">Ville *</Label>
                   <Input id="ville" name="ville" value={form.ville} onChange={handleChange} placeholder="Ex: Bordeaux" maxLength={100} />
+                </div>
+                <div>
+                  <Label htmlFor="email">Adresse Email *</Label>
+                  <Input id="email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="contact@entreprise.fr" maxLength={255} />
                 </div>
                 <div>
                   <Label htmlFor="phone">Téléphone *</Label>

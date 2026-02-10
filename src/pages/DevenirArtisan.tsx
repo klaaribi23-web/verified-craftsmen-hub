@@ -74,6 +74,7 @@ const stats = [
 // Validation schema
 const candidacySchema = z.object({
   fullName: z.string().trim().min(2, "Nom complet requis (min 2 caractères)").max(100, "Nom trop long"),
+  email: z.string().trim().email("Adresse email invalide").max(255, "Email trop long"),
   phone: z.string().trim().refine(
     (val) => validateFrenchPhone(val),
     { message: "Numéro français invalide (10 chiffres commençant par 0)" }
@@ -87,6 +88,7 @@ const DevenirArtisan = () => {
   const [candidacySent, setCandidacySent] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
+    email: "",
     phone: "",
     city: "",
     metier: "",
@@ -123,6 +125,7 @@ const DevenirArtisan = () => {
           metier: formData.metier,
           city: formData.city,
           phone: formData.phone,
+          email: formData.email,
         });
 
       if (dbError) throw dbError;
@@ -279,6 +282,19 @@ const DevenirArtisan = () => {
                         placeholder="Jean Dupont"
                         value={formData.fullName}
                         onChange={(e) => updateForm("fullName", e.target.value)}
+                        className="mt-1 h-9 md:h-10"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="email" className="text-navy text-sm">Adresse Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="contact@entreprise.fr"
+                        value={formData.email}
+                        onChange={(e) => updateForm("email", e.target.value)}
                         className="mt-1 h-9 md:h-10"
                         required
                       />
