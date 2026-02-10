@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { X, Send, ShieldCheck, ArrowRight, FileText, PhoneCall, CheckCircle2, Phone, Sparkles, HardHat, Home } from "lucide-react";
+import { X, Send, ShieldCheck, ArrowRight, FileText, PhoneCall, CheckCircle2, Phone, Sparkles, HardHat, Home, Mic, MicOff, CheckCheck } from "lucide-react";
 import {
   ANDREA_TOOLTIP,
   ANDREA_WELCOME,
@@ -61,6 +61,8 @@ const AndreaLabel = () => (
   </div>
 );
 
+const getTime = () => new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
 const AndreaGlobalWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [textInput, setTextInput] = useState("");
@@ -70,8 +72,9 @@ const AndreaGlobalWidget = () => {
   const [showConversionActions, setShowConversionActions] = useState(false);
   const [callbackRequested, setCallbackRequested] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
-  const [messages, setMessages] = useState<{ role: "user" | "andrea"; text: string }[]>([]);
+  const [messages, setMessages] = useState<{ role: "user" | "andrea"; text: string; time?: string }[]>([]);
   const [streamingText, setStreamingText] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
 
@@ -79,6 +82,7 @@ const AndreaGlobalWidget = () => {
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   const {
     leadData, updateLead, processAgentText, saveLead, resetLead,
@@ -131,7 +135,7 @@ const AndreaGlobalWidget = () => {
     // Pad very short questions so the backend doesn't reject them
     const safeQuestion = trimmed.length < 5 ? trimmed + " (détails)" : trimmed;
 
-    setMessages(prev => [...prev, { role: "user", text: trimmed }]);
+    setMessages(prev => [...prev, { role: "user", text: trimmed, time: getTime() }]);
     setIsLoading(true);
     setIsStreaming(true);
     setStreamingText("");
@@ -208,9 +212,9 @@ const AndreaGlobalWidget = () => {
       }
 
       if (fullText) {
-        setMessages(prev => [...prev, { role: "andrea", text: fullText }]);
+        setMessages(prev => [...prev, { role: "andrea", text: fullText, time: getTime() }]);
       } else {
-        setMessages(prev => [...prev, { role: "andrea", text: "Désolé, je n'ai pas pu formuler de réponse. Réessayez." }]);
+        setMessages(prev => [...prev, { role: "andrea", text: "Désolé, je n'ai pas pu formuler de réponse. Réessayez.", time: getTime() }]);
       }
       setStreamingText("");
       setIsStreaming(false);
@@ -234,6 +238,53 @@ const AndreaGlobalWidget = () => {
     handleAsk(textInput);
     setTextInput("");
   };
+
+  // Speech-to-Text with auto-send
+  const toggleListening = useCallback(() => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) { toast.error("Reconnaissance vocale non supportée."); return; }
+    const recognition = new SR();
+    recognition.lang = "fr-FR";
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    let finalTranscript = "";
+
+    recognition.onresult = (event: any) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interim = event.results[i][0].transcript;
+        }
+      }
+      setTextInput(finalTranscript + interim);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      if (finalTranscript.trim()) {
+        handleAsk(finalTranscript.trim());
+        setTextInput("");
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      setIsListening(false);
+      if (event.error === "not-allowed" || event.error === "denied") {
+        toast.error("Micro bloqué. Autorisez l'accès.", { duration: 5000 });
+      }
+    };
+
+    recognitionRef.current = recognition;
+    try { recognition.start(); setIsListening(true); }
+    catch { toast.error("Micro bloqué.", { duration: 5000 }); }
+  }, [isListening, isLoading]);
 
   const handleOpen = () => { setIsOpen(true); setHasNewResponse(false); };
 
@@ -453,34 +504,45 @@ const AndreaGlobalWidget = () => {
                 </motion.div>
               )}
 
-              {/* Messages */}
+              {/* Messages — WhatsApp style bubbles */}
               {messages.map((msg, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  className={`${msg.role === "user" ? "self-end w-[88%]" : "self-start w-full"}`}
+                  className={`${msg.role === "user" ? "self-end max-w-[85%]" : "self-start max-w-[90%]"}`}
                 >
                   {msg.role === "andrea" ? (
-                    <AndreaBubbleWrapper>
-                      <AndreaLabel />
-                      <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="text-white text-[13px] leading-relaxed"
-                      >{msg.text}</motion.p>
-                    </AndreaBubbleWrapper>
+                    <div
+                      className="relative px-3.5 py-2.5 rounded-2xl rounded-tl-sm"
+                      style={{
+                        background: "hsla(220, 15%, 12%, 0.92)",
+                        backdropFilter: "blur(16px)",
+                        border: "1px solid hsla(45, 90%, 50%, 0.15)",
+                      }}
+                    >
+                      <p className="text-[10px] font-bold mb-1 flex items-center gap-1" style={{ color: "hsl(45, 93%, 60%)" }}>
+                        <ShieldCheck className="h-3 w-3" /> Andrea
+                      </p>
+                      <p className="text-white text-[13px] leading-relaxed">{msg.text}</p>
+                      <span className="flex justify-end mt-1">
+                        <span className="text-[10px] text-white/30">{msg.time}</span>
+                      </span>
+                    </div>
                   ) : (
                     <div
-                      className="px-4 py-3 rounded-2xl"
+                      className="relative px-3.5 py-2.5 rounded-2xl rounded-tr-sm"
                       style={{
-                        background: "hsla(222, 47%, 18%, 0.35)",
-                        border: "1px solid hsla(222, 47%, 30%, 0.2)",
+                        background: "linear-gradient(135deg, hsl(160, 55%, 32%), hsl(165, 50%, 28%))",
+                        boxShadow: "0 2px 8px hsla(160, 55%, 30%, 0.3)",
                       }}
                     >
                       <p className="text-white text-[13px] leading-relaxed">{msg.text}</p>
+                      <span className="flex items-center gap-1 justify-end mt-1">
+                        <span className="text-[10px] text-white/50">{msg.time}</span>
+                        <CheckCheck className="h-3 w-3 text-sky-300" />
+                      </span>
                     </div>
                   )}
                 </motion.div>
@@ -664,12 +726,36 @@ const AndreaGlobalWidget = () => {
                   </p>
                 </>
               )}
-              <form onSubmit={handleTextSubmit} className="relative flex items-center">
+              <form onSubmit={handleTextSubmit} className="relative flex items-center gap-2">
+                {/* Mic button */}
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  disabled={isLoading}
+                  className={`shrink-0 h-11 w-11 rounded-full flex items-center justify-center transition-all ${
+                    isListening
+                      ? "animate-pulse"
+                      : ""
+                  }`}
+                  style={isListening ? {
+                    background: "hsl(0, 72%, 51%)",
+                    boxShadow: "0 0 20px hsla(0, 72%, 51%, 0.5)",
+                    color: "#ffffff",
+                  } : {
+                    background: "hsla(0, 0%, 100%, 0.08)",
+                    border: "1px solid hsla(45, 90%, 50%, 0.12)",
+                    color: "hsla(0, 0%, 100%, 0.5)",
+                  }}
+                  aria-label={isListening ? "Arrêter" : "Dicter"}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </button>
+
                 <input
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Décrivez votre projet à Andrea..."
-                  className="w-full h-12 rounded-xl text-[13px] pl-5 pr-14 focus:outline-none transition-all placeholder:text-white/25"
+                  placeholder={isListening ? "🎙️ Parlez maintenant..." : "Votre message..."}
+                  className="w-full h-11 rounded-full text-[13px] pl-4 pr-12 focus:outline-none transition-all placeholder:text-white/25"
                   style={{
                     border: "1px solid hsla(45, 90%, 50%, 0.12)",
                     backgroundColor: "hsla(0, 0%, 100%, 0.06)",
@@ -682,7 +768,7 @@ const AndreaGlobalWidget = () => {
                 <Button
                   type="submit"
                   size="icon"
-                  className="absolute right-1.5 h-9 w-9 rounded-lg shrink-0 text-white hover:scale-105 transition-transform"
+                  className="absolute right-1.5 h-9 w-9 rounded-full shrink-0 text-white hover:scale-105 transition-transform"
                   style={{
                     background: "linear-gradient(145deg, hsl(45, 93%, 47%), hsl(35, 85%, 42%))",
                     boxShadow: "0 0 12px hsla(45, 93%, 47%, 0.25)",
@@ -692,6 +778,16 @@ const AndreaGlobalWidget = () => {
                   <Send className="h-4 w-4" />
                 </Button>
               </form>
+              {isListening && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-[10px] text-center font-medium mt-1"
+                  style={{ color: "hsl(0, 72%, 60%)" }}
+                >
+                  🔴 Enregistrement… Le message s'enverra automatiquement.
+                </motion.p>
+              )}
               <p className="text-[9px] text-white/20 text-center mt-1.5 tracking-widest uppercase">
                 Expertise terrain Andrea · Réponse instantanée
               </p>
