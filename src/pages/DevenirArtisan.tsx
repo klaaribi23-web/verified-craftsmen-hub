@@ -416,12 +416,13 @@ const DevenirArtisan = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <Card className="relative flex flex-col h-full border-2 border-gold/70 hover:border-gold shadow-lg shadow-gold/10 mt-6">
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-gold text-navy-dark px-5 py-2 rounded-full text-sm font-bold shadow-gold tracking-wide z-10">
+                <div className="flex justify-center mb-4">
+                  <div className="bg-gradient-gold text-navy-dark px-6 py-2.5 rounded-full text-sm font-bold shadow-gold tracking-wide">
                     👑 ACCÈS RÉSEAU & EXCLUSIVITÉ
                   </div>
-
-                  <CardHeader className="text-center pb-2 pt-14">
+                </div>
+                <Card className="flex flex-col h-full border-2 border-gold/70 hover:border-gold shadow-lg shadow-gold/10">
+                  <CardHeader className="text-center pb-2 pt-8">
                     <p className="text-xs text-gold font-medium mb-4">
                       Vérifiez si votre secteur est encore libre.
                     </p>
@@ -466,7 +467,7 @@ const DevenirArtisan = () => {
                       className="w-full !text-base !font-bold !py-5"
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
-                      Accéder au réseau
+                      JE VEUX ÊTRE VALIDÉ
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                   </CardFooter>
