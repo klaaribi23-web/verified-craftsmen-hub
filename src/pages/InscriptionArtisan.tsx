@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Shield, Zap, Users, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import Footer from "@/components/layout/Footer";
 import { ANDREA_INSCRIPTION_SUCCESS } from "@/config/andreaMessages";
+import { CategorySelect } from "@/components/categories/CategorySelect";
 
 const BENEFITS = [
   { icon: Zap, label: "Andrea travaille pour vous 24h/24 pendant que vous êtes sur le chantier" },
@@ -20,7 +21,7 @@ const BENEFITS = [
 
 const InscriptionArtisan = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ siret: "", business_name: "", metier: "", ville: "", phone: "", email: "" });
+  const [form, setForm] = useState({ siret: "", business_name: "", metier: "", metierId: "", ville: "", phone: "", email: "" });
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -125,8 +126,12 @@ const InscriptionArtisan = () => {
                   <Input id="business_name" name="business_name" value={form.business_name} onChange={handleChange} placeholder="Ex: Bati-Pro SAS" maxLength={100} />
                 </div>
                 <div>
-                  <Label htmlFor="metier">Spécialité / Métier *</Label>
-                  <Input id="metier" name="metier" value={form.metier} onChange={handleChange} placeholder="Ex: Plombier, Électricien…" maxLength={100} />
+                  <Label>Spécialité / Métier *</Label>
+                  <CategorySelect
+                    value={form.metierId}
+                    onValueChange={(id, name) => setForm(prev => ({ ...prev, metierId: id, metier: name }))}
+                    placeholder="Sélectionnez votre spécialité"
+                  />
                 </div>
                 <div>
                   <Label htmlFor="ville">Ville *</Label>

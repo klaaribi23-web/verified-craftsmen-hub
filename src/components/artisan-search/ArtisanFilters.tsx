@@ -22,10 +22,10 @@ interface ArtisanFiltersProps {
 }
 
 const QUICK_FILTERS = [
-  { label: "Solaire", icon: "Sun", keyword: "Panneaux solaires" },
-  { label: "Menuiserie", icon: "hammer", keyword: "Menuiserie" },
-  { label: "Toiture", icon: "home", keyword: "Couverture" },
-  { label: "Chauffage", icon: "Thermometer", keyword: "Pompe à chaleur" },
+  { label: "Solaire", icon: "Sun", keyword: "Photovoltaïque" },
+  { label: "Menuiserie", icon: "door-open", keyword: "Menuiserie" },
+  { label: "Toiture", icon: "home", keyword: "Toiture & Façade" },
+  { label: "Chauffage", icon: "Thermometer", keyword: "PAC" },
 ];
 
 const DEFAULT_RADIUS = 40;
