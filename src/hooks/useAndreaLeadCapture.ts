@@ -83,32 +83,45 @@ export const useAndreaLeadCapture = () => {
   );
 
   const saveLead = useCallback(
-    async (conversationId?: string, sourcePage?: string) => {
+    async (conversationId?: string, sourcePage?: string, forceDraft = false) => {
       if (savedRef.current || isSaving) return;
       if (!leadData.lead_type) return;
 
-      // Phone is MANDATORY — never save without it
-      if (!leadData.telephone) return;
+      // Allow draft saves without phone, full saves require phone
+      if (!forceDraft && !leadData.telephone) return;
 
       setIsSaving(true);
-      savedRef.current = true;
+      if (!forceDraft) savedRef.current = true;
 
       try {
-        const { data, error } = await supabase.functions.invoke("save-andrea-lead", {
-          body: {
-            lead_type: leadData.lead_type,
-            data: leadData,
-            conversation_id: conversationId,
-            source_page: sourcePage,
+        const payload = {
+          lead_type: leadData.lead_type,
+          data: {
+            ...leadData,
+            // Mark as draft if no phone yet
+            notes: !leadData.telephone ? "[BROUILLON] Conversation en cours — téléphone non encore saisi" : (leadData as any).notes,
           },
+          conversation_id: conversationId,
+          source_page: sourcePage,
+        };
+
+        console.log("[LeadCapture] Saving lead:", { type: leadData.lead_type, draft: forceDraft, hasPhone: !!leadData.telephone });
+
+        const { data, error } = await supabase.functions.invoke("save-andrea-lead", {
+          body: payload,
         });
 
-        if (error) throw error;
-        setSavedId(data?.id || null);
-        console.log("[LeadCapture] Lead saved:", data?.id);
+        if (error) {
+          console.error("[LeadCapture] Erreur écriture base de données:", error);
+          throw error;
+        }
+        if (!forceDraft) {
+          setSavedId(data?.id || null);
+        }
+        console.log("[LeadCapture] Lead sauvegardé:", data?.id, forceDraft ? "(brouillon)" : "(final)");
       } catch (err) {
-        console.error("[LeadCapture] Save failed:", err);
-        savedRef.current = false; // Allow retry
+        console.error("[LeadCapture] Échec sauvegarde en base:", err);
+        if (!forceDraft) savedRef.current = false;
       } finally {
         setIsSaving(false);
       }
