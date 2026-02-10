@@ -108,7 +108,7 @@ Ton ton doit être celui d'un pro du terrain : direct, concret, avec des exemple
     console.log(`Expert FAQ generated successfully: ${faqData.questions?.length} questions`);
 
     return new Response(JSON.stringify(faqData), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" },
     });
   } catch (error) {
     console.error("generate-expert-faq error:", error);
