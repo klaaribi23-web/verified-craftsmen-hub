@@ -24,8 +24,8 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <SEOHead
-        title="Trouvez des artisans de confiance"
-        description="Mise en relation rapide avec des artisans qualifiés et vérifiés en France. Devis gratuit, qualité et expertise garantie pour tous vos projets de travaux."
+        title="Réseau Artisan sans commission — Rejoignez l'élite"
+        description="Artisans Validés : le premier réseau artisan sans commission en France. Exclusivité sectorielle, zéro lead revendu, 100% de votre marge protégée. Vérifiez votre disponibilité."
         canonical="https://artisansvalides.fr"
       />
       <OrganizationSchema />
