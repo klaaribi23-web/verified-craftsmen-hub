@@ -33,6 +33,7 @@ const AdminExclusive = () => {
   const [createDialog, setCreateDialog] = useState<any>(null);
   const [tempPassword, setTempPassword] = useState("Artisan2026!");
   const [isCreating, setIsCreating] = useState(false);
+  const [createdCredentials, setCreatedCredentials] = useState<{ email: string; password: string } | null>(null);
 
   // Only allow admin access
   if (!authLoading && (!user || role !== "admin")) {
@@ -68,21 +69,27 @@ const AdminExclusive = () => {
 
   const handleCreateAccess = async (candidacy: any) => {
     setIsCreating(true);
+    setCreatedCredentials(null);
     try {
-      // Create artisan account via edge function
-      const { data, error } = await supabase.functions.invoke("create-test-artisan", {
+      const artisanEmail = candidacy.email || `artisan-${candidacy.id.slice(0, 8)}@artisansvalides.fr`;
+      
+      const { data, error } = await supabase.functions.invoke("create-artisan-account", {
         body: {
-          email: `artisan-${candidacy.id.slice(0, 8)}@artisansvalides.fr`,
+          email: artisanEmail,
           password: tempPassword,
-          businessName: candidacy.business_name,
-          city: candidacy.city,
-          phone: candidacy.phone,
-          siret: candidacy.siret,
-          metier: candidacy.metier,
+          firstName: candidacy.business_name,
+          lastName: "",
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(error.message || "Erreur lors de la création du compte");
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       // Mark candidacy as validated
       await supabase
@@ -92,13 +99,21 @@ const AdminExclusive = () => {
 
       queryClient.invalidateQueries({ queryKey: ["partner-candidacies"] });
 
+      // Show credentials in banner
+      setCreatedCredentials({ email: artisanEmail, password: tempPassword });
+
       toast({
-        title: "Compte artisan créé !",
-        description: `Identifiants : artisan-${candidacy.id.slice(0, 8)}@artisansvalides.fr / ${tempPassword}`,
+        title: "✅ Compte artisan créé avec succès !",
+        description: `L'artisan peut se connecter immédiatement.`,
       });
       setCreateDialog(null);
     } catch (error: any) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      console.error("Create access error:", error);
+      toast({ 
+        title: "❌ Erreur de création", 
+        description: error.message || "Une erreur technique est survenue. Consultez les logs.", 
+        variant: "destructive" 
+      });
     } finally {
       setIsCreating(false);
     }
@@ -143,6 +158,24 @@ const AdminExclusive = () => {
               <p className="text-muted-foreground">Espace réservé au gestionnaire de la plateforme</p>
             </div>
           </div>
+
+          {/* Credentials Banner */}
+          {createdCredentials && (
+            <div className="bg-success/10 border-2 border-success rounded-xl p-6 mb-8 relative">
+              <button 
+                onClick={() => setCreatedCredentials(null)} 
+                className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+              <h3 className="text-lg font-bold text-success mb-3">🎉 Compte créé — Identifiants à copier :</h3>
+              <div className="bg-background rounded-lg p-4 font-mono text-base space-y-2">
+                <p><strong>Email :</strong> {createdCredentials.email}</p>
+                <p><strong>Mot de passe :</strong> <span className="text-xl font-bold text-primary">{createdCredentials.password}</span></p>
+              </div>
+              <p className="text-sm text-muted-foreground mt-3">⚡ Connexion immédiate possible sur la page de connexion.</p>
+            </div>
+          )}
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

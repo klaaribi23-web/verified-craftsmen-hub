@@ -11,43 +11,49 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Auth check - verify caller is admin
+    const body = await req.json();
+    const { email, password, firstName, lastName, artisanId } = body;
+    
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
-    const supabaseAuth = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
-    const userId = claimsData.claims.sub as string;
-
-    // Verify admin role
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      serviceRoleKey
     );
 
-    const { data: roleData } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .single();
+    // Auth: service role header OR admin user token
+    const isServiceRole = authHeader === `Bearer ${serviceRoleKey}`;
+    
+    if (!isServiceRole) {
+      if (!authHeader?.startsWith("Bearer ")) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
 
-    if (roleData?.role !== "admin") {
-      return new Response(JSON.stringify({ error: "Admin access required" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const supabaseAuth = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader } } }
+      );
+
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      const callerUserId = claimsData.claims.sub as string;
+
+      const { data: roleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", callerUserId)
+        .single();
+
+      if (roleData?.role !== "admin") {
+        return new Response(JSON.stringify({ error: "Admin access required" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
     }
-
-    const { email, password, firstName, lastName, artisanId } = await req.json();
 
     if (!email || !password) {
       return new Response(
@@ -58,18 +64,31 @@ Deno.serve(async (req) => {
 
     console.log(`[create-artisan-account] Creating account for: ${email}, artisanId: ${artisanId}`);
 
-    // Check if user already exists
+    // Step 0: Delete existing user if found (full reset)
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
     const existingUser = existingUsers?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
 
     if (existingUser) {
-      return new Response(
-        JSON.stringify({ error: "Un compte existe déjà avec cet email", user_id: existingUser.id }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.log(`[create-artisan-account] Existing user found: ${existingUser.id}, deleting for clean reset...`);
+      
+      // Clean up DB tables first
+      await supabaseAdmin.from("user_roles").delete().eq("user_id", existingUser.id);
+      await supabaseAdmin.from("profiles").delete().eq("user_id", existingUser.id);
+      await supabaseAdmin.from("artisans").update({ user_id: null, profile_id: null }).eq("user_id", existingUser.id);
+      
+      // Delete auth user
+      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(existingUser.id);
+      if (deleteError) {
+        console.error("Error deleting existing user:", deleteError);
+        throw new Error(`Impossible de supprimer l'ancien compte: ${deleteError.message}`);
+      }
+      console.log(`[create-artisan-account] Old user deleted successfully`);
+      
+      // Small delay for consistency
+      await new Promise(r => setTimeout(r, 500));
     }
 
-    // 1. Create auth user
+    // Step 1: Create auth user with artisan role
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
@@ -87,28 +106,58 @@ Deno.serve(async (req) => {
     }
 
     const newUserId = authData.user.id;
-    console.log("Created auth user:", newUserId);
+    console.log("[create-artisan-account] Created auth user:", newUserId);
 
-    // 2. Wait for trigger-created profile
+    // Step 2: Wait for trigger-created profile & role
     let profileId: string | null = null;
-    for (let i = 0; i < 5; i++) {
-      const { data: profile } = await supabaseAdmin
-        .from("profiles")
-        .select("id")
-        .eq("user_id", newUserId)
-        .single();
-      if (profile) {
-        profileId = profile.id;
-        break;
-      }
-      await new Promise(r => setTimeout(r, 500));
+    let roleCreated = false;
+    for (let i = 0; i < 8; i++) {
+      const [profileRes, roleRes] = await Promise.all([
+        supabaseAdmin.from("profiles").select("id").eq("user_id", newUserId).single(),
+        supabaseAdmin.from("user_roles").select("role").eq("user_id", newUserId).single(),
+      ]);
+      if (profileRes.data) profileId = profileRes.data.id;
+      if (roleRes.data) roleCreated = true;
+      if (profileId && roleCreated) break;
+      await new Promise(r => setTimeout(r, 400));
     }
 
+    // Fallback: create manually if triggers didn't fire
     if (!profileId) {
-      console.error("Profile not created by trigger after 2.5s");
+      console.log("[create-artisan-account] Profile not created by trigger, inserting manually");
+      const { data: newProfile } = await supabaseAdmin.from("profiles").insert({
+        user_id: newUserId,
+        email,
+        first_name: firstName || "Artisan",
+        last_name: lastName || "",
+      }).select("id").single();
+      profileId = newProfile?.id || null;
     }
 
-    // 3. Link artisan record if provided
+    if (!roleCreated) {
+      console.log("[create-artisan-account] Role not created by trigger, inserting manually as artisan");
+      await supabaseAdmin.from("user_roles").insert({
+        user_id: newUserId,
+        role: "artisan",
+      });
+    }
+
+    // Step 3: Verify role is 'artisan' (fix if trigger defaulted to 'client')
+    const { data: currentRole } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", newUserId)
+      .single();
+    
+    if (currentRole?.role !== "artisan") {
+      console.log(`[create-artisan-account] Role is '${currentRole?.role}', correcting to 'artisan'`);
+      await supabaseAdmin
+        .from("user_roles")
+        .update({ role: "artisan" })
+        .eq("user_id", newUserId);
+    }
+
+    // Step 4: Link artisan record if provided
     if (artisanId) {
       const { error: linkError } = await supabaseAdmin
         .from("artisans")
@@ -132,6 +181,8 @@ Deno.serve(async (req) => {
         success: true,
         user_id: newUserId,
         profile_id: profileId,
+        email,
+        password,
         message: "Compte artisan créé avec succès",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
