@@ -70,169 +70,91 @@ const randomBadge = (i: number) => BADGES[i % BADGES.length];
 const DEMO_MISSIONS = [
   {
     id: "demo-1",
-    title: "Remplacement Chaudière Gaz par PAC Air-Eau",
-    description: "Maison individuelle 120m². Cherche artisan RGE pour dossier MaPrimeRénov. Budget estimé : 12 000€.",
+    title: "Rénovation énergétique appartement 65m²",
+    description: "Rénovation d'un appartement de 65m² : isolation des murs par l'intérieur, remplacement des fenêtres double vitrage et installation d'une VMC double flux. DPE actuel : F, objectif : C.",
     city: "Lyon (69)",
-    budget: 12000,
-    budget_range: "~12 000€",
+    budget: null, budget_range: "15 000€ – 50 000€",
+    urgency: "1 à 3 mois",
     created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c1", name: "Chauffage / Climatisation" },
-    client_name: "Client vérifié", applicants_count: 4, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(0),
+    category: { id: "c1", name: "Rénovation Globale" },
+    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-2",
-    title: "Pose de 5 fenêtres Alu double vitrage",
-    description: "Rénovation appartement centre-ville. Isolation phonique haute performance exigée.",
-    city: "Bordeaux (33)",
-    budget: null, budget_range: "Sur devis",
-    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c2", name: "Menuiserie" },
-    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(1),
+    title: "Peinture complète maison 120m²",
+    description: "Peinture intérieure complète d'une maison de 120m² sur 2 niveaux. Lessivage, enduit de rebouchage, 2 couches acrylique mate. Plafonds et boiseries inclus.",
+    city: "Paris (75)",
+    budget: null, budget_range: "5 000€ – 15 000€",
+    urgency: "1 à 3 mois",
+    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c2", name: "Ravalement" },
+    client_name: "Client vérifié", applicants_count: 5, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-3",
-    title: "Réfection complète toiture ardoise",
-    description: "Surface 80m². Travaux prévus pour le printemps. Devis comparatifs souhaités.",
-    city: "Rennes (35)",
-    budget: null, budget_range: "Sur devis",
-    created_at: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
-    category: { id: "c3", name: "Couverture / Toiture" },
-    client_name: "Client vérifié", applicants_count: 5, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: "Urgent",
+    title: "Extension bois 25m² avec toit plat",
+    description: "Construction d'une extension ossature bois de 25m² attenante à une maison existante. Toit plat végétalisé, baie vitrée 4m, isolation biosourcée. Permis de construire obtenu.",
+    city: "Bordeaux (33)",
+    budget: null, budget_range: "Plus de 50 000€",
+    urgency: "Plus de 3 mois",
+    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c3", name: "Construction neuve" },
+    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-4",
-    title: "Installation 8 panneaux photovoltaïques",
-    description: "Autoconsommation avec revente du surplus. Toit plat disponible.",
-    city: "Montpellier (34)",
-    budget: null, budget_range: "Sur devis",
-    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c4", name: "Énergie Solaire" },
-    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(2),
+    title: "Installation PAC air-eau + plancher chauffant",
+    description: "Remplacement chaudière fioul par PAC air-eau 12kW. Pose plancher chauffant basse température au RDC (80m²). Artisan RGE obligatoire pour dossier MaPrimeRénov'.",
+    city: "Marseille (13)",
+    budget: null, budget_range: "15 000€ – 50 000€",
+    urgency: "Immédiatement",
+    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c4", name: "PAC" },
+    client_name: "Client vérifié", applicants_count: 7, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-5",
-    title: "Mise aux normes NF C 15-100",
-    description: "Appartement haussmannien. Changement complet du tableau et des prises.",
-    city: "Paris (75)",
-    budget: null, budget_range: "Sur devis",
-    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-    category: { id: "c5", name: "Électricité" },
-    client_name: "Client vérifié", applicants_count: 7, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: "En attente d'artisan",
+    title: "Rénovation salle de bain complète 8m²",
+    description: "Démolition existant, plomberie neuve, douche italienne avec receveur extra-plat, faïence grand format, meuble double vasque. Normes électriques NF C 15-100.",
+    city: "Nantes (44)",
+    budget: null, budget_range: "5 000€ – 15 000€",
+    urgency: "1 à 3 mois",
+    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c5", name: "Salle de bain clé en main" },
+    client_name: "Client vérifié", applicants_count: 4, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-6",
-    title: "Pose de Velux sur extension bois",
-    description: "Extension ossature bois récente. Pose de 2 Velux avec volet roulant solaire. Accès échafaudage possible.",
-    city: "Nantes (44)",
-    budget: 3500, budget_range: "~3 500€",
-    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c6", name: "Menuiserie" },
-    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(0),
+    title: "Mise aux normes électriques NF C 15-100",
+    description: "Appartement haussmannien 90m². Remplacement tableau électrique, mise à la terre, changement prises et interrupteurs. Passage consuel obligatoire après travaux.",
+    city: "Lille (59)",
+    budget: null, budget_range: "5 000€ – 15 000€",
+    urgency: "Immédiatement",
+    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+    category: { id: "c6", name: "Électricité" },
+    client_name: "Client vérifié", applicants_count: 6, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-7",
-    title: "Installation clim réversible appartement",
-    description: "T3 de 65m² au 2e étage. Souhait d'un bi-split discret. Balcon disponible pour le groupe extérieur.",
-    city: "Marseille (13)",
-    budget: 4500, budget_range: "~4 500€",
-    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c7", name: "Climatisation" },
-    client_name: "Client vérifié", applicants_count: 6, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(1),
+    title: "Ravalement façade immeuble R+3",
+    description: "Copropriété 8 lots. Nettoyage haute pression, traitement fissures, enduit RPE teinté. Échafaudage à prévoir sur rue passante. Devis détaillé exigé.",
+    city: "Nice (06)",
+    budget: null, budget_range: "Plus de 50 000€",
+    urgency: "Plus de 3 mois",
+    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c7", name: "Ravalement" },
+    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-8",
-    title: "Isolation thermique par l'extérieur (ITE)",
-    description: "Maison mitoyenne années 70. Façade 90m² à isoler. Finition enduit gratté souhaité.",
-    city: "Strasbourg (67)",
-    budget: 18000, budget_range: "~18 000€",
-    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c8", name: "Isolation" },
-    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(2),
-  },
-  {
-    id: "demo-9",
-    title: "Rénovation complète de salle de bain",
-    description: "Remplacement baignoire par douche italienne. Faïence, plomberie, électricité. Surface 7m².",
+    title: "Pose cuisine équipée + électroménager",
+    description: "Cuisine ouverte 15m². Dépose ancienne cuisine, plomberie, électricité, pose meubles hauts et bas, plan de travail quartz, crédence carrelage métro.",
     city: "Toulouse (31)",
-    budget: 8000, budget_range: "~8 000€",
+    budget: null, budget_range: "5 000€ – 15 000€",
+    urgency: "1 à 3 mois",
     created_at: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c9", name: "Plomberie" },
-    client_name: "Client vérifié", applicants_count: 8, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(0),
-  },
-  {
-    id: "demo-10",
-    title: "Traitement de charpente contre les termites",
-    description: "Villa de plain-pied. Diagnostic termites positif. Traitement curatif + préventif nécessaire.",
-    city: "Biarritz (64)",
-    budget: 5000, budget_range: "~5 000€",
-    created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c10", name: "Charpente / Bois" },
-    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: "Urgent",
-  },
-  {
-    id: "demo-11",
-    title: "Installation de borne de recharge VE",
-    description: "Maison individuelle avec garage. Installation wallbox 7kW sur tableau existant conforme.",
-    city: "Grenoble (38)",
-    budget: 1800, budget_range: "~1 800€",
-    created_at: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c11", name: "Électricité" },
-    client_name: "Client vérifié", applicants_count: 4, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(1),
-  },
-  {
-    id: "demo-12",
-    title: "Ravalement façade immeuble R+2",
-    description: "Copropriété de 6 lots. Nettoyage haute pression, réparation fissures, peinture imperméable.",
-    city: "Rouen (76)",
-    budget: 25000, budget_range: "~25 000€",
-    created_at: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c12", name: "Maçonnerie" },
+    category: { id: "c8", name: "Pose de cuisine" },
     client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(2),
-  },
-  {
-    id: "demo-13",
-    title: "Peinture intérieure appartement 4 pièces",
-    description: "80m² habitable. Lessivage, enduit de rebouchage, 2 couches de peinture acrylique. Plafonds inclus.",
-    city: "Nice (06)",
-    budget: 4000, budget_range: "~4 000€",
-    created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c13", name: "Peinture" },
-    client_name: "Client vérifié", applicants_count: 5, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(0),
-  },
-  {
-    id: "demo-14",
-    title: "Installation domotique maison neuve",
-    description: "Maison RT2012, 140m². Volets, éclairages, chauffage connectés. Système KNX ou équivalent.",
-    city: "Reims (51)",
-    budget: 12000, budget_range: "~12 000€",
-    created_at: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c14", name: "Domotique" },
-    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(1),
-  },
-  {
-    id: "demo-15",
-    title: "Création terrasse bois sur plots",
-    description: "Terrasse 30m² en pin Douglas. Sol irrégulier, plots réglables nécessaires. Vue mer.",
-    city: "Ajaccio (2A)",
-    budget: 6000, budget_range: "~6 000€",
-    created_at: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(),
-    category: { id: "c15", name: "Menuiserie" },
-    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
-    verified_by_andrea: true, trust_badge: randomBadge(2),
   },
 ];
 
@@ -286,11 +208,28 @@ const NosMissions = () => {
   const { data: dbMissions, isLoading: missionsLoading } = useDemoMissions(user?.id, role);
   const { data: categories } = useCategoriesHierarchy();
 
+  // Parse structured metadata from description
+  const parseStructuredInfo = (desc: string | null) => {
+    if (!desc) return {};
+    const parts = desc.split('--- Infos structurées ---');
+    if (parts.length < 2) return {};
+    const info: Record<string, string> = {};
+    parts[1].split('\n').forEach(line => {
+      const match = line.match(/^(.+?)\s*:\s*(.+)$/);
+      if (match) info[match[1].trim()] = match[2].trim();
+    });
+    return info;
+  };
+
   // Always show demo missions combined with DB missions for volume
   const missions = useMemo(() => {
-    const dbIds = new Set((dbMissions || []).map((m: any) => m.id));
+    const enrichedDb = (dbMissions || []).map((m: any) => {
+      const info = parseStructuredInfo(m.description);
+      return { ...m, budget_range: info['Budget'] || null, urgency: info['Délai souhaité'] || null };
+    });
+    const dbIds = new Set(enrichedDb.map((m: any) => m.id));
     const demos = DEMO_MISSIONS.filter(d => !dbIds.has(d.id));
-    return [...(dbMissions || []), ...demos] as any[];
+    return [...enrichedDb, ...demos] as any[];
   }, [dbMissions]);
 
   const missionCities = useMemo(() => {
@@ -647,7 +586,11 @@ const NosMissions = () => {
             ) : paginatedMissions.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                  {paginatedMissions.map((mission, index) => (
+                  {paginatedMissions.map((mission, index) => {
+                    const urgency = (mission as any).urgency;
+                    const budgetRange = (mission as any).budget_range;
+                    
+                    return (
                     <motion.div
                       key={mission.id}
                       initial={{ opacity: 0, y: 20 }}
@@ -659,19 +602,17 @@ const NosMissions = () => {
                           {/* Top colored bar */}
                           <div className="h-1.5 bg-gradient-to-r from-gold to-gold-light" />
                           
-                          <div className="p-6 flex flex-col h-full">
-                            {/* Badge métier */}
-                            <div className="flex items-center justify-between mb-3">
-                              <Badge className="bg-navy/10 text-navy hover:bg-navy/20 gap-1 font-medium">
+                          <div className="p-5 md:p-6 flex flex-col h-full">
+                            {/* Top row: category + verified badge */}
+                            <div className="flex items-center justify-between mb-3 gap-2">
+                              <Badge className="bg-navy/10 text-navy hover:bg-navy/20 gap-1 font-medium text-xs">
                                 <Briefcase className="w-3 h-3" />
                                 {mission.category?.name || "Autre"}
                               </Badge>
-                              {mission.has_applied && (
-                              <Badge className="bg-success/10 text-success gap-1">
-                                  <CheckCircle2 className="w-3 h-3" />
-                                  Postulé
-                                </Badge>
-                              )}
+                              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 gap-1 text-xs font-semibold">
+                                <BadgeCheck className="w-3.5 h-3.5" />
+                                Vérifié
+                              </Badge>
                             </div>
 
                             {/* Title */}
@@ -691,80 +632,73 @@ const NosMissions = () => {
                             </div>
 
                             {/* Budget */}
-                            {(mission.budget || mission.budget_range) && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                              <Euro className="w-4 h-4 text-gold shrink-0" />
+                              <span>Budget : <strong className="text-foreground">
+                                {budgetRange || (mission.budget ? `${mission.budget?.toLocaleString('fr-FR')} €` : "Sur devis")}
+                              </strong></span>
+                            </div>
+
+                            {/* Urgency */}
+                            {urgency && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                                <Euro className="w-4 h-4 text-gold shrink-0" />
-                                <span>Budget estimé : <strong className="text-foreground">
-                                  {mission.budget_range || `${mission.budget?.toLocaleString('fr-FR')} €`}
-                                </strong></span>
+                                <Calendar className="w-4 h-4 text-gold shrink-0" />
+                                <span>Délai : <strong className={cn(
+                                  "text-foreground",
+                                  urgency === "Immédiatement" && "text-destructive"
+                                )}>{urgency}</strong></span>
                               </div>
                             )}
 
                             {/* Description excerpt */}
                             {mission.description && (
-                              <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                                {mission.description}
+                              <p className="text-sm text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
+                                {mission.description.split('--- Infos structurées ---')[0].trim()}
                               </p>
                             )}
 
-                            {/* Date + reactivity */}
+                            {/* Date + applicants */}
                             <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-                              <div className="flex items-center gap-2">
-                                <Calendar className="w-3.5 h-3.5" />
-                                <span>{formatTimeAgo(mission.created_at)}</span>
+                              <span>{formatTimeAgo(mission.created_at)}</span>
+                              <div className="flex items-center gap-1">
+                                <Users className="w-3.5 h-3.5" />
+                                <span>{mission.applicants_count || 0} candidat{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
                               </div>
-                              <span className={cn(
-                                "italic",
-                                (mission.applicants_count || 0) >= 5 ? "text-gold font-medium" : "text-muted-foreground/70"
-                              )}>
-                                {(mission.applicants_count || 0) >= 5
-                                  ? "Mise en relation disponible"
-                                  : "Analyse en cours par nos experts"}
-                              </span>
                             </div>
 
                             {/* Spacer */}
                             <div className="flex-1" />
 
-                            {/* Trust badges */}
-                            <div className="flex flex-col gap-1.5 mb-4">
-                              <div className="flex items-center justify-between">
-                                <div className={cn(
-                                  "flex items-center gap-1.5 text-xs font-semibold",
-                                  mission.trust_badge === "Urgent" ? "text-destructive" : 
-                                  mission.trust_badge === "En attente d'artisan" ? "text-amber-600" : "text-success"
-                                )}>
-                                  <ShieldCheck className="w-4 h-4" />
-                                  <span>{mission.trust_badge || "Mission Auditée & Certifiée"}</span>
-                                </div>
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <Users className="w-3.5 h-3.5" />
-                                  <span>{mission.applicants_count || 0} candidat{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <BadgeCheck className="w-3.5 h-3.5 text-gold" />
-                                <span>Le client garde la main sur ses coordonnées. Transmission après validation de votre profil.</span>
-                              </div>
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70 italic">
-                                <span>Analyse de faisabilité technique effectuée par nos outils d'expertise</span>
-                              </div>
+                            {/* Security notice */}
+                            <div className="flex items-start gap-2 bg-muted/50 border border-border rounded-lg p-3 mb-4">
+                              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                Coordonnées accessibles après validation du partenariat
+                              </p>
                             </div>
 
-                            {/* CTA Button - Touch-friendly */}
-                            <Button 
-                              variant="gold"
-                              className="w-full gap-2 h-12 text-base font-bold"
-                              onClick={() => handleViewMission(mission)}
-                            >
-                              <Send className="w-5 h-5" />
-                              Postuler à ce chantier
-                            </Button>
+                            {/* Applied badge or CTA */}
+                            {mission.has_applied ? (
+                              <Badge className="bg-success/10 text-success gap-1 w-full justify-center py-2.5 text-sm">
+                                <CheckCircle2 className="w-4 h-4" />
+                                Candidature envoyée
+                              </Badge>
+                            ) : (
+                              <Button 
+                                variant="gold"
+                                className="w-full gap-2 h-12 text-sm font-bold"
+                                onClick={() => handleViewMission(mission)}
+                              >
+                                <ArrowRight className="w-5 h-5" />
+                                Se positionner sur cette mission
+                              </Button>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
                     </motion.div>
-                  ))}
+                  );
+                  })}
                 </div>
 
                 {/* Pagination */}
