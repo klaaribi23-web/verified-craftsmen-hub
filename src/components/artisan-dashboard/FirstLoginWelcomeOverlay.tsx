@@ -6,12 +6,14 @@ import { Sparkles, ArrowDown } from "lucide-react";
 interface FirstLoginWelcomeOverlayProps {
   artisanName: string;
   city: string;
+  isLegacy?: boolean;
   onDismiss: () => void;
 }
 
 export const FirstLoginWelcomeOverlay = ({
   artisanName,
   city,
+  isLegacy = false,
   onDismiss,
 }: FirstLoginWelcomeOverlayProps) => {
   const [visible, setVisible] = useState(true);
@@ -64,26 +66,40 @@ export const FirstLoginWelcomeOverlay = ({
 
             {/* Welcome message */}
             <h2 className="text-2xl font-bold text-foreground mb-4">
-              Bienvenue dans l'élite, {artisanName} 🎉
+              {isLegacy
+                ? `Ravi de vous revoir, ${artisanName} 🤝`
+                : `Bienvenue dans l'élite, ${artisanName} 🎉`}
             </h2>
 
             <p className="text-muted-foreground leading-relaxed mb-6">
-              Ton profil est prêt, mais pour recevoir tes premiers leads
-              {city ? ` à ${city}` : ""}, tu dois activer ton{" "}
-              <span className="font-semibold text-foreground">pack Sérénité</span>.
-              <br />
-              On commence par là ?
+              {isLegacy
+                ? "Ravi de vous voir sur la nouvelle plateforme ! Votre abonnement historique est maintenu sans changement. Profitez de vos nouveaux outils !"
+                : <>Ton profil est prêt, mais pour recevoir tes premiers leads
+                  {city ? ` à ${city}` : ""}, tu dois activer ton{" "}
+                  <span className="font-semibold text-foreground">pack Sérénité</span>.
+                  <br />
+                  On commence par là ?</>}
             </p>
 
             {/* CTA */}
-            <Button
-              size="lg"
-              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg text-base font-bold mb-3"
-              onClick={handleDiscover}
-            >
-              <ArrowDown className="w-5 h-5 mr-2" />
-              DÉCOUVRIR MES AVANTAGES
-            </Button>
+            {isLegacy ? (
+              <Button
+                size="lg"
+                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg text-base font-bold mb-3"
+                onClick={handleSkip}
+              >
+                C'EST PARTI !
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg text-base font-bold mb-3"
+                onClick={handleDiscover}
+              >
+                <ArrowDown className="w-5 h-5 mr-2" />
+                DÉCOUVRIR MES AVANTAGES
+              </Button>
+            )}
 
             <button
               onClick={handleSkip}

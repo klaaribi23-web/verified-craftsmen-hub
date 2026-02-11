@@ -43,6 +43,28 @@ Deno.serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Check for legacy partners BEFORE hitting Stripe
+    const { data: artisanData } = await supabaseClient
+      .from("artisans")
+      .select("subscription_tier")
+      .eq("user_id", user.id)
+      .single();
+
+    if (artisanData?.subscription_tier === "legacy") {
+      logStep("Legacy partner detected, skipping Stripe", { userId: user.id });
+      return new Response(
+        JSON.stringify({
+          subscribed: true,
+          subscription_tier: "legacy",
+          subscription_end: null,
+          subscription_start: null,
+          billing_interval: null,
+          payment_method: null,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
+      );
+    }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Find customer by email

@@ -77,6 +77,7 @@ const ArtisanSubscription = () => {
   };
 
   const isSubscribed = tier !== "free";
+  const isLegacy = tier === "legacy";
 
   const sharedFeatures = [
     "Visibilité maximale dans votre zone",
@@ -109,8 +110,43 @@ const ArtisanSubscription = () => {
 
           <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             <div className="max-w-5xl mx-auto">
-              {/* Current plan info */}
-              {isSubscribed && (
+            {/* Legacy Partner Card */}
+              {isLegacy && (
+                <Card className="mb-8 border-primary/50 bg-gradient-to-br from-primary/5 to-primary/10">
+                  <CardHeader>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                          <Shield className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <CardTitle className="text-xl">Partenaire Historique</CardTitle>
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow">
+                              <Star className="w-3 h-3 fill-current" />
+                              LEGACY
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Votre abonnement historique est maintenu — aucune action requise.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-3 p-4 bg-success/10 border border-success/30 rounded-lg">
+                      <Check className="w-5 h-5 text-success" />
+                      <p className="text-sm font-medium text-foreground">
+                        Statut : <span className="text-success font-bold">Actif</span> — Accès complet à toutes les fonctionnalités de la plateforme.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Current plan info (Stripe subscribers only) */}
+              {isSubscribed && !isLegacy && (
                 <Card className="mb-8 border-primary/50">
                   <CardHeader>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -183,7 +219,9 @@ const ArtisanSubscription = () => {
                 </Card>
               )}
 
-              {/* Pricing Section */}
+              {/* Pricing Section — hidden for legacy */}
+              {!isLegacy && (
+              <>
               <div className="mb-8 text-center">
                 <h2 className="text-2xl font-bold mb-2">
                   {isSubscribed ? "Votre offre" : "Choisissez votre offre"}
@@ -323,6 +361,8 @@ const ArtisanSubscription = () => {
                   </CardFooter>
                 </Card>
               </div>
+              </>
+              )}
             </div>
           </main>
         </div>

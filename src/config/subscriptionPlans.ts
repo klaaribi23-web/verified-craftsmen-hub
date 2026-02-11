@@ -11,7 +11,7 @@ export const STRIPE_PRODUCT_IDS = {
   artisan_valide_yearly: "prod_TwD9dvf0BhK26h",
 };
 
-export type SubscriptionTier = "free" | "artisan_valide";
+export type SubscriptionTier = "free" | "artisan_valide" | "legacy";
 export type BillingInterval = "monthly" | "yearly";
 
 export interface PlanFeatures {
