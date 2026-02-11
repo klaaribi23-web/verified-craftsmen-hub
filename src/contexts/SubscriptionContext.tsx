@@ -138,7 +138,14 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       const responseData = typeof data === "string" ? JSON.parse(data) : data;
 
       if ((responseData as Record<string, unknown>)?.url) {
-        return (responseData as Record<string, unknown>).url as string;
+        const url = (responseData as Record<string, unknown>).url as string;
+        // Force top-level navigation to break out of iframe
+        try {
+          window.top!.location.href = url;
+        } catch {
+          window.location.href = url;
+        }
+        return url;
       } else if ((responseData as Record<string, unknown>)?.error) {
         throw new Error((responseData as Record<string, unknown>).error as string);
       } else {
