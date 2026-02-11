@@ -110,7 +110,7 @@ const DEMO_MISSIONS = [
     urgency: "Immédiatement",
     created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     category: { id: "c4", name: "PAC" },
-    client_name: "Client vérifié", applicants_count: 7, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 0, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-5",
@@ -657,23 +657,37 @@ const NosMissions = () => {
                               </p>
                             )}
 
-                            {/* Date + applicants */}
-                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
+                            {/* Date + availability badge */}
+                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
                               <span>{formatTimeAgo(mission.created_at)}</span>
-                              <div className="flex items-center gap-1">
-                                <Users className="w-3.5 h-3.5" />
-                                <span>{mission.applicants_count || 0} candidat{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
-                              </div>
+                              {(mission.applicants_count || 0) === 0 ? (
+                                <Badge className="bg-gold/10 text-gold-dark border-gold/30 text-xs font-semibold">
+                                  Soyez le premier artisan sur ce projet
+                                </Badge>
+                              ) : (mission.applicants_count || 0) >= 2 ? (
+                                <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-xs font-semibold">
+                                  Dernière place disponible
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs font-semibold">
+                                  Place disponible : 1/2
+                                </Badge>
+                              )}
                             </div>
 
                             {/* Spacer */}
                             <div className="flex-1" />
 
+                            {/* Reassurance line */}
+                            <p className="text-xs text-muted-foreground mb-3 italic">
+                              Dossier client complet : Budget confirmé et photos disponibles.
+                            </p>
+
                             {/* Security notice */}
                             <div className="flex items-start gap-2 bg-muted/50 border border-border rounded-lg p-3 mb-4">
                               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                               <p className="text-xs text-muted-foreground leading-relaxed">
-                                Coordonnées accessibles après validation du partenariat
+                                Accès à la mise en relation sécurisée dès validation de votre profil
                               </p>
                             </div>
 
