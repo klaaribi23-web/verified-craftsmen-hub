@@ -139,11 +139,11 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
       if ((responseData as Record<string, unknown>)?.url) {
         const url = (responseData as Record<string, unknown>).url as string;
-        // Force top-level navigation to break out of iframe
+        // Try top-level redirect; if it fails (iframe sandbox), return URL for fallback
         try {
           window.top!.location.href = url;
         } catch {
-          window.location.href = url;
+          // Iframe restriction — caller will handle fallback UI
         }
         return url;
       } else if ((responseData as Record<string, unknown>)?.error) {

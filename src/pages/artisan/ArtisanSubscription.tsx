@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
@@ -9,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { MONTHLY_PLAN, YEARLY_PLAN, STRIPE_PRICES } from "@/config/subscriptionPlans";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
-import { Crown, Calendar, Settings, CreditCard, Check, Shield, Star, Sparkles } from "lucide-react";
+import { Crown, Calendar, Settings, CreditCard, Check, Shield, Star, Sparkles, ExternalLink, Loader2 } from "lucide-react";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
 import { cn } from "@/lib/utils";
 
@@ -44,13 +44,24 @@ const ArtisanSubscription = () => {
     }
   }, [searchParams, checkSubscription]);
 
+  const [stripeUrl, setStripeUrl] = useState<string | null>(null);
+  const [showFallback, setShowFallback] = useState(false);
+  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleSubscribe = async (e: React.MouseEvent, priceId: string) => {
     e.stopPropagation();
     if (loadingPriceId) return;
     setLoadingPriceId(priceId);
     setCheckoutError(null);
+    setStripeUrl(null);
+    setShowFallback(false);
     try {
-      await createCheckout(priceId);
+      const url = await createCheckout(priceId);
+      if (url) {
+        setStripeUrl(url);
+        // If still on this page after 2s, show fallback button
+        fallbackTimerRef.current = setTimeout(() => setShowFallback(true), 2000);
+      }
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       setCheckoutError(msg);
@@ -63,6 +74,13 @@ const ArtisanSubscription = () => {
       setLoadingPriceId(null);
     }
   };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+    };
+  }, []);
 
   const handleManageSubscription = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -114,6 +132,28 @@ const ArtisanSubscription = () => {
 
            <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             <div className="max-w-5xl mx-auto">
+              {/* Stripe Fallback Button */}
+              {showFallback && stripeUrl && (
+                <div className="mb-6 p-6 bg-primary/5 border border-primary/20 rounded-xl text-center space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="flex items-center justify-center gap-2 text-primary">
+                    <Shield className="w-5 h-5" />
+                    <p className="font-semibold">Paiement sécurisé prêt</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Cliquez ci-dessous pour accéder à la page de paiement Stripe
+                  </p>
+                  <a
+                    href={stripeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 rounded-lg bg-primary text-primary-foreground font-semibold shadow-lg hover:bg-primary/90 transition-all"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Continuer vers le paiement sécurisé Stripe
+                  </a>
+                </div>
+              )}
+
               {checkoutError && (
                 <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm font-medium">
                   <p className="font-bold mb-1">❌ Erreur Stripe</p>
@@ -287,7 +327,9 @@ const ArtisanSubscription = () => {
                         onClick={(e) => handleSubscribe(e, STRIPE_PRICES.artisan_valide.monthly)}
                         disabled={!!loadingPriceId}
                       >
-                        {loadingPriceId === STRIPE_PRICES.artisan_valide.monthly ? "Chargement..." : "S'abonner — 99€/mois"}
+                        {loadingPriceId === STRIPE_PRICES.artisan_valide.monthly ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirection…</>
+                        ) : "S'abonner — 99€/mois"}
                       </Button>
                     )}
                   </CardFooter>
@@ -365,7 +407,9 @@ const ArtisanSubscription = () => {
                         onClick={(e) => handleSubscribe(e, STRIPE_PRICES.artisan_valide.yearly)}
                         disabled={!!loadingPriceId}
                       >
-                        {loadingPriceId === STRIPE_PRICES.artisan_valide.yearly ? "Chargement..." : "S'abonner — 990€ HT/an"}
+                        {loadingPriceId === STRIPE_PRICES.artisan_valide.yearly ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirection…</>
+                        ) : "S'abonner — 990€ HT/an"}
                       </Button>
                     )}
                   </CardFooter>
