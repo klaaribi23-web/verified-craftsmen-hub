@@ -1,14 +1,38 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-serve(async (req) => {
+// --- In-memory rate limiter ---
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+function checkRateLimit(ip: string, maxRequests: number, windowMs: number): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= maxRequests) return false;
+  entry.count++;
+  return true;
+}
+function getClientIp(req: Request): string {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+}
+
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
+  }
+
+  // Rate limit: 10 FAQ generations per IP per hour
+  const ip = getClientIp(req);
+  if (!checkRateLimit(ip, 10, 60 * 60 * 1000)) {
+    return new Response(
+      JSON.stringify({ error: "Trop de requêtes. Réessayez plus tard." }),
+      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 
   try {
@@ -17,6 +41,14 @@ serve(async (req) => {
     if (!city && !category) {
       return new Response(
         JSON.stringify({ error: "city or category is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate input lengths
+    if ((city?.length || 0) > 100 || (category?.length || 0) > 100) {
+      return new Response(
+        JSON.stringify({ error: "Input too long" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -87,7 +119,6 @@ Adapte le contenu au métier et à la localisation.`;
       throw new Error("No content returned from AI");
     }
 
-    // Parse the JSON from the AI response
     const cleanedContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const faqData = JSON.parse(cleanedContent);
 

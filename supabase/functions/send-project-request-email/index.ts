@@ -6,6 +6,23 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// --- In-memory rate limiter ---
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+function checkRateLimit(ip: string, maxRequests: number, windowMs: number): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= maxRequests) return false;
+  entry.count++;
+  return true;
+}
+function getClientIp(req: Request): string {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+}
+
 interface ProjectRequestEmail {
   artisanEmail: string;
   artisanName: string;
@@ -18,6 +35,15 @@ interface ProjectRequestEmail {
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
+  }
+
+  // Rate limit: 5 emails per IP per hour
+  const ip = getClientIp(req);
+  if (!checkRateLimit(ip, 5, 60 * 60 * 1000)) {
+    return new Response(
+      JSON.stringify({ error: "Trop de demandes. Réessayez plus tard." }),
+      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 
   try {
@@ -34,6 +60,16 @@ Deno.serve(async (req: Request) => {
 
     if (!artisanEmail || !clientName || !clientCity) {
       throw new Error("Missing required fields");
+    }
+
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(artisanEmail)) {
+      throw new Error("Invalid email format");
+    }
+
+    // Validate field lengths
+    if ((clientName?.length || 0) > 100 || (clientCity?.length || 0) > 100 || (projectDescription?.length || 0) > 5000) {
+      throw new Error("Field too long");
     }
 
     const subject = `[Artisans Validés] Nouvelle demande de projet - ${clientCity}`;
