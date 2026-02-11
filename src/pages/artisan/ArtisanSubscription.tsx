@@ -44,28 +44,15 @@ const ArtisanSubscription = () => {
     }
   }, [searchParams, checkSubscription]);
 
-  const [debugLog, setDebugLog] = useState<string[]>([]);
-  const [stripeUrl, setStripeUrl] = useState<string | null>(null);
-
-  const addDebug = (msg: string) => setDebugLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
-
   const handleSubscribe = async (e: React.MouseEvent, priceId: string) => {
     e.stopPropagation();
     if (loadingPriceId) return;
     setLoadingPriceId(priceId);
     setCheckoutError(null);
-    setStripeUrl(null);
-    setDebugLog([]);
-    addDebug(`▶ Début checkout — Price ID: ${priceId}`);
     try {
-      const url = await createCheckout(priceId);
-      if (url) {
-        addDebug(`✅ URL Stripe reçue: ${url}`);
-        setStripeUrl(url);
-      }
+      await createCheckout(priceId);
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      addDebug(`❌ ERREUR: ${msg}`);
       setCheckoutError(msg);
       toast({
         title: "Erreur de paiement",
@@ -74,15 +61,6 @@ const ArtisanSubscription = () => {
       });
     } finally {
       setLoadingPriceId(null);
-    }
-  };
-
-  const handleForceRedirect = () => {
-    if (!stripeUrl) return;
-    try {
-      window.top?.location.assign(stripeUrl);
-    } catch {
-      window.location.assign(stripeUrl);
     }
   };
 
@@ -136,36 +114,6 @@ const ArtisanSubscription = () => {
 
            <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             <div className="max-w-5xl mx-auto">
-              {/* DEBUG PANEL */}
-              {debugLog.length > 0 && (
-                <div className="mb-6 p-4 bg-muted border-2 border-primary rounded-lg font-mono text-xs space-y-1">
-                  <p className="font-bold text-sm mb-2">🔍 DEBUG CHECKOUT</p>
-                  {debugLog.map((line, i) => <p key={i}>{line}</p>)}
-                </div>
-              )}
-
-              {/* STRIPE URL + BIG BUTTON */}
-              {stripeUrl && (
-                <div className="mb-6 p-6 bg-green-50 dark:bg-green-950 border-4 border-green-500 rounded-xl text-center space-y-4">
-                  <p className="text-green-700 dark:text-green-300 font-bold text-lg">✅ URL Stripe générée avec succès !</p>
-                  <p className="text-xs font-mono break-all text-green-600 dark:text-green-400">{stripeUrl}</p>
-                  <button
-                    onClick={handleForceRedirect}
-                    className="w-full py-6 text-2xl font-black bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-2xl animate-pulse"
-                  >
-                    🚀 CLIQUEZ ICI POUR PAYER 🚀
-                  </button>
-                  <a
-                    href={stripeUrl}
-                    target="_top"
-                    rel="noopener noreferrer"
-                    className="block w-full py-4 text-lg font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-center"
-                  >
-                    Lien direct (target=_top)
-                  </a>
-                </div>
-              )}
-
               {checkoutError && (
                 <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm font-medium">
                   <p className="font-bold mb-1">❌ Erreur Stripe</p>
