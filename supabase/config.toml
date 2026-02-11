@@ -41,3 +41,15 @@ verify_jwt = false
 
 [functions.bulk-sync-artisan-media]
 verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.check-subscription]
+verify_jwt = false
+
+[functions.customer-portal]
+verify_jwt = false
+
+[functions.get-subscription-details]
+verify_jwt = false
