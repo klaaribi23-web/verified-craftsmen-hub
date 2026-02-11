@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShieldCheck, Calendar, FileText } from "lucide-react";
+import { ShieldCheck, Calendar, FileText, AlertTriangle, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface SubscriptionDashboardCardProps {
@@ -13,7 +13,8 @@ export const SubscriptionDashboardCard = ({
   subscriptionEnd,
   isLoading = false,
 }: SubscriptionDashboardCardProps) => {
-  // Show skeleton during loading
+  const isSubscribed = tier !== "free";
+
   if (isLoading) {
     return (
       <div className="bg-card rounded-xl border border-border shadow-soft p-4 md:p-6 mb-6 md:mb-8 animate-pulse">
@@ -25,6 +26,38 @@ export const SubscriptionDashboardCard = ({
               <div className="h-4 bg-muted rounded w-56" />
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSubscribed) {
+    return (
+      <div className="bg-card rounded-xl border border-orange-500/30 shadow-soft p-4 md:p-6 mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-orange-500" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-foreground">Abonnement inactif</h3>
+                <Badge className="bg-orange-500/20 text-orange-600 dark:text-orange-400 border-0 text-xs px-2 py-0.5">
+                  En attente
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Activez votre abonnement pour être visible et recevoir des demandes de clients.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/artisan/abonnement"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 px-4 py-2 rounded-md transition-colors whitespace-nowrap"
+          >
+            S'abonner
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     );
@@ -46,7 +79,7 @@ export const SubscriptionDashboardCard = ({
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              Votre abonnement à 99€ HT/mois est actif.
+              Votre abonnement est actif.
               {subscriptionEnd && (
                 <span className="inline-flex items-center gap-1 ml-2">
                   <Calendar className="w-3 h-3" />

@@ -7,6 +7,8 @@ import { ActiveProfileCard } from "@/components/artisan-dashboard/ActiveProfileC
 import { SuspendedProfileCard } from "@/components/artisan-dashboard/SuspendedProfileCard";
 import { ProfileViewsCard } from "@/components/artisan-dashboard/ProfileViewsCard";
 import { ApprovalNotifications } from "@/components/artisan-dashboard/ApprovalNotifications";
+import { FirstLoginWelcomeOverlay } from "@/components/artisan-dashboard/FirstLoginWelcomeOverlay";
+import { SubscriptionWarningBanner } from "@/components/artisan-dashboard/SubscriptionWarningBanner";
 import { DemoMessaging } from "@/components/demo/DemoMessaging";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -34,7 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import { Link, useSearchParams } from "react-router-dom";
-import { useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export const ArtisanDashboard = () => {
   const { user } = useAuth();
@@ -42,6 +44,25 @@ export const ArtisanDashboard = () => {
   const demoMode = !user;
   const { tier, subscriptionEnd, checkSubscription, isLoading: isLoadingSubscription } = useSubscription();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // First login detection
+  useEffect(() => {
+    if (!user?.id) return;
+    const storageKey = `artisan_welcome_shown_${user.id}`;
+    if (!sessionStorage.getItem(storageKey) && !localStorage.getItem(storageKey)) {
+      setShowWelcome(true);
+    }
+  }, [user?.id]);
+
+  const handleDismissWelcome = () => {
+    if (user?.id) {
+      const storageKey = `artisan_welcome_shown_${user.id}`;
+      localStorage.setItem(storageKey, "true");
+      sessionStorage.setItem(storageKey, "true");
+    }
+    setShowWelcome(false);
+  };
 
   // Handle subscription success redirect from Stripe
   useEffect(() => {
@@ -306,6 +327,8 @@ export const ArtisanDashboard = () => {
   const displayTier = demoMode ? "pro" as const : tier;
   const displayBusinessName = demoMode ? "Durand Peinture & Décoration" : artisanProfile?.business_name;
 
+  const isSubscribed = tier !== "free";
+
   return (
     <>
       <SEOHead 
@@ -314,6 +337,16 @@ export const ArtisanDashboard = () => {
         noIndex={true}
       />
       <Navbar />
+
+      {/* First Login Welcome Overlay */}
+      {showWelcome && !demoMode && artisanProfile && (
+        <FirstLoginWelcomeOverlay
+          artisanName={artisanProfile.business_name || "Artisan"}
+          city={artisanProfile.city || ""}
+          onDismiss={handleDismissWelcome}
+        />
+      )}
+
       <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <ArtisanSidebar />
         
@@ -324,13 +357,20 @@ export const ArtisanDashboard = () => {
           />
 
           <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
+            {/* Subscription Warning Banner */}
+            {!demoMode && !isLoadingSubscription && !isSubscribed && (
+              <SubscriptionWarningBanner />
+            )}
+
             {/* Approval Notifications */}
             <div className="mb-4 md:mb-6">
               <ApprovalNotifications />
             </div>
 
             {/* Subscription Card */}
-            <SubscriptionDashboardCard tier={displayTier} subscriptionEnd={subscriptionEnd} isLoading={demoMode ? false : isLoadingSubscription} />
+            <div id="subscription-section">
+              <SubscriptionDashboardCard tier={displayTier} subscriptionEnd={subscriptionEnd} isLoading={demoMode ? false : isLoadingSubscription} />
+            </div>
 
             {/* Profile Status Cards */}
             {artisanProfile?.status === "active" && (
