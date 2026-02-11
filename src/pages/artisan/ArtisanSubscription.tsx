@@ -9,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { MONTHLY_PLAN, YEARLY_PLAN, STRIPE_PRICES } from "@/config/subscriptionPlans";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
-import { Crown, Calendar, Settings, CreditCard, Check, Shield, Star, Sparkles, ExternalLink, Loader2 } from "lucide-react";
+import { Crown, Calendar, Settings, CreditCard, Check, Shield, Star, Sparkles, Loader2 } from "lucide-react";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
 import { cn } from "@/lib/utils";
 
@@ -134,23 +134,19 @@ const ArtisanSubscription = () => {
             <div className="max-w-5xl mx-auto">
               {/* Stripe Fallback Button */}
               {showFallback && stripeUrl && (
-                <div className="mb-6 p-6 bg-primary/5 border border-primary/20 rounded-xl text-center space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  <div className="flex items-center justify-center gap-2 text-primary">
-                    <Shield className="w-5 h-5" />
-                    <p className="font-semibold">Paiement sécurisé prêt</p>
-                  </div>
+                <div className="mb-6 p-4 bg-muted/50 border border-border rounded-lg text-center animate-in fade-in duration-300">
                   <p className="text-sm text-muted-foreground">
-                    Cliquez ci-dessous pour accéder à la page de paiement Stripe
+                    Redirection en cours… Si la page ne s'ouvre pas,{" "}
+                    <a
+                      href={stripeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary font-medium underline underline-offset-2 hover:text-primary/80 transition-colors"
+                    >
+                      cliquez ici
+                    </a>
+                    .
                   </p>
-                  <a
-                    href={stripeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 rounded-lg bg-primary text-primary-foreground font-semibold shadow-lg hover:bg-primary/90 transition-all"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Continuer vers le paiement sécurisé Stripe
-                  </a>
                 </div>
               )}
 
