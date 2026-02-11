@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const ArtisanSubscription = () => {
   const [searchParams] = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
   const {
     tier,
     subscriptionEnd,
@@ -43,8 +43,10 @@ const ArtisanSubscription = () => {
     }
   }, [searchParams, checkSubscription]);
 
-  const handleSubscribe = async (priceId: string) => {
-    setIsLoading(true);
+  const handleSubscribe = async (e: React.MouseEvent, priceId: string) => {
+    e.stopPropagation();
+    if (loadingPriceId) return;
+    setLoadingPriceId(priceId);
     try {
       await createCheckout(priceId);
     } catch (error) {
@@ -54,12 +56,13 @@ const ArtisanSubscription = () => {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setLoadingPriceId(null);
     }
   };
 
-  const handleManageSubscription = async () => {
-    setIsLoading(true);
+  const handleManageSubscription = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLoadingPriceId("manage");
     try {
       await openCustomerPortal();
     } catch (error) {
@@ -69,7 +72,7 @@ const ArtisanSubscription = () => {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setLoadingPriceId(null);
     }
   };
 
@@ -127,7 +130,7 @@ const ArtisanSubscription = () => {
                           </p>
                         </div>
                       </div>
-                      <Button variant="outline" onClick={handleManageSubscription} disabled={isLoading}>
+                      <Button variant="outline" onClick={(e) => handleManageSubscription(e)} disabled={loadingPriceId === "manage"}>
                         <Settings className="w-4 h-4 mr-2" />
                         Gérer mon abonnement
                       </Button>
@@ -230,12 +233,13 @@ const ArtisanSubscription = () => {
                       </Button>
                     ) : (
                       <Button
+                        id="checkout-99"
                         className="w-full"
                         variant="outline"
-                        onClick={() => handleSubscribe(STRIPE_PRICES.artisan_valide.monthly)}
-                        disabled={isLoading}
+                        onClick={(e) => handleSubscribe(e, STRIPE_PRICES.artisan_valide.monthly)}
+                        disabled={!!loadingPriceId}
                       >
-                        {isLoading ? "Chargement..." : "S'abonner — 99€/mois"}
+                        {loadingPriceId === STRIPE_PRICES.artisan_valide.monthly ? "Chargement..." : "S'abonner — 99€/mois"}
                       </Button>
                     )}
                   </CardFooter>
@@ -308,11 +312,12 @@ const ArtisanSubscription = () => {
                       </Button>
                     ) : (
                       <Button
+                        id="checkout-990"
                         className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground border-0 shadow-lg"
-                        onClick={() => handleSubscribe(STRIPE_PRICES.artisan_valide.yearly)}
-                        disabled={isLoading}
+                        onClick={(e) => handleSubscribe(e, STRIPE_PRICES.artisan_valide.yearly)}
+                        disabled={!!loadingPriceId}
                       >
-                        {isLoading ? "Chargement..." : "S'abonner — 990€ HT/an"}
+                        {loadingPriceId === STRIPE_PRICES.artisan_valide.yearly ? "Chargement..." : "S'abonner — 990€ HT/an"}
                       </Button>
                     )}
                   </CardFooter>
