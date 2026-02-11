@@ -22,7 +22,7 @@ interface SubscriptionState {
 
 interface SubscriptionContextType extends SubscriptionState {
   checkSubscription: () => Promise<void>;
-  createCheckout: (priceId: string) => Promise<void>;
+  createCheckout: (priceId: string) => Promise<string | null>;
   openCustomerPortal: () => Promise<void>;
 }
 
@@ -102,43 +102,46 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user, hasFetched]);
 
-  const createCheckout = async (priceId: string) => {
+  const createCheckout = async (priceId: string): Promise<string | null> => {
     try {
-      console.log("[CHECKOUT] Starting checkout for price:", priceId);
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.access_token) {
-        console.error("[CHECKOUT] No access token found");
         throw new Error("Vous devez être connecté pour vous abonner");
       }
-      console.log("[CHECKOUT] Access token found, invoking edge function...");
 
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { price_id: priceId },
-        headers: {
-          Authorization: `Bearer ${session.session.access_token}`,
-        },
-      });
+      // Race between the fetch and a 5s timeout
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
 
-      console.log("[CHECKOUT] Response received:", { data, error });
-
-      if (error) {
-        console.error("[CHECKOUT] Edge function error:", error);
-        throw error;
+      let data: unknown;
+      let error: unknown;
+      try {
+        const res = await supabase.functions.invoke("create-checkout", {
+          body: { price_id: priceId },
+          headers: {
+            Authorization: `Bearer ${session.session.access_token}`,
+          },
+        });
+        data = res.data;
+        error = res.error;
+      } catch (fetchErr: unknown) {
+        if (fetchErr instanceof DOMException && fetchErr.name === "AbortError") {
+          throw new Error("ERREUR DE TIMEOUT — L'Edge Function n'a pas répondu en 5 secondes.");
+        }
+        throw fetchErr;
+      } finally {
+        clearTimeout(timeout);
       }
 
-      // Handle case where data might be a string (needs parsing)
-      const responseData = typeof data === "string" ? JSON.parse(data) : data;
-      console.log("[CHECKOUT] Parsed data:", responseData);
+      if (error) throw error;
 
-      if (responseData?.url) {
-        console.log("[CHECKOUT] ✅ URL Stripe reçue, redirection en cours:", responseData.url);
-        // Force navigation to Stripe checkout
-        window.location.assign(responseData.url);
-      } else if (responseData?.error) {
-        console.error("[CHECKOUT] Stripe error:", responseData.error);
-        throw new Error(responseData.error);
+      const responseData = typeof data === "string" ? JSON.parse(data) : data;
+
+      if ((responseData as Record<string, unknown>)?.url) {
+        return (responseData as Record<string, unknown>).url as string;
+      } else if ((responseData as Record<string, unknown>)?.error) {
+        throw new Error((responseData as Record<string, unknown>).error as string);
       } else {
-        console.error("[CHECKOUT] No URL in response:", responseData);
         throw new Error("Aucune URL de paiement reçue");
       }
     } catch (err) {
