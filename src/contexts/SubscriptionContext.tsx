@@ -104,10 +104,13 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
   const createCheckout = async (priceId: string) => {
     try {
+      console.log("[CHECKOUT] Starting checkout for price:", priceId);
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.access_token) {
+        console.error("[CHECKOUT] No access token found");
         throw new Error("Vous devez être connecté pour vous abonner");
       }
+      console.log("[CHECKOUT] Access token found, invoking edge function...");
 
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { price_id: priceId },
@@ -116,12 +119,26 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         },
       });
 
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
+      console.log("[CHECKOUT] Response received:", { data, error });
+
+      if (error) {
+        console.error("[CHECKOUT] Edge function error:", error);
+        throw error;
+      }
+
+      // Handle case where data might be a string (needs parsing)
+      const responseData = typeof data === "string" ? JSON.parse(data) : data;
+      console.log("[CHECKOUT] Parsed data:", responseData);
+
+      if (responseData?.url) {
+        console.log("[CHECKOUT] Redirecting to:", responseData.url);
+        window.location.href = responseData.url;
+      } else {
+        console.error("[CHECKOUT] No URL in response:", responseData);
+        throw new Error("Aucune URL de paiement reçue");
       }
     } catch (err) {
-      console.error("Error creating checkout:", err);
+      console.error("[CHECKOUT] Error:", err);
       throw err;
     }
   };
