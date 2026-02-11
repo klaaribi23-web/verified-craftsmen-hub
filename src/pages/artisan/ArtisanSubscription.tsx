@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 const ArtisanSubscription = () => {
   const [searchParams] = useSearchParams();
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const {
     tier,
     subscriptionEnd,

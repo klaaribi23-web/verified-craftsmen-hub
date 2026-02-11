@@ -131,8 +131,8 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       console.log("[CHECKOUT] Parsed data:", responseData);
 
       if (responseData?.url) {
-        console.log("[CHECKOUT] Redirecting to:", responseData.url);
-        window.location.href = responseData.url;
+        console.log("[CHECKOUT] Redirecting to Stripe:", responseData.url);
+        window.location.assign(responseData.url);
       } else {
         console.error("[CHECKOUT] No URL in response:", responseData);
         throw new Error("Aucune URL de paiement reçue");
