@@ -130,8 +130,14 @@ Deno.serve(async (req) => {
         email,
         first_name: firstName || "Artisan",
         last_name: lastName || "",
+        email_confirmed: true,
       }).select("id").single();
       profileId = newProfile?.id || null;
+    }
+
+    // Always force email_confirmed = true for admin-created accounts
+    if (profileId) {
+      await supabaseAdmin.from("profiles").update({ email_confirmed: true }).eq("user_id", newUserId);
     }
 
     if (!roleCreated) {
