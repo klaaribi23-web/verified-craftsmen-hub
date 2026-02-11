@@ -1,7 +1,7 @@
 // Stripe Price IDs
 export const STRIPE_PRICES = {
   artisan_valide: {
-    monthly: "price_1SylOVHsPR7NolTlZfj6dkKt",
+    monthly: "price_1SyIOVHsPR7NolTlZfj6dkKt",
     yearly: "price_1SyKitHsPR7NolTlEe2pz30d",
   },
 };
