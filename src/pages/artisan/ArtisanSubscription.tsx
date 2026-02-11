@@ -48,12 +48,15 @@ const ArtisanSubscription = () => {
     e.stopPropagation();
     if (loadingPriceId) return;
     setLoadingPriceId(priceId);
+    setCheckoutError(null);
     try {
       await createCheckout(priceId);
     } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      setCheckoutError(msg);
       toast({
-        title: "Erreur",
-        description: "Impossible de lancer le paiement. Veuillez réessayer.",
+        title: "Erreur de paiement",
+        description: msg,
         variant: "destructive",
       });
     } finally {
@@ -109,8 +112,14 @@ const ArtisanSubscription = () => {
             subtitle="Gérez votre abonnement et accédez à plus de fonctionnalités"
           />
 
-          <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
+           <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             <div className="max-w-5xl mx-auto">
+              {checkoutError && (
+                <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm font-medium">
+                  <p className="font-bold mb-1">❌ Erreur Stripe</p>
+                  <p>{checkoutError}</p>
+                </div>
+              )}
             {/* Legacy Partner Card */}
               {isLegacy && (
                 <Card className="mb-8 border-primary/50 bg-gradient-to-br from-primary/5 to-primary/10">

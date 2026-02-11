@@ -131,8 +131,12 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       console.log("[CHECKOUT] Parsed data:", responseData);
 
       if (responseData?.url) {
-        console.log("[CHECKOUT] Redirecting to Stripe:", responseData.url);
+        console.log("[CHECKOUT] ✅ URL Stripe reçue, redirection en cours:", responseData.url);
+        // Force navigation to Stripe checkout
         window.location.assign(responseData.url);
+      } else if (responseData?.error) {
+        console.error("[CHECKOUT] Stripe error:", responseData.error);
+        throw new Error(responseData.error);
       } else {
         console.error("[CHECKOUT] No URL in response:", responseData);
         throw new Error("Aucune URL de paiement reçue");
