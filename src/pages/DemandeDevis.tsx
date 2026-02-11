@@ -14,19 +14,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
+import { CategoryIcon } from "@/components/categories/CategoryIcon";
 import MissionPhotoUpload from "@/components/missions/MissionPhotoUpload";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
+import { Badge } from "@/components/ui/badge";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  ArrowRight, 
+  ArrowRight,
   ArrowLeft,
   CheckCircle2,
   Calendar,
@@ -36,19 +29,32 @@ import {
   User,
   Shield,
   Lock,
-  Loader2
+  Loader2,
+  Camera,
+  Euro,
+  Sparkles,
 } from "lucide-react";
 
-// Removed static category mappings - now using database hierarchy
+const RENOVATION_GLOBALE_ID = "b1000000-0000-0000-0000-000000000001";
 
-const urgencyOptions = [
-  { id: "urgent", label: "Urgent (24-48h)", description: "Intervention rapide nécessaire" },
-  { id: "month", label: "Dans le mois", description: "Flexible sur le planning" },
-  { id: "3months", label: "D'ici 3 mois", description: "Je planifie à l'avance" },
-  { id: "estimate", label: "Juste pour une estimation", description: "Pas de date précise" },
+const budgetOptions = [
+  { id: "lt5k", label: "Moins de 5 000€", description: "Petits travaux, dépannage" },
+  { id: "5k-15k", label: "5 000€ – 15 000€", description: "Rénovation partielle, cuisine, salle de bain" },
+  { id: "15k-50k", label: "15 000€ – 50 000€", description: "Rénovation complète, extension" },
+  { id: "gt50k", label: "Plus de 50 000€", description: "Gros œuvre, construction, rénovation totale" },
 ];
 
-// Validation schemas
+const timelineOptions = [
+  { id: "immediate", label: "Immédiatement", icon: "⚡" },
+  { id: "1-3months", label: "1 à 3 mois", icon: "📅" },
+  { id: "3months+", label: "Plus de 3 mois", icon: "🗓️" },
+];
+
+const renovationSubOptions = [
+  { id: "full_apartment", label: "Rénovation complète d'appartement" },
+  { id: "single_room", label: "Une seule pièce" },
+];
+
 const contactSchema = z.object({
   firstName: z.string().trim().min(2, "Prénom requis").max(50, "Prénom trop long"),
   lastName: z.string().trim().min(2, "Nom requis").max(50, "Nom trop long"),
@@ -68,8 +74,11 @@ const DemandeDevis = () => {
   const [formData, setFormData] = useState({
     category: "",
     categoryId: "",
+    parentCategoryId: "",
+    renovationSubType: "",
     description: "",
-    urgency: "",
+    budget: "",
+    timeline: "",
     postalCode: "",
     city: "",
     firstName: "",
@@ -80,9 +89,9 @@ const DemandeDevis = () => {
     photos: [] as string[],
   });
 
-  const totalSteps = isAuthenticated ? 4 : 5; // 5 steps if not authenticated (includes password)
+  // 5 content steps + password step for non-auth
+  const totalSteps = isAuthenticated ? 5 : 6;
 
-  // Pre-fill user data if authenticated
   useEffect(() => {
     const fetchUserData = async () => {
       if (isAuthenticated && user?.id) {
@@ -91,7 +100,6 @@ const DemandeDevis = () => {
           .select("first_name, last_name, email, phone, city")
           .eq("user_id", user.id)
           .single();
-        
         if (profile) {
           setFormData(prev => ({
             ...prev,
@@ -110,325 +118,413 @@ const DemandeDevis = () => {
   const handleNext = () => {
     if (step < totalSteps) setStep(step + 1);
   };
-
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
   };
 
+  const updateForm = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCategorySelect = (categoryId: string, parentId: string | null) => {
+    let categoryName = "";
+    if (categoriesHierarchy) {
+      for (const parent of categoriesHierarchy) {
+        if (parent.id === categoryId) { categoryName = parent.name; break; }
+        const child = parent.children.find(c => c.id === categoryId);
+        if (child) { categoryName = child.name; break; }
+      }
+    }
+    setFormData(prev => ({
+      ...prev,
+      category: categoryName,
+      categoryId,
+      parentCategoryId: parentId || categoryId,
+      renovationSubType: "",
+    }));
+  };
+
+  const isRenovationGlobale = formData.parentCategoryId === RENOVATION_GLOBALE_ID;
+  const isPrioritySector = formData.postalCode.startsWith("92");
+
   const handleSubmit = async () => {
     setIsLoading(true);
-
     try {
-      // Validate contact info
       const validationResult = contactSchema.safeParse(formData);
       if (!validationResult.success) {
-        toast({
-          title: "Erreur de validation",
-          description: validationResult.error.errors[0].message,
-          variant: "destructive",
-        });
+        toast({ title: "Erreur de validation", description: validationResult.error.errors[0].message, variant: "destructive" });
+        setIsLoading(false);
+        return;
+      }
+      if (!formData.budget) {
+        toast({ title: "Budget requis", description: "Veuillez sélectionner une tranche de budget.", variant: "destructive" });
         setIsLoading(false);
         return;
       }
 
       let profileId: string | null = null;
 
-      // If not authenticated, create account first
       if (!isAuthenticated) {
         if (formData.password.length < 8) {
-          toast({
-            title: "Mot de passe trop court",
-            description: "Le mot de passe doit contenir au moins 8 caractères",
-            variant: "destructive",
-          });
+          toast({ title: "Mot de passe trop court", description: "Le mot de passe doit contenir au moins 8 caractères", variant: "destructive" });
           setIsLoading(false);
           return;
         }
-
         const redirectUrl = `${window.location.origin}/auth/callback`;
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
             emailRedirectTo: redirectUrl,
-            data: {
-              first_name: formData.firstName,
-              last_name: formData.lastName,
-              user_type: "client",
-            }
-          }
+            data: { first_name: formData.firstName, last_name: formData.lastName, user_type: "client" },
+          },
         });
-
         if (authError) throw authError;
-
         if (authData.user) {
-          // Check if user already exists
           if (authData.user.identities && authData.user.identities.length === 0) {
-            toast({
-              title: "Email déjà utilisé",
-              description: "Cet email est déjà enregistré. Veuillez vous connecter.",
-              variant: "destructive",
-            });
+            toast({ title: "Email déjà utilisé", description: "Cet email est déjà enregistré. Veuillez vous connecter.", variant: "destructive" });
             navigate("/auth");
             return;
           }
-
-          // Wait for profile to be created by trigger
           await new Promise(resolve => setTimeout(resolve, 1500));
-
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("user_id", authData.user.id)
-            .single();
-
+          const { data: profile } = await supabase.from("profiles").select("id").eq("user_id", authData.user.id).single();
           if (profile) {
             profileId = profile.id;
-            // Update profile with phone
-            await supabase
-              .from("profiles")
-              .update({ phone: formData.phone, city: formData.city })
-              .eq("id", profile.id);
+            await supabase.from("profiles").update({ phone: formData.phone, city: formData.city }).eq("id", profile.id);
           }
         }
       } else {
-        // Get existing profile ID
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("user_id", user?.id)
-          .single();
-        
-        if (profile) {
-          profileId = profile.id;
-        }
+        const { data: profile } = await supabase.from("profiles").select("id").eq("user_id", user?.id).single();
+        if (profile) profileId = profile.id;
       }
 
-      if (!profileId) {
-        throw new Error("Impossible de créer le profil utilisateur");
-      }
+      if (!profileId) throw new Error("Impossible de créer le profil utilisateur");
 
-      // Use the categoryId directly from form
-      let categoryId = formData.categoryId || null;
+      const budgetLabel = budgetOptions.find(b => b.id === formData.budget)?.label || formData.budget;
+      const timelineLabel = timelineOptions.find(t => t.id === formData.timeline)?.label || formData.timeline;
+      const renovSubLabel = renovationSubOptions.find(r => r.id === formData.renovationSubType)?.label || "";
 
-      // Create mission with pending_approval status
+      const fullDescription = [
+        formData.description,
+        `\n\n--- Infos structurées ---`,
+        `Budget : ${budgetLabel}`,
+        `Délai souhaité : ${timelineLabel}`,
+        isRenovationGlobale && renovSubLabel ? `Type rénovation : ${renovSubLabel}` : null,
+        `Code postal : ${formData.postalCode}`,
+      ].filter(Boolean).join("\n");
+
       const { data: missionData, error: missionError } = await supabase
         .from("missions")
         .insert({
           client_id: profileId,
           title: `Demande ${formData.category || "de travaux"}`,
-          description: formData.description,
+          description: fullDescription,
           city: formData.city,
-          category_id: categoryId || null,
+          category_id: formData.categoryId || null,
           status: "pending_approval",
-          photos: formData.photos.length > 0 ? formData.photos : null
+          budget: formData.budget === "lt5k" ? 5000 : formData.budget === "5k-15k" ? 15000 : formData.budget === "15k-50k" ? 50000 : 100000,
+          photos: formData.photos.length > 0 ? formData.photos : null,
         })
         .select("id")
         .single();
 
       if (missionError) throw missionError;
 
-      // Notify admins about new mission
-      const { data: adminUsers } = await supabase
-        .from("user_roles")
-        .select("user_id")
-        .eq("role", "admin");
-
+      const { data: adminUsers } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
       if (adminUsers && missionData) {
         for (const admin of adminUsers) {
           await supabase.rpc("create_notification", {
             p_user_id: admin.user_id,
             p_type: "new_mission",
             p_title: "NOUVELLE MISSION proposée",
-            p_message: `Nouvelle mission "${formData.category}" soumise par un client à ${formData.city}. En attente d'approbation.`,
-            p_related_id: missionData.id
+            p_message: `Nouvelle mission "${formData.category}" soumise par un client à ${formData.city}. Budget: ${budgetLabel}. En attente d'approbation.`,
+            p_related_id: missionData.id,
           });
         }
       }
 
-      // Success
       setStep(totalSteps + 1);
-      toast({
-        title: "Mission déposée !",
-        description: "Votre demande a été envoyée aux artisans.",
-      });
-
+      toast({ title: "Mission déposée !", description: "Votre demande a été envoyée aux artisans." });
     } catch (error: any) {
       console.error("Submit error:", error);
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: error.message || "Une erreur est survenue", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateForm = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
-  };
-
-  // Helper function to handle category selection
-  const handleCategorySelect = (categoryId: string) => {
-    // Find category name from hierarchy
-    let categoryName = "";
-    if (categoriesHierarchy) {
-      for (const parent of categoriesHierarchy) {
-        if (parent.id === categoryId) {
-          categoryName = parent.name;
-          break;
-        }
-        const child = parent.children.find(c => c.id === categoryId);
-        if (child) {
-          categoryName = child.name;
-          break;
-        }
-      }
-    }
-    // Update both fields in a single operation to avoid closure issues
-    setFormData(prev => ({
-      ...prev,
-      category: categoryName,
-      categoryId: categoryId
-    }));
-  };
+  const stepLabels = ["Travaux", "Localisation", "Budget", "Photos", "Contact"];
 
   return (
     <div className="min-h-screen bg-muted">
-      <SEOHead 
+      <SEOHead
         title="Demander un devis gratuit"
         description="Décrivez votre projet et recevez jusqu'à 5 devis d'artisans qualifiés en 24h. Service 100% gratuit et sans engagement."
         canonical="https://artisansvalides.fr/demande-devis"
       />
       <Navbar />
-      
+
       <main className="pt-32 lg:pt-20 pb-16">
         <div className="container mx-auto px-4 lg:px-8 py-12">
           <div className="max-w-3xl mx-auto">
             {/* Header */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-10"
-            >
-              <h1 className="text-3xl md:text-4xl font-bold text-navy mb-4">
-                Demander un devis gratuit
-              </h1>
-              <p className="text-muted-foreground">
-                Décrivez votre projet et recevez jusqu'à 5 devis d'artisans qualifiés
-              </p>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
+              <h1 className="text-3xl md:text-4xl font-bold text-navy mb-4">Demander un devis gratuit</h1>
+              <p className="text-muted-foreground">Décrivez votre projet et recevez jusqu'à 5 devis d'artisans qualifiés</p>
             </motion.div>
 
             {/* Progress Bar */}
             {step <= totalSteps && (
               <div className="mb-10">
                 <div className="flex justify-between mb-2">
-                  {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
-                    <div
-                      key={s}
-                      className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm transition-all ${
-                        s < step
-                          ? "bg-success text-white"
-                          : s === step
-                          ? "bg-gold text-navy-dark shadow-gold"
-                          : "bg-white text-muted-foreground border border-border"
-                      }`}
-                    >
-                      {s < step ? <CheckCircle2 className="w-5 h-5" /> : s}
+                  {Array.from({ length: Math.min(totalSteps, 5) }, (_, i) => i + 1).map((s) => (
+                    <div key={s} className="flex flex-col items-center gap-1">
+                      <div
+                        className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm transition-all ${
+                          s < step ? "bg-success text-white" : s === step ? "bg-gold text-navy-dark shadow-gold" : "bg-white text-muted-foreground border border-border"
+                        }`}
+                      >
+                        {s < step ? <CheckCircle2 className="w-5 h-5" /> : s}
+                      </div>
+                      <span className="text-[10px] text-muted-foreground hidden sm:block">{stepLabels[s - 1]}</span>
                     </div>
                   ))}
                 </div>
                 <div className="h-2 bg-white rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${((step - 1) / (totalSteps - 1)) * 100}%` }}
-                    className="h-full bg-gradient-gold"
-                  />
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${((step - 1) / (totalSteps - 1)) * 100}%` }} className="h-full bg-gradient-gold" />
                 </div>
               </div>
             )}
 
             {/* Form Steps */}
-            <div className="bg-white rounded-2xl shadow-soft border border-border p-8">
+            <div className="bg-white rounded-2xl shadow-soft border border-border p-6 md:p-8">
               <AnimatePresence mode="wait">
-                {/* Step 1: Category Selection */}
+                {/* ============ STEP 1: Type de travaux ============ */}
                 {step === 1 && (
-                  <motion.div
-                    key="step1"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
-                    <h2 className="text-xl font-semibold text-navy mb-6">
-                      Quel type de travaux souhaitez-vous réaliser ?
-                    </h2>
-                    <div className="mb-8">
-                      {categoriesLoading ? (
-                        <div className="flex items-center justify-center py-8">
-                          <Loader2 className="w-6 h-6 animate-spin text-gold" />
-                          <span className="ml-2 text-muted-foreground">Chargement des catégories...</span>
-                        </div>
-                      ) : (
-                        <Select
-                          value={formData.categoryId}
-                          onValueChange={handleCategorySelect}
-                        >
-                          <SelectTrigger className="w-full h-14 text-base">
-                            <SelectValue placeholder="Sélectionnez un type de travaux" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-80 bg-white">
-                            {categoriesHierarchy?.map((parent) => (
-                              <SelectGroup key={parent.id}>
-                                <SelectLabel className="text-navy font-semibold py-2">
-                                  {parent.name}
-                                </SelectLabel>
-                                {parent.children.map((child) => (
-                                  <SelectItem 
-                                    key={child.id} 
-                                    value={child.id}
-                                    className="pl-6"
+                  <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                    <h2 className="text-xl font-semibold text-navy mb-6">Quel type de travaux souhaitez-vous réaliser ?</h2>
+
+                    {categoriesLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 animate-spin text-gold" />
+                        <span className="ml-2 text-muted-foreground">Chargement des catégories...</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-6 mb-8">
+                        {categoriesHierarchy?.map((parent) => (
+                          <div key={parent.id}>
+                            <p className="text-sm font-semibold text-navy mb-2 flex items-center gap-2">
+                              <CategoryIcon iconName={parent.icon} size={18} className="text-gold" />
+                              {parent.name}
+                            </p>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                              {parent.children.map((child) => {
+                                const isSelected = formData.categoryId === child.id;
+                                return (
+                                  <button
+                                    key={child.id}
+                                    type="button"
+                                    onClick={() => handleCategorySelect(child.id, parent.id)}
+                                    className={`flex items-center gap-2 p-3 rounded-xl border-2 text-left text-sm transition-all ${
+                                      isSelected ? "border-gold bg-gold/10 font-medium text-navy" : "border-border hover:border-gold/50 text-muted-foreground"
+                                    }`}
                                   >
+                                    <CategoryIcon iconName={child.icon} size={16} className={isSelected ? "text-gold" : "text-muted-foreground"} />
                                     {child.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                      {formData.category && (
-                        <p className="mt-3 text-sm text-success flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4" />
-                          Catégorie sélectionnée : {formData.category}
-                        </p>
-                      )}
-                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Sub-question for Rénovation Globale */}
+                        {isRenovationGlobale && formData.categoryId && (
+                          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="border-t pt-4">
+                            <p className="text-sm font-medium text-navy mb-3">Précisez votre rénovation :</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {renovationSubOptions.map((opt) => (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => updateForm("renovationSubType", opt.id)}
+                                  className={`p-3 rounded-xl border-2 text-sm text-left transition-all ${
+                                    formData.renovationSubType === opt.id ? "border-gold bg-gold/10 font-medium text-navy" : "border-border hover:border-gold/50 text-muted-foreground"
+                                  }`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                    )}
+
                     <Button
                       variant="gold"
                       size="lg"
                       onClick={handleNext}
-                      disabled={!formData.category}
+                      disabled={!formData.categoryId || (isRenovationGlobale && !formData.renovationSubType)}
                       className="w-full"
                     >
-                      Continuer
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      Continuer <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                   </motion.div>
                 )}
 
-                {/* Step 2: Project Description */}
+                {/* ============ STEP 2: Localisation & Urgence ============ */}
                 {step === 2 && (
-                  <motion.div
-                    key="step2"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
+                  <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                     <h2 className="text-xl font-semibold text-navy mb-6">
-                      Décrivez votre projet
+                      <MapPin className="w-5 h-5 inline-block mr-2" />
+                      Localisation & planning
                     </h2>
                     <div className="space-y-6 mb-8">
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="postalCode" className="text-navy mb-2 block">Code postal *</Label>
+                          <Input
+                            id="postalCode"
+                            placeholder="92100"
+                            value={formData.postalCode}
+                            onChange={(e) => updateForm("postalCode", e.target.value.replace(/\D/g, "").slice(0, 5))}
+                            className="h-12"
+                            maxLength={5}
+                          />
+                          {formData.postalCode.length === 5 && isPrioritySector && (
+                            <Badge variant="outline" className="mt-2 border-success text-success bg-success/10">
+                              <Sparkles className="w-3 h-3 mr-1" /> Secteur Prioritaire Artisans Validés
+                            </Badge>
+                          )}
+                        </div>
+                        <div>
+                          <Label htmlFor="city" className="text-navy mb-2 block">Ville *</Label>
+                          <CityAutocompleteAPI
+                            value={formData.city}
+                            onChange={(value) => updateForm("city", value)}
+                            placeholder="Rechercher votre ville..."
+                            className="h-12"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-navy mb-3 block">
+                          <Calendar className="w-4 h-4 inline-block mr-2" />
+                          Quand souhaitez-vous que les travaux débutent ? *
+                        </Label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {timelineOptions.map((opt) => (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => updateForm("timeline", opt.id)}
+                              className={`p-4 rounded-xl border-2 text-center transition-all ${
+                                formData.timeline === opt.id ? "border-gold bg-gold/10" : "border-border hover:border-gold/50"
+                              }`}
+                            >
+                              <span className="text-xl block mb-1">{opt.icon}</span>
+                              <span className={`text-sm font-medium ${formData.timeline === opt.id ? "text-navy" : "text-muted-foreground"}`}>{opt.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Retour
+                      </Button>
+                      <Button
+                        variant="gold"
+                        size="lg"
+                        onClick={handleNext}
+                        disabled={!formData.postalCode || formData.postalCode.length !== 5 || !formData.city || !formData.timeline}
+                        className="flex-1"
+                      >
+                        Continuer <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ============ STEP 3: Budget ============ */}
+                {step === 3 && (
+                  <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                    <h2 className="text-xl font-semibold text-navy mb-2">
+                      <Euro className="w-5 h-5 inline-block mr-2" />
+                      Quel est votre budget estimé ?
+                    </h2>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Un budget précis permet aux artisans de vous envoyer un devis adapté.
+                    </p>
+                    <div className="space-y-3 mb-8">
+                      {budgetOptions.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => updateForm("budget", opt.id)}
+                          className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all ${
+                            formData.budget === opt.id ? "border-gold bg-gold/10" : "border-border hover:border-gold/50"
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                            formData.budget === opt.id ? "border-gold" : "border-muted-foreground/40"
+                          }`}>
+                            {formData.budget === opt.id && <div className="w-2.5 h-2.5 rounded-full bg-gold" />}
+                          </div>
+                          <div>
+                            <div className={`font-medium ${formData.budget === opt.id ? "text-navy" : "text-foreground"}`}>{opt.label}</div>
+                            <div className="text-xs text-muted-foreground">{opt.description}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 mb-6">
+                      <Shield className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                      <p className="text-xs text-amber-800">
+                        <strong>Un lead sans budget n'est pas envoyé aux artisans.</strong> Indiquez une fourchette pour recevoir des devis pertinents.
+                      </p>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Retour
+                      </Button>
+                      <Button variant="gold" size="lg" onClick={handleNext} disabled={!formData.budget} className="flex-1">
+                        Continuer <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ============ STEP 4: Photos & Détails ============ */}
+                {step === 4 && (
+                  <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                    <h2 className="text-xl font-semibold text-navy mb-6">
+                      <Camera className="w-5 h-5 inline-block mr-2" />
+                      Photos & détails du projet
+                    </h2>
+                    <div className="space-y-6 mb-8">
+                      <div>
+                        <Label className="text-navy mb-2 block">
+                          📸 Prenez en photo la zone des travaux (optionnel mais recommandé)
+                        </Label>
+                        <div className="flex items-start gap-2 p-3 rounded-lg bg-success/10 border border-success/20 mb-3">
+                          <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" />
+                          <p className="text-xs text-success font-medium">
+                            Les demandes avec photos augmentent le taux de réponse de 40%.
+                          </p>
+                        </div>
+                        <MissionPhotoUpload
+                          photos={formData.photos}
+                          onPhotosChange={(photos) => setFormData(prev => ({ ...prev, photos }))}
+                          maxPhotos={5}
+                        />
+                      </div>
+
                       <div>
                         <Label htmlFor="description" className="text-navy mb-2 block">
                           Description des travaux *
@@ -439,210 +535,66 @@ const DemandeDevis = () => {
                           value={formData.description}
                           onChange={(e) => updateForm("description", e.target.value)}
                           rows={5}
+                          maxLength={2000}
                           className="resize-none"
                         />
-                      </div>
-
-                      <div>
-                        <Label className="text-navy mb-3 block">
-                          Ajouter des photos (optionnel) - Max 3 photos
-                        </Label>
-                        <MissionPhotoUpload
-                          photos={formData.photos}
-                          onPhotosChange={(photos) => setFormData(prev => ({ ...prev, photos }))}
-                          maxPhotos={3}
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-navy mb-3 block">
-                          <Calendar className="w-4 h-4 inline-block mr-2" />
-                          Quand souhaitez-vous réaliser ces travaux ?
-                        </Label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {urgencyOptions.map((option) => (
-                            <button
-                              key={option.id}
-                              type="button"
-                              onClick={() => updateForm("urgency", option.id)}
-                              className={`p-4 rounded-xl border-2 text-left transition-all ${
-                                formData.urgency === option.id
-                                  ? "border-gold bg-gold/10"
-                                  : "border-border hover:border-gold/50"
-                              }`}
-                            >
-                              <div className={`font-medium ${
-                                formData.urgency === option.id ? "text-navy" : "text-muted-foreground"
-                              }`}>
-                                {option.label}
-                              </div>
-                              <div className="text-xs text-muted-foreground mt-1">
-                                {option.description}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
+                        <p className="text-xs text-muted-foreground text-right mt-1">{formData.description.length}/2000</p>
                       </div>
                     </div>
 
                     <div className="flex gap-4">
                       <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
-                        <ArrowLeft className="w-5 h-5 mr-2" />
-                        Retour
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Retour
                       </Button>
-                      <Button
-                        variant="gold"
-                        size="lg"
-                        onClick={handleNext}
-                        disabled={!formData.description || !formData.urgency}
-                        className="flex-1"
-                      >
-                        Continuer
-                        <ArrowRight className="w-5 h-5 ml-2" />
+                      <Button variant="gold" size="lg" onClick={handleNext} disabled={!formData.description} className="flex-1">
+                        Continuer <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </div>
                   </motion.div>
                 )}
 
-                {/* Step 3: Location */}
-                {step === 3 && (
-                  <motion.div
-                    key="step3"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
-                    <h2 className="text-xl font-semibold text-navy mb-6">
-                      Où se situe le chantier ?
-                    </h2>
-                    <div className="space-y-6 mb-8">
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="postalCode" className="text-navy mb-2 block">
-                            <MapPin className="w-4 h-4 inline-block mr-2" />
-                            Code postal *
-                          </Label>
-                          <Input
-                            id="postalCode"
-                            placeholder="75015"
-                            value={formData.postalCode}
-                            onChange={(e) => updateForm("postalCode", e.target.value)}
-                            className="h-12"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="city" className="text-navy mb-2 block">
-                            Ville *
-                          </Label>
-                          <CityAutocompleteAPI
-                            value={formData.city}
-                            onChange={(value) => updateForm("city", value)}
-                            placeholder="Rechercher votre ville..."
-                            className="h-12"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-4">
-                      <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
-                        <ArrowLeft className="w-5 h-5 mr-2" />
-                        Retour
-                      </Button>
-                      <Button
-                        variant="gold"
-                        size="lg"
-                        onClick={handleNext}
-                        disabled={!formData.postalCode || !formData.city}
-                        className="flex-1"
-                      >
-                        Continuer
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Step 4: Contact Info */}
-                {step === 4 && (
-                  <motion.div
-                    key="step4"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
-                    <h2 className="text-xl font-semibold text-navy mb-6">
-                      Vos coordonnées
-                    </h2>
+                {/* ============ STEP 5: Contact ============ */}
+                {step === 5 && (
+                  <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                    <h2 className="text-xl font-semibold text-navy mb-6">Vos coordonnées</h2>
                     <div className="space-y-6 mb-8">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="firstName" className="text-navy mb-2 block">
-                            <User className="w-4 h-4 inline-block mr-2" />
-                            Prénom *
+                            <User className="w-4 h-4 inline-block mr-2" /> Prénom *
                           </Label>
-                          <Input
-                            id="firstName"
-                            placeholder="Jean"
-                            value={formData.firstName}
-                            onChange={(e) => updateForm("firstName", e.target.value)}
-                            className="h-12"
-                            disabled={isAuthenticated}
-                          />
+                          <Input id="firstName" placeholder="Jean" value={formData.firstName} onChange={(e) => updateForm("firstName", e.target.value)} className="h-12" disabled={isAuthenticated} />
                         </div>
                         <div>
-                          <Label htmlFor="lastName" className="text-navy mb-2 block">
-                            Nom *
-                          </Label>
-                          <Input
-                            id="lastName"
-                            placeholder="Dupont"
-                            value={formData.lastName}
-                            onChange={(e) => updateForm("lastName", e.target.value)}
-                            className="h-12"
-                            disabled={isAuthenticated}
-                          />
+                          <Label htmlFor="lastName" className="text-navy mb-2 block">Nom *</Label>
+                          <Input id="lastName" placeholder="Dupont" value={formData.lastName} onChange={(e) => updateForm("lastName", e.target.value)} className="h-12" disabled={isAuthenticated} />
                         </div>
                       </div>
                       <div>
                         <Label htmlFor="email" className="text-navy mb-2 block">
-                          <Mail className="w-4 h-4 inline-block mr-2" />
-                          Email *
+                          <Mail className="w-4 h-4 inline-block mr-2" /> Email *
                         </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="jean.dupont@email.com"
-                          value={formData.email}
-                          onChange={(e) => updateForm("email", e.target.value)}
-                          className="h-12"
-                          disabled={isAuthenticated}
-                        />
+                        <Input id="email" type="email" placeholder="jean.dupont@email.com" value={formData.email} onChange={(e) => updateForm("email", e.target.value)} className="h-12" disabled={isAuthenticated} />
                       </div>
                       <div>
                         <Label htmlFor="phone" className="text-navy mb-2 block">
-                          <Phone className="w-4 h-4 inline-block mr-2" />
-                          Téléphone * (format français)
+                          <Phone className="w-4 h-4 inline-block mr-2" /> Téléphone * (format français)
                         </Label>
-                        <FrenchPhoneInput
-                          id="phone"
-                          value={formData.phone}
-                          onChange={(value) => updateForm("phone", value)}
-                        />
+                        <p className="text-xs text-muted-foreground mb-1">Laissez votre numéro, l'artisan vous rappelle directement.</p>
+                        <FrenchPhoneInput id="phone" value={formData.phone} onChange={(value) => updateForm("phone", value)} />
                       </div>
 
                       <div className="flex items-start gap-3 p-4 rounded-xl bg-teal-50 border border-teal-200">
                         <Shield className="w-5 h-5 text-teal-600 mt-0.5" />
                         <p className="text-sm text-teal-800">
-                          🔒 <strong>Votre projet sera visible anonymement par nos artisans validés.</strong> Vous restez maître de vos coordonnées. Aucune information personnelle ne sera partagée sans votre accord.
+                          🔒 <strong>Vos données restent confidentielles.</strong> Aucune information personnelle ne sera partagée sans votre accord.
                         </p>
                       </div>
                     </div>
 
                     <div className="flex gap-4">
                       <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
-                        <ArrowLeft className="w-5 h-5 mr-2" />
-                        Retour
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Retour
                       </Button>
                       <Button
                         variant="gold"
@@ -651,9 +603,7 @@ const DemandeDevis = () => {
                         disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone || isLoading}
                         className="flex-1"
                       >
-                        {isLoading ? (
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        ) : null}
+                        {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
                         {isAuthenticated ? "Déposer ma mission" : "Continuer"}
                         {!isLoading && <ArrowRight className="w-5 h-5 ml-2" />}
                       </Button>
@@ -661,38 +611,19 @@ const DemandeDevis = () => {
                   </motion.div>
                 )}
 
-                {/* Step 5: Password (only for non-authenticated users) */}
-                {step === 5 && !isAuthenticated && (
-                  <motion.div
-                    key="step5"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
-                    <h2 className="text-xl font-semibold text-navy mb-6">
-                      Créez votre compte
-                    </h2>
-                    <p className="text-muted-foreground mb-6">
-                      Pour suivre votre demande et recevoir les devis des artisans, créez votre compte.
-                    </p>
+                {/* ============ STEP 6: Password (non-auth only) ============ */}
+                {step === 6 && !isAuthenticated && (
+                  <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                    <h2 className="text-xl font-semibold text-navy mb-6">Créez votre compte</h2>
+                    <p className="text-muted-foreground mb-6">Pour suivre votre demande et recevoir les devis des artisans, créez votre compte.</p>
                     <div className="space-y-6 mb-8">
                       <div>
                         <Label htmlFor="password" className="text-navy mb-2 block">
-                          <Lock className="w-4 h-4 inline-block mr-2" />
-                          Mot de passe *
+                          <Lock className="w-4 h-4 inline-block mr-2" /> Mot de passe *
                         </Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="••••••••"
-                          value={formData.password}
-                          onChange={(e) => updateForm("password", e.target.value)}
-                          className="h-12"
-                          minLength={8}
-                        />
+                        <Input id="password" type="password" placeholder="••••••••" value={formData.password} onChange={(e) => updateForm("password", e.target.value)} className="h-12" minLength={8} />
                         <p className="text-xs text-muted-foreground mt-1">Minimum 8 caractères</p>
                       </div>
-
                       <div className="flex items-start gap-3 p-4 rounded-xl bg-gold/10">
                         <CheckCircle2 className="w-5 h-5 text-gold mt-0.5" />
                         <div className="text-sm">
@@ -705,22 +636,12 @@ const DemandeDevis = () => {
                         </div>
                       </div>
                     </div>
-
                     <div className="flex gap-4">
                       <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
-                        <ArrowLeft className="w-5 h-5 mr-2" />
-                        Retour
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Retour
                       </Button>
-                      <Button
-                        variant="gold"
-                        size="lg"
-                        onClick={handleSubmit}
-                        disabled={!formData.password || formData.password.length < 8 || isLoading}
-                        className="flex-1"
-                      >
-                        {isLoading ? (
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        ) : null}
+                      <Button variant="gold" size="lg" onClick={handleSubmit} disabled={!formData.password || formData.password.length < 8 || isLoading} className="flex-1">
+                        {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
                         Créer mon compte et déposer
                         {!isLoading && <ArrowRight className="w-5 h-5 ml-2" />}
                       </Button>
@@ -728,20 +649,13 @@ const DemandeDevis = () => {
                   </motion.div>
                 )}
 
-                {/* Success Step */}
+                {/* ============ SUCCESS ============ */}
                 {step === totalSteps + 1 && (
-                  <motion.div
-                    key="success"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-8"
-                  >
+                  <motion.div key="success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
                     <div className="w-20 h-20 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-6">
                       <CheckCircle2 className="w-10 h-10 text-teal-600" />
                     </div>
-                    <h2 className="text-2xl font-bold text-navy mb-4">
-                      🎉 Félicitations ! Votre projet est en ligne.
-                    </h2>
+                    <h2 className="text-2xl font-bold text-navy mb-4">🎉 Félicitations ! Votre projet est en ligne.</h2>
                     <p className="text-muted-foreground mb-8 max-w-md mx-auto">
                       Vous recevrez des notifications dès qu'un artisan y répondra. Suivez l'avancement depuis votre espace personnel.
                     </p>
