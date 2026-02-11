@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import { ArtisanSidebar } from "@/components/artisan-dashboard/ArtisanSidebar";
@@ -44,24 +44,13 @@ const ArtisanSubscription = () => {
     }
   }, [searchParams, checkSubscription]);
 
-  const [stripeUrl, setStripeUrl] = useState<string | null>(null);
-  const [showFallback, setShowFallback] = useState(false);
-  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const handleSubscribe = async (e: React.MouseEvent, priceId: string) => {
     e.stopPropagation();
     if (loadingPriceId) return;
     setLoadingPriceId(priceId);
     setCheckoutError(null);
-    setStripeUrl(null);
-    setShowFallback(false);
     try {
-      const url = await createCheckout(priceId);
-      if (url) {
-        setStripeUrl(url);
-        // If still on this page after 2s, show fallback button
-        fallbackTimerRef.current = setTimeout(() => setShowFallback(true), 2000);
-      }
+      await createCheckout(priceId);
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       setCheckoutError(msg);
@@ -74,13 +63,6 @@ const ArtisanSubscription = () => {
       setLoadingPriceId(null);
     }
   };
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
-    };
-  }, []);
 
   const handleManageSubscription = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -132,24 +114,6 @@ const ArtisanSubscription = () => {
 
            <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             <div className="max-w-5xl mx-auto">
-              {/* Stripe Fallback Button */}
-              {showFallback && stripeUrl && (
-                <div className="mb-6 p-4 bg-muted/50 border border-border rounded-lg text-center animate-in fade-in duration-300">
-                  <p className="text-sm text-muted-foreground">
-                    Redirection en cours… Si la page ne s'ouvre pas,{" "}
-                    <a
-                      href={stripeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary font-medium underline underline-offset-2 hover:text-primary/80 transition-colors"
-                    >
-                      cliquez ici
-                    </a>
-                    .
-                  </p>
-                </div>
-              )}
-
               {checkoutError && (
                 <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm font-medium">
                   <p className="font-bold mb-1">❌ Erreur Stripe</p>
