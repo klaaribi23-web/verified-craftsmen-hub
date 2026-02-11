@@ -4,6 +4,23 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// --- In-memory rate limiter ---
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+function checkRateLimit(ip: string, maxRequests: number, windowMs: number): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= maxRequests) return false;
+  entry.count++;
+  return true;
+}
+function getClientIp(req: Request): string {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+}
+
 const systemPrompt = `Tu es Andrea, Directrice du Réseau Artisans Validés. Tu ne donnes pas de conseils tièdes — tu filtres et tu protèges. Ici, on ne fait pas dans la dentelle.
 
 TON ADN :
@@ -49,12 +66,29 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  // Rate limit: 20 requests per IP per 10 minutes
+  const ip = getClientIp(req);
+  if (!checkRateLimit(ip, 20, 10 * 60 * 1000)) {
+    return new Response(
+      JSON.stringify({ error: "Trop de requêtes, réessayez dans un instant." }),
+      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
   try {
     const { question, artisanContext } = await req.json();
 
     if (!question || typeof question !== "string" || question.trim().length < 5) {
       return new Response(
         JSON.stringify({ error: "Question trop courte" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Limit question length to prevent abuse
+    if (question.length > 2000) {
+      return new Response(
+        JSON.stringify({ error: "Question trop longue" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

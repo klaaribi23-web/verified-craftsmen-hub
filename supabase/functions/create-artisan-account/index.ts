@@ -188,7 +188,6 @@ Deno.serve(async (req) => {
         user_id: newUserId,
         profile_id: profileId,
         email,
-        password,
         message: "Compte artisan créé avec succès",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
