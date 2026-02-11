@@ -258,8 +258,8 @@ const DemandeDevis = () => {
   return (
     <div className="min-h-screen bg-muted">
       <SEOHead
-        title="Demander un devis gratuit"
-        description="Décrivez votre projet et recevez jusqu'à 5 devis d'artisans qualifiés en 24h. Service 100% gratuit et sans engagement."
+        title="Décrivez votre projet en toute sérénité"
+        description="Zéro harcèlement. Nous analysons votre besoin et vous mettons en relation avec l'artisan expert le plus adapté. Données protégées."
         canonical="https://artisansvalides.fr/demande-devis"
       />
       <Navbar />
@@ -269,8 +269,8 @@ const DemandeDevis = () => {
           <div className="max-w-3xl mx-auto">
             {/* Header */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-              <h1 className="text-3xl md:text-4xl font-bold text-navy mb-4">Demander un devis gratuit</h1>
-              <p className="text-muted-foreground">Décrivez votre projet et recevez jusqu'à 5 devis d'artisans qualifiés</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-navy mb-4">Décrivez votre projet en toute sérénité</h1>
+              <p className="text-muted-foreground max-w-xl mx-auto">Zéro harcèlement. Nous analysons votre besoin et vous mettons en relation avec l'artisan expert le plus adapté à votre projet. C'est vous qui décidez quand partager vos coordonnées.</p>
             </motion.div>
 
             {/* Progress Bar */}
@@ -370,6 +370,10 @@ const DemandeDevis = () => {
                     >
                       Continuer <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
+                    <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-3">
+                      <Shield className="w-3.5 h-3.5 text-teal-600" />
+                      Données protégées : Votre numéro ne sera transmis qu'à l'artisan que vous aurez validé.
+                    </p>
                   </motion.div>
                 )}
 
@@ -556,7 +560,13 @@ const DemandeDevis = () => {
                 {/* ============ STEP 5: Contact ============ */}
                 {step === 5 && (
                   <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-navy mb-6">Vos coordonnées</h2>
+                    <h2 className="text-xl font-semibold text-navy mb-2">
+                      <Lock className="w-5 h-5 inline-block mr-2" />
+                      Créer votre espace sécurisé
+                    </h2>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      C'est ici que vous recevrez la proposition de l'artisan sélectionné, sans que votre téléphone ne soit diffusé partout.
+                    </p>
                     <div className="space-y-6 mb-8">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
@@ -614,8 +624,11 @@ const DemandeDevis = () => {
                 {/* ============ STEP 6: Password (non-auth only) ============ */}
                 {step === 6 && !isAuthenticated && (
                   <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-navy mb-6">Créez votre compte</h2>
-                    <p className="text-muted-foreground mb-6">Pour suivre votre demande et recevoir les devis des artisans, créez votre compte.</p>
+                    <h2 className="text-xl font-semibold text-navy mb-2">
+                      <Lock className="w-5 h-5 inline-block mr-2" />
+                      Créer votre espace sécurisé
+                    </h2>
+                    <p className="text-muted-foreground mb-6">Sécurisez votre espace pour recevoir la proposition de l'artisan sélectionné en toute confidentialité.</p>
                     <div className="space-y-6 mb-8">
                       <div>
                         <Label htmlFor="password" className="text-navy mb-2 block">
