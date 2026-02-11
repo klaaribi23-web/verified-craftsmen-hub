@@ -14,6 +14,7 @@ export const SubscriptionDashboardCard = ({
   isLoading = false,
 }: SubscriptionDashboardCardProps) => {
   const isSubscribed = tier !== "free";
+  const isLegacy = tier === "legacy";
 
   if (isLoading) {
     return (
@@ -72,10 +73,12 @@ export const SubscriptionDashboardCard = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-foreground">Statut : Artisan Validé</h3>
+              <h3 className="font-semibold text-foreground">
+                {isLegacy ? "Partenaire Historique" : "Statut : Artisan Validé"}
+              </h3>
               <Badge className="bg-success/20 text-success border-0 text-xs px-2 py-0.5">
                 <ShieldCheck className="w-3 h-3 mr-1" />
-                Actif
+                {isLegacy ? "Legacy" : "Actif"}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
