@@ -210,12 +210,12 @@ const DevenirArtisan = () => {
       <Navbar />
       
       <main className="pt-20 lg:pt-20">
-        {/* Bandeau noir défilant urgence — STICKY */}
-        <div className="bg-navy-dark overflow-hidden py-2 sticky top-0 z-50">
+        {/* Bandeau noir défilant urgence — below navbar */}
+        <div className="bg-navy-dark overflow-hidden py-2 z-40">
           <motion.div
             animate={{ x: ["100%", "-100%"] }}
             transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-            className="whitespace-nowrap text-sm font-semibold text-amber-400 tracking-wide"
+            className="whitespace-nowrap text-xs md:text-sm font-semibold text-amber-400 tracking-wide"
           >
             ⚠️ Alerte : Secteurs Bordeaux, Lyon et Nice bientôt complets. 1 seule place restante. &nbsp;&nbsp;&nbsp; ⚠️ Alerte : Secteurs Bordeaux, Lyon et Nice bientôt complets. 1 seule place restante.
           </motion.div>
@@ -234,7 +234,7 @@ const DevenirArtisan = () => {
                 Membre Élite
               </div>
 
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy leading-tight mb-4 md:mb-6">
+              <h1 className="text-xl md:text-4xl lg:text-5xl font-bold text-navy leading-tight mb-4 md:mb-6">
                 Rejoignez les <span className="text-gradient-gold">10% d'artisans</span> qui ne courent plus après les clients.
               </h1>
 
@@ -259,7 +259,7 @@ const DevenirArtisan = () => {
         {/* 3 Piliers "Trident de Fer" */}
         <section className="py-10 md:py-16 bg-navy-dark">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-[15px] md:gap-6 max-w-5xl mx-auto">
               {[
                 {
                   icon: Lock,
@@ -416,23 +416,23 @@ const DevenirArtisan = () => {
                   </form>
 
                   {/* Mobile sticky submit */}
-                   <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border p-3 shadow-lg">
+                  <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border px-5 py-3 shadow-lg">
                     <Button 
                       type="button"
                       variant="gold" 
                       size="xl" 
                       className="w-full !text-base !py-6 !font-black uppercase tracking-wider hover:brightness-110 hover:shadow-[0_0_24px_rgba(234,179,8,0.4)] transition-all duration-300"
                       disabled={isLoading}
-                      onClick={(e) => {
+                      onClick={() => {
                         const form = document.querySelector('form');
                         if (form) form.requestSubmit();
                       }}
                     >
                       {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
-                      {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
+                      {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ"}
                     </Button>
                     <p className="text-center text-[10px] text-muted-foreground mt-1.5">
-                      Validation finale de votre dossier effectuée par Jane.
+                      Validation finale par Jane.
                     </p>
                   </div>
                 </div>
