@@ -24,7 +24,7 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center pt-24 md:pt-32 lg:pt-20 overflow-hidden overflow-x-hidden">
       <div className="absolute inset-0">
-        <img src={heroBackground} alt="Artisan professionnel qualifié au travail" width={1920} height={1080} className="w-full h-full object-cover" />
+        <img src={heroBackground} alt="Artisan professionnel qualifié au travail" width={1920} height={1080} loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/85 to-navy/70" />
       </div>
       <div className="absolute top-20 right-0 w-1/2 h-full opacity-10">
@@ -60,7 +60,7 @@ const HeroSection = () => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-6 relative z-50">
               <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98] min-h-[56px] relative overflow-hidden group" asChild>
                 <Link to="/demande-devis">
                   <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
