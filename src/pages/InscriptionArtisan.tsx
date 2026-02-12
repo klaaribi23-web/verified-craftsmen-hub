@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -17,6 +17,30 @@ const BENEFITS = [
   { icon: Zap, label: "Andrea travaille pour vous 24h/24 pendant que vous êtes sur le chantier" },
   { icon: Shield, label: "Profil vérifié et certifié — confiance maximale des clients" },
   { icon: Users, label: "Mise en relation qualifiée avec des particuliers de votre zone" },
+];
+
+const REASSURANCE_CARDS = [
+  {
+    icon: Shield,
+    iconBg: "bg-destructive/10",
+    iconColor: "text-gold",
+    title: "Zéro Concurrence Déloyale",
+    description: "On limite le nombre d'artisans par zone. Quand c'est complet, c'est complet. Votre secteur est protégé.",
+  },
+  {
+    icon: CheckCircle2,
+    iconBg: "bg-emerald-500/10",
+    iconColor: "text-gold",
+    title: "Leads Chauds Uniquement",
+    description: "Chaque projet est filtré par nos experts. Budget confirmé, client sérieux. Pas de perte de temps.",
+  },
+  {
+    icon: Sparkles,
+    iconBg: "bg-gold/10",
+    iconColor: "text-gold",
+    title: "Votre Image Valorisée",
+    description: "On ne vend pas des noms, on crée des partenariats. Vous n'êtes pas un numéro, vous êtes l'expert choisi.",
+  },
 ];
 
 const InscriptionArtisan = () => {
@@ -63,8 +87,8 @@ const InscriptionArtisan = () => {
       />
       <Navbar />
       <main className="min-h-screen bg-background pt-24 pb-16">
-        <div className="container max-w-4xl mx-auto px-4">
-          {/* Andrea success message after inscription */}
+        <div className="container max-w-6xl mx-auto px-4">
+          {/* Andrea success message */}
           {showSuccess && (
             <div className="mb-8 p-6 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
               <div className="flex items-start gap-4">
@@ -83,6 +107,7 @@ const InscriptionArtisan = () => {
               </div>
             </div>
           )}
+
           {/* Hero */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-sm font-medium mb-4">
@@ -97,8 +122,8 @@ const InscriptionArtisan = () => {
             </p>
           </div>
 
-          {/* Benefits */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+          {/* Benefits row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
             {BENEFITS.map((b, i) => (
               <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border">
                 <b.icon className="w-6 h-6 text-gold shrink-0 mt-0.5" />
@@ -107,93 +132,89 @@ const InscriptionArtisan = () => {
             ))}
           </div>
 
-          {/* Pourquoi nous rejoindre */}
-          <div className="mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8">
-              Pourquoi nous rejoindre ?
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="p-6 rounded-2xl bg-card border border-gold/20 shadow-sm">
-                <div className="w-12 h-12 rounded-xl bg-destructive/10 flex items-center justify-center mb-4">
-                  <Shield className="w-6 h-6 text-destructive" />
-                </div>
-                <h3 className="font-bold text-foreground mb-2">Zéro Concurrence Déloyale</h3>
-                <p className="text-sm text-muted-foreground">On limite le nombre d'artisans par zone. Quand c'est complet, c'est complet. Votre secteur est protégé.</p>
+          {/* Two-column layout: Reassurance (left) + Form (right) on desktop */}
+          {/* On mobile: Reassurance stacks ABOVE the form */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            {/* Left column: Pourquoi nous rejoindre */}
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+                Pourquoi nous rejoindre ?
+              </h2>
+              <div className="space-y-5">
+                {REASSURANCE_CARDS.map((card, i) => (
+                  <div
+                    key={i}
+                    className="p-6 rounded-2xl bg-card border border-gold/20 shadow-md hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className={`w-12 h-12 rounded-xl ${card.iconBg} flex items-center justify-center shrink-0`}>
+                        <card.icon className={`w-6 h-6 ${card.iconColor}`} />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-foreground mb-1">{card.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="p-6 rounded-2xl bg-card border border-gold/20 shadow-sm">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-                </div>
-                <h3 className="font-bold text-foreground mb-2">Leads Chauds Uniquement</h3>
-                <p className="text-sm text-muted-foreground">Chaque projet est filtré par nos experts. Budget confirmé, client sérieux. Pas de perte de temps.</p>
-              </div>
-              <div className="p-6 rounded-2xl bg-card border border-gold/20 shadow-sm">
-                <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mb-4">
-                  <Sparkles className="w-6 h-6 text-gold" />
-                </div>
-                <h3 className="font-bold text-foreground mb-2">Votre Image Valorisée</h3>
-                <p className="text-sm text-muted-foreground">On ne vend pas des noms, on crée des partenariats. Vous n'êtes pas un numéro, vous êtes l'expert choisi.</p>
+              <div className="mt-6">
+                <p className="text-xs text-muted-foreground italic">⚠️ Places limitées par département — vérifiez votre éligibilité maintenant.</p>
               </div>
             </div>
-            <div className="text-center">
-              <Button size="xl" className="bg-gold hover:bg-gold/90 text-navy-dark font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all gap-2" onClick={() => document.getElementById('siret')?.focus()}>
-                Postuler pour réserver mon secteur <ArrowRight className="w-5 h-5" />
-              </Button>
-              <p className="text-xs text-muted-foreground mt-2 italic">⚠️ Places limitées par département — vérifiez votre éligibilité maintenant.</p>
-            </div>
+
+            {/* Right column: Form */}
+            <Card className="border-gold/20 shadow-lg">
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl">Créer mon compte Pro</CardTitle>
+                <CardDescription>
+                  ⚠️ Aucun abonnement n'est possible sans compte personnel vérifié.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="siret">N° SIRET *</Label>
+                    <Input id="siret" name="siret" value={form.siret} onChange={handleChange} placeholder="123 456 789 00010" maxLength={17} />
+                  </div>
+                  <div>
+                    <Label htmlFor="business_name">Nom de l'entreprise *</Label>
+                    <Input id="business_name" name="business_name" value={form.business_name} onChange={handleChange} placeholder="Ex: Bati-Pro SAS" maxLength={100} />
+                  </div>
+                  <div>
+                    <Label>Spécialité / Métier *</Label>
+                    <CategorySelect
+                      value={form.metierId}
+                      onValueChange={(id, name) => setForm(prev => ({ ...prev, metierId: id, metier: name }))}
+                      placeholder="Sélectionnez votre spécialité"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="ville">Ville *</Label>
+                    <Input id="ville" name="ville" value={form.ville} onChange={handleChange} placeholder="Ex: Bordeaux" maxLength={100} />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Adresse Email *</Label>
+                    <Input id="email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="contact@entreprise.fr" maxLength={255} />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Téléphone *</Label>
+                    <Input id="phone" name="phone" value={form.phone} onChange={handleChange} placeholder="06 XX XX XX XX" maxLength={15} />
+                  </div>
+
+                  <Button type="submit" className="w-full bg-gold hover:bg-gold/90 text-navy-dark font-bold text-base h-14 gap-2" disabled={loading}>
+                    {loading ? "Envoi…" : (
+                      <>Réserver mon secteur et accéder aux missions <ArrowRight className="w-4 h-4" /></>
+                    )}
+                  </Button>
+
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    En soumettant, vous acceptez nos <a href="/cgu" className="underline">CGU</a>. Votre profil sera validé par notre équipe sous 24h.
+                  </p>
+                </form>
+              </CardContent>
+            </Card>
           </div>
-
-          {/* Form */}
-          <Card className="max-w-lg mx-auto border-gold/20">
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl">Créer mon compte Pro</CardTitle>
-              <CardDescription>
-                ⚠️ Aucun abonnement n'est possible sans compte personnel vérifié.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="siret">N° SIRET *</Label>
-                  <Input id="siret" name="siret" value={form.siret} onChange={handleChange} placeholder="123 456 789 00010" maxLength={17} />
-                </div>
-                <div>
-                  <Label htmlFor="business_name">Nom de l'entreprise *</Label>
-                  <Input id="business_name" name="business_name" value={form.business_name} onChange={handleChange} placeholder="Ex: Bati-Pro SAS" maxLength={100} />
-                </div>
-                <div>
-                  <Label>Spécialité / Métier *</Label>
-                  <CategorySelect
-                    value={form.metierId}
-                    onValueChange={(id, name) => setForm(prev => ({ ...prev, metierId: id, metier: name }))}
-                    placeholder="Sélectionnez votre spécialité"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="ville">Ville *</Label>
-                  <Input id="ville" name="ville" value={form.ville} onChange={handleChange} placeholder="Ex: Bordeaux" maxLength={100} />
-                </div>
-                <div>
-                  <Label htmlFor="email">Adresse Email *</Label>
-                  <Input id="email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="contact@entreprise.fr" maxLength={255} />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Téléphone *</Label>
-                  <Input id="phone" name="phone" value={form.phone} onChange={handleChange} placeholder="06 XX XX XX XX" maxLength={15} />
-                </div>
-
-                <Button type="submit" className="w-full bg-gold hover:bg-gold/90 text-navy-dark font-semibold gap-2" disabled={loading}>
-                  {loading ? "Envoi…" : (
-                    <>Créer mon compte Pro & Activer mes avantages <ArrowRight className="w-4 h-4" /></>
-                  )}
-                </Button>
-
-                <p className="text-xs text-muted-foreground text-center mt-2">
-                  En soumettant, vous acceptez nos <a href="/cgu" className="underline">CGU</a>. Votre profil sera validé par notre équipe sous 24h.
-                </p>
-              </form>
-            </CardContent>
-          </Card>
         </div>
       </main>
       <Footer />
