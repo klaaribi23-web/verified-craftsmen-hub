@@ -195,7 +195,8 @@ const Footer = () => {
         <div className="container mx-auto px-4 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-white/50">
-              © {currentYear} Artisans Validés. Tous droits réservés.
+              © {currentYear} Artisans Validés. Tous droits réservés. —{" "}
+              <a href="https://www.artisansvalides.fr" className="hover:text-gold transition-colors">www.artisansvalides.fr</a>
             </p>
             <div className="flex items-center gap-4" role="list" aria-label="Réseaux sociaux">
               <a href="https://www.facebook.com/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-gold transition-colors" aria-label="Facebook">

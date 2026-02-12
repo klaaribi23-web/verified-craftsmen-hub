@@ -96,11 +96,29 @@ const AndreaGlobalWidget = () => {
   const recognitionRef = useRef<any>(null);
 
   const {
-    leadData, updateLead, processAgentText, saveLead, resetLead,
+    leadData, updateLead, processAgentText, processUserText, saveLead, resetLead,
     isSaving, savedId, completionPercent,
   } = useAndreaLeadCapture();
 
+  // Track bubble visibility with delay on non-artisan pages
+  const [bubbleVisible, setBubbleVisible] = useState(false);
+
   const lastAndreaText = messages.filter(m => m.role === "andrea").at(-1)?.text ?? null;
+  const lastUserText = messages.filter(m => m.role === "user").at(-1)?.text ?? null;
+
+  // Delayed bubble appearance: 5s or 30% scroll on non-artisan pages
+  useEffect(() => {
+    if (artisanContext) { setBubbleVisible(true); return; }
+    let triggered = false;
+    const showBubble = () => { if (!triggered) { triggered = true; setBubbleVisible(true); } };
+    const timer = setTimeout(showBubble, 5000);
+    const onScroll = () => {
+      const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      if (pct >= 0.3) showBubble();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { clearTimeout(timer); window.removeEventListener("scroll", onScroll); };
+  }, [artisanContext, location.pathname]);
 
   // Detect artisan page and fetch context
   useEffect(() => {
@@ -131,6 +149,11 @@ const AndreaGlobalWidget = () => {
   useEffect(() => {
     if (lastAndreaText) processAgentText(lastAndreaText);
   }, [lastAndreaText, processAgentText]);
+
+  // Also extract lead info from user messages
+  useEffect(() => {
+    if (lastUserText) processUserText(lastUserText);
+  }, [lastUserText, processUserText]);
 
   useEffect(() => {
     if (leadData.lead_type && leadData.telephone && !savedId) {
@@ -440,7 +463,7 @@ const AndreaGlobalWidget = () => {
     <>
       {/* ═══════ Floating Bubble — Glassmorphism round ═══════ */}
       <AnimatePresence>
-        {!isOpen && (
+        {!isOpen && bubbleVisible && (
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
