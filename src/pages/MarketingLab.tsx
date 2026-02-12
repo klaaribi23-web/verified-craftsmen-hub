@@ -1,9 +1,19 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCheck, Star, Shield, MapPin, Phone, Mail, Sparkles, MessageCircle, Send } from "lucide-react";
+import { CheckCheck, Star, Shield, MapPin, Sparkles, Send } from "lucide-react";
+import { ShimmerOverlay } from "@/components/marketing-lab/ShimmerOverlay";
+import { GhostCursor } from "@/components/marketing-lab/GhostCursor";
+import { ConfettiLayer, useConfetti } from "@/components/marketing-lab/GoldenConfetti";
+
+/* ─── Spring presets ─── */
+const snappy = { type: "spring" as const, stiffness: 300, damping: 30 };
+const popIn = { type: "spring" as const, stiffness: 300, damping: 30, delay: 0.1 };
+
+/* ─── Glass utility ─── */
+const glass = "bg-white/[0.04] backdrop-blur-[12px] border border-white/[0.08]";
+const glassLight = "bg-white/[0.06] backdrop-blur-[14px] border border-white/[0.1]";
 
 /* ───────────────────────────────────────────
    Zone 1 — Motion Design : Andrea Chat Demo
@@ -36,11 +46,25 @@ function AndreaChatDemo() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      {/* Phone frame */}
-      <div className="rounded-[2rem] border-4 border-navy bg-navy-dark shadow-floating overflow-hidden">
+      {/* Phone frame with glow */}
+      <motion.div
+        className={`rounded-[2rem] border-2 border-gold/20 shadow-[0_0_60px_-15px_hsl(45_93%_47%/0.15)] overflow-hidden relative ${glass}`}
+        initial={{ opacity: 0, y: 40, scale: 0.92 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        transition={snappy}
+        viewport={{ once: true }}
+      >
+        <ShimmerOverlay interval={3} />
+
         {/* Header */}
-        <div className="bg-navy px-5 py-3 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gold flex items-center justify-center text-navy font-bold text-sm">A</div>
+        <div className={`${glassLight} px-5 py-3 flex items-center gap-3 border-b border-white/[0.06]`}>
+          <motion.div
+            className="w-9 h-9 rounded-full bg-gold flex items-center justify-center text-navy font-bold text-sm"
+            animate={{ boxShadow: ["0 0 0 0 hsl(45 93% 47%/0.4)", "0 0 0 8px hsl(45 93% 47%/0)", "0 0 0 0 hsl(45 93% 47%/0)"] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+          >
+            A
+          </motion.div>
           <div className="flex-1">
             <p className="text-primary-foreground font-semibold text-sm">Andrea</p>
             <p className="text-xs text-gold flex items-center gap-1"><Shield className="w-3 h-3" /> Experte vérifiée</p>
@@ -49,21 +73,21 @@ function AndreaChatDemo() {
         </div>
 
         {/* Messages */}
-        <div className="bg-navy-dark/90 p-4 min-h-[320px] flex flex-col gap-3 overflow-hidden">
+        <div className="bg-navy-dark/60 p-4 min-h-[320px] flex flex-col gap-3 overflow-hidden">
           <AnimatePresence>
             {chatMessages.slice(0, visibleCount).map((msg, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                initial={{ opacity: 0, y: 24, scale: 0.85 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                transition={snappy}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
                   className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed ${
                     msg.role === "user"
-                      ? "bg-gold text-navy-dark rounded-2xl rounded-br-sm font-medium"
-                      : "bg-navy-light text-primary-foreground rounded-2xl rounded-bl-sm"
+                      ? `bg-gold text-navy-dark rounded-2xl rounded-br-sm font-medium shadow-[0_4px_20px_-4px_hsl(45_93%_47%/0.4)]`
+                      : `${glassLight} text-primary-foreground rounded-2xl rounded-bl-sm`
                   }`}
                 >
                   {msg.text}
@@ -89,7 +113,12 @@ function AndreaChatDemo() {
           )}
 
           {visibleCount >= chatMessages.length && (
-            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="mt-2 p-3 rounded-xl bg-success/20 border border-success/30 text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={popIn}
+              className={`mt-2 p-3 rounded-xl ${glass} border-success/30 text-center`}
+            >
               <Sparkles className="w-5 h-5 text-gold mx-auto mb-1" />
               <p className="text-xs text-success font-semibold">Lead qualifié capturé en 12s</p>
               <button onClick={restart} className="mt-2 text-[10px] text-gold underline hover:text-gold-light transition-colors">Rejouer la démo</button>
@@ -98,11 +127,13 @@ function AndreaChatDemo() {
         </div>
 
         {/* Input bar */}
-        <div className="bg-navy px-4 py-3 flex items-center gap-2">
-          <div className="flex-1 bg-navy-light rounded-full px-4 py-2 text-xs text-muted-foreground">Écrire un message…</div>
-          <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center"><Send className="w-4 h-4 text-navy" /></div>
+        <div className={`${glassLight} px-4 py-3 flex items-center gap-2 border-t border-white/[0.06]`}>
+          <div className="flex-1 bg-white/[0.05] rounded-full px-4 py-2 text-xs text-muted-foreground">Écrire un message…</div>
+          <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center shadow-[0_0_12px_hsl(45_93%_47%/0.4)]">
+            <Send className="w-4 h-4 text-navy" />
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -112,70 +143,102 @@ function AndreaChatDemo() {
    ─────────────────────────────────────────── */
 
 function SocialPostCard() {
+  const { particles, burst } = useConfetti();
+
   return (
-    <div className="w-full max-w-[540px] mx-auto aspect-square bg-navy-dark rounded-2xl overflow-hidden relative shadow-floating border border-gold/20">
-      {/* Background grain */}
-      <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E\")" }} />
-      
-      {/* Gold corner accents */}
-      <div className="absolute top-0 left-0 w-24 h-24 border-t-2 border-l-2 border-gold/40 rounded-tl-2xl" />
-      <div className="absolute bottom-0 right-0 w-24 h-24 border-b-2 border-r-2 border-gold/40 rounded-br-2xl" />
+    <div className="relative">
+      <motion.div
+        className={`w-full max-w-[540px] mx-auto aspect-square rounded-2xl overflow-hidden relative shadow-[0_0_80px_-20px_hsl(45_93%_47%/0.2)] border border-gold/20 ${glass}`}
+        initial={{ opacity: 0, y: 40, scale: 0.92 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        transition={snappy}
+        viewport={{ once: true }}
+      >
+        <ShimmerOverlay interval={3} />
+        <ConfettiLayer particles={particles} />
 
-      <div className="relative h-full flex flex-col items-center justify-center p-8 text-center gap-6">
-        {/* Logo area */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center gap-2"
-        >
-          <Shield className="w-5 h-5 text-gold" />
-          <span className="text-gold font-bold text-sm tracking-[0.2em] uppercase">Artisan Vérifié</span>
-        </motion.div>
+        {/* Background grain */}
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E\")" }} />
 
-        {/* Avatar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="relative"
-        >
-          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-navy-dark text-4xl font-bold shadow-gold">
-            JD
-          </div>
-          <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-success flex items-center justify-center border-2 border-navy-dark">
-            <CheckCheck className="w-4 h-4 text-white" />
-          </div>
-        </motion.div>
+        {/* Gold corner accents */}
+        <div className="absolute top-0 left-0 w-24 h-24 border-t-2 border-l-2 border-gold/30 rounded-tl-2xl" />
+        <div className="absolute bottom-0 right-0 w-24 h-24 border-b-2 border-r-2 border-gold/30 rounded-br-2xl" />
 
-        {/* Info */}
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.5 }} className="space-y-2">
-          <h3 className="text-2xl font-bold text-primary-foreground">Jean Dupont</h3>
-          <p className="text-gold font-medium">Maître Plombier · 15 ans d'exp.</p>
-          <div className="flex items-center justify-center gap-1 text-gold-light">
-            {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-gold text-gold" />)}
-            <span className="text-xs text-muted-foreground ml-1">(47 avis)</span>
-          </div>
-          <div className="flex items-center justify-center gap-1 text-muted-foreground text-sm">
-            <MapPin className="w-3.5 h-3.5" /> Lyon · Rhône-Alpes
-          </div>
-        </motion.div>
+        <div className="relative h-full flex flex-col items-center justify-center p-8 text-center gap-5 z-20">
+          {/* Logo area */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.7 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={popIn}
+            className="flex items-center gap-2"
+          >
+            <Shield className="w-5 h-5 text-gold" />
+            <span className="text-gold font-bold text-sm tracking-[0.2em] uppercase">Artisan Vérifié</span>
+          </motion.div>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="px-8 py-2.5 rounded-full bg-gold text-navy-dark font-bold text-sm tracking-wide shadow-gold"
-        >
-          VOIR LE PROFIL COMPLET →
-        </motion.div>
+          {/* Avatar */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ ...snappy, delay: 0.2 }}
+            className="relative"
+          >
+            <div className="w-28 h-28 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-navy-dark text-4xl font-bold shadow-[0_0_30px_hsl(45_93%_47%/0.35)]">
+              JD
+            </div>
+            <motion.div
+              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-success flex items-center justify-center border-2 border-navy-dark"
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <CheckCheck className="w-4 h-4 text-white" />
+            </motion.div>
+          </motion.div>
 
-        {/* Bottom branding */}
-        <p className="absolute bottom-4 text-[10px] text-muted-foreground tracking-[0.15em] uppercase">
-          verified-craftsmen-hub.lovable.app
-        </p>
-      </div>
+          {/* Info */}
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ ...snappy, delay: 0.35 }} className="space-y-2">
+            <h3 className="text-2xl font-bold text-primary-foreground">Jean Dupont</h3>
+            <p className="text-gold font-medium">Maître Plombier · 15 ans d'exp.</p>
+            <div className="flex items-center justify-center gap-1 text-gold-light">
+              {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-gold text-gold" />)}
+              <span className="text-xs text-muted-foreground ml-1">(47 avis)</span>
+            </div>
+            <div className="flex items-center justify-center gap-1 text-muted-foreground text-sm">
+              <MapPin className="w-3.5 h-3.5" /> Lyon · Rhône-Alpes
+            </div>
+          </motion.div>
+
+          {/* CTA — Ghost cursor target */}
+          <motion.div
+            id="validate-btn"
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ ...snappy, delay: 0.5 }}
+            className="relative px-8 py-2.5 rounded-full bg-gold text-navy-dark font-bold text-sm tracking-wide shadow-[0_0_20px_hsl(45_93%_47%/0.4)] cursor-default"
+          >
+            VOIR LE PROFIL COMPLET →
+          </motion.div>
+
+          {/* Bottom branding */}
+          <p className="absolute bottom-4 text-[10px] text-muted-foreground tracking-[0.15em] uppercase">
+            verified-craftsmen-hub.lovable.app
+          </p>
+        </div>
+
+        {/* Ghost cursor */}
+        <GhostCursor
+          path={[
+            { x: 300, y: 400, delay: 0.6 },
+            { x: 250, y: 380, delay: 0.8 },
+            { x: 200, y: 360, delay: 0.6 },
+            { x: 180, y: 350, delay: 1.0 },
+            { x: 200, y: 360, delay: 0.4 },
+            { x: 300, y: 400, delay: 0.6 },
+          ]}
+          clickAtIndex={3}
+          onClick={() => burst(0, -20)}
+        />
+      </motion.div>
     </div>
   );
 }
@@ -186,9 +249,17 @@ function SocialPostCard() {
 
 function HeroBanner() {
   return (
-    <div className="w-full aspect-[1200/630] max-w-4xl mx-auto rounded-2xl overflow-hidden relative shadow-floating border border-gold/20">
+    <motion.div
+      className={`w-full aspect-[1200/630] max-w-4xl mx-auto rounded-2xl overflow-hidden relative shadow-[0_0_80px_-20px_hsl(45_93%_47%/0.15)] border border-gold/20 ${glass}`}
+      initial={{ opacity: 0, y: 40, scale: 0.92 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      transition={snappy}
+      viewport={{ once: true }}
+    >
+      <ShimmerOverlay interval={3} />
+
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-navy-dark via-navy to-navy-light" />
+      <div className="absolute inset-0 bg-gradient-to-r from-navy-dark via-navy to-navy-light opacity-90" />
       <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, hsl(45 93% 47%) 1px, transparent 0)", backgroundSize: "40px 40px" }} />
 
       {/* Gold accent line */}
@@ -196,16 +267,16 @@ function HeroBanner() {
         className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-gold via-gold-light to-gold-dark"
         initial={{ scaleY: 0 }}
         whileInView={{ scaleY: 1 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
         style={{ transformOrigin: "top" }}
       />
 
-      <div className="relative h-full flex items-center px-10 md:px-16">
+      <div className="relative h-full flex items-center px-10 md:px-16 z-20">
         <div className="flex-1 space-y-4">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ ...snappy, delay: 0.15 }}
             className="flex items-center gap-2"
           >
             <Shield className="w-5 h-5 text-gold" />
@@ -215,7 +286,7 @@ function HeroBanner() {
           <motion.h2
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ ...snappy, delay: 0.3 }}
             className="text-3xl md:text-5xl font-bold text-primary-foreground leading-tight"
           >
             Accédez à l'élite<br />
@@ -225,55 +296,70 @@ function HeroBanner() {
           <motion.p
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ ...snappy, delay: 0.45 }}
             className="text-muted-foreground text-sm md:text-base max-w-md"
           >
             Chaque professionnel est audité, vérifié et recommandé. Zéro mauvaise surprise.
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            transition={{ ...snappy, delay: 0.6 }}
             className="flex items-center gap-6 pt-2"
           >
-            <div className="flex items-center gap-2 text-gold text-sm font-semibold">
-              <Shield className="w-4 h-4" /> 100% Vérifiés
-            </div>
-            <div className="flex items-center gap-2 text-gold text-sm font-semibold">
-              <Star className="w-4 h-4 fill-gold" /> 4.8/5 Moyenne
-            </div>
-            <div className="flex items-center gap-2 text-gold text-sm font-semibold">
-              <CheckCheck className="w-4 h-4" /> Assurés
-            </div>
+            {[
+              { icon: Shield, label: "100% Vérifiés" },
+              { icon: Star, label: "4.8/5 Moyenne", fill: true },
+              { icon: CheckCheck, label: "Assurés" },
+            ].map(({ icon: Icon, label, fill }) => (
+              <div key={label} className="flex items-center gap-2 text-gold text-sm font-semibold">
+                <Icon className={`w-4 h-4 ${fill ? "fill-gold" : ""}`} /> {label}
+              </div>
+            ))}
           </motion.div>
         </div>
 
         {/* Right decorative element */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
+          initial={{ opacity: 0, scale: 0.6 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, type: "spring" }}
+          transition={{ ...snappy, delay: 0.4 }}
           className="hidden md:flex flex-col items-center gap-3"
         >
-          <div className="w-32 h-32 rounded-full border-4 border-gold/30 flex items-center justify-center">
-            <div className="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center">
+          <div className="w-32 h-32 rounded-full border-4 border-gold/20 flex items-center justify-center">
+            <motion.div
+              className="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center"
+              animate={{ boxShadow: ["0 0 0 0 hsl(45 93% 47%/0.2)", "0 0 0 16px hsl(45 93% 47%/0)", "0 0 0 0 hsl(45 93% 47%/0)"] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
               <Shield className="w-12 h-12 text-gold" />
-            </div>
+            </motion.div>
           </div>
           <div className="flex -space-x-2">
             {["JD", "ML", "PT", "AS"].map((initials, i) => (
-              <div key={i} className="w-8 h-8 rounded-full bg-gold/80 flex items-center justify-center text-[10px] font-bold text-navy-dark border-2 border-navy-dark">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ ...snappy, delay: 0.6 + i * 0.08 }}
+                className="w-8 h-8 rounded-full bg-gold/80 flex items-center justify-center text-[10px] font-bold text-navy-dark border-2 border-navy-dark"
+              >
                 {initials}
-              </div>
+              </motion.div>
             ))}
-            <div className="w-8 h-8 rounded-full bg-navy-light flex items-center justify-center text-[10px] text-gold border-2 border-navy-dark">
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ ...snappy, delay: 0.92 }}
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] text-gold border-2 border-navy-dark ${glassLight}`}
+            >
               +42
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -291,7 +377,7 @@ export default function MarketingLab() {
 
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+        <header className={`border-b border-white/[0.06] ${glass} sticky top-0 z-50`}>
           <div className="container max-w-7xl py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Sparkles className="w-6 h-6 text-gold" />
@@ -305,7 +391,7 @@ export default function MarketingLab() {
           {/* Zone 1 — Motion Design */}
           <section className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-8 rounded-full bg-gold" />
+              <motion.div className="w-2 h-8 rounded-full bg-gold" layoutId="section-marker" />
               <div>
                 <h2 className="text-2xl font-bold text-foreground">Motion Design</h2>
                 <p className="text-sm text-muted-foreground">Démo animée — Andrea capture un lead en live</p>
