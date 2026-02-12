@@ -264,8 +264,8 @@ const DevenirArtisan = () => {
                 <div className="bg-white rounded-2xl p-4 md:p-8 shadow-floating">
                   <div className="text-center mb-4 md:mb-6">
                     <h2 className="text-lg md:text-xl font-bold text-navy mb-1 md:mb-2">
-                      Votre secteur est-il encore disponible ?
-                    </h2>
+                       Demandez votre accréditation au réseau Artisans Validés
+                     </h2>
                     <p className="text-xs md:text-sm text-muted-foreground mb-2">
                       Remplissez ce formulaire, on vous rappelle sous 2h
                     </p>
@@ -374,6 +374,63 @@ const DevenirArtisan = () => {
                   </div>
                 </div>
               </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pourquoi nous rejoindre — 3 blocs premium */}
+        <section className="py-12 lg:py-20 bg-gold/5">
+          <div className="container mx-auto px-4 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-10"
+            >
+              <h2 className="text-2xl md:text-3xl font-bold text-navy mb-2">
+                Pourquoi nous rejoindre ?
+              </h2>
+              <p className="text-muted-foreground max-w-lg mx-auto text-sm">
+                Ce qui nous différencie de toutes les autres plateformes.
+              </p>
+            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {[
+                {
+                  icon: Shield,
+                  title: "Zéro Concurrence Déloyale",
+                  description: "On limite le nombre d'artisans par zone. Quand c'est complet, c'est complet. Votre secteur est protégé.",
+                },
+                {
+                  icon: CheckCircle2,
+                  title: "Leads Chauds Uniquement",
+                  description: "Chaque projet est filtré par nos experts. Budget confirmé, client sérieux. Pas de perte de temps.",
+                },
+                {
+                  icon: Star,
+                  title: "Votre Image Valorisée",
+                  description: "On ne vend pas des noms, on crée des partenariats. Vous n'êtes pas un numéro, vous êtes l'expert choisi.",
+                },
+              ].map((card, i) => (
+                <motion.div
+                  key={card.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-6 rounded-2xl bg-card border border-gold/20 shadow-md hover:shadow-lg transition-shadow"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center shrink-0">
+                      <card.icon className="w-6 h-6 text-gold" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground mb-1">{card.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
