@@ -70,7 +70,7 @@ import MentionsLegales from "./pages/MentionsLegales";
 import CGU from "./pages/CGU";
 import CGV from "./pages/CGV";
 import Confidentialite from "./pages/Confidentialite";
-import InscriptionArtisan from "./pages/InscriptionArtisan";
+// InscriptionArtisan merged into DevenirArtisan
 import CookieConsent from "./components/cookies/CookieConsent";
 import AndreaGlobalWidget from "./components/andrea/AndreaGlobalWidget";
 
@@ -98,7 +98,7 @@ const App = () => (
           <Route path="/demande-devis" element={<DemandeDevis />} />
           <Route path="/deposer-mission" element={<DemandeDevis />} />
           <Route path="/devenir-artisan" element={<DevenirArtisan />} />
-          <Route path="/inscription-artisan" element={<InscriptionArtisan />} />
+          <Route path="/inscription-artisan" element={<Navigate to="/devenir-artisan" replace />} />
           <Route path="/devenir-partenaire" element={<Navigate to="/devenir-artisan" replace />} />
           <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
           <Route path="/connexion" element={<Connexion />} />

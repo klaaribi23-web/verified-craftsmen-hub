@@ -778,7 +778,7 @@ const AndreaGlobalWidget = () => {
                       500+ audits/mois · Seuls les meilleurs passent
                     </p>
                     <Button
-                      onClick={() => { setIsOpen(false); navigate("/inscription-artisan"); }}
+                      onClick={() => { setIsOpen(false); navigate("/devenir-artisan"); }}
                       className="relative w-full font-black gap-2 h-10 text-sm hover:opacity-90 tracking-wide uppercase rounded-xl overflow-hidden"
                       style={{
                         background: "linear-gradient(135deg, hsl(30, 90%, 50%), hsl(45, 93%, 47%))",

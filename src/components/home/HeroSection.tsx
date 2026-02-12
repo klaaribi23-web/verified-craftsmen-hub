@@ -70,7 +70,7 @@ const HeroSection = () => {
               </Button>
               <div className="text-center sm:text-left">
                 <Button variant="outline-gold" size="lg" className="w-full sm:w-auto md:text-base" asChild>
-                  <Link to="/inscription-artisan">
+                  <Link to="/devenir-artisan">
                     Rejoindre le réseau
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Link>

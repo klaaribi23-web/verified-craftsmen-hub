@@ -302,7 +302,7 @@ const DevenirArtisan = () => {
                 <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.1)] border border-gold/15">
                   <div className="text-center mb-5 md:mb-6">
                     <h2 className="text-lg md:text-xl font-bold text-navy mb-1 md:mb-2">
-                      Demandez votre accréditation au réseau Artisans Validés
+                      Demandez votre accréditation et réservez votre secteur
                     </h2>
                     <p className="text-xs md:text-sm text-muted-foreground mb-2">
                       Remplissez ce formulaire, on vous rappelle sous 2h
