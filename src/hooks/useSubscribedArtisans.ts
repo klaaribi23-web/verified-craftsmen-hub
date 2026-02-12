@@ -21,6 +21,7 @@ export interface SubscribedArtisan {
 export const useSubscribedArtisans = () => {
   return useQuery({
     queryKey: ["subscribed-artisans"],
+    refetchOnMount: "always",
     queryFn: async () => {
       const { data, error } = await supabase
         .from("artisans")

@@ -92,7 +92,7 @@ interface ArtisanSubscriptionStatus {
 }
 
 const AdminSubscriptions = () => {
-  const { data: artisans, isLoading, refetch } = useSubscribedArtisans();
+  const { data: artisans, isLoading, refetch, error } = useSubscribedArtisans();
   const [selectedArtisan, setSelectedArtisan] = useState<SubscribedArtisan | null>(null);
   const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -364,10 +364,25 @@ const AdminSubscriptions = () => {
                   <div className="flex items-center justify-center py-12">
                     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                   </div>
+                ) : error ? (
+                  <div className="text-center py-12">
+                    <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-destructive" />
+                    <p className="font-semibold text-destructive">Erreur de chargement</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {(error as Error).message || "Erreur inconnue"}
+                    </p>
+                    <Button variant="outline" size="sm" className="mt-4" onClick={() => refetch()}>
+                      <RefreshCw className="w-4 h-4 mr-2" /> Réessayer
+                    </Button>
+                  </div>
                 ) : filteredArtisans.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>Aucun artisan ne correspond aux filtres</p>
+                    <p className="text-xs mt-2">
+                      Données brutes : {artisans?.length ?? "null"} artisan(s) avant filtrage | 
+                      Filtre plan : {tierFilter} | Filtre statut : {statusFilter}
+                    </p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
