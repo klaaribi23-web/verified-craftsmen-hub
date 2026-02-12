@@ -174,17 +174,17 @@ const DevenirArtisan = () => {
                  </div>
               </div>
               
-              <h1 className="text-2xl font-bold text-foreground mb-4">
-                On vous rappelle sous 2h
-              </h1>
-              <p className="text-muted-foreground mb-6">
-                Un membre de notre équipe va vous appeler au <strong className="text-foreground">{formData.phone}</strong> pour vérifier la disponibilité de votre secteur à <strong className="text-foreground">{formData.city}</strong>.
-              </p>
-              <div className="bg-muted rounded-lg p-4 mb-6 text-left">
-                <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Pas de robot, pas de spam.</strong> C'est un humain qui étudie votre dossier et vérifie vos documents (SIRET, assurances, références).
-                </p>
-              </div>
+               <h1 className="text-2xl font-bold text-foreground mb-4">
+                 Demande d'accréditation reçue !
+               </h1>
+               <p className="text-muted-foreground mb-6">
+                 Merci ! Votre demande d'accréditation est en cours d'examen. <strong className="text-foreground">Jane</strong>, notre responsable conformité, ou <strong className="text-foreground">Andrea</strong> vous contacteront sous 24h pour valider votre secteur à <strong className="text-foreground">{formData.city}</strong>.
+               </p>
+               <div className="bg-muted rounded-lg p-4 mb-6 text-left">
+                 <p className="text-sm text-muted-foreground">
+                   <strong className="text-foreground">Pas de robot, pas de spam.</strong> C'est un humain qui étudie votre dossier et vérifie vos documents (SIRET, assurances, références).
+                 </p>
+               </div>
               <Button
                 variant="gold"
                 onClick={() => window.location.href = "/"}
@@ -210,8 +210,8 @@ const DevenirArtisan = () => {
       <Navbar />
       
       <main className="pt-20 lg:pt-20">
-        {/* Bandeau noir défilant urgence */}
-        <div className="bg-navy-dark overflow-hidden py-2">
+        {/* Bandeau noir défilant urgence — STICKY */}
+        <div className="bg-navy-dark overflow-hidden py-2 sticky top-0 z-50">
           <motion.div
             animate={{ x: ["100%", "-100%"] }}
             transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
@@ -393,12 +393,12 @@ const DevenirArtisan = () => {
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
-                        {isLoading ? "Vérification..." : "REVENDIQUER MON EXCLUSIVITÉ"}
+                         {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
                       </Button>
-                      <div className="flex items-center justify-center gap-2 mt-3">
+                      <div className="flex flex-col items-center gap-2 mt-3">
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-xs font-medium text-gold">
                           <BadgeCheck className="w-3.5 h-3.5" />
-                          Validation sous 24h par Khalid ou Andrea
+                          Validation finale de votre dossier effectuée par Jane.
                         </div>
                       </div>
                     </div>
@@ -416,21 +416,24 @@ const DevenirArtisan = () => {
                   </form>
 
                   {/* Mobile sticky submit */}
-                  <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border p-3 shadow-lg">
+                   <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border p-3 shadow-lg">
                     <Button 
                       type="button"
                       variant="gold" 
-                      size="lg" 
-                      className="w-full !text-sm !py-4 !font-bold uppercase tracking-wide"
+                      size="xl" 
+                      className="w-full !text-base !py-6 !font-black uppercase tracking-wider hover:brightness-110 hover:shadow-[0_0_24px_rgba(234,179,8,0.4)] transition-all duration-300"
                       disabled={isLoading}
                       onClick={(e) => {
                         const form = document.querySelector('form');
                         if (form) form.requestSubmit();
                       }}
                     >
-                      {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Crown className="w-4 h-4 mr-2" />}
-                      {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ"}
+                      {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
+                      {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
                     </Button>
+                    <p className="text-center text-[10px] text-muted-foreground mt-1.5">
+                      Validation finale de votre dossier effectuée par Jane.
+                    </p>
                   </div>
                 </div>
 
