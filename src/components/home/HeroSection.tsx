@@ -40,8 +40,8 @@ const HeroSection = () => {
             </div>
 
             <h1 className="text-[1.55rem] leading-[1.25] md:text-4xl lg:text-5xl font-bold text-white md:leading-tight mb-4 md:mb-6">
-              L'Alliance de l'Expertise Métier{" "}
-              <span className="text-gradient-gold">et de la Confiance Client.</span>
+              Ne confiez plus vos travaux au hasard.{" "}
+              <span className="text-gradient-gold">Accédez à l'élite des artisans audités.</span>
             </h1>
 
             {/* Double-cible messaging */}
@@ -61,23 +61,30 @@ const HeroSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-6">
-              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98] min-h-[56px]" asChild>
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98] min-h-[56px] relative overflow-hidden group" asChild>
                 <Link to="/trouver-artisan">
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                   Trouver un artisan audité
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
-              <Button variant="outline-gold" size="lg" className="w-full sm:w-auto md:text-base" asChild>
-                <Link to="/devenir-artisan">
-                  Rejoindre le réseau
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
+              <div className="text-center sm:text-left">
+                <Button variant="outline-gold" size="lg" className="w-full sm:w-auto md:text-base" asChild>
+                  <Link to="/devenir-artisan">
+                    Rejoindre le réseau
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
+                </Button>
+                <p className="text-[10px] text-white/40 mt-1.5 italic">⚠️ Places limitées par département pour garantir la qualité.</p>
+              </div>
             </div>
 
-            <p className="text-sm text-white/70 mb-8 md:mb-10 leading-snug">
+            <p className="text-sm text-white/70 mb-3 md:mb-4 leading-snug">
               <Shield className="w-4 h-4 text-gold inline mr-1.5 -mt-0.5 shrink-0" />
               Déjà <span className="text-gold font-bold">{displayCount > 40 ? displayCount : 44} artisans validés et audités</span> dans le Nord et l'Île-de-France.
+            </p>
+            <p className="text-xs text-white/50 mb-8 md:mb-10 leading-snug italic">
+              Le seul réseau national qui protège vos données : zéro harcèlement, juste l'excellence.
             </p>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-5 border border-white/20">
@@ -112,9 +119,9 @@ const HeroSection = () => {
                 </p>
                 <div className="grid grid-cols-3 gap-3 mb-6">
                   {[
-                    { label: "Audits", value: "500+/mois" },
-                    { label: "Artisans", value: "Triés" },
-                    { label: "Réponse", value: "< 30s" },
+                    { label: "Audits rigoureux", value: "+500/mois" },
+                    { label: "Sélection d'élite", value: "10% validés" },
+                    { label: "Mise en relation", value: "< 24h" },
                   ].map(({ label, value }) => (
                     <div key={label} className="text-center p-3 rounded-lg bg-white/5 border border-white/10">
                       <div className="text-xs text-white/50">{label}</div>
