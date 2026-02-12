@@ -11,10 +11,11 @@ import SocialProofBanner from "@/components/home/SocialProofBanner";
 import AskExpertSection from "@/components/home/AskExpertSection";
 import ExpertCaseStudy from "@/components/home/ExpertCaseStudy";
 import LaboAndreaSection from "@/components/home/LaboAndreaSection";
+import SocialProofToast from "@/components/home/SocialProofToast";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
-import { Star, ArrowRight } from "lucide-react";
+import { Star, ArrowRight, ShieldCheck, Award, HeartHandshake, UserCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/seo/SEOHead";
@@ -35,12 +36,27 @@ const Index = () => {
         <SocialProofBanner />
 
         {/* Bandeau ADN Particuliers */}
-        <section className="bg-navy py-6">
-          <div className="container mx-auto px-4 text-center">
-            <p className="text-white text-base md:text-lg font-medium">
-              Ici, on ne vend pas vos coordonnées au plus offrant.{" "}
-              <span className="text-gold font-bold">On déploie un réseau d'élite, département par département.</span>
-            </p>
+        <section className="bg-navy py-6 border-t border-white/5">
+          <div className="container mx-auto px-4 text-center space-y-4">
+            <div className="flex items-center justify-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-gold flex-shrink-0" />
+              <p className="text-white text-base md:text-lg font-medium">
+                Ici, on ne vend pas vos coordonnées au plus offrant.{" "}
+                <span className="text-gold font-bold">On déploie un réseau d'élite, département par département.</span>
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 pt-2">
+              {[
+                { icon: Award, label: "Assurance Décennale Vérifiée" },
+                { icon: HeartHandshake, label: "Charte Qualité Stricte" },
+                { icon: UserCheck, label: "Accompagnement Personnalisé" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5 text-white/60 text-xs md:text-sm">
+                  <Icon className="h-4 w-4 text-gold/70" />
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -125,6 +141,7 @@ const Index = () => {
         <CTASection />
       </main>
       <Footer />
+      <SocialProofToast />
     </div>
   );
 };
