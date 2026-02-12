@@ -46,9 +46,9 @@ function AndreaChatDemo() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      {/* Phone frame with glow */}
+      {/* Terminal frame */}
       <motion.div
-        className={`rounded-[2rem] border-2 border-gold/20 shadow-[0_0_60px_-15px_hsl(45_93%_47%/0.15)] overflow-hidden relative ${glass}`}
+        className="rounded-xl border border-primary/30 shadow-[0_0_80px_-20px_hsl(43_72%_52%/0.2)] overflow-hidden relative bg-black"
         initial={{ opacity: 0, y: 40, scale: 0.92 }}
         whileInView={{ opacity: 1, y: 0, scale: 1 }}
         transition={snappy}
@@ -56,81 +56,101 @@ function AndreaChatDemo() {
       >
         <ShimmerOverlay interval={3} />
 
-        {/* Header */}
-        <div className={`${glassLight} px-5 py-3 flex items-center gap-3 border-b border-white/[0.06]`}>
-          <motion.div
-            className="w-9 h-9 rounded-full bg-gold flex items-center justify-center text-navy font-bold text-sm"
-            animate={{ boxShadow: ["0 0 0 0 hsl(45 93% 47%/0.4)", "0 0 0 8px hsl(45 93% 47%/0)", "0 0 0 0 hsl(45 93% 47%/0)"] }}
-            transition={{ duration: 2.5, repeat: Infinity }}
-          >
-            A
-          </motion.div>
-          <div className="flex-1">
-            <p className="text-primary-foreground font-semibold text-sm">Andrea</p>
-            <p className="text-xs text-gold flex items-center gap-1"><Shield className="w-3 h-3" /> Experte vérifiée</p>
+        {/* Terminal Header */}
+        <div className="px-5 py-3 flex items-center gap-3 border-b border-primary/20 bg-black">
+          {/* Terminal dots */}
+          <div className="flex gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-destructive/80" />
+            <div className="w-3 h-3 rounded-full bg-primary/50" />
+            <div className="w-3 h-3 rounded-full bg-success/50" />
           </div>
-          <Badge variant="outline" className="border-gold/40 text-gold text-[10px]">EN LIGNE</Badge>
+          <div className="flex-1 text-center">
+            <span className="text-[11px] font-mono text-primary/60 tracking-widest uppercase">ANDREA_TERMINAL v3.2</span>
+          </div>
+          <Badge variant="outline" className="border-primary/30 text-primary text-[10px] font-mono">LIVE</Badge>
         </div>
 
-        {/* Messages */}
-        <div className="bg-navy-dark/60 p-4 min-h-[320px] flex flex-col gap-3 overflow-hidden">
-          <AnimatePresence>
-            {chatMessages.slice(0, visibleCount).map((msg, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 24, scale: 0.85 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={snappy}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? `bg-gold text-navy-dark rounded-2xl rounded-br-sm font-medium shadow-[0_4px_20px_-4px_hsl(45_93%_47%/0.4)]`
-                      : `${glassLight} text-primary-foreground rounded-2xl rounded-bl-sm`
-                  }`}
-                >
-                  {msg.text}
-                  <div className="flex justify-end mt-1">
-                    {msg.role === "user" && <CheckCheck className="w-3.5 h-3.5 text-navy/60" />}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+        {/* Scan line effect */}
+        <div className="relative">
+          <motion.div
+            className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent z-30 pointer-events-none"
+            animate={{ top: ["0%", "100%", "0%"] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          />
 
-          {showTyping && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-1.5 px-4 py-2">
-              {[0, 1, 2].map((i) => (
-                <motion.span
+          {/* Messages area */}
+          <div className="bg-black p-4 min-h-[320px] flex flex-col gap-3 overflow-hidden relative">
+            {/* Grid overlay */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "linear-gradient(hsl(43 72% 52%) 1px, transparent 1px), linear-gradient(90deg, hsl(43 72% 52%) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+
+            <AnimatePresence>
+              {chatMessages.slice(0, visibleCount).map((msg, i) => (
+                <motion.div
                   key={i}
-                  className="w-2 h-2 rounded-full bg-gold"
-                  animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.1, 0.8] }}
-                  transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                />
+                  initial={{ opacity: 0, x: msg.role === "andrea" ? -30 : 30, scale: 0.9 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  transition={snappy}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed font-mono relative overflow-hidden ${
+                      msg.role === "user"
+                        ? "bg-primary/10 text-primary border border-primary/30 rounded-lg rounded-br-sm"
+                        : "bg-white/[0.03] text-foreground border border-white/[0.08] rounded-lg rounded-bl-sm"
+                    }`}
+                  >
+                    {/* Laser scan on each message */}
+                    <motion.div
+                      className="absolute inset-x-0 top-0 h-full pointer-events-none"
+                      style={{ background: "linear-gradient(180deg, transparent 0%, hsl(43 72% 52% / 0.04) 50%, transparent 100%)" }}
+                      animate={{ y: ["-100%", "100%"] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                    />
+                    <span className="text-[10px] text-primary/40 block mb-1 font-mono">{msg.role === "andrea" ? "▸ ANDREA.AI" : "▸ USER.INPUT"}</span>
+                    {msg.text}
+                    <div className="flex justify-end mt-1">
+                      {msg.role === "user" && <CheckCheck className="w-3.5 h-3.5 text-primary/60" />}
+                    </div>
+                  </div>
+                </motion.div>
               ))}
-            </motion.div>
-          )}
+            </AnimatePresence>
 
-          {visibleCount >= chatMessages.length && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={popIn}
-              className={`mt-2 p-3 rounded-xl ${glass} border-success/30 text-center`}
-            >
-              <Sparkles className="w-5 h-5 text-gold mx-auto mb-1" />
-              <p className="text-xs text-success font-semibold">Lead qualifié capturé en 12s</p>
-              <button onClick={restart} className="mt-2 text-[10px] text-gold underline hover:text-gold-light transition-colors">Rejouer la démo</button>
-            </motion.div>
-          )}
+            {showTyping && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 px-4 py-2 font-mono text-xs text-primary/50">
+                <span>PROCESSING</span>
+                {[0, 1, 2].map((i) => (
+                  <motion.span
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full bg-primary"
+                    animate={{ opacity: [0.2, 1, 0.2] }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2 }}
+                  />
+                ))}
+              </motion.div>
+            )}
+
+            {visibleCount >= chatMessages.length && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={popIn}
+                className="mt-2 p-3 rounded-lg border border-success/30 bg-success/5 text-center"
+              >
+                <Sparkles className="w-5 h-5 text-primary mx-auto mb-1" />
+                <p className="text-xs text-success font-mono font-semibold">✓ LEAD_CAPTURED — 12s elapsed</p>
+                <button onClick={restart} className="mt-2 text-[10px] text-primary/60 underline hover:text-primary transition-colors font-mono">[ REPLAY ]</button>
+              </motion.div>
+            )}
+          </div>
         </div>
 
-        {/* Input bar */}
-        <div className={`${glassLight} px-4 py-3 flex items-center gap-2 border-t border-white/[0.06]`}>
-          <div className="flex-1 bg-white/[0.05] rounded-full px-4 py-2 text-xs text-muted-foreground">Écrire un message…</div>
-          <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center shadow-[0_0_12px_hsl(45_93%_47%/0.4)]">
-            <Send className="w-4 h-4 text-navy" />
+        {/* Terminal input bar */}
+        <div className="px-4 py-3 flex items-center gap-2 border-t border-primary/20 bg-black">
+          <span className="text-primary/40 font-mono text-xs">▸</span>
+          <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded px-3 py-2 text-xs text-muted-foreground font-mono">Entrez une commande…</div>
+          <div className="w-8 h-8 rounded bg-primary/10 border border-primary/30 flex items-center justify-center">
+            <Send className="w-4 h-4 text-primary" />
           </div>
         </div>
       </motion.div>
