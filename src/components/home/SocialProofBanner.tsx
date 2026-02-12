@@ -9,12 +9,14 @@ interface ProofMessage {
 }
 
 const FALLBACK_MESSAGES: ProofMessage[] = [
-  { text: "Nouvel audit de conformité validé par Andrea à Lille", icon: "audit" },
+  { text: "Nouvel audit de conformité validé par Andrea à Paris", icon: "audit" },
   { text: "Nouveau projet de rénovation déposé à Lyon il y a 12 min", icon: "devis" },
   { text: "Nouvel audit de conformité validé par Andrea à Marseille", icon: "audit" },
-  { text: "Nouveau projet de rénovation déposé à Paris il y a 8 min", icon: "devis" },
-  { text: "Nouvel audit de conformité validé par Andrea à Toulouse", icon: "audit" },
-  { text: "Nouveau projet de rénovation déposé à Bordeaux il y a 25 min", icon: "devis" },
+  { text: "Nouveau projet de rénovation déposé à Bordeaux il y a 8 min", icon: "devis" },
+  { text: "Nouvel audit de conformité validé par Andrea à Lille", icon: "audit" },
+  { text: "Nouveau projet de rénovation déposé à Nantes il y a 25 min", icon: "devis" },
+  { text: "Nouvel audit de conformité validé par Andrea à Nice", icon: "audit" },
+  { text: "Nouveau projet de rénovation déposé à Strasbourg il y a 15 min", icon: "devis" },
 ];
 
 const SocialProofBanner = () => {

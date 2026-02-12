@@ -62,7 +62,7 @@ const HeroSection = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 mb-4 md:mb-6">
               <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-8 py-7 shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all hover:scale-[1.03] active:scale-[0.98] min-h-[56px] relative overflow-hidden group" asChild>
-                <Link to="/trouver-artisan">
+                <Link to="/demande-devis">
                   <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                   Trouver un artisan audité
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -70,7 +70,7 @@ const HeroSection = () => {
               </Button>
               <div className="text-center sm:text-left">
                 <Button variant="outline-gold" size="lg" className="w-full sm:w-auto md:text-base" asChild>
-                  <Link to="/devenir-artisan">
+                  <Link to="/inscription-artisan">
                     Rejoindre le réseau
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Link>

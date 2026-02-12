@@ -4,12 +4,14 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 const PROOF_MESSAGES = [
-  "✅ Audit de conformité validé à Nantes il y a 12 min",
-  "✅ Audit de conformité validé à Lyon il y a 8 min",
-  "✅ Nouvel artisan certifié à Lille il y a 22 min",
   "✅ Audit de conformité validé à Paris il y a 5 min",
-  "✅ Nouvel artisan certifié à Marseille il y a 18 min",
-  "✅ Audit de conformité validé à Bordeaux il y a 31 min",
+  "✅ Nouvel artisan certifié à Lyon il y a 8 min",
+  "✅ Audit de conformité validé à Marseille il y a 12 min",
+  "✅ Nouvel artisan certifié à Bordeaux il y a 18 min",
+  "✅ Audit de conformité validé à Lille il y a 22 min",
+  "✅ Nouvel artisan certifié à Nantes il y a 15 min",
+  "✅ Audit de conformité validé à Nice il y a 31 min",
+  "✅ Nouvel artisan certifié à Strasbourg il y a 27 min",
 ];
 
 const SocialProofToast = () => {
@@ -35,7 +37,7 @@ const SocialProofToast = () => {
   }, [visible, currentIndex]);
 
   return (
-    <div className="fixed bottom-4 left-4 z-40 max-w-xs pointer-events-none">
+    <div className="fixed bottom-20 md:bottom-4 left-4 z-40 max-w-xs pointer-events-none">
       <AnimatePresence>
         {visible && (
           <motion.div
