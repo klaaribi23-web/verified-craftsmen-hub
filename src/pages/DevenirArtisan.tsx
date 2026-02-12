@@ -317,7 +317,10 @@ const DevenirArtisan = () => {
                     <p className="text-xs md:text-sm text-muted-foreground mb-2">
                       Remplissez ce formulaire, on vous rappelle sous 2h
                     </p>
-                    <p className="text-sm font-semibold text-amber-600 animate-pulse">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-xs font-medium text-gold">
+                      99€ HT/mois · 0% commission
+                    </div>
+                    <p className="text-sm font-semibold text-amber-600 animate-pulse mt-2">
                       🔥 Plus que 2 places disponibles sur votre secteur ce mois-ci.
                     </p>
                   </div>
@@ -395,22 +398,9 @@ const DevenirArtisan = () => {
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
                          {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
                       </Button>
-                      <div className="flex flex-col items-center gap-2 mt-3">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-xs font-medium text-gold">
-                          <BadgeCheck className="w-3.5 h-3.5" />
-                          Validation finale de votre dossier effectuée par Jane.
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="hidden md:flex flex-col items-center gap-2 pt-3">
-                      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                        <Zap className="w-3.5 h-3.5 text-gold" />
-                        Accès immédiat au catalogue de missions dès validation.
-                      </p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                        <Shield className="w-3.5 h-3.5 text-emerald-500" />
-                        Paiement 100% sécurisé
+                      <p className="text-center text-xs text-muted-foreground mt-3 flex items-center justify-center gap-1.5">
+                        <Shield className="w-3.5 h-3.5 text-gold" />
+                        Validation finale de votre dossier effectuée par Jane sous 24h.
                       </p>
                     </div>
                   </form>
@@ -431,8 +421,9 @@ const DevenirArtisan = () => {
                       {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
                       {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ"}
                     </Button>
-                    <p className="text-center text-[10px] text-muted-foreground mt-1.5">
-                      Validation finale par Jane.
+                    <p className="text-center text-[10px] text-muted-foreground mt-1.5 flex items-center justify-center gap-1">
+                      <Shield className="w-3 h-3 text-gold" />
+                      Validation finale de votre dossier effectuée par Jane sous 24h.
                     </p>
                   </div>
                 </div>
@@ -462,13 +453,8 @@ const DevenirArtisan = () => {
               viewport={{ once: true }}
               className="max-w-2xl mx-auto text-center"
             >
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-gold" />
-                </div>
-                <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-                  <UserCheck className="w-5 h-5 text-gold" />
-                </div>
+              <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-3">
+                <Shield className="w-6 h-6 text-gold" />
               </div>
               <p className="text-base md:text-lg font-medium text-foreground mb-2">
                 Ici, pas de plateforme robotisée. Un expert du bâtiment étudie votre demande et vous rappelle sous 2h pour valider votre exclusivité.
