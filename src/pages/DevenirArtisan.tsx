@@ -257,7 +257,7 @@ const DevenirArtisan = () => {
         </section>
 
         {/* 3 Piliers "Trident de Fer" */}
-        <section className="py-10 md:py-16 bg-white">
+        <section className="py-10 md:py-16 bg-navy-dark">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {[
@@ -283,7 +283,7 @@ const DevenirArtisan = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-7 rounded-2xl bg-white border-2 border-gold/60 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_-4px_rgba(234,179,8,0.15)] transition-all duration-300"
+                  className="p-7 rounded-2xl bg-white border border-[#FFD700] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_-4px_rgba(234,179,8,0.25)] transition-all duration-300"
                 >
                   <div className="flex flex-col items-center text-center gap-4">
                     <div className="w-16 h-16 rounded-full bg-gradient-gold flex items-center justify-center shrink-0 shadow-gold">
@@ -311,8 +311,8 @@ const DevenirArtisan = () => {
               >
                 <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_12px_48px_-8px_rgba(0,0,0,0.18)] border-2 border-gold/30">
                   <div className="text-center mb-5 md:mb-6">
-                    <h2 className="text-lg md:text-xl font-bold text-navy mb-1 md:mb-2">
-                      Demandez votre accréditation et réservez votre secteur
+                    <h2 className="text-lg md:text-xl font-black text-navy mb-1 md:mb-2 uppercase tracking-wide">
+                      Accédez à votre exclusivité
                     </h2>
                     <p className="text-xs md:text-sm text-muted-foreground mb-2">
                       Remplissez ce formulaire, on vous rappelle sous 2h
@@ -429,7 +429,7 @@ const DevenirArtisan = () => {
                       }}
                     >
                       {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Crown className="w-4 h-4 mr-2" />}
-                      {isLoading ? "Vérification..." : "REVENDIQUER MON EXCLUSIVITÉ →"}
+                      {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ"}
                     </Button>
                   </div>
                 </div>
