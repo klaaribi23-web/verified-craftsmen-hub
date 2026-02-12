@@ -210,62 +210,100 @@ const DevenirArtisan = () => {
       <Navbar />
       
       <main className="pt-20 lg:pt-20">
-        {/* Hero + Form */}
-        <section className="bg-navy py-8 md:py-16 lg:py-28 relative overflow-hidden">
-          {/* Decorations hidden on mobile */}
-          <div className="hidden md:block absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
-          </div>
-
+        {/* Hero — fond clair, premium */}
+        <section className="bg-gradient-to-b from-muted/50 to-white py-10 md:py-16 lg:py-24 relative overflow-hidden">
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
-            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-5 lg:gap-12 items-center">
-              {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center max-w-3xl mx-auto mb-10 md:mb-16"
+            >
+              <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-gold text-navy-dark text-sm font-bold mb-5 shadow-gold">
+                <Crown className="w-4 h-4" />
+                Membre Élite
+              </div>
+
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy leading-tight mb-4 md:mb-6">
+                Arrêtez de payer pour des leads{" "}
+                <span className="text-gradient-gold">partagés avec 10 concurrents.</span>
+              </h1>
+
+              <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto">
+                On verrouille votre ville. On vérifie vos assurances. On lance votre pub.
+                Vous signez les chantiers. <strong className="text-foreground">Direct, sans intermédiaire.</strong>
+              </p>
+            </motion.div>
+
+            {/* Stats */}
+            <div className="hidden md:grid grid-cols-4 gap-6 max-w-2xl mx-auto mb-12">
+              {stats.map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <div className="text-2xl font-bold text-gold">{stat.value}</div>
+                  <div className="text-xs text-muted-foreground">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 3 Piliers Premium */}
+        <section className="py-10 md:py-16 bg-gold/5">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {[
+                {
+                  icon: Lock,
+                  title: "Exclusivité Totale",
+                  description: "2 artisans max par zone. On verrouille votre ville pour stopper la concurrence inutile.",
+                },
+                {
+                  icon: CheckCircle2,
+                  title: "Leads Haute Qualité",
+                  description: "Projets vérifiés par Andrea (Photos + Budget). Vous ne rappelez que des clients sérieux.",
+                },
+                {
+                  icon: Star,
+                  title: "Zéro Commission",
+                  description: "Gardez 100% de votre chiffre d'affaires. Notre modèle est basé sur la transparence.",
+                },
+              ].map((card, i) => (
+                <motion.div
+                  key={card.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-6 rounded-2xl bg-white border border-gold/20 shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center shrink-0 shadow-gold">
+                      <card.icon className="w-6 h-6 text-navy-dark" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-navy text-lg mb-1">{card.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Formulaire */}
+        <section className="py-12 md:py-20 bg-white">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="max-w-lg mx-auto">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center lg:text-left"
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
               >
-                <div className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-4 lg:mb-6">
-                  <Lock className="w-4 h-4 text-gold" />
-                  <span className="text-sm font-medium text-gold">
-                    2 places max par ville — Vérifiez la disponibilité
-                  </span>
-                </div>
-
-                <h1 className="text-xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-3 md:mb-6">
-                  Arrêtez de payer pour des leads{" "}
-                  <span className="text-gradient-gold">partagés avec 10 concurrents.</span>
-                </h1>
-
-                <p className="text-sm md:text-lg text-white/70 mb-4 md:mb-8 hidden md:block">
-                  On verrouille votre ville. On vérifie vos assurances. On lance votre pub. 
-                  Vous signez les chantiers. <strong className="text-white">Direct, sans intermédiaire.</strong>
-                </p>
-
-                {/* Stats — hidden on mobile */}
-                <div className="hidden md:grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                  {stats.map((stat) => (
-                    <div key={stat.label} className="text-center">
-                      <div className="text-xl md:text-2xl font-bold text-gold">{stat.value}</div>
-                      <div className="text-xs md:text-sm text-white/60">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Form — Zero friction */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="w-full"
-              >
-                <div className="bg-white rounded-2xl p-4 md:p-8 shadow-floating">
-                  <div className="text-center mb-4 md:mb-6">
+                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-xl border border-gold/15">
+                  <div className="text-center mb-5 md:mb-6">
                     <h2 className="text-lg md:text-xl font-bold text-navy mb-1 md:mb-2">
-                       Demandez votre accréditation au réseau Artisans Validés
-                     </h2>
+                      Demandez votre accréditation au réseau Artisans Validés
+                    </h2>
                     <p className="text-xs md:text-sm text-muted-foreground mb-2">
                       Remplissez ce formulaire, on vous rappelle sous 2h
                     </p>
@@ -341,11 +379,11 @@ const DevenirArtisan = () => {
                         type="submit" 
                         variant="gold" 
                         size="lg" 
-                        className="w-full !text-base md:!text-lg !py-6 !font-bold"
+                        className="w-full !text-base md:!text-lg !py-6 !font-bold uppercase tracking-wide"
                         disabled={isLoading}
                       >
-                        {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
-                        {isLoading ? "Vérification..." : "JE VEUX ÊTRE VALIDÉ →"}
+                        {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
+                        {isLoading ? "Vérification..." : "DEMANDER MON ACCRÉDITATION DORÉE"}
                       </Button>
                     </div>
 
@@ -361,76 +399,31 @@ const DevenirArtisan = () => {
                       type="button"
                       variant="gold" 
                       size="lg" 
-                      className="w-full !text-sm !py-4 !font-bold"
+                      className="w-full !text-sm !py-4 !font-bold uppercase tracking-wide"
                       disabled={isLoading}
                       onClick={(e) => {
                         const form = document.querySelector('form');
                         if (form) form.requestSubmit();
                       }}
                     >
-                      {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                      {isLoading ? "Vérification..." : "JE VEUX ÊTRE VALIDÉ →"}
+                      {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Crown className="w-4 h-4 mr-2" />}
+                      {isLoading ? "Vérification..." : "ACCRÉDITATION DORÉE →"}
                     </Button>
                   </div>
                 </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
 
-        {/* Pourquoi nous rejoindre — 3 blocs premium */}
-        <section className="py-12 lg:py-20 bg-gold/5">
-          <div className="container mx-auto px-4 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-10"
-            >
-              <h2 className="text-2xl md:text-3xl font-bold text-navy mb-2">
-                Pourquoi nous rejoindre ?
-              </h2>
-              <p className="text-muted-foreground max-w-lg mx-auto text-sm">
-                Ce qui nous différencie de toutes les autres plateformes.
-              </p>
-            </motion.div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              {[
-                {
-                  icon: Shield,
-                  title: "Zéro Concurrence Déloyale",
-                  description: "On limite le nombre d'artisans par zone. Quand c'est complet, c'est complet. Votre secteur est protégé.",
-                },
-                {
-                  icon: CheckCircle2,
-                  title: "Leads Chauds Uniquement",
-                  description: "Chaque projet est filtré par nos experts. Budget confirmé, client sérieux. Pas de perte de temps.",
-                },
-                {
-                  icon: Star,
-                  title: "Votre Image Valorisée",
-                  description: "On ne vend pas des noms, on crée des partenariats. Vous n'êtes pas un numéro, vous êtes l'expert choisi.",
-                },
-              ].map((card, i) => (
-                <motion.div
-                  key={card.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                {/* Social proof line */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="p-6 rounded-2xl bg-card border border-gold/20 shadow-md hover:shadow-lg transition-shadow"
+                  transition={{ delay: 0.3 }}
+                  className="text-center text-sm text-muted-foreground mt-6 flex items-center justify-center gap-2"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center shrink-0">
-                      <card.icon className="w-6 h-6 text-gold" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-foreground mb-1">{card.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  <Users className="w-4 h-4 text-gold" />
+                  Rejoignez les <strong className="text-foreground">500+ artisans</strong> qui ont déjà choisi la qualité plutôt que la quantité.
+                </motion.p>
+              </motion.div>
             </div>
           </div>
         </section>
