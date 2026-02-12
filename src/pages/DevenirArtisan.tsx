@@ -398,10 +398,14 @@ const DevenirArtisan = () => {
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
                          {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
                       </Button>
-                      <p className="text-center text-xs text-muted-foreground mt-3 flex items-center justify-center gap-1.5">
-                        <Shield className="w-3.5 h-3.5 text-gold" />
-                        Validation finale de votre dossier effectuée par Jane sous 24h.
-                      </p>
+                      <div className="mt-5 text-center space-y-1.5">
+                        <p className="text-sm font-light text-muted-foreground">
+                          Abonnement fixe : 99€/mois • Sans commission • Sans engagement
+                        </p>
+                        <p className="text-sm font-medium text-gold">
+                          Validation de votre accréditation par Jane sous 24h.
+                        </p>
+                      </div>
                     </div>
                   </form>
 
@@ -421,10 +425,14 @@ const DevenirArtisan = () => {
                       {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
                       {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ"}
                     </Button>
-                    <p className="text-center text-[10px] text-muted-foreground mt-1.5 flex items-center justify-center gap-1">
-                      <Shield className="w-3 h-3 text-gold" />
-                      Validation finale de votre dossier effectuée par Jane sous 24h.
-                    </p>
+                    <div className="mt-2 text-center space-y-0.5">
+                      <p className="text-[10px] font-light text-muted-foreground">
+                        99€/mois • Sans commission • Sans engagement
+                      </p>
+                      <p className="text-[10px] font-medium text-gold">
+                        Validation par Jane sous 24h.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -441,28 +449,6 @@ const DevenirArtisan = () => {
                 </motion.p>
               </motion.div>
             </div>
-          </div>
-        </section>
-
-        {/* Bandeau Réassurance Humaine */}
-        <section className="py-10 bg-muted/70 border-y border-border/50">
-          <div className="container mx-auto px-4 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="max-w-2xl mx-auto text-center"
-            >
-              <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-3">
-                <Shield className="w-6 h-6 text-gold" />
-              </div>
-              <p className="text-base md:text-lg font-medium text-foreground mb-2">
-                Ici, pas de plateforme robotisée. Un expert du bâtiment étudie votre demande et vous rappelle sous 2h pour valider votre exclusivité.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Déjà plus de 50 artisans partenaires accompagnés cette année.
-              </p>
-            </motion.div>
           </div>
         </section>
 
