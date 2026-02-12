@@ -33,6 +33,17 @@ const Index = () => {
       <Navbar />
       <main>
         <HeroSection />
+
+        {/* Bandeau Anonymat — forte lisibilité */}
+        <section className="bg-navy-dark py-4 border-y border-gold/15">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-base md:text-lg font-semibold tracking-wide text-white" style={{ fontFamily: "'Georgia', serif", letterSpacing: "0.04em" }}>
+              <ShieldCheck className="inline w-5 h-5 text-gold mr-2 -mt-0.5" />
+              Votre anonymat garanti jusqu'au dernier moment
+            </p>
+          </div>
+        </section>
+
         <SocialProofBanner />
 
         {/* Bandeau ADN Particuliers */}

@@ -34,9 +34,9 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center lg:text-left">
-            <div className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gold/20 border border-gold/30 mb-4 md:mb-6">
-              <Shield className="w-3 h-3 md:w-4 md:h-4 text-gold" />
-              <span className="text-xs md:text-sm font-medium text-white">Votre anonymat garanti jusqu'au dernier moment</span>
+            <div className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-1.5 md:py-2.5 rounded-full bg-gold/15 border border-gold/30 mb-4 md:mb-6">
+              <Shield className="w-3.5 h-3.5 md:w-4 md:h-4 text-gold" />
+              <span className="text-xs md:text-sm font-semibold text-white tracking-wide">Le réseau d'artisans audités sur le terrain</span>
             </div>
 
             <h1 className="text-[1.55rem] leading-[1.25] md:text-4xl lg:text-5xl font-bold text-white md:leading-tight mb-4 md:mb-6">
