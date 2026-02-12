@@ -107,6 +107,42 @@ const InscriptionArtisan = () => {
             ))}
           </div>
 
+          {/* Pourquoi nous rejoindre */}
+          <div className="mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8">
+              Pourquoi nous rejoindre ?
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="p-6 rounded-2xl bg-card border border-gold/20 shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-destructive/10 flex items-center justify-center mb-4">
+                  <Shield className="w-6 h-6 text-destructive" />
+                </div>
+                <h3 className="font-bold text-foreground mb-2">Zéro Concurrence Déloyale</h3>
+                <p className="text-sm text-muted-foreground">On limite le nombre d'artisans par zone. Quand c'est complet, c'est complet. Votre secteur est protégé.</p>
+              </div>
+              <div className="p-6 rounded-2xl bg-card border border-gold/20 shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                </div>
+                <h3 className="font-bold text-foreground mb-2">Leads Chauds Uniquement</h3>
+                <p className="text-sm text-muted-foreground">Chaque projet est filtré par nos experts. Budget confirmé, client sérieux. Pas de perte de temps.</p>
+              </div>
+              <div className="p-6 rounded-2xl bg-card border border-gold/20 shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mb-4">
+                  <Sparkles className="w-6 h-6 text-gold" />
+                </div>
+                <h3 className="font-bold text-foreground mb-2">Votre Image Valorisée</h3>
+                <p className="text-sm text-muted-foreground">On ne vend pas des noms, on crée des partenariats. Vous n'êtes pas un numéro, vous êtes l'expert choisi.</p>
+              </div>
+            </div>
+            <div className="text-center">
+              <Button size="xl" className="bg-gold hover:bg-gold/90 text-navy-dark font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all gap-2" onClick={() => document.getElementById('siret')?.focus()}>
+                Postuler pour réserver mon secteur <ArrowRight className="w-5 h-5" />
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2 italic">⚠️ Places limitées par département — vérifiez votre éligibilité maintenant.</p>
+            </div>
+          </div>
+
           {/* Form */}
           <Card className="max-w-lg mx-auto border-gold/20">
             <CardHeader className="text-center">
