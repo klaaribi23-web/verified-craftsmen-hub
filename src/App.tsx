@@ -73,6 +73,7 @@ import Confidentialite from "./pages/Confidentialite";
 // InscriptionArtisan merged into DevenirArtisan
 import CookieConsent from "./components/cookies/CookieConsent";
 import AndreaGlobalWidget from "./components/andrea/AndreaGlobalWidget";
+import MarketingLab from "./pages/MarketingLab";
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,7 @@ const App = () => (
           <Route path="/cgv" element={<CGV />} />
           <Route path="/confidentialite" element={<Confidentialite />} />
           <Route path="/admin-exclusive" element={<AdminExclusive />} />
+          <Route path="/marketing-lab" element={<MarketingLab />} />
           <Route path="/artisans-ville/:citySlug" element={<CityArtisansPage />} />
           
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
