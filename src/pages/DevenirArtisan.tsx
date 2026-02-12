@@ -398,12 +398,13 @@ const DevenirArtisan = () => {
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
                          {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
                       </Button>
-                      <div className="mt-5 text-center space-y-1.5">
-                        <p className="text-sm font-light text-muted-foreground">
-                          Abonnement fixe : 99€/mois • Sans commission • Sans engagement
+                      <div className="mt-[30px] text-center">
+                        <p className="text-[14px] font-light text-white">
+                          99€/mois • Sans commission • Sans engagement
                         </p>
-                        <p className="text-sm font-medium text-gold">
-                          Validation de votre accréditation par Jane sous 24h.
+                        <div className="h-[10px]" />
+                        <p className="text-[14px] font-bold text-gold">
+                          Validation de votre dossier par Jane sous 24h.
                         </p>
                       </div>
                     </div>
@@ -425,12 +426,13 @@ const DevenirArtisan = () => {
                       {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
                       {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ"}
                     </Button>
-                    <div className="mt-2 text-center space-y-0.5">
-                      <p className="text-[10px] font-light text-muted-foreground">
+                    <div className="mt-3 text-center">
+                      <p className="text-[11px] font-light text-white">
                         99€/mois • Sans commission • Sans engagement
                       </p>
-                      <p className="text-[10px] font-medium text-gold">
-                        Validation par Jane sous 24h.
+                      <div className="h-1" />
+                      <p className="text-[11px] font-bold text-gold">
+                        Validation de votre dossier par Jane sous 24h.
                       </p>
                     </div>
                   </div>
