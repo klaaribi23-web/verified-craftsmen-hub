@@ -210,6 +210,17 @@ const DevenirArtisan = () => {
       <Navbar />
       
       <main className="pt-20 lg:pt-20">
+        {/* Bandeau noir défilant urgence */}
+        <div className="bg-navy-dark overflow-hidden py-2">
+          <motion.div
+            animate={{ x: ["100%", "-100%"] }}
+            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+            className="whitespace-nowrap text-sm font-semibold text-amber-400 tracking-wide"
+          >
+            ⚠️ Alerte : Secteurs Bordeaux, Lyon et Nice bientôt complets. 1 seule place restante. &nbsp;&nbsp;&nbsp; ⚠️ Alerte : Secteurs Bordeaux, Lyon et Nice bientôt complets. 1 seule place restante.
+          </motion.div>
+        </div>
+
         {/* Hero — fond clair, premium */}
         <section className="bg-gradient-to-b from-muted/50 to-white py-10 md:py-16 lg:py-24 relative overflow-hidden">
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
@@ -224,8 +235,7 @@ const DevenirArtisan = () => {
               </div>
 
               <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy leading-tight mb-4 md:mb-6">
-                Arrêtez de payer pour des leads{" "}
-                <span className="text-gradient-gold">partagés avec 10 concurrents.</span>
+                Rejoignez les <span className="text-gradient-gold">10% d'artisans</span> qui ne courent plus après les clients.
               </h1>
 
               <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -246,25 +256,25 @@ const DevenirArtisan = () => {
           </div>
         </section>
 
-        {/* 3 Piliers Premium */}
+        {/* 3 Piliers "Trident de Fer" */}
         <section className="py-10 md:py-16 bg-white">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {[
                 {
                   icon: Lock,
-                  title: "Exclusivité Totale",
-                  description: "2 artisans max par zone. On verrouille votre ville pour stopper la concurrence inutile.",
+                  title: "VOTRE SECTEUR VERROUILLÉ",
+                  description: "On refuse vos concurrents pour vous garantir le volume. Vous êtes le seul maître à bord.",
                 },
                 {
-                  icon: CheckCircle2,
-                  title: "Leads Haute Qualité",
-                  description: "Projets vérifiés par Andrea (Photos + Budget). Vous ne rappelez que des clients sérieux.",
+                  icon: Shield,
+                  title: "LEADS PRÉ-AUDITÉS",
+                  description: "Andrea valide le budget et les photos. Pas de faux numéros, pas de chantiers fantômes.",
                 },
                 {
                   icon: Star,
-                  title: "Zéro Commission",
-                  description: "Gardez 100% de votre chiffre d'affaires. Notre modèle est basé sur la transparence.",
+                  title: "0% DE COMMISSION",
+                  description: "Votre travail, votre argent. On ne prend rien sur vos devis. Un abonnement fixe, une rentabilité infinie.",
                 },
               ].map((card, i) => (
                 <motion.div
@@ -273,14 +283,14 @@ const DevenirArtisan = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-7 rounded-2xl bg-white border border-gold/30 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.12)] transition-all duration-300"
+                  className="p-7 rounded-2xl bg-white border-2 border-gold/60 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_-4px_rgba(234,179,8,0.15)] transition-all duration-300"
                 >
-                  <div className="flex items-start gap-5">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-gold flex items-center justify-center shrink-0 shadow-gold">
-                      <card.icon className="w-7 h-7 text-navy-dark" />
+                  <div className="flex flex-col items-center text-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-gradient-gold flex items-center justify-center shrink-0 shadow-gold">
+                      <card.icon className="w-8 h-8 text-navy-dark" />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-navy text-lg mb-1.5">{card.title}</h3>
+                      <h3 className="font-black text-navy text-base uppercase tracking-wide mb-2">{card.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
                     </div>
                   </div>
@@ -299,7 +309,7 @@ const DevenirArtisan = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.1)] border border-gold/15">
+                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_12px_48px_-8px_rgba(0,0,0,0.18)] border-2 border-gold/30">
                   <div className="text-center mb-5 md:mb-6">
                     <h2 className="text-lg md:text-xl font-bold text-navy mb-1 md:mb-2">
                       Demandez votre accréditation et réservez votre secteur
@@ -383,14 +393,26 @@ const DevenirArtisan = () => {
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
-                        {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
+                        {isLoading ? "Vérification..." : "REVENDIQUER MON EXCLUSIVITÉ"}
                       </Button>
+                      <div className="flex items-center justify-center gap-2 mt-3">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-xs font-medium text-gold">
+                          <BadgeCheck className="w-3.5 h-3.5" />
+                          Validation sous 24h par Khalid ou Andrea
+                        </div>
+                      </div>
                     </div>
 
-                    <p className="text-xs text-center text-muted-foreground pt-2 hidden md:flex items-center justify-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-gold" />
-                      Validation de votre profil sous 24h par Andrea.
-                    </p>
+                    <div className="hidden md:flex flex-col items-center gap-2 pt-3">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 text-gold" />
+                        Accès immédiat au catalogue de missions dès validation.
+                      </p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                        Paiement 100% sécurisé
+                      </p>
+                    </div>
                   </form>
 
                   {/* Mobile sticky submit */}
@@ -407,7 +429,7 @@ const DevenirArtisan = () => {
                       }}
                     >
                       {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Crown className="w-4 h-4 mr-2" />}
-                      {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ →"}
+                      {isLoading ? "Vérification..." : "REVENDIQUER MON EXCLUSIVITÉ →"}
                     </Button>
                   </div>
                 </div>
