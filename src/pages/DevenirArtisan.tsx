@@ -247,7 +247,7 @@ const DevenirArtisan = () => {
         </section>
 
         {/* 3 Piliers Premium */}
-        <section className="py-10 md:py-16 bg-gold/5">
+        <section className="py-10 md:py-16 bg-white">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {[
@@ -273,14 +273,14 @@ const DevenirArtisan = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-6 rounded-2xl bg-white border border-gold/20 shadow-lg hover:shadow-xl transition-shadow"
+                  className="p-7 rounded-2xl bg-white border border-gold/30 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.12)] transition-all duration-300"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center shrink-0 shadow-gold">
-                      <card.icon className="w-6 h-6 text-navy-dark" />
+                  <div className="flex items-start gap-5">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-gold flex items-center justify-center shrink-0 shadow-gold">
+                      <card.icon className="w-7 h-7 text-navy-dark" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-navy text-lg mb-1">{card.title}</h3>
+                      <h3 className="font-extrabold text-navy text-lg mb-1.5">{card.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
                     </div>
                   </div>
@@ -291,7 +291,7 @@ const DevenirArtisan = () => {
         </section>
 
         {/* Formulaire */}
-        <section className="py-12 md:py-20 bg-white">
+        <section className="py-12 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="max-w-lg mx-auto">
               <motion.div
@@ -299,7 +299,7 @@ const DevenirArtisan = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-xl border border-gold/15">
+                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.1)] border border-gold/15">
                   <div className="text-center mb-5 md:mb-6">
                     <h2 className="text-lg md:text-xl font-bold text-navy mb-1 md:mb-2">
                       Demandez votre accréditation au réseau Artisans Validés
@@ -307,8 +307,8 @@ const DevenirArtisan = () => {
                     <p className="text-xs md:text-sm text-muted-foreground mb-2">
                       Remplissez ce formulaire, on vous rappelle sous 2h
                     </p>
-                    <p className="text-xs text-gold font-medium italic">
-                      On ne cherche pas des dossiers parfaits, on cherche des artisans qui ont le goût du travail bien fait et qui respectent leurs clients.
+                    <p className="text-sm font-semibold text-amber-600 animate-pulse">
+                      🔥 Plus que 2 places disponibles sur votre secteur ce mois-ci.
                     </p>
                   </div>
 
@@ -378,18 +378,18 @@ const DevenirArtisan = () => {
                       <Button 
                         type="submit" 
                         variant="gold" 
-                        size="lg" 
-                        className="w-full !text-base md:!text-lg !py-6 !font-bold uppercase tracking-wide"
+                        size="xl" 
+                        className="w-full !text-lg !py-7 !font-black uppercase tracking-wider hover:brightness-110 hover:shadow-[0_0_24px_rgba(234,179,8,0.4)] transition-all duration-300"
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
-                        {isLoading ? "Vérification..." : "DEMANDER MON ACCRÉDITATION DORÉE"}
+                        {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
                       </Button>
                     </div>
 
-                    <p className="text-xs text-center text-muted-foreground pt-1 hidden md:block">
-                      On vous rappelle sous 2h pour valider votre dossier. <br />
-                      <strong>Pas de robot, pas de spam.</strong>
+                    <p className="text-xs text-center text-muted-foreground pt-2 hidden md:flex items-center justify-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-gold" />
+                      Validation de votre profil sous 24h par Andrea.
                     </p>
                   </form>
 
@@ -407,7 +407,7 @@ const DevenirArtisan = () => {
                       }}
                     >
                       {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Crown className="w-4 h-4 mr-2" />}
-                      {isLoading ? "Vérification..." : "ACCRÉDITATION DORÉE →"}
+                      {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ →"}
                     </Button>
                   </div>
                 </div>
