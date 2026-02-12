@@ -398,13 +398,12 @@ const DevenirArtisan = () => {
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
                          {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
                       </Button>
-                      <div className="mt-[30px] text-center">
-                        <p className="text-[14px] font-light text-white">
+                      <div className="mt-8 text-center">
+                        <p className="text-[14px] font-light text-muted-foreground">
                           99€/mois • Sans commission • Sans engagement
                         </p>
-                        <div className="h-[10px]" />
-                        <p className="text-[14px] font-bold text-gold">
-                          Validation de votre dossier par Jane sous 24h.
+                        <p className="text-[14px] font-bold text-gold mt-2">
+                          Validation finale par Jane sous 24h.
                         </p>
                       </div>
                     </div>
@@ -427,12 +426,11 @@ const DevenirArtisan = () => {
                       {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ"}
                     </Button>
                     <div className="mt-3 text-center">
-                      <p className="text-[11px] font-light text-white">
+                      <p className="text-[11px] font-light text-muted-foreground">
                         99€/mois • Sans commission • Sans engagement
                       </p>
-                      <div className="h-1" />
-                      <p className="text-[11px] font-bold text-gold">
-                        Validation de votre dossier par Jane sous 24h.
+                      <p className="text-[11px] font-bold text-gold mt-0.5">
+                        Validation finale par Jane sous 24h.
                       </p>
                     </div>
                   </div>
