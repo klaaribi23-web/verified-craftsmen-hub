@@ -25,8 +25,8 @@ const Index = () => {
   return (
     <div className="min-h-screen overflow-x-hidden">
       <SEOHead
-        title="Réseau Artisan sans commission — Rejoignez l'élite"
-        description="Artisans Validés : le premier réseau artisan sans commission en France. Exclusivité sectorielle, zéro lead revendu, 100% de votre marge protégée. Vérifiez votre disponibilité."
+        title="Artisans Validés | L'élite des artisans audités sur le terrain"
+        description="Ne confiez plus vos travaux au hasard. Accédez à un réseau d'artisans certifiés, audités et sans harcèlement commercial. Votre anonymat est garanti."
         canonical="https://artisansvalides.fr"
       />
       <OrganizationSchema />
