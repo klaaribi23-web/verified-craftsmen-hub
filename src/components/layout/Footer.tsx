@@ -57,17 +57,11 @@ const Footer = () => {
       href: "/confidentialite"
     }]
   };
-  const cityLinks = [
-    { label: "Lille", slug: "lille" },
-    { label: "Paris", slug: "paris" },
-    { label: "Lyon", slug: "lyon" },
-    { label: "Marseille", slug: "marseille" },
-    { label: "Toulouse", slug: "toulouse" },
-    { label: "Bordeaux", slug: "bordeaux" },
-    { label: "Nantes", slug: "nantes" },
-    { label: "Strasbourg", slug: "strasbourg" },
-    { label: "Rennes", slug: "rennes" },
-    { label: "Montpellier", slug: "montpellier" },
+  const cityPoles = [
+    { label: "Île-de-France", cities: [{ name: "Paris", slug: "paris" }, { name: "Boulogne", slug: "boulogne-billancourt" }, { name: "Versailles", slug: "versailles" }] },
+    { label: "Nord & Est", cities: [{ name: "Lille", slug: "lille" }, { name: "Strasbourg", slug: "strasbourg" }, { name: "Reims", slug: "reims" }] },
+    { label: "Sud & Rhône-Alpes", cities: [{ name: "Lyon", slug: "lyon" }, { name: "Marseille", slug: "marseille" }, { name: "Nice", slug: "nice" }, { name: "Toulouse", slug: "toulouse" }] },
+    { label: "Ouest", cities: [{ name: "Bordeaux", slug: "bordeaux" }, { name: "Nantes", slug: "nantes" }, { name: "Rennes", slug: "rennes" }] },
   ];
   const regionLinks = [
     "Hauts-de-France", "Île-de-France", "Auvergne-Rhône-Alpes",
@@ -77,7 +71,7 @@ const Footer = () => {
   return <footer className="bg-navy text-white">
       {/* Main Footer */}
       <div className="container mx-auto px-4 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-10">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-6">
@@ -153,22 +147,34 @@ const Footer = () => {
             </ul>
           </nav>
 
-          {/* Cities */}
-          <nav aria-label="Villes populaires">
+          {/* Cities by poles */}
+          <nav aria-label="Nos villes" className="lg:col-span-2">
             <h2 className="font-semibold text-white mb-4">Nos villes</h2>
-            <ul className="space-y-3">
-              {cityLinks.map(city => <li key={city.slug}>
-                  <Link to={`/artisans-ville/${city.slug}`} className="text-sm text-white/70 hover:text-gold transition-colors">
-                    {city.label}
-                  </Link>
-                </li>)}
-            </ul>
+            <div className="grid grid-cols-2 gap-4">
+              {cityPoles.map(pole => (
+                <div key={pole.label}>
+                  <p className="text-xs font-semibold text-gold mb-1.5">{pole.label}</p>
+                  <ul className="space-y-1.5">
+                    {pole.cities.map(city => (
+                      <li key={city.slug}>
+                        <Link to={`/artisans-ville/${city.slug}`} className="text-sm text-white/70 hover:text-gold transition-colors">
+                          {city.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </nav>
         </div>
 
         {/* Zones d'intervention SEO */}
         <div className="mt-12 pt-8 border-t border-white/10">
-          <h2 className="font-semibold text-white mb-4 text-center">Nos zones d'intervention</h2>
+          <div className="flex flex-col items-center gap-2 mb-4">
+            <h2 className="font-semibold text-white">Nos zones d'intervention</h2>
+            <p className="text-xs text-white/50">Plus de 500 artisans certifiés répartis sur le territoire.</p>
+          </div>
           <div className="flex flex-wrap justify-center gap-3">
             {regionLinks.map(region => (
               <Link key={region} to={`/trouver-artisan?region=${encodeURIComponent(region)}`} className="text-sm text-white/60 bg-white/5 px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-gold transition-colors">
@@ -176,6 +182,11 @@ const Footer = () => {
               </Link>
             ))}
           </div>
+        </div>
+
+        {/* Andrea mention */}
+        <div className="mt-6 text-center">
+          <p className="text-xs text-white/40">Expertise terrain : <span className="text-gold font-semibold">Andrea</span> — Notre experte IA qui valide chaque artisan sur le terrain.</p>
         </div>
         </div>
 
