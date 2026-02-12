@@ -77,7 +77,7 @@ const DEMO_MISSIONS = [
     urgency: "1 à 3 mois",
     created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     category: { id: "c1", name: "Rénovation Globale" },
-    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: ["https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800"], status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-2",
@@ -99,7 +99,7 @@ const DEMO_MISSIONS = [
     urgency: "Plus de 3 mois",
     created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     category: { id: "c3", name: "Construction neuve" },
-    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: ["https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800"], status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-4",
@@ -121,7 +121,7 @@ const DEMO_MISSIONS = [
     urgency: "1 à 3 mois",
     created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     category: { id: "c5", name: "Salle de bain clé en main" },
-    client_name: "Client vérifié", applicants_count: 4, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 4, has_applied: false, photos: ["https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800"], status: "published", client_id: "", fake_applicants_count: 0,
   },
   {
     id: "demo-6",
@@ -154,7 +154,7 @@ const DEMO_MISSIONS = [
     urgency: "1 à 3 mois",
     created_at: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
     category: { id: "c8", name: "Pose de cuisine" },
-    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: ["https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800"], status: "published", client_id: "", fake_applicants_count: 0,
   },
 ];
 
@@ -677,6 +677,19 @@ const NosMissions = () => {
 
                             {/* Spacer */}
                             <div className="flex-1" />
+
+                            {/* Photo / Validation badge */}
+                            <div className="mb-3">
+                              {(mission.photos && mission.photos.length > 0 && mission.photos.some((p: string) => p && p.length > 0)) ? (
+                                <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs font-medium gap-1">
+                                  📸 Photos du chantier incluses
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-muted text-muted-foreground border-border text-xs font-medium gap-1">
+                                  📞 Projet validé par nos experts
+                                </Badge>
+                              )}
+                            </div>
 
                             {/* Reassurance line */}
                             <p className="text-xs text-muted-foreground mb-3 italic">

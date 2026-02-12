@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Euro, Calendar, Users, Send, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Euro, Calendar, Send, ChevronLeft, ChevronRight, Camera, Phone } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
@@ -33,8 +33,9 @@ const MissionDetailModal = ({ mission, open, onClose, onApply, canApply }: Missi
 
   if (!mission) return null;
 
-  const photos = mission.photos || [];
+  const photos = mission.photos?.filter(p => p && p.length > 0) || [];
   const hasPhotos = photos.length > 0;
+  const applicants = mission.applicants_count || 0;
 
   const nextPhoto = () => {
     setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
@@ -112,15 +113,41 @@ const MissionDetailModal = ({ mission, open, onClose, onApply, canApply }: Missi
             </div>
           )}
 
+          {/* Availability Badge */}
+          <div>
+            {applicants === 0 ? (
+              <Badge className="bg-gold/10 text-gold-dark border-gold/30 text-sm font-semibold px-3 py-1">
+                Soyez le premier à postuler
+              </Badge>
+            ) : applicants >= 2 ? (
+              <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-sm font-semibold px-3 py-1">
+                Disponibilité : Dernière place
+              </Badge>
+            ) : (
+              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-sm font-semibold px-3 py-1">
+                Place disponible : 1/2
+              </Badge>
+            )}
+          </div>
+
+          {/* Photo / Validation Badge */}
+          <div>
+            {hasPhotos ? (
+              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-sm font-medium px-3 py-1 gap-1.5">
+                📸 Photos du chantier incluses
+              </Badge>
+            ) : (
+              <Badge className="bg-muted text-muted-foreground border-border text-sm font-medium px-3 py-1 gap-1.5">
+                📞 Projet validé par nos experts
+              </Badge>
+            )}
+          </div>
+
           {/* Mission Info */}
           <div className="flex flex-wrap gap-4">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="w-4 h-4 text-muted-foreground" />
               <span>Publiée le {formatDate(mission.created_at)}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <span>{mission.applicants_count || 0} postulant{(mission.applicants_count || 0) > 1 ? "s" : ""}</span>
             </div>
           </div>
 
@@ -128,7 +155,7 @@ const MissionDetailModal = ({ mission, open, onClose, onApply, canApply }: Missi
           <div className="space-y-2">
             <h4 className="font-semibold text-foreground">Description du projet</h4>
             <p className="text-muted-foreground whitespace-pre-wrap">
-              {mission.description || "Aucune description fournie."}
+              {mission.description?.split('--- Infos structurées ---')[0]?.trim() || "Aucune description fournie."}
             </p>
           </div>
         </div>
@@ -137,10 +164,15 @@ const MissionDetailModal = ({ mission, open, onClose, onApply, canApply }: Missi
           <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">
             Fermer
           </Button>
-          <Button onClick={onApply} disabled={!canApply} className="w-full sm:w-auto gap-2">
-            <Send className="w-4 h-4" />
-            Postuler à cette mission
-          </Button>
+          <div className="flex flex-col items-center gap-1 w-full sm:w-auto">
+            <p className="text-xs text-muted-foreground text-center">
+              En postulant, vous demandez l'ouverture d'un salon de discussion privé avec le client.
+            </p>
+            <Button onClick={onApply} disabled={!canApply} className="w-full gap-2">
+              <Send className="w-4 h-4" />
+              Postuler à cette mission
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
