@@ -299,6 +299,15 @@ const DevenirArtisan = () => {
       <Navbar />
 
       <main className="pt-20 lg:pt-20">
+        {/* Barre de réassurance */}
+        <div className="bg-navy py-2.5 border-b border-white/10">
+          <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/90 font-medium">
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Entreprise Française</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Support 7j/7</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Paiement Sécurisé Stripe</span>
+          </div>
+        </div>
+
         {/* Bandeau urgence */}
         <div className="bg-navy-dark overflow-hidden py-2 z-40">
           <motion.div
@@ -490,6 +499,15 @@ const DevenirArtisan = () => {
                   </div>
                 </div>
 
+                {/* WhatsApp help encart */}
+                <div className="mt-6 bg-[#dcf8c6] dark:bg-[#1a3a1a] border border-[#25d366]/30 rounded-xl p-4 flex items-start gap-3">
+                  <MessageCircle className="w-5 h-5 text-[#25d366] flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-foreground">
+                    <strong>Besoin d'aide pour configurer votre compte ?</strong> Contactez votre conseiller Artisans Validés sur{" "}
+                    <a href="https://wa.me/33612345678" target="_blank" rel="noopener noreferrer" className="text-[#25d366] font-bold underline hover:no-underline">WhatsApp</a>.
+                  </p>
+                </div>
+
                 {/* Social proof line */}
                 <motion.p
                   initial={{ opacity: 0 }}
@@ -576,6 +594,34 @@ const DevenirArtisan = () => {
                 </div>
               </motion.div>
             </div>
+
+            {/* Charte Artisans Validés */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="max-w-3xl mx-auto mt-16"
+            >
+              <div className="text-center mb-8">
+                <h3 className="text-2xl md:text-3xl font-bold text-navy">La Charte Artisans Validés</h3>
+                <p className="text-muted-foreground mt-2">Notre contrat de confiance, noir sur blanc.</p>
+              </div>
+              <div className="grid sm:grid-cols-3 gap-5">
+                {[
+                  { icon: Shield, title: "Pas de faux leads", desc: "Uniquement des missions vérifiées par notre équipe. Zéro faux numéro, zéro demande bidon." },
+                  { icon: Lock, title: "Liberté totale", desc: "Vous n'êtes pas enchaîné. Résiliez quand vous voulez, sans frais cachés ni préavis abusif." },
+                  { icon: CheckCircle2, title: "Éthique absolue", desc: "Nous ne vendons vos coordonnées à personne. Jamais. Vos données restent les vôtres." },
+                ].map((item, i) => (
+                  <div key={item.title} className="bg-muted/60 border border-border rounded-xl p-6 text-center">
+                    <div className="w-12 h-12 rounded-full bg-navy/10 flex items-center justify-center mx-auto mb-4">
+                      <item.icon className="w-6 h-6 text-navy" />
+                    </div>
+                    <h4 className="font-bold text-navy mb-2">{item.title}</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </section>
 
