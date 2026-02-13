@@ -126,7 +126,7 @@ const testimonials = [
 ];
 
 const SocialProofSection = () => (
-  <section className="py-16 bg-muted/40">
+  <section className="py-16 bg-muted/40 border-y-2 border-navy/20">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -134,10 +134,10 @@ const SocialProofSection = () => (
         viewport={{ once: true }}
         className="text-center mb-12"
       >
-        <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
+      <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
           Témoignages bruts
         </span>
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
           Ils ont activé leur licence. Voici ce qu'ils en disent.
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
@@ -334,7 +334,7 @@ const DevenirArtisan = () => {
                 Licence d'accès aux chantiers
               </div>
 
-              <h1 className="text-xl md:text-4xl lg:text-5xl font-bold text-navy leading-tight mb-4 md:mb-6">
+              <h1 className="text-xl md:text-4xl lg:text-5xl font-extrabold text-navy leading-tight mb-4 md:mb-6">
                 Accédez à un flux de <span className="text-gradient-gold">chantiers qualifiés</span> à 10 min de votre dépôt.
               </h1>
 
@@ -531,7 +531,7 @@ const DevenirArtisan = () => {
               <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
                 Votre licence d'accès
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
                 Le seul réseau qui ne prend aucune commission sur votre travail.
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
