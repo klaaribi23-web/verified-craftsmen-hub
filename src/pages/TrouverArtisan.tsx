@@ -144,6 +144,13 @@ const TrouverArtisan = () => {
   // Sort: audited first, then premium, then others
   const sortedArtisans = useMemo(() => {
     return [...filteredArtisans].sort((a, b) => {
+      // 0. Artisans with photos first (profile photo or portfolio)
+      const hasPhoto = (art: typeof a) =>
+        !!(art.photo_url || (art.portfolio_images && art.portfolio_images.length > 0));
+      const aPhoto = hasPhoto(a) ? 1 : 0;
+      const bPhoto = hasPhoto(b) ? 1 : 0;
+      if (bPhoto !== aPhoto) return bPhoto - aPhoto;
+
       // 1. Audited first
       const aAudited = a.is_audited ? 1 : 0;
       const bAudited = b.is_audited ? 1 : 0;
