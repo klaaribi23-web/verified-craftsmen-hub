@@ -750,10 +750,16 @@ const NosMissions = () => {
                               <Button 
                                 variant="gold"
                                 className="w-full gap-2 h-12 text-sm font-bold"
-                                onClick={() => navigate("/artisan/abonnement")}
+                                onClick={() => {
+                                  if (!isAuthenticated) {
+                                    navigate(`/landing-mission?titre=${encodeURIComponent(mission.title)}&ville=${encodeURIComponent(mission.city)}${mission.budget ? `&budget=${encodeURIComponent(mission.budget_range || mission.budget + '€')}` : ''}`);
+                                  } else {
+                                    navigate("/artisan/abonnement");
+                                  }
+                                }}
                               >
                                 <Lock className="w-4 h-4" />
-                                Accès réservé — Activer mon pack Pro
+                                {isAuthenticated ? "Activer ma licence Pro" : "Débloquer cette mission"}
                               </Button>
                             )}
                           </div>

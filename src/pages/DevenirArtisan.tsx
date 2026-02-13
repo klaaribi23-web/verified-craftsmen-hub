@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
@@ -11,58 +11,186 @@ import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-ph
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
-import { 
-  ArrowRight, 
-  Shield, 
-  CheckCircle2, 
-  TrendingUp, 
-  Users, 
-  BadgeCheck,
+import {
+  ArrowRight,
+  Shield,
+  CheckCircle2,
+  TrendingUp,
+  Users,
   Star,
   Zap,
   Clock,
   Loader2,
-  UserCheck,
   Lock,
   Crown,
   Check,
-  Phone
+  Phone,
+  MapPin,
+  MessageCircle,
+  Quote,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 
+// --- Dynamic Mission Header ---
+const DynamicMissionHeader = ({ missionType, missionCity }: { missionType?: string | null; missionCity?: string | null }) => {
+  const fromMission = missionType && missionCity;
 
-const benefits = [
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`mx-auto max-w-3xl rounded-xl border px-5 py-4 mb-8 ${
+        fromMission ? "bg-gold/10 border-gold/40" : "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700"
+      }`}
+    >
+      {fromMission ? (
+        <div className="flex items-center gap-3 flex-wrap">
+          <Zap className="w-5 h-5 text-gold flex-shrink-0" />
+          <p className="text-foreground text-sm md:text-base">
+            <span className="font-bold text-gold">Opportunité sélectionnée :</span>{" "}
+            {missionType} à {missionCity}.{" "}
+            <span className="text-muted-foreground">Statut : En attente de validation.</span>
+          </p>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative flex-shrink-0">
+            <TrendingUp className="w-5 h-5 text-emerald-600" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+          </div>
+          <p className="text-foreground text-sm md:text-base">
+            <span className="font-bold text-emerald-700 dark:text-emerald-400">Radar Missions :</span>{" "}
+            24 projets en attente dans le 59.{" "}
+            <span className="text-muted-foreground">Places limitées par ville.</span>
+          </p>
+        </div>
+      )}
+    </motion.div>
+  );
+};
+
+// --- Zone Banner ---
+const ZoneBanner = () => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.3 }}
+    className="max-w-3xl mx-auto mb-8"
+  >
+    <div className="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg px-5 py-3">
+      <MapPin className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+      <p className="text-sm text-foreground">
+        <strong className="text-emerald-700 dark:text-emerald-400">✅ Votre zone est ouverte</strong> — Des créneaux sont encore disponibles dans le Nord (59). Inscrivez-vous avant saturation.
+      </p>
+    </div>
+  </motion.div>
+);
+
+// --- WhatsApp Alert ---
+const WhatsAppAlert = () => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.5 }}
+    className="max-w-3xl mx-auto mb-10"
+  >
+    <div className="flex items-center gap-3 bg-[#dcf8c6] dark:bg-[#1a3a1a] border border-[#25d366]/30 rounded-lg px-5 py-3">
+      <MessageCircle className="w-5 h-5 text-[#25d366] flex-shrink-0" />
+      <p className="text-sm text-foreground">
+        <strong>📲 Alerte WhatsApp :</strong> Recevez les nouvelles missions en temps réel directement sur votre téléphone dès l'activation de votre licence.
+      </p>
+    </div>
+  </motion.div>
+);
+
+// --- Social Proof Testimonials ---
+const testimonials = [
   {
-    icon: Lock,
-    title: "2 places max par ville",
-    description: "On verrouille votre secteur. Pas 10 artisans, pas 5. Deux. Point.",
+    name: "Karim B.",
+    metier: "Installateur PAC",
+    city: "Lille",
+    text: "En 3 semaines j'ai signé 2 chantiers PAC à 12 000€. Avant je payais 40€ le lead sur les plateformes classiques pour des faux numéros. Ici c'est du concret.",
   },
   {
-    icon: BadgeCheck,
-    title: "Profil géré par nos soins",
-    description: "On s'occupe de tout : photos, textes, mise en avant. Vous, vous bossez.",
+    name: "David M.",
+    metier: "Électricien",
+    city: "Roubaix",
+    text: "Le fait d'être seulement 2 par ville, ça change tout. Les clients me rappellent parce qu'ils ont le choix entre moi et un autre, pas entre 15 artisans.",
   },
   {
-    icon: TrendingUp,
-    title: "Appels directs",
-    description: "Les clients vous appellent directement. Pas de plateforme entre vous et le chantier.",
-  },
-  {
-    icon: Shield,
-    title: "0% commission",
-    description: "Pas de commission sur vos devis, pas de frais cachés. Un abonnement fixe, c'est tout.",
-  },
-  {
-    icon: Zap,
-    title: "Zéro prospection",
-    description: "On fait le travail commercial pour vous. Concentrez-vous sur votre métier.",
-  },
-  {
-    icon: Clock,
-    title: "On vous rappelle sous 2h",
-    description: "Pas de robot, pas de spam. Un humain qui vérifie votre dossier.",
+    name: "Sophie L.",
+    metier: "Menuiserie PVC/Alu",
+    city: "Arras",
+    text: "J'ai arrêté ma pub Google à 800€/mois. Avec Artisans Validés, je reçois des demandes qualifiées de clients qui ont un vrai projet et un vrai budget.",
   },
 ];
+
+const SocialProofSection = () => (
+  <section className="py-16 bg-muted/40">
+    <div className="container mx-auto px-4 lg:px-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="text-center mb-12"
+      >
+        <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
+          Témoignages bruts
+        </span>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+          Ils ont activé leur licence. Voici ce qu'ils en disent.
+        </h2>
+        <p className="text-muted-foreground max-w-xl mx-auto">
+          Pas de mise en scène. Des artisans du Nord qui parlent de leur expérience.
+        </p>
+      </motion.div>
+
+      <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {testimonials.map((t, i) => (
+          <motion.div
+            key={t.name}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1 }}
+          >
+            <Card className="h-full border-border/60">
+              <CardContent className="p-6">
+                <Quote className="w-6 h-6 text-gold/40 mb-3" />
+                <p className="text-sm text-foreground leading-relaxed mb-4 italic">
+                  "{t.text}"
+                </p>
+                <div className="flex items-center gap-2 pt-3 border-t border-border">
+                  <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-xs font-bold text-gold">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.metier} — {t.city}</p>
+                  </div>
+                  <div className="ml-auto">
+                    <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Vérifié
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+// --- Schema ---
+const candidacySchema = z.object({
+  fullName: z.string().trim().min(2, "Nom complet requis (min 2 caractères)").max(100),
+  email: z.string().trim().email("Adresse email invalide").max(255),
+  phone: z.string().trim().refine(val => validateFrenchPhone(val), { message: "Numéro français invalide" }),
+  city: z.string().trim().min(2, "Ville requise").max(100),
+  metier: z.string().trim().min(2, "Métier requis").max(100),
+});
 
 const stats = [
   { value: "2 max", label: "Artisans par ville" },
@@ -71,27 +199,20 @@ const stats = [
   { value: "2h", label: "Délai de rappel" },
 ];
 
-// Validation schema
-const candidacySchema = z.object({
-  fullName: z.string().trim().min(2, "Nom complet requis (min 2 caractères)").max(100, "Nom trop long"),
-  email: z.string().trim().email("Adresse email invalide").max(255, "Email trop long"),
-  phone: z.string().trim().refine(
-    (val) => validateFrenchPhone(val),
-    { message: "Numéro français invalide (10 chiffres commençant par 0)" }
-  ),
-  city: z.string().trim().min(2, "Ville requise").max(100, "Ville trop longue"),
-  metier: z.string().trim().min(2, "Métier requis").max(100, "Métier trop long"),
-});
-
+// --- Main Page ---
 const DevenirArtisan = () => {
+  const [searchParams] = useSearchParams();
+  const missionType = searchParams.get("mission");
+  const missionCity = searchParams.get("ville");
+
   const [isLoading, setIsLoading] = useState(false);
   const [candidacySent, setCandidacySent] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    city: "",
-    metier: "",
+    city: missionCity || "",
+    metier: missionType || "",
   });
 
   const updateForm = (field: string, value: string) => {
@@ -103,25 +224,18 @@ const DevenirArtisan = () => {
     setIsLoading(true);
 
     try {
-      const validationResult = candidacySchema.safeParse(formData);
-      
-      if (!validationResult.success) {
-        const firstError = validationResult.error.errors[0];
-        toast({
-          title: "Erreur de validation",
-          description: firstError.message,
-          variant: "destructive",
-        });
+      const result = candidacySchema.safeParse(formData);
+      if (!result.success) {
+        toast({ title: "Erreur de validation", description: result.error.errors[0].message, variant: "destructive" });
         setIsLoading(false);
         return;
       }
 
-      // Save to partner_candidacies table (admin-exclusive dashboard)
       const { error: dbError } = await supabase
         .from("partner_candidacies")
         .insert({
           business_name: formData.fullName,
-          siret: "00000000000000", // Will be verified during callback
+          siret: "00000000000000",
           metier: formData.metier,
           city: formData.city,
           phone: formData.phone,
@@ -131,17 +245,9 @@ const DevenirArtisan = () => {
       if (dbError) throw dbError;
 
       setCandidacySent(true);
-      toast({
-        title: "Demande reçue !",
-        description: "Nous vérifions la disponibilité dans votre secteur. Un expert vous rappelle sous 2h.",
-      });
-    } catch (error: any) {
-      console.error("Candidacy error:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue. Veuillez réessayer.",
-        variant: "destructive",
-      });
+      toast({ title: "Demande reçue !", description: "Un expert vous rappelle sous 2h." });
+    } catch {
+      toast({ title: "Erreur", description: "Une erreur est survenue.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -151,47 +257,30 @@ const DevenirArtisan = () => {
   if (candidacySent) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead 
-          title="Demande reçue — Artisans Validés"
-          description="Votre demande d'accès au réseau Artisans Validés a bien été reçue."
-        />
+        <SEOHead title="Demande reçue — Artisans Validés" description="Votre demande d'accès au réseau a bien été reçue." />
         <Navbar />
         <main className="pt-32 lg:pt-20 pb-20">
           <div className="container mx-auto px-4 max-w-md">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-card rounded-2xl p-8 shadow-floating text-center"
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl p-8 shadow-floating text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Phone className="w-8 h-8 text-primary" />
               </div>
-              
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6 text-left">
-                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
-                   <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
-                   <p className="font-medium">Demande d'accès reçue !</p>
-                 </div>
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4 mb-6 text-left">
+                <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
+                  <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+                  <p className="font-medium">Demande d'accès reçue !</p>
+                </div>
               </div>
-              
-               <h1 className="text-2xl font-bold text-foreground mb-4">
-                 Demande d'accréditation reçue !
-               </h1>
-               <p className="text-muted-foreground mb-6">
-                 Merci ! Votre demande d'accréditation est en cours d'examen. <strong className="text-foreground">Jane</strong>, notre responsable conformité, ou <strong className="text-foreground">Andrea</strong> vous contacteront sous 24h pour valider votre secteur à <strong className="text-foreground">{formData.city}</strong>.
-               </p>
-               <div className="bg-muted rounded-lg p-4 mb-6 text-left">
-                 <p className="text-sm text-muted-foreground">
-                   <strong className="text-foreground">Pas de robot, pas de spam.</strong> C'est un humain qui étudie votre dossier et vérifie vos documents (SIRET, assurances, références).
-                 </p>
-               </div>
-              <Button
-                variant="gold"
-                onClick={() => window.location.href = "/"}
-                className="w-full"
-              >
-                Retour à l'accueil
-              </Button>
+              <h1 className="text-2xl font-bold text-foreground mb-4">Demande d'accréditation reçue !</h1>
+              <p className="text-muted-foreground mb-6">
+                Merci ! <strong className="text-foreground">Jane</strong> ou <strong className="text-foreground">Andrea</strong> vous contacteront sous 24h pour valider votre secteur à <strong className="text-foreground">{formData.city}</strong>.
+              </p>
+              <div className="bg-muted rounded-lg p-4 mb-6 text-left">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Pas de robot, pas de spam.</strong> C'est un humain qui étudie votre dossier et vérifie vos documents.
+                </p>
+              </div>
+              <Button variant="gold" onClick={() => window.location.href = "/"} className="w-full">Retour à l'accueil</Button>
             </motion.div>
           </div>
         </main>
@@ -202,15 +291,15 @@ const DevenirArtisan = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead 
-        title="Rejoindre l'Alliance — Artisans Validés"
-        description="Arrêtez de payer pour des leads partagés. On verrouille votre ville, on vérifie vos assurances, vous signez les chantiers."
+      <SEOHead
+        title="Licence d'accès aux chantiers — Artisans Validés"
+        description="Activez votre licence d'accès au flux de chantiers qualifiés. 99€/mois, 0% commission, marketing inclus."
         canonical="https://artisansvalides.fr/devenir-artisan"
       />
       <Navbar />
-      
+
       <main className="pt-20 lg:pt-20">
-        {/* Bandeau noir défilant urgence — below navbar */}
+        {/* Bandeau urgence */}
         <div className="bg-navy-dark overflow-hidden py-2 z-40">
           <motion.div
             animate={{ x: ["100%", "-100%"] }}
@@ -221,28 +310,33 @@ const DevenirArtisan = () => {
           </motion.div>
         </div>
 
-        {/* Hero — fond clair, premium */}
+        {/* Hero */}
         <section className="bg-gradient-to-b from-muted/50 to-white py-10 md:py-16 lg:py-24 relative overflow-hidden">
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center max-w-3xl mx-auto mb-10 md:mb-16"
-            >
+            {/* Dynamic Mission Header */}
+            <DynamicMissionHeader missionType={missionType} missionCity={missionCity} />
+
+            {/* Zone Banner */}
+            <ZoneBanner />
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto mb-10 md:mb-16">
               <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-gold text-navy-dark text-sm font-bold mb-5 shadow-gold">
                 <Crown className="w-4 h-4" />
-                Membre Élite
+                Licence d'accès aux chantiers
               </div>
 
               <h1 className="text-xl md:text-4xl lg:text-5xl font-bold text-navy leading-tight mb-4 md:mb-6">
-                Rejoignez les <span className="text-gradient-gold">10% d'artisans</span> qui ne courent plus après les clients.
+                Accédez à un flux de <span className="text-gradient-gold">chantiers qualifiés</span> à 10 min de votre dépôt.
               </h1>
 
               <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto">
-                On verrouille votre ville. On vérifie vos assurances. On lance votre pub.
-                Vous signez les chantiers. <strong className="text-foreground">Direct, sans intermédiaire.</strong>
+                Votre licence d'accès à des projets pré-qualifiés. Zéro démarchage. Zéro commission.
+                <strong className="text-foreground"> Votre abonnement finance nos campagnes pub pour vous apporter des clients.</strong>
               </p>
             </motion.div>
+
+            {/* WhatsApp Alert */}
+            <WhatsAppAlert />
 
             {/* Stats */}
             <div className="hidden md:grid grid-cols-4 gap-6 max-w-2xl mx-auto mb-12">
@@ -256,26 +350,14 @@ const DevenirArtisan = () => {
           </div>
         </section>
 
-        {/* 3 Piliers "Trident de Fer" */}
+        {/* 3 Piliers */}
         <section className="py-10 md:py-16 bg-[#F9FAFB]">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-[15px] md:gap-6 max-w-5xl mx-auto">
               {[
-                {
-                  icon: Lock,
-                  title: "VOTRE SECTEUR VERROUILLÉ",
-                  description: "On refuse vos concurrents pour vous garantir le volume. Vous êtes le seul maître à bord.",
-                },
-                {
-                  icon: Shield,
-                  title: "LEADS PRÉ-AUDITÉS",
-                  description: "Andrea valide le budget et les photos. Pas de faux numéros, pas de chantiers fantômes.",
-                },
-                {
-                  icon: Star,
-                  title: "0% DE COMMISSION",
-                  description: "Votre travail, votre argent. On ne prend rien sur vos devis. Un abonnement fixe, une rentabilité infinie.",
-                },
+                { icon: Lock, title: "99€/MOIS", description: "Votre licence d'accès au flux de chantiers qualifiés. Un prix fixe, une rentabilité infinie." },
+                { icon: Shield, title: "ZÉRO COMMISSION", description: "Vous gardez 100% de votre chiffre d'affaires. Pas de frais cachés, pas de surprise." },
+                { icon: Star, title: "MARKETING INCLUS", description: "Votre abonnement finance nos campagnes pub pour vous apporter des clients. Vous, vous bossez." },
               ].map((card, i) => (
                 <motion.div
                   key={card.title}
@@ -297,6 +379,23 @@ const DevenirArtisan = () => {
                 </motion.div>
               ))}
             </div>
+
+            {/* Exclusivity notice */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="max-w-3xl mx-auto text-center mt-8"
+            >
+              <div className="inline-flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-lg px-5 py-3">
+                <Shield className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-foreground text-left">
+                  <strong className="text-gold">Attention :</strong> Nous limitons strictement l'accès à{" "}
+                  <strong>2 artisans par métier et par ville</strong> pour garantir votre volume de travail.
+                </p>
+              </div>
+            </motion.div>
           </div>
         </section>
 
@@ -304,21 +403,17 @@ const DevenirArtisan = () => {
         <section className="py-12 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="max-w-lg mx-auto">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_12px_48px_-8px_rgba(0,0,0,0.18)] border-2 border-gold/30">
                   <div className="text-center mb-5 md:mb-6">
                     <h2 className="text-lg md:text-xl font-black text-navy mb-1 md:mb-2 uppercase tracking-wide">
-                      Accédez à votre exclusivité
+                      Activez votre licence d'accès
                     </h2>
                     <p className="text-xs md:text-sm text-muted-foreground mb-2">
                       Remplissez ce formulaire, on vous rappelle sous 2h
                     </p>
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-xs font-medium text-gold">
-                      99€ HT/mois · 0% commission
+                      99€ HT/mois · 0% commission · Marketing inclus
                     </div>
                     <p className="text-sm font-semibold text-amber-600 animate-pulse mt-2">
                       🔥 Plus que 2 places disponibles sur votre secteur ce mois-ci.
@@ -328,75 +423,38 @@ const DevenirArtisan = () => {
                   <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4 pb-16 md:pb-0">
                     <div>
                       <Label htmlFor="fullName" className="text-navy text-sm">Prénom / Nom *</Label>
-                      <Input
-                        id="fullName"
-                        placeholder="Jean Dupont"
-                        value={formData.fullName}
-                        onChange={(e) => updateForm("fullName", e.target.value)}
-                        className="mt-1 h-9 md:h-10"
-                        required
-                      />
+                      <Input id="fullName" placeholder="Jean Dupont" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} className="mt-1 h-9 md:h-10" required />
                     </div>
-
                     <div>
                       <Label htmlFor="email" className="text-navy text-sm">Adresse Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="contact@entreprise.fr"
-                        value={formData.email}
-                        onChange={(e) => updateForm("email", e.target.value)}
-                        className="mt-1 h-9 md:h-10"
-                        required
-                      />
+                      <Input id="email" type="email" placeholder="contact@entreprise.fr" value={formData.email} onChange={(e) => updateForm("email", e.target.value)} className="mt-1 h-9 md:h-10" required />
                     </div>
-
                     <div>
                       <Label htmlFor="phone" className="text-navy text-sm">Téléphone *</Label>
                       <div className="mt-1">
-                        <FrenchPhoneInput
-                          id="phone"
-                          value={formData.phone}
-                          onChange={(value) => updateForm("phone", value)}
-                        />
+                        <FrenchPhoneInput id="phone" value={formData.phone} onChange={(value) => updateForm("phone", value)} />
                       </div>
                     </div>
-
                     <div>
                       <Label htmlFor="city" className="text-navy text-sm">Ville *</Label>
-                      <Input
-                        id="city"
-                        placeholder="Ex: Lyon, Marseille, Bordeaux..."
-                        value={formData.city}
-                        onChange={(e) => updateForm("city", e.target.value)}
-                        className="mt-1 h-9 md:h-10"
-                        required
-                      />
+                      <Input id="city" placeholder="Ex: Lille, Roubaix, Arras..." value={formData.city} onChange={(e) => updateForm("city", e.target.value)} className="mt-1 h-9 md:h-10" required />
                     </div>
-
                     <div>
                       <Label htmlFor="metier" className="text-navy text-sm">Métier *</Label>
-                      <Input
-                        id="metier"
-                        placeholder="Ex: Plombier, Électricien, Maçon..."
-                        value={formData.metier}
-                        onChange={(e) => updateForm("metier", e.target.value)}
-                        className="mt-1 h-9 md:h-10"
-                        required
-                      />
+                      <Input id="metier" placeholder="Ex: Plombier, Électricien, PAC..." value={formData.metier} onChange={(e) => updateForm("metier", e.target.value)} className="mt-1 h-9 md:h-10" required />
                     </div>
 
                     {/* Desktop submit */}
                     <div className="hidden md:block">
-                      <Button 
-                        type="submit" 
-                        variant="gold" 
-                        size="xl" 
+                      <Button
+                        type="submit"
+                        variant="gold"
+                        size="xl"
                         className="w-full !text-lg !py-7 !font-black uppercase tracking-wider hover:brightness-110 hover:shadow-[0_0_24px_rgba(234,179,8,0.4)] transition-all duration-300"
                         disabled={isLoading}
                       >
-                        {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
-                         {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ MAINTENANT"}
+                        {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Lock className="w-5 h-5 mr-2" />}
+                        {isLoading ? "Vérification..." : "DÉBLOQUER MES CHANTIERS"}
                       </Button>
                       <div className="mt-8 text-center">
                         <p className="text-[14px] font-light text-muted-foreground">
@@ -411,27 +469,23 @@ const DevenirArtisan = () => {
 
                   {/* Mobile sticky submit */}
                   <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border px-5 py-3 shadow-lg">
-                    <Button 
+                    <Button
                       type="button"
-                      variant="gold" 
-                      size="xl" 
-                      className="w-full !text-base !py-6 !font-black uppercase tracking-wider hover:brightness-110 hover:shadow-[0_0_24px_rgba(234,179,8,0.4)] transition-all duration-300"
+                      variant="gold"
+                      size="xl"
+                      className="w-full !text-base !py-6 !font-black uppercase tracking-wider"
                       disabled={isLoading}
                       onClick={() => {
                         const form = document.querySelector('form');
                         if (form) form.requestSubmit();
                       }}
                     >
-                      {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Crown className="w-5 h-5 mr-2" />}
-                      {isLoading ? "Vérification..." : "RÉSERVER MON EXCLUSIVITÉ"}
+                      {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Lock className="w-5 h-5 mr-2" />}
+                      {isLoading ? "Vérification..." : "DÉBLOQUER MES CHANTIERS"}
                     </Button>
                     <div className="mt-3 text-center">
-                      <p className="text-[11px] font-light text-muted-foreground">
-                        99€/mois • Sans commission • Sans engagement
-                      </p>
-                      <p className="text-[11px] font-bold text-gold mt-0.5">
-                        Validation finale par Jane sous 24h.
-                      </p>
+                      <p className="text-[11px] font-light text-muted-foreground">99€/mois • Sans commission • Sans engagement</p>
+                      <p className="text-[11px] font-bold text-gold mt-0.5">Validation finale par Jane sous 24h.</p>
                     </div>
                   </div>
                 </div>
@@ -445,24 +499,19 @@ const DevenirArtisan = () => {
                   className="text-center text-sm text-muted-foreground mt-6 flex items-center justify-center gap-2"
                 >
                   <Users className="w-4 h-4 text-gold" />
-                  Rejoignez les <strong className="text-foreground">500+ artisans</strong> qui ont déjà choisi la qualité plutôt que la quantité.
+                  Rejoignez les <strong className="text-foreground">500+ artisans</strong> qui ont choisi la qualité plutôt que la quantité.
                 </motion.p>
               </motion.div>
             </div>
           </div>
         </section>
 
-        {/* Pricing — Devenir Partenaire Exclusif */}
+        {/* Pricing */}
         <section className="py-16 lg:py-24 bg-white">
           <div className="container mx-auto px-4 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
               <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-                Devenir Partenaire Exclusif
+                Votre licence d'accès
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                 Le seul réseau qui ne prend aucune commission sur votre travail.
@@ -474,86 +523,53 @@ const DevenirArtisan = () => {
 
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
               {/* Mensuel */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <Card className="flex flex-col h-full border-2 border-border hover:border-gold/50 transition-colors">
                   <CardHeader className="text-center pb-2 pt-8">
-                    <div className="flex justify-center mb-3">
-                      <div className="p-3 rounded-full bg-primary/10">
-                        <Crown className="w-8 h-8 text-primary" />
-                      </div>
-                    </div>
-                    <CardTitle className="text-xl">Mensuel</CardTitle>
+                    <div className="flex justify-center mb-3"><div className="p-3 rounded-full bg-primary/10"><Crown className="w-8 h-8 text-primary" /></div></div>
+                    <CardTitle className="text-xl">Licence Mensuelle</CardTitle>
                     <CardDescription>Sans engagement, résiliable à tout moment</CardDescription>
-                    <div className="mt-4">
-                      <span className="text-4xl font-bold text-foreground">99€</span>
-                      <span className="text-muted-foreground"> HT/mois</span>
-                    </div>
+                    <div className="mt-4"><span className="text-4xl font-bold text-foreground">99€</span><span className="text-muted-foreground"> HT/mois</span></div>
                   </CardHeader>
                   <CardContent className="flex-1">
                     <ul className="space-y-3">
-                      {["2 places max par ville", "Profil géré par nos soins", "Appels directs des clients", "0% commission sur vos devis", "Badge Artisan Validé"].map((f) => (
-                        <li key={f} className="flex items-center gap-3 text-sm">
-                          <Check className="w-4 h-4 flex-shrink-0 text-gold" />
-                          <span>{f}</span>
-                        </li>
+                      {["Accès au flux de chantiers qualifiés", "2 places max par ville", "0% commission sur vos devis", "Marketing & pub inclus", "Badge Artisan Validé"].map((f) => (
+                        <li key={f} className="flex items-center gap-3 text-sm"><Check className="w-4 h-4 flex-shrink-0 text-gold" /><span>{f}</span></li>
                       ))}
                     </ul>
                   </CardContent>
                   <CardFooter className="pt-4 mt-auto">
                     <Button variant="outline" size="lg" className="w-full" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                      Commencer
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                      Commencer <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </CardFooter>
                 </Card>
               </motion.div>
 
               {/* Annuel */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
                 <div className="relative">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-gold text-navy-dark px-4 py-1.5 rounded-full text-sm font-bold shadow-gold z-10 whitespace-nowrap">
                     👑 LE MEILLEUR DEAL
                   </div>
                   <Card className="flex flex-col h-full border-2 border-gold shadow-lg shadow-gold/10">
                     <CardHeader className="text-center pb-2 pt-8">
-                      <div className="flex justify-center mb-3">
-                        <div className="p-3 rounded-full bg-gold/20">
-                          <Crown className="w-8 h-8 text-gold" />
-                        </div>
-                      </div>
-                      <CardTitle className="text-xl">Boost Annuel</CardTitle>
+                      <div className="flex justify-center mb-3"><div className="p-3 rounded-full bg-gold/20"><Crown className="w-8 h-8 text-gold" /></div></div>
+                      <CardTitle className="text-xl">Licence Annuelle</CardTitle>
                       <CardDescription>Badge Audité Offert + 3 RDV Qualifiés Garantis</CardDescription>
-                      <div className="mt-4">
-                        <span className="text-4xl font-bold text-foreground">990€</span>
-                        <span className="text-muted-foreground"> HT/an</span>
-                      </div>
-                      <p className="text-sm font-medium text-emerald-600 mt-2">
-                        ✅ Économisez 198€ vs mensuel
-                      </p>
+                      <div className="mt-4"><span className="text-4xl font-bold text-foreground">990€</span><span className="text-muted-foreground"> HT/an</span></div>
+                      <p className="text-sm font-medium text-emerald-600 mt-2">✅ Économisez 198€ vs mensuel</p>
                     </CardHeader>
                     <CardContent className="flex-1">
                       <ul className="space-y-3">
                         {["Tout le plan Mensuel inclus", "Badge Audité offert", "3 RDV qualifiés garantis", "Référencement prioritaire", "Support dédié"].map((f) => (
-                          <li key={f} className="flex items-center gap-3 text-sm">
-                            <Check className="w-4 h-4 flex-shrink-0 text-gold" />
-                            <span className="font-medium">{f}</span>
-                          </li>
+                          <li key={f} className="flex items-center gap-3 text-sm"><Check className="w-4 h-4 flex-shrink-0 text-gold" /><span className="font-medium">{f}</span></li>
                         ))}
                       </ul>
                     </CardContent>
                     <CardFooter className="pt-4 mt-auto">
                       <Button variant="gold" size="lg" className="w-full !font-bold" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        JE VEUX ÊTRE VALIDÉ
-                        <ArrowRight className="w-5 h-5 ml-2" />
+                        JE VEUX ÊTRE VALIDÉ <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </CardFooter>
                   </Card>
@@ -563,80 +579,24 @@ const DevenirArtisan = () => {
           </div>
         </section>
 
-        {/* Benefits */}
-        <section className="py-16 lg:py-24 bg-muted">
-          <div className="container mx-auto px-4 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-16"
-            >
-              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-                Pourquoi nous ?
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
-                On fait le boulot commercial.<br />Vous faites le boulot terrain.
-              </h2>
-            </motion.div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {benefits.map((benefit, index) => (
-                <motion.div
-                  key={benefit.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-2xl p-8"
-                >
-                  <div className="w-14 h-14 rounded-xl bg-gradient-gold flex items-center justify-center mb-6 shadow-gold">
-                    <benefit.icon className="w-7 h-7 text-navy-dark" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-navy mb-3">
-                    {benefit.title}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {benefit.description}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Social Proof Testimonials */}
+        <SocialProofSection />
 
         {/* How it works */}
         <section className="py-16 lg:py-24 bg-white">
           <div className="container mx-auto px-4 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
-                Comment ça marche ?
-              </h2>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">Comment ça marche ?</h2>
             </motion.div>
-
             <div className="grid md:grid-cols-4 gap-8">
               {[
-                { step: "01", title: "Demander mon accès", desc: "Remplissez le formulaire en 30 secondes" },
-                { step: "02", title: "Rappel sous 2h", desc: "On vous appelle pour vérifier votre secteur" },
-                { step: "03", title: "Vérification", desc: "Audit humain (pas de validation automatique). On contrôle assurances décennales, références chantiers et avis clients." },
-                { step: "04", title: "C'est parti", desc: "Votre profil est live, les clients vous appellent" },
+                { step: "01", title: "Demander ma licence", desc: "Remplissez le formulaire en 30 secondes" },
+                { step: "02", title: "Rappel sous 2h", desc: "On vérifie votre secteur et vos assurances" },
+                { step: "03", title: "Vérification humaine", desc: "Audit par Jane : assurances décennales, références, avis." },
+                { step: "04", title: "C'est parti", desc: "Votre licence est activée, les clients vous contactent" },
               ].map((item, index) => (
-                <motion.div
-                  key={item.step}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="text-center"
-                >
-                  <div className="w-16 h-16 rounded-full bg-gradient-gold flex items-center justify-center mx-auto mb-4 text-navy-dark font-bold text-xl shadow-gold">
-                    {item.step}
-                  </div>
+                <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-gold flex items-center justify-center mx-auto mb-4 text-navy-dark font-bold text-xl shadow-gold">{item.step}</div>
                   <h3 className="font-semibold text-navy mb-2">{item.title}</h3>
                   <p className="text-sm text-muted-foreground">{item.desc}</p>
                 </motion.div>
@@ -653,15 +613,10 @@ const DevenirArtisan = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gold rounded-full blur-3xl" />
               </div>
               <div className="relative z-10">
-                <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                  Votre ville est peut-être encore disponible.
-                </h2>
-                <p className="text-white/70 mb-8 max-w-xl mx-auto">
-                  2 places max par secteur. Quand c'est pris, c'est pris.
-                </p>
+                <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Votre ville est peut-être encore disponible.</h2>
+                <p className="text-white/70 mb-8 max-w-xl mx-auto">2 licences max par secteur. Quand c'est pris, c'est pris.</p>
                 <Button variant="gold" size="xl" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                  JE RÉSERVE MON SECTEUR
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  ACTIVER MA LICENCE <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
             </div>

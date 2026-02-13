@@ -15,6 +15,7 @@ import CityArtisansPage from "./pages/CityArtisansPage";
 import NosMissions from "./pages/NosMissions";
 import DemandeDevis from "./pages/DemandeDevis";
 import DevenirArtisan from "./pages/DevenirArtisan";
+import LandingMission from "./pages/LandingMission";
 // DevenirPartenaire merged into DevenirArtisan
 import AdminExclusive from "./pages/admin/AdminExclusive";
 import CommentCaMarche from "./pages/CommentCaMarche";
@@ -118,6 +119,7 @@ const App = () => (
           <Route path="/cgv" element={<CGV />} />
           <Route path="/confidentialite" element={<Confidentialite />} />
           <Route path="/admin-exclusive" element={<AdminExclusive />} />
+          <Route path="/landing-mission" element={<LandingMission />} />
           <Route path="/marketing-lab" element={<MarketingLab />} />
           <Route path="/artisans-ville/:citySlug" element={<CityArtisansPage />} />
           
