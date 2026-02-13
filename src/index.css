@@ -38,10 +38,10 @@
     --gold-light: 45 93% 58%;
     --gold-dark: 45 85% 40%;
     
-    /* Navy Blue variants */
-    --navy: 222 47% 15%;
-    --navy-light: 222 47% 25%;
-    --navy-dark: 222 55% 10%;
+    /* Navy Blue variants — Bleu Marine Profond #1A2B48 */
+    --navy: 217 47% 19%;
+    --navy-light: 217 40% 28%;
+    --navy-dark: 217 55% 12%;
     
     /* Success/Verified */
     --success: 142 71% 45%;

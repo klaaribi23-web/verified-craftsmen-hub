@@ -62,7 +62,7 @@ const AnimatedStar = ({
   </motion.div>;
 
 const TestimonialsSection = () => {
-  return <section className="py-20 lg:py-32 bg-white relative overflow-hidden">
+  return <section className="py-20 lg:py-32 bg-white relative overflow-hidden border-y-2 border-navy/20">
       <div className="absolute top-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
       
@@ -73,7 +73,7 @@ const TestimonialsSection = () => {
             L'humain au centre
           </motion.span>
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy mb-4">
-            Ils nous font confiance
+            Le Livre d'Or de l'Alliance
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Particuliers et artisans témoignent de leur expérience avec Artisans Validés.
