@@ -1,8 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, Quote, CheckCircle2 } from "lucide-react";
-import solarInstall from "@/assets/testimonials/solar-install.jpg";
-import electricalPanel from "@/assets/testimonials/electrical-panel.jpg";
-import bathroomReno from "@/assets/testimonials/bathroom-reno.jpg";
+import { Star, Quote, CheckCircle2, ShieldCheck } from "lucide-react";
 
 const testimonials = [{
   name: "Stéphanie L.",
@@ -10,16 +7,14 @@ const testimonials = [{
   rating: 5,
   text: "Enfin un plombier qui arrive à l'heure et qui ne change pas le devis à la fin. La certification Artisans Validés m'a rassurée.",
   artisan: "Plomberie",
-  image: bathroomReno,
   verified: true,
   type: "Particulier"
 }, {
   name: "Marc D.",
-  location: "Électricien",
+  location: "Lille",
   rating: 5,
   text: "J'en avais marre de payer des leads qui n'aboutissent pas. Ici, je ne parle qu'à des clients sérieux qui connaissent la valeur de mon travail.",
-  artisan: "Électricité",
-  image: electricalPanel,
+  artisan: "Électricien",
   verified: true,
   type: "Artisan"
 }, {
@@ -28,7 +23,6 @@ const testimonials = [{
   rating: 5,
   text: "Installation solaire impeccable. On sent que l'artisan a été audité avant d'être référencé.",
   artisan: "Panneaux solaires",
-  image: solarInstall,
   verified: true,
   type: "Particulier"
 }];
@@ -87,49 +81,50 @@ const TestimonialsSection = () => {
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => <motion.article key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15, duration: 0.5 }} whileHover={{ y: -8, transition: { duration: 0.3 } }} className="relative group">
-              <div className="bg-muted rounded-2xl overflow-hidden h-full border border-border/50 hover:border-gold/30 hover:shadow-lg transition-all duration-300">
-                {/* Photo de réalisation */}
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={testimonial.image} 
-                    alt={`Réalisation ${testimonial.artisan}`} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                  />
-                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-navy/80 backdrop-blur-sm text-white text-xs font-medium">
-                    {testimonial.type}
+          {testimonials.map((testimonial, index) => <motion.article key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15, duration: 0.5 }} whileHover={{ y: -4, transition: { duration: 0.3 } }} className="relative group">
+              <div className="bg-background rounded-2xl overflow-hidden h-full border border-gold/20 hover:border-gold/50 hover:shadow-xl transition-all duration-300">
+                <div className="p-8">
+                  {/* Badge Sceau AV */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-gold/70 flex items-center justify-center shadow-lg border-2 border-gold/30">
+                      <div className="text-center">
+                        <span className="block text-navy-dark font-black text-sm leading-none">AV</span>
+                        <span className="block text-navy-dark/70 text-[7px] font-semibold tracking-wider uppercase leading-tight mt-0.5">Certifié</span>
+                      </div>
+                    </div>
+                    <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                      {testimonial.type}
+                    </span>
                   </div>
-                </div>
 
-                <div className="p-6">
-                  <Quote className="w-8 h-8 text-gold/30 mb-3" />
+                  <Quote className="w-7 h-7 text-gold/25 mb-4" />
 
-                  <div className="flex items-center gap-1 mb-3">
+                  <div className="flex items-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => <AnimatedStar key={i} index={i + index * 5} filled={i < testimonial.rating} />)}
                   </div>
 
-                  <p className="text-navy mb-5 leading-relaxed text-base">
+                  <p className="text-foreground mb-6 leading-relaxed text-lg font-medium">
                     "{testimonial.text}"
                   </p>
 
-                  <div className="flex items-center gap-3 pt-4 border-t border-border/50">
-                    <div className="w-10 h-10 rounded-full bg-gradient-gold flex items-center justify-center text-navy-dark font-bold text-sm">
-                      {testimonial.name.charAt(0)}
-                    </div>
+                  <div className="pt-5 border-t border-border/50 space-y-3">
                     <div>
-                      <h3 className="font-semibold text-navy flex items-center gap-1.5">
+                      <h3 className="font-bold text-foreground text-base">
                         {testimonial.name}
-                        {testimonial.verified && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {testimonial.location} · {testimonial.artisan}
+                        {testimonial.artisan} à {testimonial.location}
                       </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-emerald-600">
+                      <ShieldCheck className="w-4 h-4" />
+                      <span className="text-xs font-semibold">Identité et chantier vérifiés</span>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-gold/20 to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" aria-hidden="true" />
+              <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-gold/15 to-primary/10 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" aria-hidden="true" />
             </motion.article>)}
         </div>
 
