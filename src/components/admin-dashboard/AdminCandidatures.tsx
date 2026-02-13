@@ -125,31 +125,31 @@ export const AdminCandidatures = () => {
         {candidacies.map((candidacy) => (
           <Card key={candidacy.id} className="border-l-4 border-l-gold hover:shadow-md transition-shadow">
             <CardContent className="p-4 md:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col gap-3">
                 <div className="space-y-2 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-bold text-base md:text-lg">{candidacy.business_name}</h3>
+                    <h3 className="font-bold text-sm sm:text-base md:text-lg">{candidacy.business_name}</h3>
                     <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
                       <Clock className="h-3 w-3 mr-1" />
                       En attente
                     </Badge>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-1 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <Briefcase className="h-3.5 w-3.5" />
+                      <Briefcase className="h-3.5 w-3.5 shrink-0" />
                       {candidacy.metier}
                     </span>
                     <span className="flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5" />
+                      <MapPin className="h-3.5 w-3.5 shrink-0" />
                       {candidacy.city}
                     </span>
                     {candidacy.email && (
-                      <span className="flex items-center gap-1 text-primary font-medium">
+                      <span className="flex items-center gap-1 text-primary font-medium truncate max-w-[200px] sm:max-w-none">
                         ✉ {candidacy.email}
                       </span>
                     )}
                     <span className="flex items-center gap-1">
-                      <Phone className="h-3.5 w-3.5" />
+                      <Phone className="h-3.5 w-3.5 shrink-0" />
                       {candidacy.phone}
                     </span>
                   </div>
@@ -158,36 +158,38 @@ export const AdminCandidatures = () => {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="grid grid-cols-3 gap-2 w-full sm:w-auto sm:flex sm:items-center">
                   <Button
                     size="sm"
                     variant="outline"
+                    className="w-full sm:w-auto"
                     onClick={() => {
                       setSelectedCandidacy(candidacy);
                       setAdminNotes(candidacy.admin_notes || "");
                     }}
                   >
-                    <Eye className="h-4 w-4 mr-1" />
-                    Détails
+                    <Eye className="h-4 w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Détails</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="default"
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
                     onClick={() => handleAccept(candidacy)}
                     disabled={updateStatus.isPending}
                   >
-                    <CheckCircle2 className="h-4 w-4 mr-1" />
-                    Accepter
+                    <CheckCircle2 className="h-4 w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Accepter</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="destructive"
+                    className="w-full sm:w-auto"
                     onClick={() => handleReject(candidacy)}
                     disabled={updateStatus.isPending}
                   >
-                    <XCircle className="h-4 w-4 mr-1" />
-                    Refuser
+                    <XCircle className="h-4 w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Refuser</span>
                   </Button>
                 </div>
               </div>
