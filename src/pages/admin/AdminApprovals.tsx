@@ -266,6 +266,8 @@ const AdminApprovals = () => {
         queryClient.invalidateQueries({ queryKey: ["claimed-artisans-count"] });
         queryClient.invalidateQueries({ queryKey: ["self-signup-artisans"] });
         queryClient.invalidateQueries({ queryKey: ["self-signup-artisans-count"] });
+        queryClient.invalidateQueries({ queryKey: ["pending-publication-artisans"] });
+        queryClient.invalidateQueries({ queryKey: ["pending-publication-count"] });
       })
       .on('postgres_changes', {
         event: '*',
@@ -462,6 +464,60 @@ const AdminApprovals = () => {
     return `https://wa.me/${intlPhone}?text=${encodeURIComponent(message)}`;
   };
 
+  // Fetch count of artisans pending publication (imported, set to pending for review)
+  const { data: totalPendingPublication = 0 } = useQuery({
+    queryKey: ["pending-publication-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("artisans")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending")
+        .eq("source", "import")
+        .is("user_id", null);
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  // Fetch artisans pending publication
+  const { data: pendingPublicationArtisans = [], isLoading: isLoadingPendingPublication } = useQuery({
+    queryKey: ["pending-publication-artisans"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("artisans")
+        .select(`
+          id, business_name, city, email, phone, description, photo_url, 
+          portfolio_images, created_at, slug, source,
+          category:categories(name)
+        `)
+        .eq("status", "pending")
+        .eq("source", "import")
+        .is("user_id", null)
+        .order("business_name", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Mutation to publish an artisan (set status to active)
+  const publishArtisanMutation = useMutation({
+    mutationFn: async (artisanId: string) => {
+      const { error } = await supabase
+        .from("artisans")
+        .update({ status: "active" })
+        .eq("id", artisanId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Vitrine publiée avec succès !");
+      queryClient.invalidateQueries({ queryKey: ["pending-publication-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-publication-count"] });
+      queryClient.invalidateQueries({ queryKey: ["public-artisans"] });
+    },
+    onError: () => {
+      toast.error("Erreur lors de la publication");
+    },
+  });
 
 
 
@@ -1704,6 +1760,11 @@ const AdminApprovals = () => {
                       <span className="hidden sm:inline">Vitrines</span> confirmées
                       <Badge variant="secondary" className="ml-1 text-xs">{totalClaimed}</Badge>
                     </TabsTrigger>
+                    <TabsTrigger value="a-publier" className="gap-1.5 data-[state=active]:bg-gold data-[state=active]:text-navy-dark">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span className="hidden sm:inline">À</span> publier
+                      {totalPendingPublication > 0 && <Badge variant="destructive" className="ml-1 text-xs">{totalPendingPublication}</Badge>}
+                    </TabsTrigger>
                   </TabsList>
 
                 {/* VITRINES ACTIVES SUB-TAB */}
@@ -2297,6 +2358,92 @@ const AdminApprovals = () => {
                           </Button>}
                       </CardContent>
                     </Card>}
+                </TabsContent>
+
+                {/* VITRINES À PUBLIER SUB-TAB */}
+                <TabsContent value="a-publier">
+                  {isLoadingPendingPublication ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    </div>
+                  ) : pendingPublicationArtisans.length > 0 ? (
+                    <>
+                      <div className="mb-4 text-sm text-muted-foreground">
+                        {pendingPublicationArtisans.length} vitrine{pendingPublicationArtisans.length > 1 ? "s" : ""} en attente de publication
+                      </div>
+                      <div className="grid gap-3">
+                        {pendingPublicationArtisans.map(artisan => (
+                          <Card key={artisan.id} className="hover:shadow-lg transition-shadow">
+                            <CardContent className="p-3 md:p-5">
+                              <div className="flex flex-col sm:flex-row items-start gap-3 md:gap-4">
+                                <Avatar className="h-12 w-12 ring-2 ring-muted shrink-0">
+                                  <AvatarImage src={artisan.photo_url || DEFAULT_AVATAR} />
+                                  <AvatarFallback className="bg-primary text-primary-foreground">
+                                    {artisan.business_name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-bold text-sm md:text-base truncate">{artisan.business_name}</h3>
+                                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                                    <MapPin className="h-3 w-3 shrink-0" />
+                                    <span>{artisan.city}</span>
+                                    {artisan.category && (
+                                      <Badge variant="secondary" className="text-xs px-1.5 py-0">{artisan.category.name}</Badge>
+                                    )}
+                                  </div>
+                                  {artisan.description && (
+                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{artisan.description}</p>
+                                  )}
+                                </div>
+                                <div className="flex gap-2 shrink-0 w-full sm:w-auto">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setEditArtisan(artisan as any);
+                                      setEditDialogOpen(true);
+                                    }}
+                                  >
+                                    <Pencil className="h-4 w-4 sm:mr-1" />
+                                    <span className="hidden sm:inline">Modifier</span>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    className="bg-gold hover:bg-gold/90 text-navy-dark font-bold"
+                                    onClick={() => publishArtisanMutation.mutate(artisan.id)}
+                                    disabled={publishArtisanMutation.isPending}
+                                  >
+                                    {publishArtisanMutation.isPending ? (
+                                      <Loader2 className="h-4 w-4 animate-spin sm:mr-1" />
+                                    ) : (
+                                      <CheckCircle2 className="h-4 w-4 sm:mr-1" />
+                                    )}
+                                    <span className="hidden sm:inline">Publier</span>
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => navigate(`/artisan/${artisan.slug || artisan.id}`)}
+                                  >
+                                    <Eye className="h-4 w-4 sm:mr-1" />
+                                    <span className="hidden sm:inline">Voir</span>
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <Card>
+                      <CardContent className="p-8 text-center">
+                        <CheckCircle2 className="h-10 w-10 text-emerald-500 mx-auto mb-3" />
+                        <p className="font-medium">Toutes les vitrines sont publiées</p>
+                        <p className="text-sm text-muted-foreground mt-1">Aucune vitrine en attente de publication.</p>
+                      </CardContent>
+                    </Card>
+                  )}
                 </TabsContent>
               </Tabs>
               </div>

@@ -226,6 +226,9 @@ const TrouverArtisan = () => {
             delay: 0.1
           }} className="max-w-4xl mx-auto">
               <ArtisanFilters onFiltersChange={handleFiltersChange} />
+              <p className="text-xs text-muted-foreground text-center mt-3 italic">
+                🔍 Vérification de 12 nouveaux dossiers d'artisans en cours
+              </p>
             </motion.div>
           </div>
         </section>
