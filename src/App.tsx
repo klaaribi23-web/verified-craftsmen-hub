@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { QuoteNotificationListener } from "@/components/notifications/QuoteNotificationListener";
 import GlobalMobileNavbar from "@/components/layout/GlobalMobileNavbar";
+import PublicMobileBottomNav from "@/components/layout/PublicMobileBottomNav";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { DemoContactProvider } from "@/contexts/DemoContactContext";
 import ScrollToTop from "@/components/layout/ScrollToTop";
@@ -313,6 +314,9 @@ const App = () => (
         
         {/* Global Mobile Navbar for authenticated clients & artisans */}
         <GlobalMobileNavbar />
+        
+        {/* Public bottom nav for non-authenticated visitors */}
+        <PublicMobileBottomNav />
         
         {/* Andrea Expert Global Widget — Voice + Text */}
         <AndreaGlobalWidget />
