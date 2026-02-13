@@ -53,7 +53,7 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
         });
 
         if (error) {
-          console.error("Expert FAQ error:", error);
+          // Silently handle 402 (insufficient credits) and other non-critical errors
           return;
         }
 
