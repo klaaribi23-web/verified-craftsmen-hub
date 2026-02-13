@@ -400,7 +400,7 @@ const DevenirArtisan = () => {
         </section>
 
         {/* Formulaire */}
-        <section className="py-12 md:py-20 bg-muted/40">
+        <section id="formulaire-licence" className="py-12 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="max-w-lg mx-auto">
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
@@ -539,8 +539,8 @@ const DevenirArtisan = () => {
                     </ul>
                   </CardContent>
                   <CardFooter className="pt-4 mt-auto">
-                    <Button variant="outline" size="lg" className="w-full" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                      Commencer <ArrowRight className="w-4 h-4 ml-2" />
+                    <Button variant="outline" size="lg" className="w-full" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
+                      <Lock className="w-4 h-4 mr-2" /> Activer ma licence
                     </Button>
                   </CardFooter>
                 </Card>
@@ -568,8 +568,8 @@ const DevenirArtisan = () => {
                       </ul>
                     </CardContent>
                     <CardFooter className="pt-4 mt-auto">
-                      <Button variant="gold" size="lg" className="w-full !font-bold" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        JE VEUX ÊTRE VALIDÉ <ArrowRight className="w-5 h-5 ml-2" />
+                      <Button variant="gold" size="lg" className="w-full !font-bold" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
+                        <Lock className="w-5 h-5 mr-2" /> ACTIVER MA LICENCE <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </CardFooter>
                   </Card>
@@ -615,8 +615,8 @@ const DevenirArtisan = () => {
               <div className="relative z-10">
                 <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Votre ville est peut-être encore disponible.</h2>
                 <p className="text-white/70 mb-8 max-w-xl mx-auto">2 licences max par secteur. Quand c'est pris, c'est pris.</p>
-                <Button variant="gold" size="xl" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                  ACTIVER MA LICENCE <ArrowRight className="w-5 h-5 ml-2" />
+                <Button variant="gold" size="xl" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
+                  <Lock className="w-5 h-5 mr-2" /> ACTIVER MA LICENCE <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
             </div>
