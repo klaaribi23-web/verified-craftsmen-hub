@@ -16,6 +16,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 import {
   Pagination,
   PaginationContent,
@@ -41,6 +42,7 @@ import {
   ArrowRight,
   Briefcase,
   BadgeCheck,
+  Lock,
 } from "lucide-react";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { cn } from "@/lib/utils";
@@ -72,56 +74,56 @@ const DEMO_MISSIONS = [
     id: "demo-1",
     title: "Rénovation énergétique appartement 65m²",
     description: "Rénovation d'un appartement de 65m² : isolation des murs par l'intérieur, remplacement des fenêtres double vitrage et installation d'une VMC double flux. DPE actuel : F, objectif : C.",
-    city: "Lyon (69)",
+    city: "Lille (59)",
     budget: null, budget_range: "15 000€ – 50 000€",
     urgency: "1 à 3 mois",
     created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     category: { id: "c1", name: "Rénovation Globale" },
-    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: ["https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800"], status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: true,
   },
   {
     id: "demo-2",
     title: "Peinture complète maison 120m²",
     description: "Peinture intérieure complète d'une maison de 120m² sur 2 niveaux. Lessivage, enduit de rebouchage, 2 couches acrylique mate. Plafonds et boiseries inclus.",
-    city: "Paris (75)",
+    city: "Tourcoing (59)",
     budget: null, budget_range: "5 000€ – 15 000€",
     urgency: "1 à 3 mois",
     created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     category: { id: "c2", name: "Ravalement" },
-    client_name: "Client vérifié", applicants_count: 5, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 5, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
   },
   {
     id: "demo-3",
     title: "Extension bois 25m² avec toit plat",
     description: "Construction d'une extension ossature bois de 25m² attenante à une maison existante. Toit plat végétalisé, baie vitrée 4m, isolation biosourcée. Permis de construire obtenu.",
-    city: "Bordeaux (33)",
+    city: "Roubaix (59)",
     budget: null, budget_range: "Plus de 50 000€",
     urgency: "Plus de 3 mois",
     created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     category: { id: "c3", name: "Construction neuve" },
-    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: ["https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800"], status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
   },
   {
     id: "demo-4",
     title: "Installation PAC air-eau + plancher chauffant",
     description: "Remplacement chaudière fioul par PAC air-eau 12kW. Pose plancher chauffant basse température au RDC (80m²). Artisan RGE obligatoire pour dossier MaPrimeRénov'.",
-    city: "Marseille (13)",
+    city: "Villeneuve-d'Ascq (59)",
     budget: null, budget_range: "15 000€ – 50 000€",
     urgency: "Immédiatement",
     created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     category: { id: "c4", name: "PAC" },
-    client_name: "Client vérifié", applicants_count: 0, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 0, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: true,
   },
   {
     id: "demo-5",
     title: "Rénovation salle de bain complète 8m²",
     description: "Démolition existant, plomberie neuve, douche italienne avec receveur extra-plat, faïence grand format, meuble double vasque. Normes électriques NF C 15-100.",
-    city: "Nantes (44)",
+    city: "Marcq-en-Barœul (59)",
     budget: null, budget_range: "5 000€ – 15 000€",
     urgency: "1 à 3 mois",
     created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     category: { id: "c5", name: "Salle de bain clé en main" },
-    client_name: "Client vérifié", applicants_count: 4, has_applied: false, photos: ["https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800"], status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 4, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
   },
   {
     id: "demo-6",
@@ -132,29 +134,161 @@ const DEMO_MISSIONS = [
     urgency: "Immédiatement",
     created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
     category: { id: "c6", name: "Électricité" },
-    client_name: "Client vérifié", applicants_count: 6, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 6, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
   },
   {
     id: "demo-7",
     title: "Ravalement façade immeuble R+3",
     description: "Copropriété 8 lots. Nettoyage haute pression, traitement fissures, enduit RPE teinté. Échafaudage à prévoir sur rue passante. Devis détaillé exigé.",
-    city: "Nice (06)",
+    city: "Lambersart (59)",
     budget: null, budget_range: "Plus de 50 000€",
     urgency: "Plus de 3 mois",
     created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
     category: { id: "c7", name: "Ravalement" },
-    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
   },
   {
     id: "demo-8",
     title: "Pose cuisine équipée + électroménager",
     description: "Cuisine ouverte 15m². Dépose ancienne cuisine, plomberie, électricité, pose meubles hauts et bas, plan de travail quartz, crédence carrelage métro.",
-    city: "Toulouse (31)",
+    city: "Wasquehal (59)",
     budget: null, budget_range: "5 000€ – 15 000€",
     urgency: "1 à 3 mois",
     created_at: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
     category: { id: "c8", name: "Pose de cuisine" },
-    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: ["https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800"], status: "published", client_id: "", fake_applicants_count: 0,
+    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-9",
+    title: "Installation panneaux solaires 6kWc",
+    description: "Pose de panneaux photovoltaïques 6kWc en autoconsommation sur toiture orientée sud. Inclut onduleur, câblage et raccordement Enedis. Artisan QualiPV obligatoire.",
+    city: "Croix (59)",
+    budget: null, budget_range: "15 000€ – 50 000€",
+    urgency: "1 à 3 mois",
+    created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c9", name: "Panneaux solaires" },
+    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-10",
+    title: "Isolation combles perdus 80m²",
+    description: "Soufflage laine de roche en combles perdus. Surface 80m². R visé ≥ 7 m².K/W. Artisan RGE pour éligibilité CEE et MaPrimeRénov'.",
+    city: "Hem (59)",
+    budget: null, budget_range: "3 000€ – 8 000€",
+    urgency: "Immédiatement",
+    created_at: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c10", name: "Isolation" },
+    client_name: "Client vérifié", applicants_count: 0, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-11",
+    title: "Rénovation énergétique globale maison 150m²",
+    description: "Projet complet : ITE polystyrène, remplacement menuiseries alu, PAC air-eau, VMC hygroréglable B. DPE G vers C. Dossier MaPrimeRénov' en cours.",
+    city: "Ronchin (59)",
+    budget: null, budget_range: "Plus de 50 000€",
+    urgency: "1 à 3 mois",
+    created_at: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c1", name: "Rénovation Globale" },
+    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: true,
+  },
+  {
+    id: "demo-12",
+    title: "Remplacement chaudière gaz par PAC",
+    description: "Dépose chaudière gaz murale, installation PAC air-eau monobloc 8kW. Raccordement sur circuit existant radiateurs. Artisan RGE QualiPAC exigé.",
+    city: "Loos (59)",
+    budget: null, budget_range: "10 000€ – 20 000€",
+    urgency: "Immédiatement",
+    created_at: new Date(Date.now() - 11 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c4", name: "PAC" },
+    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: true,
+  },
+  {
+    id: "demo-13",
+    title: "Création terrasse composite 30m²",
+    description: "Pose terrasse en lames composites sur lambourdes alu. Surface 30m². Plots réglables. Éclairage LED intégré. Accès jardin de plain-pied.",
+    city: "Mons-en-Barœul (59)",
+    budget: null, budget_range: "5 000€ – 12 000€",
+    urgency: "Plus de 3 mois",
+    created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c11", name: "Terrasse" },
+    client_name: "Client vérifié", applicants_count: 0, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-14",
+    title: "Réfection toiture tuiles 100m²",
+    description: "Dépose et repose tuiles mécaniques. Remplacement liteaux et écran sous-toiture HPV. Zinguerie complète : gouttières, descentes, noues.",
+    city: "La Madeleine (59)",
+    budget: null, budget_range: "15 000€ – 30 000€",
+    urgency: "1 à 3 mois",
+    created_at: new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c12", name: "Toiture" },
+    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-15",
+    title: "Plomberie complète appartement neuf",
+    description: "Installation plomberie complète : alimentation et évacuations cuisine, SDB et WC. Chauffe-eau thermodynamique. Raccordement machine à laver et lave-vaisselle.",
+    city: "Faches-Thumesnil (59)",
+    budget: null, budget_range: "5 000€ – 10 000€",
+    urgency: "1 à 3 mois",
+    created_at: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c13", name: "Plomberie" },
+    client_name: "Client vérifié", applicants_count: 3, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-16",
+    title: "Portail motorisé + clôture aluminium",
+    description: "Fourniture et pose portail coulissant alu 4m motorisé + clôture alu sur 25ml. Piliers béton. Automatisme solaire avec télécommande et digicode.",
+    city: "Wattignies (59)",
+    budget: null, budget_range: "5 000€ – 15 000€",
+    urgency: "1 à 3 mois",
+    created_at: new Date(Date.now() - 15 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c14", name: "Menuiserie extérieure" },
+    client_name: "Client vérifié", applicants_count: 0, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-17",
+    title: "Aménagement combles 40m² habitable",
+    description: "Aménagement combles perdus en 2 chambres + SDB. Plancher, isolation, cloisons, électricité, plomberie. Velux x4. Escalier quart tournant.",
+    city: "Seclin (59)",
+    budget: null, budget_range: "30 000€ – 60 000€",
+    urgency: "Plus de 3 mois",
+    created_at: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c1", name: "Rénovation Globale" },
+    client_name: "Client vérifié", applicants_count: 1, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-18",
+    title: "Dépannage urgent fuite toiture",
+    description: "Infiltration d'eau suite à tempête. Tuiles cassées et solin décollé sur cheminée. Intervention rapide demandée pour bâchage + réparation définitive.",
+    city: "Armentières (59)",
+    budget: null, budget_range: "1 000€ – 3 000€",
+    urgency: "Immédiatement",
+    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    category: { id: "c12", name: "Toiture" },
+    client_name: "Client vérifié", applicants_count: 0, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-19",
+    title: "Carrelage sol + murs salon 45m²",
+    description: "Pose carrelage grand format 60x120 au sol. Ragréage inclus. Carrelage mural derrière poêle à bois. Joints époxy. Plinthe assortie.",
+    city: "Haubourdin (59)",
+    budget: null, budget_range: "4 000€ – 8 000€",
+    urgency: "1 à 3 mois",
+    created_at: new Date(Date.now() - 17 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c15", name: "Carrelage" },
+    client_name: "Client vérifié", applicants_count: 2, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
+  },
+  {
+    id: "demo-20",
+    title: "Installation VMC double flux",
+    description: "Pose VMC double flux haut rendement dans maison RT2012. Réseau gainé rigide. Bouches d'extraction et d'insufflation. Mise en service et équilibrage.",
+    city: "Halluin (59)",
+    budget: null, budget_range: "4 000€ – 8 000€",
+    urgency: "1 à 3 mois",
+    created_at: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
+    category: { id: "c16", name: "Ventilation" },
+    client_name: "Client vérifié", applicants_count: 0, has_applied: false, photos: null, status: "published", client_id: "", fake_applicants_count: 0, is_urgent: false,
   },
 ];
 
@@ -168,6 +302,7 @@ const formatTimeAgo = (dateString: string) => {
 
 const NosMissions = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { user, role, isAuthenticated } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -409,6 +544,25 @@ const NosMissions = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Periodic toast notification for social proof
+  useEffect(() => {
+    const TOAST_MESSAGES = [
+      "Un nouveau projet de toiture vient d'être validé à Arras",
+      "Un chantier de rénovation a été attribué à Tourcoing",
+      "Nouveau projet PAC air-eau qualifié à Roubaix",
+      "Un artisan vient de décrocher un chantier à Marcq-en-Barœul",
+    ];
+    const timeout = setTimeout(() => {
+      const msg = TOAST_MESSAGES[Math.floor(Math.random() * TOAST_MESSAGES.length)];
+      toast({ title: "🔔 Activité en temps réel", description: msg });
+    }, 8000);
+    const interval = setInterval(() => {
+      const msg = TOAST_MESSAGES[Math.floor(Math.random() * TOAST_MESSAGES.length)];
+      toast({ title: "🔔 Activité en temps réel", description: msg });
+    }, 45000);
+    return () => { clearTimeout(timeout); clearInterval(interval); };
+  }, []);
+
   const scrollToFilters = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -523,6 +677,16 @@ const NosMissions = () => {
             </motion.div>
           </div>
         </section>
+
+        {/* ── Andrea Performance Banner ── */}
+        <div className="bg-gold/10 border-b border-gold/20">
+          <div className="container mx-auto px-4 lg:px-8 py-3 flex items-center justify-center gap-3 text-sm">
+            <ShieldCheck className="w-5 h-5 text-gold-dark shrink-0" />
+            <p className="text-foreground font-semibold">
+              Missions pré-qualifiées par Andrea : <span className="text-gold-dark">92% de taux de transformation constaté</span>
+            </p>
+          </div>
+        </div>
 
         {/* ── Missions Catalogue ── */}
         <section className="py-8 md:py-16 bg-muted/30">
@@ -660,7 +824,11 @@ const NosMissions = () => {
                             {/* Date + availability badge */}
                             <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
                               <span>{formatTimeAgo(mission.created_at)}</span>
-                              {(mission.applicants_count || 0) === 0 ? (
+                              {(mission as any).is_urgent ? (
+                                <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-xs font-bold animate-pulse">
+                                  🔴 Dernière place disponible
+                                </Badge>
+                              ) : (mission.applicants_count || 0) === 0 ? (
                                 <Badge className="bg-gold/10 text-gold-dark border-gold/30 text-xs font-semibold">
                                   Soyez le premier artisan sur ce projet
                                 </Badge>
@@ -714,10 +882,10 @@ const NosMissions = () => {
                               <Button 
                                 variant="gold"
                                 className="w-full gap-2 h-12 text-sm font-bold"
-                                onClick={() => handleViewMission(mission)}
+                                onClick={() => navigate("/artisan/abonnement")}
                               >
-                                <ArrowRight className="w-5 h-5" />
-                                Se positionner sur cette mission
+                                <Lock className="w-4 h-4" />
+                                Accès réservé — Activer mon pack Pro
                               </Button>
                             )}
                           </div>
