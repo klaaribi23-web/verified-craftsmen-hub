@@ -48,12 +48,15 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
       setQuestions([]);
       setNearbyCities([]);
       try {
-        const { data, error } = await supabase.functions.invoke("generate-expert-faq", {
-          body: { category, city, department },
-        });
-
-        if (error) {
-          // Silently handle 402 (insufficient credits) and other non-critical errors
+        let data: any = null;
+        try {
+          const result = await supabase.functions.invoke("generate-expert-faq", {
+            body: { category, city, department },
+          });
+          if (result.error) return;
+          data = result.data;
+        } catch {
+          // Silently swallow all FAQ generation errors (402 credits, network, etc.)
           return;
         }
 
