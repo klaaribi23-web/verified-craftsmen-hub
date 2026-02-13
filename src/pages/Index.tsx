@@ -15,7 +15,7 @@ import SocialProofToast from "@/components/home/SocialProofToast";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
-import { Star, ArrowRight, ShieldCheck, Award, HeartHandshake, UserCheck, CheckCircle2 } from "lucide-react";
+import { Star, ArrowRight, ShieldCheck, Award, HeartHandshake, UserCheck, CheckCircle2, Camera, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/seo/SEOHead";
@@ -32,21 +32,63 @@ const Index = () => {
       <OrganizationSchema />
       <Navbar />
       <main>
+        {/* TEMPS 1 — Le Hero épuré */}
         <HeroSection />
 
-        {/* Bandeau Anonymat — forte lisibilité */}
+        {/* TEMPS 2 — Bandeau de réassurance */}
         <section className="bg-navy py-3 border-y border-navy-dark">
           <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/90 font-medium">
-          <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Entreprise Française</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Entreprise Française</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Support 7j/7</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Paiement Sécurisé Stripe</span>
           </div>
         </section>
 
-        <SocialProofBanner />
+        {/* TEMPS 3 — Les 3 étapes simples */}
+        <section className="py-20 md:py-28 bg-background">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
+                Comment ça marche ?
+              </h2>
+              <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+                Trois étapes pour des travaux en toute sérénité.
+              </p>
+            </motion.div>
+            <div className="grid md:grid-cols-3 gap-12 max-w-4xl mx-auto">
+              {[
+                { step: "01", icon: Camera, title: "Décrivez votre besoin", desc: "Publiez votre projet avec des photos. Vos coordonnées restent anonymes." },
+                { step: "02", icon: MessageSquare, title: "Discutez anonymement", desc: "Échangez directement avec les artisans validés de votre secteur." },
+                { step: "03", icon: UserCheck, title: "Choisissez votre pro", desc: "Sélectionnez l'artisan qui vous convient et lancez vos travaux." },
+              ].map(({ step, icon: Icon, title, desc }, i) => (
+                <motion.div
+                  key={step}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.15 }}
+                  viewport={{ once: true }}
+                  className="text-center"
+                >
+                  <div className="w-16 h-16 rounded-full border-2 border-gold/30 bg-gold/5 flex items-center justify-center mx-auto mb-5">
+                    <Icon className="w-7 h-7 text-gold" />
+                  </div>
+                  <span className="text-xs font-bold text-gold/60 tracking-widest uppercase mb-2 block">Étape {step}</span>
+                  <h3 className="text-lg font-bold text-foreground mb-2">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-        {/* Bandeau ADN Particuliers */}
-        <section className="bg-[#F9FAFB] py-6 border-t border-border">
+        {/* Bandeau ADN */}
+        <section className="bg-muted py-6 border-t border-border">
           <div className="container mx-auto px-4 text-center space-y-4">
             <div className="flex items-center justify-center gap-2">
               <ShieldCheck className="h-5 w-5 text-gold flex-shrink-0" />
@@ -78,7 +120,7 @@ const Index = () => {
 
         <LaboAndreaSection />
 
-        {/* Featured Artisans Section - 4x4 */}
+        {/* Featured Artisans */}
         <section className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
             <motion.div
@@ -97,9 +139,7 @@ const Index = () => {
                 Chaque profil est vérifié et validé par notre équipe avant d'intégrer le réseau
               </p>
             </motion.div>
-
             <FeaturedArtisansCarousel />
-
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -117,22 +157,18 @@ const Index = () => {
           </div>
         </section>
 
-        <HowItWorksSection />
-
-        {/* Category Carousel - Maçons */}
-        <CategoryArtisansCarousel 
-          categoryName="Maçon"
-          title="Un maçon près de chez vous"
-          subtitle="Des professionnels qualifiés pour vos travaux de construction et rénovation"
-        />
-
         <TrustSection />
 
         <AllianceSection />
 
         <ExpertCaseStudy />
 
-        {/* Category Carousel - Plombiers */}
+        <CategoryArtisansCarousel 
+          categoryName="Maçon"
+          title="Un maçon près de chez vous"
+          subtitle="Des professionnels qualifiés pour vos travaux de construction et rénovation"
+        />
+
         <CategoryArtisansCarousel 
           categoryName="Dépannage plomberie"
           title="Nos plombiers validés"
@@ -141,7 +177,6 @@ const Index = () => {
 
         <TestimonialsSection />
 
-        {/* Category Carousel - Électriciens */}
         <CategoryArtisansCarousel 
           categoryName="Dépannage électricité"
           title="Électriciens certifiés"
@@ -150,8 +185,11 @@ const Index = () => {
 
         <CTASection />
       </main>
-      <Footer />
+
+      {/* Social proof fixe au-dessus du footer */}
       <SocialProofToast />
+
+      <Footer />
     </div>
   );
 };
