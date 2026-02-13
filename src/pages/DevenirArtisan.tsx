@@ -28,8 +28,24 @@ import {
   MapPin,
   MessageCircle,
   Quote,
+  FileText,
+  Search,
+  Rocket,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+
+// --- Marquee Banner ---
+const MarqueeBanner = () => (
+  <div className="bg-navy overflow-hidden py-2.5 shadow-[0_4px_16px_-2px_rgba(26,43,72,0.25)] relative z-40">
+    <motion.div
+      animate={{ x: ["100%", "-100%"] }}
+      transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+      className="whitespace-nowrap text-xs md:text-sm font-semibold text-gold tracking-wide"
+    >
+      🔒 Accès limité : 3 places restantes sur votre secteur. Prochaine session d'audit des dossiers demain à 09h00. &nbsp;&nbsp;&nbsp;&nbsp; 🔒 Accès limité : 3 places restantes sur votre secteur. Prochaine session d'audit des dossiers demain à 09h00.
+    </motion.div>
+  </div>
+);
 
 // --- Unified Info Banner ---
 const InfoBanner = ({ missionType, missionCity }: { missionType?: string | null; missionCity?: string | null }) => {
@@ -72,23 +88,6 @@ const InfoBanner = ({ missionType, missionCity }: { missionType?: string | null;
   );
 };
 
-// --- WhatsApp Alert ---
-const WhatsAppAlert = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.5 }}
-    className="max-w-3xl mx-auto mb-10"
-  >
-    <div className="flex items-center gap-3 bg-[#dcf8c6] dark:bg-[#1a3a1a] border border-[#25d366]/30 rounded-lg px-5 py-3">
-      <MessageCircle className="w-5 h-5 text-[#25d366] flex-shrink-0" />
-      <p className="text-sm text-foreground">
-        <strong>📲 Alerte WhatsApp :</strong> Recevez les nouvelles missions en temps réel directement sur votre téléphone dès l'activation de votre licence.
-      </p>
-    </div>
-  </motion.div>
-);
-
 // --- Social Proof Testimonials ---
 const testimonials = [
   {
@@ -124,7 +123,7 @@ const SocialProofSection = () => (
           Témoignages bruts
         </span>
         <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
-          Ils ont activé leur licence. Voici ce qu'ils en disent.
+          Ils ont rejoint l'Alliance. Voici ce qu'ils en disent.
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
           Pas de mise en scène. Des artisans du Nord qui parlent de leur expérience.
@@ -167,6 +166,36 @@ const SocialProofSection = () => (
       </div>
     </div>
   </section>
+);
+
+// --- Anti-Arnaque Trust Banner ---
+const AntiArnaqueBanner = () => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    className="max-w-lg mx-auto mt-8"
+  >
+    <div className="bg-navy rounded-2xl p-6 shadow-[0_8px_32px_-4px_rgba(26,43,72,0.25)]">
+      <div className="space-y-3 mb-5">
+        {[
+          "Inscription sans frais",
+          "Audit humain sous 24h",
+          "Activation après validation uniquement",
+        ].map((item) => (
+          <div key={item} className="flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-gold flex-shrink-0" />
+            <span className="text-white text-sm font-medium">{item}</span>
+          </div>
+        ))}
+      </div>
+      <div className="border-t border-white/10 pt-4">
+        <p className="text-xs text-white/70 leading-relaxed">
+          Nous ne sommes pas des vendeurs de leads. Nous sommes un <strong className="text-gold">réseau de confiance</strong>. Aucun paiement ne vous sera demandé avant que votre dossier ne soit validé par notre équipe.
+        </p>
+      </div>
+    </div>
+  </motion.div>
 );
 
 // --- Schema ---
@@ -231,7 +260,7 @@ const DevenirArtisan = () => {
       if (dbError) throw dbError;
 
       setCandidacySent(true);
-      toast({ title: "Demande reçue !", description: "Un expert vous rappelle sous 2h." });
+      toast({ title: "Candidature reçue !", description: "Un expert vous rappelle sous 24h." });
     } catch {
       toast({ title: "Erreur", description: "Une erreur est survenue.", variant: "destructive" });
     } finally {
@@ -243,7 +272,7 @@ const DevenirArtisan = () => {
   if (candidacySent) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead title="Demande reçue — Artisans Validés" description="Votre demande d'accès au réseau a bien été reçue." />
+        <SEOHead title="Candidature reçue — Artisans Validés" description="Votre candidature au réseau a bien été reçue." />
         <Navbar />
         <main className="pt-32 lg:pt-20 pb-20">
           <div className="container mx-auto px-4 max-w-md">
@@ -254,12 +283,12 @@ const DevenirArtisan = () => {
               <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4 mb-6 text-left">
                 <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
                   <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
-                  <p className="font-medium">Demande d'accès reçue !</p>
+                  <p className="font-medium">Candidature reçue !</p>
                 </div>
               </div>
-              <h1 className="text-2xl font-bold text-foreground mb-4">Demande d'accréditation reçue !</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-4">Votre dossier est en cours d'examen</h1>
               <p className="text-muted-foreground mb-6">
-                Merci ! <strong className="text-foreground">Jane</strong> ou <strong className="text-foreground">Andrea</strong> vous contacteront sous 24h pour valider votre secteur à <strong className="text-foreground">{formData.city}</strong>.
+                Notre équipe audite votre dossier et vérifie la disponibilité de votre secteur à <strong className="text-foreground">{formData.city}</strong>. Vous serez contacté sous 24h.
               </p>
               <div className="bg-muted rounded-lg p-4 mb-6 text-left">
                 <p className="text-sm text-muted-foreground">
@@ -278,8 +307,8 @@ const DevenirArtisan = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Licence d'accès aux chantiers — Artisans Validés"
-        description="Activez votre licence d'accès au flux de chantiers qualifiés. 99€/mois, 0% commission, marketing inclus."
+        title="Rejoindre l'Alliance — Artisans Validés"
+        description="Déposez votre candidature pour rejoindre le réseau sélectif Artisans Validés. Inscription gratuite, audit humain sous 24h."
         canonical="https://artisansvalides.fr/devenir-artisan"
       />
       <Navbar />
@@ -294,16 +323,8 @@ const DevenirArtisan = () => {
           </div>
         </div>
 
-        {/* Bandeau urgence */}
-        <div className="bg-navy-dark overflow-hidden py-2 z-40">
-          <motion.div
-            animate={{ x: ["100%", "-100%"] }}
-            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-            className="whitespace-nowrap text-xs md:text-sm font-semibold text-amber-400 tracking-wide"
-          >
-            ⚠️ Alerte : Secteurs Bordeaux, Lyon et Nice bientôt complets. 1 seule place restante. &nbsp;&nbsp;&nbsp; ⚠️ Alerte : Secteurs Bordeaux, Lyon et Nice bientôt complets. 1 seule place restante.
-          </motion.div>
-        </div>
+        {/* Marquee Banner */}
+        <MarqueeBanner />
 
         {/* Hero */}
         <section className="bg-gradient-to-b from-muted/50 to-white py-10 md:py-16 lg:py-24 relative overflow-hidden">
@@ -313,22 +334,19 @@ const DevenirArtisan = () => {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto mb-10 md:mb-16">
               <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-gold text-navy-dark text-sm font-bold mb-5 shadow-gold">
-                <Crown className="w-4 h-4" />
-                Licence d'accès aux chantiers
+                <Shield className="w-4 h-4" />
+                Réseau sélectif — Candidature gratuite
               </div>
 
               <h1 className="text-xl md:text-4xl lg:text-5xl font-extrabold text-navy leading-tight mb-4 md:mb-6">
-                Accédez à un flux de <span className="text-gradient-gold">chantiers qualifiés</span> à 10 min de votre dépôt.
+                Rejoignez l'Alliance des <span className="text-gradient-gold">artisans qualifiés</span>
               </h1>
 
               <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto">
-                Votre licence d'accès à des projets pré-qualifiés. Zéro démarchage. Zéro commission.
-                <strong className="text-foreground"> Votre abonnement finance nos campagnes pub pour vous apporter des clients.</strong>
+                Déposez votre dossier gratuitement. Après audit de conformité, accédez à un flux de chantiers pré-qualifiés à proximité de votre dépôt.
+                <strong className="text-foreground"> Zéro démarchage. Zéro commission.</strong>
               </p>
             </motion.div>
-
-            {/* WhatsApp Alert */}
-            <WhatsAppAlert />
 
             {/* Stats */}
             <div className="hidden md:grid grid-cols-4 gap-6 max-w-2xl mx-auto mb-12">
@@ -391,6 +409,39 @@ const DevenirArtisan = () => {
           </div>
         </section>
 
+        {/* Parcours d'Intégration */}
+        <section className="py-16 lg:py-24 bg-navy relative overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
+          </div>
+          <div className="container mx-auto px-4 lg:px-8 relative z-10">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/20 text-gold text-sm font-medium mb-4">
+                Audit & Validation
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Votre Parcours d'Intégration</h2>
+              <p className="text-white/60 max-w-xl mx-auto">Un processus rigoureux pour garantir l'excellence du réseau.</p>
+            </motion.div>
+            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {[
+                { step: "01", icon: FileText, title: "Dépôt du Dossier", desc: "Remplissez le formulaire de candidature. C'est gratuit et sans engagement." },
+                { step: "02", icon: Search, title: "Audit de conformité", desc: "Vérification de vos décennales, références et avis clients par notre équipe." },
+                { step: "03", icon: Rocket, title: "Activation du Cockpit", desc: "Une fois validé, accédez à votre radar et à la liste des missions qualifiées." },
+              ].map((item, index) => (
+                <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15 }} className="text-center">
+                  <div className="w-20 h-20 rounded-full border-2 border-gold bg-transparent flex items-center justify-center mx-auto mb-5">
+                    <item.icon className="w-8 h-8 text-gold" />
+                  </div>
+                  <div className="text-xs text-gold font-bold mb-2 tracking-widest">ÉTAPE {item.step}</div>
+                  <h3 className="font-bold text-white text-lg mb-2">{item.title}</h3>
+                  <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Formulaire */}
         <section id="formulaire-licence" className="py-12 md:py-20 bg-muted/40">
           <div className="container mx-auto px-4 lg:px-8">
@@ -399,16 +450,10 @@ const DevenirArtisan = () => {
                 <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.18)] border-2 border-navy/20">
                   <div className="text-center mb-5 md:mb-6">
                     <h2 className="text-lg md:text-xl font-black text-navy mb-1 md:mb-2 uppercase tracking-wide">
-                      Activez votre licence d'accès
+                      Déposer ma candidature
                     </h2>
                     <p className="text-xs md:text-sm text-muted-foreground mb-2">
-                      Remplissez ce formulaire, on vous rappelle sous 2h
-                    </p>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-xs font-medium text-gold">
-                      99€ HT/mois · 0% commission · Marketing inclus
-                    </div>
-                    <p className="text-sm font-semibold text-amber-600 animate-pulse mt-2">
-                      🔥 Plus que 2 places disponibles sur votre secteur ce mois-ci.
+                      Gratuit · Sans engagement · Audit sous 24h
                     </p>
                   </div>
 
@@ -445,15 +490,12 @@ const DevenirArtisan = () => {
                         className="w-full !text-lg !py-7 !font-black uppercase tracking-wider hover:brightness-110 hover:shadow-[0_0_24px_rgba(234,179,8,0.4)] transition-all duration-300"
                         disabled={isLoading}
                       >
-                        {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Lock className="w-5 h-5 mr-2" />}
-                        {isLoading ? "Vérification..." : "DÉBLOQUER MES CHANTIERS"}
+                        {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Shield className="w-5 h-5 mr-2" />}
+                        {isLoading ? "Vérification..." : "DÉPOSER MA CANDIDATURE"}
                       </Button>
                       <div className="mt-8 text-center">
                         <p className="text-[14px] font-light text-muted-foreground">
-                          99€/mois • Sans commission • Sans engagement
-                        </p>
-                        <p className="text-[14px] font-bold text-gold mt-2">
-                          Validation finale par Jane sous 24h.
+                          Inscription gratuite · Audit humain sous 24h
                         </p>
                       </div>
                     </div>
@@ -472,24 +514,17 @@ const DevenirArtisan = () => {
                         if (form) form.requestSubmit();
                       }}
                     >
-                      {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Lock className="w-5 h-5 mr-2" />}
-                      {isLoading ? "Vérification..." : "DÉBLOQUER MES CHANTIERS"}
+                      {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Shield className="w-5 h-5 mr-2" />}
+                      {isLoading ? "Vérification..." : "CANDIDATER"}
                     </Button>
-                    <div className="mt-3 text-center">
-                      <p className="text-[11px] font-light text-muted-foreground">99€/mois • Sans commission • Sans engagement</p>
-                      <p className="text-[11px] font-bold text-gold mt-0.5">Validation finale par Jane sous 24h.</p>
+                    <div className="mt-2 text-center">
+                      <p className="text-[11px] font-light text-muted-foreground">Gratuit · Sans engagement · Audit sous 24h</p>
                     </div>
                   </div>
                 </div>
 
-                {/* WhatsApp help encart */}
-                <div className="mt-6 bg-[#dcf8c6] dark:bg-[#1a3a1a] border border-[#25d366]/30 rounded-xl p-4 flex items-start gap-3">
-                  <MessageCircle className="w-5 h-5 text-[#25d366] flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-foreground">
-                    <strong>Besoin d'aide pour configurer votre compte ?</strong> Contactez votre conseiller Artisans Validés sur{" "}
-                    <a href="https://wa.me/33612345678" target="_blank" rel="noopener noreferrer" className="text-[#25d366] font-bold underline hover:no-underline">WhatsApp</a>.
-                  </p>
-                </div>
+                {/* Anti-Arnaque Trust Banner */}
+                <AntiArnaqueBanner />
 
                 {/* Social proof line */}
                 <motion.p
@@ -541,7 +576,7 @@ const DevenirArtisan = () => {
                   </CardContent>
                   <CardFooter className="pt-4 mt-auto">
                     <Button variant="outline" size="lg" className="w-full" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
-                      <Lock className="w-4 h-4 mr-2" /> Activer ma licence
+                      <Shield className="w-4 h-4 mr-2" /> Déposer ma candidature
                     </Button>
                   </CardFooter>
                 </Card>
@@ -570,7 +605,7 @@ const DevenirArtisan = () => {
                     </CardContent>
                     <CardFooter className="pt-4 mt-auto">
                       <Button variant="gold" size="lg" className="w-full !font-bold" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
-                        <Lock className="w-5 h-5 mr-2" /> ACTIVER MA LICENCE <ArrowRight className="w-5 h-5 ml-2" />
+                        <Shield className="w-5 h-5 mr-2" /> REJOINDRE L'ALLIANCE <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </CardFooter>
                   </Card>
@@ -611,38 +646,10 @@ const DevenirArtisan = () => {
         {/* Social Proof Testimonials */}
         <SocialProofSection />
 
-        {/* How it works */}
-        <section className="py-16 lg:py-24 bg-navy relative overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-          </div>
-          <div className="container mx-auto px-4 lg:px-8 relative z-10">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Comment ça marche ?</h2>
-              <p className="text-white/60 max-w-xl mx-auto">Un parcours d'intégration rigoureux pour garantir l'excellence.</p>
-            </motion.div>
-            <div className="grid md:grid-cols-4 gap-8">
-              {[
-                { step: "01", title: "Demander ma licence", desc: "Remplissez le formulaire en 30 secondes" },
-                { step: "02", title: "Rappel sous 2h", desc: "On vérifie votre secteur et vos assurances" },
-                { step: "03", title: "Vérification humaine", desc: "Audit par Jane : assurances décennales, références, avis." },
-                { step: "04", title: "C'est parti", desc: "Votre licence est activée, les clients vous contactent" },
-              ].map((item, index) => (
-                <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="text-center">
-                  <div className="w-16 h-16 rounded-full border-2 border-gold bg-transparent flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">{item.step}</div>
-                  <h3 className="font-semibold text-white mb-2">{item.title}</h3>
-                  <p className="text-sm text-white/60">{item.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* CTA */}
         <section className="py-16 lg:py-20 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden">
+            <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]">
               <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gold rounded-full blur-3xl" />
               </div>
@@ -650,7 +657,7 @@ const DevenirArtisan = () => {
               <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Votre ville est peut-être encore disponible.</h2>
                 <p className="text-white/60 mb-8 max-w-xl mx-auto">2 licences max par secteur. Quand c'est pris, c'est pris.</p>
                 <Button variant="gold" size="xl" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
-                  <Lock className="w-5 h-5 mr-2" /> ACTIVER MA LICENCE <ArrowRight className="w-5 h-5 ml-2" />
+                  <Shield className="w-5 h-5 mr-2" /> DÉPOSER MA CANDIDATURE <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
             </div>
