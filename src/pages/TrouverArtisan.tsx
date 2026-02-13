@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { ArrowRight } from "lucide-react";
 import { usePublicArtisans } from "@/hooks/usePublicData";
+import { useCategoriesHierarchy } from "@/hooks/useCategories";
 
 import { calculateDistance } from "@/lib/geoDistance";
 import { useCityCoordinatesCache } from "@/hooks/useCityCoordinatesCache";
@@ -37,6 +38,19 @@ const TrouverArtisan = () => {
     data: artisansData,
     isLoading: artisansLoading
   } = usePublicArtisans();
+
+  const { data: categoriesHierarchy } = useCategoriesHierarchy();
+
+  // Build a map: parent category name -> set of child category IDs (includes parent itself)
+  const parentChildMap = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    if (!categoriesHierarchy) return map;
+    categoriesHierarchy.forEach(parent => {
+      const childIds = new Set<string>([parent.id, ...parent.children.map(c => c.id)]);
+      map.set(parent.name.toLowerCase(), childIds);
+    });
+    return map;
+  }, [categoriesHierarchy]);
 
   const handleFiltersChange = useCallback((newFilters: {
     category: string;
@@ -75,18 +89,22 @@ const TrouverArtisan = () => {
     const distances = new Map<string, number>();
     
     const filtered = artisansData.filter(artisan => {
-      // Filter by category from hero search or sidebar - use categoryName (not ID) for comparison
+      // Filter by category from hero search or sidebar
       const categoryFilter = filters.categoryName;
       if (categoryFilter && categoryFilter !== "all") {
         const filterLower = categoryFilter.toLowerCase();
 
-        // Check main category
-        const mainCategoryMatch = artisan.category?.name?.toLowerCase().includes(filterLower);
-
-        // Check multiple categories from junction table
-        const multipleCategoriesMatch = artisan.categories?.some(cat => cat.name?.toLowerCase().includes(filterLower));
-        if (!mainCategoryMatch && !multipleCategoriesMatch) {
-          return false;
+        // Check if it's a parent category — match all children
+        const matchingChildIds = parentChildMap.get(filterLower);
+        if (matchingChildIds) {
+          const mainMatch = artisan.category_id && matchingChildIds.has(artisan.category_id);
+          const multiMatch = artisan.categories?.some(cat => matchingChildIds.has(cat.id));
+          if (!mainMatch && !multiMatch) return false;
+        } else {
+          // Direct name match (child category selected)
+          const mainCategoryMatch = artisan.category?.name?.toLowerCase().includes(filterLower);
+          const multipleCategoriesMatch = artisan.categories?.some(cat => cat.name?.toLowerCase().includes(filterLower));
+          if (!mainCategoryMatch && !multipleCategoriesMatch) return false;
         }
       }
 
@@ -139,7 +157,7 @@ const TrouverArtisan = () => {
     });
     
     return { filteredArtisans: filtered, artisanDistances: distances };
-  }, [artisansData, filters, getCoordinates]);
+  }, [artisansData, filters, getCoordinates, parentChildMap]);
 
   // Sort: audited first, then premium, then others
   const sortedArtisans = useMemo(() => {
@@ -180,7 +198,7 @@ const TrouverArtisan = () => {
       
       <main className="pt-28 lg:pt-20">
         {/* Hero Search */}
-        <section className="bg-navy py-10 md:py-16 lg:py-24">
+        <section className="bg-[#F9FAFB] py-10 md:py-16 lg:py-24 border-b border-border">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div initial={{
             opacity: 0,
@@ -189,10 +207,10 @@ const TrouverArtisan = () => {
             opacity: 1,
             y: 0
           }} className="text-center mb-6 md:mb-10">
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-4">
-                Trouvez votre <span className="text-gradient-gold">artisan</span>
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
+                Trouvez votre <span className="text-primary">artisan</span>
               </h1>
-              <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto px-4">
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
                 Plus de {totalArtisans} artisans vérifiés à votre service
               </p>
             </motion.div>
@@ -282,8 +300,19 @@ const TrouverArtisan = () => {
                         </PaginationItem>
                       </PaginationContent>
                     </Pagination>}
-                </> : <div className="text-center py-12">
-                  <p className="text-muted-foreground">Aucun artisan ne correspond à vos critères</p>
+              </> : <div className="text-center py-16 px-4">
+                  <div className="max-w-md mx-auto">
+                    <p className="text-lg font-medium text-foreground mb-2">Pas encore d'artisan référencé ici</p>
+                    <p className="text-muted-foreground mb-6">
+                      Nos experts valident actuellement les meilleurs artisans de votre secteur. Laissez votre demande ici.
+                    </p>
+                    <Button asChild variant="default" size="lg">
+                      <Link to="/demande-devis">
+                        Déposer une demande de devis
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
+                  </div>
                 </div>}
             </div>
           </div>
