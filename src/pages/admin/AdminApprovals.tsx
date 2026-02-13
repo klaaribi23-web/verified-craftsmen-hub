@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
 import { AdminCandidatures, usePartnerCandidaciesCount } from "@/components/admin-dashboard/AdminCandidatures";
 import { Crown } from "lucide-react";
+import { useCategoriesHierarchy } from "@/hooks/useCategories";
 const PROSPECTS_PER_PAGE = 50;
 interface PendingArtisan {
   id: string;
@@ -226,6 +227,10 @@ const AdminApprovals = () => {
   // Sub-tab state for vitrines
   const [vitrineSubTab, setVitrineSubTab] = useState("actives");
 
+  // Filters for "À publier" tab
+  const [pubFilterCategory, setPubFilterCategory] = useState<string>("all");
+  const [pubFilterCity, setPubFilterCity] = useState("");
+
   // Sub-tab state for artisans
   const [artisanSubTab, setArtisanSubTab] = useState("nouvelles-inscriptions");
 
@@ -246,6 +251,9 @@ const AdminApprovals = () => {
 
   // Partner candidacies count
   const { data: candidaciesCount = 0 } = usePartnerCandidaciesCount();
+
+  // Categories for filtering
+  const { data: categoriesHierarchy = [] } = useCategoriesHierarchy();
 
   // Realtime subscription for instant updates on admin dashboard
   useEffect(() => {
@@ -487,6 +495,7 @@ const AdminApprovals = () => {
         .from("artisans")
         .select(`
           id, business_name, city, email, phone, description, photo_url, 
+          portfolio_images, created_at, slug, source, category_id,
           portfolio_images, created_at, slug, source,
           category:categories(name)
         `)
@@ -500,7 +509,42 @@ const AdminApprovals = () => {
     },
   });
 
-  // Mutation to publish an artisan (set status to active)
+  // Reset publication filters when switching away from "a-publier" sub-tab
+  useEffect(() => {
+    if (vitrineSubTab !== "a-publier") {
+      setPubFilterCategory("all");
+      setPubFilterCity("");
+    }
+  }, [vitrineSubTab]);
+
+  // Filtered list of pending publication artisans
+  const filteredPendingPublication = useMemo(() => {
+    let list = pendingPublicationArtisans;
+
+    // Filter by category
+    if (pubFilterCategory && pubFilterCategory !== "all") {
+      // Find all subcategory IDs for the selected parent
+      const parent = categoriesHierarchy.find(c => c.id === pubFilterCategory);
+      if (parent) {
+        const childIds = parent.children.map(ch => ch.id);
+        const allIds = [parent.id, ...childIds];
+        list = list.filter(a => a.category_id && allIds.includes(a.category_id));
+      } else {
+        // Might be a subcategory directly
+        list = list.filter(a => a.category_id === pubFilterCategory);
+      }
+    }
+
+    // Filter by city
+    if (pubFilterCity.trim()) {
+      const search = pubFilterCity.toLowerCase().trim();
+      list = list.filter(a => a.city?.toLowerCase().includes(search));
+    }
+
+    return list;
+  }, [pendingPublicationArtisans, pubFilterCategory, pubFilterCity, categoriesHierarchy]);
+
+
   const publishArtisanMutation = useMutation({
     mutationFn: async (artisanId: string) => {
       const { error } = await supabase
@@ -2381,17 +2425,45 @@ const AdminApprovals = () => {
 
                 {/* VITRINES À PUBLIER SUB-TAB */}
                 <TabsContent value="a-publier">
+                  {/* Filters: Category + City */}
+                  <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                    <div className="flex-1">
+                      <Select value={pubFilterCategory} onValueChange={setPubFilterCategory}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Filtrer par métier..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Tous les métiers</SelectItem>
+                          {categoriesHierarchy.map(parent => (
+                            <SelectItem key={parent.id} value={parent.id}>
+                              {parent.icon ? `${parent.icon} ` : ""}{parent.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="relative flex-1">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <Input
+                        placeholder="Filtrer par ville..."
+                        value={pubFilterCity}
+                        onChange={e => setPubFilterCity(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+
                   {isLoadingPendingPublication ? (
                     <div className="flex items-center justify-center py-12">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
-                  ) : pendingPublicationArtisans.length > 0 ? (
+                  ) : filteredPendingPublication.length > 0 ? (
                     <>
                       <div className="mb-4 text-sm text-muted-foreground">
-                        {pendingPublicationArtisans.length} vitrine{pendingPublicationArtisans.length > 1 ? "s" : ""} en attente de publication
+                        {filteredPendingPublication.length} vitrine{filteredPendingPublication.length > 1 ? "s" : ""} sur {pendingPublicationArtisans.length} {pubFilterCategory !== "all" || pubFilterCity ? "— filtrées" : "en attente de publication"}
                       </div>
                       <div className="grid gap-3">
-                        {pendingPublicationArtisans.map(artisan => (
+                        {filteredPendingPublication.map(artisan => (
                           <Card key={artisan.id} className="hover:shadow-lg transition-shadow">
                             <CardContent className="p-3 md:p-5">
                               <div className="flex items-start gap-3 md:gap-4">
@@ -2478,9 +2550,22 @@ const AdminApprovals = () => {
                   ) : (
                     <Card>
                       <CardContent className="p-8 text-center">
-                        <CheckCircle2 className="h-10 w-10 text-emerald-500 mx-auto mb-3" />
-                        <p className="font-medium">Toutes les vitrines sont publiées</p>
-                        <p className="text-sm text-muted-foreground mt-1">Aucune vitrine en attente de publication.</p>
+                        {pubFilterCategory !== "all" || pubFilterCity ? (
+                          <>
+                            <Search className="h-10 w-10 text-muted-foreground/50 mx-auto mb-3" />
+                            <p className="font-medium">Aucun résultat</p>
+                            <p className="text-sm text-muted-foreground mt-1">Aucune vitrine ne correspond à vos filtres.</p>
+                            <Button variant="outline" className="mt-3" onClick={() => { setPubFilterCategory("all"); setPubFilterCity(""); }}>
+                              Réinitialiser les filtres
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 className="h-10 w-10 text-emerald-500 mx-auto mb-3" />
+                            <p className="font-medium">Toutes les vitrines sont publiées</p>
+                            <p className="text-sm text-muted-foreground mt-1">Aucune vitrine en attente de publication.</p>
+                          </>
+                        )}
                       </CardContent>
                     </Card>
                   )}
