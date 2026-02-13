@@ -22,10 +22,10 @@ interface ArtisanFiltersProps {
 }
 
 const QUICK_FILTERS = [
-  { label: "Solaire", icon: "Sun", keyword: "Photovoltaïque" },
-  { label: "Menuiserie", icon: "door-open", keyword: "Menuiserie" },
+  { label: "Solaire", icon: "Sun", keyword: "Énergie & Solaire" },
+  { label: "Salle de Bain", icon: "Bath", keyword: "Cuisine & Bain" },
   { label: "Toiture", icon: "home", keyword: "Toiture & Façade" },
-  { label: "Chauffage", icon: "Thermometer", keyword: "PAC" },
+  { label: "Menuiserie", icon: "door-open", keyword: "Menuiserie" },
 ];
 
 const DEFAULT_RADIUS = 40;
@@ -116,23 +116,17 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
       setSearchQuery("");
     } else {
       setActiveQuickFilter(filter.keyword);
-      // Find matching category
+      // Find matching parent category by name
       const match = allCategories.find((c) => c.name === filter.keyword);
       if (match) {
         setSelectedCategoryId(match.id);
         setSelectedCategoryName(match.name);
+        setSearchQuery(filter.label);
       } else {
-        // Fallback: search by parent name
-        const parentMatch = allCategories.find((c) => c.name.toLowerCase().includes(filter.keyword.toLowerCase()));
-        if (parentMatch) {
-          setSelectedCategoryId(parentMatch.id);
-          setSelectedCategoryName(parentMatch.name);
-        } else {
-          setSelectedCategoryId("");
-          setSelectedCategoryName(filter.keyword);
-        }
+        setSelectedCategoryId("");
+        setSelectedCategoryName(filter.keyword);
+        setSearchQuery(filter.label);
       }
-      setSearchQuery(filter.keyword);
     }
   };
 
