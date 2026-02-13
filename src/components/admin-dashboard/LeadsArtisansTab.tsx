@@ -19,7 +19,16 @@ const formatDate = (d: string) => {
   try { return format(new Date(d), "dd MMM yyyy HH:mm", { locale: fr }); } catch { return d; }
 };
 
-const LeadsArtisansTab = ({ data }: { data: any[] }) => (
+const LeadsArtisansTab = ({ data: rawData }: { data: any[] }) => {
+  // Filter out empty/incomplete rows that only show dashes
+  const data = rawData.filter((lead: any) => 
+    (lead.nom && lead.nom !== '' && lead.nom !== 'ANONYMISÉ') || 
+    (lead.telephone && lead.telephone !== '') || 
+    (lead.ville && lead.ville !== '') || 
+    (lead.societe && lead.societe !== '')
+  );
+
+  return (
   <Card>
     <CardHeader><CardTitle className="text-lg">Artisans intéressés</CardTitle></CardHeader>
     <CardContent className="overflow-x-auto">
@@ -57,6 +66,7 @@ const LeadsArtisansTab = ({ data }: { data: any[] }) => (
       )}
     </CardContent>
   </Card>
-);
+  );
+};
 
 export default LeadsArtisansTab;

@@ -45,18 +45,23 @@ const DynamicFAQ = ({ city, category }: DynamicFAQProps) => {
       setIsLoading(true);
       setError(false);
       try {
-        const { data, error: fnError } = await supabase.functions.invoke("generate-faq", {
-          body: { city, category },
-        });
-
-        if (fnError) throw fnError;
+        let data: any = null;
+        try {
+          const result = await supabase.functions.invoke("generate-faq", {
+            body: { city, category },
+          });
+          if (result.error) return;
+          data = result.data;
+        } catch {
+          // Silently swallow all FAQ generation errors (402 credits, network, etc.)
+          return;
+        }
 
         if (data?.title && data?.questions) {
           setFaqData(data);
           cacheRef.current.set(cacheKey, data);
         }
-      } catch (e) {
-        console.error("FAQ generation error:", e);
+      } catch {
         setError(true);
       } finally {
         setIsLoading(false);
