@@ -82,7 +82,7 @@ export const CityAutocompleteAPI = ({
       setIsLoading(true);
       debounceRef.current = setTimeout(() => {
         searchCities(newValue);
-      }, 300);
+      }, 150);
     } else {
       setIsOpen(false);
       setSuggestions([]);
