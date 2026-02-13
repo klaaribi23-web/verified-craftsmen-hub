@@ -1,7 +1,5 @@
 import { motion } from "framer-motion";
-import { Hammer, Target, Quote, Cpu, ShieldCheck } from "lucide-react";
-import founderTerrain from "@/assets/about/founder-terrain.jpg";
-import founderDigital from "@/assets/about/founder-digital.jpg";
+import { Hammer, Quote, Cpu, ShieldCheck } from "lucide-react";
 
 const AllianceSection = () => {
   return (
@@ -43,17 +41,10 @@ const AllianceSection = () => {
               </h3>
             </div>
 
-            <div className="flex flex-col items-center sm:flex-row gap-6 mb-6">
-              <img
-                src={founderTerrain}
-                alt="Nos Experts Terrain — 20 ans d'expérience en rénovation"
-                className="w-28 h-28 rounded-full object-cover border-4 border-gold/40 shadow-lg shrink-0"
-              />
-              <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                Un protocole de validation strict, élaboré par des professionnels cumulant{" "}
-                <span className="font-bold text-foreground">20 ans de chantier</span>.
-              </p>
-            </div>
+            <p className="text-muted-foreground leading-relaxed text-base lg:text-lg mb-6">
+              Un protocole de validation strict, élaboré par des professionnels cumulant{" "}
+              <span className="font-bold text-foreground">20 ans de chantier</span>.
+            </p>
 
             <ul className="space-y-3 text-muted-foreground">
               {[
@@ -86,18 +77,11 @@ const AllianceSection = () => {
               </h3>
             </div>
 
-            <div className="flex flex-col items-center sm:flex-row gap-6 mb-6">
-              <img
-                src={founderDigital}
-                alt="Experte en stratégie digitale et acquisition web"
-                className="w-28 h-28 rounded-full object-cover border-4 border-navy/40 shadow-lg shrink-0"
-              />
-              <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                Une plateforme de mise en relation intelligente qui{" "}
-                <span className="font-bold text-foreground">protège les données des clients</span>{" "}
-                et sélectionne les meilleurs profils par algorithme de confiance.
-              </p>
-            </div>
+            <p className="text-muted-foreground leading-relaxed text-base lg:text-lg mb-6">
+              Une plateforme de mise en relation intelligente qui{" "}
+              <span className="font-bold text-foreground">protège les données des clients</span>{" "}
+              et sélectionne les meilleurs profils par algorithme de confiance.
+            </p>
 
             <ul className="space-y-3 text-muted-foreground">
               {[
