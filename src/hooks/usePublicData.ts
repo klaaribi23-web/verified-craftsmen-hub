@@ -186,7 +186,7 @@ export const usePublicArtisans = () => {
   return useQuery({
     queryKey: ["public-artisans"],
     queryFn: async () => {
-      // Fetch artisans (active + prospect for showcase profiles)
+      // Fetch only active artisans for public display
       const { data: artisans, error: artisansError } = await supabase
         .from("public_artisans")
         .select(
@@ -195,7 +195,7 @@ export const usePublicArtisans = () => {
           category:categories(id, name)
         `,
         )
-        //.in("status", ["active", "prospect"])
+        .eq("status", "active")
         .order("display_priority", { ascending: true, nullsFirst: false })
         .order("rating", { ascending: false });
 
@@ -238,7 +238,7 @@ export const useFeaturedArtisans = () => {
           category:categories(id, name)
         `,
         )
-        .in("status", ["active", "prospect"])
+        .eq("status", "active")
         .eq("is_verified", true)
         .order("rating", { ascending: false })
         .limit(12);
@@ -367,7 +367,7 @@ export const useSimilarArtisans = (categoryId: string | null, excludeId: string)
         `,
         )
         .eq("category_id", categoryId)
-        .in("status", ["active", "prospect"])
+        .eq("status", "active")
         .neq("id", excludeId)
         .order("rating", { ascending: false })
         .limit(6);

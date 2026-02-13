@@ -521,7 +521,7 @@ const Navbar = () => {
               </Button>
               <Button variant="gold" className="font-bold text-[15px] px-5 py-2" asChild>
                 <Link to="/demande-devis">
-                  Demander un devis
+                   Lancer mon projet
                 </Link>
               </Button>
               {isAuthenticated && (
@@ -592,7 +592,7 @@ const Navbar = () => {
                         </Button>
                         <Button variant="default" className="w-full h-12 text-base" asChild>
                           <Link to="/demande-devis" onClick={() => setIsOpen(false)}>
-                            Demander un devis gratuit
+                             Lancer mon projet
                           </Link>
                         </Button>
                       </>
