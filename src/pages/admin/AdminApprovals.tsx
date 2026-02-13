@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw, AlertTriangle, ImageDown, MessageCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw, AlertTriangle, ImageDown, MessageCircle, Link2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -2394,7 +2394,7 @@ const AdminApprovals = () => {
                         {pendingPublicationArtisans.map(artisan => (
                           <Card key={artisan.id} className="hover:shadow-lg transition-shadow">
                             <CardContent className="p-3 md:p-5">
-                              <div className="flex flex-col sm:flex-row items-start gap-3 md:gap-4">
+                              <div className="flex items-start gap-3 md:gap-4">
                                 <Avatar className="h-12 w-12 ring-2 ring-muted shrink-0">
                                   <AvatarImage src={artisan.photo_url || DEFAULT_AVATAR} />
                                   <AvatarFallback className="bg-primary text-primary-foreground">
@@ -2411,10 +2411,11 @@ const AdminApprovals = () => {
                                     )}
                                   </div>
                                   {artisan.description && (
-                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{artisan.description}</p>
+                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{artisan.description}</p>
                                   )}
                                 </div>
-                                <div className="flex gap-2 shrink-0 w-full sm:w-auto">
+                              </div>
+                              <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border">
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -2439,13 +2440,25 @@ const AdminApprovals = () => {
                                     )}
                                     <span className="hidden sm:inline">Publier</span>
                                   </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => navigate(`/artisan/${artisan.slug || artisan.id}`)}
-                                  >
-                                    <Eye className="h-4 w-4 sm:mr-1" />
-                                    <span className="hidden sm:inline">Voir</span>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        const previewUrl = `${window.location.origin}/artisan/${artisan.slug || artisan.id}?preview=true`;
+                                        navigator.clipboard.writeText(previewUrl);
+                                        toast.success("Lien de présentation copié !");
+                                      }}
+                                    >
+                                      <Link2 className="h-4 w-4 sm:mr-1" />
+                                      <span className="hidden sm:inline">Copier lien</span>
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => navigate(`/artisan/${artisan.slug || artisan.id}?preview=true`)}
+                                    >
+                                      <Eye className="h-4 w-4 sm:mr-1" />
+                                      <span className="hidden sm:inline">Voir</span>
                                   </Button>
                                   <Button
                                     variant="destructive"
@@ -2456,7 +2469,6 @@ const AdminApprovals = () => {
                                     <Trash2 className="h-4 w-4 sm:mr-1" />
                                     <span className="hidden sm:inline">Supprimer</span>
                                   </Button>
-                                </div>
                               </div>
                             </CardContent>
                           </Card>
