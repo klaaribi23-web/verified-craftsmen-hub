@@ -310,6 +310,46 @@ export const useArtisanBySlug = (slugOrId: string) => {
 // Alias for backwards compatibility
 export const useArtisanById = useArtisanBySlug;
 
+// Fetch artisan by slug/ID for PREVIEW mode (includes pending/imported artisans)
+// Uses public_artisans view which now includes pending status
+export const useArtisanPreview = (slugOrId: string, enabled: boolean = false) => {
+  return useQuery({
+    queryKey: ["artisan-preview", slugOrId],
+    queryFn: async () => {
+      // Try by slug first
+      let { data, error } = await supabase
+        .from("public_artisans")
+        .select(`*, category:categories(id, name, icon)`)
+        .eq("slug", slugOrId)
+        .maybeSingle();
+
+      if (!data && !error) {
+        const result = await supabase
+          .from("public_artisans")
+          .select(`*, category:categories(id, name, icon)`)
+          .eq("id", slugOrId)
+          .maybeSingle();
+        data = result.data;
+        error = result.error;
+      }
+
+      if (error) throw error;
+      if (!data) return null;
+
+      const { data: artisanCategories } = await supabase
+        .from("artisan_categories")
+        .select(`category:categories(id, name, icon)`)
+        .eq("artisan_id", data.id);
+
+      return {
+        ...data,
+        categories: artisanCategories?.map((ac) => ac.category).filter(Boolean) || [],
+      } as ArtisanPublic & { categories: { id: string; name: string; icon?: string | null }[] };
+    },
+    enabled: enabled && !!slugOrId,
+  });
+};
+
 // Fetch artisan services
 export const useArtisanServices = (artisanId: string) => {
   return useQuery({

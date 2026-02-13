@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
@@ -55,7 +55,7 @@ import { Video } from "lucide-react";
 import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisansCarousel";
 import { fr } from "date-fns/locale";
 import { formatDistanceToNow, format } from "date-fns";
-import { useArtisanBySlug, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
+import { useArtisanBySlug, useArtisanPreview, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
 import ChatWidget from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -73,6 +73,8 @@ const ArtisanPublicProfile = () => {
   const { slug } = useParams<{
     slug: string;
   }>();
+  const [searchParams] = useSearchParams();
+  const isPreviewMode = searchParams.get("preview") === "true";
   const navigate = useNavigate();
   const { user, isAuthenticated, role } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -88,7 +90,12 @@ const ArtisanPublicProfile = () => {
   const [storyViewerOpen, setStoryViewerOpen] = useState(false);
   const [showMobileContactDialog, setShowMobileContactDialog] = useState(false);
 
-  const { data: artisan, isLoading: artisanLoading } = useArtisanBySlug(slug || "");
+  // In preview mode, fetch from artisans table directly (for pending/imported profiles)
+  const { data: publicArtisan, isLoading: publicLoading } = useArtisanBySlug(!isPreviewMode ? (slug || "") : "");
+  const { data: previewArtisan, isLoading: previewLoading } = useArtisanPreview(slug || "", isPreviewMode);
+  
+  const artisan = isPreviewMode ? previewArtisan : publicArtisan;
+  const artisanLoading = isPreviewMode ? previewLoading : publicLoading;
 
   // Use artisan.id for services and reviews (they need the actual ID)
   const artisanId = artisan?.id || "";
@@ -248,11 +255,12 @@ const ArtisanPublicProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title={seoTitle}
+        title={isPreviewMode ? `[Aperçu] ${seoTitle}` : seoTitle}
         description={seoDescription}
         canonical={seoCanonical}
         ogImage={artisan.photo_url || undefined}
         ogType="profile"
+        noIndex={isPreviewMode}
       />
       <LocalBusinessSchema
         name={artisan.business_name}
