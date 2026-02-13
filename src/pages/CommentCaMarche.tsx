@@ -141,7 +141,7 @@ const CommentCaMarche = () => {
         </section>
 
         {/* Le Processus en 3 Étapes */}
-        <section className="py-20 lg:py-28 bg-muted/50">
+        <section className="py-20 lg:py-28 bg-navy">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -149,13 +149,13 @@ const CommentCaMarche = () => {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/15 text-gold text-sm font-medium mb-4 border border-gold/20">
                 Simple & rapide
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Comment ça se passe ?
               </h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">
+              <p className="text-white/60 max-w-xl mx-auto">
                 Trois étapes pour des travaux en toute sérénité.
               </p>
             </motion.div>
@@ -168,7 +168,7 @@ const CommentCaMarche = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.12 }}
-                  className="flex items-start gap-6 bg-white rounded-2xl p-6 md:p-8 border border-border shadow-soft"
+                  className="flex items-start gap-6 bg-white/10 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/10"
                 >
                   <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center text-navy-dark font-bold text-lg shadow-gold">
                     {step.step}
@@ -176,11 +176,11 @@ const CommentCaMarche = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <step.icon className="w-5 h-5 text-gold flex-shrink-0" />
-                      <h3 className="text-lg font-semibold text-navy">
+                      <h3 className="text-lg font-semibold text-white">
                         {step.title}
                       </h3>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed">
+                    <p className="text-white/60 leading-relaxed">
                       {step.description}
                     </p>
                   </div>
