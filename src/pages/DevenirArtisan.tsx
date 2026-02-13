@@ -31,60 +31,46 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 
-// --- Dynamic Mission Header ---
-const DynamicMissionHeader = ({ missionType, missionCity }: { missionType?: string | null; missionCity?: string | null }) => {
+// --- Unified Info Banner ---
+const InfoBanner = ({ missionType, missionCity }: { missionType?: string | null; missionCity?: string | null }) => {
   const fromMission = missionType && missionCity;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`mx-auto max-w-3xl rounded-xl border px-5 py-4 mb-8 ${
-        fromMission ? "bg-gold/10 border-gold/40" : "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700"
-      }`}
+      className="mx-auto max-w-3xl rounded-xl border border-navy/20 bg-[#F9FAFB] px-6 py-5 mb-10"
     >
-      {fromMission ? (
-        <div className="flex items-center gap-3 flex-wrap">
-          <Zap className="w-5 h-5 text-gold flex-shrink-0" />
-          <p className="text-foreground text-sm md:text-base">
-            <span className="font-bold text-gold">Opportunité sélectionnée :</span>{" "}
-            {missionType} à {missionCity}.{" "}
-            <span className="text-muted-foreground">Statut : En attente de validation.</span>
-          </p>
-        </div>
-      ) : (
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="relative flex-shrink-0">
-            <TrendingUp className="w-5 h-5 text-emerald-600" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+      <div className="space-y-3">
+        {fromMission ? (
+          <div className="flex items-center gap-3 flex-wrap">
+            <Zap className="w-5 h-5 text-gold flex-shrink-0" />
+            <p className="text-foreground text-sm md:text-base">
+              <span className="font-bold text-navy">Opportunité sélectionnée :</span>{" "}
+              {missionType} à {missionCity}.{" "}
+              <span className="text-muted-foreground">Statut : En attente de validation.</span>
+            </p>
           </div>
-          <p className="text-foreground text-sm md:text-base">
-            <span className="font-bold text-emerald-700 dark:text-emerald-400">Radar Missions :</span>{" "}
-            24 projets en attente dans le 59.{" "}
-            <span className="text-muted-foreground">Places limitées par ville.</span>
+        ) : (
+          <div className="flex items-center gap-3 flex-wrap">
+            <TrendingUp className="w-5 h-5 text-navy flex-shrink-0" />
+            <p className="text-foreground text-sm md:text-base">
+              <span className="font-bold text-navy">Radar Missions :</span>{" "}
+              24 projets en attente dans le 59.{" "}
+              <span className="text-muted-foreground">Places limitées par ville.</span>
+            </p>
+          </div>
+        )}
+        <div className="flex items-center gap-3">
+          <MapPin className="w-5 h-5 text-navy flex-shrink-0" />
+          <p className="text-sm text-foreground">
+            <strong className="text-navy">Votre zone est ouverte</strong> — Des créneaux sont encore disponibles. Inscrivez-vous avant saturation.
           </p>
         </div>
-      )}
+      </div>
     </motion.div>
   );
 };
-
-// --- Zone Banner ---
-const ZoneBanner = () => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: 0.3 }}
-    className="max-w-3xl mx-auto mb-8"
-  >
-    <div className="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg px-5 py-3">
-      <MapPin className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-      <p className="text-sm text-foreground">
-        <strong className="text-emerald-700 dark:text-emerald-400">✅ Votre zone est ouverte</strong> — Des créneaux sont encore disponibles dans le Nord (59). Inscrivez-vous avant saturation.
-      </p>
-    </div>
-  </motion.div>
-);
 
 // --- WhatsApp Alert ---
 const WhatsAppAlert = () => (
@@ -322,11 +308,8 @@ const DevenirArtisan = () => {
         {/* Hero */}
         <section className="bg-gradient-to-b from-muted/50 to-white py-10 md:py-16 lg:py-24 relative overflow-hidden">
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
-            {/* Dynamic Mission Header */}
-            <DynamicMissionHeader missionType={missionType} missionCity={missionCity} />
-
-            {/* Zone Banner */}
-            <ZoneBanner />
+            {/* Info Banner */}
+            <InfoBanner missionType={missionType} missionCity={missionCity} />
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto mb-10 md:mb-16">
               <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-gold text-navy-dark text-sm font-bold mb-5 shadow-gold">

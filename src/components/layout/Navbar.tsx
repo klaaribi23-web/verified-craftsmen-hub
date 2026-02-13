@@ -567,17 +567,17 @@ const Navbar = () => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="lg:hidden overflow-hidden"
+                className="lg:hidden overflow-hidden bg-navy -mx-4 px-4 rounded-b-xl"
               >
                 <div className="py-3">
                   {/* SECTION ARTISANS */}
-                  <p className="px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Artisans</p>
+                  <p className="px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-white/50">Artisans</p>
                   <Link
                     to="/nos-missions"
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-bold transition-colors",
-                      isActive("/nos-missions") ? "bg-gold/15 text-navy" : "text-navy hover:bg-gold/10"
+                      isActive("/nos-missions") ? "bg-white/15 text-gold" : "text-white hover:bg-white/10"
                     )}
                   >
                     <Radar className="w-5 h-5 text-gold" />
@@ -588,7 +588,7 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/devenir-artisan") ? "bg-gold/10 text-navy" : "text-muted-foreground hover:bg-muted"
+                      isActive("/devenir-artisan") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
                     )}
                   >
                     <Crown className="w-5 h-5" />
@@ -599,7 +599,7 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/auth") ? "bg-gold/10 text-navy" : "text-muted-foreground hover:bg-muted"
+                      isActive("/auth") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
                     )}
                   >
                     <User className="w-5 h-5" />
@@ -607,10 +607,10 @@ const Navbar = () => {
                   </Link>
 
                   {/* Séparateur */}
-                  <div className="border-t border-border my-3 mx-4" />
+                  <div className="border-t border-white/15 my-3 mx-4" />
 
                   {/* SECTION PARTICULIERS */}
-                  <p className="px-4 pt-1 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Particuliers</p>
+                  <p className="px-4 pt-1 pb-1 text-[11px] font-bold uppercase tracking-wider text-white/50">Particuliers</p>
                   <Link
                     to="/demande-devis"
                     onClick={() => setIsOpen(false)}
@@ -626,7 +626,7 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/trouver-artisan") ? "bg-gold/10 text-navy" : "text-muted-foreground hover:bg-muted"
+                      isActive("/trouver-artisan") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
                     )}
                   >
                     <Search className="w-5 h-5" />
@@ -636,11 +636,11 @@ const Navbar = () => {
                   {/* Authenticated shortcut */}
                   {isAuthenticated && !isLoading && (
                     <>
-                      <div className="border-t border-border my-3 mx-4" />
+                      <div className="border-t border-white/15 my-3 mx-4" />
                       <Link
                         to={getDashboardLink()}
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-navy hover:bg-muted transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-white hover:bg-white/10 transition-colors"
                       >
                         <LayoutDashboard className="w-5 h-5" />
                         Mon espace

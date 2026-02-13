@@ -15,7 +15,7 @@ import SocialProofToast from "@/components/home/SocialProofToast";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
-import { Star, ArrowRight, ShieldCheck, Award, HeartHandshake, UserCheck } from "lucide-react";
+import { Star, ArrowRight, ShieldCheck, Award, HeartHandshake, UserCheck, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/seo/SEOHead";
@@ -35,12 +35,11 @@ const Index = () => {
         <HeroSection />
 
         {/* Bandeau Anonymat — forte lisibilité */}
-        <section className="bg-muted py-4 border-y border-border">
-          <div className="container mx-auto px-4 text-center">
-            <p className="text-base md:text-lg font-semibold tracking-wide text-foreground" style={{ fontFamily: "'Georgia', serif", letterSpacing: "0.04em" }}>
-              <ShieldCheck className="inline w-5 h-5 text-gold mr-2 -mt-0.5" />
-              Votre anonymat garanti jusqu'au dernier moment
-            </p>
+        <section className="bg-navy py-3 border-y border-navy-dark">
+          <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/90 font-medium">
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold" /> Entreprise Française</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold" /> Support 7j/7</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold" /> Paiement Sécurisé Stripe</span>
           </div>
         </section>
 
