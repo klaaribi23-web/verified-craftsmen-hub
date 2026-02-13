@@ -39,11 +39,7 @@ const DynamicHeader = ({ missionType, missionCity }: { missionType?: string | nu
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`mx-auto max-w-3xl rounded-xl border px-5 py-4 mb-10 ${
-        fromMission
-          ? "bg-gold/10 border-gold/40"
-          : "bg-white/5 border-white/10"
-      }`}
+      className="mx-auto max-w-3xl rounded-xl border border-navy/20 bg-[#F9FAFB]/10 backdrop-blur-sm px-6 py-5 mb-10"
     >
       {fromMission ? (
         <div className="flex items-center gap-3 flex-wrap">
@@ -56,10 +52,7 @@ const DynamicHeader = ({ missionType, missionCity }: { missionType?: string | nu
         </div>
       ) : (
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="relative flex-shrink-0">
-            <TrendingUp className="w-5 h-5 text-gold" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-          </div>
+          <TrendingUp className="w-5 h-5 text-gold flex-shrink-0" />
           <p className="text-white text-sm md:text-base">
             <span className="font-bold text-gold">Radar Missions :</span>{" "}
             24 projets en attente dans le 59.{" "}
