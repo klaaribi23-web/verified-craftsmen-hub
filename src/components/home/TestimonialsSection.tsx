@@ -1,33 +1,38 @@
 import { motion } from "framer-motion";
 import { Star, Quote, CheckCircle2 } from "lucide-react";
-import client1 from "@/assets/testimonials/client-1.jpg";
-import client2 from "@/assets/testimonials/client-2.jpg";
-import client3 from "@/assets/testimonials/client-3.jpg";
+import solarInstall from "@/assets/testimonials/solar-install.jpg";
+import electricalPanel from "@/assets/testimonials/electrical-panel.jpg";
+import bathroomReno from "@/assets/testimonials/bathroom-reno.jpg";
+
 const testimonials = [{
-  name: "Marie Dupont",
-  location: "Paris 15ème",
+  name: "Stéphanie L.",
+  location: "Lille",
   rating: 5,
-  text: "J'ai trouvé un excellent plombier en moins de 2 heures. Le devis était clair, les travaux impeccables. Je recommande vivement !",
+  text: "Enfin un plombier qui arrive à l'heure et qui ne change pas le devis à la fin. La certification Artisans Validés m'a rassurée.",
   artisan: "Plomberie",
-  image: client1,
-  verified: true
+  image: bathroomReno,
+  verified: true,
+  type: "Particulier"
 }, {
-  name: "Thomas Bernard",
-  location: "Lyon 6ème",
+  name: "Marc D.",
+  location: "Électricien",
   rating: 5,
-  text: "Rénovation complète de mon appartement réalisée par des artisans trouvés sur la plateforme. Professionnels et ponctuels.",
-  artisan: "Multi-travaux",
-  image: client2,
-  verified: true
-}, {
-  name: "Sophie Martin",
-  location: "Marseille",
-  rating: 5,
-  text: "Le système de vérification m'a vraiment rassurée. J'ai pu confier mes travaux d'électricité en toute sérénité.",
+  text: "J'en avais marre de payer des leads qui n'aboutissent pas. Ici, je ne parle qu'à des clients sérieux qui connaissent la valeur de mon travail.",
   artisan: "Électricité",
-  image: client3,
-  verified: true
+  image: electricalPanel,
+  verified: true,
+  type: "Artisan"
+}, {
+  name: "Jean-Marc T.",
+  location: "Bordeaux",
+  rating: 5,
+  text: "Installation solaire impeccable. On sent que l'artisan a été audité avant d'être référencé.",
+  artisan: "Panneaux solaires",
+  image: solarInstall,
+  verified: true,
+  type: "Particulier"
 }];
+
 const AnimatedStar = ({
   index,
   filled
@@ -61,163 +66,77 @@ const AnimatedStar = ({
       <Star className={`w-5 h-5 ${filled ? "fill-gold text-gold" : "text-muted-foreground"}`} />
     </motion.div>
   </motion.div>;
+
 const TestimonialsSection = () => {
   return <section className="py-20 lg:py-32 bg-white relative overflow-hidden">
-      {/* Background decorations */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
       
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
-        {/* Header */}
-        <motion.div initial={{
-        opacity: 0,
-        y: 20
-      }} whileInView={{
-        opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} className="text-center mb-16">
-          <motion.span initial={{
-          opacity: 0,
-          scale: 0.9
-        }} whileInView={{
-          opacity: 1,
-          scale: 1
-        }} viewport={{
-          once: true
-        }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-            <motion.div animate={{
-            rotate: [0, 10, -10, 0]
-          }} transition={{
-            duration: 2,
-            repeat: Infinity,
-            repeatDelay: 3
-          }}>
-              <Star className="w-4 h-4 fill-gold" />
-            </motion.div>
-            Témoignages
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+          <motion.span initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
+            <Star className="w-4 h-4 fill-gold" />
+            L'humain au centre
           </motion.span>
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy mb-4">
             Ils nous font confiance
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Des milliers de particuliers ont déjà trouvé leur artisan idéal
-            grâce à Artisans Validés.
+            Particuliers et artisans témoignent de leur expérience avec Artisans Validés.
           </p>
         </motion.div>
 
-        {/* Testimonials Grid */}
         <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => <motion.article key={testimonial.name} initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} viewport={{
-          once: true
-        }} transition={{
-          delay: index * 0.15,
-          duration: 0.5
-        }} whileHover={{
-          y: -8,
-          transition: {
-            duration: 0.3
-          }
-        }} className="relative group">
-              <div className="bg-muted rounded-2xl p-8 h-full border border-border/50 hover:border-gold/30 hover:shadow-lg transition-all duration-300">
-                {/* Quote Icon */}
-                <motion.div initial={{
-              opacity: 0,
-              rotate: -20
-            }} whileInView={{
-              opacity: 1,
-              rotate: 0
-            }} viewport={{
-              once: true
-            }} transition={{
-              delay: index * 0.15 + 0.2
-            }}>
-                  <Quote className="w-10 h-10 text-gold/30 mb-4" />
-                </motion.div>
-
-                {/* Animated Stars */}
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => <AnimatedStar key={i} index={i + index * 5} filled={i < testimonial.rating} />)}
+          {testimonials.map((testimonial, index) => <motion.article key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15, duration: 0.5 }} whileHover={{ y: -8, transition: { duration: 0.3 } }} className="relative group">
+              <div className="bg-muted rounded-2xl overflow-hidden h-full border border-border/50 hover:border-gold/30 hover:shadow-lg transition-all duration-300">
+                {/* Photo de réalisation */}
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={testimonial.image} 
+                    alt={`Réalisation ${testimonial.artisan}`} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  />
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-navy/80 backdrop-blur-sm text-white text-xs font-medium">
+                    {testimonial.type}
+                  </div>
                 </div>
 
-                {/* Text */}
-                <motion.p initial={{
-              opacity: 0
-            }} whileInView={{
-              opacity: 1
-            }} viewport={{
-              once: true
-            }} transition={{
-              delay: index * 0.15 + 0.3
-            }} className="text-navy mb-6 leading-relaxed text-base">
-                  "{testimonial.text}"
-                </motion.p>
+                <div className="p-6">
+                  <Quote className="w-8 h-8 text-gold/30 mb-3" />
 
-                {/* Author with real photo */}
-                <motion.div initial={{
-              opacity: 0,
-              x: -20
-            }} whileInView={{
-              opacity: 1,
-              x: 0
-            }} viewport={{
-              once: true
-            }} transition={{
-              delay: index * 0.15 + 0.4
-            }} className="flex items-center gap-4">
-                  <div className="relative">
-                    <img src={testimonial.image} alt={`Photo de ${testimonial.name}`} width={56} height={56} className="w-14 h-14 rounded-full object-cover border-2 border-gold shadow-md" />
-                    {testimonial.verified && <motion.div initial={{
-                  scale: 0
-                }} whileInView={{
-                  scale: 1
-                }} viewport={{
-                  once: true
-                }} transition={{
-                  delay: index * 0.15 + 0.5,
-                  type: "spring"
-                }} className="absolute -bottom-1 -right-1 bg-success rounded-full p-0.5">
-                        <CheckCircle2 className="w-4 h-4 text-white" />
-                      </motion.div>}
+                  <div className="flex items-center gap-1 mb-3">
+                    {[...Array(5)].map((_, i) => <AnimatedStar key={i} index={i + index * 5} filled={i < testimonial.rating} />)}
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-navy">
-                      {testimonial.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {testimonial.location} · {testimonial.artisan}
-                    </p>
+
+                  <p className="text-navy mb-5 leading-relaxed text-base">
+                    "{testimonial.text}"
+                  </p>
+
+                  <div className="flex items-center gap-3 pt-4 border-t border-border/50">
+                    <div className="w-10 h-10 rounded-full bg-gradient-gold flex items-center justify-center text-navy-dark font-bold text-sm">
+                      {testimonial.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-navy flex items-center gap-1.5">
+                        {testimonial.name}
+                        {testimonial.verified && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {testimonial.location} · {testimonial.artisan}
+                      </p>
+                    </div>
                   </div>
-                </motion.div>
+                </div>
               </div>
               
-              {/* Hover glow effect */}
               <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-gold/20 to-primary/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" aria-hidden="true" />
             </motion.article>)}
         </div>
 
-        {/* Stats */}
-        <motion.div initial={{
-        opacity: 0,
-        y: 30
-      }} whileInView={{
-        opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} transition={{
-        delay: 0.3
-      }} className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 bg-gradient-gold rounded-2xl p-8 lg:p-12 shadow-gold relative overflow-hidden">
-          {/* Animated background pattern */}
-          <div className="absolute inset-0 opacity-20">
-            {[...Array(6)].map((_, i) => <motion.div key={i} className="absolute w-24 h-24 border border-navy/30 rounded-full" style={{
+        {/* Stats — fond sombre institutionnel */}
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 bg-navy rounded-2xl p-8 lg:p-12 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            {[...Array(6)].map((_, i) => <motion.div key={i} className="absolute w-24 h-24 border border-gold/30 rounded-full" style={{
             left: `${i % 3 * 40}%`,
             top: `${Math.floor(i / 3) * 60}%`
           }} animate={{
@@ -231,12 +150,12 @@ const TestimonialsSection = () => {
           </div>
           
           {[{
-          value: "4.8/5",
+          value: "4.9/5",
           label: "Note moyenne",
           icon: Star
         }, {
-          value: "50K+",
-          label: "Avis vérifiés",
+          value: "100K+",
+          label: "Travaux réalisés",
           icon: CheckCircle2
         }, {
           value: "98%",
@@ -257,7 +176,7 @@ const TestimonialsSection = () => {
         }} transition={{
           delay: 0.4 + index * 0.1
         }} className="text-center relative z-10">
-              <motion.div className="text-3xl md:text-4xl font-bold text-navy-dark mb-1" animate={{
+              <motion.div className="text-3xl md:text-4xl font-bold text-gold mb-1" animate={{
             scale: [1, 1.05, 1]
           }} transition={{
             duration: 2,
@@ -266,7 +185,7 @@ const TestimonialsSection = () => {
           }}>
                 {stat.value}
               </motion.div>
-              <div className="text-navy-dark/70 text-sm font-medium">
+              <div className="text-white/70 text-sm font-medium">
                 {stat.label}
               </div>
             </motion.div>)}
