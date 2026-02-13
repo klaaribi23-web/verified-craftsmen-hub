@@ -227,9 +227,8 @@ const AdminApprovals = () => {
   // Sub-tab state for vitrines
   const [vitrineSubTab, setVitrineSubTab] = useState("actives");
 
-  // Filters for "À publier" tab
-  const [pubFilterCategory, setPubFilterCategory] = useState<string>("all");
-  const [pubFilterCity, setPubFilterCity] = useState("");
+  // Unified search for "À publier" tab
+  const [pubSearch, setPubSearch] = useState("");
 
   // Sub-tab state for artisans
   const [artisanSubTab, setArtisanSubTab] = useState("nouvelles-inscriptions");
@@ -509,40 +508,23 @@ const AdminApprovals = () => {
     },
   });
 
-  // Reset publication filters when switching away from "a-publier" sub-tab
+  // Reset publication search when switching away from "a-publier" sub-tab
   useEffect(() => {
     if (vitrineSubTab !== "a-publier") {
-      setPubFilterCategory("all");
-      setPubFilterCity("");
+      setPubSearch("");
     }
   }, [vitrineSubTab]);
 
-  // Filtered list of pending publication artisans
+  // Filtered list of pending publication artisans (unified search: name, city, category)
   const filteredPendingPublication = useMemo(() => {
-    let list = pendingPublicationArtisans;
-
-    // Filter by category
-    if (pubFilterCategory && pubFilterCategory !== "all") {
-      // Find all subcategory IDs for the selected parent
-      const parent = categoriesHierarchy.find(c => c.id === pubFilterCategory);
-      if (parent) {
-        const childIds = parent.children.map(ch => ch.id);
-        const allIds = [parent.id, ...childIds];
-        list = list.filter(a => a.category_id && allIds.includes(a.category_id));
-      } else {
-        // Might be a subcategory directly
-        list = list.filter(a => a.category_id === pubFilterCategory);
-      }
-    }
-
-    // Filter by city
-    if (pubFilterCity.trim()) {
-      const search = pubFilterCity.toLowerCase().trim();
-      list = list.filter(a => a.city?.toLowerCase().includes(search));
-    }
-
-    return list;
-  }, [pendingPublicationArtisans, pubFilterCategory, pubFilterCity, categoriesHierarchy]);
+    if (!pubSearch.trim()) return pendingPublicationArtisans;
+    const search = pubSearch.toLowerCase().trim();
+    return pendingPublicationArtisans.filter(a => 
+      a.business_name?.toLowerCase().includes(search) ||
+      a.city?.toLowerCase().includes(search) ||
+      a.category?.name?.toLowerCase().includes(search)
+    );
+  }, [pendingPublicationArtisans, pubSearch]);
 
 
   const publishArtisanMutation = useMutation({
@@ -2425,32 +2407,24 @@ const AdminApprovals = () => {
 
                 {/* VITRINES À PUBLIER SUB-TAB */}
                 <TabsContent value="a-publier">
-                  {/* Filters: Category + City */}
-                  <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                    <div className="flex-1">
-                      <Select value={pubFilterCategory} onValueChange={setPubFilterCategory}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Filtrer par métier..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Tous les métiers</SelectItem>
-                          {categoriesHierarchy.map(parent => (
-                            <SelectItem key={parent.id} value={parent.id}>
-                              {parent.icon ? `${parent.icon} ` : ""}{parent.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="relative flex-1">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                      <Input
-                        placeholder="Filtrer par ville..."
-                        value={pubFilterCity}
-                        onChange={e => setPubFilterCity(e.target.value)}
-                        className="pl-9"
-                      />
-                    </div>
+                  {/* Unified search bar */}
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+                    <Input
+                      placeholder="Rechercher par nom, métier ou ville..."
+                      value={pubSearch}
+                      onChange={e => setPubSearch(e.target.value)}
+                      className="pl-11 h-12 text-base rounded-xl shadow-sm border-border"
+                      autoFocus
+                    />
+                    {pubSearch && (
+                      <button
+                        onClick={() => setPubSearch("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
 
                   {isLoadingPendingPublication ? (
@@ -2459,8 +2433,8 @@ const AdminApprovals = () => {
                     </div>
                   ) : filteredPendingPublication.length > 0 ? (
                     <>
-                      <div className="mb-4 text-sm text-muted-foreground">
-                        {filteredPendingPublication.length} vitrine{filteredPendingPublication.length > 1 ? "s" : ""} sur {pendingPublicationArtisans.length} {pubFilterCategory !== "all" || pubFilterCity ? "— filtrées" : "en attente de publication"}
+                       <div className="mb-4 text-sm text-muted-foreground">
+                        {filteredPendingPublication.length} vitrine{filteredPendingPublication.length > 1 ? "s" : ""} sur {pendingPublicationArtisans.length} {pubSearch ? "— filtrées" : "en attente de publication"}
                       </div>
                       <div className="grid gap-3">
                         {filteredPendingPublication.map(artisan => (
@@ -2550,13 +2524,13 @@ const AdminApprovals = () => {
                   ) : (
                     <Card>
                       <CardContent className="p-8 text-center">
-                        {pubFilterCategory !== "all" || pubFilterCity ? (
+                        {pubSearch ? (
                           <>
                             <Search className="h-10 w-10 text-muted-foreground/50 mx-auto mb-3" />
                             <p className="font-medium">Aucun résultat</p>
-                            <p className="text-sm text-muted-foreground mt-1">Aucune vitrine ne correspond à vos filtres.</p>
-                            <Button variant="outline" className="mt-3" onClick={() => { setPubFilterCategory("all"); setPubFilterCity(""); }}>
-                              Réinitialiser les filtres
+                            <p className="text-sm text-muted-foreground mt-1">Aucune vitrine ne correspond à votre recherche.</p>
+                            <Button variant="outline" className="mt-3" onClick={() => setPubSearch("")}>
+                              Réinitialiser la recherche
                             </Button>
                           </>
                         ) : (
