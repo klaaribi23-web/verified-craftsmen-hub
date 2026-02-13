@@ -5,15 +5,15 @@ const testimonials = [{
   name: "Stéphanie L.",
   location: "Lille",
   rating: 5,
-  text: "Enfin un plombier qui arrive à l'heure et qui ne change pas le devis à la fin. La certification Artisans Validés m'a rassurée.",
-  artisan: "Plomberie",
+  text: "Honnêtement, j'appréhendais de faire appel à un électricien après ma dernière mauvaise expérience. Passer par Artisans Validés a tout changé : on sent que le pro n'est pas là pour gonfler la facture mais parce qu'il a été audité. Travail propre, carré, et surtout : sans mauvaise surprise au moment de payer.",
+  artisan: "Particulier",
   verified: true,
   type: "Particulier"
 }, {
   name: "Marc D.",
   location: "Lille",
   rating: 5,
-  text: "J'en avais marre de payer des leads qui n'aboutissent pas. Ici, je ne parle qu'à des clients sérieux qui connaissent la valeur de mon travail.",
+  text: "J'ai arrêté de jeter mon argent dans les plateformes de leads qui vous vendent des numéros de téléphone qui ne répondent jamais. Ici, je ne traite qu'avec des clients qui ont déjà validé leur projet avec Andrea. C'est un gain de temps énorme, je me concentre enfin sur mon vrai métier : le chantier.",
   artisan: "Électricien",
   verified: true,
   type: "Artisan"
@@ -21,8 +21,8 @@ const testimonials = [{
   name: "Jean-Marc T.",
   location: "Bordeaux",
   rating: 5,
-  text: "Installation solaire impeccable. On sent que l'artisan a été audité avant d'être référencé.",
-  artisan: "Panneaux solaires",
+  text: "Le système de diagnostic avec Andrea est bluffant. On décrit son projet en 2 minutes et on reçoit une proposition d'un pro réellement expert dans le domaine (panneaux solaires pour moi). On ne perd plus son temps à chercher, on valide juste l'excellence.",
+  artisan: "Particulier",
   verified: true,
   type: "Particulier"
 }];
