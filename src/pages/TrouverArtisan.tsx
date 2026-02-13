@@ -225,7 +225,7 @@ const TrouverArtisan = () => {
           }} transition={{
             delay: 0.1
           }} className="max-w-4xl mx-auto">
-              
+              <ArtisanFilters onFiltersChange={handleFiltersChange} />
             </motion.div>
           </div>
         </section>
@@ -247,14 +247,9 @@ const TrouverArtisan = () => {
         </section>
 
         {/* All Artisans with Filters */}
-        <section className="py-10 md:py-16 bg-card" ref={resultsRef}>
+        <section className="py-10 md:py-16 bg-card" ref={resultsRef} id="artisans-results">
           <div className="container mx-auto px-4 lg:px-8">
             <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6 md:mb-8">Tous nos artisans</h2>
-            
-            {/* Horizontal Search Bar */}
-            <div className="mb-6">
-              <ArtisanFilters onFiltersChange={handleFiltersChange} />
-            </div>
 
             {/* Artisans Grid */}
             <div>
