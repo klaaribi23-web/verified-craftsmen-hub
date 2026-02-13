@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
@@ -6,7 +7,6 @@ import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
@@ -23,10 +23,96 @@ import {
   FileText,
   Users,
   Star,
-  ArrowRight,
+  Lock,
+  Zap,
+  TrendingUp,
+  AlertTriangle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
+// --- Sub-components ---
+
+const DynamicHeader = ({ missionType, missionCity }: { missionType?: string | null; missionCity?: string | null }) => {
+  const fromMission = missionType && missionCity;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`mx-auto max-w-3xl rounded-xl border px-5 py-4 mb-10 ${
+        fromMission
+          ? "bg-gold/10 border-gold/40"
+          : "bg-white/5 border-white/10"
+      }`}
+    >
+      {fromMission ? (
+        <div className="flex items-center gap-3 flex-wrap">
+          <Zap className="w-5 h-5 text-gold flex-shrink-0" />
+          <p className="text-white text-sm md:text-base">
+            <span className="font-bold text-gold">Opportunité sélectionnée :</span>{" "}
+            {missionType} à {missionCity}.{" "}
+            <span className="text-white/60">Statut : En attente de validation.</span>
+          </p>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative flex-shrink-0">
+            <TrendingUp className="w-5 h-5 text-gold" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+          </div>
+          <p className="text-white text-sm md:text-base">
+            <span className="font-bold text-gold">Radar Missions :</span>{" "}
+            24 projets en attente dans le 59.{" "}
+            <span className="text-white/60">Places limitées par ville.</span>
+          </p>
+        </div>
+      )}
+    </motion.div>
+  );
+};
+
+const ValuePropositions = () => (
+  <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-10">
+    {[
+      { icon: Lock, title: "99€/mois", desc: "Votre licence d'accès au flux de chantiers qualifiés." },
+      { icon: TrendingUp, title: "Zéro commission", desc: "Vous gardez 100% de votre chiffre d'affaires." },
+      { icon: Zap, title: "Marketing Inclus", desc: "Votre abonnement finance nos campagnes pub pour vous apporter des clients." },
+    ].map((v, i) => (
+      <motion.div
+        key={v.title}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 * (i + 1) }}
+        className="bg-white/5 border border-white/10 rounded-xl p-5 text-center"
+      >
+        <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <v.icon className="w-5 h-5 text-gold" />
+        </div>
+        <h3 className="text-white font-bold text-lg mb-1">{v.title}</h3>
+        <p className="text-white/60 text-sm leading-relaxed">{v.desc}</p>
+      </motion.div>
+    ))}
+  </div>
+);
+
+const ExclusivityNotice = () => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.6 }}
+    className="max-w-2xl mx-auto text-center mb-6"
+  >
+    <div className="inline-flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-lg px-5 py-3">
+      <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
+      <p className="text-sm text-white/90 text-left">
+        <strong className="text-gold">Attention :</strong> Nous limitons strictement l'accès à{" "}
+        <strong className="text-white">2 artisans par métier et par ville</strong> pour garantir votre volume de travail.
+      </p>
+    </div>
+  </motion.div>
+);
+
+// --- Schema ---
 const candidacySchema = z.object({
   businessName: z.string().trim().min(2, "Nom d'entreprise requis").max(100),
   siret: z.string().trim().min(14, "SIRET invalide (14 chiffres)").max(14, "SIRET invalide (14 chiffres)").regex(/^\d{14}$/, "Le SIRET doit contenir 14 chiffres"),
@@ -41,7 +127,12 @@ const steps = [
   { icon: CheckCircle2, title: "Activation", desc: "Votre espace Pro est créé sur-mesure" },
 ];
 
+// --- Main Page ---
 const DevenirPartenaire = () => {
+  const [searchParams] = useSearchParams();
+  const missionType = searchParams.get("mission");
+  const missionCity = searchParams.get("ville");
+
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null);
@@ -80,7 +171,6 @@ const DevenirPartenaire = () => {
         return;
       }
 
-      // Save to database
       const { error: dbError } = await supabase
         .from("partner_candidacies")
         .insert({
@@ -151,22 +241,31 @@ const DevenirPartenaire = () => {
           </div>
 
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-2xl mx-auto mb-12">
+            {/* Dynamic Header */}
+            <DynamicHeader missionType={missionType} missionCity={missionCity} />
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-2xl mx-auto mb-10">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-6">
                 <Shield className="w-4 h-4 text-gold" />
                 <span className="text-sm font-medium text-gold">Réseau sélectif</span>
               </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
-                Rejoignez un réseau où la{" "}
-                <span className="text-gradient-gold">qualité prime</span>
+                Accédez à un flux de{" "}
+                <span className="text-gradient-gold">chantiers qualifiés</span>
               </h1>
               <p className="text-lg text-white/70">
-                Ici, nous valorisons la qualité, pas le volume. Un conseiller vous rappelle sous 24h pour étudier votre candidature.
+                Votre licence d'accès à des projets pré-qualifiés, à 10 minutes de votre dépôt. Zéro démarchage. Zéro commission.
               </p>
             </motion.div>
 
+            {/* Value Propositions */}
+            <ValuePropositions />
+
+            {/* Exclusivity Notice */}
+            <ExclusivityNotice />
+
             {/* Steps */}
-            <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-12">
+            <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
               {steps.map((step, i) => (
                 <motion.div
                   key={step.title}
@@ -265,8 +364,17 @@ const DevenirPartenaire = () => {
                         </div>
 
                         <Button type="submit" variant="gold" size="lg" className="w-full !text-base !font-bold !py-6" disabled={isLoading}>
-                          {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                          {isLoading ? "Envoi en cours..." : "Envoyer ma candidature"}
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              Envoi en cours...
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-5 h-5 mr-2" />
+                              Débloquer mes chantiers
+                            </>
+                          )}
                         </Button>
                       </form>
                     </CardContent>
@@ -326,7 +434,7 @@ const DevenirPartenaire = () => {
                         {[
                           { val: "50+", label: "Artisans partenaires" },
                           { val: "0%", label: "Commission" },
-                          { val: "2 max", label: "Par ville" },
+                          { val: "2 max", label: "Par ville & métier" },
                           { val: "24h", label: "Délai de rappel" },
                         ].map(s => (
                           <div key={s.label} className="text-center p-3 bg-muted/50 rounded-lg">
