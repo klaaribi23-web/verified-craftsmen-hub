@@ -274,8 +274,27 @@ const ArtisanPublicProfile = () => {
       />
       <Navbar />
 
+      {/* Preview Mode Banner */}
+      {isPreviewMode && (
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-primary text-primary-foreground">
+          <div className="container mx-auto px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="text-sm font-medium text-center sm:text-left">
+              👁️ Aperçu de votre vitrine — En attente de validation par Artisans Validés
+            </p>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="whitespace-nowrap font-bold"
+              onClick={() => window.location.href = `${window.location.origin}/connexion`}
+            >
+              Activer ma visibilité — 99 €/mois
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Spacer for navbar - includes top bar on mobile when authenticated */}
-      <div className="pt-28 lg:pt-20" />
+      <div className={isPreviewMode ? "pt-40 lg:pt-28" : "pt-28 lg:pt-20"} />
 
       {/* Mobile Back Button - Full width, minimalist */}
       <div className="lg:hidden border-b bg-muted/30">
