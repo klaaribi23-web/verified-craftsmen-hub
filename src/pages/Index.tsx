@@ -35,9 +35,9 @@ const Index = () => {
         <HeroSection />
 
         {/* Bandeau Anonymat — forte lisibilité */}
-        <section className="bg-navy-dark py-4 border-y border-gold/15">
+        <section className="bg-muted py-4 border-y border-border">
           <div className="container mx-auto px-4 text-center">
-            <p className="text-base md:text-lg font-semibold tracking-wide text-white" style={{ fontFamily: "'Georgia', serif", letterSpacing: "0.04em" }}>
+            <p className="text-base md:text-lg font-semibold tracking-wide text-foreground" style={{ fontFamily: "'Georgia', serif", letterSpacing: "0.04em" }}>
               <ShieldCheck className="inline w-5 h-5 text-gold mr-2 -mt-0.5" />
               Votre anonymat garanti jusqu'au dernier moment
             </p>
@@ -47,11 +47,11 @@ const Index = () => {
         <SocialProofBanner />
 
         {/* Bandeau ADN Particuliers */}
-        <section className="bg-navy py-6 border-t border-white/5">
+        <section className="bg-[#F9FAFB] py-6 border-t border-border">
           <div className="container mx-auto px-4 text-center space-y-4">
             <div className="flex items-center justify-center gap-2">
               <ShieldCheck className="h-5 w-5 text-gold flex-shrink-0" />
-              <p className="text-white text-base md:text-lg font-medium">
+              <p className="text-foreground text-base md:text-lg font-medium">
                 Ici, on ne vend pas vos coordonnées au plus offrant.{" "}
                 <span className="text-gold font-bold">On déploie un réseau d'élite, département par département.</span>
               </p>
@@ -62,7 +62,7 @@ const Index = () => {
                 { icon: HeartHandshake, label: "Charte Qualité Stricte" },
                 { icon: UserCheck, label: "Accompagnement Personnalisé" },
               ].map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-1.5 text-white/60 text-xs md:text-sm">
+                <div key={label} className="flex items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
                   <Icon className="h-4 w-4 text-gold/70" />
                   <span>{label}</span>
                 </div>

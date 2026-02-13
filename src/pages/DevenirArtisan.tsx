@@ -257,7 +257,7 @@ const DevenirArtisan = () => {
         </section>
 
         {/* 3 Piliers "Trident de Fer" */}
-        <section className="py-10 md:py-16 bg-navy-dark">
+        <section className="py-10 md:py-16 bg-[#F9FAFB]">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-[15px] md:gap-6 max-w-5xl mx-auto">
               {[
@@ -452,7 +452,7 @@ const DevenirArtisan = () => {
           </div>
         </section>
 
-        {/* Pricing — Le Deal */}
+        {/* Pricing — Devenir Partenaire Exclusif */}
         <section className="py-16 lg:py-24 bg-white">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
@@ -462,9 +462,9 @@ const DevenirArtisan = () => {
               className="text-center mb-12"
             >
               <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-                Le deal
+                Devenir Partenaire Exclusif
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                 Le seul réseau qui ne prend aucune commission sur votre travail.
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -472,69 +472,92 @@ const DevenirArtisan = () => {
               </p>
             </motion.div>
 
-            <div className="max-w-lg mx-auto">
-              {/* Carte Exclusivité */}
+            <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              {/* Mensuel */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <div className="flex justify-center mb-4">
-                  <div className="bg-gradient-gold text-navy-dark px-6 py-2.5 rounded-full text-sm font-bold shadow-gold tracking-wide">
-                    👑 ACCÈS RÉSEAU & EXCLUSIVITÉ
-                  </div>
-                </div>
-                <Card className="flex flex-col h-full border-2 border-gold/70 hover:border-gold shadow-lg shadow-gold/10">
+                <Card className="flex flex-col h-full border-2 border-border hover:border-gold/50 transition-colors">
                   <CardHeader className="text-center pb-2 pt-8">
-                    <p className="text-xs text-gold font-medium mb-4">
-                      Vérifiez si votre secteur est encore libre.
-                    </p>
                     <div className="flex justify-center mb-3">
-                      <div className="p-3 rounded-full bg-gold/20">
-                        <Crown className="w-10 h-10 text-gold" />
+                      <div className="p-3 rounded-full bg-primary/10">
+                        <Crown className="w-8 h-8 text-primary" />
                       </div>
                     </div>
-                    <div className="mb-1">
-                      <span className="text-5xl font-bold text-navy">99€</span>
-                      <span className="text-muted-foreground text-lg"> HT/mois</span>
+                    <CardTitle className="text-xl">Mensuel</CardTitle>
+                    <CardDescription>Sans engagement, résiliable à tout moment</CardDescription>
+                    <div className="mt-4">
+                      <span className="text-4xl font-bold text-foreground">99€</span>
+                      <span className="text-muted-foreground"> HT/mois</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Possibilité d'activer des campagnes de RDV garantis après validation de votre secteur.
-                    </p>
-                    <p className="text-sm font-bold text-emerald-600">
-                      ✅ Rentabilisé dès le premier petit chantier.
-                    </p>
                   </CardHeader>
-
                   <CardContent className="flex-1">
-                    <ul className="space-y-4">
-                      {[
-                        "2 places max par ville",
-                        "Profil géré par nos soins",
-                        "Appels directs des clients",
-                        "0% commission sur vos devis",
-                        "Priorité de référencement sur votre ville",
-                      ].map((feature) => (
-                        <li key={feature} className="flex items-center gap-3 text-base">
-                          <Check className="w-5 h-5 flex-shrink-0 text-gold" />
-                          <span className="font-medium">{feature}</span>
+                    <ul className="space-y-3">
+                      {["2 places max par ville", "Profil géré par nos soins", "Appels directs des clients", "0% commission sur vos devis", "Badge Artisan Validé"].map((f) => (
+                        <li key={f} className="flex items-center gap-3 text-sm">
+                          <Check className="w-4 h-4 flex-shrink-0 text-gold" />
+                          <span>{f}</span>
                         </li>
                       ))}
                     </ul>
                   </CardContent>
-
                   <CardFooter className="pt-4 mt-auto">
-                    <Button
-                      variant="gold"
-                      size="lg"
-                      className="w-full !text-base !font-bold !py-5"
-                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    >
-                      JE VEUX ÊTRE VALIDÉ
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                    <Button variant="outline" size="lg" className="w-full" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                      Commencer
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </CardFooter>
                 </Card>
+              </motion.div>
+
+              {/* Annuel */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+              >
+                <div className="relative">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-gold text-navy-dark px-4 py-1.5 rounded-full text-sm font-bold shadow-gold z-10 whitespace-nowrap">
+                    👑 LE MEILLEUR DEAL
+                  </div>
+                  <Card className="flex flex-col h-full border-2 border-gold shadow-lg shadow-gold/10">
+                    <CardHeader className="text-center pb-2 pt-8">
+                      <div className="flex justify-center mb-3">
+                        <div className="p-3 rounded-full bg-gold/20">
+                          <Crown className="w-8 h-8 text-gold" />
+                        </div>
+                      </div>
+                      <CardTitle className="text-xl">Boost Annuel</CardTitle>
+                      <CardDescription>Badge Audité Offert + 3 RDV Qualifiés Garantis</CardDescription>
+                      <div className="mt-4">
+                        <span className="text-4xl font-bold text-foreground">990€</span>
+                        <span className="text-muted-foreground"> HT/an</span>
+                      </div>
+                      <p className="text-sm font-medium text-emerald-600 mt-2">
+                        ✅ Économisez 198€ vs mensuel
+                      </p>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <ul className="space-y-3">
+                        {["Tout le plan Mensuel inclus", "Badge Audité offert", "3 RDV qualifiés garantis", "Référencement prioritaire", "Support dédié"].map((f) => (
+                          <li key={f} className="flex items-center gap-3 text-sm">
+                            <Check className="w-4 h-4 flex-shrink-0 text-gold" />
+                            <span className="font-medium">{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                    <CardFooter className="pt-4 mt-auto">
+                      <Button variant="gold" size="lg" className="w-full !font-bold" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                        JE VEUX ÊTRE VALIDÉ
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </div>
               </motion.div>
             </div>
           </div>
