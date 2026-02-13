@@ -43,6 +43,9 @@ import {
   Briefcase,
   BadgeCheck,
   Lock,
+  Radar,
+  Flame,
+  DollarSign,
 } from "lucide-react";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { cn } from "@/lib/utils";
@@ -451,8 +454,23 @@ const NosMissions = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center max-w-3xl mx-auto mb-12"
+              className="text-center max-w-3xl mx-auto mb-6"
             >
+              {/* Animated radar badge */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="inline-flex items-center gap-2 bg-gold/20 border border-gold/40 text-gold-light rounded-full px-5 py-2 mb-6 text-sm font-bold"
+              >
+                <motion.span
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                >
+                  <Radar className="w-4 h-4" />
+                </motion.span>
+                📡 SCAN EN COURS : {filteredMissions.length} missions disponibles autour de vous
+              </motion.div>
+
               <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
                 Trouvez votre prochaine <span className="text-gradient-gold">opportunité</span>
               </h1>
@@ -512,9 +530,26 @@ const NosMissions = () => {
                     className="w-full md:w-auto gap-2 shrink-0"
                     onClick={() => setCurrentPage(1)}
                   >
-                    <Search className="w-5 h-5" />
-                    Rechercher
+                    <Radar className="w-5 h-5" />
+                    Scanner
                   </Button>
+                </div>
+
+                {/* Quick filter tags */}
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {[
+                    { label: "Urgences 🚨", filter: () => { setCategoryFilter(""); setCurrentPage(1); /* Scroll to urgent missions */ } },
+                    { label: "Gros Chantiers 💰", filter: () => { setCategoryFilter("Rénovation Globale"); setCurrentPage(1); } },
+                    { label: "Moins de 15km 📍", filter: () => { if (searchCoordinates) { setRadiusFilter(15); setCurrentPage(1); } else { toast({ title: "Sélectionnez une ville", description: "Entrez votre ville pour activer le filtre distance." }); } } },
+                  ].map((tag) => (
+                    <button
+                      key={tag.label}
+                      onClick={tag.filter}
+                      className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-gold/40 text-white text-xs md:text-sm font-semibold rounded-full px-4 py-2 transition-all hover:scale-105 active:scale-95"
+                    >
+                      {tag.label}
+                    </button>
+                  ))}
                 </div>
 
                 {/* Active filters + reset */}
@@ -769,6 +804,31 @@ const NosMissions = () => {
                   );
                   })}
                 </div>
+
+                {/* CTA Banner for non-authenticated users */}
+                {!isAuthenticated && paginatedMissions.length > 3 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="my-8 bg-gradient-to-r from-navy to-navy-dark rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-4 md:gap-6 border border-gold/20"
+                  >
+                    <div className="flex-1 text-center md:text-left">
+                      <p className="text-gold font-bold text-lg mb-1">
+                        Ne ratez plus ces chantiers.
+                      </p>
+                      <p className="text-white/80 text-sm">
+                        Recevez les alertes de votre secteur et décrochez des missions qualifiées avant les autres.
+                      </p>
+                    </div>
+                    <Button variant="gold" size="lg" className="shrink-0 gap-2 font-bold" asChild>
+                      <Link to="/devenir-artisan">
+                        <Radar className="w-5 h-5" />
+                        Activer mes alertes
+                      </Link>
+                    </Button>
+                  </motion.div>
+                )}
 
                 {/* Pagination */}
                 {totalPages > 1 && (
