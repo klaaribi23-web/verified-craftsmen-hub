@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, Users, UserCheck, UserPlus, Upload, LogOut, LayoutDashboard, BarChart3, FileText, Settings, MessageCircle, ThumbsUp, ChevronDown, Heart, Briefcase, Camera, ClipboardList, Crown, Gift } from "lucide-react";
+import { Menu, X, User, Users, UserCheck, UserPlus, Upload, LogOut, LayoutDashboard, BarChart3, FileText, Settings, MessageCircle, ThumbsUp, ChevronDown, Heart, Briefcase, Camera, ClipboardList, Crown, Gift, Radar, Home, Search, PlusCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -542,16 +542,25 @@ const Navbar = () => {
               {renderUserMenu()}
             </div>
 
-            {/* Mobile: burger only */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-navy"
-            >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Mobile: radar icon + burger */}
+            <div className="lg:hidden flex items-center gap-1">
+              <Link
+                to="/nos-missions"
+                className="p-2 text-navy hover:text-gold transition-colors relative"
+                title="Consulter les missions"
+              >
+                <Radar className="w-6 h-6" />
+              </Link>
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="p-2 text-navy"
+              >
+                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
 
-          {/* Mobile Menu - Site navigation only */}
+          {/* Mobile Menu - Sectioned navigation */}
           <AnimatePresence>
             {isOpen && (
               <motion.div
@@ -560,50 +569,84 @@ const Navbar = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="lg:hidden overflow-hidden"
               >
-                <div className="py-3 space-y-0.5">
-                  {navLinks.slice(0, 3).map((link) => (
-                    <Link
-                      key={link.href}
-                      to={link.href}
-                      onClick={() => setIsOpen(false)}
-                      className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                        isActive(link.href)
-                          ? "bg-gold/10 text-navy"
-                          : "text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                  
-                  {/* CTA buttons - always visible, touch-friendly */}
-                  <div className="pt-4 space-y-3 border-t border-border mt-2">
-                    <Button variant="gold" className="w-full h-14 text-base font-bold" asChild>
-                      <Link to="/devenir-artisan" onClick={() => setIsOpen(false)}>
-                        Rejoindre l'Alliance
-                      </Link>
-                    </Button>
-                    {!isAuthenticated && !isLoading ? (
-                      <>
-                        <Button variant="outline" className="w-full h-12 text-base" asChild>
-                          <Link to="/auth" onClick={() => setIsOpen(false)}>
-                            Espace Client — Connexion
-                          </Link>
-                        </Button>
-                        <Button variant="default" className="w-full h-12 text-base" asChild>
-                          <Link to="/demande-devis" onClick={() => setIsOpen(false)}>
-                             Lancer mon projet
-                          </Link>
-                        </Button>
-                      </>
-                    ) : (
-                      <Button variant="outline" className="w-full h-12 text-base" asChild>
-                        <Link to={getDashboardLink()} onClick={() => setIsOpen(false)}>
-                          Mon espace
-                        </Link>
-                      </Button>
+                <div className="py-3">
+                  {/* SECTION ARTISANS */}
+                  <p className="px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Artisans</p>
+                  <Link
+                    to="/nos-missions"
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-bold transition-colors",
+                      isActive("/nos-missions") ? "bg-gold/15 text-navy" : "text-navy hover:bg-gold/10"
                     )}
-                  </div>
+                  >
+                    <Radar className="w-5 h-5 text-gold" />
+                    Consulter les missions
+                  </Link>
+                  <Link
+                    to="/devenir-artisan"
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                      isActive("/devenir-artisan") ? "bg-gold/10 text-navy" : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <Crown className="w-5 h-5" />
+                    Devenir partenaire
+                  </Link>
+                  <Link
+                    to="/auth"
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                      isActive("/auth") ? "bg-gold/10 text-navy" : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <User className="w-5 h-5" />
+                    Espace Pro (Connexion)
+                  </Link>
+
+                  {/* Séparateur */}
+                  <div className="border-t border-border my-3 mx-4" />
+
+                  {/* SECTION PARTICULIERS */}
+                  <p className="px-4 pt-1 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Particuliers</p>
+                  <Link
+                    to="/demande-devis"
+                    onClick={() => setIsOpen(false)}
+                    className="mx-4 mt-1 mb-2"
+                  >
+                    <Button variant="gold" className="w-full h-13 text-base font-bold gap-2">
+                      <Home className="w-5 h-5" />
+                      Lancer mon projet
+                    </Button>
+                  </Link>
+                  <Link
+                    to="/trouver-artisan"
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                      isActive("/trouver-artisan") ? "bg-gold/10 text-navy" : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <Search className="w-5 h-5" />
+                    Trouver un artisan
+                  </Link>
+
+                  {/* Authenticated shortcut */}
+                  {isAuthenticated && !isLoading && (
+                    <>
+                      <div className="border-t border-border my-3 mx-4" />
+                      <Link
+                        to={getDashboardLink()}
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-navy hover:bg-muted transition-colors"
+                      >
+                        <LayoutDashboard className="w-5 h-5" />
+                        Mon espace
+                      </Link>
+                    </>
+                  )}
                 </div>
               </motion.div>
             )}
