@@ -127,9 +127,11 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent
-                className="w-[min(90vw,700px)] p-0 shadow-xl"
+                className="w-[min(90vw,700px)] p-0 shadow-xl z-[60]"
                 align="start"
+                side="bottom"
                 sideOffset={8}
+                avoidCollisions
               >
                 <CategoryMegamenu
                   categories={categoriesData || []}
@@ -263,7 +265,7 @@ function CategoryMegamenu({
   onSelect: (id: string, name: string, label: string) => void;
 }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0 max-h-[70vh] overflow-y-auto">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 max-h-[60vh] overflow-y-auto">
       {categories.map((parent) => (
         <div key={parent.id} className="p-3 border-b border-r border-border last:border-r-0">
           {/* Parent header — clickable to select parent */}
