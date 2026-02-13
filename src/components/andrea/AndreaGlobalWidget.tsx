@@ -76,7 +76,8 @@ const AndreaGlobalWidget = () => {
   const [isListening, setIsListening] = useState(false);
   const [showPreviewBubble, setShowPreviewBubble] = useState(false);
   const [dismissedAutoOpen, setDismissedAutoOpen] = useState(false);
-
+  const [showNotifBadge, setShowNotifBadge] = useState(false);
+  const [doPulse, setDoPulse] = useState(false);
   const [messages, setMessages] = useState<{ role: "user" | "andrea"; text: string; time?: string }[]>([]);
   const [streamingText, setStreamingText] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -119,6 +120,14 @@ const AndreaGlobalWidget = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => { clearTimeout(timer); window.removeEventListener("scroll", onScroll); };
   }, [artisanContext, location.pathname]);
+
+  // Show badge "1" after 3s and pulse after 5s to attract attention
+  useEffect(() => {
+    if (isOpen) { setShowNotifBadge(false); setDoPulse(false); return; }
+    const badgeTimer = setTimeout(() => setShowNotifBadge(true), 3000);
+    const pulseTimer = setTimeout(() => setDoPulse(true), 5000);
+    return () => { clearTimeout(badgeTimer); clearTimeout(pulseTimer); };
+  }, [isOpen]);
 
   // Detect artisan page and fetch context
   useEffect(() => {
@@ -202,7 +211,7 @@ const AndreaGlobalWidget = () => {
     return () => document.removeEventListener("pointerdown", handler, true);
   }, []);
 
-  // Auto-open on artisan pages after 7s OR on 50% scroll (only if not dismissed before)
+  // On artisan pages: show preview bubble after 5s but do NOT auto-open chat
   useEffect(() => {
     if (!artisanContext || isOpen || dismissedAutoOpen) return;
     const dismissKey = `andrea_dismissed_${location.pathname}`;
@@ -210,39 +219,8 @@ const AndreaGlobalWidget = () => {
       setDismissedAutoOpen(true);
       return;
     }
-
-    let triggered = false;
-    const triggerAutoOpen = () => {
-      if (triggered || isInteractingWithCallRef.current) return;
-      triggered = true;
-      setShowPreviewBubble(false);
-      handleOpen();
-      setMessages(prev => {
-        if (prev.length > 0) return prev;
-        const greeting = `Je vois que tu regardes le profil de ${artisanContext.business_name}. J'ai validé son dossier à ${artisanContext.city}. ${artisanContext.is_audited ? "Tu veux que je te dise pourquoi il est audité ?" : "Tu veux que je te mette en relation directe avec lui ?"}`;
-        return [{ role: "andrea", text: greeting, time: getTime() }];
-      });
-    };
-
-    // Preview bubble appears after 5s (2s before the 7s auto-open)
     const previewTimer = setTimeout(() => setShowPreviewBubble(true), 5000);
-    // Full auto-open after 7s
-    const openTimer = setTimeout(triggerAutoOpen, 7000);
-
-    // Scroll trigger: open immediately if user scrolls past 50% of page
-    const scrollHandler = () => {
-      const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-      if (scrollPercent >= 0.5) {
-        triggerAutoOpen();
-      }
-    };
-    window.addEventListener("scroll", scrollHandler, { passive: true });
-
-    return () => {
-      clearTimeout(previewTimer);
-      clearTimeout(openTimer);
-      window.removeEventListener("scroll", scrollHandler);
-    };
+    return () => { clearTimeout(previewTimer); };
   }, [artisanContext, isOpen, dismissedAutoOpen, location.pathname]);
 
   const handleAsk = useCallback(async (question: string) => {
@@ -523,13 +501,20 @@ const AndreaGlobalWidget = () => {
                 className="absolute inset-0 rounded-2xl pointer-events-none"
                 style={{ border: "1.5px solid hsla(45, 93%, 55%, 0.5)" }}
                 animate={{
-                  boxShadow: [
-                    "0 0 8px hsla(45,93%,50%,0.3), 0 0 3px hsla(45,80%,70%,0.2)",
-                    "0 0 24px hsla(45,93%,50%,0.6), 0 0 8px hsla(45,80%,70%,0.35)",
-                    "0 0 8px hsla(45,93%,50%,0.3), 0 0 3px hsla(45,80%,70%,0.2)",
-                  ],
+                  boxShadow: doPulse
+                    ? [
+                        "0 0 8px hsla(45,93%,50%,0.3), 0 0 3px hsla(45,80%,70%,0.2)",
+                        "0 0 32px hsla(45,93%,50%,0.7), 0 0 12px hsla(45,80%,70%,0.4)",
+                        "0 0 8px hsla(45,93%,50%,0.3), 0 0 3px hsla(45,80%,70%,0.2)",
+                      ]
+                    : [
+                        "0 0 8px hsla(45,93%,50%,0.3), 0 0 3px hsla(45,80%,70%,0.2)",
+                        "0 0 24px hsla(45,93%,50%,0.6), 0 0 8px hsla(45,80%,70%,0.35)",
+                        "0 0 8px hsla(45,93%,50%,0.3), 0 0 3px hsla(45,80%,70%,0.2)",
+                      ],
+                  scale: doPulse ? [1, 1.08, 1] : 1,
                 }}
-                transition={{ duration: artisanContext ? 1.5 : 3, repeat: Infinity, ease: "easeInOut" }}
+                transition={{ duration: doPulse ? 1.2 : 3, repeat: Infinity, ease: "easeInOut" }}
               />
               {/* Ping ring on artisan pages */}
               {artisanContext && !dismissedAutoOpen && (
@@ -542,12 +527,15 @@ const AndreaGlobalWidget = () => {
               )}
               <Sparkles className="h-6 w-6 text-white drop-shadow-lg" />
               <AnimatePresence>
-                {hasNewResponse && (
+                {(hasNewResponse || showNotifBadge) && (
                   <motion.span
                     initial={{ scale: 0 }} animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 2, repeat: Infinity }} exit={{ scale: 0 }}
-                    className="absolute -top-1 -right-1 h-4 w-4 rounded-full ring-2 ring-background" style={{ background: "hsl(142, 71%, 45%)" }}
-                  />
+                    className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-background"
+                    style={{ background: "hsl(0, 72%, 51%)" }}
+                  >
+                    1
+                  </motion.span>
                 )}
               </AnimatePresence>
             </button>
@@ -661,10 +649,10 @@ const AndreaGlobalWidget = () => {
                         🏠 Je suis un <strong className="text-white">particulier</strong> — travaux, aides, économies
                       </button>
                       <button
-                        onClick={() => { updateLead({ lead_type: "artisan" }); setShowArtisanCTA(true); }}
+                        onClick={() => { setIsOpen(false); navigate("/devenir-artisan"); }}
                         className="w-full text-left text-[12px] px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 border border-white/8 transition-all hover:border-gold/30 tracking-wide"
                       >
-                        🔧 Je suis un <strong className="text-white">artisan</strong> — chantiers & avantages Pro
+                        🔧 Je suis un <strong className="text-white">artisan</strong> — rejoindre le réseau
                       </button>
                     </div>
                   </AndreaBubbleWrapper>
@@ -854,9 +842,8 @@ const AndreaGlobalWidget = () => {
                   <div className="flex gap-2 mb-1.5">
                     <button
                       onClick={() => {
-                        updateLead({ lead_type: "artisan" });
-                        setShowArtisanCTA(true);
-                        handleAsk("Je veux être validé en tant qu'artisan");
+                        setIsOpen(false);
+                        navigate("/devenir-artisan");
                       }}
                       disabled={isLoading}
                       className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
