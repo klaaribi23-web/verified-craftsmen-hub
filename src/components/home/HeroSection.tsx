@@ -36,8 +36,8 @@ const HeroSection = () => {
             </div>
 
             <h1 className="text-[1.55rem] leading-[1.25] md:text-4xl lg:text-5xl font-bold text-foreground md:leading-tight mb-4 md:mb-6">
-              L'élite des artisans pour vos projets{" "}
-              <span className="text-gradient-gold">solaires et rénovation.</span>
+              L'élite des artisans locaux,{" "}
+              <span className="text-gradient-gold">validés pour tous vos projets et dépannages.</span>
             </h1>
 
             {/* Double-cible messaging */}
