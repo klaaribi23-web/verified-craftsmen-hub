@@ -35,10 +35,10 @@ const Index = () => {
         <HeroSection />
 
         {/* Bandeau Anonymat — forte lisibilité */}
-        <section className="bg-muted py-4 border-y border-primary/15">
+        <section className="bg-navy-dark py-4 border-y border-gold/15">
           <div className="container mx-auto px-4 text-center">
-            <p className="text-base md:text-lg font-semibold tracking-wide text-foreground" style={{ fontFamily: "'Georgia', serif", letterSpacing: "0.04em" }}>
-              <ShieldCheck className="inline w-5 h-5 text-primary mr-2 -mt-0.5" />
+            <p className="text-base md:text-lg font-semibold tracking-wide text-white" style={{ fontFamily: "'Georgia', serif", letterSpacing: "0.04em" }}>
+              <ShieldCheck className="inline w-5 h-5 text-gold mr-2 -mt-0.5" />
               Votre anonymat garanti jusqu'au dernier moment
             </p>
           </div>
@@ -46,45 +46,14 @@ const Index = () => {
 
         <SocialProofBanner />
 
-        {/* Scarcity Counter */}
-        <section className="py-6 bg-background border-b border-border">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="flex items-center justify-center gap-3"
-            >
-              <div className="flex items-center gap-2 px-5 py-3 rounded-xl bg-card border border-primary/20 shadow-gold">
-                <motion.div
-                  animate={{ scale: [1, 1.15, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="w-3 h-3 rounded-full bg-destructive"
-                />
-                <span className="text-sm md:text-base text-foreground font-medium">
-                  Places restantes pour les artisans dans le <span className="text-primary font-bold">59</span> :
-                </span>
-                <motion.span
-                  className="text-2xl font-bold text-primary"
-                  animate={{ opacity: [1, 0.5, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  3
-                </motion.span>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
         {/* Bandeau ADN Particuliers */}
-        <section className="bg-muted py-6 border-t border-border">
+        <section className="bg-navy py-6 border-t border-white/5">
           <div className="container mx-auto px-4 text-center space-y-4">
             <div className="flex items-center justify-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0" />
-              <p className="text-foreground text-base md:text-lg font-medium">
+              <ShieldCheck className="h-5 w-5 text-gold flex-shrink-0" />
+              <p className="text-white text-base md:text-lg font-medium">
                 Ici, on ne vend pas vos coordonnées au plus offrant.{" "}
-                <span className="text-primary font-bold">On déploie un réseau d'élite, département par département.</span>
+                <span className="text-gold font-bold">On déploie un réseau d'élite, département par département.</span>
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 pt-2">
@@ -93,8 +62,8 @@ const Index = () => {
                 { icon: HeartHandshake, label: "Charte Qualité Stricte" },
                 { icon: UserCheck, label: "Accompagnement Personnalisé" },
               ].map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
-                  <Icon className="h-4 w-4 text-primary/70" />
+                <div key={label} className="flex items-center gap-1.5 text-white/60 text-xs md:text-sm">
+                  <Icon className="h-4 w-4 text-gold/70" />
                   <span>{label}</span>
                 </div>
               ))}
