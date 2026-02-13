@@ -37,9 +37,9 @@ const Index = () => {
         {/* Bandeau Anonymat — forte lisibilité */}
         <section className="bg-navy py-3 border-y border-navy-dark">
           <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/90 font-medium">
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold" /> Entreprise Française</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold" /> Support 7j/7</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold" /> Paiement Sécurisé Stripe</span>
+          <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Entreprise Française</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Support 7j/7</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Paiement Sécurisé Stripe</span>
           </div>
         </section>
 
