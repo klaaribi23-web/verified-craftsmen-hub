@@ -472,7 +472,7 @@ const AdminApprovals = () => {
         .from("artisans")
         .select("*", { count: "exact", head: true })
         .eq("status", "pending")
-        .eq("source", "import")
+        .like("source", "import%")
         .is("user_id", null);
       if (error) throw error;
       return count || 0;
@@ -491,9 +491,10 @@ const AdminApprovals = () => {
           category:categories(name)
         `)
         .eq("status", "pending")
-        .eq("source", "import")
+        .like("source", "import%")
         .is("user_id", null)
-        .order("business_name", { ascending: true });
+        .order("business_name", { ascending: true })
+        .limit(500);
       if (error) throw error;
       return data;
     },
@@ -519,6 +520,24 @@ const AdminApprovals = () => {
     },
   });
 
+  // Mutation to delete an artisan from pending publication
+  const deletePendingPublicationMutation = useMutation({
+    mutationFn: async (artisanId: string) => {
+      const { error } = await supabase
+        .from("artisans")
+        .delete()
+        .eq("id", artisanId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Vitrine supprimée");
+      queryClient.invalidateQueries({ queryKey: ["pending-publication-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-publication-count"] });
+    },
+    onError: () => {
+      toast.error("Erreur lors de la suppression");
+    },
+  });
 
 
   // Fetch total count of WAITING artisans (email sent, no account yet)
@@ -2427,6 +2446,15 @@ const AdminApprovals = () => {
                                   >
                                     <Eye className="h-4 w-4 sm:mr-1" />
                                     <span className="hidden sm:inline">Voir</span>
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => deletePendingPublicationMutation.mutate(artisan.id)}
+                                    disabled={deletePendingPublicationMutation.isPending}
+                                  >
+                                    <Trash2 className="h-4 w-4 sm:mr-1" />
+                                    <span className="hidden sm:inline">Supprimer</span>
                                   </Button>
                                 </div>
                               </div>
