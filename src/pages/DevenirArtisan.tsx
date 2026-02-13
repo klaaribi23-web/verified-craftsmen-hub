@@ -43,7 +43,7 @@ const MarqueeBanner = () => (
       transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
       className="whitespace-nowrap text-xs md:text-sm font-semibold text-gold tracking-wide"
     >
-      🔒 Accès limité : 3 places restantes sur votre secteur. Prochaine session d'audit des dossiers demain à 09h00. &nbsp;&nbsp;&nbsp;&nbsp; 🔒 Accès limité : 3 places restantes sur votre secteur. Prochaine session d'audit des dossiers demain à 09h00.
+      🔒 Accès limité : 2 places restantes à Lille · 1 place à Roubaix · Complet à Valenciennes · 1 place à Arras · Complet à Douai · 2 places à Cambrai &nbsp;&nbsp;&nbsp;&nbsp; 🔒 Accès limité : 2 places restantes à Lille · 1 place à Roubaix · Complet à Valenciennes · 1 place à Arras · Complet à Douai · 2 places à Cambrai
     </motion.div>
   </div>
 );
@@ -469,7 +469,7 @@ const DevenirArtisan = () => {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button variant="gold" size="xl" className="!font-black !text-base md:!text-lg uppercase tracking-wider" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
-                  <Shield className="w-5 h-5 mr-2" /> DÉPOSER MA CANDIDATURE <ArrowRight className="w-5 h-5 ml-2" />
+                   <Shield className="w-5 h-5 mr-2" /> VÉRIFIER MA ZONE & RÉSERVER MON ACCÈS <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
 
@@ -541,9 +541,12 @@ const DevenirArtisan = () => {
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.18)] border-2 border-navy/20">
                   <div className="text-center mb-5 md:mb-6">
-                    <h2 className="text-lg md:text-xl font-black text-navy mb-1 md:mb-2 uppercase tracking-wide">
-                      Déposer ma candidature
+                   <h2 className="text-lg md:text-xl font-black text-navy mb-1 md:mb-2 uppercase tracking-wide">
+                      Réservez votre accès
                     </h2>
+                    <p className="text-xs md:text-sm text-gold font-semibold mb-1">
+                      💰 Revenus estimés sur votre secteur : 18 400€ de chantiers disponibles ce mois-ci.
+                    </p>
                     <p className="text-xs md:text-sm text-muted-foreground mb-2">
                       Gratuit · Sans engagement · Audit sous 24h
                     </p>
@@ -583,8 +586,11 @@ const DevenirArtisan = () => {
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Shield className="w-5 h-5 mr-2" />}
-                        {isLoading ? "Vérification..." : "DÉPOSER MA CANDIDATURE"}
+                        {isLoading ? "Vérification..." : "VÉRIFIER MA ZONE & RÉSERVER MON ACCÈS"}
                       </Button>
+                      <p className="text-xs text-muted-foreground mt-3 text-center">
+                        🔒 Validation finale par <strong className="text-navy">Khalid</strong> sous 24h après audit de vos documents.
+                      </p>
                     </div>
                   </form>
 
@@ -602,7 +608,7 @@ const DevenirArtisan = () => {
                       }}
                     >
                       {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Shield className="w-5 h-5 mr-2" />}
-                      {isLoading ? "Vérification..." : "CANDIDATER"}
+                      {isLoading ? "Vérification..." : "RÉSERVER MON ACCÈS"}
                     </Button>
                     <div className="mt-2 text-center">
                       <p className="text-[11px] font-light text-muted-foreground">Gratuit · Sans engagement · Audit sous 24h</p>
