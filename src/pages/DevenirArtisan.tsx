@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
@@ -19,7 +19,6 @@ import {
   Users,
   Star,
   Zap,
-  Clock,
   Loader2,
   Lock,
   Crown,
@@ -31,6 +30,8 @@ import {
   FileText,
   Search,
   Rocket,
+  XCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 
@@ -47,46 +48,203 @@ const MarqueeBanner = () => (
   </div>
 );
 
-// --- Unified Info Banner ---
-const InfoBanner = ({ missionType, missionCity }: { missionType?: string | null; missionCity?: string | null }) => {
-  const fromMission = missionType && missionCity;
+// --- Money Section: Comparatif choc ---
+const ComparisonSection = () => (
+  <section className="py-16 lg:py-24 bg-[#F9FAFB]">
+    <div className="container mx-auto px-4 lg:px-8">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+        <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
+          Le vrai calcul
+        </span>
+        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
+          Comparez et décidez.
+        </h2>
+      </motion.div>
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mx-auto max-w-3xl rounded-xl border border-navy/20 bg-[#F9FAFB] px-6 py-5 mb-10"
-    >
-      <div className="space-y-3">
-        {fromMission ? (
-          <div className="flex items-center gap-3 flex-wrap">
-            <Zap className="w-5 h-5 text-gold flex-shrink-0" />
-            <p className="text-foreground text-sm md:text-base">
-              <span className="font-bold text-navy">Opportunité sélectionnée :</span>{" "}
-              {missionType} à {missionCity}.{" "}
-              <span className="text-muted-foreground">Statut : En attente de validation.</span>
-            </p>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 flex-wrap">
-            <TrendingUp className="w-5 h-5 text-navy flex-shrink-0" />
-            <p className="text-foreground text-sm md:text-base">
-              <span className="font-bold text-navy">Radar Missions :</span>{" "}
-              24 projets en attente dans le 59.{" "}
-              <span className="text-muted-foreground">Places limitées par ville.</span>
-            </p>
-          </div>
-        )}
-        <div className="flex items-center gap-3">
-          <MapPin className="w-5 h-5 text-navy flex-shrink-0" />
-          <p className="text-sm text-foreground">
-            <strong className="text-navy">Votre zone est ouverte</strong> — Des créneaux sont encore disponibles. Inscrivez-vous avant saturation.
-          </p>
-        </div>
+      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        {/* Lead classique */}
+        <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+          <Card className="h-full border-2 border-destructive/30 bg-destructive/5">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <XCircle className="w-6 h-6 text-destructive" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">Le Lead Classique</h3>
+                  <p className="text-xs text-muted-foreground">Ce que vous payez aujourd'hui</p>
+                </div>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  "30 à 80€ par lead",
+                  "Vendu à 5 artisans en même temps",
+                  "Contact non vérifié, souvent faux numéro",
+                  "Aucune exclusivité territoriale",
+                  "Commission sur chaque chantier signé",
+                  "Vous courez après le client",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm">
+                    <XCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
+                    <span className="text-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 p-4 bg-destructive/10 rounded-lg text-center">
+                <p className="text-sm font-bold text-destructive">Coût moyen : 400 à 1 200€/mois</p>
+                <p className="text-xs text-muted-foreground mt-1">Pour des résultats aléatoires</p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Licence AV */}
+        <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+          <Card className="h-full border-2 border-gold shadow-lg shadow-gold/10">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Shield className="w-6 h-6 text-gold" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">La Licence Artisans Validés</h3>
+                  <p className="text-xs text-gold font-medium">Ce que vous méritez</p>
+                </div>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  "99€/mois, prix fixe et prévisible",
+                  "Maximum 2 artisans par ville et par métier",
+                  "Clients pré-qualifiés, projet réel vérifié",
+                  "Exclusivité territoriale garantie",
+                  "0% de commission, vous gardez tout",
+                  "Le client vient à vous directement",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
+                    <span className="text-foreground font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 p-4 bg-gold/10 rounded-lg text-center">
+                <p className="text-sm font-bold text-gold">99€/mois · 0% commission</p>
+                <p className="text-xs text-muted-foreground mt-1">Un seul chantier rentabilise l'année</p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
-    </motion.div>
-  );
-};
+    </div>
+  </section>
+);
+
+// --- Territory Widget ---
+const TerritoryWidget = () => (
+  <section className="py-12 lg:py-16 bg-navy relative overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
+    </div>
+    <div className="container mx-auto px-4 lg:px-8 relative z-10">
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-2xl mx-auto text-center">
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 md:p-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-6">
+            <AlertTriangle className="w-4 h-4 text-gold" />
+            <span className="text-sm font-bold text-gold animate-pulse">PLACES LIMITÉES</span>
+          </div>
+          <h2 className="text-2xl md:text-3xl font-black text-white mb-3 uppercase tracking-wide">
+            Disponibilité dans le Nord : <span className="text-gold">1 place restante</span>
+          </h2>
+          <p className="text-white/60 mb-8 max-w-lg mx-auto">
+            Nous limitons strictement à 2 artisans par métier et par ville. Quand c'est pris, c'est pris.
+          </p>
+          <Button variant="gold" size="xl" className="!font-black !text-lg uppercase tracking-wider" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
+            <MapPin className="w-5 h-5 mr-2" /> VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </div>
+      </motion.div>
+    </div>
+  </section>
+);
+
+// --- Dashboard Preview ---
+const DashboardPreview = () => (
+  <section className="py-16 lg:py-24 bg-white">
+    <div className="container mx-auto px-4 lg:px-8">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-3xl mx-auto">
+        <div className="text-center mb-10">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
+            Votre futur quotidien
+          </span>
+          <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
+            C'est ce que vous recevrez dès que votre audit sera validé.
+          </h2>
+        </div>
+
+        {/* Fake dashboard */}
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
+          <div className="bg-navy rounded-2xl p-6 md:p-8 shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-gold" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm">Cockpit Artisan</p>
+                  <p className="text-white/40 text-xs">3 nouvelles missions aujourd'hui</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/20 border border-gold/30">
+                <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+                <span className="text-xs text-gold font-medium">En ligne</span>
+              </div>
+            </div>
+
+            {/* WhatsApp notification */}
+            <div className="bg-[#dcf8c6]/20 border border-[#25d366]/30 rounded-xl p-4 mb-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#25d366]/20 flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-5 h-5 text-[#25d366]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-white font-bold text-sm">📲 WhatsApp — Artisans Validés</p>
+                    <span className="text-white/40 text-xs">il y a 3 min</span>
+                  </div>
+                  <p className="text-white/80 text-sm">
+                    🔔 <strong className="text-gold">Nouveau projet :</strong> Rénovation complète 25 000€ à 12km de vous. Client vérifié, budget confirmé.
+                  </p>
+                  <div className="flex gap-2 mt-3">
+                    <span className="px-3 py-1.5 rounded-lg bg-gold/20 text-gold text-xs font-bold cursor-pointer hover:bg-gold/30 transition-colors">
+                      ✅ Répondre
+                    </span>
+                    <span className="px-3 py-1.5 rounded-lg bg-white/10 text-white/60 text-xs cursor-pointer hover:bg-white/20 transition-colors">
+                      Voir détails
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Ce mois", value: "5 missions", color: "text-gold" },
+                { label: "Taux de réponse", value: "92%", color: "text-[#25d366]" },
+                { label: "CA estimé", value: "18 400€", color: "text-white" },
+              ].map((s) => (
+                <div key={s.label} className="bg-white/5 rounded-lg p-3 text-center">
+                  <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
+                  <p className="text-white/40 text-xs">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  </section>
+);
 
 // --- Social Proof Testimonials ---
 const testimonials = [
@@ -113,50 +271,26 @@ const testimonials = [
 const SocialProofSection = () => (
   <section className="py-16 bg-muted/40 border-y-2 border-navy/20">
     <div className="container mx-auto px-4 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="text-center mb-12"
-      >
-      <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-          Témoignages bruts
-        </span>
-        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
-          Ils ont rejoint l'Alliance. Voici ce qu'ils en disent.
-        </h2>
-        <p className="text-muted-foreground max-w-xl mx-auto">
-          Pas de mise en scène. Des artisans du Nord qui parlent de leur expérience.
-        </p>
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+        <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">Témoignages bruts</span>
+        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">Ils ont rejoint l'Alliance. Voici ce qu'ils en disent.</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto">Pas de mise en scène. Des artisans du Nord qui parlent de leur expérience.</p>
       </motion.div>
-
       <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
         {testimonials.map((t, i) => (
-          <motion.div
-            key={t.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-          >
+          <motion.div key={t.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
             <Card className="h-full border-border/60">
               <CardContent className="p-6">
                 <Quote className="w-6 h-6 text-gold/40 mb-3" />
-                <p className="text-sm text-foreground leading-relaxed mb-4 italic">
-                  "{t.text}"
-                </p>
+                <p className="text-sm text-foreground leading-relaxed mb-4 italic">"{t.text}"</p>
                 <div className="flex items-center gap-2 pt-3 border-t border-border">
-                  <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-xs font-bold text-gold">
-                    {t.name.charAt(0)}
-                  </div>
+                  <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-xs font-bold text-gold">{t.name.charAt(0)}</div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">{t.name}</p>
                     <p className="text-xs text-muted-foreground">{t.metier} — {t.city}</p>
                   </div>
                   <div className="ml-auto">
-                    <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> Vérifié
-                    </span>
+                    <span className="text-xs text-emerald-600 font-medium flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Vérifié</span>
                   </div>
                 </div>
               </CardContent>
@@ -168,15 +302,14 @@ const SocialProofSection = () => (
   </section>
 );
 
-// --- Anti-Arnaque Trust Banner ---
-const AntiArnaqueBanner = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    className="max-w-lg mx-auto mt-8"
-  >
+// --- Risk Reversal ---
+const RiskReversal = () => (
+  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-lg mx-auto mt-8">
     <div className="bg-navy rounded-2xl p-6 shadow-[0_8px_32px_-4px_rgba(26,43,72,0.25)]">
+      <div className="text-center mb-4">
+        <h3 className="text-white font-black text-lg uppercase tracking-wide">Sans engagement.</h3>
+        <p className="text-gold font-bold text-base mt-1">Testez un mois. Si vous ne décrochez pas de chantier, vous coupez.</p>
+      </div>
       <div className="space-y-3 mb-5">
         {[
           "Inscription sans frais",
@@ -207,13 +340,6 @@ const candidacySchema = z.object({
   metier: z.string().trim().min(2, "Métier requis").max(100),
 });
 
-const stats = [
-  { value: "2 max", label: "Artisans par ville" },
-  { value: "0%", label: "Commission" },
-  { value: "3 à 5", label: "RDV/mois en moyenne" },
-  { value: "2h", label: "Délai de rappel" },
-];
-
 // --- Main Page ---
 const DevenirArtisan = () => {
   const [searchParams] = useSearchParams();
@@ -237,7 +363,6 @@ const DevenirArtisan = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       const result = candidacySchema.safeParse(formData);
       if (!result.success) {
@@ -245,7 +370,6 @@ const DevenirArtisan = () => {
         setIsLoading(false);
         return;
       }
-
       const { error: dbError } = await supabase
         .from("partner_candidacies")
         .insert({
@@ -256,9 +380,7 @@ const DevenirArtisan = () => {
           phone: formData.phone,
           email: formData.email,
         });
-
       if (dbError) throw dbError;
-
       setCandidacySent(true);
       toast({ title: "Candidature reçue !", description: "Un expert vous rappelle sous 24h." });
     } catch {
@@ -308,7 +430,7 @@ const DevenirArtisan = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Rejoindre l'Alliance — Artisans Validés"
-        description="Déposez votre candidature pour rejoindre le réseau sélectif Artisans Validés. Inscription gratuite, audit humain sous 24h."
+        description="Arrêtez de chercher vos chantiers. Rejoignez l'Alliance Artisans Validés : flux de missions pré-qualifiées, 0% commission, exclusivité territoriale."
         canonical="https://artisansvalides.fr/devenir-artisan"
       />
       <Navbar />
@@ -323,91 +445,60 @@ const DevenirArtisan = () => {
           </div>
         </div>
 
-        {/* Marquee Banner */}
+        {/* Marquee */}
         <MarqueeBanner />
 
-        {/* Hero */}
-        <section className="bg-gradient-to-b from-muted/50 to-white py-10 md:py-16 lg:py-24 relative overflow-hidden">
+        {/* Hero — Crochet Psychologique */}
+        <section className="bg-gradient-to-b from-muted/50 to-white py-12 md:py-20 lg:py-28 relative overflow-hidden">
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
-            {/* Info Banner */}
-            <InfoBanner missionType={missionType} missionCity={missionCity} />
-
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto mb-10 md:mb-16">
-              <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-gold text-navy-dark text-sm font-bold mb-5 shadow-gold">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-4xl mx-auto mb-10 md:mb-16">
+              <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-gold text-navy-dark text-sm font-bold mb-6 shadow-gold">
                 <Shield className="w-4 h-4" />
                 Réseau sélectif — Candidature gratuite
               </div>
 
-              <h1 className="text-xl md:text-4xl lg:text-5xl font-extrabold text-navy leading-tight mb-4 md:mb-6">
-                Rejoignez l'Alliance des <span className="text-gradient-gold">artisans qualifiés</span>
+              <h1 className="text-2xl md:text-4xl lg:text-[3.25rem] font-black text-navy leading-[1.1] mb-5 md:mb-7 uppercase tracking-tight">
+                Arrêtez de chercher vos chantiers.<br />
+                <span className="text-gradient-gold">Commencez à les choisir.</span>
               </h1>
 
-              <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto">
-                Déposez votre dossier gratuitement. Après audit de conformité, accédez à un flux de chantiers pré-qualifiés à proximité de votre dépôt.
-                <strong className="text-foreground"> Zéro démarchage. Zéro commission.</strong>
+              <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+                Accédez à la licence exclusive Artisans Validés. Un flux continu de missions pré-qualifiées sur votre secteur.
+                <strong className="text-foreground"> Pas de commission. Pas de concurrence déloyale.</strong>
               </p>
-            </motion.div>
 
-            {/* Stats */}
-            <div className="hidden md:grid grid-cols-4 gap-6 max-w-2xl mx-auto mb-12">
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="text-2xl font-bold text-gold">{stat.value}</div>
-                  <div className="text-xs text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button variant="gold" size="xl" className="!font-black !text-base md:!text-lg uppercase tracking-wider" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
+                  <Shield className="w-5 h-5 mr-2" /> DÉPOSER MA CANDIDATURE <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
 
-        {/* 3 Piliers */}
-        <section className="py-10 md:py-16 bg-[#F9FAFB]">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-[15px] md:gap-6 max-w-5xl mx-auto">
-              {[
-                { icon: Lock, title: "99€/MOIS", description: "Votre licence d'accès au flux de chantiers qualifiés. Un prix fixe, une rentabilité infinie." },
-                { icon: Shield, title: "ZÉRO COMMISSION", description: "Vous gardez 100% de votre chiffre d'affaires. Pas de frais cachés, pas de surprise." },
-                { icon: Star, title: "MARKETING INCLUS", description: "Votre abonnement finance nos campagnes pub pour vous apporter des clients. Vous, vous bossez." },
-              ].map((card, i) => (
-                <motion.div
-                  key={card.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="p-7 rounded-2xl bg-white border-2 border-navy/20 shadow-[0_4px_24px_-4px_rgba(26,43,72,0.08)] hover:shadow-[0_8px_32px_-4px_rgba(26,43,72,0.15)] transition-all duration-300"
-                >
-                  <div className="flex flex-col items-center text-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-gold flex items-center justify-center shrink-0 shadow-gold">
-                      <card.icon className="w-8 h-8 text-navy-dark" />
-                    </div>
-                    <div>
-                      <h3 className="font-black text-navy text-base uppercase tracking-wide mb-2">{card.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
-                    </div>
+              {/* Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mt-10">
+                {[
+                  { value: "2 max", label: "Artisans par ville" },
+                  { value: "0%", label: "Commission" },
+                  { value: "3 à 5", label: "RDV/mois en moyenne" },
+                  { value: "24h", label: "Délai d'audit" },
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center">
+                    <div className="text-xl md:text-2xl font-bold text-gold">{stat.value}</div>
+                    <div className="text-xs text-muted-foreground">{stat.label}</div>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Exclusivity notice */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="max-w-3xl mx-auto text-center mt-8"
-            >
-              <div className="inline-flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-lg px-5 py-3">
-                <Shield className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-foreground text-left">
-                  <strong className="text-gold">Attention :</strong> Nous limitons strictement l'accès à{" "}
-                  <strong>2 artisans par métier et par ville</strong> pour garantir votre volume de travail.
-                </p>
+                ))}
               </div>
             </motion.div>
           </div>
         </section>
+
+        {/* Money Section — Comparatif choc */}
+        <ComparisonSection />
+
+        {/* Territory Widget */}
+        <TerritoryWidget />
+
+        {/* Dashboard Preview */}
+        <DashboardPreview />
 
         {/* Parcours d'Intégration */}
         <section className="py-16 lg:py-24 bg-navy relative overflow-hidden">
@@ -417,9 +508,7 @@ const DevenirArtisan = () => {
           </div>
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/20 text-gold text-sm font-medium mb-4">
-                Audit & Validation
-              </span>
+              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/20 text-gold text-sm font-medium mb-4">Audit & Validation</span>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Votre Parcours d'Intégration</h2>
               <p className="text-white/60 max-w-xl mx-auto">Un processus rigoureux pour garantir l'excellence du réseau.</p>
             </motion.div>
@@ -441,6 +530,9 @@ const DevenirArtisan = () => {
             </div>
           </div>
         </section>
+
+        {/* Social Proof */}
+        <SocialProofSection />
 
         {/* Formulaire */}
         <section id="formulaire-licence" className="py-12 md:py-20 bg-muted/40">
@@ -493,11 +585,6 @@ const DevenirArtisan = () => {
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Shield className="w-5 h-5 mr-2" />}
                         {isLoading ? "Vérification..." : "DÉPOSER MA CANDIDATURE"}
                       </Button>
-                      <div className="mt-8 text-center">
-                        <p className="text-[14px] font-light text-muted-foreground">
-                          Inscription gratuite · Audit humain sous 24h
-                        </p>
-                      </div>
                     </div>
                   </form>
 
@@ -523,8 +610,8 @@ const DevenirArtisan = () => {
                   </div>
                 </div>
 
-                {/* Anti-Arnaque Trust Banner */}
-                <AntiArnaqueBanner />
+                {/* Risk Reversal */}
+                <RiskReversal />
 
                 {/* Social proof line */}
                 <motion.p
@@ -542,111 +629,7 @@ const DevenirArtisan = () => {
           </div>
         </section>
 
-        {/* Pricing */}
-        <section className="py-16 lg:py-24 bg-white">
-          <div className="container mx-auto px-4 lg:px-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-                Votre licence d'accès
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
-                Le seul réseau qui ne prend aucune commission sur votre travail.
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Un prix fixe, pas de surprise. Vous gardez 100% de vos devis.
-              </p>
-            </motion.div>
-
-            <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {/* Mensuel */}
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <Card className="flex flex-col h-full border-2 border-border hover:border-gold/50 transition-colors">
-                  <CardHeader className="text-center pb-2 pt-8">
-                    <div className="flex justify-center mb-3"><div className="p-3 rounded-full bg-primary/10"><Crown className="w-8 h-8 text-primary" /></div></div>
-                    <CardTitle className="text-xl">Licence Mensuelle</CardTitle>
-                    <CardDescription>Sans engagement, résiliable à tout moment</CardDescription>
-                    <div className="mt-4"><span className="text-4xl font-bold text-foreground">99€</span><span className="text-muted-foreground"> HT/mois</span></div>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <ul className="space-y-3">
-                      {["Accès au flux de chantiers qualifiés", "2 places max par ville", "0% commission sur vos devis", "Marketing & pub inclus", "Badge Artisan Validé"].map((f) => (
-                        <li key={f} className="flex items-center gap-3 text-sm"><Check className="w-4 h-4 flex-shrink-0 text-gold" /><span>{f}</span></li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter className="pt-4 mt-auto">
-                    <Button variant="outline" size="lg" className="w-full" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
-                      <Shield className="w-4 h-4 mr-2" /> Déposer ma candidature
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-
-              {/* Annuel */}
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
-                <div className="relative">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-gold text-navy-dark px-4 py-1.5 rounded-full text-sm font-bold shadow-gold z-10 whitespace-nowrap">
-                    👑 LE MEILLEUR DEAL
-                  </div>
-                  <Card className="flex flex-col h-full border-2 border-gold shadow-lg shadow-gold/10">
-                    <CardHeader className="text-center pb-2 pt-8">
-                      <div className="flex justify-center mb-3"><div className="p-3 rounded-full bg-gold/20"><Crown className="w-8 h-8 text-gold" /></div></div>
-                      <CardTitle className="text-xl">Licence Annuelle</CardTitle>
-                      <CardDescription>Badge Audité Offert + 3 RDV Qualifiés Garantis</CardDescription>
-                      <div className="mt-4"><span className="text-4xl font-bold text-foreground">990€</span><span className="text-muted-foreground"> HT/an</span></div>
-                      <p className="text-sm font-medium text-emerald-600 mt-2">✅ Économisez 198€ vs mensuel</p>
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                      <ul className="space-y-3">
-                        {["Tout le plan Mensuel inclus", "Badge Audité offert", "3 RDV qualifiés garantis", "Référencement prioritaire", "Support dédié"].map((f) => (
-                          <li key={f} className="flex items-center gap-3 text-sm"><Check className="w-4 h-4 flex-shrink-0 text-gold" /><span className="font-medium">{f}</span></li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                    <CardFooter className="pt-4 mt-auto">
-                      <Button variant="gold" size="lg" className="w-full !font-bold" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
-                        <Shield className="w-5 h-5 mr-2" /> REJOINDRE L'ALLIANCE <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Charte Artisans Validés */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="max-w-3xl mx-auto mt-16"
-            >
-              <div className="text-center mb-8">
-                <h3 className="text-2xl md:text-3xl font-bold text-navy">La Charte Artisans Validés</h3>
-                <p className="text-muted-foreground mt-2">Notre contrat de confiance, noir sur blanc.</p>
-              </div>
-              <div className="grid sm:grid-cols-3 gap-5">
-                {[
-                  { icon: Shield, title: "Pas de faux leads", desc: "Uniquement des missions vérifiées par notre équipe. Zéro faux numéro, zéro demande bidon." },
-                  { icon: Lock, title: "Liberté totale", desc: "Vous n'êtes pas enchaîné. Résiliez quand vous voulez, sans frais cachés ni préavis abusif." },
-                  { icon: CheckCircle2, title: "Éthique absolue", desc: "Nous ne vendons vos coordonnées à personne. Jamais. Vos données restent les vôtres." },
-                ].map((item, i) => (
-                  <div key={item.title} className="bg-muted/60 border border-border rounded-xl p-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-navy/10 flex items-center justify-center mx-auto mb-4">
-                      <item.icon className="w-6 h-6 text-navy" />
-                    </div>
-                    <h4 className="font-bold text-navy mb-2">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Social Proof Testimonials */}
-        <SocialProofSection />
-
-        {/* CTA */}
+        {/* CTA Final */}
         <section className="py-16 lg:py-20 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]">
@@ -654,10 +637,10 @@ const DevenirArtisan = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gold rounded-full blur-3xl" />
               </div>
               <div className="relative z-10">
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Votre ville est peut-être encore disponible.</h2>
+                <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Votre ville est peut-être encore disponible.</h2>
                 <p className="text-white/60 mb-8 max-w-xl mx-auto">2 licences max par secteur. Quand c'est pris, c'est pris.</p>
                 <Button variant="gold" size="xl" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
-                  <Shield className="w-5 h-5 mr-2" /> DÉPOSER MA CANDIDATURE <ArrowRight className="w-5 h-5 ml-2" />
+                  <Shield className="w-5 h-5 mr-2" /> REJOINDRE L'ALLIANCE <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
             </div>
