@@ -357,7 +357,7 @@ const DevenirArtisan = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-7 rounded-2xl bg-white border border-[#FFD700] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_-4px_rgba(234,179,8,0.25)] transition-all duration-300"
+                  className="p-7 rounded-2xl bg-white border-2 border-navy/20 shadow-[0_4px_24px_-4px_rgba(26,43,72,0.08)] hover:shadow-[0_8px_32px_-4px_rgba(26,43,72,0.15)] transition-all duration-300"
                 >
                   <div className="flex flex-col items-center text-center gap-4">
                     <div className="w-16 h-16 rounded-full bg-gradient-gold flex items-center justify-center shrink-0 shadow-gold">
@@ -396,7 +396,7 @@ const DevenirArtisan = () => {
           <div className="container mx-auto px-4 lg:px-8">
             <div className="max-w-lg mx-auto">
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_12px_48px_-8px_rgba(0,0,0,0.18)] border-2 border-gold/30">
+                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.18)] border-2 border-navy/20">
                   <div className="text-center mb-5 md:mb-6">
                     <h2 className="text-lg md:text-xl font-black text-navy mb-1 md:mb-2 uppercase tracking-wide">
                       Activez votre licence d'accès
@@ -612,10 +612,15 @@ const DevenirArtisan = () => {
         <SocialProofSection />
 
         {/* How it works */}
-        <section className="py-16 lg:py-24 bg-white">
-          <div className="container mx-auto px-4 lg:px-8">
+        <section className="py-16 lg:py-24 bg-navy relative overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
+          </div>
+          <div className="container mx-auto px-4 lg:px-8 relative z-10">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">Comment ça marche ?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Comment ça marche ?</h2>
+              <p className="text-white/60 max-w-xl mx-auto">Un parcours d'intégration rigoureux pour garantir l'excellence.</p>
             </motion.div>
             <div className="grid md:grid-cols-4 gap-8">
               {[
@@ -625,9 +630,9 @@ const DevenirArtisan = () => {
                 { step: "04", title: "C'est parti", desc: "Votre licence est activée, les clients vous contactent" },
               ].map((item, index) => (
                 <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-gold flex items-center justify-center mx-auto mb-4 text-navy-dark font-bold text-xl shadow-gold">{item.step}</div>
-                  <h3 className="font-semibold text-navy mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                  <div className="w-16 h-16 rounded-full border-2 border-gold bg-transparent flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">{item.step}</div>
+                  <h3 className="font-semibold text-white mb-2">{item.title}</h3>
+                  <p className="text-sm text-white/60">{item.desc}</p>
                 </motion.div>
               ))}
             </div>

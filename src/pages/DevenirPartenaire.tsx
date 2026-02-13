@@ -76,7 +76,7 @@ const ValuePropositions = () => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 * (i + 1) }}
-        className="bg-white/5 border border-white/10 rounded-xl p-5 text-center"
+        className="bg-navy-light/30 border-2 border-white/20 rounded-xl p-5 text-center"
       >
         <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-3">
           <v.icon className="w-5 h-5 text-gold" />
@@ -286,9 +286,9 @@ const DevenirPartenaire = () => {
               {/* Form */}
               <div className="lg:col-span-3">
                 <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                  <Card className="border-border/60 shadow-lg">
+                  <Card className="border-2 border-navy/20 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.15)]">
                     <CardContent className="p-6 md:p-8">
-                      <h2 className="text-2xl font-bold text-foreground mb-2">Formulaire de candidature</h2>
+                      <h2 className="text-2xl font-bold text-navy mb-2">Formulaire de candidature</h2>
                       <p className="text-muted-foreground mb-6">Tous les champs marqués * sont obligatoires.</p>
 
                       <form onSubmit={handleSubmit} className="space-y-5">

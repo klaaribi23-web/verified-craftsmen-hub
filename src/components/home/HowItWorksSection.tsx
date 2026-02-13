@@ -85,7 +85,7 @@ const HowItWorksSection = () => {
 
               {/* Step number badge — Gold */}
               <motion.div
-                className="absolute -top-3 left-8 z-20 px-4 py-1.5 bg-gradient-gold rounded-full text-navy-dark text-sm font-bold shadow-gold"
+                className="absolute -top-3 left-8 z-20 w-10 h-10 rounded-full border-2 border-gold bg-navy flex items-center justify-center text-white text-sm font-bold shadow-lg"
                 whileHover={{ scale: 1.1 }}
               >
                 {step.step}
