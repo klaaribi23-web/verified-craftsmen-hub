@@ -88,7 +88,7 @@ const SocialProofBanner = () => {
   const emoji = current.icon === "audit" ? "✅" : "📩";
 
   return (
-    <div className="bg-navy/95 border-b border-white/10 py-2.5 overflow-hidden">
+    <div className="bg-navy border-b border-white/10 py-2.5 overflow-hidden shadow-[0_4px_20px_-4px_rgba(26,43,72,0.5)]">
       <div className="container mx-auto px-4">
         <div
           className={cn(
