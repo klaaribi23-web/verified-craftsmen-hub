@@ -268,6 +268,23 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
 /* ── Urgency ── */
 .urgency-notice{text-align:center;margin:18px 40px 0;font-size:12px;color:#DC2626;font-weight:700;letter-spacing:0.3px}
 .access-limit{text-align:center;margin:8px 40px 0;font-size:10px;color:#9CA3AF;font-weight:500}
+
+/* ── Footer ── */
+.site-footer{margin-top:36px;background:#0A192F;padding:36px 40px 20px}
+.footer-top{display:flex;gap:28px;margin-bottom:24px}
+.footer-col{flex:1}
+.footer-col-brand{flex:1.4}
+.footer-col-title{font-size:10px;font-weight:700;color:#FFFFFF;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase}
+.footer-col a,.footer-col span{display:block;font-size:9px;color:rgba(255,255,255,0.5);text-decoration:none;margin-bottom:5px;font-weight:400}
+.footer-brand{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.footer-brand-logo{width:30px;height:30px;background:rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#FFB800}
+.footer-brand-text span:first-child{font-size:12px;font-weight:800;color:#FFFFFF;display:block;line-height:1}
+.footer-brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;margin-top:1px}
+.footer-brand-desc{font-size:8.5px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:200px}
+.footer-slogan{margin-top:12px;font-size:9px;font-weight:800;color:#FFB800;letter-spacing:2px;text-transform:uppercase}
+.footer-contact{margin-top:10px}
+.footer-contact span{display:block;font-size:8px;color:rgba(255,255,255,0.45);margin-bottom:4px}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;text-align:center;font-size:7.5px;color:rgba(255,255,255,0.3)}
 </style></head><body>
 <div class="page">
 
@@ -291,9 +308,9 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
 
 <!-- Hero Title -->
 <div class="hero-title">
-  <h1>Mise en sécurité secteur : ${artisan.city}</h1>
+  <h1>Récapitulatif pour : ${artisan.business_name}</h1>
   <div class="hero-meta">
-    <span>📍 ${artisan.city}</span>
+    <span>📍 Ville : ${artisan.city}</span>
     ${artisan.category?.name ? `<span>🔧 ${artisan.category.name}</span>` : ''}
   </div>
 </div>
@@ -319,24 +336,24 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
   <div class="offer-card">
     <div class="offer-icon">📍</div>
     <h3>Exclusivité Géographique</h3>
-    <p>Vous êtes le seul artisan référencé sur votre zone. Aucun concurrent direct.</p>
+    <p>Vous êtes le seul artisan référencé sur votre zone. Aucun concurrent direct ne peut apparaître à côté de vous.</p>
   </div>
   <div class="offer-card">
     <div class="offer-icon">🔑</div>
-    <h3>Vitrine Clé en Main</h3>
-    <p>Votre fiche est déjà en ligne avec vos informations et photos. Les clients vous contactent directement.</p>
+    <h3>Vitrine Professionnelle Clé en Main</h3>
+    <p>Votre fiche est déjà en ligne avec vos informations, photos et coordonnées. Les clients peuvent vous contacter directement.</p>
   </div>
   <div class="offer-card">
     <div class="offer-icon">🚀</div>
-    <h3>Visibilité Prioritaire & SEO</h3>
-    <p>Votre profil est optimisé pour le référencement local. Vous apparaissez en tête des résultats.</p>
+    <h3>Visibilité Prioritaire &amp; SEO</h3>
+    <p>Votre profil est optimisé pour le référencement local. Vous apparaissez en tête des résultats pour votre métier et votre ville.</p>
   </div>
 </div>
 
 <!-- CTA Buttons -->
 <div class="cta-section">
-  <a class="btn btn-primary" href="${url}">🔒 DÉBLOQUER MON EXCLUSIVITÉ MAINTENANT</a>
-  <a class="btn btn-secondary" href="${url}">👁️ VOIR MA VITRINE PROFESSIONNELLE</a>
+  <a class="btn btn-primary" href="${url}">🔒 ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
+  <a class="btn btn-secondary" href="${url}">👉 VOIR MA VITRINE PROFESSIONNELLE</a>
 </div>
 
 <!-- Urgency -->
@@ -352,6 +369,7 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
         <div class="footer-brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
       </div>
       <div class="footer-brand-desc">La plateforme de confiance qui vous connecte avec des artisans vérifiés et qualifiés dans toute la France.</div>
+      <div class="footer-slogan">MOINS DE BLABLA, PLUS DE RÉSULTATS.</div>
       <div class="footer-contact">
         <span>📞 03 53 63 29 99</span>
         <span>📧 contact@artisansvalides.fr</span>
