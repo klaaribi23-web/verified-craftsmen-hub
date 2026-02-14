@@ -51,6 +51,7 @@ import AdminStatistics from "./pages/admin/AdminStatistics";
 import AdminMessaging from "./pages/admin/AdminMessaging";
 import AdminAddArtisan from "./pages/admin/AdminAddArtisan";
 import AdminApprovals from "./pages/admin/AdminApprovals";
+import AdminCommandant from "./pages/admin/AdminCommandant";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminBulkImport from "./pages/admin/AdminBulkImport";
 import AdminRecommendations from "./pages/admin/AdminRecommendations";
@@ -264,6 +265,11 @@ const App = () => (
           <Route path="/admin/approbations" element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminApprovals />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/commandant" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminCommandant />
             </ProtectedRoute>
           } />
           <Route path="/admin/ajouter-artisan" element={

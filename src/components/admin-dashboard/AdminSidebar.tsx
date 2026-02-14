@@ -15,6 +15,7 @@ import {
   CreditCard,
   FileText,
   Gift,
+  Rocket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin/dashboard" },
+  { icon: Rocket, label: "Commandant", path: "/admin/commandant" },
   { icon: Settings, label: "Validations", path: "/admin/approbations", badge: "approvals" },
   { icon: ThumbsUp, label: "Avis clients", path: "/admin/recommandations", badge: "recommendations" },
   { icon: CreditCard, label: "Abonnements", path: "/admin/abonnements" },
