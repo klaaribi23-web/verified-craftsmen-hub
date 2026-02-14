@@ -211,102 +211,121 @@ L'équipe Artisans Validés`;
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(url)}&color=0A192F&bgcolor=FFFFFF`;
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Attestation d'Exclusivité — ${artisan.business_name}</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 @page{size:A4;margin:0}
-body{font-family:'EB Garamond',Georgia,'Times New Roman',serif;color:#1A1A1A;background:#fff;line-height:1.7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.page{max-width:794px;margin:0 auto;background:#FEFDFB;position:relative;min-height:100vh;border:2px solid #0A192F;outline:1px solid #C5A021;outline-offset:-6px}
-/* Guillochis watermark */
-.page::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;opacity:0.025;pointer-events:none;background-image:repeating-conic-gradient(from 0deg at 50% 50%,#0A192F 0deg 2deg,transparent 2deg 8deg),repeating-radial-gradient(circle at center,transparent 0,transparent 40px,rgba(10,25,47,0.03) 40px,rgba(10,25,47,0.03) 41px,transparent 41px,transparent 80px);z-index:0}
-/* Vertical side band */
-.side-band{position:absolute;left:0;top:0;bottom:0;width:28px;background:#0A192F;z-index:3;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.side-band-text{writing-mode:vertical-rl;text-orientation:mixed;color:rgba(197,160,33,0.35);font-size:6px;font-weight:700;letter-spacing:4px;text-transform:uppercase;white-space:nowrap;transform:rotate(180deg)}
-/* Header */
-.header{background:#0A192F;padding:24px 48px 24px 60px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;border-bottom:2px solid #C5A021}
-.header-logo{color:#C5A021;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border:1px solid rgba(197,160,33,0.4);padding:4px 10px}
-.header h1{color:#FEFDFB;font-size:14px;font-weight:700;letter-spacing:6px;text-transform:uppercase;text-align:center;flex:1;margin:0 20px}
-.header-conf{color:rgba(255,255,255,0.3);font-size:7px;letter-spacing:2px;text-transform:uppercase;text-align:right;line-height:1.8}
-/* Ref */
-.ref-bar{display:flex;justify-content:space-between;padding:16px 48px 8px 60px;font-size:9px;color:#888;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;position:relative;z-index:2}
-/* Central block */
-.central{margin:20px 48px 0 60px;position:relative;z-index:2}
-.central-frame{background:#0A192F;border:2px solid #C5A021;padding:36px 40px;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(10,25,47,0.25)}
-.central-frame::before{content:'';position:absolute;inset:4px;border:1px solid rgba(197,160,33,0.3);pointer-events:none}
-.central-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-18deg);font-size:56px;font-weight:800;color:rgba(255,255,255,0.04);letter-spacing:14px;text-transform:uppercase;pointer-events:none;white-space:nowrap;font-family:'EB Garamond',serif}
-.artisan-name{text-align:center;font-size:32px;font-weight:800;color:#C5A021;letter-spacing:3px;text-transform:uppercase;position:relative;z-index:1;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
-.artisan-zone{text-align:center;color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;margin-top:12px;letter-spacing:4px;text-transform:uppercase;position:relative;z-index:1}
-.artisan-zone strong{color:#C5A021}
-.central-meta{text-align:center;color:#999;font-size:8px;margin-top:14px;letter-spacing:2px;text-transform:uppercase;font-weight:600}
-/* Pillars */
-.pillars{display:flex;gap:14px;margin:26px 48px 0 60px;justify-content:center;position:relative;z-index:2}
-.pillar{flex:1;text-align:center;padding:18px 10px;border:1px solid #eee}
-.pillar-icon{font-size:20px;margin-bottom:8px;color:#0A192F}
-.pillar h3{font-size:10px;font-weight:700;color:#0A192F;text-transform:uppercase;letter-spacing:2px;margin-bottom:3px}
-.pillar p{font-size:8.5px;color:#666;font-weight:500;line-height:1.6;font-style:italic}
-/* FAQ */
-.faq{margin:22px 48px 18px 60px;position:relative;z-index:2}
-.faq-header{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:5px;color:#0A192F;margin-bottom:14px;padding-bottom:6px;border-bottom:1.5px solid #C5A021}
-.faq-item{padding:8px 0 8px 14px;border-left:2px solid #C5A021;margin-bottom:6px}
-.faq-q{font-size:10px;font-weight:700;color:#0A192F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:1px}
-.faq-a{font-size:9.5px;color:#555;font-weight:500;line-height:1.7}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:#1A1A1A;background:#fff;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{max-width:794px;margin:0 auto;background:#FFFFFF;position:relative;min-height:100vh;overflow:hidden}
+
+/* ── Header with gradient + speed lines ── */
+.header{background:linear-gradient(135deg,#0A192F 0%,#112240 60%,#1A3A5C 100%);padding:32px 40px 36px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:repeating-linear-gradient(-55deg,transparent,transparent 8px,rgba(255,215,0,0.07) 8px,rgba(255,215,0,0.07) 9px);pointer-events:none}
+.header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:4px;background:linear-gradient(90deg,#FFD700,#FFC107,#FFD700)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2}
+.header-logo{color:#FFD700;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase}
+.header h1{color:#FFFFFF;font-size:13px;font-weight:800;letter-spacing:5px;text-transform:uppercase;text-align:center;flex:1;margin:0 24px}
+.header-ref{color:rgba(255,255,255,0.4);font-size:7px;letter-spacing:2px;text-transform:uppercase;text-align:right;line-height:1.8;font-weight:600}
+
+/* ── Date bar ── */
+.date-bar{display:flex;justify-content:space-between;padding:14px 40px;font-size:9px;color:#999;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;border-bottom:1px solid #F0F0F0}
+
+/* ── Artisan Card (floating web-style) ── */
+.artisan-card{margin:28px 40px 0;background:#FFFFFF;border-radius:12px;border:1px solid #E8E8E8;box-shadow:0 8px 30px rgba(10,25,47,0.08),0 2px 8px rgba(10,25,47,0.04);overflow:hidden;position:relative}
+.artisan-card-header{background:linear-gradient(135deg,#0A192F 0%,#112240 100%);padding:28px 32px;position:relative;overflow:hidden}
+.artisan-card-header::before{content:'';position:absolute;right:-20px;top:50%;transform:translateY(-50%);display:flex;gap:4px;opacity:0.15}
+.speed-lines{position:absolute;right:30px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px}
+.speed-lines span{display:block;height:2px;background:#FFD700;border-radius:1px}
+.speed-lines span:nth-child(1){width:60px;opacity:0.9}
+.speed-lines span:nth-child(2){width:45px;opacity:0.7}
+.speed-lines span:nth-child(3){width:30px;opacity:0.5}
+.speed-lines span:nth-child(4){width:18px;opacity:0.3}
+.artisan-name{font-size:30px;font-weight:900;color:#FFFFFF;letter-spacing:2px;text-transform:uppercase;position:relative;z-index:1}
+.artisan-zone{color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;margin-top:8px;letter-spacing:3px;text-transform:uppercase;position:relative;z-index:1}
+.artisan-zone strong{color:#FFD700;font-weight:800}
+.artisan-card-body{padding:16px 32px;display:flex;align-items:center;justify-content:space-between;background:#FAFAFA}
+.artisan-badge{display:inline-flex;align-items:center;gap:6px;background:#0A192F;color:#FFD700;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:20px}
+.artisan-validity{font-size:8px;color:#999;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+
+/* ── 3 Pillars ── */
+.pillars{display:flex;gap:12px;margin:24px 40px 0;justify-content:center}
+.pillar{flex:1;text-align:center;padding:20px 12px;background:#FFFFFF;border-radius:10px;border:1px solid #F0F0F0;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
+.pillar-icon{width:40px;height:40px;border-radius:50%;background:#FFD700;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px;box-shadow:0 2px 8px rgba(255,215,0,0.3)}
+.pillar h3{font-size:10px;font-weight:800;color:#0A192F;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.pillar p{font-size:8.5px;color:#777;font-weight:500;line-height:1.6}
+
+/* ── FAQ ── */
+.faq{margin:22px 40px 0}
+.faq-header{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:4px;color:#0A192F;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #0A192F}
+.faq-item{padding:8px 0 8px 14px;border-left:3px solid #FFD700;margin-bottom:8px}
+.faq-q{font-size:10px;font-weight:700;color:#0A192F;margin-bottom:2px}
+.faq-a{font-size:9px;color:#666;font-weight:500;line-height:1.7}
 .faq-a b{color:#0A192F;font-weight:700}
-/* CTA Seals */
-.cta-section{margin:22px 48px 14px 60px;position:relative;z-index:2}
-.seal-btn{display:block;padding:16px 28px;text-align:center;text-decoration:none;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;font-size:11px;font-family:'EB Garamond',serif}
-.seal-primary{background:#0A192F;color:#FEFDFB;border:1.5px solid #C5A021;box-shadow:inset 0 0 0 1px rgba(197,160,33,0.2)}
-.seal-action{background:#C5A021;color:#0A192F;border:1.5px solid #0A192F;font-size:13px;font-weight:800;letter-spacing:4px;padding:20px 28px}
-.cta-sub{text-align:center;font-size:7px;color:#aaa;margin-top:6px;letter-spacing:1px;font-weight:600;text-transform:uppercase}
-/* QR */
-.qr-section{display:flex;align-items:center;gap:12px;margin:16px 48px 0 60px;padding:12px 16px;border:1px solid #eee;background:#FAFAF8;position:relative;z-index:2}
-.qr-section img{width:64px;height:64px}
-.qr-text{font-size:7.5px;color:#888;letter-spacing:0.5px;line-height:1.7;font-weight:500}
-.qr-text strong{color:#0A192F;font-weight:700;font-size:8px;display:block;margin-bottom:2px;letter-spacing:1px;text-transform:uppercase}
-/* Footer */
-.footer{margin:16px 48px 0 60px;padding:12px 0;border-top:1px solid #ddd;position:relative;z-index:2}
-.footer-sig{text-align:center;font-weight:700;color:#0A192F;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px}
-.footer-legal{text-align:justify;font-size:6.5px;color:#bbb;line-height:1.8;font-weight:500;letter-spacing:0.2px}
+.faq-a .highlight{background:#FFD700;color:#0A192F;padding:0 4px;font-weight:700}
+
+/* ── CTA Buttons (web-style) ── */
+.cta-section{margin:22px 40px 0}
+.btn{display:block;padding:16px 28px;text-align:center;text-decoration:none;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-size:12px;font-family:'Inter',sans-serif;border-radius:8px;transition:none}
+.btn-primary{background:linear-gradient(135deg,#FFD700 0%,#FFC107 50%,#FFD700 100%);color:#0A192F;border:none;font-size:14px;padding:20px 28px;box-shadow:0 4px 15px rgba(255,215,0,0.35);position:relative;overflow:hidden}
+.btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);transform:skewX(-25deg)}
+.btn-secondary{background:transparent;color:#0A192F;border:2px solid #0A192F;font-size:11px}
+
+/* ── QR section ── */
+.qr-section{display:flex;align-items:center;gap:14px;margin:18px 40px 0;padding:14px 18px;background:#F8F9FA;border-radius:8px;border:1px solid #EEEEEE}
+.qr-section img{width:60px;height:60px;border-radius:4px}
+.qr-text{font-size:8px;color:#999;line-height:1.7;font-weight:500}
+.qr-text strong{color:#0A192F;font-weight:700;font-size:8.5px;display:block;margin-bottom:2px;letter-spacing:1px;text-transform:uppercase}
+
+/* ── Warning Urgency Banner ── */
+.urgency-banner{margin:20px 40px 0;background:repeating-linear-gradient(-45deg,#FFD700,#FFD700 10px,#FFC107 10px,#FFC107 20px);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(255,215,0,0.2)}
+.urgency-inner{background:rgba(255,215,0,0.92);padding:12px 20px;text-align:center;font-size:11px;font-weight:900;color:#0A192F;letter-spacing:3px;text-transform:uppercase}
+
+/* ── Footer ── */
+.footer{margin:16px 40px 20px;padding:14px 0;border-top:1px solid #EEEEEE}
+.footer-sig{text-align:center;font-weight:900;color:#0A192F;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+.footer-legal{text-align:justify;font-size:6.5px;color:#CCCCCC;line-height:1.8;font-weight:500}
 </style></head><body>
 <div class="page">
 
-<div class="side-band">
-  <span class="side-band-text">OFFICIEL — ARTISANS VALIDÉS — OFFICIEL — ARTISANS VALIDÉS — OFFICIEL — ARTISANS VALIDÉS — OFFICIEL — ARTISANS VALIDÉS</span>
-</div>
-
 <div class="header">
-  <div class="header-logo">ARTISANS VALIDÉS</div>
-  <h1>ATTESTATION D'EXCLUSIVITÉ SECTORIELLE</h1>
-  <div class="header-conf">DOCUMENT<br/>CONFIDENTIEL<br/>N° ${refNum}</div>
+  <div class="header-inner">
+    <div class="header-logo">ARTISANS VALIDÉS</div>
+    <h1>ATTESTATION D'EXCLUSIVITÉ SECTORIELLE</h1>
+    <div class="header-ref">CONFIDENTIEL<br/>N° ${refNum}</div>
+  </div>
 </div>
 
-<div class="ref-bar">
+<div class="date-bar">
   <span>Émis le ${date}</span>
   <span>Alliance des Professionnels Certifiés — France</span>
 </div>
 
-<div class="central">
-  <div class="central-frame">
-    <span class="central-stamp">APPROUVÉ — CERTIFIÉ</span>
+<div class="artisan-card">
+  <div class="artisan-card-header">
     <div class="artisan-name">${artisan.business_name}</div>
     <div class="artisan-zone">Zone réservée : <strong>${artisan.city}</strong></div>
+    <div class="speed-lines"><span></span><span></span><span></span><span></span></div>
   </div>
-  <div class="central-meta">Ce document certifie la réservation exclusive du secteur ci-dessus — Validité : 48 heures</div>
+  <div class="artisan-card-body">
+    <div class="artisan-badge">✦ EXCLUSIVITÉ CERTIFIÉE</div>
+    <div class="artisan-validity">Validité : 48 heures</div>
+  </div>
 </div>
 
 <div class="pillars">
   <div class="pillar">
     <div class="pillar-icon">🛡️</div>
-    <h3>Exclusivité territoriale</h3>
-    <p>Aucun concurrent autorisé sur votre zone géographique.</p>
+    <h3>Exclusivité totale</h3>
+    <p>Zéro concurrent sur votre zone géographique.</p>
   </div>
   <div class="pillar">
-    <div class="pillar-icon">⚜️</div>
-    <h3>Priorité absolue</h3>
-    <p>Positionnement en tête de tous les résultats de recherche.</p>
+    <div class="pillar-icon">⚡</div>
+    <h3>Visibilité prioritaire</h3>
+    <p>Position #1 dans tous les résultats de recherche.</p>
   </div>
   <div class="pillar">
-    <div class="pillar-icon">🏛️</div>
-    <h3>Flux direct</h3>
-    <p>Mise en relation immédiate, sans intermédiaire ni commission.</p>
+    <div class="pillar-icon">📞</div>
+    <h3>Flux direct clients</h3>
+    <p>Mise en relation immédiate, sans intermédiaire.</p>
   </div>
 </div>
 
@@ -314,7 +333,7 @@ body{font-family:'EB Garamond',Georgia,'Times New Roman',serif;color:#1A1A1A;bac
   <div class="faq-header">Questions fréquentes</div>
   <div class="faq-item">
     <div class="faq-q">Quel est le coût d'accès ?</div>
-    <div class="faq-a">À partir de <b>49 €/mois HT</b>. Un seul client obtenu rembourse plusieurs mois d'adhésion.</div>
+    <div class="faq-a">À partir de <span class="highlight">49 €/mois HT</span>. Un seul client obtenu rembourse plusieurs mois d'adhésion.</div>
   </div>
   <div class="faq-item">
     <div class="faq-q">Comment l'exclusivité est-elle protégée ?</div>
@@ -322,27 +341,30 @@ body{font-family:'EB Garamond',Georgia,'Times New Roman',serif;color:#1A1A1A;bac
   </div>
   <div class="faq-item">
     <div class="faq-q">Quelle différence avec un annuaire classique ?</div>
-    <div class="faq-a">Ici, vous n'êtes pas listé. Vous êtes <b>le professionnel recommandé</b> par un organisme de certification.</div>
+    <div class="faq-a">Ici, vous n'êtes pas listé. Vous êtes <span class="highlight">le professionnel recommandé</span> par un organisme de certification.</div>
   </div>
 </div>
 
 <div class="cta-section">
-  <a class="seal-btn seal-primary" href="${url}">🛡️ ACCÉDER AU DOSSIER TECHNIQUE</a>
-  <a class="seal-btn seal-action" href="${url}">SCELLER L'EXCLUSIVITÉ IMMÉDIATEMENT</a>
-  <div class="cta-sub">Accès réservé — Places strictement contingentées par zone géographique</div>
+  <a class="btn btn-secondary" href="${url}">👁️ VOIR MA VITRINE PROFESSIONNELLE</a>
+  <a class="btn btn-primary" href="${url}">⚡ ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
 </div>
 
 <div class="qr-section">
   <img src="${qrUrl}" alt="QR Code de vérification"/>
   <div class="qr-text">
-    <strong>Vérification numérique de l'authenticité</strong>
-    Scannez ce code pour accéder au dossier technique de ${artisan.business_name} et vérifier la validité de cette attestation. Réf. ${refNum}.
+    <strong>Vérification numérique</strong>
+    Scannez ce code pour accéder au dossier de ${artisan.business_name} et vérifier la validité de cette attestation. Réf. ${refNum}.
   </div>
+</div>
+
+<div class="urgency-banner">
+  <div class="urgency-inner">⚠️ DISPONIBILITÉ LIMITÉE — SECTEUR SOUS TENSION</div>
 </div>
 
 <div class="footer">
   <div class="footer-sig">MOINS DE BLABLA, PLUS DE RÉSULTATS.</div>
-  <div class="footer-legal">Ce document est émis par le service de modération Artisans Validés et certifie la réservation temporaire d'une zone d'exclusivité sectorielle. La présente attestation ne constitue pas un engagement contractuel définitif mais une pré-réservation d'accès prioritaire, soumise à validation dans un délai de 48 heures. Passé ce délai, la zone sera automatiquement libérée et proposée à un autre professionnel qualifié. Paiement sécurisé par Stripe. Toute reproduction non autorisée de ce document est interdite. © ${new Date().getFullYear()} Artisans Validés — Tous droits réservés.</div>
+  <div class="footer-legal">Ce document est émis par Artisans Validés et certifie la réservation temporaire d'une zone d'exclusivité sectorielle. La présente attestation ne constitue pas un engagement contractuel définitif mais une pré-réservation d'accès prioritaire, soumise à validation dans un délai de 48 heures. Passé ce délai, la zone sera automatiquement libérée et proposée à un autre professionnel qualifié. Paiement sécurisé par Stripe. © ${new Date().getFullYear()} Artisans Validés — Tous droits réservés.</div>
 </div>
 
 </div>
