@@ -250,9 +250,7 @@ body{font-family:Helvetica,Arial,sans-serif;color:#1A1A1A;background:#fff;line-h
 .cta-section{margin:32px 48px 24px}
 .cta-btn{display:block;background:#FF5500;color:#FFFFFF;padding:24px 32px;text-align:center;font-size:18px;font-weight:900;text-decoration:none;letter-spacing:2px;text-transform:uppercase}
 .cta-sub{text-align:center;font-size:10px;color:#999;margin-top:10px;letter-spacing:0.5px}
-/* Link */
-.link-row{margin:0 48px 24px;padding:14px 20px;border:1px solid #1A1A1A;font-size:11px;color:#666;word-break:break-all;text-align:left}
-.link-row a{color:#FF5500;font-weight:700;text-decoration:none}
+.mirror-btn{display:block;background:#0A1628;color:#FFFFFF;padding:18px 32px;text-align:center;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:1px;margin-bottom:12px}
 /* Footer */
 .footer{text-align:center;padding:20px 48px;border-top:1px solid #1A1A1A;margin:0 48px}
 .footer .sig{font-weight:800;color:#002244;font-size:11px;margin-bottom:4px;letter-spacing:1px}
@@ -319,12 +317,9 @@ body{font-family:Helvetica,Arial,sans-serif;color:#1A1A1A;background:#fff;line-h
 </div>
 
 <div class="cta-section">
+  <a class="mirror-btn" href="${url}">👀 VOIR MA VITRINE PROFESSIONNELLE</a>
   <a class="cta-btn" href="${url}">ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
   <div class="cta-sub">Rendez-vous sur votre fiche et cliquez sur le bouton orange pour finaliser</div>
-</div>
-
-<div class="link-row">
-  Votre vitrine exclusive : <a href="${url}">${url}</a>
 </div>
 
 <div class="footer">
