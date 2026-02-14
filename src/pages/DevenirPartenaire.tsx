@@ -441,6 +441,18 @@ const FormSection = () => {
                   🔒 Validation finale par <strong className="text-navy">Jane</strong> après examen de votre dossier.
                 </p>
               </form>
+
+              <div className="mt-6 pt-6 border-t border-border">
+                <p className="text-center text-sm text-muted-foreground mb-3">Votre zone est déjà validée ?</p>
+                <Button
+                  variant="gold"
+                  size="xl"
+                  className="w-full !text-base md:!text-lg !font-black uppercase tracking-wider !py-5"
+                  onClick={() => window.location.href = "/connexion?redirect=/artisan/abonnement"}
+                >
+                  <Award className="w-5 h-5 mr-2" /> PAYER MA LICENCE
+                </Button>
+              </div>
             </div>
 
             {/* Social proof line */}
