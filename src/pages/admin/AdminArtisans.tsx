@@ -346,7 +346,8 @@ const AdminArtisans = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="font-medium text-foreground truncate">
+                            <p className="font-medium text-foreground truncate flex items-center gap-1.5">
+                              <span className={`inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 ${artisan.status === "active" ? "bg-green-500" : artisan.status === "suspended" ? "bg-orange-500" : "bg-gray-400"}`} />
                               {artisan.business_name}
                             </p>
                             <p className="text-xs text-muted-foreground truncate">
@@ -394,7 +395,7 @@ const AdminArtisans = () => {
                       <Button
                         size="sm"
                         variant={artisan.status === "active" ? "default" : "outline"}
-                        className="h-7 px-2 text-xs"
+                        className={`h-7 px-2 text-xs ${artisan.status === "active" ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "hover:bg-green-50 hover:text-green-700 hover:border-green-400"}`}
                         onClick={() => handleQuickStatus(artisan, "active")}
                         disabled={updateStatus.isPending}
                       >
@@ -403,23 +404,23 @@ const AdminArtisans = () => {
                       </Button>
                       <Button
                         size="sm"
-                        variant={artisan.status === "disponible" ? "default" : "outline"}
-                        className="h-7 px-2 text-xs"
-                        onClick={() => handleQuickStatus(artisan, "disponible")}
-                        disabled={updateStatus.isPending}
-                      >
-                        <UserCheck className="h-3 w-3 mr-1" />
-                        Dispo
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={artisan.status === "suspended" ? "destructive" : "outline"}
-                        className="h-7 px-2 text-xs"
+                        variant={artisan.status === "suspended" ? "default" : "outline"}
+                        className={`h-7 px-2 text-xs ${artisan.status === "suspended" ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "hover:bg-orange-50 hover:text-orange-700 hover:border-orange-400"}`}
                         onClick={() => handleQuickStatus(artisan, "suspended")}
                         disabled={updateStatus.isPending}
                       >
                         <Clock className="h-3 w-3 mr-1" />
                         Attente
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={artisan.status === "disponible" ? "default" : "outline"}
+                        className={`h-7 px-2 text-xs ${artisan.status === "disponible" ? "bg-gray-500 hover:bg-gray-600 text-white border-gray-500" : "hover:bg-gray-100 hover:text-gray-700 hover:border-gray-400"}`}
+                        onClick={() => handleQuickStatus(artisan, "disponible")}
+                        disabled={updateStatus.isPending}
+                      >
+                        <UserCheck className="h-3 w-3 mr-1" />
+                        Dispo
                       </Button>
                     </div>
 
@@ -517,7 +518,10 @@ const AdminArtisans = () => {
                               loading="lazy"
                             />
                             <div className="min-w-0">
-                              <p className="font-medium text-foreground truncate">{artisan.business_name}</p>
+                              <p className="font-medium text-foreground truncate flex items-center gap-1.5">
+                                <span className={`inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 ${artisan.status === "active" ? "bg-green-500" : artisan.status === "suspended" ? "bg-orange-500" : "bg-gray-400"}`} />
+                                {artisan.business_name}
+                              </p>
                               <p className="text-sm text-muted-foreground truncate">
                                 {artisan.profile?.first_name} {artisan.profile?.last_name}
                               </p>
@@ -570,9 +574,21 @@ const AdminArtisans = () => {
                               onClick={() => handleQuickStatus(artisan, "active")}
                               title="Validé"
                               disabled={updateStatus.isPending}
-                              className="px-2"
+                              className={`px-2 ${artisan.status === "active" ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "hover:bg-green-50 hover:text-green-700 hover:border-green-400"}`}
                             >
-                              <ShieldCheck className="h-4 w-4" />
+                              <ShieldCheck className="h-4 w-4 mr-1" />
+                              Validé
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={artisan.status === "suspended" ? "default" : "outline"}
+                              onClick={() => handleQuickStatus(artisan, "suspended")}
+                              title="En attente"
+                              disabled={updateStatus.isPending}
+                              className={`px-2 ${artisan.status === "suspended" ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "hover:bg-orange-50 hover:text-orange-700 hover:border-orange-400"}`}
+                            >
+                              <Clock className="h-4 w-4 mr-1" />
+                              Attente
                             </Button>
                             <Button
                               size="sm"
@@ -580,19 +596,10 @@ const AdminArtisans = () => {
                               onClick={() => handleQuickStatus(artisan, "disponible")}
                               title="Disponible"
                               disabled={updateStatus.isPending}
-                              className="px-2"
+                              className={`px-2 ${artisan.status === "disponible" ? "bg-gray-500 hover:bg-gray-600 text-white border-gray-500" : "hover:bg-gray-100 hover:text-gray-700 hover:border-gray-400"}`}
                             >
-                              <UserCheck className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant={artisan.status === "suspended" ? "destructive" : "outline"}
-                              onClick={() => handleQuickStatus(artisan, "suspended")}
-                              title="En attente"
-                              disabled={updateStatus.isPending}
-                              className="px-2"
-                            >
-                              <Clock className="h-4 w-4" />
+                              <UserCheck className="h-4 w-4 mr-1" />
+                              Dispo
                             </Button>
                             <span className="w-px h-6 bg-border mx-1" />
                             <Link to={`/artisan/${artisan.slug || artisan.id}`}>
