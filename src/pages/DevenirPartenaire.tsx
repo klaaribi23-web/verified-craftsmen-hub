@@ -36,10 +36,11 @@ const WhatsAppButton = () => (
     href="https://wa.me/33612345678?text=Bonjour%20Jane%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20la%20licence%20Artisans%20Valid%C3%A9s."
     target="_blank"
     rel="noopener noreferrer"
-    className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25d366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-    aria-label="Contacter Jane sur WhatsApp"
+    className="group fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25d366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+    aria-label="Parler à Jane"
   >
-    <MessageCircle className="w-7 h-7 text-white" />
+    <MessageCircle className="w-6 h-6 text-white" />
+    <span className="absolute -top-8 right-0 bg-white text-navy text-xs font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Parler à Jane</span>
   </a>
 );
 
@@ -80,8 +81,8 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
         </h1>
 
         <p className="text-base md:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Arrêtez de courir après des faux leads. Intégrez le réseau{" "}
-          <strong className="text-white">Artisans Validés</strong>, obtenez votre badge de confiance
+          Arrêtez de partager vos chantiers. Devenez{" "}
+          <strong className="text-white">l'artisan référent</strong> sur votre secteur
           et laissez <strong className="text-gold">Jane</strong> piloter votre visibilité locale.
         </p>
 
@@ -91,7 +92,7 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
           className="!font-black !text-base md:!text-lg uppercase tracking-wider"
           onClick={onCTA}
         >
-          <MapPin className="w-5 h-5 mr-2" /> VÉRIFIER LA DISPONIBILITÉ DANS MA ZONE <ArrowRight className="w-5 h-5 ml-2" />
+          <MapPin className="w-5 h-5 mr-2" /> VÉRIFIER LA DISPONIBILITÉ DE MA ZONE <ArrowRight className="w-5 h-5 ml-2" />
         </Button>
 
         <p className="text-xs text-white/40 mt-4">On ne prend pas tout le monde. On ne garde que les meilleurs.</p>
@@ -106,8 +107,8 @@ const ComparisonSection = () => (
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
         <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">Le vrai calcul</span>
-        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">Comparez et décidez.</h2>
-        <p className="text-muted-foreground">Soyons cash : voici ce que vous payez aujourd'hui vs ce qu'on propose.</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">Pourquoi nous ?</h2>
+        <p className="text-muted-foreground">Soyons cash : voici ce que vous subissez vs ce qu'on propose.</p>
       </motion.div>
 
       <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -120,14 +121,14 @@ const ComparisonSection = () => (
                   <XCircle className="w-6 h-6 text-destructive" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-foreground">Eux — Le Lead Classique</h3>
+                  <h3 className="font-bold text-lg text-foreground">Vendeurs de Leads</h3>
                   <p className="text-xs text-muted-foreground">Ce que vous subissez</p>
                 </div>
               </div>
               <ul className="space-y-4">
                 {[
-                  "Leads vendus à 10 personnes en même temps",
-                  "Clients pas sérieux, faux numéros",
+                  "Multiples artisans sur un même projet",
+                  "Prix cassés, course au moins-disant",
                   "Aucune aide, aucun accompagnement",
                   "30 à 80€ par lead non qualifié",
                   "Commission sur chaque chantier signé",
@@ -162,10 +163,10 @@ const ComparisonSection = () => (
               </div>
               <ul className="space-y-4">
                 {[
-                  "Exclusivité : 2 artisans par zone max",
-                  "Projets qualifiés par téléphone par Jane",
+                  "Exclusivité zone : 2 artisans max par secteur",
+                  "Audit de confiance — Badge « Validé 2026 »",
                   "SEO local inclus — n°1 sur Google",
-                  "99€/mois fixe, prévisible",
+                  "Secrétariat Jane : appels filtrés pour vous",
                   "0% de commission, vous gardez tout",
                   "Le client vient à vous.",
                 ].map((item) => (
@@ -431,7 +432,7 @@ const FormSection = () => {
                   {isLoading ? (
                     <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Vérification...</>
                   ) : (
-                    <><Shield className="w-5 h-5 mr-2" /> VÉRIFIER LA DISPONIBILITÉ DANS MA ZONE</>
+                    <><Shield className="w-5 h-5 mr-2" /> VÉRIFIER LA DISPONIBILITÉ DE MA ZONE</>
                   )}
                 </Button>
 
