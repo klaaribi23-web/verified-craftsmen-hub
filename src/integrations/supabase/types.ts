@@ -1568,7 +1568,6 @@ export type Database = {
     Views: {
       public_artisans: {
         Row: {
-          address: string | null
           business_name: string | null
           category_id: string | null
           city: string | null
@@ -1594,7 +1593,6 @@ export type Database = {
           photo_url: string | null
           portfolio_images: string[] | null
           portfolio_videos: string[] | null
-          postal_code: string | null
           profile_id: string | null
           qualifications: string[] | null
           rating: number | null
@@ -1608,7 +1606,6 @@ export type Database = {
           working_hours: Json | null
         }
         Insert: {
-          address?: string | null
           business_name?: string | null
           category_id?: string | null
           city?: string | null
@@ -1634,7 +1631,6 @@ export type Database = {
           photo_url?: string | null
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
-          postal_code?: string | null
           profile_id?: string | null
           qualifications?: string[] | null
           rating?: number | null
@@ -1648,7 +1644,6 @@ export type Database = {
           working_hours?: Json | null
         }
         Update: {
-          address?: string | null
           business_name?: string | null
           category_id?: string | null
           city?: string | null
@@ -1674,7 +1669,6 @@ export type Database = {
           photo_url?: string | null
           portfolio_images?: string[] | null
           portfolio_videos?: string[] | null
-          postal_code?: string | null
           profile_id?: string | null
           qualifications?: string[] | null
           rating?: number | null
