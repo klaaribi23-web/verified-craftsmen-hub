@@ -565,7 +565,7 @@ const ArtisanPublicProfile = () => {
                           <DialogTrigger asChild>
                             <div className="text-center mb-2 pb-3 border-b cursor-pointer">
                               <p className="text-xs text-muted-foreground mb-1">Cette place est disponible</p>
-                              <Button className="w-full gap-2" variant="gold" size="lg">
+                              <Button className="w-full gap-2 bg-amber-500 hover:bg-amber-600 text-white" size="lg">
                                 <UserPlus className="h-4 w-4" />
                                 Revendiquer cette place
                               </Button>
@@ -1108,7 +1108,7 @@ const ArtisanPublicProfile = () => {
                         Prenez cette visibilité premium pour votre entreprise et recevez des demandes de clients.
                       </p>
                       <DialogTrigger asChild>
-                        <Button className="w-full" variant="gold" size="lg">
+                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white" size="lg">
                           <UserPlus className="h-4 w-4 mr-2" />
                           Revendiquer cette place
                         </Button>
