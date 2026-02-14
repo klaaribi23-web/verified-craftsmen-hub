@@ -390,10 +390,11 @@ const FormSection = () => {
 
             <div className="bg-white rounded-2xl p-6 md:p-8 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.18)] border-2 border-navy/20">
               <div className="text-center mb-6">
-                <h2 className="text-xl md:text-2xl font-black text-navy mb-2 uppercase tracking-wide">
-                  Vérifiez votre éligibilité
+              <h2 className="text-xl md:text-2xl font-black text-navy mb-1 uppercase tracking-wide">
+                  Réserver mon accès
                 </h2>
-                <p className="text-sm text-muted-foreground">Gratuit · Sans engagement · Réponse sous 24h</p>
+                <p className="text-2xl md:text-3xl font-black text-gold mb-1">149€ <span className="text-base font-semibold">HT / mois</span></p>
+                <p className="text-sm text-muted-foreground">Licence exclusive par zone — Sans engagement</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -489,8 +490,8 @@ const DevenirPartenaire = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Rejoindre le Réseau Artisans Validés — Exclusivité Territoriale"
-        description="Arrêtez de courir après des faux leads. Intégrez le réseau Artisans Validés : exclusivité territoriale, projets qualifiés, SEO local inclus."
+        title="Artisans Validés | Devenez l'artisan exclusif de votre zone"
+        description="Sécurisez vos chantiers sur votre secteur. Exclusivité garantie, visibilité Google optimisée et secrétariat inclus. Rejoignez l'élite."
         canonical="https://artisansvalides.fr/devenir-partenaire"
       />
       <Navbar />
