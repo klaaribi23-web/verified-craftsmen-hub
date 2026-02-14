@@ -59,6 +59,7 @@ interface ProspectArtisan {
   portfolio_images: string[] | null;
   created_at: string;
   slug: string | null;
+  status: string;
   category: {
     name: string;
   } | null;
@@ -382,7 +383,7 @@ const AdminApprovals = () => {
       let query = supabase.from("artisans").select("*", {
         count: "exact",
         head: true
-      }).eq("status", "prospect").is("user_id", null);
+      }).in("status", ["prospect", "active", "suspended", "disponible"]).is("user_id", null);
       if (prospectSearch.trim()) {
         query = query.or(`business_name.ilike.%${prospectSearch}%,city.ilike.%${prospectSearch}%`);
       }
@@ -416,8 +417,9 @@ const AdminApprovals = () => {
           portfolio_images,
           created_at,
           slug,
+          status,
           category:categories(name)
-        `).eq("status", "prospect").is("user_id", null);
+        `).in("status", ["prospect", "active", "suspended", "disponible"]).is("user_id", null);
       if (prospectSearch.trim()) {
         query = query.or(`business_name.ilike.%${prospectSearch}%,city.ilike.%${prospectSearch}%`);
       }
@@ -586,6 +588,31 @@ const AdminApprovals = () => {
     },
     onError: () => {
       toast.error("Erreur lors de la publication");
+    },
+  });
+
+  // Quick status change mutation for tri-status buttons
+  const quickStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: "active" | "suspended" | "disponible" }) => {
+      const { error } = await supabase
+        .from("artisans")
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      const labels: Record<string, string> = { active: "VALIDÉ", suspended: "EN ATTENTE", disponible: "DISPONIBLE" };
+      toast.success(`Statut changé : ${labels[variables.status]}`);
+      queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["prospect-artisans-count"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-publication-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-publication-count"] });
+      queryClient.invalidateQueries({ queryKey: ["public-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+    },
+    onError: () => {
+      toast.error("Erreur lors du changement de statut");
     },
   });
 
@@ -1915,7 +1942,13 @@ const AdminApprovals = () => {
                                 <div className="flex-1 min-w-0 overflow-hidden">
                                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                                     <div className="min-w-0 flex-1">
-                                      <h3 className="text-base md:text-xl font-bold truncate">{prospect.business_name}</h3>
+                                      <div className="flex items-center gap-2">
+                                        <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                                          prospect.status === "active" ? "bg-green-500" :
+                                          prospect.status === "suspended" ? "bg-orange-500" : "bg-gray-400"
+                                        }`} />
+                                        <h3 className="text-base md:text-xl font-bold truncate">{prospect.business_name}</h3>
+                                      </div>
                                       <div className="flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs md:text-sm">
                                         <span className="flex items-center gap-1">
                                           <MapPin className="h-3 w-3 md:h-4 md:w-4 shrink-0" />
@@ -1957,17 +1990,35 @@ const AdminApprovals = () => {
                                     {prospect.phone && <span className="flex items-center gap-1">• <Phone className="h-3 w-3" /> {prospect.phone}</span>}
                                   </div>
 
-                                  {/* Online/Offline Toggle */}
+                                  {/* Tri-status buttons */}
                                   <div className="flex items-center gap-2 mb-2">
-                                    <Switch
-                                      checked={true}
-                                      onCheckedChange={(checked) => {
-                                        if (!checked) {
-                                          unpublishArtisanMutation.mutate(prospect.id);
-                                        }
-                                      }}
-                                    />
-                                    <span className="text-xs font-medium text-emerald-600">En ligne</span>
+                                    <Button
+                                      size="sm"
+                                      className={`text-xs h-7 px-2.5 ${prospect.status === "active" ? "bg-green-600 hover:bg-green-700 text-white ring-2 ring-green-300" : "bg-green-100 hover:bg-green-200 text-green-800 border border-green-300"}`}
+                                      onClick={() => quickStatusMutation.mutate({ id: prospect.id, status: "active" })}
+                                      disabled={quickStatusMutation.isPending}
+                                    >
+                                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                                      VALIDÉ
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      className={`text-xs h-7 px-2.5 ${prospect.status === "suspended" ? "bg-orange-500 hover:bg-orange-600 text-white ring-2 ring-orange-300" : "bg-orange-100 hover:bg-orange-200 text-orange-800 border border-orange-300"}`}
+                                      onClick={() => quickStatusMutation.mutate({ id: prospect.id, status: "suspended" })}
+                                      disabled={quickStatusMutation.isPending}
+                                    >
+                                      <Clock className="h-3 w-3 mr-1" />
+                                      EN ATTENTE
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      className={`text-xs h-7 px-2.5 ${prospect.status === "disponible" ? "bg-gray-700 hover:bg-gray-800 text-white ring-2 ring-gray-400" : "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300"}`}
+                                      onClick={() => quickStatusMutation.mutate({ id: prospect.id, status: "disponible" })}
+                                      disabled={quickStatusMutation.isPending}
+                                    >
+                                      <User className="h-3 w-3 mr-1" />
+                                      DISPONIBLE
+                                    </Button>
                                   </div>
 
                                   <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
