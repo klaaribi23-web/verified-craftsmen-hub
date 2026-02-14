@@ -258,7 +258,7 @@ export const useArtisanBySlug = (slugOrId: string) => {
   return useQuery({
     queryKey: ["artisan", slugOrId],
     queryFn: async () => {
-      // Try by slug first - only active artisans for public view
+      // Try by slug first - all statuses accessible publicly
       let { data, error } = await supabase
         .from("public_artisans")
         .select(
@@ -268,7 +268,6 @@ export const useArtisanBySlug = (slugOrId: string) => {
         `,
         )
         .eq("slug", slugOrId)
-        .eq("status", "active")
         .maybeSingle();
 
       // If not found by slug, try by ID (for backwards compatibility)
@@ -282,7 +281,6 @@ export const useArtisanBySlug = (slugOrId: string) => {
           `,
           )
           .eq("id", slugOrId)
-          .eq("status", "active")
           .maybeSingle();
         data = result.data;
         error = result.error;

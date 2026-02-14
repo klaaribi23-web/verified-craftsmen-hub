@@ -305,7 +305,7 @@ const ArtisanPublicProfile = () => {
         </div>
       )}
 
-      {/* Urgency Banner for pending/suspended artisans */}
+      {/* Urgency Banner for pending/suspended artisans (EN ATTENTE) - NOT for disponible */}
       {!isPreviewMode && (artisan.status === "pending" || artisan.status === "suspended") && (
         <div className="fixed top-0 left-0 right-0 z-[60] bg-orange-500 text-white">
           <div className="container mx-auto px-4 py-3 text-center">
@@ -559,8 +559,48 @@ const ArtisanPublicProfile = () => {
                         </Dialog>
                       )}
 
+                      {/* Bouton Revendiquer pour les artisans DISPONIBLE */}
+                      {artisan.status === "disponible" && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <div className="text-center mb-2 pb-3 border-b cursor-pointer">
+                              <p className="text-xs text-muted-foreground mb-1">Cette place est disponible</p>
+                              <Button className="w-full gap-2" variant="gold" size="lg">
+                                <UserPlus className="h-4 w-4" />
+                                Revendiquer cette place
+                              </Button>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle className="flex items-center gap-2">
+                                <Info className="h-5 w-5 text-primary" />
+                                Revendiquer cette place
+                              </DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <p className="text-muted-foreground">
+                                Vous souhaitez apparaître en tant que <strong>{artisan.category?.name || "artisan"}</strong> à <strong>{artisan.city}</strong> ?
+                              </p>
+                              <p className="text-muted-foreground">
+                                Contactez-nous pour activer cette fiche :
+                              </p>
+                              <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                                <a href="tel:0353632999" className="flex items-center gap-3 text-primary hover:underline font-medium">
+                                  <Phone className="h-5 w-5" />
+                                  03 53 63 29 99
+                                </a>
+                                <a href="mailto:contact@artisansvalides.fr" className="flex items-center gap-3 text-primary hover:underline font-medium">
+                                  <Mail className="h-5 w-5" />
+                                  contact@artisansvalides.fr
+                                </a>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+
                       <Button
-                        className="w-full gap-2"
                         onClick={() => {
                           if (!isAuthenticated) {
                             toast.info("Connectez-vous pour demander un devis");
@@ -1044,7 +1084,7 @@ const ArtisanPublicProfile = () => {
 
             {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
             <div className="hidden lg:block lg:col-span-1 space-y-6">
-              {/* Message for pending/suspended artisans */}
+              {/* Message for pending/suspended artisans (EN ATTENTE) */}
               {(artisan.status === "pending" || artisan.status === "suspended") && (
                 <Card className="border-orange-200 bg-orange-50/50">
                   <CardContent className="p-6 text-center">
@@ -1053,6 +1093,55 @@ const ArtisanPublicProfile = () => {
                     <p className="text-sm text-orange-600/70">Notre équipe procède aux dernières vérifications.</p>
                   </CardContent>
                 </Card>
+              )}
+
+              {/* Revendiquer button for DISPONIBLE status */}
+              {artisan.status === "disponible" && (
+                <Dialog>
+                  <Card className="min-h-[200px] flex flex-col justify-center border-primary/20">
+                    <CardContent className="p-6">
+                      <div className="text-center mb-3">
+                        <p className="text-sm text-muted-foreground mb-1">Cette place est disponible</p>
+                        <p className="text-lg font-bold text-primary">Revendiquez cette place</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground text-center mb-3">
+                        Prenez cette visibilité premium pour votre entreprise et recevez des demandes de clients.
+                      </p>
+                      <DialogTrigger asChild>
+                        <Button className="w-full" variant="gold" size="lg">
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Revendiquer cette place
+                        </Button>
+                      </DialogTrigger>
+                    </CardContent>
+                  </Card>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Info className="h-5 w-5 text-primary" />
+                        Revendiquer cette place
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <p className="text-muted-foreground">
+                        Vous souhaitez apparaître en tant que <strong>{artisan.category?.name || "artisan"}</strong> à <strong>{artisan.city}</strong> ?
+                      </p>
+                      <p className="text-muted-foreground">
+                        Contactez-nous pour activer cette fiche :
+                      </p>
+                      <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                        <a href="tel:0353632999" className="flex items-center gap-3 text-primary hover:underline font-medium">
+                          <Phone className="h-5 w-5" />
+                          03 53 63 29 99
+                        </a>
+                        <a href="mailto:contact@artisansvalides.fr" className="flex items-center gap-3 text-primary hover:underline font-medium">
+                          <Mail className="h-5 w-5" />
+                          contact@artisansvalides.fr
+                        </a>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               )}
 
               {/* 1. SECTION REVENDICATION - Pop-up contact (uniquement prospect SANS user_id) */}
