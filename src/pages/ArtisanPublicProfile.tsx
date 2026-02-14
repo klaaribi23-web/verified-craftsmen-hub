@@ -56,6 +56,7 @@ import SimilarArtisansCarousel from "@/components/artisan-search/SimilarArtisans
 import { fr } from "date-fns/locale";
 import { formatDistanceToNow, format } from "date-fns";
 import { useArtisanBySlug, useArtisanPreview, useArtisanServices, useArtisanReviews } from "@/hooks/usePublicData";
+import { useArtisanRecommendations } from "@/hooks/useRecommendations";
 import ChatWidget from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -68,6 +69,13 @@ import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
 import AuditReportSection from "@/components/artisan-profile/AuditReportSection";
 import ArtisanContactForm from "@/components/artisan-profile/ArtisanContactForm";
 import StickyMobileCTA from "@/components/artisan-profile/StickyMobileCTA";
+
+// Helper: get tomorrow's date formatted for urgency banner
+const getTomorrowDeadline = () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+};
 
 const ArtisanPublicProfile = () => {
   const { slug } = useParams<{
@@ -102,6 +110,10 @@ const ArtisanPublicProfile = () => {
   const { data: services, isLoading: servicesLoading } = useArtisanServices(artisanId);
   const { data: reviews, isLoading: reviewsLoading } = useArtisanReviews(artisanId);
 
+  // Fetch recommendations to conditionally show/hide section
+  const { data: recommendations = [] } = useArtisanRecommendations(artisanId);
+  const hasRecommendations = recommendations.length > 0;
+
   // Check for active stories
   const { stories, hasActiveStories } = usePublicArtisanStories(artisanId);
 
@@ -120,9 +132,9 @@ const ArtisanPublicProfile = () => {
     if (artisan.portfolio_videos && artisan.portfolio_videos.length > 0) sections.push("videos");
     if (hasWorkingHours) sections.push("horaires");
     sections.push("avis"); // Always show avis
-    sections.push("recommandations"); // Always show
+    if (hasRecommendations) sections.push("recommandations"); // Only show if has recommendations
     return sections;
-  }, [artisan, secondarySkills.length, portfolio.length, hasWorkingHours]);
+  }, [artisan, secondarySkills.length, portfolio.length, hasWorkingHours, hasRecommendations]);
 
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const handleShare = (platform: string) => {
@@ -293,8 +305,19 @@ const ArtisanPublicProfile = () => {
         </div>
       )}
 
+      {/* Urgency Banner for pending/suspended artisans */}
+      {!isPreviewMode && (artisan.status === "pending" || artisan.status === "suspended") && (
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-orange-500 text-white">
+          <div className="container mx-auto px-4 py-3 text-center">
+            <p className="text-sm md:text-base font-bold tracking-wide">
+              ⚠️ RÉSERVATION PRIORITAIRE — CETTE PLACE EXPIRE LE {getTomorrowDeadline().toUpperCase()} À 18H00
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Spacer for navbar - includes top bar on mobile when authenticated */}
-      <div className={isPreviewMode ? "pt-40 lg:pt-28" : "pt-28 lg:pt-20"} />
+      <div className={isPreviewMode || (!isPreviewMode && (artisan.status === "pending" || artisan.status === "suspended")) ? "pt-40 lg:pt-28" : "pt-28 lg:pt-20"} />
 
       {/* Mobile Back Button - Full width, minimalist */}
       <div className="lg:hidden border-b bg-muted/30">
@@ -361,6 +384,12 @@ const ArtisanPublicProfile = () => {
                     <div className="flex-1 text-center md:text-left">
                       <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
                         <h1 className="text-2xl md:text-3xl font-bold text-foreground">{artisan.business_name}</h1>
+                        {artisan.status === "active" && (
+                          <Badge className="bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600 gap-1 self-center md:self-auto">
+                            <ShieldCheck className="h-3.5 w-3.5" />
+                            Partenaire Certifié
+                          </Badge>
+                        )}
                       </div>
 
                       {/* Catégorie principale - avec badge stylé */}
@@ -469,6 +498,16 @@ const ArtisanPublicProfile = () => {
                 <Card>
                   <CardContent className="p-3 md:p-4">
                     <div className="flex flex-col gap-2">
+                      {/* Message pour les artisans en attente */}
+                      {(artisan.status === "pending" || artisan.status === "suspended") && (
+                        <div className="text-center mb-2 pb-3 border-b">
+                          <p className="text-sm font-medium text-orange-600">
+                            <Clock className="h-4 w-4 inline mr-1" />
+                            Dossier en cours de validation finale
+                          </p>
+                        </div>
+                      )}
+
                       {/* Bouton Revendiquer pour les prospects SANS user_id (vitrines non réclamées) */}
                       {artisan.status === "prospect" && !(artisan as any).user_id && (
                         <Dialog>
@@ -991,18 +1030,31 @@ const ArtisanPublicProfile = () => {
                 </Card>
               )}
 
-              {/* Recommandations Section */}
-              <div id="recommandations">
-                <RecommendationsSection
-                  artisanId={artisan.id}
-                  artisanName={artisan.business_name}
-                  isLoggedIn={isAuthenticated}
-                />
-              </div>
+              {/* Recommandations Section - Hidden if empty */}
+              {hasRecommendations && (
+                <div id="recommandations">
+                  <RecommendationsSection
+                    artisanId={artisan.id}
+                    artisanName={artisan.business_name}
+                    isLoggedIn={isAuthenticated}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Right Column - Contact Card - Hidden on mobile (shown as sticky bar) */}
             <div className="hidden lg:block lg:col-span-1 space-y-6">
+              {/* Message for pending/suspended artisans */}
+              {(artisan.status === "pending" || artisan.status === "suspended") && (
+                <Card className="border-orange-200 bg-orange-50/50">
+                  <CardContent className="p-6 text-center">
+                    <Clock className="h-8 w-8 text-orange-500 mx-auto mb-3" />
+                    <p className="font-semibold text-orange-700 text-lg mb-1">Dossier en cours de validation finale</p>
+                    <p className="text-sm text-orange-600/70">Notre équipe procède aux dernières vérifications.</p>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* 1. SECTION REVENDICATION - Pop-up contact (uniquement prospect SANS user_id) */}
               {artisan.status === "prospect" && !(artisan as any).user_id && (
                 <Dialog>
