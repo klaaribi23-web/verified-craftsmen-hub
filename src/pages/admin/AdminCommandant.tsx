@@ -252,30 +252,22 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
 .av-card p{color:#FFFFFF;font-size:14px;line-height:1.7;font-weight:400;max-width:400px;margin:0 auto}
 .av-card p strong{color:#FFB800;font-weight:700}
 
+/* ── 3 Offers Grid ── */
+.offers-grid{display:flex;gap:16px;margin:28px 40px 0}
+.offer-card{flex:1;background:#FFFFFF;border-radius:12px;padding:24px 18px;box-shadow:0 4px 20px rgba(10,25,47,0.08);border:1px solid #F3F4F6;text-align:center}
+.offer-icon{width:44px;height:44px;background:rgba(255,184,0,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:20px}
+.offer-card h3{font-size:11px;font-weight:800;color:#0A192F;letter-spacing:0.5px;margin-bottom:8px;text-transform:uppercase}
+.offer-card p{font-size:10px;color:#6B7280;line-height:1.6;font-weight:400}
+
 /* ── CTA Buttons ── */
 .cta-section{margin:28px 40px 0;display:flex;flex-direction:column;gap:10px}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 20px;text-decoration:none;font-weight:800;letter-spacing:0.8px;font-size:14px;font-family:'Inter',sans-serif;border-radius:10px}
 .btn-primary{background:#FFB800;color:#0A192F;box-shadow:0 4px 14px rgba(255,184,0,0.3)}
 .btn-secondary{background:#FFFFFF;color:#0A192F;border:1.5px solid #0A192F}
 
-/* ── Access limit ── */
-.access-limit{text-align:center;margin:20px 40px 0;font-size:11px;color:#9CA3AF;font-weight:500}
-
-/* ── Footer ── */
-.site-footer{margin-top:36px;background:#0A192F;padding:36px 40px 20px}
-.footer-top{display:flex;gap:28px;margin-bottom:24px}
-.footer-col{flex:1}
-.footer-col-brand{flex:1.4}
-.footer-col-title{font-size:10px;font-weight:700;color:#FFFFFF;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase}
-.footer-col a,.footer-col span{display:block;font-size:9px;color:rgba(255,255,255,0.5);text-decoration:none;margin-bottom:5px;font-weight:400}
-.footer-brand{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-.footer-brand-logo{width:30px;height:30px;background:rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#FFB800}
-.footer-brand-text span:first-child{font-size:12px;font-weight:800;color:#FFFFFF;display:block;line-height:1}
-.footer-brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;margin-top:1px}
-.footer-brand-desc{font-size:8.5px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:200px}
-.footer-contact{margin-top:10px}
-.footer-contact span{display:block;font-size:8px;color:rgba(255,255,255,0.45);margin-bottom:4px}
-.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;text-align:center;font-size:7.5px;color:rgba(255,255,255,0.3)}
+/* ── Urgency ── */
+.urgency-notice{text-align:center;margin:18px 40px 0;font-size:12px;color:#DC2626;font-weight:700;letter-spacing:0.3px}
+.access-limit{text-align:center;margin:8px 40px 0;font-size:10px;color:#9CA3AF;font-weight:500}
 </style></head><body>
 <div class="page">
 
@@ -322,14 +314,34 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
   <p>Cette opportunité est <strong>réservée aux artisans certifiés</strong>. Pour garantir la qualité, nous limitons les accès par secteur.</p>
 </div>
 
-<!-- CTA Buttons -->
-<div class="cta-section">
-  <a class="btn btn-primary" href="${url}">🔒 DÉBLOQUER MAINTENANT</a>
-  <a class="btn btn-secondary" href="${url}">👉 DÉJÀ MEMBRE ? SE CONNECTER</a>
+<!-- 3 Exclusive Offers -->
+<div class="offers-grid">
+  <div class="offer-card">
+    <div class="offer-icon">📍</div>
+    <h3>Exclusivité Géographique</h3>
+    <p>Vous êtes le seul artisan référencé sur votre zone. Aucun concurrent direct.</p>
+  </div>
+  <div class="offer-card">
+    <div class="offer-icon">🔑</div>
+    <h3>Vitrine Clé en Main</h3>
+    <p>Votre fiche est déjà en ligne avec vos informations et photos. Les clients vous contactent directement.</p>
+  </div>
+  <div class="offer-card">
+    <div class="offer-icon">🚀</div>
+    <h3>Visibilité Prioritaire & SEO</h3>
+    <p>Votre profil est optimisé pour le référencement local. Vous apparaissez en tête des résultats.</p>
+  </div>
 </div>
 
-<!-- Access limit -->
-<div class="access-limit">⚠️ Accès limité à 2 artisans par métier et par ville</div>
+<!-- CTA Buttons -->
+<div class="cta-section">
+  <a class="btn btn-primary" href="${url}">🔒 DÉBLOQUER MON EXCLUSIVITÉ MAINTENANT</a>
+  <a class="btn btn-secondary" href="${url}">👁️ VOIR MA VITRINE PROFESSIONNELLE</a>
+</div>
+
+<!-- Urgency -->
+<div class="urgency-notice">⚠️ Cette offre prioritaire expire demain à 18h00.</div>
+<div class="access-limit">Accès limité à 2 artisans par métier et par ville</div>
 
 <!-- Footer -->
 <div class="site-footer">
