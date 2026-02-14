@@ -207,167 +207,156 @@ L'équipe Artisans Validés`;
   const downloadOfferPDF = (artisan: CommandantArtisan) => {
     const url = getProfileUrl(artisan);
     const year = new Date().getFullYear();
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Opportunité exclusive</title>
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Récapitulatif Exclusif</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-@page{size:A4;margin:0}
 body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.page{max-width:794px;margin:0 auto;background:#FFFFFF;min-height:100vh;overflow:hidden}
 
-/* ── Navbar ── */
-.navbar{display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:#FFFFFF;border-bottom:1px solid #E5E7EB}
-.nav-brand{display:flex;align-items:center;gap:8px}
-.nav-logo{width:34px;height:34px;background:#0A192F;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#FFB800;letter-spacing:1px}
-.nav-brand-text{display:flex;flex-direction:column}
-.nav-brand-text span:first-child{font-size:14px;font-weight:800;color:#0A192F;letter-spacing:1.5px;line-height:1}
-.nav-brand-text span:last-child{font-size:8px;font-weight:700;color:#FFB800;letter-spacing:2px;margin-top:1px}
-.nav-right{display:flex;align-items:center;gap:16px}
-.nav-btn{font-size:11px;font-weight:600;color:#0A192F;text-decoration:none;padding:7px 16px;border-radius:6px;border:1.5px solid #E5E7EB;letter-spacing:0.3px}
-.nav-btn-pro{background:#0A192F;color:#FFFFFF;border-color:#0A192F}
-.nav-cta{font-size:11px;font-weight:700;color:#0A192F;background:#FFB800;padding:8px 20px;border-radius:8px;text-decoration:none;letter-spacing:0.5px}
+/* ── SECTION 1 : HERO (Navy) ── */
+.hero{background:#0A192F;padding:0}
+.hero-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:36px;height:36px;background:rgba(255,184,0,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#FFB800;letter-spacing:1px}
+.nav-brand-text span:first-child{font-size:14px;font-weight:800;color:#FFFFFF;display:block;letter-spacing:1.5px;line-height:1}
+.nav-brand-text span:last-child{font-size:8px;font-weight:700;color:#FFB800;display:block;letter-spacing:2px;margin-top:2px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3)}
+.hero-badge span{font-size:11px;font-weight:600;color:#FFB800;letter-spacing:0.3px}
+.hero-body{padding:48px 40px 56px;text-align:center}
+.hero-body h1{font-size:28px;font-weight:900;color:#FFB800;line-height:1.3;letter-spacing:0.5px;margin-bottom:14px}
+.hero-body .hero-sub{font-size:14px;color:rgba(255,255,255,0.6);font-weight:500}
+.hero-body .hero-sub strong{color:#FFFFFF;font-weight:700}
 
-/* ── Badge ── */
-.published-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin:32px auto 0;width:fit-content;padding:7px 18px;border-radius:20px;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.25)}
-.published-badge span{font-size:11px;font-weight:600;color:#C49000;letter-spacing:0.3px}
+/* ── SECTION 2 : LES 3 PILIERS ── */
+.piliers{background:#F8F9FA;padding:48px 40px}
+.piliers-title{text-align:center;font-size:13px;font-weight:800;color:#0A192F;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:32px}
+.piliers-grid{display:flex;gap:20px}
+.pilier-card{flex:1;background:#FFFFFF;border-radius:14px;padding:28px 22px;box-shadow:0 4px 24px rgba(10,25,47,0.07);border:1px solid #F0F1F3;text-align:center}
+.pilier-icon{width:50px;height:50px;background:rgba(255,184,0,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px}
+.pilier-card h3{font-size:12px;font-weight:800;color:#0A192F;letter-spacing:0.5px;margin-bottom:10px;text-transform:uppercase}
+.pilier-card p{font-size:11px;color:#6B7280;line-height:1.7;font-weight:400}
 
-/* ── Hero Title ── */
-.hero-title{text-align:center;margin:22px 40px 0}
-.hero-title h1{font-size:26px;font-weight:800;color:#0A192F;line-height:1.3;letter-spacing:0.3px}
-.hero-meta{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:12px}
-.hero-meta span{display:flex;align-items:center;gap:5px;font-size:12px;color:#9CA3AF;font-weight:500}
+/* ── SECTION 3 : FAQ DYNAMIQUE ── */
+.faq-section{padding:48px 40px;background:#FFFFFF}
+.faq-title{text-align:center;font-size:13px;font-weight:800;color:#0A192F;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:32px}
+.faq-item{display:flex;gap:16px;margin-bottom:20px;padding:20px 24px;background:#FAFBFC;border-radius:12px;border-left:4px solid #FFB800}
+.faq-item .faq-q{font-size:13px;font-weight:700;color:#0A192F;margin-bottom:8px}
+.faq-item .faq-a{font-size:11px;color:#6B7280;line-height:1.8;font-weight:400}
 
-/* ── Blurred preview ── */
-.blur-block{margin:28px 40px 0;border:1px solid #E5E7EB;border-radius:12px;background:#FFFFFF;padding:24px;position:relative;overflow:hidden}
-.blur-lines{filter:blur(6px);user-select:none}
-.blur-line{height:12px;background:#E5E7EB;border-radius:4px;margin-bottom:10px}
-.blur-line:nth-child(1){width:75%}.blur-line:nth-child(2){width:100%}.blur-line:nth-child(3){width:85%}
-.blur-line:nth-child(4){width:65%}.blur-line:nth-child(5){width:50%;margin-top:16px}.blur-line:nth-child(6){width:80%}
-.blur-fade{position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(to bottom,transparent,#FFFFFF)}
+/* ── SECTION 4 : URGENCE & CLOSING ── */
+.urgency-section{padding:40px 40px 48px;background:#FFFFFF}
+.fomo-banner{background:linear-gradient(135deg,#DC2626,#EA580C);border-radius:12px;padding:18px 24px;text-align:center;color:#FFFFFF;font-size:15px;font-weight:800;letter-spacing:0.5px;margin-bottom:28px}
+.cta-stack{display:flex;flex-direction:column;gap:12px;max-width:480px;margin:0 auto}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 24px;text-decoration:none;font-weight:800;letter-spacing:0.8px;font-size:15px;font-family:'Inter',sans-serif;border-radius:12px;transition:transform 0.2s}
+.btn-primary{background:#FFB800;color:#0A192F;box-shadow:0 6px 20px rgba(255,184,0,0.35)}
+.btn-secondary{background:#FFFFFF;color:#0A192F;border:2px solid #0A192F}
+.access-note{text-align:center;margin-top:16px;font-size:10px;color:#9CA3AF;font-weight:500}
 
-/* ── AV Card ── */
-.av-card{margin:28px 40px 0;background:#0A192F;border-radius:16px;padding:40px 32px;text-align:center}
-.av-shield{width:60px;height:60px;background:rgba(255,184,0,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
-.av-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3);font-size:9px;font-weight:800;color:#FFB800;letter-spacing:2px;margin-bottom:18px}
-.av-card p{color:#FFFFFF;font-size:14px;line-height:1.7;font-weight:400;max-width:400px;margin:0 auto}
-.av-card p strong{color:#FFB800;font-weight:700}
-
-/* ── 3 Offers Grid ── */
-.offers-grid{display:flex;gap:16px;margin:28px 40px 0}
-.offer-card{flex:1;background:#FFFFFF;border-radius:12px;padding:24px 18px;box-shadow:0 4px 20px rgba(10,25,47,0.08);border:1px solid #F3F4F6;text-align:center}
-.offer-icon{width:44px;height:44px;background:rgba(255,184,0,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:20px}
-.offer-card h3{font-size:11px;font-weight:800;color:#0A192F;letter-spacing:0.5px;margin-bottom:8px;text-transform:uppercase}
-.offer-card p{font-size:10px;color:#6B7280;line-height:1.6;font-weight:400}
-
-/* ── CTA Buttons ── */
-.cta-section{margin:28px 40px 0;display:flex;flex-direction:column;gap:10px}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 20px;text-decoration:none;font-weight:800;letter-spacing:0.8px;font-size:14px;font-family:'Inter',sans-serif;border-radius:10px}
-.btn-primary{background:#FFB800;color:#0A192F;box-shadow:0 4px 14px rgba(255,184,0,0.3)}
-.btn-secondary{background:#FFFFFF;color:#0A192F;border:1.5px solid #0A192F}
-
-/* ── Section Title ── */
-.section-title{text-align:center;margin:32px 40px 0;font-size:14px;font-weight:800;color:#0A192F;letter-spacing:1px;text-transform:uppercase}
-
-/* ── FOMO Alert ── */
-.fomo-alert{margin:24px 40px 0;background:#FEF2F2;border:2px solid #DC2626;border-radius:10px;padding:14px 20px;text-align:center;font-size:13px;color:#DC2626;font-weight:800;letter-spacing:0.3px}
-
-/* ── Urgency ── */
-.access-limit{text-align:center;margin:12px 40px 0;font-size:10px;color:#9CA3AF;font-weight:500}
-
-/* ── Footer ── */
-.site-footer{margin-top:36px;background:#0A192F;padding:36px 40px 20px}
-.footer-top{display:flex;gap:28px;margin-bottom:24px}
+/* ── SECTION 5 : FOOTER ── */
+.site-footer{background:#0A192F;padding:40px 40px 24px}
+.footer-top{display:flex;gap:28px;margin-bottom:28px}
 .footer-col{flex:1}
 .footer-col-brand{flex:1.4}
 .footer-col-title{font-size:10px;font-weight:700;color:#FFFFFF;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase}
-.footer-col a,.footer-col span{display:block;font-size:9px;color:rgba(255,255,255,0.5);text-decoration:none;margin-bottom:5px;font-weight:400}
+.footer-col a,.footer-col span{display:block;font-size:9px;color:rgba(255,255,255,0.5);text-decoration:none;margin-bottom:6px;font-weight:400}
 .footer-brand{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .footer-brand-logo{width:30px;height:30px;background:rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#FFB800}
 .footer-brand-text span:first-child{font-size:12px;font-weight:800;color:#FFFFFF;display:block;line-height:1}
 .footer-brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;margin-top:1px}
 .footer-brand-desc{font-size:8.5px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:200px}
-.footer-slogan{margin-top:12px;font-size:9px;font-weight:800;color:#FFB800;letter-spacing:2px;text-transform:uppercase}
-.footer-contact{margin-top:10px}
+.footer-slogan{margin-top:14px;font-size:9px;font-weight:800;color:#FFB800;letter-spacing:2px;text-transform:uppercase}
+.footer-contact{margin-top:12px}
 .footer-contact span{display:block;font-size:8px;color:rgba(255,255,255,0.45);margin-bottom:4px}
 .footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;text-align:center;font-size:7.5px;color:rgba(255,255,255,0.3)}
 </style></head><body>
-<div class="page">
 
-<!-- Navbar -->
-<div class="navbar">
-  <div class="nav-brand">
-    <div class="nav-logo">AV</div>
-    <div class="nav-brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 1 : HERO (Impact immédiat)        -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-nav">
+    <div class="nav-brand">
+      <div class="nav-logo">AV</div>
+      <div class="nav-brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
+    </div>
+    <div class="hero-badge"><span>🕒 Publiée récemment</span></div>
   </div>
-  <div class="nav-right">
-    <a class="nav-btn nav-btn-pro" href="#">Espace Pro</a>
-    <a class="nav-btn" href="#">Mon Espace</a>
-    <a class="nav-cta" href="${url}">Lancer mon projet</a>
-  </div>
-</div>
-
-<!-- Badge -->
-<div class="published-badge">
-  <span>🕐 Publiée récemment</span>
-</div>
-
-<!-- Section 1 : Urgence immédiate -->
-<div class="hero-title">
-  <h1>Récapitulatif Exclusif : ${artisan.business_name}</h1>
-  <div class="hero-meta">
-    <span>📍 ${artisan.city}</span>
-    ${artisan.category?.name ? `<span>🔧 ${artisan.category.name}</span>` : ''}
+  <div class="hero-body">
+    <h1>VOTRE RÉCAPITULATIF : ${artisan.business_name}</h1>
+    <div class="hero-sub">📍 <strong>${artisan.city}</strong>${artisan.category?.name ? ` · 🔧 ${artisan.category.name}` : ''}</div>
   </div>
 </div>
 
-<!-- Section 2 : Le Verrouillage (Hero Card) -->
-<div class="av-card">
-  <div class="av-shield">🛡️</div>
-  <div class="av-badge">AV CERTIFIÉ</div>
-  <p><strong>Accès restreint au secteur ${artisan.city}.</strong><br/>Une seule place disponible.</p>
-</div>
-
-<!-- Blurred preview (détails verrouillés) -->
-<div class="blur-block">
-  <div class="blur-lines">
-    <div class="blur-line"></div><div class="blur-line"></div><div class="blur-line"></div>
-    <div class="blur-line"></div><div class="blur-line"></div><div class="blur-line"></div>
-  </div>
-  <div class="blur-fade"></div>
-</div>
-
-<!-- Section 3 : Les 3 Actifs (Grille de conversion) -->
-<div class="section-title">Vos 3 actifs stratégiques</div>
-<div class="offers-grid">
-  <div class="offer-card">
-    <div class="offer-icon">📍</div>
-    <h3>Exclusivité Géographique</h3>
-    <p>Zéro concurrence directe. Vous possédez le secteur.</p>
-  </div>
-  <div class="offer-card">
-    <div class="offer-icon">🔑</div>
-    <h3>Vitrine Prête à l'Emploi</h3>
-    <p>Déjà en ligne. Vos clients vous appellent sans intermédiaire.</p>
-  </div>
-  <div class="offer-card">
-    <div class="offer-icon">🚀</div>
-    <h3>Domination SEO</h3>
-    <p>N°1 sur les recherches locales. Visibilité maximale garantie.</p>
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 2 : LES 3 PILIERS                 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="piliers">
+  <div class="piliers-title">Vos 3 actifs stratégiques</div>
+  <div class="piliers-grid">
+    <div class="pilier-card">
+      <div class="pilier-icon">📍</div>
+      <h3>Exclusivité Géographique</h3>
+      <p>Zéro concurrence directe. Vous êtes le seul référencé sur votre zone. Aucun concurrent ne peut apparaître à côté de vous.</p>
+    </div>
+    <div class="pilier-card">
+      <div class="pilier-icon">🔑</div>
+      <h3>Vitrine Clé en Main</h3>
+      <p>Votre fiche est déjà en ligne avec vos informations, photos et coordonnées. Les clients vous contactent directement.</p>
+    </div>
+    <div class="pilier-card">
+      <div class="pilier-icon">🚀</div>
+      <h3>SEO Local — N°1 sur Google</h3>
+      <p>Votre profil est optimisé pour le référencement local. Vous apparaissez en tête des résultats pour votre métier et votre ville.</p>
+    </div>
   </div>
 </div>
 
-<!-- FOMO Alert -->
-<div class="fomo-alert">⚠️ ATTENTION : Cette offre et votre vitrine seront définitivement supprimées demain à 18h00.</div>
-
-<!-- CTA Buttons -->
-<div class="cta-section">
-  <a class="btn btn-primary" href="${url}">🔒 DÉBLOQUER MON EXCLUSIVITÉ MAINTENANT</a>
-  <a class="btn btn-secondary" href="${url}">👉 ACCÉDER À MON DOSSIER TECHNIQUE</a>
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 3 : FAQ DYNAMIQUE                 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="faq-section">
+  <div class="faq-title">Questions / Réponses</div>
+  <div class="faq-item">
+    <div>
+      <div class="faq-q">Pourquoi suis-je le seul artisan sur ma zone ?</div>
+      <div class="faq-a">Nous appliquons une politique d'exclusivité stricte : maximum 2 artisans par métier et par ville. Cela vous garantit zéro concurrence directe sur la plateforme et un flux de demandes clients non partagé.</div>
+    </div>
+  </div>
+  <div class="faq-item">
+    <div>
+      <div class="faq-q">Que contient ma vitrine professionnelle ?</div>
+      <div class="faq-a">Votre fiche inclut vos coordonnées complètes, votre description, vos photos de réalisations, vos certifications et un formulaire de contact direct. Elle est accessible 24h/24 par les particuliers qui recherchent un professionnel dans votre secteur.</div>
+    </div>
+  </div>
+  <div class="faq-item">
+    <div>
+      <div class="faq-q">Comment fonctionne la visibilité SEO ?</div>
+      <div class="faq-a">Votre profil est indexé sur Google pour les recherches de type « ${artisan.category?.name || 'artisan'} ${artisan.city} ». Grâce à notre optimisation technique, vous apparaissez naturellement dans les premiers résultats sans frais publicitaires supplémentaires.</div>
+    </div>
+  </div>
+  <div class="faq-item">
+    <div>
+      <div class="faq-q">Que se passe-t-il si je n'active pas mon accès ?</div>
+      <div class="faq-a">Votre place sera libérée et proposée au prochain professionnel qualifié de votre secteur. L'exclusivité géographique ne peut pas être réservée indéfiniment.</div>
+    </div>
+  </div>
 </div>
 
-<div class="access-limit">Accès limité à 2 artisans par métier et par ville</div>
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 4 : URGENCE & CLOSING             -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="urgency-section">
+  <div class="fomo-banner">⚠️ EXPIRATION DEMAIN À 18H00</div>
+  <div class="cta-stack">
+    <a class="btn btn-primary" href="${url}">🔒 DÉBLOQUER MON EXCLUSIVITÉ</a>
+    <a class="btn btn-secondary" href="${url}">👁️ VOIR MA VITRINE PROFESSIONNELLE</a>
+  </div>
+  <div class="access-note">🔒 Accès limité à 2 artisans par métier et par ville</div>
+</div>
 
-<!-- Footer -->
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 5 : FOOTER INSTITUTIONNEL         -->
+<!-- ═══════════════════════════════════════════ -->
 <div class="site-footer">
   <div class="footer-top">
     <div class="footer-col footer-col-brand">
@@ -399,7 +388,6 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
   <div class="footer-bottom">© ${year} Artisans Validés. Tous droits réservés. — www.artisansvalides.fr</div>
 </div>
 
-</div>
 </body></html>`;
     const blob = new Blob([html], { type: "text/html" });
     const a = document.createElement("a");
