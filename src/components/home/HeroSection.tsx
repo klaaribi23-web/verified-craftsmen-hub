@@ -34,9 +34,9 @@ const HeroSection = () => {
             <span className="text-sm font-semibold text-primary tracking-wide">Le réseau d'artisans audités sur le terrain</span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6 tracking-tight md:tracking-[-0.01em]">
             L'élite des artisans locaux,{" "}
-            <span className="text-gradient-gold">validés pour tous vos projets.</span>
+            <span className="text-gradient-gold tracking-normal md:tracking-[0.02em]">validés pour tous vos projets.</span>
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -46,7 +46,7 @@ const HeroSection = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <Button
               size="lg"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-10 py-7 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:scale-[1.02] active:scale-[0.98] min-h-[56px]"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base md:text-lg w-full sm:w-auto px-10 py-7 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] min-h-[56px]"
               asChild
             >
               <Link to="/demande-devis">
@@ -57,7 +57,7 @@ const HeroSection = () => {
             <Button
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto border-2 border-navy text-navy hover:bg-navy hover:text-white font-semibold text-base md:text-lg px-10 py-7 min-h-[56px] transition-all"
+              className="w-full sm:w-auto border-2 border-navy text-navy hover:bg-navy/90 hover:text-white font-semibold text-base md:text-lg px-10 py-7 min-h-[56px] transition-all duration-300"
               asChild
             >
               <Link to="/devenir-artisan">
