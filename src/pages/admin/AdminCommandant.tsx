@@ -210,28 +210,32 @@ L'équipe Artisans Validés`;
     const refNum = `AV-${Date.now().toString(36).toUpperCase()}`;
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Attestation d'Exclusivité — ${artisan.business_name}</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 @page{size:A4;margin:0}
 body{font-family:Helvetica,Arial,sans-serif;color:#1A1A1A;background:#fff;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.page{max-width:794px;margin:0 auto;background:#FFFFFF;position:relative;min-height:100vh}
+.page{max-width:794px;margin:0 auto;background:#FFFFFF;position:relative;min-height:100vh;border:1px solid #0A192F;background-image:url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")}
 /* Banner */
-.banner{background:#002244;padding:28px 48px;text-align:center}
-.banner h1{color:#FFFFFF;font-size:20px;font-weight:800;letter-spacing:5px;text-transform:uppercase}
-.banner-sub{color:rgba(255,255,255,0.7);font-size:9px;letter-spacing:3px;margin-top:6px;text-transform:uppercase}
+.banner{background:#0A192F;padding:32px 48px;text-align:center}
+.banner h1{font-family:'Playfair Display',Georgia,serif;color:#FFFFFF;font-size:22px;font-weight:800;letter-spacing:8px;text-transform:uppercase}
+.banner-sub{color:rgba(255,255,255,0.6);font-size:9px;letter-spacing:4px;margin-top:8px;text-transform:uppercase}
 /* Header */
-.header-bar{display:flex;justify-content:space-between;align-items:center;padding:24px 48px;border-bottom:1px solid #1A1A1A}
-.logo{font-size:18px;font-weight:800;color:#002244;letter-spacing:-0.5px}
+.header-bar{display:flex;justify-content:space-between;align-items:center;padding:24px 48px;border-bottom:1px solid #ddd}
+.logo{font-size:18px;font-weight:800;color:#0A192F;letter-spacing:-0.5px}
 .logo span{color:#FF5500}
 .logo-tagline{font-size:8px;text-transform:uppercase;letter-spacing:3px;color:#999;margin-top:2px}
 .header-right{text-align:right;font-size:10px;color:#666}
 .header-right .ref{font-weight:700;color:#1A1A1A;font-size:11px}
 /* Artisan block */
-.artisan-block{margin:36px 48px;text-align:center}
-.artisan-name{font-size:30px;font-weight:800;color:#1A1A1A;letter-spacing:-0.5px;padding-bottom:10px;border-bottom:4px solid #FF5500;display:inline-block}
-.artisan-city{color:#002244;font-size:15px;font-weight:700;margin-top:14px;letter-spacing:0.5px}
-.artisan-date{color:#999;font-size:10px;margin-top:10px;letter-spacing:1px;text-transform:uppercase}
+.artisan-block{margin:40px 48px;text-align:center;position:relative}
+.artisan-frame{display:inline-block;border:2px solid #FFD700;padding:28px 48px;position:relative}
+.artisan-frame::before{content:'';position:absolute;top:3px;left:3px;right:3px;bottom:3px;border:1px solid #FFD700}
+.artisan-seal{position:absolute;top:-18px;right:-18px;font-size:52px;opacity:0.15;transform:rotate(15deg);pointer-events:none}
+.artisan-name{font-family:'Playfair Display',Georgia,serif;font-size:32px;font-weight:900;color:#1A1A1A;letter-spacing:0.5px}
+.artisan-city{color:#0A192F;font-size:15px;font-weight:700;margin-top:14px;letter-spacing:1px}
+.artisan-date{color:#999;font-size:10px;margin-top:12px;letter-spacing:1px;text-transform:uppercase}
 /* Separator */
-.sep{height:1px;background:#1A1A1A;margin:0 48px}
+.sep{height:1px;background:#ddd;margin:0 48px}
 /* Pillars */
 .pillars{display:flex;gap:0;margin:32px 48px;border-top:1px solid #1A1A1A;border-bottom:1px solid #1A1A1A}
 .pillar{flex:1;padding:28px 20px;text-align:center;border-right:1px solid #1A1A1A}
@@ -241,20 +245,21 @@ body{font-family:Helvetica,Arial,sans-serif;color:#1A1A1A;background:#fff;line-h
 .pillar p{font-size:11px;color:#555;line-height:1.6}
 /* FAQ */
 .faq{margin:32px 48px 28px}
-.faq-header{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:3px;color:#002244;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid #002244}
-.faq-item{padding:14px 0;border-bottom:1px solid #1A1A1A;text-align:left}
+.faq-header{font-family:'Playfair Display',Georgia,serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:3px;color:#0A192F;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid #0A192F}
+.faq-item{padding:14px 0;border-bottom:1px solid #ddd;text-align:left}
 .faq-item:last-child{border-bottom:none}
 .faq-q{font-size:13px;font-weight:800;color:#1A1A1A;margin-bottom:4px}
 .faq-a{font-size:11px;color:#555;line-height:1.7}
 /* CTA */
 .cta-section{margin:32px 48px 24px}
-.cta-btn{display:block;background:#FF5500;color:#FFFFFF;padding:24px 32px;text-align:center;font-size:18px;font-weight:900;text-decoration:none;letter-spacing:2px;text-transform:uppercase}
+.mirror-btn{display:block;background:#0A192F;color:#FFFFFF;padding:18px 32px;text-align:center;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:1px;margin-bottom:14px}
+.cta-btn{display:block;background:#FFD700;color:#1A1A1A;padding:28px 32px;text-align:center;font-size:19px;font-weight:900;text-decoration:none;letter-spacing:3px;text-transform:uppercase}
 .cta-sub{text-align:center;font-size:10px;color:#999;margin-top:10px;letter-spacing:0.5px}
-.mirror-btn{display:block;background:#0A1628;color:#FFFFFF;padding:18px 32px;text-align:center;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:1px;margin-bottom:12px}
 /* Footer */
-.footer{text-align:center;padding:20px 48px;border-top:1px solid #1A1A1A;margin:0 48px}
-.footer .sig{font-weight:800;color:#002244;font-size:11px;margin-bottom:4px;letter-spacing:1px}
+.footer{text-align:center;padding:20px 48px;border-top:1px solid #ddd;margin:0 48px}
+.footer .sig{font-weight:800;color:#0A192F;font-size:11px;margin-bottom:4px;letter-spacing:1px}
 .footer .legal{font-size:8px;color:#aaa;letter-spacing:0.5px}
+.footer .moderation{font-size:8px;color:#888;margin-top:6px;line-height:1.5}
 </style></head><body>
 <div class="page">
 
@@ -275,8 +280,11 @@ body{font-family:Helvetica,Arial,sans-serif;color:#1A1A1A;background:#fff;line-h
 </div>
 
 <div class="artisan-block">
-  <div class="artisan-name">${artisan.business_name}</div>
-  <div class="artisan-city">▸ Zone exclusive : ${artisan.city}</div>
+  <div class="artisan-frame">
+    <span class="artisan-seal">🪪</span>
+    <div class="artisan-name">${artisan.business_name}</div>
+    <div class="artisan-city">▸ Zone exclusive : ${artisan.city}</div>
+  </div>
   <div class="artisan-date">Émis le ${date} — Validité : 48 heures</div>
 </div>
 
@@ -317,14 +325,15 @@ body{font-family:Helvetica,Arial,sans-serif;color:#1A1A1A;background:#fff;line-h
 </div>
 
 <div class="cta-section">
-  <a class="mirror-btn" href="${url}">👀 VOIR MA VITRINE PROFESSIONNELLE</a>
+  <a class="mirror-btn" href="${url}">👁️ VOIR MA VITRINE PROFESSIONNELLE</a>
   <a class="cta-btn" href="${url}">ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
-  <div class="cta-sub">Rendez-vous sur votre fiche et cliquez sur le bouton orange pour finaliser</div>
+  <div class="cta-sub">Rendez-vous sur votre fiche pour finaliser votre réservation</div>
 </div>
 
 <div class="footer">
   <div class="sig">Moins de blabla, plus de résultats.</div>
   <div class="legal">Document confidentiel — Artisans Validés — ${date}</div>
+  <div class="moderation">Document généré par le service de modération Artisans Validés. Validité juridique de l'exclusivité : 24h.</div>
 </div>
 
 </div>
