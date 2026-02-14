@@ -265,9 +265,14 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
 .btn-primary{background:#FFB800;color:#0A192F;box-shadow:0 4px 14px rgba(255,184,0,0.3)}
 .btn-secondary{background:#FFFFFF;color:#0A192F;border:1.5px solid #0A192F}
 
+/* ── Section Title ── */
+.section-title{text-align:center;margin:32px 40px 0;font-size:14px;font-weight:800;color:#0A192F;letter-spacing:1px;text-transform:uppercase}
+
+/* ── FOMO Alert ── */
+.fomo-alert{margin:24px 40px 0;background:#FEF2F2;border:2px solid #DC2626;border-radius:10px;padding:14px 20px;text-align:center;font-size:13px;color:#DC2626;font-weight:800;letter-spacing:0.3px}
+
 /* ── Urgency ── */
-.urgency-notice{text-align:center;margin:18px 40px 0;font-size:12px;color:#DC2626;font-weight:700;letter-spacing:0.3px}
-.access-limit{text-align:center;margin:8px 40px 0;font-size:10px;color:#9CA3AF;font-weight:500}
+.access-limit{text-align:center;margin:12px 40px 0;font-size:10px;color:#9CA3AF;font-weight:500}
 
 /* ── Footer ── */
 .site-footer{margin-top:36px;background:#0A192F;padding:36px 40px 20px}
@@ -306,16 +311,23 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
   <span>🕐 Publiée récemment</span>
 </div>
 
-<!-- Hero Title -->
+<!-- Section 1 : Urgence immédiate -->
 <div class="hero-title">
-  <h1>Récapitulatif pour : ${artisan.business_name}</h1>
+  <h1>Récapitulatif Exclusif : ${artisan.business_name}</h1>
   <div class="hero-meta">
-    <span>📍 Ville : ${artisan.city}</span>
+    <span>📍 ${artisan.city}</span>
     ${artisan.category?.name ? `<span>🔧 ${artisan.category.name}</span>` : ''}
   </div>
 </div>
 
-<!-- Blurred details -->
+<!-- Section 2 : Le Verrouillage (Hero Card) -->
+<div class="av-card">
+  <div class="av-shield">🛡️</div>
+  <div class="av-badge">AV CERTIFIÉ</div>
+  <p><strong>Accès restreint au secteur ${artisan.city}.</strong><br/>Une seule place disponible.</p>
+</div>
+
+<!-- Blurred preview (détails verrouillés) -->
 <div class="blur-block">
   <div class="blur-lines">
     <div class="blur-line"></div><div class="blur-line"></div><div class="blur-line"></div>
@@ -324,40 +336,35 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
   <div class="blur-fade"></div>
 </div>
 
-<!-- AV Certified Card -->
-<div class="av-card">
-  <div class="av-shield">🛡️</div>
-  <div class="av-badge">AV CERTIFIÉ</div>
-  <p>Cette opportunité est <strong>réservée aux artisans certifiés</strong>. Pour garantir la qualité, nous limitons les accès par secteur.</p>
-</div>
-
-<!-- 3 Exclusive Offers -->
+<!-- Section 3 : Les 3 Actifs (Grille de conversion) -->
+<div class="section-title">Vos 3 actifs stratégiques</div>
 <div class="offers-grid">
   <div class="offer-card">
     <div class="offer-icon">📍</div>
     <h3>Exclusivité Géographique</h3>
-    <p>Vous êtes le seul artisan référencé sur votre zone. Aucun concurrent direct ne peut apparaître à côté de vous.</p>
+    <p>Zéro concurrence directe. Vous possédez le secteur.</p>
   </div>
   <div class="offer-card">
     <div class="offer-icon">🔑</div>
-    <h3>Vitrine Professionnelle Clé en Main</h3>
-    <p>Votre fiche est déjà en ligne avec vos informations, photos et coordonnées. Les clients peuvent vous contacter directement.</p>
+    <h3>Vitrine Prête à l'Emploi</h3>
+    <p>Déjà en ligne. Vos clients vous appellent sans intermédiaire.</p>
   </div>
   <div class="offer-card">
     <div class="offer-icon">🚀</div>
-    <h3>Visibilité Prioritaire &amp; SEO</h3>
-    <p>Votre profil est optimisé pour le référencement local. Vous apparaissez en tête des résultats pour votre métier et votre ville.</p>
+    <h3>Domination SEO</h3>
+    <p>N°1 sur les recherches locales. Visibilité maximale garantie.</p>
   </div>
 </div>
 
+<!-- FOMO Alert -->
+<div class="fomo-alert">⚠️ ATTENTION : Cette offre et votre vitrine seront définitivement supprimées demain à 18h00.</div>
+
 <!-- CTA Buttons -->
 <div class="cta-section">
-  <a class="btn btn-primary" href="${url}">🔒 ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
-  <a class="btn btn-secondary" href="${url}">👉 VOIR MA VITRINE PROFESSIONNELLE</a>
+  <a class="btn btn-primary" href="${url}">🔒 DÉBLOQUER MON EXCLUSIVITÉ MAINTENANT</a>
+  <a class="btn btn-secondary" href="${url}">👉 ACCÉDER À MON DOSSIER TECHNIQUE</a>
 </div>
 
-<!-- Urgency -->
-<div class="urgency-notice">⚠️ Cette offre prioritaire expire demain à 18h00.</div>
 <div class="access-limit">Accès limité à 2 artisans par métier et par ville</div>
 
 <!-- Footer -->
