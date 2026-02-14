@@ -206,7 +206,120 @@ L'équipe Artisans Validés`;
 
   const downloadOfferPDF = (artisan: CommandantArtisan) => {
     const url = getProfileUrl(artisan);
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offre ${artisan.business_name}</title><style>body{font-family:Arial,sans-serif;margin:40px;color:#1a1a1a}h1{color:#ea580c;font-size:22px;border-bottom:3px solid #ea580c;padding-bottom:10px}h2{font-size:16px;margin-top:30px;color:#333}.point{background:#fff7ed;border-left:4px solid #ea580c;padding:12px 16px;margin:10px 0;border-radius:4px}.footer{margin-top:40px;padding-top:20px;border-top:1px solid #ddd;font-size:12px;color:#888}.badge{display:inline-block;background:#ea580c;color:white;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:bold;margin-bottom:20px}.url{color:#ea580c;word-break:break-all}</style></head><body><h1>🎖️ Artisans Validés</h1><span class="badge">OFFRE EXCLUSIVE</span><h2>Récapitulatif pour : ${artisan.business_name}</h2><p><strong>Ville :</strong> ${artisan.city}</p><p><strong>Lien vitrine :</strong> <a class="url" href="${url}">${url}</a></p><div class="point"><strong>1. Exclusivité Géographique</strong><br/>Vous êtes le seul artisan référencé sur votre zone. Aucun concurrent direct ne peut apparaître à côté de vous.</div><div class="point"><strong>2. Vitrine Professionnelle Clé en Main</strong><br/>Votre fiche est déjà en ligne avec vos informations, photos et coordonnées. Les clients peuvent vous contacter directement.</div><div class="point"><strong>3. Visibilité Prioritaire & SEO</strong><br/>Votre profil est optimisé pour le référencement local. Vous apparaissez en tête des résultats pour votre métier et votre ville.</div><p style="margin-top:30px;font-weight:bold;color:#ea580c">⚠️ Cette offre prioritaire expire demain à 18h00.</p><div class="footer">Document généré par Artisans Validés — ${new Date().toLocaleDateString("fr-FR")}</div></body></html>`;
+    const date = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offre Exclusive — ${artisan.business_name}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;color:#1A2B48;background:#fff;line-height:1.6}
+.header{background:linear-gradient(135deg,#1A2B48 0%,#0f1c30 100%);color:#fff;padding:40px 48px 32px;position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:linear-gradient(135deg,transparent 50%,rgba(234,88,12,0.15) 100%)}
+.logo{font-size:26px;font-weight:800;letter-spacing:-0.5px}.logo span{color:#ea580c}
+.subtitle{font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;letter-spacing:1px;text-transform:uppercase}
+.banner{background:#ea580c;color:#fff;text-align:center;padding:14px 24px;font-weight:700;font-size:14px;letter-spacing:0.5px}
+.content{padding:40px 48px}
+.meta{display:flex;gap:32px;margin-bottom:36px;padding-bottom:24px;border-bottom:2px solid #f0f0f0}
+.meta-item{font-size:14px;color:#64748b}.meta-item strong{display:block;font-size:16px;color:#1A2B48;margin-top:2px}
+.section-title{font-size:18px;font-weight:700;color:#1A2B48;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.section-title::before{content:'';width:4px;height:24px;background:#ea580c;border-radius:2px;display:inline-block}
+.cards{display:flex;gap:16px;margin-bottom:40px}
+.card{flex:1;border:1px solid #e8ecf0;border-radius:12px;padding:24px 20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.card:nth-child(1)::before{background:#ea580c}
+.card:nth-child(2)::before{background:#1A2B48}
+.card:nth-child(3)::before{background:#D4AF37}
+.card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.card:nth-child(1) .card-icon{background:#fff7ed;color:#ea580c}
+.card:nth-child(2) .card-icon{background:#f0f4f8;color:#1A2B48}
+.card:nth-child(3) .card-icon{background:#fefce8;color:#D4AF37}
+.card h3{font-size:15px;font-weight:700;color:#1A2B48;margin-bottom:8px}
+.card p{font-size:13px;color:#64748b;line-height:1.5}
+.faq{margin-bottom:40px}
+.faq-item{border:1px solid #e8ecf0;border-radius:10px;padding:18px 22px;margin-bottom:10px}
+.faq-q{font-weight:700;font-size:14px;color:#1A2B48;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.faq-q::before{content:'Q';display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:#ea580c;color:#fff;border-radius:6px;font-size:11px;font-weight:800;flex-shrink:0}
+.faq-a{font-size:13px;color:#475569;padding-left:30px}
+.cta-box{background:linear-gradient(135deg,#1A2B48 0%,#0f1c30 100%);border-radius:14px;padding:32px 36px;text-align:center;margin-bottom:32px}
+.cta-box h2{color:#fff;font-size:18px;font-weight:700;margin-bottom:8px}
+.cta-box p{color:rgba(255,255,255,0.7);font-size:13px;margin-bottom:20px}
+.cta-btn{display:inline-block;background:#ea580c;color:#fff;padding:14px 40px;border-radius:10px;font-size:16px;font-weight:800;text-decoration:none;letter-spacing:0.3px;text-transform:uppercase}
+.cta-btn:hover{background:#c2410c}
+.link-box{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:14px 20px;margin-bottom:32px;word-break:break-all;font-size:13px;color:#64748b}
+.link-box a{color:#ea580c;font-weight:600}
+.footer{text-align:center;padding:24px 48px;border-top:1px solid #e8ecf0;font-size:11px;color:#94a3b8}
+</style></head><body>
+
+<div class="header">
+<div class="logo">ARTISANS <span>VALIDÉS</span></div>
+<div class="subtitle">Alliance des Professionnels Certifiés</div>
+</div>
+
+<div class="banner">⚠️ RÉSERVATION PRIORITAIRE — CETTE PLACE EXPIRE DEMAIN À 18H00</div>
+
+<div class="content">
+
+<div class="meta">
+<div class="meta-item">Artisan<strong>${artisan.business_name}</strong></div>
+<div class="meta-item">Zone<strong>${artisan.city}</strong></div>
+<div class="meta-item">Date<strong>${date}</strong></div>
+</div>
+
+<div class="section-title">Votre offre en 3 points</div>
+<div class="cards">
+<div class="card">
+<div class="card-icon">🔒</div>
+<h3>Exclusivité Géographique</h3>
+<p>Vous êtes le seul professionnel référencé dans votre zone. Aucun concurrent ne peut apparaître à côté de vous. Votre territoire est verrouillé.</p>
+</div>
+<div class="card">
+<div class="card-icon">📲</div>
+<h3>Flux Direct de Clients</h3>
+<p>Les particuliers vous contactent directement via votre fiche. Zéro intermédiaire, zéro commission. Chaque demande arrive dans votre espace.</p>
+</div>
+<div class="card">
+<div class="card-icon">📈</div>
+<h3>Visibilité Prioritaire</h3>
+<p>Votre profil est optimisé pour le référencement local (SEO). Vous apparaissez en tête des résultats pour votre métier et votre ville.</p>
+</div>
+</div>
+
+<div class="section-title">Questions fréquentes</div>
+<div class="faq">
+<div class="faq-item">
+<div class="faq-q">Combien ça coûte ?</div>
+<div class="faq-a">L'accès démarre à partir de 49€/mois HT. C'est un investissement, pas une dépense : un seul client obtenu via la plateforme rembourse plusieurs mois d'abonnement.</div>
+</div>
+<div class="faq-item">
+<div class="faq-q">L'exclusivité est-elle vraiment garantie ?</div>
+<div class="faq-a">Oui. Maximum 2 professionnels par métier et par ville. Une fois votre zone validée, aucun concurrent direct ne pourra être référencé à côté de vous.</div>
+</div>
+<div class="faq-item">
+<div class="faq-q">Quelle différence avec Google ou les annuaires ?</div>
+<div class="faq-a">Sur Google, vous êtes noyé parmi des dizaines de résultats et de publicités. Ici, vous êtes LE professionnel recommandé pour votre zone. Chaque fiche est auditée et certifiée, ce qui inspire confiance aux clients.</div>
+</div>
+<div class="faq-item">
+<div class="faq-q">Puis-je annuler à tout moment ?</div>
+<div class="faq-a">Oui, sans engagement de durée. Mais attention : si vous libérez votre zone, elle sera proposée à un autre professionnel.</div>
+</div>
+</div>
+
+<div class="cta-box">
+<h2>POUR VALIDER VOTRE ZONE</h2>
+<p>Rendez-vous sur votre fiche et cliquez sur le bouton orange</p>
+<a class="cta-btn" href="${url}">CLIQUEZ SUR LE BOUTON ORANGE DE VOTRE FICHE</a>
+</div>
+
+<div class="link-box">
+🔗 Votre vitrine : <a href="${url}">${url}</a>
+</div>
+
+</div>
+
+<div class="footer">
+Document confidentiel généré par Artisans Validés — ${date}<br/>
+Moins de blabla, plus de résultats.
+</div>
+
+</body></html>`;
     const blob = new Blob([html], { type: "text/html" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
