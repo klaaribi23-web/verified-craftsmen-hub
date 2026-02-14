@@ -216,95 +216,89 @@ L'équipe Artisans Validés`;
 body{font-family:Helvetica,Arial,sans-serif;color:#1A1A1A;background:#fff;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .page{max-width:794px;margin:0 auto;background:#FFFFFF;position:relative;min-height:100vh;border:1px solid #0A192F;background-image:url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")}
 /* Banner */
-.banner{background:#0A192F;padding:32px 48px;text-align:center}
-.banner h1{font-family:'Playfair Display',Georgia,serif;color:#FFFFFF;font-size:22px;font-weight:800;letter-spacing:8px;text-transform:uppercase}
-.banner-sub{color:rgba(255,255,255,0.6);font-size:9px;letter-spacing:4px;margin-top:8px;text-transform:uppercase}
+.banner{background:#0A192F;padding:28px 48px;display:flex;align-items:center;justify-content:space-between}
+.banner-logo{font-family:'Playfair Display',Georgia,serif;color:#FFD700;font-size:14px;font-weight:800;letter-spacing:1px;white-space:nowrap}
+.banner h1{font-family:'Playfair Display',Georgia,serif;color:#FFFFFF;font-size:17px;font-weight:800;letter-spacing:6px;text-transform:uppercase;text-align:center;flex:1;margin:0 20px}
+.banner-conf{color:rgba(255,255,255,0.5);font-size:8px;letter-spacing:2px;text-transform:uppercase;white-space:nowrap;text-align:right}
 /* Header */
-.header-bar{display:flex;justify-content:space-between;align-items:center;padding:24px 48px;border-bottom:1px solid #ddd}
-.logo{font-size:18px;font-weight:800;color:#0A192F;letter-spacing:-0.5px}
-.logo span{color:#FF5500}
-.logo-tagline{font-size:8px;text-transform:uppercase;letter-spacing:3px;color:#999;margin-top:2px}
-.header-right{text-align:right;font-size:10px;color:#666}
-.header-right .ref{font-weight:700;color:#1A1A1A;font-size:11px}
+.header-bar{display:flex;justify-content:space-between;align-items:center;padding:20px 48px;border-bottom:1px solid #e0e0e0}
+.header-left .ref{font-weight:700;color:#0A192F;font-size:11px;letter-spacing:1px}
+.header-left .date{font-size:10px;color:#666;margin-top:2px}
+.header-right{text-align:right}
+.header-right .tagline{font-size:8px;text-transform:uppercase;letter-spacing:3px;color:#999}
 /* Artisan block */
-.artisan-block{margin:40px 48px;text-align:center;position:relative}
-.artisan-frame{display:inline-block;border:2px solid #FFD700;padding:28px 48px;position:relative}
-.artisan-frame::before{content:'';position:absolute;top:3px;left:3px;right:3px;bottom:3px;border:1px solid #FFD700}
-.artisan-seal{position:absolute;top:-18px;right:-18px;font-size:52px;opacity:0.15;transform:rotate(15deg);pointer-events:none}
-.artisan-name{font-family:'Playfair Display',Georgia,serif;font-size:32px;font-weight:900;color:#1A1A1A;letter-spacing:0.5px}
-.artisan-city{color:#0A192F;font-size:15px;font-weight:700;margin-top:14px;letter-spacing:1px}
-.artisan-date{color:#999;font-size:10px;margin-top:12px;letter-spacing:1px;text-transform:uppercase}
-/* Separator */
-.sep{height:1px;background:#ddd;margin:0 48px}
+.artisan-block{margin:36px 48px;text-align:center;position:relative}
+.artisan-frame{display:inline-block;border:2px solid #FFD700;padding:32px 56px;position:relative;background:#0A192F}
+.artisan-frame::before{content:'';position:absolute;top:4px;left:4px;right:4px;bottom:4px;border:1px solid #FFD700}
+.artisan-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-18deg);font-size:64px;font-family:'Playfair Display',Georgia,serif;color:rgba(255,255,255,0.06);font-weight:900;letter-spacing:8px;text-transform:uppercase;pointer-events:none;white-space:nowrap}
+.artisan-name{font-family:'Playfair Display',Georgia,serif;font-size:30px;font-weight:900;color:#FFFFFF;letter-spacing:1px;position:relative;z-index:1}
+.artisan-city{color:#FFD700;font-size:14px;font-weight:700;margin-top:14px;letter-spacing:2px;position:relative;z-index:1}
+.artisan-date{color:#999;font-size:10px;margin-top:16px;letter-spacing:1px;text-transform:uppercase}
 /* Pillars */
-.pillars{display:flex;gap:0;margin:32px 48px;border-top:1px solid #1A1A1A;border-bottom:1px solid #1A1A1A}
-.pillar{flex:1;padding:28px 20px;text-align:center;border-right:1px solid #1A1A1A}
+.pillars{display:flex;gap:0;margin:28px 48px;border:1px solid #0A192F}
+.pillar{flex:1;padding:24px 16px;text-align:center;border-right:1px solid #0A192F}
 .pillar:last-child{border-right:none}
-.pillar-icon{font-size:36px;margin-bottom:14px;display:block;color:#FF5500}
-.pillar h3{font-size:12px;font-weight:800;color:#1A1A1A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
-.pillar p{font-size:11px;color:#555;line-height:1.6}
+.pillar-icon{font-size:28px;margin-bottom:12px;display:block;color:#FFD700}
+.pillar h3{font-size:11px;font-weight:800;color:#0A192F;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.pillar p{font-size:10px;color:#555;line-height:1.6}
 /* FAQ */
-.faq{margin:32px 48px 28px}
-.faq-header{font-family:'Playfair Display',Georgia,serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:3px;color:#0A192F;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid #0A192F}
-.faq-item{padding:14px 0;border-bottom:1px solid #ddd;text-align:left}
-.faq-item:last-child{border-bottom:none}
-.faq-q{font-size:13px;font-weight:800;color:#1A1A1A;margin-bottom:4px}
-.faq-a{font-size:11px;color:#555;line-height:1.7}
+.faq{margin:28px 48px 24px}
+.faq-header{font-family:'Playfair Display',Georgia,serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:4px;color:#0A192F;margin-bottom:18px;padding-bottom:8px;border-bottom:2px solid #FFD700}
+.faq-item{padding:12px 0 12px 16px;border-left:3px solid #FFD700;margin-bottom:10px;text-align:left}
+.faq-q{font-size:12px;font-weight:800;color:#0A192F;margin-bottom:3px}
+.faq-a{font-size:10.5px;color:#555;line-height:1.7}
 /* CTA */
-.cta-section{margin:32px 48px 24px}
-.mirror-btn{display:block;background:#0A192F;color:#FFFFFF;padding:18px 32px;text-align:center;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:1px;margin-bottom:14px}
-.cta-btn{display:block;background:#FFD700;color:#1A1A1A;padding:28px 32px;text-align:center;font-size:19px;font-weight:900;text-decoration:none;letter-spacing:3px;text-transform:uppercase}
-.cta-sub{text-align:center;font-size:10px;color:#999;margin-top:10px;letter-spacing:0.5px}
+.cta-section{margin:28px 48px 20px}
+.mirror-btn{display:block;background:#0A192F;color:#FFFFFF;padding:18px 32px;text-align:center;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:1.5px;margin-bottom:12px}
+.cta-btn{display:block;background:#FFD700;color:#0A192F;padding:26px 32px;text-align:center;font-size:18px;font-weight:900;text-decoration:none;letter-spacing:3px;text-transform:uppercase}
+.cta-sub{text-align:center;font-size:9px;color:#999;margin-top:10px;letter-spacing:0.5px}
 /* Footer */
-.footer{text-align:center;padding:20px 48px;border-top:1px solid #ddd;margin:0 48px}
-.footer .sig{font-weight:800;color:#0A192F;font-size:11px;margin-bottom:4px;letter-spacing:1px}
+.footer{text-align:center;padding:18px 48px;border-top:1px solid #ddd;margin:12px 48px 0}
+.footer .sig{font-family:'Playfair Display',Georgia,serif;font-weight:800;color:#0A192F;font-size:11px;margin-bottom:4px;letter-spacing:1px}
 .footer .legal{font-size:8px;color:#aaa;letter-spacing:0.5px}
-.footer .moderation{font-size:8px;color:#888;margin-top:6px;line-height:1.5}
 </style></head><body>
 <div class="page">
 
 <div class="banner">
+  <div class="banner-logo">ARTISANS VALIDÉS</div>
   <h1>Attestation d'Exclusivité Sectorielle</h1>
-  <div class="banner-sub">Document confidentiel — Réservation prioritaire</div>
+  <div class="banner-conf">DOCUMENT<br/>CONFIDENTIEL</div>
 </div>
 
 <div class="header-bar">
-  <div>
-    <div class="logo">ARTISANS <span>VALIDÉS</span></div>
-    <div class="logo-tagline">Alliance des Professionnels Certifiés</div>
+  <div class="header-left">
+    <div class="ref">Réf. ${refNum}</div>
+    <div class="date">${date}</div>
   </div>
   <div class="header-right">
-    <div class="ref">Réf. ${refNum}</div>
-    <div>${date}</div>
+    <div class="tagline">Alliance des Professionnels Certifiés</div>
   </div>
 </div>
 
 <div class="artisan-block">
   <div class="artisan-frame">
-    <span class="artisan-seal">🪪</span>
+    <span class="artisan-stamp">APPROUVÉ</span>
     <div class="artisan-name">${artisan.business_name}</div>
-    <div class="artisan-city">▸ Zone exclusive : ${artisan.city}</div>
+    <div class="artisan-city">Zone réservée : ${artisan.city}</div>
   </div>
   <div class="artisan-date">Émis le ${date} — Validité : 48 heures</div>
 </div>
 
-<div class="sep"></div>
-
 <div class="pillars">
   <div class="pillar">
     <span class="pillar-icon">🔒</span>
-    <h3>Exclusivité</h3>
+    <h3>Exclusivité Totale</h3>
     <p>Zone verrouillée. Vous êtes le seul référencé. Aucun concurrent autorisé.</p>
   </div>
   <div class="pillar">
     <span class="pillar-icon">⚡</span>
-    <h3>Visibilité</h3>
-    <p>Référencement prioritaire. Votre fiche en tête des résultats.</p>
+    <h3>Visibilité Prioritaire</h3>
+    <p>Référencement en tête. Votre fiche est mise en avant sur votre secteur.</p>
   </div>
   <div class="pillar">
     <span class="pillar-icon">📱</span>
-    <h3>Flux Direct</h3>
-    <p>Contact sans intermédiaire. Zéro commission sur les demandes.</p>
+    <h3>Flux Direct Clients</h3>
+    <p>Contact sans intermédiaire. Zéro commission sur vos demandes.</p>
   </div>
 </div>
 
@@ -326,14 +320,13 @@ body{font-family:Helvetica,Arial,sans-serif;color:#1A1A1A;background:#fff;line-h
 
 <div class="cta-section">
   <a class="mirror-btn" href="${url}">👁️ VOIR MA VITRINE PROFESSIONNELLE</a>
-  <a class="cta-btn" href="${url}">ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
+  <a class="cta-btn" href="${url}">⚡ ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
   <div class="cta-sub">Rendez-vous sur votre fiche pour finaliser votre réservation</div>
 </div>
 
 <div class="footer">
   <div class="sig">Moins de blabla, plus de résultats.</div>
-  <div class="legal">Document confidentiel — Artisans Validés — ${date}</div>
-  <div class="moderation">Document généré par le service de modération Artisans Validés. Validité juridique de l'exclusivité : 24h.</div>
+  <div class="legal">Paiement sécurisé par Stripe — Garantie Artisans Validés — Validité : 24h</div>
 </div>
 
 </div>
