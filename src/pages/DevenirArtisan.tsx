@@ -332,7 +332,7 @@ const RiskReversal = () => (
 );
 
 // --- Schema ---
-const candidacySchema = z.object({
+const partnerSchema = z.object({
   fullName: z.string().trim().min(2, "Nom complet requis (min 2 caractères)").max(100),
   email: z.string().trim().email("Adresse email invalide").max(255),
   phone: z.string().trim().refine(val => validateFrenchPhone(val), { message: "Numéro français invalide" }),
@@ -347,7 +347,7 @@ const DevenirArtisan = () => {
   const missionCity = searchParams.get("ville");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [candidacySent, setCandidacySent] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -364,7 +364,7 @@ const DevenirArtisan = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const result = candidacySchema.safeParse(formData);
+      const result = partnerSchema.safeParse(formData);
       if (!result.success) {
         toast({ title: "Erreur de validation", description: result.error.errors[0].message, variant: "destructive" });
         setIsLoading(false);
@@ -381,8 +381,8 @@ const DevenirArtisan = () => {
           email: formData.email,
         });
       if (dbError) throw dbError;
-      setCandidacySent(true);
-      toast({ title: "Candidature reçue !", description: "Un expert vous rappelle sous 24h." });
+      setSubmitted(true);
+      toast({ title: "Zone réservée !", description: "Jane vous rappelle sous 24h pour valider votre accès." });
     } catch {
       toast({ title: "Erreur", description: "Une erreur est survenue.", variant: "destructive" });
     } finally {
@@ -391,10 +391,10 @@ const DevenirArtisan = () => {
   };
 
   // Confirmation screen
-  if (candidacySent) {
+  if (submitted) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead title="Candidature reçue — Artisans Validés" description="Votre candidature au réseau a bien été reçue." />
+        <SEOHead title="Zone réservée — Artisans Validés" description="Votre demande d'accès au réseau a bien été reçue." />
         <Navbar />
         <main className="pt-32 lg:pt-20 pb-20">
           <div className="container mx-auto px-4 max-w-md">
@@ -404,10 +404,10 @@ const DevenirArtisan = () => {
               </div>
               <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4 mb-6 text-left">
                 <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
-                  <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
-                  <p className="font-medium">Candidature reçue !</p>
-                </div>
-              </div>
+                   <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+                   <p className="font-medium">Zone réservée !</p>
+                 </div>
+               </div>
               <h1 className="text-2xl font-bold text-foreground mb-4">Votre dossier est en cours d'examen</h1>
               <p className="text-muted-foreground mb-6">
                 Notre équipe audite votre dossier et vérifie la disponibilité de votre secteur à <strong className="text-foreground">{formData.city}</strong>. Vous serez contacté sous 24h.
@@ -454,7 +454,7 @@ const DevenirArtisan = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-4xl mx-auto mb-10 md:mb-16">
               <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-gold text-navy-dark text-sm font-bold mb-6 shadow-gold">
                 <Shield className="w-4 h-4" />
-                Réseau sélectif — Candidature gratuite
+                Réseau sélectif — Inscription gratuite
               </div>
 
               <h1 className="text-2xl md:text-4xl lg:text-[3.25rem] font-black text-navy leading-[1.1] mb-5 md:mb-7 uppercase tracking-tight">
@@ -514,8 +514,8 @@ const DevenirArtisan = () => {
             </motion.div>
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {[
-                { step: "01", icon: FileText, title: "Dépôt du Dossier", desc: "Remplissez le formulaire de candidature. C'est gratuit et sans engagement." },
-                { step: "02", icon: Search, title: "Audit de conformité", desc: "Vérification de vos documents par Jane sous 24h. Décennales, références et avis clients passés au crible." },
+                { step: "01", icon: FileText, title: "Réservation de votre Zone", desc: "Indiquez votre secteur d'intervention pour vérifier la disponibilité des places. Gratuit et sans engagement." },
+                { step: "02", icon: Search, title: "Audit de conformité", desc: "Jane valide votre profil et vos assurances sous 24h. Décennales, références et avis clients passés au crible." },
                 { step: "03", icon: Rocket, title: "Activation du Cockpit", desc: "Une fois validé, accédez à votre radar et à la liste des missions qualifiées." },
               ].map((item, index) => (
                 <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15 }} className="text-center">
