@@ -255,10 +255,13 @@ body>*{position:relative;z-index:1}
 .actif-card h3{font-size:12px;font-weight:900;color:#FFB800;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase}
 .actif-card p{font-size:11.5px;color:rgba(255,255,255,0.5);line-height:1.85}
 
-/* ── BOUTON PULSANT ── */
+/* ── BOUTONS CTA ── */
 .cta-section{padding:20px 48px 24px;text-align:center}
+.cta-buttons{display:flex;flex-direction:column;align-items:center;gap:18px}
 .btn-secure{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:26px 52px;background:#FFB800;color:#0A192F;font-size:19px;font-weight:900;letter-spacing:1.5px;border-radius:14px;text-decoration:none;border:none;cursor:pointer;box-shadow:0 8px 36px rgba(255,184,0,0.4),0 0 0 1px rgba(255,184,0,0.5);position:relative;overflow:hidden;font-family:'Montserrat',sans-serif;animation:btn-pulse 2.5s ease-in-out infinite}
 .btn-secure::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,0.08) 30%,rgba(255,255,255,0.28) 50%,rgba(255,255,255,0.08) 70%,transparent 100%);animation:btn-shimmer 3s ease-in-out infinite}
+.btn-vitrine{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:18px 44px;background:transparent;color:#FFFFFF;font-size:15px;font-weight:700;letter-spacing:1px;border-radius:12px;text-decoration:none;border:2px solid rgba(255,255,255,0.4);cursor:pointer;font-family:'Montserrat',sans-serif;transition:all 0.3s ease}
+.btn-vitrine:hover{border-color:#FFB800;color:#FFB800;background:rgba(255,184,0,0.06)}
 @keyframes btn-shimmer{0%{left:-100%}60%{left:150%}100%{left:150%}}
 @keyframes btn-pulse{0%,100%{transform:scale(1);box-shadow:0 8px 36px rgba(255,184,0,0.4)}50%{transform:scale(1.02);box-shadow:0 12px 48px rgba(255,184,0,0.55)}}
 .cta-warning{margin-top:20px;font-size:14px;font-weight:800;color:#EF4444;letter-spacing:0.5px}
@@ -330,9 +333,12 @@ body>*{position:relative;z-index:1}
   </div>
 </div>
 
-<!-- ═══ BOUTON PULSANT + ALERTE ═══ -->
+<!-- ═══ DOUBLE CTA + ALERTE ═══ -->
 <div class="cta-section">
-  <a class="btn-secure" href="${url}">🔒 DÉBLOQUER MON EXCLUSIVITÉ MAINTENANT</a>
+  <div class="cta-buttons">
+    <a class="btn-secure" href="${url}">🔒 DÉBLOQUER MON EXCLUSIVITÉ MAINTENANT</a>
+    <a class="btn-vitrine" href="${url}">👁️ VOIR MA VITRINE PROFESSIONNELLE</a>
+  </div>
   <div class="cta-warning">⚠️ Expiration automatique demain à 18h00.</div>
 </div>
 
