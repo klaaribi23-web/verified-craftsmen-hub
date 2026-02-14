@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
@@ -9,131 +6,310 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FrenchPhoneInput, validateFrenchPhone } from "@/components/ui/french-phone-input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Shield,
   CheckCircle2,
+  XCircle,
   Phone,
-  Upload,
-  Loader2,
-  Building2,
   MapPin,
   Wrench,
-  FileText,
-  Users,
-  Star,
-  Lock,
-  Zap,
-  TrendingUp,
+  Search,
+  Eye,
+  Filter,
+  MessageCircle,
+  ArrowRight,
+  Loader2,
+  Quote,
   AlertTriangle,
+  Award,
+  Users,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 
-// --- Sub-components ---
-
-const DynamicHeader = ({ missionType, missionCity }: { missionType?: string | null; missionCity?: string | null }) => {
-  const fromMission = missionType && missionCity;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mx-auto max-w-3xl rounded-xl border border-navy/20 bg-[#F9FAFB]/10 backdrop-blur-sm px-6 py-5 mb-10"
-    >
-      {fromMission ? (
-        <div className="flex items-center gap-3 flex-wrap">
-          <Zap className="w-5 h-5 text-gold flex-shrink-0" />
-          <p className="text-white text-sm md:text-base">
-            <span className="font-bold text-gold">Opportunité sélectionnée :</span>{" "}
-            {missionType} à {missionCity}.{" "}
-            <span className="text-white/60">Statut : En attente de validation.</span>
-          </p>
-        </div>
-      ) : (
-        <div className="flex items-center gap-3 flex-wrap">
-          <TrendingUp className="w-5 h-5 text-gold flex-shrink-0" />
-          <p className="text-white text-sm md:text-base">
-            <span className="font-bold text-gold">Radar Missions :</span>{" "}
-            24 projets en attente dans le 59.{" "}
-            <span className="text-white/60">Places limitées par ville.</span>
-          </p>
-        </div>
-      )}
-    </motion.div>
-  );
-};
-
-const ValuePropositions = () => (
-  <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-10">
-    {[
-      { icon: Lock, title: "99€/mois", desc: "Votre licence d'accès au flux de chantiers qualifiés." },
-      { icon: TrendingUp, title: "Zéro commission", desc: "Vous gardez 100% de votre chiffre d'affaires." },
-      { icon: Zap, title: "Marketing Inclus", desc: "Votre abonnement finance nos campagnes pub pour vous apporter des clients." },
-    ].map((v, i) => (
-      <motion.div
-        key={v.title}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 * (i + 1) }}
-        className="bg-navy-light/30 border-2 border-white/20 rounded-xl p-5 text-center"
-      >
-        <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-3">
-          <v.icon className="w-5 h-5 text-gold" />
-        </div>
-        <h3 className="text-white font-bold text-lg mb-1">{v.title}</h3>
-        <p className="text-white/60 text-sm leading-relaxed">{v.desc}</p>
-      </motion.div>
-    ))}
-  </div>
+// --- Floating WhatsApp Button ---
+const WhatsAppButton = () => (
+  <a
+    href="https://wa.me/33612345678?text=Bonjour%20Jane%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20la%20licence%20Artisans%20Valid%C3%A9s."
+    target="_blank"
+    rel="noopener noreferrer"
+    className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25d366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+    aria-label="Contacter Jane sur WhatsApp"
+  >
+    <MessageCircle className="w-7 h-7 text-white" />
+  </a>
 );
 
-const ExclusivityNotice = () => (
+// --- Dynamic Scarcity Banner ---
+const ScarcityBanner = ({ metier, city }: { metier?: string; city?: string }) => (
   <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: 0.6 }}
-    className="max-w-2xl mx-auto text-center mb-6"
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-navy overflow-hidden py-2.5 relative z-40"
   >
-    <div className="inline-flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-lg px-5 py-3">
-      <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
-      <p className="text-sm text-white/90 text-left">
-        <strong className="text-gold">Attention :</strong> Nous limitons strictement l'accès à{" "}
-        <strong className="text-white">2 artisans par métier et par ville</strong> pour garantir votre volume de travail.
-      </p>
-    </div>
+    <motion.div
+      animate={{ x: ["100%", "-100%"] }}
+      transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+      className="whitespace-nowrap text-xs md:text-sm font-semibold text-gold tracking-wide"
+    >
+      🔒 Alerte : Plus que 2 places disponibles pour les {metier || "artisans"} sur {city || "votre secteur"} · Complet à Valenciennes · 1 place à Roubaix · 2 places à Cambrai &nbsp;&nbsp;&nbsp;&nbsp; 🔒 Alerte : Plus que 2 places disponibles pour les {metier || "artisans"} sur {city || "votre secteur"} · Complet à Valenciennes · 1 place à Roubaix · 2 places à Cambrai
+    </motion.div>
   </motion.div>
 );
 
-// --- Schema ---
-const partnerSchema = z.object({
-  businessName: z.string().trim().min(2, "Nom d'entreprise requis").max(100),
-  siret: z.string().trim().min(14, "SIRET invalide (14 chiffres)").max(14, "SIRET invalide (14 chiffres)").regex(/^\d{14}$/, "Le SIRET doit contenir 14 chiffres"),
-  metier: z.string().trim().min(2, "Métier requis").max(100),
-  city: z.string().trim().min(2, "Ville requise").max(100),
-  phone: z.string().trim().refine(val => validateFrenchPhone(val), { message: "Numéro français invalide" }),
-});
+// --- Hero ---
+const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
+  <section className="bg-navy py-16 md:py-24 lg:py-32 relative overflow-hidden">
+    <div className="absolute inset-0 opacity-10">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-gold rounded-full blur-3xl" />
+    </div>
+    <div className="container mx-auto px-4 lg:px-8 relative z-10">
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-4xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold/20 border border-gold/30 mb-8">
+          <Shield className="w-4 h-4 text-gold" />
+          <span className="text-sm font-bold text-gold">Réseau fermé — Places limitées</span>
+        </div>
 
-const steps = [
-  { icon: FileText, title: "Réservation de Zone", desc: "Indiquez votre secteur d'intervention" },
-  { icon: Phone, title: "Audit de conformité", desc: "Jane valide votre profil et vos assurances sous 24h" },
-  { icon: CheckCircle2, title: "Activation", desc: "Votre espace Pro est créé sur-mesure" },
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-[1.05] mb-6 uppercase tracking-tight">
+          Votre zone. Votre exclusivité.{" "}
+          <span className="text-gradient-gold">Votre croissance.</span>
+        </h1>
+
+        <p className="text-base md:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Arrêtez de courir après des faux leads. Intégrez le réseau{" "}
+          <strong className="text-white">Artisans Validés</strong>, obtenez votre badge de confiance
+          et laissez <strong className="text-gold">Jane</strong> piloter votre visibilité locale.
+        </p>
+
+        <Button
+          variant="gold"
+          size="xl"
+          className="!font-black !text-base md:!text-lg uppercase tracking-wider"
+          onClick={onCTA}
+        >
+          <MapPin className="w-5 h-5 mr-2" /> VÉRIFIER LA DISPONIBILITÉ DANS MA ZONE <ArrowRight className="w-5 h-5 ml-2" />
+        </Button>
+
+        <p className="text-xs text-white/40 mt-4">On ne prend pas tout le monde. On ne garde que les meilleurs.</p>
+      </motion.div>
+    </div>
+  </section>
+);
+
+// --- Comparison Section (Eux vs Nous) ---
+const ComparisonSection = () => (
+  <section className="py-16 lg:py-24 bg-[#F9FAFB]">
+    <div className="container mx-auto px-4 lg:px-8">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+        <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">Le vrai calcul</span>
+        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">Comparez et décidez.</h2>
+        <p className="text-muted-foreground">Soyons cash : voici ce que vous payez aujourd'hui vs ce qu'on propose.</p>
+      </motion.div>
+
+      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        {/* Eux */}
+        <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+          <Card className="h-full border-2 border-destructive/30 bg-destructive/5">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <XCircle className="w-6 h-6 text-destructive" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">Eux — Le Lead Classique</h3>
+                  <p className="text-xs text-muted-foreground">Ce que vous subissez</p>
+                </div>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  "Leads vendus à 10 personnes en même temps",
+                  "Clients pas sérieux, faux numéros",
+                  "Aucune aide, aucun accompagnement",
+                  "30 à 80€ par lead non qualifié",
+                  "Commission sur chaque chantier signé",
+                  "Vous courez. Tout le temps.",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm">
+                    <XCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
+                    <span className="text-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 p-4 bg-destructive/10 rounded-lg text-center">
+                <p className="text-sm font-bold text-destructive">Coût moyen : 400 à 1 200€/mois</p>
+                <p className="text-xs text-muted-foreground mt-1">Pour des résultats aléatoires</p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Nous */}
+        <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+          <Card className="h-full border-2 border-gold shadow-lg shadow-gold/10">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Shield className="w-6 h-6 text-gold" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">Artisans Validés</h3>
+                  <p className="text-xs text-gold font-medium">Ce que vous méritez</p>
+                </div>
+              </div>
+              <ul className="space-y-4">
+                {[
+                  "Exclusivité : 2 artisans par zone max",
+                  "Projets qualifiés par téléphone par Jane",
+                  "SEO local inclus — n°1 sur Google",
+                  "99€/mois fixe, prévisible",
+                  "0% de commission, vous gardez tout",
+                  "Le client vient à vous.",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
+                    <span className="text-foreground font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 p-4 bg-gold/10 rounded-lg text-center">
+                <p className="text-sm font-bold text-gold">99€/mois · 0% commission</p>
+                <p className="text-xs text-muted-foreground mt-1">Un seul chantier rentabilise l'année</p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+);
+
+// --- Méthode Jane ---
+const MethodeJane = () => (
+  <section className="py-16 lg:py-24 bg-navy relative overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
+      <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
+    </div>
+    <div className="container mx-auto px-4 lg:px-8 relative z-10">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+        <span className="inline-block px-4 py-1.5 rounded-full bg-gold/20 text-gold text-sm font-medium mb-4">Comment ça marche</span>
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">La « Méthode Jane »</h2>
+        <p className="text-white/60 max-w-xl mx-auto">3 étapes. Zéro bullshit. Que du concret.</p>
+      </motion.div>
+      <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        {[
+          {
+            step: "01",
+            icon: Search,
+            title: "Audit",
+            desc: "On vérifie vos assurances, vos références et votre sérieux. Vous recevez le badge de confiance « Audité & Validé 2026 ».",
+          },
+          {
+            step: "02",
+            icon: Eye,
+            title: "Visibilité",
+            desc: "On booste votre fiche pour que vous soyez n°1 sur Google dans votre zone. SEO local, profil optimisé, tout est inclus.",
+          },
+          {
+            step: "03",
+            icon: Filter,
+            title: "Gestion",
+            desc: "Jane filtre les demandes et vous envoie les meilleurs chantiers directement sur WhatsApp. Vous ne perdez plus de temps.",
+          },
+        ].map((item, index) => (
+          <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15 }} className="text-center">
+            <div className="w-20 h-20 rounded-full border-2 border-gold bg-transparent flex items-center justify-center mx-auto mb-5">
+              <item.icon className="w-8 h-8 text-gold" />
+            </div>
+            <div className="text-xs text-gold font-bold mb-2 tracking-widest">ÉTAPE {item.step}</div>
+            <h3 className="font-bold text-white text-lg mb-2">{item.title}</h3>
+            <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+// --- Social Proof ---
+const testimonials = [
+  {
+    name: "Karim B.",
+    metier: "Installateur PAC",
+    city: "Lille",
+    text: "En 3 semaines j'ai signé 2 chantiers à 12 000€. Avant, je payais 40€ le lead pour des faux numéros. Ici c'est du concret.",
+  },
+  {
+    name: "David M.",
+    metier: "Électricien",
+    city: "Roubaix",
+    text: "Le fait d'être seulement 2 par ville, ça change tout. Les clients me rappellent parce qu'ils ont le choix entre moi et un autre, pas entre 15.",
+  },
+  {
+    name: "Sophie L.",
+    metier: "Menuiserie PVC/Alu",
+    city: "Arras",
+    text: "J'ai arrêté ma pub Google à 800€/mois. Avec Artisans Validés, je reçois des demandes qualifiées. Client réel, budget réel.",
+  },
 ];
 
-// --- Main Page ---
-const DevenirPartenaire = () => {
-  const [searchParams] = useSearchParams();
-  const missionType = searchParams.get("mission");
-  const missionCity = searchParams.get("ville");
+const SocialProofSection = () => (
+  <section className="py-16 lg:py-24 bg-muted/40 border-y-2 border-navy/20">
+    <div className="container mx-auto px-4 lg:px-8">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-4">
+          <Award className="w-4 h-4 text-gold" />
+          <span className="text-sm font-bold text-gold">AUDITÉ & VALIDÉ 2026</span>
+        </div>
+        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">Ils ont rejoint l'Alliance. Voici ce qu'ils en disent.</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto">Pas de mise en scène. Des artisans qui parlent vrai.</p>
+      </motion.div>
+      <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {testimonials.map((t, i) => (
+          <motion.div key={t.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+            <Card className="h-full border-border/60">
+              <CardContent className="p-6">
+                <Quote className="w-6 h-6 text-gold/40 mb-3" />
+                <p className="text-sm text-foreground leading-relaxed mb-4 italic">"{t.text}"</p>
+                <div className="flex items-center gap-2 pt-3 border-t border-border">
+                  <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-xs font-bold text-gold">{t.name.charAt(0)}</div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.metier} — {t.city}</p>
+                  </div>
+                  <div className="ml-auto">
+                    <span className="text-xs text-emerald-600 font-medium flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Vérifié</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
+// --- Schema ---
+const formSchema = z.object({
+  fullName: z.string().trim().min(2, "Nom requis").max(100),
+  metier: z.string().trim().min(2, "Métier requis").max(100),
+  codePostal: z.string().trim().regex(/^\d{5}$/, "Code postal invalide (5 chiffres)"),
+  phone: z.string().trim().refine((val) => validateFrenchPhone(val), { message: "Numéro français invalide" }),
+});
+
+// --- Form Section ---
+const FormSection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [insuranceFile, setInsuranceFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
-    businessName: "",
-    siret: "",
+    fullName: "",
     metier: "",
-    city: "",
+    codePostal: "",
     phone: "",
   });
 
@@ -141,43 +317,26 @@ const DevenirPartenaire = () => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast({ title: "Fichier trop volumineux", description: "Max 10 Mo", variant: "destructive" });
-        return;
-      }
-      setInsuranceFile(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
-      const result = partnerSchema.safeParse(formData);
+      const result = formSchema.safeParse(formData);
       if (!result.success) {
-        toast({ title: "Erreur", description: result.error.errors[0].message, variant: "destructive" });
+        toast({ title: "Erreur de validation", description: result.error.errors[0].message, variant: "destructive" });
         setIsLoading(false);
         return;
       }
-
-      const { error: dbError } = await supabase
-        .from("partner_candidacies")
-        .insert({
-          business_name: formData.businessName,
-          siret: formData.siret,
-          metier: formData.metier,
-          city: formData.city,
-          phone: formData.phone,
-        });
-
+      const { error: dbError } = await supabase.from("partner_candidacies").insert({
+        business_name: formData.fullName,
+        siret: "00000000000000",
+        metier: formData.metier,
+        city: formData.codePostal,
+        phone: formData.phone,
+      });
       if (dbError) throw dbError;
-
       setSubmitted(true);
-      toast({ title: "Zone réservée !", description: "Jane vous rappelle sous 24h pour valider votre accès." });
+      toast({ title: "Zone réservée !", description: "Jane vous rappelle sous 24h." });
     } catch {
       toast({ title: "Erreur", description: "Une erreur est survenue.", variant: "destructive" });
     } finally {
@@ -187,265 +346,166 @@ const DevenirPartenaire = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-background">
-        <SEOHead title="Zone réservée" description="Votre demande d'accès au réseau a bien été reçue." />
-        <Navbar />
-        <main className="pt-32 lg:pt-20 pb-20">
-          <div className="container mx-auto px-4 max-w-md">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl p-8 shadow-floating text-center">
-              <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-8 h-8 text-success" />
+      <section id="formulaire" className="py-16 md:py-24 bg-muted/40">
+        <div className="container mx-auto px-4 max-w-md">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl p-8 shadow-floating text-center">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Phone className="w-8 h-8 text-primary" />
+            </div>
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4 mb-6">
+              <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
+                <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+                <p className="font-medium">Zone réservée !</p>
               </div>
-              <h1 className="text-2xl font-bold text-foreground mb-4">Zone réservée !</h1>
-              <p className="text-muted-foreground mb-6">
-                <strong className="text-foreground">Jane</strong> vous rappelle au <strong className="text-foreground">{formData.phone}</strong> sous 24h pour valider votre accès et confirmer la disponibilité de votre secteur à <strong className="text-foreground">{formData.city}</strong>.
-              </p>
-              <div className="bg-muted rounded-lg p-4 mb-6 text-left">
-                <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Pas de robot, pas de spam.</strong> C'est Jane qui étudie personnellement votre dossier et vérifie vos documents.
-                </p>
-              </div>
-              <Button variant="gold" onClick={() => window.location.href = "/"} className="w-full">
-                Retour à l'accueil
-              </Button>
-            </motion.div>
-          </div>
-        </main>
-        <Footer />
-      </div>
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Votre dossier est entre les mains de Jane</h2>
+            <p className="text-muted-foreground mb-6">
+              Pas de robot, pas de spam. <strong className="text-foreground">Jane</strong> étudie personnellement votre dossier et vous rappelle sous 24h.
+            </p>
+            <Button variant="gold" onClick={() => (window.location.href = "/")} className="w-full">
+              Retour à l'accueil
+            </Button>
+          </motion.div>
+        </div>
+      </section>
     );
   }
 
   return (
+    <section id="formulaire" className="py-16 md:py-24 bg-muted/40">
+      <div className="container mx-auto px-4 lg:px-8">
+        <div className="max-w-lg mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            {/* Scarcity alert */}
+            <div className="flex items-center gap-2 bg-destructive/10 border border-destructive/30 rounded-lg px-4 py-3 mb-6">
+              <AlertTriangle className="w-4 h-4 text-gold flex-shrink-0" />
+              <p className="text-sm text-foreground">
+                <strong className="text-gold">Alerte :</strong> Plus que{" "}
+                <strong>2 places disponibles</strong> pour les{" "}
+                <strong>{formData.metier || "artisans"}</strong> sur{" "}
+                <strong>{formData.codePostal || "votre zone"}</strong>.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.18)] border-2 border-navy/20">
+              <div className="text-center mb-6">
+                <h2 className="text-xl md:text-2xl font-black text-navy mb-2 uppercase tracking-wide">
+                  Vérifiez votre éligibilité
+                </h2>
+                <p className="text-sm text-muted-foreground">Gratuit · Sans engagement · Réponse sous 24h</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="fullName" className="text-navy text-sm">Nom / Prénom *</Label>
+                  <Input id="fullName" placeholder="Jean Dupont" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} className="mt-1" required />
+                </div>
+                <div>
+                  <Label htmlFor="metier" className="text-navy text-sm">Métier *</Label>
+                  <div className="relative mt-1">
+                    <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="metier" placeholder="Ex: Plombier, Électricien, PAC..." value={formData.metier} onChange={(e) => updateForm("metier", e.target.value)} className="pl-10" required />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="codePostal" className="text-navy text-sm">Code Postal *</Label>
+                  <div className="relative mt-1">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="codePostal" placeholder="59000" value={formData.codePostal} onChange={(e) => updateForm("codePostal", e.target.value.replace(/\D/g, "").slice(0, 5))} className="pl-10" required maxLength={5} />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="phone" className="text-navy text-sm">Téléphone *</Label>
+                  <div className="mt-1">
+                    <FrenchPhoneInput id="phone" value={formData.phone} onChange={(value) => updateForm("phone", value)} />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="gold"
+                  size="xl"
+                  className="w-full !text-base md:!text-lg !font-black uppercase tracking-wider !py-6"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Vérification...</>
+                  ) : (
+                    <><Shield className="w-5 h-5 mr-2" /> VÉRIFIER LA DISPONIBILITÉ DANS MA ZONE</>
+                  )}
+                </Button>
+
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  🔒 Validation finale par <strong className="text-navy">Jane</strong> après examen de votre dossier.
+                </p>
+              </form>
+            </div>
+
+            {/* Social proof line */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="text-center text-sm text-muted-foreground mt-6 flex items-center justify-center gap-2"
+            >
+              <Users className="w-4 h-4 text-gold" />
+              Rejoignez les <strong className="text-foreground">500+ partenaires</strong> qui ont choisi la qualité.
+            </motion.p>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// --- CTA Final ---
+const CTAFinal = ({ onCTA }: { onCTA: () => void }) => (
+  <section className="py-16 lg:py-20 bg-muted">
+    <div className="container mx-auto px-4 lg:px-8">
+      <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gold rounded-full blur-3xl" />
+        </div>
+        <div className="relative z-10">
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Votre ville est peut-être encore disponible.</h2>
+          <p className="text-white/60 mb-8 max-w-xl mx-auto">On ne prend pas tout le monde. On ne garde que les meilleurs. 2 licences max par secteur.</p>
+          <Button variant="gold" size="xl" onClick={onCTA}>
+            <Shield className="w-5 h-5 mr-2" /> RÉSERVER MON ACCÈS <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+// --- Main Page ---
+const DevenirPartenaire = () => {
+  const scrollToForm = () => {
+    document.getElementById("formulaire")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Devenir Artisan Partenaire - Rejoignez un réseau sélectif"
-        description="Rejoignez un réseau sélectif d'artisans. Nous valorisons la qualité, pas le volume. Un conseiller vous rappelle sous 24h."
+        title="Rejoindre le Réseau Artisans Validés — Exclusivité Territoriale"
+        description="Arrêtez de courir après des faux leads. Intégrez le réseau Artisans Validés : exclusivité territoriale, projets qualifiés, SEO local inclus."
         canonical="https://artisansvalides.fr/devenir-partenaire"
       />
       <Navbar />
 
-      <main className="pt-32 lg:pt-20">
-        {/* Hero */}
-        <section className="bg-navy py-16 lg:py-24 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-72 h-72 bg-gold rounded-full blur-3xl" />
-          </div>
-
-          <div className="container mx-auto px-4 lg:px-8 relative z-10">
-            {/* Dynamic Header */}
-            <DynamicHeader missionType={missionType} missionCity={missionCity} />
-
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-2xl mx-auto mb-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-6">
-                <Shield className="w-4 h-4 text-gold" />
-                <span className="text-sm font-medium text-gold">Réseau sélectif</span>
-              </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
-                Accédez à un flux de{" "}
-                <span className="text-gradient-gold">chantiers qualifiés</span>
-              </h1>
-              <p className="text-lg text-white/70">
-                Votre licence d'accès à des projets pré-qualifiés, à 10 minutes de votre dépôt. Zéro démarchage. Zéro commission.
-              </p>
-            </motion.div>
-
-            {/* Value Propositions */}
-            <ValuePropositions />
-
-            {/* Exclusivity Notice */}
-            <ExclusivityNotice />
-
-            {/* Steps */}
-            <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-              {steps.map((step, i) => (
-                <motion.div
-                  key={step.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * (i + 1) }}
-                  className="text-center"
-                >
-                  <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <step.icon className="w-6 h-6 text-gold" />
-                  </div>
-                  <div className="text-xs text-gold font-medium mb-1">Étape {i + 1}</div>
-                  <h3 className="text-white font-semibold mb-1">{step.title}</h3>
-                  <p className="text-white/50 text-sm">{step.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Form Section */}
-        <section className="py-16 lg:py-24 bg-muted/30">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="grid lg:grid-cols-5 gap-12 max-w-5xl mx-auto">
-              {/* Form */}
-              <div className="lg:col-span-3">
-                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                  <Card className="border-2 border-navy/20 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.15)]">
-                    <CardContent className="p-6 md:p-8">
-                      <h2 className="text-2xl font-bold text-navy mb-2">Réservez votre zone</h2>
-                      <p className="text-muted-foreground mb-6">Indiquez votre secteur d'intervention pour vérifier la disponibilité des places.</p>
-
-                      <form onSubmit={handleSubmit} className="space-y-5">
-                        <div>
-                          <Label htmlFor="businessName">Nom de l'entreprise *</Label>
-                          <div className="relative mt-1.5">
-                            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input id="businessName" placeholder="Ex: Dupont Plomberie" value={formData.businessName} onChange={e => updateForm("businessName", e.target.value)} className="pl-10" required />
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="siret">Numéro SIRET *</Label>
-                          <div className="relative mt-1.5">
-                            <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input id="siret" placeholder="14 chiffres" value={formData.siret} onChange={e => updateForm("siret", e.target.value.replace(/\D/g, "").slice(0, 14))} className="pl-10" required maxLength={14} />
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="metier">Métier principal *</Label>
-                          <div className="relative mt-1.5">
-                            <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input id="metier" placeholder="Ex: Plombier, Électricien, Maçon..." value={formData.metier} onChange={e => updateForm("metier", e.target.value)} className="pl-10" required />
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="city">Ville d'intervention *</Label>
-                          <div className="relative mt-1.5">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input id="city" placeholder="Ex: Lille, Lyon, Paris..." value={formData.city} onChange={e => updateForm("city", e.target.value)} className="pl-10" required />
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="phone">Téléphone *</Label>
-                          <div className="mt-1.5">
-                            <FrenchPhoneInput id="phone" value={formData.phone} onChange={value => updateForm("phone", value)} />
-                          </div>
-                        </div>
-
-                        {/* Insurance upload */}
-                        <div>
-                          <Label>Attestation d'assurance (optionnel)</Label>
-                          <div className="mt-1.5">
-                            <label
-                              htmlFor="insurance-upload"
-                              className="flex items-center gap-3 border-2 border-dashed border-border rounded-lg p-4 cursor-pointer hover:border-gold/50 hover:bg-gold/5 transition-colors"
-                            >
-                              <Upload className="w-5 h-5 text-muted-foreground" />
-                              <div className="flex-1 min-w-0">
-                                {insuranceFile ? (
-                                  <p className="text-sm font-medium text-foreground truncate">{insuranceFile.name}</p>
-                                ) : (
-                                  <>
-                                    <p className="text-sm font-medium text-muted-foreground">Cliquez pour uploader</p>
-                                    <p className="text-xs text-muted-foreground">PDF, JPG ou PNG (max 10 Mo)</p>
-                                  </>
-                                )}
-                              </div>
-                              {insuranceFile && <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0" />}
-                            </label>
-                            <input id="insurance-upload" type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleFileChange} />
-                          </div>
-                        </div>
-
-                        <Button type="submit" variant="gold" size="lg" className="w-full !text-base !font-bold !py-6" disabled={isLoading}>
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                              Envoi en cours...
-                            </>
-                          ) : (
-                            <>
-                              <Lock className="w-5 h-5 mr-2" />
-                              RÉSERVER MON ACCÈS
-                            </>
-                          )}
-                        </Button>
-                      </form>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </div>
-
-              {/* Sidebar */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Engagement */}
-                <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-                  <Card className="bg-navy text-white border-0">
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-                          <Star className="w-5 h-5 text-gold" />
-                        </div>
-                        <h3 className="font-bold text-lg">Notre engagement</h3>
-                      </div>
-                      <p className="text-white/80 leading-relaxed">
-                        Rejoignez un réseau sélectif. Ici, nous valorisons la <strong className="text-gold">qualité, pas le volume</strong>. Un conseiller vous rappelle sous 24h pour étudier personnellement votre candidature.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Contact direct */}
-                <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
-                  <Card className="border-gold/30 bg-gold/5">
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-                          <Phone className="w-5 h-5 text-gold" />
-                        </div>
-                        <h3 className="font-bold text-lg text-foreground">Besoin d'en parler ?</h3>
-                      </div>
-                      <p className="text-muted-foreground mb-4">
-                        Appelez-nous directement, un expert du bâtiment vous répond.
-                      </p>
-                      <a href="tel:+33612345678" className="inline-flex items-center gap-2 text-lg font-bold text-gold hover:text-gold-dark transition-colors">
-                        <Phone className="w-5 h-5" />
-                        06 12 34 56 78
-                      </a>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Stats */}
-                <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <Users className="w-5 h-5 text-gold" />
-                        <h3 className="font-bold text-foreground">Le réseau en chiffres</h3>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {[
-                          { val: "50+", label: "Artisans partenaires" },
-                          { val: "0%", label: "Commission" },
-                          { val: "2 max", label: "Par ville & métier" },
-                          { val: "24h", label: "Délai de rappel" },
-                        ].map(s => (
-                          <div key={s.label} className="text-center p-3 bg-muted/50 rounded-lg">
-                            <div className="text-xl font-bold text-gold">{s.val}</div>
-                            <div className="text-xs text-muted-foreground">{s.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </section>
+      <main className="pt-20 lg:pt-20">
+        <ScarcityBanner />
+        <HeroSection onCTA={scrollToForm} />
+        <ComparisonSection />
+        <MethodeJane />
+        <SocialProofSection />
+        <FormSection />
+        <CTAFinal onCTA={scrollToForm} />
       </main>
 
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 };
