@@ -206,6 +206,7 @@ L'équipe Artisans Validés`;
 
   const downloadOfferPDF = (artisan: CommandantArtisan) => {
     const url = getProfileUrl(artisan);
+    const year = new Date().getFullYear();
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Opportunité exclusive</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -214,67 +215,67 @@ L'équipe Artisans Validés`;
 body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .page{max-width:794px;margin:0 auto;background:#FFFFFF;min-height:100vh;overflow:hidden}
 
-/* ── Navbar (clone site) ── */
-.navbar{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:#FFFFFF;border-bottom:1px solid #E5E7EB}
+/* ── Navbar ── */
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:#FFFFFF;border-bottom:1px solid #E5E7EB}
 .nav-brand{display:flex;align-items:center;gap:8px}
-.nav-logo{width:32px;height:32px;background:#0A192F;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#FFD700;letter-spacing:1px}
+.nav-logo{width:34px;height:34px;background:#0A192F;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#FFB800;letter-spacing:1px}
 .nav-brand-text{display:flex;flex-direction:column}
-.nav-brand-text span:first-child{font-size:13px;font-weight:800;color:#0A192F;letter-spacing:1px;line-height:1}
-.nav-brand-text span:last-child{font-size:8px;font-weight:700;color:#FFD700;letter-spacing:2px;margin-top:1px}
-.nav-links{display:flex;align-items:center;gap:24px}
-.nav-link{font-size:11px;font-weight:600;color:#6B7280;text-decoration:none;letter-spacing:0.5px}
-.nav-cta{font-size:10px;font-weight:700;color:#0A192F;background:linear-gradient(135deg,#FFD700,#FFC107);padding:8px 18px;border-radius:6px;text-decoration:none;letter-spacing:0.5px}
+.nav-brand-text span:first-child{font-size:14px;font-weight:800;color:#0A192F;letter-spacing:1.5px;line-height:1}
+.nav-brand-text span:last-child{font-size:8px;font-weight:700;color:#FFB800;letter-spacing:2px;margin-top:1px}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-btn{font-size:11px;font-weight:600;color:#0A192F;text-decoration:none;padding:7px 16px;border-radius:6px;border:1.5px solid #E5E7EB;letter-spacing:0.3px}
+.nav-btn-pro{background:#0A192F;color:#FFFFFF;border-color:#0A192F}
+.nav-cta{font-size:11px;font-weight:700;color:#0A192F;background:#FFB800;padding:8px 20px;border-radius:8px;text-decoration:none;letter-spacing:0.5px}
 
-/* ── Badge "Publiée récemment" ── */
-.published-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin:28px auto 0;width:fit-content;padding:6px 16px;border-radius:20px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3)}
-.published-badge span{font-size:10px;font-weight:600;color:#D4A017;letter-spacing:0.5px}
+/* ── Badge ── */
+.published-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin:32px auto 0;width:fit-content;padding:7px 18px;border-radius:20px;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.25)}
+.published-badge span{font-size:11px;font-weight:600;color:#C49000;letter-spacing:0.3px}
 
 /* ── Hero Title ── */
-.hero-title{text-align:center;margin:20px 40px 0}
-.hero-title h1{font-size:24px;font-weight:800;color:#0A192F;line-height:1.3;letter-spacing:0.5px}
-.hero-meta{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:10px}
-.hero-meta span{display:flex;align-items:center;gap:4px;font-size:11px;color:#9CA3AF;font-weight:500}
+.hero-title{text-align:center;margin:22px 40px 0}
+.hero-title h1{font-size:26px;font-weight:800;color:#0A192F;line-height:1.3;letter-spacing:0.3px}
+.hero-meta{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:12px}
+.hero-meta span{display:flex;align-items:center;gap:5px;font-size:12px;color:#9CA3AF;font-weight:500}
 
-/* ── Blurred preview (fake details) ── */
-.blur-block{margin:24px 40px 0;border:1px solid #E5E7EB;border-radius:12px;background:#FFFFFF;padding:24px;position:relative;overflow:hidden}
+/* ── Blurred preview ── */
+.blur-block{margin:28px 40px 0;border:1px solid #E5E7EB;border-radius:12px;background:#FFFFFF;padding:24px;position:relative;overflow:hidden}
 .blur-lines{filter:blur(6px);user-select:none}
 .blur-line{height:12px;background:#E5E7EB;border-radius:4px;margin-bottom:10px}
-.blur-line:nth-child(1){width:75%}
-.blur-line:nth-child(2){width:100%}
-.blur-line:nth-child(3){width:85%}
-.blur-line:nth-child(4){width:65%}
-.blur-line:nth-child(5){width:50%;margin-top:18px}
-.blur-line:nth-child(6){width:80%}
+.blur-line:nth-child(1){width:75%}.blur-line:nth-child(2){width:100%}.blur-line:nth-child(3){width:85%}
+.blur-line:nth-child(4){width:65%}.blur-line:nth-child(5){width:50%;margin-top:16px}.blur-line:nth-child(6){width:80%}
 .blur-fade{position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(to bottom,transparent,#FFFFFF)}
 
-/* ── AV Certified Card ── */
-.av-card{margin:28px 40px 0;background:#0A192F;border-radius:16px;padding:36px 32px;text-align:center}
-.av-shield{width:56px;height:56px;background:rgba(255,215,0,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:26px}
-.av-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);font-size:9px;font-weight:800;color:#FFD700;letter-spacing:2px;margin-bottom:16px}
-.av-card p{color:#FFFFFF;font-size:13px;line-height:1.7;font-weight:400;max-width:380px;margin:0 auto}
-.av-card p strong{color:#FFD700;font-weight:700}
+/* ── AV Card ── */
+.av-card{margin:28px 40px 0;background:#0A192F;border-radius:16px;padding:40px 32px;text-align:center}
+.av-shield{width:60px;height:60px;background:rgba(255,184,0,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
+.av-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3);font-size:9px;font-weight:800;color:#FFB800;letter-spacing:2px;margin-bottom:18px}
+.av-card p{color:#FFFFFF;font-size:14px;line-height:1.7;font-weight:400;max-width:400px;margin:0 auto}
+.av-card p strong{color:#FFB800;font-weight:700}
 
 /* ── CTA Buttons ── */
-.cta-section{margin:24px 40px 0;display:flex;flex-direction:column;gap:10px}
-.btn{display:block;padding:16px 20px;text-align:center;text-decoration:none;font-weight:800;letter-spacing:1px;font-size:13px;font-family:'Inter',sans-serif;border-radius:10px}
-.btn-primary{background:linear-gradient(135deg,#FFD700 0%,#FFC107 100%);color:#0A192F;box-shadow:0 4px 14px rgba(255,215,0,0.3)}
-.btn-secondary{background:#FFFFFF;color:#0A192F;border:1.5px solid #E5E7EB}
+.cta-section{margin:28px 40px 0;display:flex;flex-direction:column;gap:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 20px;text-decoration:none;font-weight:800;letter-spacing:0.8px;font-size:14px;font-family:'Inter',sans-serif;border-radius:10px}
+.btn-primary{background:#FFB800;color:#0A192F;box-shadow:0 4px 14px rgba(255,184,0,0.3)}
+.btn-secondary{background:#FFFFFF;color:#0A192F;border:1.5px solid #0A192F}
 
-/* ── Access limit notice ── */
-.access-limit{text-align:center;margin:18px 40px 0;font-size:10px;color:#9CA3AF;font-weight:500}
+/* ── Access limit ── */
+.access-limit{text-align:center;margin:20px 40px 0;font-size:11px;color:#9CA3AF;font-weight:500}
 
-/* ── Site Footer ── */
-.site-footer{margin-top:32px;background:#0A192F;padding:32px 40px 20px}
-.footer-top{display:flex;gap:32px;margin-bottom:20px}
+/* ── Footer ── */
+.site-footer{margin-top:36px;background:#0A192F;padding:36px 40px 20px}
+.footer-top{display:flex;gap:28px;margin-bottom:24px}
 .footer-col{flex:1}
-.footer-col-title{font-size:10px;font-weight:700;color:#FFFFFF;letter-spacing:1px;margin-bottom:10px}
-.footer-col a,.footer-col span{display:block;font-size:8.5px;color:rgba(255,255,255,0.5);text-decoration:none;margin-bottom:5px;font-weight:400}
-.footer-brand{display:flex;align-items:center;gap:6px;margin-bottom:12px}
-.footer-brand-logo{width:28px;height:28px;background:rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#FFD700}
-.footer-brand-text span:first-child{font-size:11px;font-weight:800;color:#FFFFFF;display:block;line-height:1}
-.footer-brand-text span:last-child{font-size:7px;font-weight:700;color:#FFD700;display:block}
-.footer-brand-desc{font-size:8px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:200px}
-.footer-bottom{border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;text-align:center;font-size:7px;color:rgba(255,255,255,0.3)}
+.footer-col-brand{flex:1.4}
+.footer-col-title{font-size:10px;font-weight:700;color:#FFFFFF;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase}
+.footer-col a,.footer-col span{display:block;font-size:9px;color:rgba(255,255,255,0.5);text-decoration:none;margin-bottom:5px;font-weight:400}
+.footer-brand{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.footer-brand-logo{width:30px;height:30px;background:rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#FFB800}
+.footer-brand-text span:first-child{font-size:12px;font-weight:800;color:#FFFFFF;display:block;line-height:1}
+.footer-brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;margin-top:1px}
+.footer-brand-desc{font-size:8.5px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:200px}
+.footer-contact{margin-top:10px}
+.footer-contact span{display:block;font-size:8px;color:rgba(255,255,255,0.45);margin-bottom:4px}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;text-align:center;font-size:7.5px;color:rgba(255,255,255,0.3)}
 </style></head><body>
 <div class="page">
 
@@ -284,15 +285,14 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
     <div class="nav-logo">AV</div>
     <div class="nav-brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
   </div>
-  <div class="nav-links">
-    <a class="nav-link" href="#">Accueil</a>
-    <a class="nav-link" href="#">Particuliers</a>
-    <a class="nav-link" href="#">Espace Artisans</a>
+  <div class="nav-right">
+    <a class="nav-btn nav-btn-pro" href="#">Espace Pro</a>
+    <a class="nav-btn" href="#">Mon Espace</a>
     <a class="nav-cta" href="${url}">Lancer mon projet</a>
   </div>
 </div>
 
-<!-- Badge publiée récemment -->
+<!-- Badge -->
 <div class="published-badge">
   <span>🕐 Publiée récemment</span>
 </div>
@@ -309,12 +309,8 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
 <!-- Blurred details -->
 <div class="blur-block">
   <div class="blur-lines">
-    <div class="blur-line"></div>
-    <div class="blur-line"></div>
-    <div class="blur-line"></div>
-    <div class="blur-line"></div>
-    <div class="blur-line"></div>
-    <div class="blur-line"></div>
+    <div class="blur-line"></div><div class="blur-line"></div><div class="blur-line"></div>
+    <div class="blur-line"></div><div class="blur-line"></div><div class="blur-line"></div>
   </div>
   <div class="blur-fade"></div>
 </div>
@@ -335,30 +331,35 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
 <!-- Access limit -->
 <div class="access-limit">⚠️ Accès limité à 2 artisans par métier et par ville</div>
 
-<!-- Site Footer -->
+<!-- Footer -->
 <div class="site-footer">
   <div class="footer-top">
-    <div class="footer-col">
+    <div class="footer-col footer-col-brand">
       <div class="footer-brand">
         <div class="footer-brand-logo">AV</div>
         <div class="footer-brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
       </div>
       <div class="footer-brand-desc">La plateforme de confiance qui vous connecte avec des artisans vérifiés et qualifiés dans toute la France.</div>
+      <div class="footer-contact">
+        <span>📞 03 53 63 29 99</span>
+        <span>📧 contact@artisansvalides.fr</span>
+        <span>📍 77 rue de la Monnaie, 59800 Lille</span>
+      </div>
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Nos métiers</div>
-      <a href="#">Plombier</a><a href="#">Électricien</a><a href="#">Chauffagiste</a><a href="#">Peintre</a><a href="#">Serrurier</a>
+      <a>Plombier</a><a>Électricien</a><a>Chauffagiste</a><a>Peintre</a><a>Serrurier</a><a>Maçon</a>
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Entreprise</div>
-      <a href="#">À propos</a><a href="#">Comment ça marche</a><a href="#">Devenir partenaire</a><a href="#">Blog</a><a href="#">Contact</a>
+      <a>À propos</a><a>Comment ça marche</a><a>Devenir partenaire</a><a>Blog</a><a>Contact</a>
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Nos régions</div>
-      <a href="#">Île-de-France</a><a href="#">Hauts-de-France</a><a href="#">PACA</a><a href="#">Auvergne-Rhône-Alpes</a><a href="#">Occitanie</a>
+      <a>Île-de-France</a><a>Hauts-de-France</a><a>PACA</a><a>Auvergne-Rhône-Alpes</a><a>Occitanie</a><a>Nouvelle-Aquitaine</a>
     </div>
   </div>
-  <div class="footer-bottom">© ${new Date().getFullYear()} Artisans Validés. Tous droits réservés. — www.artisansvalides.fr</div>
+  <div class="footer-bottom">© ${year} Artisans Validés. Tous droits réservés. — www.artisansvalides.fr</div>
 </div>
 
 </div>
@@ -366,7 +367,7 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
     const blob = new Blob([html], { type: "text/html" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `Attestation-${artisan.business_name.replace(/\s+/g, "-")}.html`;
+    a.download = `Attestation-${artisan.business_name.replace(/\\s+/g, "-")}.html`;
     a.click();
     URL.revokeObjectURL(a.href);
     toast.success("📄 Attestation téléchargée ! Ouvrez-la et imprimez en PDF.");
