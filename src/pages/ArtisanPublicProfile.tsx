@@ -310,7 +310,7 @@ const ArtisanPublicProfile = () => {
         <div className="fixed top-0 left-0 right-0 z-[60] bg-orange-500 text-white">
           <div className="container mx-auto px-4 py-3 text-center">
             <p className="text-sm md:text-base font-bold tracking-wide">
-              ⚠️ RÉSERVATION PRIORITAIRE — CETTE PLACE EXPIRE LE {getTomorrowDeadline().toUpperCase()} À 18H00
+              ⚠️ RÉSERVATION PRIORITAIRE — CETTE PLACE EXPIRE DEMAIN À 18H00
             </p>
           </div>
         </div>

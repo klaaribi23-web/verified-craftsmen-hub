@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  Rocket, Package, Clock, UserCheck, Archive,
+  Rocket, Package, Clock, UserCheck,
   MapPin, Search, Copy, Link2, ExternalLink,
   Send, Eye, Loader2, ChevronLeft, ChevronRight,
   MessageCircle,
@@ -40,21 +40,19 @@ interface CommandantArtisan {
   category: { name: string } | null;
 }
 
-type TabKey = "stock" | "en-cours" | "clients" | "archives";
+type TabKey = "stock" | "en-cours" | "clients";
 type ArtisanStatus = "active" | "disponible" | "pending" | "prospect" | "suspended";
 
 const statusForTab: Record<TabKey, ArtisanStatus[]> = {
   "stock": ["disponible"],
   "en-cours": ["pending", "suspended"],
   "clients": ["active"],
-  "archives": ["prospect"],
 };
 
 const tabConfig: { key: TabKey; label: string; icon: typeof Package; color: string }[] = [
   { key: "stock", label: "STOCK", icon: Package, color: "data-[state=active]:bg-gray-700 data-[state=active]:text-white" },
   { key: "en-cours", label: "EN COURS", icon: Clock, color: "data-[state=active]:bg-orange-500 data-[state=active]:text-white" },
   { key: "clients", label: "CLIENTS", icon: UserCheck, color: "data-[state=active]:bg-emerald-600 data-[state=active]:text-white" },
-  { key: "archives", label: "ARCHIVES", icon: Archive, color: "data-[state=active]:bg-muted data-[state=active]:text-muted-foreground" },
 ];
 
 const AdminCommandant = () => {
@@ -407,9 +405,17 @@ const ArtisanRow = ({
                 </Button>
               )}
 
-              {/* EN COURS tab: Move to CLIENTS or back to STOCK */}
+              {/* EN COURS tab: Copy magic link + Move to CLIENTS or back to STOCK */}
               {tabKey === "en-cours" && (
                 <>
+                  <Button
+                    size="sm"
+                    className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 gap-1 font-bold"
+                    onClick={onCopyLink}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    COPIER LE LIEN MAGIQUE
+                  </Button>
                   <Button
                     size="sm"
                     className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 gap-1"
@@ -430,29 +436,17 @@ const ArtisanRow = ({
                 </>
               )}
 
-              {/* CLIENTS tab: Move to ARCHIVES */}
+
+              {/* CLIENTS tab: actions */}
               {tabKey === "clients" && (
                 <Button
                   size="sm"
                   variant="outline"
                   className="text-xs h-8 gap-1"
-                  onClick={() => onChangeStatus("prospect")}
+                  onClick={onCopyLink}
                 >
-                  <Archive className="h-3.5 w-3.5" />
-                  Archiver
-                </Button>
-              )}
-
-              {/* ARCHIVES tab: Reactivate */}
-              {tabKey === "archives" && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-xs h-8 gap-1"
-                  onClick={() => onChangeStatus("disponible")}
-                >
-                  <Package className="h-3.5 w-3.5" />
-                  → Stock
+                  <Link2 className="h-3.5 w-3.5" />
+                  Lien Magique
                 </Button>
               )}
 
