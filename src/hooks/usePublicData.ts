@@ -181,7 +181,7 @@ export const useDemoMissions = (userId?: string, userRole?: string) => {
   });
 };
 
-// Fetch all public artisans (active + prospect) - uses secure public_artisans view
+// Fetch all public artisans (active only) - uses secure public_artisans view
 export const usePublicArtisans = () => {
   return useQuery({
     queryKey: ["public-artisans"],
@@ -253,11 +253,12 @@ export const useFeaturedArtisans = () => {
 export { useCategories as usePublicCategories, useCategoriesWithCount } from "./useCategories";
 
 // Fetch single artisan by slug or ID - uses secure public_artisans view
+// Shows active artisans publicly (no user_id requirement)
 export const useArtisanBySlug = (slugOrId: string) => {
   return useQuery({
     queryKey: ["artisan", slugOrId],
     queryFn: async () => {
-      // Try by slug first
+      // Try by slug first - only active artisans for public view
       let { data, error } = await supabase
         .from("public_artisans")
         .select(
@@ -267,6 +268,7 @@ export const useArtisanBySlug = (slugOrId: string) => {
         `,
         )
         .eq("slug", slugOrId)
+        .eq("status", "active")
         .maybeSingle();
 
       // If not found by slug, try by ID (for backwards compatibility)
@@ -280,6 +282,7 @@ export const useArtisanBySlug = (slugOrId: string) => {
           `,
           )
           .eq("id", slugOrId)
+          .eq("status", "active")
           .maybeSingle();
         data = result.data;
         error = result.error;
@@ -310,13 +313,13 @@ export const useArtisanBySlug = (slugOrId: string) => {
 // Alias for backwards compatibility
 export const useArtisanById = useArtisanBySlug;
 
-// Fetch artisan by slug/ID for PREVIEW mode (includes pending/imported artisans)
-// Uses public_artisans view which now includes pending status
+// Fetch artisan by slug/ID for PREVIEW mode (includes pending/prospect/active artisans)
+// No status filter - allows admin to preview any artisan
 export const useArtisanPreview = (slugOrId: string, enabled: boolean = false) => {
   return useQuery({
     queryKey: ["artisan-preview", slugOrId],
     queryFn: async () => {
-      // Try by slug first
+      // Try by slug first - no status filter for preview
       let { data, error } = await supabase
         .from("public_artisans")
         .select(`*, category:categories(id, name, icon)`)
