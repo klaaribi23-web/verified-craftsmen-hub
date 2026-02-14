@@ -195,7 +195,7 @@ export const usePublicArtisans = () => {
           category:categories(id, name)
         `,
         )
-        .eq("status", "active")
+        .in("status", ["active", "pending", "disponible", "suspended"])
         .order("display_priority", { ascending: true, nullsFirst: false })
         .order("rating", { ascending: false });
 
@@ -219,6 +219,14 @@ export const usePublicArtisans = () => {
               .map((ac) => ac.category)
               .filter(Boolean) || [],
         })) || [];
+
+      // Sort by status priority: active first, then pending/suspended, then disponible
+      const statusPriority: Record<string, number> = { active: 0, pending: 1, suspended: 1, disponible: 2 };
+      artisansWithCategories.sort((a, b) => {
+        const pa = statusPriority[a.status || ""] ?? 3;
+        const pb = statusPriority[b.status || ""] ?? 3;
+        return pa - pb;
+      });
 
       return artisansWithCategories as (ArtisanPublic & { categories: { id: string; name: string }[] })[];
     },
