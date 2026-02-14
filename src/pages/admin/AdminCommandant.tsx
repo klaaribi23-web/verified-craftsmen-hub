@@ -211,145 +211,139 @@ L'équipe Artisans Validés`;
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:'Inter',system-ui,sans-serif;color:#E2E8F0;background:#0A192F;-webkit-print-color-adjust:exact;print-color-adjust:exact;min-height:100vh;position:relative;overflow-x:hidden}
 
-/* ── HEADER SÉCURITÉ RÉSEAU ── */
-.header{background:#0A192F;padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
-.nav-brand{display:flex;align-items:center;gap:10px}
-.nav-logo{width:38px;height:38px;background:rgba(255,184,0,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#FFB800;letter-spacing:1px}
-.nav-brand-text span:first-child{font-size:15px;font-weight:900;color:#FFFFFF;display:block;letter-spacing:2px;line-height:1}
-.nav-brand-text span:last-child{font-size:8px;font-weight:700;color:#FFB800;display:block;letter-spacing:2.5px;margin-top:2px}
-.countdown-box{display:flex;align-items:center;gap:8px;padding:8px 18px;border-radius:8px;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3)}
-.countdown-label{font-size:9px;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:1px;text-transform:uppercase}
-.countdown-value{font-size:18px;font-weight:900;color:#FFB800;letter-spacing:2px;font-variant-numeric:tabular-nums}
+/* ── BACKGROUND PATTERN (lignes de force diagonales) ── */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+background:repeating-linear-gradient(135deg,transparent,transparent 80px,rgba(255,184,0,0.03) 80px,rgba(255,184,0,0.03) 81px),
+repeating-linear-gradient(45deg,transparent,transparent 120px,rgba(255,184,0,0.02) 120px,rgba(255,184,0,0.02) 121px);
+}
+body>*{position:relative;z-index:1}
 
-/* ── HERO ULTIMATUM ── */
-.hero{background:#0A192F;padding:56px 40px 64px;text-align:center;border-top:1px solid rgba(255,255,255,0.05)}
-.hero h1{font-size:30px;font-weight:900;color:#FFB800;line-height:1.25;letter-spacing:0.5px;margin-bottom:18px;max-width:700px;margin-left:auto;margin-right:auto}
-.hero .sub{font-size:14px;color:rgba(255,255,255,0.55);font-weight:500}
+/* ── HEADER AUTORITÉ ── */
+.header{background:rgba(10,25,47,0.95);backdrop-filter:blur(12px);padding:18px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,184,0,0.12)}
+.nav-brand{display:flex;align-items:center;gap:12px}
+.nav-logo{width:42px;height:42px;background:linear-gradient(135deg,#FFB800,#E5A600);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#0A192F;letter-spacing:1px;box-shadow:0 0 20px rgba(255,184,0,0.3)}
+.nav-brand-text span:first-child{font-size:16px;font-weight:900;color:#FFFFFF;display:block;letter-spacing:3px;line-height:1}
+.nav-brand-text span:last-child{font-size:8px;font-weight:700;color:#FFB800;display:block;letter-spacing:3px;margin-top:3px}
+.badge-lock{padding:10px 22px;background:#FFB800;color:#0A192F;font-size:11px;font-weight:900;letter-spacing:1.5px;border-radius:6px;text-transform:uppercase}
+
+/* ── ACCROCHE CHOC ── */
+.hero{padding:72px 40px 40px;text-align:center}
+.hero h1{font-size:34px;font-weight:900;color:#FFB800;line-height:1.2;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;max-width:750px;margin-left:auto;margin-right:auto;text-shadow:0 0 40px rgba(255,184,0,0.15)}
+.hero .sub{font-size:14px;color:rgba(255,255,255,0.45);font-weight:500;letter-spacing:0.5px}
 .hero .sub strong{color:#FFFFFF;font-weight:700}
 
-/* ── 3 ACTIFS STRATÉGIQUES ── */
-.actifs{background:#F8F9FA;padding:56px 40px}
-.section-label{text-align:center;font-size:12px;font-weight:800;color:#0A192F;letter-spacing:2px;text-transform:uppercase;margin-bottom:36px}
-.actifs-grid{display:flex;gap:22px}
-.actif-card{flex:1;background:#FFFFFF;border-radius:16px;padding:32px 24px;box-shadow:0 6px 30px rgba(10,25,47,0.08);border:1px solid #F0F1F3;text-align:center;position:relative;overflow:hidden}
-.actif-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:#FFB800}
-.actif-icon{width:54px;height:54px;background:rgba(255,184,0,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:24px}
-.actif-card h3{font-size:13px;font-weight:800;color:#0A192F;letter-spacing:0.8px;margin-bottom:12px;text-transform:uppercase}
-.actif-card p{font-size:11.5px;color:#6B7280;line-height:1.75;font-weight:400}
+/* ── CARD ARTISAN (LE CŒUR) ── */
+.artisan-card-wrap{padding:0 40px;margin-top:10px;margin-bottom:48px;display:flex;justify-content:center}
+.artisan-card{background:linear-gradient(145deg,#FFFFFF 0%,#F1F5F9 100%);border-radius:20px;padding:36px 44px;display:flex;align-items:center;gap:28px;box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 0 1px rgba(255,184,0,0.1);max-width:560px;width:100%}
+.artisan-avatar{width:72px;height:72px;border-radius:16px;background:#E2E8F0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#0A192F;flex-shrink:0;border:3px solid #FFB800;box-shadow:0 0 16px rgba(255,184,0,0.25)}
+.artisan-info h2{font-size:20px;font-weight:800;color:#0A192F;margin-bottom:6px;letter-spacing:0.3px}
+.artisan-info .city{font-size:12px;color:#64748B;font-weight:500;margin-bottom:10px}
+.badge-certified{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:linear-gradient(135deg,rgba(255,184,0,0.15),rgba(255,184,0,0.08));border:1.5px solid rgba(255,184,0,0.4);border-radius:8px;font-size:11px;font-weight:800;color:#B8860B;letter-spacing:0.8px}
 
-/* ── FAQ DÉCISIVE (2 COLONNES) ── */
-.faq{padding:56px 40px;background:#FFFFFF}
-.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.faq-item{padding:22px 24px;background:#FAFBFC;border-radius:12px;border-left:4px solid #FFB800}
-.faq-q{font-size:13px;font-weight:700;color:#0A192F;margin-bottom:10px}
-.faq-a{font-size:11px;color:#6B7280;line-height:1.85;font-weight:400}
+/* ── 3 COLONNES ARGUMENTS ── */
+.actifs{padding:0 40px 56px}
+.actifs-grid{display:flex;gap:20px}
+.actif-card{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,184,0,0.1);border-radius:16px;padding:32px 24px;text-align:center;transition:all 0.3s}
+.actif-card:hover{background:rgba(255,184,0,0.05);border-color:rgba(255,184,0,0.25)}
+.actif-icon{width:56px;height:56px;background:rgba(255,184,0,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:26px;box-shadow:0 0 20px rgba(255,184,0,0.08)}
+.actif-card h3{font-size:13px;font-weight:800;color:#FFB800;letter-spacing:1.5px;margin-bottom:12px;text-transform:uppercase}
+.actif-card p{font-size:11.5px;color:rgba(255,255,255,0.5);line-height:1.8}
 
-/* ── URGENCE & CTA ── */
-.closing{padding:48px 40px 56px;background:#FFFFFF}
-.alert-banner{background:linear-gradient(135deg,#EA580C,#DC2626);border-radius:14px;padding:20px 28px;text-align:center;color:#FFFFFF;font-size:15px;font-weight:800;letter-spacing:0.5px;margin-bottom:32px;box-shadow:0 4px 20px rgba(220,38,38,0.25)}
-.cta-stack{display:flex;flex-direction:column;gap:14px;max-width:520px;margin:0 auto}
-.btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:22px 28px;text-decoration:none;font-weight:800;letter-spacing:1px;font-size:16px;font-family:'Inter',sans-serif;border-radius:14px;transition:transform 0.2s}
-.btn-gold{background:#FFB800;color:#0A192F;box-shadow:0 8px 24px rgba(255,184,0,0.35);font-size:17px}
-.btn-outline{background:#FFFFFF;color:#0A192F;border:2.5px solid #0A192F}
-.guarantee{text-align:center;margin-top:20px;font-size:10px;color:#9CA3AF;font-weight:500;letter-spacing:0.3px}
+/* ── BOUTON SÉCURISATION CENTRAL ── */
+.cta-section{padding:20px 40px 64px;text-align:center}
+.btn-secure{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:24px 48px;background:#FFB800;color:#0A192F;font-size:18px;font-weight:900;letter-spacing:1px;border-radius:14px;text-decoration:none;border:none;cursor:pointer;box-shadow:0 8px 32px rgba(255,184,0,0.35),0 0 0 1px rgba(255,184,0,0.5);position:relative;overflow:hidden;font-family:'Inter',sans-serif}
+.btn-secure::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,0.08) 30%,rgba(255,255,255,0.25) 50%,rgba(255,255,255,0.08) 70%,transparent 100%);animation:btn-shimmer 3s ease-in-out infinite}
+@keyframes btn-shimmer{0%{left:-100%}60%{left:150%}100%{left:150%}}
+.btn-sub{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;padding:16px 36px;background:transparent;color:#FFB800;font-size:14px;font-weight:700;letter-spacing:0.5px;border-radius:12px;text-decoration:none;border:2px solid rgba(255,184,0,0.4);font-family:'Inter',sans-serif}
+.guarantee-line{margin-top:22px;font-size:10px;color:rgba(255,255,255,0.3);font-weight:500;letter-spacing:0.5px}
 
-/* ── FOOTER D'AUTORITÉ ── */
-.footer{background:#0A192F;padding:44px 40px 24px}
-.footer-grid{display:flex;gap:28px;margin-bottom:32px}
+/* ── ALERTE FOMO ── */
+.fomo{padding:0 40px;margin-bottom:40px}
+.fomo-banner{background:linear-gradient(135deg,#EA580C,#DC2626);border-radius:14px;padding:22px 32px;text-align:center;color:#FFFFFF;font-size:15px;font-weight:800;letter-spacing:0.5px;box-shadow:0 4px 24px rgba(220,38,38,0.3)}
+
+/* ── FOOTER INSTITUTIONNEL ── */
+.footer{background:rgba(10,25,47,0.6);backdrop-filter:blur(8px);border-top:1px solid rgba(255,184,0,0.08);padding:48px 40px 24px}
+.footer-grid{display:flex;gap:28px;margin-bottom:36px}
 .footer-col{flex:1}
-.footer-col-brand{flex:1.5}
-.footer-col-title{font-size:10px;font-weight:700;color:#FFFFFF;letter-spacing:1.5px;margin-bottom:14px;text-transform:uppercase}
-.footer-col a,.footer-col span{display:block;font-size:9px;color:rgba(255,255,255,0.45);text-decoration:none;margin-bottom:6px;font-weight:400}
-.footer-brand{display:flex;align-items:center;gap:8px;margin-bottom:16px}
-.footer-brand-logo{width:32px;height:32px;background:rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#FFB800}
-.footer-brand-text span:first-child{font-size:13px;font-weight:800;color:#FFFFFF;display:block;line-height:1}
-.footer-brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;margin-top:1px;letter-spacing:1.5px}
-.footer-desc{font-size:9px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:220px}
-.footer-slogan{margin-top:16px;font-size:9px;font-weight:800;color:#FFB800;letter-spacing:2.5px;text-transform:uppercase}
-.footer-contact{margin-top:14px}
-.footer-contact span{display:block;font-size:8px;color:rgba(255,255,255,0.45);margin-bottom:5px}
-.footer-guarantee{margin-top:16px;padding:10px 16px;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);border-radius:8px;font-size:9px;font-weight:600;color:#FFB800;text-align:center}
-.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);padding-top:18px;text-align:center;font-size:7.5px;color:rgba(255,255,255,0.25)}
+.footer-col-brand{flex:1.6}
+.footer-col-title{font-size:10px;font-weight:700;color:#FFB800;letter-spacing:2px;margin-bottom:16px;text-transform:uppercase}
+.footer-col a,.footer-col span{display:block;font-size:9px;color:rgba(255,255,255,0.35);text-decoration:none;margin-bottom:7px}
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.footer-brand-logo{width:34px;height:34px;background:rgba(255,184,0,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#FFB800}
+.footer-brand-text span:first-child{font-size:14px;font-weight:800;color:#FFFFFF;display:block;line-height:1}
+.footer-brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;margin-top:2px;letter-spacing:2px}
+.footer-desc{font-size:9px;color:rgba(255,255,255,0.3);line-height:1.8;max-width:240px}
+.footer-slogan{margin-top:18px;font-size:9px;font-weight:800;color:#FFB800;letter-spacing:3px;text-transform:uppercase}
+.footer-contact{margin-top:16px}
+.footer-contact span{display:block;font-size:8px;color:rgba(255,255,255,0.35);margin-bottom:6px}
+.footer-guarantee{margin-top:18px;padding:12px 18px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;font-size:9px;font-weight:600;color:#FFB800;text-align:center}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.05);padding-top:20px;text-align:center;font-size:7.5px;color:rgba(255,255,255,0.2)}
 </style></head><body>
 
-<!-- ═══ HEADER SÉCURITÉ RÉSEAU ═══ -->
+<!-- ═══ HEADER AUTORITÉ ═══ -->
 <div class="header">
   <div class="nav-brand">
     <div class="nav-logo">AV</div>
     <div class="nav-brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
   </div>
-  <div class="countdown-box">
-    <div>
-      <div class="countdown-label">VOTRE OFFRE EXPIRE DANS</div>
-      <div class="countdown-value">17H 59M 30S</div>
-    </div>
-  </div>
+  <div class="badge-lock">ACCÈS PRIORITAIRE VERROUILLÉ</div>
 </div>
 
-<!-- ═══ HERO — L'ULTIMATUM ═══ -->
+<!-- ═══ ACCROCHE CHOC ═══ -->
 <div class="hero">
   <h1>NE LAISSEZ PAS VOTRE COMPÉTITEUR VOLER VOTRE SECTEUR.</h1>
   <div class="sub">Dossier prioritaire pour : <strong>${artisan.business_name}</strong> &nbsp;|&nbsp; Ville : <strong>${artisan.city}</strong>${artisan.category?.name ? ` &nbsp;|&nbsp; 🔧 ${artisan.category.name}` : ''}</div>
 </div>
 
-<!-- ═══ LES 3 ACTIFS STRATÉGIQUES ═══ -->
+<!-- ═══ CARD ARTISAN (LE CŒUR) ═══ -->
+<div class="artisan-card-wrap">
+  <div class="artisan-card">
+    <div class="artisan-avatar">${artisan.business_name.charAt(0)}</div>
+    <div class="artisan-info">
+      <h2>${artisan.business_name}</h2>
+      <div class="city">📍 ${artisan.city}${artisan.category?.name ? ` — ${artisan.category.name}` : ''}</div>
+      <div class="badge-certified">🛡️ AV CERTIFIÉ</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 3 COLONNES ARGUMENTS ═══ -->
 <div class="actifs">
-  <div class="section-label">Vos 3 actifs stratégiques</div>
   <div class="actifs-grid">
     <div class="actif-card">
       <div class="actif-icon">🛡️</div>
-      <h3>Secteur Privé</h3>
-      <p>Zéro concurrence directe. Vous possédez l'exclusivité totale sur votre zone. Aucun concurrent ne peut apparaître à côté de vous.</p>
+      <h3>Exclusivité</h3>
+      <p>Zéro concurrence directe. Vous possédez l'exclusivité totale sur votre zone géographique.</p>
     </div>
     <div class="actif-card">
       <div class="actif-icon">✨</div>
-      <h3>Vitrine VIP</h3>
-      <p>Votre profil est déjà en ligne et optimisé. Prêt à recevoir des appels. Les clients vous contactent directement, sans intermédiaire.</p>
+      <h3>Vitrine</h3>
+      <p>Votre profil est déjà en ligne et optimisé. Prêt à recevoir des appels directs.</p>
     </div>
     <div class="actif-card">
       <div class="actif-icon">🚀</div>
-      <h3>Clients Directs</h3>
-      <p>Position N°1 sur les recherches locales. Aucun intermédiaire. Vous captez 100% des demandes pour votre métier sur ${artisan.city}.</p>
+      <h3>SEO</h3>
+      <p>Position N°1 sur les recherches locales. Aucun intermédiaire. 100% des demandes captées.</p>
     </div>
   </div>
 </div>
 
-<!-- ═══ FAQ DÉCISIVE (2 COLONNES) ═══ -->
-<div class="faq">
-  <div class="section-label">Questions / Réponses</div>
-  <div class="faq-grid">
-    <div class="faq-item">
-      <div class="faq-q">Quel est le coût ?</div>
-      <div class="faq-a">L'accès exclusif est proposé sous forme de licence mensuelle. Le tarif dépend de votre secteur géographique et de la demande locale. Aucun engagement longue durée.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">Comment est-ce garanti ?</div>
-      <div class="faq-a">Satisfaction garantie ou 100% remboursé sous 30 jours. Si aucun chantier n'est décroché durant le premier mois, vous ne payez rien.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">Ma vitrine est déjà en ligne ?</div>
-      <div class="faq-a">Oui. Votre fiche professionnelle est déjà créée avec vos informations, photos et coordonnées. Il ne vous reste qu'à activer votre accès pour la rendre opérationnelle.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">Pourquoi pas Google Ads ?</div>
-      <div class="faq-a">Google Ads facture au clic sans garantie de résultat. Notre modèle vous offre une visibilité permanente et exclusive sans frais publicitaires récurrents ni enchères.</div>
-    </div>
-  </div>
+<!-- ═══ ALERTE FOMO ═══ -->
+<div class="fomo">
+  <div class="fomo-banner">⚠️ OFFRE ANNULÉE AUTOMATIQUEMENT DEMAIN À 18H00. UNE LISTE D'ATTENTE EXISTE.</div>
 </div>
 
-<!-- ═══ URGENCE & CTA ═══ -->
-<div class="closing">
-  <div class="alert-banner">⚠️ OFFRE ANNULÉE AUTOMATIQUEMENT DEMAIN À 18H00. UNE LISTE D'ATTENTE EXISTE.</div>
-  <div class="cta-stack">
-    <a class="btn btn-gold" href="${url}">⚡ ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
-    <a class="btn btn-outline" href="${url}">👁️ VOIR MA PRÉ-VITRINE (360°)</a>
-  </div>
-  <div class="guarantee">🔒 Accès limité à 2 artisans par métier et par ville — Satisfaction garantie ou remboursé</div>
+<!-- ═══ BOUTON SÉCURISATION CENTRAL ═══ -->
+<div class="cta-section">
+  <a class="btn-secure" href="${url}">🔒 DÉBLOQUER MON EXCLUSIVITÉ SUR ${artisan.city.toUpperCase()}</a>
+  <br>
+  <a class="btn-sub" href="${url}">👁️ VOIR MA PRÉ-VITRINE (360°)</a>
+  <div class="guarantee-line">🔒 Accès limité à 2 artisans par métier et par ville — Satisfaction garantie ou remboursé sous 30 jours</div>
 </div>
 
-<!-- ═══ FOOTER D'AUTORITÉ ═══ -->
+<!-- ═══ FOOTER INSTITUTIONNEL ═══ -->
 <div class="footer">
   <div class="footer-grid">
     <div class="footer-col footer-col-brand">
@@ -386,7 +380,7 @@ body{font-family:'Inter',system-ui,sans-serif;color:#1A2B48;background:#FFFFFF;-
     const blob = new Blob([html], { type: "text/html" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `Attestation-${artisan.business_name.replace(/\\s+/g, "-")}.html`;
+    a.download = `Attestation-${artisan.business_name.replace(/\s+/g, "-")}.html`;
     a.click();
     URL.revokeObjectURL(a.href);
     toast.success("📄 Attestation téléchargée ! Ouvrez-la et imprimez en PDF.");
