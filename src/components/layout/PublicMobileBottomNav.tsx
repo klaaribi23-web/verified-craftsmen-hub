@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Radar, PlusCircle, User } from "lucide-react";
+import { Radar, PlusCircle, User, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -29,9 +29,9 @@ const PublicMobileBottomNav = () => {
       href: "/demande-devis",
     },
     {
-      id: "candidater",
-      label: "Candidater",
-      icon: User,
+      id: "mon-acces",
+      label: "Mon Accès",
+      icon: ShieldCheck,
       href: "/devenir-artisan",
       gold: true,
     },

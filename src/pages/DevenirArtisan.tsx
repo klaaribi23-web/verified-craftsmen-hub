@@ -515,7 +515,7 @@ const DevenirArtisan = () => {
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {[
                 { step: "01", icon: FileText, title: "Dépôt du Dossier", desc: "Remplissez le formulaire de candidature. C'est gratuit et sans engagement." },
-                { step: "02", icon: Search, title: "Audit de conformité", desc: "Vérification de vos décennales, références et avis clients par notre équipe." },
+                { step: "02", icon: Search, title: "Audit de conformité", desc: "Vérification de vos documents par Jane sous 24h. Décennales, références et avis clients passés au crible." },
                 { step: "03", icon: Rocket, title: "Activation du Cockpit", desc: "Une fois validé, accédez à votre radar et à la liste des missions qualifiées." },
               ].map((item, index) => (
                 <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15 }} className="text-center">
@@ -547,9 +547,12 @@ const DevenirArtisan = () => {
                     <p className="text-xs md:text-sm text-gold font-semibold mb-1">
                       💰 Revenus estimés sur votre secteur : 18 400€ de chantiers disponibles ce mois-ci.
                     </p>
-                    <p className="text-xs md:text-sm text-muted-foreground mb-2">
-                      Gratuit · Sans engagement · Audit sous 24h
-                    </p>
+                     <p className="text-xs md:text-sm text-muted-foreground mb-1">
+                       Gratuit · Sans engagement · Audit sous 24h
+                     </p>
+                     <p className="text-xs text-navy/70">
+                       🔒 Validation finale de votre accès par <strong className="text-navy">Jane</strong> après examen de votre dossier.
+                     </p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4 pb-16 md:pb-0">
