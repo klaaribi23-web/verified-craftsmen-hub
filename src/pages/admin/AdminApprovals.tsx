@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle, Eye, Clock, MapPin, AlertCircle, Loader2, Briefcase, Euro, User, Store, ExternalLink, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Search, Mail, Phone, Calendar, UserCheck, FileText, Download, File, RefreshCw, AlertTriangle, ImageDown, MessageCircle, Link2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import Navbar from "@/components/layout/Navbar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -539,6 +540,48 @@ const AdminApprovals = () => {
       toast.success("Vitrine publiée avec succès !");
       queryClient.invalidateQueries({ queryKey: ["pending-publication-artisans"] });
       queryClient.invalidateQueries({ queryKey: ["pending-publication-count"] });
+      queryClient.invalidateQueries({ queryKey: ["public-artisans"] });
+    },
+    onError: () => {
+      toast.error("Erreur lors de la publication");
+    },
+  });
+
+  // Mutation to unpublish (set active → pending)
+  const unpublishArtisanMutation = useMutation({
+    mutationFn: async (artisanId: string) => {
+      const { error } = await supabase
+        .from("artisans")
+        .update({ status: "pending" })
+        .eq("id", artisanId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Vitrine mise hors ligne");
+      queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["prospect-artisans-count"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-publication-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-publication-count"] });
+      queryClient.invalidateQueries({ queryKey: ["public-artisans"] });
+    },
+    onError: () => {
+      toast.error("Erreur lors de la mise hors ligne");
+    },
+  });
+
+  // Mutation to publish prospect to active
+  const publishProspectMutation = useMutation({
+    mutationFn: async (artisanId: string) => {
+      const { error } = await supabase
+        .from("artisans")
+        .update({ status: "active" })
+        .eq("id", artisanId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Vitrine mise en ligne !");
+      queryClient.invalidateQueries({ queryKey: ["prospect-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["prospect-artisans-count"] });
       queryClient.invalidateQueries({ queryKey: ["public-artisans"] });
     },
     onError: () => {
@@ -1914,6 +1957,19 @@ const AdminApprovals = () => {
                                     {prospect.phone && <span className="flex items-center gap-1">• <Phone className="h-3 w-3" /> {prospect.phone}</span>}
                                   </div>
 
+                                  {/* Online/Offline Toggle */}
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Switch
+                                      checked={true}
+                                      onCheckedChange={(checked) => {
+                                        if (!checked) {
+                                          unpublishArtisanMutation.mutate(prospect.id);
+                                        }
+                                      }}
+                                    />
+                                    <span className="text-xs font-medium text-emerald-600">En ligne</span>
+                                  </div>
+
                                   <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
                                     {/* WhatsApp Button */}
                                     {(() => {
@@ -2461,7 +2517,19 @@ const AdminApprovals = () => {
                                   )}
                                 </div>
                               </div>
-                              <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border">
+                              <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-border">
+                                  {/* Online/Offline Toggle */}
+                                  <div className="flex items-center gap-2 mr-auto">
+                                    <Switch
+                                      checked={false}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          publishArtisanMutation.mutate(artisan.id);
+                                        }
+                                      }}
+                                    />
+                                    <span className="text-xs text-muted-foreground">En ligne</span>
+                                  </div>
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -2472,19 +2540,6 @@ const AdminApprovals = () => {
                                   >
                                     <Pencil className="h-4 w-4 sm:mr-1" />
                                     <span className="hidden sm:inline">Modifier</span>
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    className="bg-gold hover:bg-gold/90 text-navy-dark font-bold"
-                                    onClick={() => publishArtisanMutation.mutate(artisan.id)}
-                                    disabled={publishArtisanMutation.isPending}
-                                  >
-                                    {publishArtisanMutation.isPending ? (
-                                      <Loader2 className="h-4 w-4 animate-spin sm:mr-1" />
-                                    ) : (
-                                      <CheckCircle2 className="h-4 w-4 sm:mr-1" />
-                                    )}
-                                    <span className="hidden sm:inline">Publier</span>
                                   </Button>
                                     <Button
                                       variant="outline"

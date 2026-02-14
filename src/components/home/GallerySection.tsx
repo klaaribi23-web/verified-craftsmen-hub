@@ -10,9 +10,9 @@ const GallerySection = () => {
     queryKey: ["homepage-gallery"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("artisans")
+        .from("public_artisans")
         .select("id, business_name, portfolio_images, slug, city")
-        .in("status", ["active", "prospect"])
+        .eq("status", "active")
         .not("portfolio_images", "is", null)
         .limit(12);
 
@@ -26,9 +26,9 @@ const GallerySection = () => {
             if (img && images.length < 8) {
               images.push({
                 url: img,
-                artisanName: artisan.business_name,
-                slug: artisan.slug || artisan.id,
-                city: artisan.city,
+                artisanName: artisan.business_name || "Artisan",
+                slug: artisan.slug || artisan.id || "",
+                city: artisan.city || "France",
               });
             }
           });
