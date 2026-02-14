@@ -106,7 +106,7 @@ const ExclusivityNotice = () => (
 );
 
 // --- Schema ---
-const candidacySchema = z.object({
+const partnerSchema = z.object({
   businessName: z.string().trim().min(2, "Nom d'entreprise requis").max(100),
   siret: z.string().trim().min(14, "SIRET invalide (14 chiffres)").max(14, "SIRET invalide (14 chiffres)").regex(/^\d{14}$/, "Le SIRET doit contenir 14 chiffres"),
   metier: z.string().trim().min(2, "Métier requis").max(100),
@@ -115,8 +115,8 @@ const candidacySchema = z.object({
 });
 
 const steps = [
-  { icon: FileText, title: "Candidature", desc: "Remplissez le formulaire ci-dessous" },
-  { icon: Phone, title: "Appel de qualification", desc: "Un conseiller vous rappelle sous 24h" },
+  { icon: FileText, title: "Réservation de Zone", desc: "Indiquez votre secteur d'intervention" },
+  { icon: Phone, title: "Audit de conformité", desc: "Jane valide votre profil et vos assurances sous 24h" },
   { icon: CheckCircle2, title: "Activation", desc: "Votre espace Pro est créé sur-mesure" },
 ];
 
@@ -157,7 +157,7 @@ const DevenirPartenaire = () => {
     setIsLoading(true);
 
     try {
-      const result = candidacySchema.safeParse(formData);
+      const result = partnerSchema.safeParse(formData);
       if (!result.success) {
         toast({ title: "Erreur", description: result.error.errors[0].message, variant: "destructive" });
         setIsLoading(false);
@@ -177,7 +177,7 @@ const DevenirPartenaire = () => {
       if (dbError) throw dbError;
 
       setSubmitted(true);
-      toast({ title: "Candidature envoyée !", description: "Un conseiller vous rappelle sous 24h." });
+      toast({ title: "Zone réservée !", description: "Jane vous rappelle sous 24h pour valider votre accès." });
     } catch {
       toast({ title: "Erreur", description: "Une erreur est survenue.", variant: "destructive" });
     } finally {
@@ -188,7 +188,7 @@ const DevenirPartenaire = () => {
   if (submitted) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead title="Candidature envoyée" description="Votre candidature au réseau a bien été reçue." />
+        <SEOHead title="Zone réservée" description="Votre demande d'accès au réseau a bien été reçue." />
         <Navbar />
         <main className="pt-32 lg:pt-20 pb-20">
           <div className="container mx-auto px-4 max-w-md">
@@ -196,13 +196,13 @@ const DevenirPartenaire = () => {
               <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 className="w-8 h-8 text-success" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground mb-4">Candidature reçue !</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-4">Zone réservée !</h1>
               <p className="text-muted-foreground mb-6">
-                Un conseiller vous rappelle au <strong className="text-foreground">{formData.phone}</strong> sous 24h pour valider votre dossier et vérifier la disponibilité de votre secteur à <strong className="text-foreground">{formData.city}</strong>.
+                <strong className="text-foreground">Jane</strong> vous rappelle au <strong className="text-foreground">{formData.phone}</strong> sous 24h pour valider votre accès et confirmer la disponibilité de votre secteur à <strong className="text-foreground">{formData.city}</strong>.
               </p>
               <div className="bg-muted rounded-lg p-4 mb-6 text-left">
                 <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Pas de robot, pas de spam.</strong> C'est un humain qui étudie votre dossier et vérifie vos documents.
+                  <strong className="text-foreground">Pas de robot, pas de spam.</strong> C'est Jane qui étudie personnellement votre dossier et vérifie vos documents.
                 </p>
               </div>
               <Button variant="gold" onClick={() => window.location.href = "/"} className="w-full">
@@ -288,8 +288,8 @@ const DevenirPartenaire = () => {
                 <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                   <Card className="border-2 border-navy/20 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.15)]">
                     <CardContent className="p-6 md:p-8">
-                      <h2 className="text-2xl font-bold text-navy mb-2">Formulaire de candidature</h2>
-                      <p className="text-muted-foreground mb-6">Tous les champs marqués * sont obligatoires.</p>
+                      <h2 className="text-2xl font-bold text-navy mb-2">Réservez votre zone</h2>
+                      <p className="text-muted-foreground mb-6">Indiquez votre secteur d'intervention pour vérifier la disponibilité des places.</p>
 
                       <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
@@ -365,7 +365,7 @@ const DevenirPartenaire = () => {
                           ) : (
                             <>
                               <Lock className="w-5 h-5 mr-2" />
-                              Débloquer mes chantiers
+                              RÉSERVER MON ACCÈS
                             </>
                           )}
                         </Button>
