@@ -213,148 +213,126 @@ L'équipe Artisans Validés`;
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 @page{size:A4;margin:0}
-body{font-family:'Montserrat',sans-serif;color:#1A2B48;background:#f5f5f0;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.page{max-width:794px;margin:0 auto;background:#FDFBF7;position:relative;min-height:100vh;border:3px solid #1A2B48;outline:1px solid #D4AF37;outline-offset:4px}
-.page::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px solid rgba(212,175,55,0.3);pointer-events:none;z-index:1}
-/* Corner ornaments */
-.corner{position:absolute;width:28px;height:28px;z-index:2}
-.corner::before,.corner::after{content:'';position:absolute;background:#D4AF37}
-.corner-tl{top:14px;left:14px}.corner-tl::before{top:0;left:0;width:28px;height:2px}.corner-tl::after{top:0;left:0;width:2px;height:28px}
-.corner-tr{top:14px;right:14px}.corner-tr::before{top:0;right:0;width:28px;height:2px}.corner-tr::after{top:0;right:0;width:2px;height:28px}
-.corner-bl{bottom:14px;left:14px}.corner-bl::before{bottom:0;left:0;width:28px;height:2px}.corner-bl::after{bottom:0;left:0;width:2px;height:28px}
-.corner-br{bottom:14px;right:14px}.corner-br::before{bottom:0;right:0;width:28px;height:2px}.corner-br::after{bottom:0;right:0;width:2px;height:28px}
-/* Header */
-.top-bar{display:flex;justify-content:space-between;align-items:flex-start;padding:36px 48px 20px}
-.logo-block .logo{font-size:22px;font-weight:900;letter-spacing:-0.5px;color:#1A2B48}
-.logo-block .logo span{color:#ea580c}
-.logo-block .tagline{font-size:9px;text-transform:uppercase;letter-spacing:3px;color:#94a3b8;margin-top:2px}
-.stamp{border:3px solid #dc2626;border-radius:4px;padding:8px 16px;text-align:center;transform:rotate(-3deg);position:relative}
-.stamp::before{content:'';position:absolute;inset:-1px;border:1px dashed #dc2626;border-radius:4px;opacity:0.4}
-.stamp-text{font-size:10px;font-weight:800;color:#dc2626;letter-spacing:1.5px;text-transform:uppercase;line-height:1.3}
-.stamp-ref{font-size:8px;color:#dc2626;opacity:0.7;margin-top:2px}
-/* Gold separator */
-.gold-line{height:2px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);margin:0 48px}
-/* Title section */
-.title-section{text-align:center;padding:28px 48px 24px}
-.doc-type{font-size:10px;text-transform:uppercase;letter-spacing:4px;color:#D4AF37;font-weight:700;margin-bottom:8px}
-.doc-title{font-size:24px;font-weight:900;color:#1A2B48;letter-spacing:-0.5px}
-/* Artisan card */
-.artisan-card{margin:0 48px 28px;background:linear-gradient(135deg,#1A2B48 0%,#0f1c30 100%);border-radius:10px;padding:24px 32px;display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden}
-.artisan-card::after{content:'';position:absolute;top:0;right:0;width:120px;height:100%;background:linear-gradient(135deg,transparent 40%,rgba(212,175,55,0.1) 100%)}
-.artisan-info h2{color:#fff;font-size:20px;font-weight:800;margin-bottom:4px}
-.artisan-info .city{color:#D4AF37;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
-.artisan-meta{text-align:right;color:rgba(255,255,255,0.6);font-size:11px}
-.artisan-meta strong{display:block;color:#fff;font-size:13px}
-/* 3 columns */
-.pillars{display:flex;gap:14px;margin:0 48px 28px}
-.pillar{flex:1;border:1px solid #e8ecf0;border-radius:10px;padding:22px 18px;text-align:center;background:#fff;position:relative;overflow:hidden;transition:box-shadow .2s}
-.pillar::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.pillar:nth-child(1)::before{background:#ea580c}
-.pillar:nth-child(2)::before{background:#D4AF37}
-.pillar:nth-child(3)::before{background:#1A2B48}
-.pillar-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px}
-.pillar:nth-child(1) .pillar-icon{background:linear-gradient(135deg,#fff7ed,#fed7aa);color:#ea580c}
-.pillar:nth-child(2) .pillar-icon{background:linear-gradient(135deg,#fefce8,#fde68a);color:#D4AF37}
-.pillar:nth-child(3) .pillar-icon{background:linear-gradient(135deg,#f0f4f8,#cbd5e1);color:#1A2B48}
-.pillar h3{font-size:13px;font-weight:800;color:#1A2B48;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px}
-.pillar p{font-size:11.5px;color:#64748b;line-height:1.5}
+body{font-family:'Montserrat',sans-serif;color:#1A1A1A;background:#fff;line-height:1.7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{max-width:794px;margin:0 auto;background:#fff;position:relative;min-height:100vh;border:2px solid #1A1A1A}
+/* Banner */
+.banner{background:#FF6B00;padding:22px 48px;text-align:center}
+.banner h1{color:#fff;font-size:18px;font-weight:900;letter-spacing:4px;text-transform:uppercase}
+.banner-sub{color:rgba(255,255,255,0.85);font-size:10px;letter-spacing:2px;margin-top:4px;text-transform:uppercase}
+/* Header bar */
+.header-bar{display:flex;justify-content:space-between;align-items:center;padding:24px 48px 20px;border-bottom:1px solid #1A1A1A}
+.logo{font-size:20px;font-weight:900;color:#1A1A1A;letter-spacing:-0.5px}
+.logo span{color:#FF6B00}
+.logo-tagline{font-size:8px;text-transform:uppercase;letter-spacing:3px;color:#999;margin-top:2px}
+.header-right{text-align:right;font-size:10px;color:#666}
+.header-right .ref{font-weight:700;color:#1A1A1A;font-size:11px}
+/* Artisan block */
+.artisan-block{margin:32px 48px;background:#1A1A1A;padding:32px 40px;position:relative}
+.artisan-block h2{color:#fff;font-size:26px;font-weight:900;letter-spacing:-0.5px;margin-bottom:6px}
+.artisan-block .city{color:#FF6B00;font-size:15px;font-weight:700;letter-spacing:0.5px}
+.artisan-block .date-line{color:rgba(255,255,255,0.5);font-size:10px;margin-top:12px;letter-spacing:1px;text-transform:uppercase}
+.artisan-block::after{content:'EXCLUSIF';position:absolute;top:24px;right:32px;color:rgba(255,107,0,0.15);font-size:48px;font-weight:900;letter-spacing:4px;pointer-events:none}
+/* Separator */
+.sep{height:1px;background:#1A1A1A;margin:0 48px}
+.sep-thin{height:1px;background:#e0e0e0;margin:12px 0}
+/* Pillars */
+.pillars{display:flex;gap:0;margin:32px 48px;border:1px solid #1A1A1A}
+.pillar{flex:1;padding:28px 24px;text-align:center;border-right:1px solid #1A1A1A}
+.pillar:last-child{border-right:none}
+.pillar-icon{font-size:40px;margin-bottom:14px;display:block;color:#FF6B00}
+.pillar h3{font-size:13px;font-weight:900;color:#1A1A1A;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.pillar p{font-size:11px;color:#555;line-height:1.6}
 /* FAQ */
-.faq-section{margin:0 48px 28px;background:#f0f4f8;border-radius:10px;padding:24px 28px}
-.faq-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#1A2B48;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.faq-title::before{content:'';width:18px;height:3px;background:#ea580c;border-radius:2px}
-.faq-item{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(26,43,72,0.08)}
-.faq-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
-.faq-q{font-size:13px;font-weight:700;color:#1A2B48;margin-bottom:4px}
-.faq-a{font-size:11.5px;color:#475569;line-height:1.6}
+.faq{margin:32px 48px 28px}
+.faq-header{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:#1A1A1A;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid #1A1A1A}
+.faq-item{padding:14px 0;border-bottom:1px solid #1A1A1A}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-size:13px;font-weight:800;color:#1A1A1A;margin-bottom:4px}
+.faq-a{font-size:11px;color:#555;line-height:1.7}
 /* CTA */
-.cta-section{margin:0 48px 24px;text-align:center}
-.cta-btn{display:inline-block;background:linear-gradient(135deg,#ea580c 0%,#c2410c 100%);color:#fff;padding:18px 56px;border-radius:10px;font-size:15px;font-weight:900;text-decoration:none;letter-spacing:0.8px;text-transform:uppercase;box-shadow:0 6px 20px rgba(234,88,12,0.35)}
-.cta-sub{font-size:11px;color:#94a3b8;margin-top:10px}
+.cta-section{margin:28px 48px 24px}
+.cta-btn{display:block;background:#FF6B00;color:#1A1A1A;padding:22px 32px;text-align:center;font-size:17px;font-weight:900;text-decoration:none;letter-spacing:1.5px;text-transform:uppercase}
+.cta-sub{text-align:center;font-size:10px;color:#999;margin-top:10px;letter-spacing:0.5px}
 /* Link */
-.link-row{margin:0 48px 24px;background:#fff;border:1px dashed #cbd5e1;border-radius:8px;padding:12px 18px;font-size:11px;color:#64748b;word-break:break-all}
-.link-row a{color:#ea580c;font-weight:700}
+.link-row{margin:0 48px 24px;padding:14px 20px;border:1px dashed #ccc;font-size:11px;color:#666;word-break:break-all}
+.link-row a{color:#FF6B00;font-weight:700;text-decoration:none}
 /* Footer */
-.footer{text-align:center;padding:20px 48px;font-size:9px;color:#94a3b8;letter-spacing:0.5px}
-.footer .sig{font-weight:700;color:#1A2B48;font-size:10px;margin-bottom:4px}
+.footer{text-align:center;padding:20px 48px;border-top:1px solid #1A1A1A;margin:0 48px}
+.footer .sig{font-weight:800;color:#1A1A1A;font-size:11px;margin-bottom:4px;letter-spacing:1px}
+.footer .legal{font-size:8px;color:#aaa;letter-spacing:0.5px}
 </style></head><body>
 <div class="page">
-<div class="corner corner-tl"></div><div class="corner corner-tr"></div>
-<div class="corner corner-bl"></div><div class="corner corner-br"></div>
 
-<div class="top-bar">
-  <div class="logo-block">
+<div class="banner">
+  <h1>Attestation d'Exclusivité Sectorielle</h1>
+  <div class="banner-sub">Document confidentiel — Réservation prioritaire</div>
+</div>
+
+<div class="header-bar">
+  <div>
     <div class="logo">ARTISANS <span>VALIDÉS</span></div>
-    <div class="tagline">Alliance des Professionnels Certifiés</div>
+    <div class="logo-tagline">Alliance des Professionnels Certifiés</div>
   </div>
-  <div class="stamp">
-    <div class="stamp-text">Document<br/>Prioritaire</div>
-    <div class="stamp-ref">Réf. ${refNum}</div>
+  <div class="header-right">
+    <div class="ref">Réf. ${refNum}</div>
+    <div>${date}</div>
   </div>
 </div>
 
-<div class="gold-line"></div>
-
-<div class="title-section">
-  <div class="doc-type">Attestation Officielle</div>
-  <div class="doc-title">Certificat d'Exclusivité Territoriale</div>
+<div class="artisan-block">
+  <h2>${artisan.business_name}</h2>
+  <div class="city">▸ Zone exclusive : ${artisan.city}</div>
+  <div class="date-line">Émis le ${date} — Validité : 48 heures</div>
 </div>
 
-<div class="artisan-card">
-  <div class="artisan-info">
-    <h2>${artisan.business_name}</h2>
-    <div class="city">📍 Zone exclusive : ${artisan.city}</div>
-  </div>
-  <div class="artisan-meta">
-    Émis le<strong>${date}</strong>
-  </div>
-</div>
+<div class="sep"></div>
 
 <div class="pillars">
   <div class="pillar">
-    <div class="pillar-icon">🔒</div>
+    <span class="pillar-icon">■</span>
     <h3>Exclusivité</h3>
-    <p>Zone verrouillée : vous êtes le seul professionnel référencé dans votre secteur. Aucun concurrent autorisé.</p>
+    <p>Zone verrouillée. Vous êtes le seul professionnel référencé. Aucun concurrent autorisé.</p>
   </div>
   <div class="pillar">
-    <div class="pillar-icon">⚡</div>
+    <span class="pillar-icon">▲</span>
     <h3>Visibilité</h3>
-    <p>Référencement SEO prioritaire. Votre fiche apparaît en tête pour votre métier et votre ville.</p>
+    <p>Référencement prioritaire. Votre fiche en tête des résultats pour votre métier et ville.</p>
   </div>
   <div class="pillar">
-    <div class="pillar-icon">📱</div>
+    <span class="pillar-icon">●</span>
     <h3>Flux Direct</h3>
-    <p>Les clients vous contactent sans intermédiaire. Zéro commission sur les demandes reçues.</p>
+    <p>Contact sans intermédiaire. Zéro commission sur les demandes reçues.</p>
   </div>
 </div>
 
-<div class="faq-section">
-  <div class="faq-title">Questions Fréquentes</div>
+<div class="faq">
+  <div class="faq-header">Questions / Réponses</div>
   <div class="faq-item">
-    <div class="faq-q">💰 Quel est le tarif ?</div>
+    <div class="faq-q">Quel est le tarif de l'exclusivité ?</div>
     <div class="faq-a">L'accès démarre à 49€/mois HT. Un seul client obtenu via la plateforme rembourse plusieurs mois d'abonnement. C'est un investissement, pas une dépense.</div>
   </div>
   <div class="faq-item">
-    <div class="faq-q">🏆 Comment se différencier de la concurrence ?</div>
-    <div class="faq-a">Maximum 2 professionnels par métier et par ville. Votre zone est contractuellement protégée dès validation. L'exclusivité est garantie.</div>
+    <div class="faq-q">Comment est garantie l'exclusivité ?</div>
+    <div class="faq-a">Maximum 2 professionnels par métier et par ville. Votre zone est contractuellement protégée dès validation. L'exclusivité est garantie et vérifiable.</div>
   </div>
   <div class="faq-item">
-    <div class="faq-q">🔍 Pourquoi pas simplement Google ?</div>
+    <div class="faq-q">Pourquoi ne pas simplement utiliser Google ?</div>
     <div class="faq-a">Sur Google, vous êtes noyé parmi des dizaines de résultats et publicités. Ici, vous êtes LE professionnel recommandé, avec une fiche auditée qui inspire confiance.</div>
   </div>
 </div>
 
 <div class="cta-section">
   <a class="cta-btn" href="${url}">ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
-  <div class="cta-sub">Rendez-vous sur votre fiche et cliquez sur le bouton orange pour finaliser</div>
+  <div class="cta-sub">Rendez-vous sur votre fiche et cliquez sur le bouton orange pour finaliser votre réservation</div>
 </div>
 
 <div class="link-row">
-  🔗 Votre vitrine exclusive : <a href="${url}">${url}</a>
+  Votre vitrine exclusive : <a href="${url}">${url}</a>
 </div>
 
 <div class="footer">
   <div class="sig">Moins de blabla, plus de résultats.</div>
-  Document confidentiel — Artisans Validés — ${date}
+  <div class="legal">Document confidentiel — Artisans Validés — ${date}</div>
 </div>
 
 </div>
