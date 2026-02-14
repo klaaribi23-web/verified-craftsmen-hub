@@ -205,7 +205,7 @@ const ActivateAccount = () => {
         console.log("[ACTIVATION] 🔍 Vérification compte existant...");
         try {
           const { data: checkResult, error: checkError } = await supabase.functions.invoke('check-email-exists', {
-            body: { email: artisan.email }
+            body: { email: artisan.email, activation_token: token }
           });
 
           if (!checkError && checkResult) {
@@ -275,7 +275,7 @@ const ActivateAccount = () => {
       // Case 3: New account - check if account was created but not confirmed
       console.log("[ACTIVATION] 🔍 Re-vérification compte existant...");
       const { data: recheckData } = await supabase.functions.invoke("check-email-exists", {
-        body: { email: artisanData.email },
+        body: { email: artisanData.email, activation_token: token },
       });
 
       if (recheckData?.exists) {
