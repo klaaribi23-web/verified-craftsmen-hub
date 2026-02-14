@@ -214,118 +214,127 @@ L'équipe Artisans Validés`;
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 @page{size:A4;margin:0}
-body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:#1A1A1A;background:#fff;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.page{max-width:794px;margin:0 auto;background:#FFFFFF;position:relative;min-height:100vh;overflow:hidden}
+body{font-family:'Inter',system-ui,sans-serif;color:#E0E0E0;background:#121212;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{max-width:794px;margin:0 auto;background:#121212;position:relative;min-height:100vh;overflow:hidden;padding:0}
 
-/* ── Header with gradient + speed lines ── */
-.header{background:linear-gradient(135deg,#0A192F 0%,#112240 60%,#1A3A5C 100%);padding:32px 40px 36px;position:relative;overflow:hidden}
-.header::before{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:repeating-linear-gradient(-55deg,transparent,transparent 8px,rgba(255,215,0,0.07) 8px,rgba(255,215,0,0.07) 9px);pointer-events:none}
-.header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:4px;background:linear-gradient(90deg,#FFD700,#FFC107,#FFD700)}
-.header-inner{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2}
-.header-logo{color:#FFD700;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase}
-.header h1{color:#FFFFFF;font-size:13px;font-weight:800;letter-spacing:5px;text-transform:uppercase;text-align:center;flex:1;margin:0 24px}
-.header-ref{color:rgba(255,255,255,0.4);font-size:7px;letter-spacing:2px;text-transform:uppercase;text-align:right;line-height:1.8;font-weight:600}
+/* ── Subtle grid pattern overlay ── */
+.page::before{content:'';position:absolute;inset:0;background-image:
+  linear-gradient(rgba(255,215,0,0.03) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,215,0,0.03) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0}
 
-/* ── Date bar ── */
-.date-bar{display:flex;justify-content:space-between;padding:14px 40px;font-size:9px;color:#999;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;border-bottom:1px solid #F0F0F0}
+/* ── Top accent line ── */
+.top-accent{height:3px;background:linear-gradient(90deg,transparent 5%,#FFD700 20%,#FFD700 80%,transparent 95%)}
 
-/* ── Artisan Card (floating web-style) ── */
-.artisan-card{margin:28px 40px 0;background:#FFFFFF;border-radius:12px;border:1px solid #E8E8E8;box-shadow:0 8px 30px rgba(10,25,47,0.08),0 2px 8px rgba(10,25,47,0.04);overflow:hidden;position:relative}
-.artisan-card-header{background:linear-gradient(135deg,#0A192F 0%,#112240 100%);padding:28px 32px;position:relative;overflow:hidden}
-.artisan-card-header::before{content:'';position:absolute;right:-20px;top:50%;transform:translateY(-50%);display:flex;gap:4px;opacity:0.15}
-.speed-lines{position:absolute;right:30px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px}
-.speed-lines span{display:block;height:2px;background:#FFD700;border-radius:1px}
-.speed-lines span:nth-child(1){width:60px;opacity:0.9}
-.speed-lines span:nth-child(2){width:45px;opacity:0.7}
-.speed-lines span:nth-child(3){width:30px;opacity:0.5}
-.speed-lines span:nth-child(4){width:18px;opacity:0.3}
-.artisan-name{font-size:30px;font-weight:900;color:#FFFFFF;letter-spacing:2px;text-transform:uppercase;position:relative;z-index:1}
-.artisan-zone{color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;margin-top:8px;letter-spacing:3px;text-transform:uppercase;position:relative;z-index:1}
+/* ── Header ── */
+.header{padding:28px 40px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.header-brand{font-size:9px;font-weight:900;letter-spacing:5px;text-transform:uppercase;color:#FFD700}
+.header-ref{font-size:7px;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase;text-align:right;line-height:1.8;font-weight:600}
+.header-title{text-align:center;flex:1;margin:0 20px}
+.header-title h1{font-size:10px;font-weight:800;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,0.5)}
+
+/* ── Glass Card (Artisan) ── */
+.glass-card{margin:10px 40px 0;position:relative;z-index:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,0,0.2);border-radius:16px;backdrop-filter:blur(20px);overflow:hidden}
+.glass-inner{padding:36px 40px 28px;position:relative}
+.glass-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.4),transparent)}
+.artisan-name{font-size:38px;font-weight:900;color:#FFFFFF;letter-spacing:6px;text-transform:uppercase;line-height:1.1}
+.artisan-zone{margin-top:12px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:3px}
 .artisan-zone strong{color:#FFD700;font-weight:800}
-.artisan-card-body{padding:16px 32px;display:flex;align-items:center;justify-content:space-between;background:#FAFAFA}
-.artisan-badge{display:inline-flex;align-items:center;gap:6px;background:#0A192F;color:#FFD700;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:20px}
-.artisan-validity{font-size:8px;color:#999;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.glass-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 40px;border-top:1px solid rgba(255,215,0,0.08);background:rgba(0,0,0,0.2)}
+.glass-badge{display:inline-flex;align-items:center;gap:6px;font-size:7px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#FFD700}
+.glass-validity{font-size:7px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
 
-/* ── 3 Pillars ── */
-.pillars{display:flex;gap:12px;margin:24px 40px 0;justify-content:center}
-.pillar{flex:1;text-align:center;padding:20px 12px;background:#FFFFFF;border-radius:10px;border:1px solid #F0F0F0;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
-.pillar-icon{width:40px;height:40px;border-radius:50%;background:#FFD700;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px;box-shadow:0 2px 8px rgba(255,215,0,0.3)}
-.pillar h3{font-size:10px;font-weight:800;color:#0A192F;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
-.pillar p{font-size:8.5px;color:#777;font-weight:500;line-height:1.6}
+/* ── Holographic Seal ── */
+.seal-container{position:absolute;top:24px;right:32px;z-index:2}
+.holo-seal{width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,215,0,0.5);display:flex;align-items:center;justify-content:center;background:conic-gradient(from 0deg,rgba(255,215,0,0.08),rgba(255,215,0,0.2),rgba(255,215,0,0.05),rgba(255,215,0,0.15),rgba(255,215,0,0.08));box-shadow:0 0 30px rgba(255,215,0,0.1),inset 0 0 20px rgba(255,215,0,0.05);position:relative}
+.holo-seal::before{content:'';position:absolute;inset:4px;border-radius:50%;border:1px solid rgba(255,215,0,0.3)}
+.holo-seal .seal-text{font-size:16px;font-weight:900;color:#FFD700;letter-spacing:2px}
+.seal-label{text-align:center;margin-top:4px;font-size:5.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,215,0,0.4)}
+
+/* ── KPI Gauges ── */
+.kpi-section{display:flex;gap:14px;margin:24px 40px 0;position:relative;z-index:1}
+.kpi{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px 16px;text-align:center}
+.kpi-label{font-size:7px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:12px}
+.kpi-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.kpi-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FFC107);border-radius:3px;width:100%;box-shadow:0 0 10px rgba(255,215,0,0.3)}
+.kpi-value{font-size:18px;font-weight:900;color:#FFD700;letter-spacing:1px}
+.kpi-status{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-top:2px}
 
 /* ── FAQ ── */
-.faq{margin:22px 40px 0}
-.faq-header{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:4px;color:#0A192F;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #0A192F}
-.faq-item{padding:8px 0 8px 14px;border-left:3px solid #FFD700;margin-bottom:8px}
-.faq-q{font-size:10px;font-weight:700;color:#0A192F;margin-bottom:2px}
-.faq-a{font-size:9px;color:#666;font-weight:500;line-height:1.7}
-.faq-a b{color:#0A192F;font-weight:700}
-.faq-a .highlight{background:#FFD700;color:#0A192F;padding:0 4px;font-weight:700}
+.faq{margin:24px 40px 0;position:relative;z-index:1}
+.faq-header{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:5px;color:rgba(255,255,255,0.3);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.faq-item{padding:8px 0 8px 14px;border-left:2px solid rgba(255,215,0,0.3);margin-bottom:8px}
+.faq-q{font-size:9.5px;font-weight:700;color:#FFFFFF;margin-bottom:2px}
+.faq-a{font-size:8.5px;color:rgba(255,255,255,0.45);font-weight:500;line-height:1.7}
+.faq-a b{color:#FFFFFF;font-weight:700}
+.faq-a .hl{background:#FFD700;color:#121212;padding:1px 5px;font-weight:700;border-radius:2px}
 
-/* ── CTA Buttons (web-style) ── */
-.cta-section{margin:22px 40px 0}
-.btn{display:block;padding:16px 28px;text-align:center;text-decoration:none;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-size:12px;font-family:'Inter',sans-serif;border-radius:8px;transition:none}
-.btn-primary{background:linear-gradient(135deg,#FFD700 0%,#FFC107 50%,#FFD700 100%);color:#0A192F;border:none;font-size:14px;padding:20px 28px;box-shadow:0 4px 15px rgba(255,215,0,0.35);position:relative;overflow:hidden}
-.btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);transform:skewX(-25deg)}
-.btn-secondary{background:transparent;color:#0A192F;border:2px solid #0A192F;font-size:11px}
+/* ── CTAs ── */
+.cta-section{margin:22px 40px 0;position:relative;z-index:1}
+.btn{display:block;padding:16px 28px;text-align:center;text-decoration:none;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;font-size:11px;font-family:'Inter',sans-serif;border-radius:10px}
+.btn-ego{background:transparent;color:#FFD700;border:1px solid rgba(255,215,0,0.3);font-size:10px}
+.btn-close{background:linear-gradient(135deg,#FFD700 0%,#FFC107 50%,#FFD700 100%);color:#121212;border:none;font-size:13px;padding:20px 28px;box-shadow:0 0 30px rgba(255,215,0,0.2),0 0 60px rgba(255,215,0,0.08);position:relative;overflow:hidden;animation:pulse-btn 2s ease-in-out infinite}
+@keyframes pulse-btn{0%,100%{box-shadow:0 0 30px rgba(255,215,0,0.2),0 0 60px rgba(255,215,0,0.08)}50%{box-shadow:0 0 40px rgba(255,215,0,0.35),0 0 80px rgba(255,215,0,0.15)}}
 
-/* ── QR section ── */
-.qr-section{display:flex;align-items:center;gap:14px;margin:18px 40px 0;padding:14px 18px;background:#F8F9FA;border-radius:8px;border:1px solid #EEEEEE}
-.qr-section img{width:60px;height:60px;border-radius:4px}
-.qr-text{font-size:8px;color:#999;line-height:1.7;font-weight:500}
-.qr-text strong{color:#0A192F;font-weight:700;font-size:8.5px;display:block;margin-bottom:2px;letter-spacing:1px;text-transform:uppercase}
+/* ── QR ── */
+.qr-section{display:flex;align-items:center;gap:14px;margin:18px 40px 0;padding:14px 18px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.05);position:relative;z-index:1}
+.qr-section img{width:56px;height:56px;border-radius:6px;border:1px solid rgba(255,215,0,0.15)}
+.qr-text{font-size:7.5px;color:rgba(255,255,255,0.3);line-height:1.7;font-weight:500}
+.qr-text strong{color:rgba(255,255,255,0.6);font-weight:700;font-size:8px;display:block;margin-bottom:2px;letter-spacing:2px;text-transform:uppercase}
 
-/* ── Warning Urgency Banner ── */
-.urgency-banner{margin:20px 40px 0;background:repeating-linear-gradient(-45deg,#FFD700,#FFD700 10px,#FFC107 10px,#FFC107 20px);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(255,215,0,0.2)}
-.urgency-inner{background:rgba(255,215,0,0.92);padding:12px 20px;text-align:center;font-size:11px;font-weight:900;color:#0A192F;letter-spacing:3px;text-transform:uppercase}
+/* ── Warning stripe footer ── */
+.warning-stripe{margin:20px 0 0;height:6px;background:repeating-linear-gradient(-45deg,#FFD700,#FFD700 8px,#121212 8px,#121212 16px)}
 
 /* ── Footer ── */
-.footer{margin:16px 40px 20px;padding:14px 0;border-top:1px solid #EEEEEE}
-.footer-sig{text-align:center;font-weight:900;color:#0A192F;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
-.footer-legal{text-align:justify;font-size:6.5px;color:#CCCCCC;line-height:1.8;font-weight:500}
+.footer{padding:14px 40px 20px;position:relative;z-index:1}
+.footer-urgency{text-align:center;font-size:9px;font-weight:700;color:#FFFFFF;letter-spacing:2px;margin-bottom:10px}
+.footer-urgency span{color:#FFD700}
+.footer-sig{text-align:center;font-weight:900;color:rgba(255,255,255,0.15);font-size:9px;letter-spacing:4px;text-transform:uppercase;margin-bottom:8px}
+.footer-legal{text-align:justify;font-size:6px;color:rgba(255,255,255,0.15);line-height:1.8;font-weight:500}
 </style></head><body>
 <div class="page">
 
+<div class="top-accent"></div>
+
 <div class="header">
-  <div class="header-inner">
-    <div class="header-logo">ARTISANS VALIDÉS</div>
-    <h1>ATTESTATION D'EXCLUSIVITÉ SECTORIELLE</h1>
-    <div class="header-ref">CONFIDENTIEL<br/>N° ${refNum}</div>
-  </div>
+  <div class="header-brand">ARTISANS VALIDÉS</div>
+  <div class="header-title"><h1>ATTESTATION D'EXCLUSIVITÉ SECTORIELLE</h1></div>
+  <div class="header-ref">CONFIDENTIEL<br/>N° ${refNum}<br/>${date}</div>
 </div>
 
-<div class="date-bar">
-  <span>Émis le ${date}</span>
-  <span>Alliance des Professionnels Certifiés — France</span>
-</div>
-
-<div class="artisan-card">
-  <div class="artisan-card-header">
+<div class="glass-card">
+  <div class="glass-inner">
     <div class="artisan-name">${artisan.business_name}</div>
-    <div class="artisan-zone">Zone réservée : <strong>${artisan.city}</strong></div>
-    <div class="speed-lines"><span></span><span></span><span></span><span></span></div>
+    <div class="artisan-zone">( <strong>${artisan.city}</strong> ) — Zone d'exclusivité réservée</div>
+    <div class="seal-container">
+      <div class="holo-seal"><span class="seal-text">AV</span></div>
+      <div class="seal-label">Certifié</div>
+    </div>
   </div>
-  <div class="artisan-card-body">
-    <div class="artisan-badge">✦ EXCLUSIVITÉ CERTIFIÉE</div>
-    <div class="artisan-validity">Validité : 48 heures</div>
+  <div class="glass-footer">
+    <div class="glass-badge">✦ EXCLUSIVITÉ CERTIFIÉE — DOSSIER PRIORITAIRE</div>
+    <div class="glass-validity">Expire dans 24h</div>
   </div>
 </div>
 
-<div class="pillars">
-  <div class="pillar">
-    <div class="pillar-icon">🛡️</div>
-    <h3>Exclusivité totale</h3>
-    <p>Zéro concurrent sur votre zone géographique.</p>
+<div class="kpi-section">
+  <div class="kpi">
+    <div class="kpi-label">Protection sectorielle</div>
+    <div class="kpi-bar"><div class="kpi-fill"></div></div>
+    <div class="kpi-value">100%</div>
+    <div class="kpi-status">Verrouillée</div>
   </div>
-  <div class="pillar">
-    <div class="pillar-icon">⚡</div>
-    <h3>Visibilité prioritaire</h3>
-    <p>Position #1 dans tous les résultats de recherche.</p>
+  <div class="kpi">
+    <div class="kpi-label">Visibilité Google</div>
+    <div class="kpi-bar"><div class="kpi-fill"></div></div>
+    <div class="kpi-value">MAX</div>
+    <div class="kpi-status">Activée</div>
   </div>
-  <div class="pillar">
-    <div class="pillar-icon">📞</div>
-    <h3>Flux direct clients</h3>
-    <p>Mise en relation immédiate, sans intermédiaire.</p>
+  <div class="kpi">
+    <div class="kpi-label">Flux de prospects</div>
+    <div class="kpi-bar"><div class="kpi-fill"></div></div>
+    <div class="kpi-value">DIRECT</div>
+    <div class="kpi-status">Ouvert</div>
   </div>
 </div>
 
@@ -333,7 +342,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:#1A1A1A;backgr
   <div class="faq-header">Questions fréquentes</div>
   <div class="faq-item">
     <div class="faq-q">Quel est le coût d'accès ?</div>
-    <div class="faq-a">À partir de <span class="highlight">49 €/mois HT</span>. Un seul client obtenu rembourse plusieurs mois d'adhésion.</div>
+    <div class="faq-a">À partir de <span class="hl">49 €/mois HT</span>. Un seul client obtenu rembourse plusieurs mois d'adhésion.</div>
   </div>
   <div class="faq-item">
     <div class="faq-q">Comment l'exclusivité est-elle protégée ?</div>
@@ -341,30 +350,29 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:#1A1A1A;backgr
   </div>
   <div class="faq-item">
     <div class="faq-q">Quelle différence avec un annuaire classique ?</div>
-    <div class="faq-a">Ici, vous n'êtes pas listé. Vous êtes <span class="highlight">le professionnel recommandé</span> par un organisme de certification.</div>
+    <div class="faq-a">Ici, vous n'êtes pas listé. Vous êtes <span class="hl">le professionnel recommandé</span> par un organisme de certification.</div>
   </div>
 </div>
 
 <div class="cta-section">
-  <a class="btn btn-secondary" href="${url}">👁️ VOIR MA VITRINE PROFESSIONNELLE</a>
-  <a class="btn btn-primary" href="${url}">⚡ ACTIVER MON EXCLUSIVITÉ MAINTENANT</a>
+  <a class="btn btn-ego" href="${url}">DÉCOUVRIR MA VITRINE D'ÉLITE</a>
+  <a class="btn btn-close" href="${url}">⚡ RÉCUPÉRER MES DROITS D'EXCLUSIVITÉ</a>
 </div>
 
 <div class="qr-section">
-  <img src="${qrUrl}" alt="QR Code de vérification"/>
+  <img src="${qrUrl}" alt="QR Code"/>
   <div class="qr-text">
-    <strong>Vérification numérique</strong>
-    Scannez ce code pour accéder au dossier de ${artisan.business_name} et vérifier la validité de cette attestation. Réf. ${refNum}.
+    <strong>Vérification d'authenticité</strong>
+    Scannez pour accéder au dossier de ${artisan.business_name} et vérifier la validité de cette attestation. Réf. ${refNum}.
   </div>
 </div>
 
-<div class="urgency-banner">
-  <div class="urgency-inner">⚠️ DISPONIBILITÉ LIMITÉE — SECTEUR SOUS TENSION</div>
-</div>
+<div class="warning-stripe"></div>
 
 <div class="footer">
-  <div class="footer-sig">MOINS DE BLABLA, PLUS DE RÉSULTATS.</div>
-  <div class="footer-legal">Ce document est émis par Artisans Validés et certifie la réservation temporaire d'une zone d'exclusivité sectorielle. La présente attestation ne constitue pas un engagement contractuel définitif mais une pré-réservation d'accès prioritaire, soumise à validation dans un délai de 48 heures. Passé ce délai, la zone sera automatiquement libérée et proposée à un autre professionnel qualifié. Paiement sécurisé par Stripe. © ${new Date().getFullYear()} Artisans Validés — Tous droits réservés.</div>
+  <div class="footer-urgency">ATTENTION : Ce document expire automatiquement dans <span>24h</span>. Passé ce délai, le secteur sera réouvert aux entreprises concurrentes.</div>
+  <div class="footer-sig">ARTISANS VALIDÉS — L'EXCELLENCE N'ATTEND PAS</div>
+  <div class="footer-legal">Ce document est émis par Artisans Validés et certifie la réservation temporaire d'une zone d'exclusivité sectorielle. La présente attestation ne constitue pas un engagement contractuel définitif mais une pré-réservation d'accès prioritaire, soumise à validation dans un délai de 24 heures ouvrées. Passé ce délai, la zone sera automatiquement libérée et proposée à un autre professionnel qualifié. Toute tentative de reproduction ou de falsification est passible de poursuites. Paiement sécurisé par Stripe. © ${new Date().getFullYear()} Artisans Validés — Tous droits réservés.</div>
 </div>
 
 </div>
