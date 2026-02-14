@@ -15,7 +15,7 @@ import {
   Rocket, Package, Clock, UserCheck,
   MapPin, Search, Copy, Link2, ExternalLink,
   Send, Eye, Loader2, ChevronLeft, ChevronRight,
-  MessageCircle,
+  MessageCircle, FileText, Download,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -61,6 +61,7 @@ const AdminCommandant = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [accessDialog, setAccessDialog] = useState<CommandantArtisan | null>(null);
+  const [messageDialog, setMessageDialog] = useState<CommandantArtisan | null>(null);
 
   // Reset pagination on tab/search change
   const handleTabChange = (tab: string) => {
@@ -193,6 +194,28 @@ L'équipe Artisans Validés`;
     toast.success("📧 Texte d'accès copié !");
   };
 
+  const generateClosingMessage = (artisan: CommandantArtisan) => {
+    const url = getProfileUrl(artisan);
+    return `Bonjour ${artisan.business_name}, votre vitrine exclusive est prête pour ${artisan.city}. Elle est actuellement en attente de validation finale. Consultez-la ici pour bloquer votre zone : ${url}. Attention, la priorité expire demain à 18h.`;
+  };
+
+  const copyClosingMessage = (artisan: CommandantArtisan) => {
+    navigator.clipboard.writeText(generateClosingMessage(artisan));
+    toast.success("📋 Message de closing copié !");
+  };
+
+  const downloadOfferPDF = (artisan: CommandantArtisan) => {
+    const url = getProfileUrl(artisan);
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offre ${artisan.business_name}</title><style>body{font-family:Arial,sans-serif;margin:40px;color:#1a1a1a}h1{color:#ea580c;font-size:22px;border-bottom:3px solid #ea580c;padding-bottom:10px}h2{font-size:16px;margin-top:30px;color:#333}.point{background:#fff7ed;border-left:4px solid #ea580c;padding:12px 16px;margin:10px 0;border-radius:4px}.footer{margin-top:40px;padding-top:20px;border-top:1px solid #ddd;font-size:12px;color:#888}.badge{display:inline-block;background:#ea580c;color:white;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:bold;margin-bottom:20px}.url{color:#ea580c;word-break:break-all}</style></head><body><h1>🎖️ Artisans Validés</h1><span class="badge">OFFRE EXCLUSIVE</span><h2>Récapitulatif pour : ${artisan.business_name}</h2><p><strong>Ville :</strong> ${artisan.city}</p><p><strong>Lien vitrine :</strong> <a class="url" href="${url}">${url}</a></p><div class="point"><strong>1. Exclusivité Géographique</strong><br/>Vous êtes le seul artisan référencé sur votre zone. Aucun concurrent direct ne peut apparaître à côté de vous.</div><div class="point"><strong>2. Vitrine Professionnelle Clé en Main</strong><br/>Votre fiche est déjà en ligne avec vos informations, photos et coordonnées. Les clients peuvent vous contacter directement.</div><div class="point"><strong>3. Visibilité Prioritaire & SEO</strong><br/>Votre profil est optimisé pour le référencement local. Vous apparaissez en tête des résultats pour votre métier et votre ville.</div><p style="margin-top:30px;font-weight:bold;color:#ea580c">⚠️ Cette offre prioritaire expire demain à 18h00.</p><div class="footer">Document généré par Artisans Validés — ${new Date().toLocaleDateString("fr-FR")}</div></body></html>`;
+    const blob = new Blob([html], { type: "text/html" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `Offre-${artisan.business_name.replace(/\s+/g, "-")}.html`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast.success("📄 Récapitulatif téléchargé ! Ouvrez-le et imprimez en PDF.");
+  };
+
   const totalPages = Math.ceil((counts[activeTab] || 0) / PER_PAGE);
 
   return (
@@ -274,6 +297,7 @@ L'équipe Artisans Validés`;
                           }}
                           onViewProfile={() => window.open(getProfileUrl(artisan), "_blank")}
                           onSendAccess={() => setAccessDialog(artisan)}
+                          onGenerateMessage={() => setMessageDialog(artisan)}
                           isAssaulting={assaultMutation.isPending}
                         />
                       ))}
@@ -334,6 +358,35 @@ L'équipe Artisans Validés`;
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Message de Closing Dialog */}
+      <Dialog open={!!messageDialog} onOpenChange={() => setMessageDialog(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Message de closing — {messageDialog?.business_name}
+            </DialogTitle>
+          </DialogHeader>
+          {messageDialog && (
+            <div className="space-y-4">
+              <pre className="bg-muted p-4 rounded-lg text-sm whitespace-pre-wrap font-sans leading-relaxed">
+                {generateClosingMessage(messageDialog)}
+              </pre>
+              <div className="flex gap-2">
+                <Button className="flex-1" onClick={() => copyClosingMessage(messageDialog)}>
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copier le message
+                </Button>
+                <Button variant="outline" onClick={() => downloadOfferPDF(messageDialog)}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Récapitulatif PDF
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
@@ -348,12 +401,13 @@ interface ArtisanRowProps {
   onWhatsApp: () => void;
   onViewProfile: () => void;
   onSendAccess: () => void;
+  onGenerateMessage: () => void;
   isAssaulting: boolean;
 }
 
 const ArtisanRow = ({
   artisan, tabKey, onAssault, onChangeStatus,
-  onCopyLink, onWhatsApp, onViewProfile, onSendAccess, isAssaulting,
+  onCopyLink, onWhatsApp, onViewProfile, onSendAccess, onGenerateMessage, isAssaulting,
 }: ArtisanRowProps) => {
   const statusDot = {
     active: "bg-emerald-500",
@@ -405,7 +459,7 @@ const ArtisanRow = ({
                 </Button>
               )}
 
-              {/* EN COURS tab: Copy magic link + Move to CLIENTS or back to STOCK */}
+              {/* EN COURS tab: Copy magic link + Generate message + Move to CLIENTS or back to STOCK */}
               {tabKey === "en-cours" && (
                 <>
                   <Button
@@ -415,6 +469,14 @@ const ArtisanRow = ({
                   >
                     <Copy className="h-3.5 w-3.5" />
                     COPIER LE LIEN MAGIQUE
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 gap-1 font-bold"
+                    onClick={onGenerateMessage}
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    GÉNÉRER LE MESSAGE
                   </Button>
                   <Button
                     size="sm"
