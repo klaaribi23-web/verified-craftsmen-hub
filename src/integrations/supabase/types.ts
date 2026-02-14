@@ -1764,7 +1764,12 @@ export type Database = {
     Enums: {
       app_role: "admin" | "artisan" | "client"
       application_status: "pending" | "accepted" | "declined"
-      artisan_status: "active" | "suspended" | "pending" | "prospect"
+      artisan_status:
+        | "active"
+        | "suspended"
+        | "pending"
+        | "prospect"
+        | "disponible"
       mission_status:
         | "pending"
         | "assigned"
@@ -1902,7 +1907,13 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "artisan", "client"],
       application_status: ["pending", "accepted", "declined"],
-      artisan_status: ["active", "suspended", "pending", "prospect"],
+      artisan_status: [
+        "active",
+        "suspended",
+        "pending",
+        "prospect",
+        "disponible",
+      ],
       mission_status: [
         "pending",
         "assigned",

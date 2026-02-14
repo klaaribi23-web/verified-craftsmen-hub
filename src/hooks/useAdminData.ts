@@ -15,7 +15,7 @@ export interface Artisan {
   address: string | null;
   hourly_rate: number | null;
   experience_years: number | null;
-  status: "active" | "suspended" | "pending";
+  status: "active" | "suspended" | "pending" | "disponible";
   is_verified: boolean | null;
   rating: number | null;
   review_count: number | null;
@@ -85,7 +85,7 @@ export const useArtisans = () => {
           category:categories(id, name),
           profile:profiles(id, first_name, last_name)
         `)
-        .in("status", ["active", "suspended"])
+        .in("status", ["active", "suspended", "disponible"])
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -314,7 +314,7 @@ export const useUpdateArtisanStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "active" | "suspended" | "pending" }) => {
+    mutationFn: async ({ id, status }: { id: string; status: "active" | "suspended" | "pending" | "disponible" }) => {
       console.log(`[Admin] Updating artisan ${id} to status: ${status}`);
       
       const { data, error } = await supabase

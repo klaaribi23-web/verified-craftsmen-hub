@@ -34,7 +34,10 @@ import {
   XCircle,
   ImageDown,
   Loader2,
-  Trash2
+  Trash2,
+  Clock,
+  ShieldCheck,
+  UserCheck
 } from "lucide-react";
 import {
   AlertDialog,
@@ -90,8 +93,9 @@ const AdminArtisans = () => {
     const matchesCategory = selectedCategory === "Tous" || artisan.category?.name === selectedCategory;
     const matchesCity = selectedCity === "Toutes" || artisan.city === selectedCity;
     const matchesStatus = selectedStatus === "Tous" || 
-      (selectedStatus === "Actif" && artisan.status === "active") ||
-      (selectedStatus === "Suspendu" && artisan.status === "suspended");
+      (selectedStatus === "Validé" && artisan.status === "active") ||
+      (selectedStatus === "En attente" && artisan.status === "suspended") ||
+      (selectedStatus === "Disponible" && artisan.status === "disponible");
     return matchesSearch && matchesCategory && matchesCity && matchesStatus;
   }) || [];
 
@@ -100,33 +104,33 @@ const AdminArtisans = () => {
     setRevokeDialogOpen(true);
   };
 
-  const confirmRevoke = async () => {
-    if (!selectedArtisan) return;
-    
-    const newStatus = selectedArtisan.status === "suspended" ? "active" : "suspended";
-    
+  const handleQuickStatus = async (artisan: any, newStatus: "active" | "suspended" | "disponible") => {
+    if (artisan.status === newStatus) return;
     try {
-      console.log(`[Admin] Attempting to update ${selectedArtisan.business_name} to ${newStatus}`);
-      
-      await updateStatus.mutateAsync({
-        id: selectedArtisan.id,
-        status: newStatus
-      });
-      
-      // Force explicit refetch to ensure UI is in sync
+      await updateStatus.mutateAsync({ id: artisan.id, status: newStatus });
       await queryClient.refetchQueries({ queryKey: ["admin-artisans"] });
-      
+      const labels: Record<string, string> = { active: "Validé", suspended: "En attente", disponible: "Disponible" };
       toast({
-        title: newStatus === "active" ? "Artisan réactivé" : "Artisan révoqué",
-        description: `${selectedArtisan.business_name} a été ${newStatus === "active" ? "réactivé" : "suspendu"}.`,
+        title: `Statut changé : ${labels[newStatus]}`,
+        description: `${artisan.business_name} est maintenant "${labels[newStatus]}".`,
       });
     } catch (error) {
-      console.error("[Admin] Status update error:", error);
+      toast({ title: "Erreur", description: "Le changement de statut a échoué.", variant: "destructive" });
+    }
+  };
+
+  const confirmRevoke = async () => {
+    if (!selectedArtisan) return;
+    const newStatus = selectedArtisan.status === "suspended" ? "active" : "suspended";
+    try {
+      await updateStatus.mutateAsync({ id: selectedArtisan.id, status: newStatus });
+      await queryClient.refetchQueries({ queryKey: ["admin-artisans"] });
       toast({
-        title: "Erreur",
-        description: "La mise à jour du statut a échoué. Vérifiez la console pour plus de détails.",
-        variant: "destructive",
+        title: newStatus === "active" ? "Artisan validé" : "Artisan en attente",
+        description: `${selectedArtisan.business_name} a été mis à jour.`,
       });
+    } catch (error) {
+      toast({ title: "Erreur", description: "La mise à jour du statut a échoué.", variant: "destructive" });
     }
     setRevokeDialogOpen(false);
   };
@@ -181,6 +185,24 @@ const AdminArtisans = () => {
 
   const activeCount = artisans?.filter(a => a.status === "active").length || 0;
   const suspendedCount = artisans?.filter(a => a.status === "suspended").length || 0;
+  const disponibleCount = artisans?.filter(a => a.status === "disponible").length || 0;
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "active": return "Validé";
+      case "suspended": return "En attente";
+      case "disponible": return "Disponible";
+      default: return status;
+    }
+  };
+
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "active": return "secondary" as const;
+      case "disponible": return "outline" as const;
+      default: return "destructive" as const;
+    }
+  };
 
   return (
     <>
@@ -241,8 +263,9 @@ const AdminArtisans = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Tous">Tous les statuts</SelectItem>
-                  <SelectItem value="Actif">Actif</SelectItem>
-                  <SelectItem value="Suspendu">Suspendu</SelectItem>
+                  <SelectItem value="Validé">Validé</SelectItem>
+                  <SelectItem value="En attente">En attente</SelectItem>
+                  <SelectItem value="Disponible">Disponible</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" onClick={() => { setSearchTerm(""); setSelectedCategory("Tous"); setSelectedCity("Toutes"); setSelectedStatus("Tous"); }} className="w-full">
@@ -253,7 +276,7 @@ const AdminArtisans = () => {
         </Card>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
+        <div className="grid grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
           <Card>
             <CardContent className="p-3 md:p-4 text-center">
               <p className="text-xl md:text-2xl font-bold text-foreground">{artisans?.length || 0}</p>
@@ -262,14 +285,20 @@ const AdminArtisans = () => {
           </Card>
           <Card>
             <CardContent className="p-3 md:p-4 text-center">
-              <p className="text-xl md:text-2xl font-bold text-green-500">{activeCount}</p>
-              <p className="text-xs md:text-sm text-muted-foreground">Actifs</p>
+              <p className="text-xl md:text-2xl font-bold text-primary">{activeCount}</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Validés</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 md:p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-accent-foreground">{disponibleCount}</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Disponibles</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-3 md:p-4 text-center">
               <p className="text-xl md:text-2xl font-bold text-destructive">{suspendedCount}</p>
-              <p className="text-xs md:text-sm text-muted-foreground">Suspendus</p>
+              <p className="text-xs md:text-sm text-muted-foreground">En attente</p>
             </CardContent>
           </Card>
         </div>
@@ -324,8 +353,8 @@ const AdminArtisans = () => {
                               {artisan.profile?.first_name} {artisan.profile?.last_name}
                             </p>
                           </div>
-                          <Badge variant={artisan.status === "active" ? "secondary" : "destructive"}>
-                            {artisan.status === "active" ? "Actif" : "Suspendu"}
+                          <Badge variant={getStatusVariant(artisan.status)}>
+                            {getStatusLabel(artisan.status)}
                           </Badge>
                         </div>
 
@@ -359,7 +388,42 @@ const AdminArtisans = () => {
                       />
                     </div>
 
-                    <div className="mt-2 grid grid-cols-5 gap-2">
+                    {/* Status quick actions */}
+                    <div className="mt-2 flex items-center gap-1 px-1">
+                      <span className="text-xs text-muted-foreground mr-auto">Statut :</span>
+                      <Button
+                        size="sm"
+                        variant={artisan.status === "active" ? "default" : "outline"}
+                        className="h-7 px-2 text-xs"
+                        onClick={() => handleQuickStatus(artisan, "active")}
+                        disabled={updateStatus.isPending}
+                      >
+                        <ShieldCheck className="h-3 w-3 mr-1" />
+                        Validé
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={artisan.status === "disponible" ? "default" : "outline"}
+                        className="h-7 px-2 text-xs"
+                        onClick={() => handleQuickStatus(artisan, "disponible")}
+                        disabled={updateStatus.isPending}
+                      >
+                        <UserCheck className="h-3 w-3 mr-1" />
+                        Dispo
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={artisan.status === "suspended" ? "destructive" : "outline"}
+                        className="h-7 px-2 text-xs"
+                        onClick={() => handleQuickStatus(artisan, "suspended")}
+                        disabled={updateStatus.isPending}
+                      >
+                        <Clock className="h-3 w-3 mr-1" />
+                        Attente
+                      </Button>
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-4 gap-2">
                       <Link to={`/artisan/${artisan.slug || artisan.id}`} className="w-full">
                         <Button size="icon" variant="outline" className="w-full" aria-label="Voir le profil">
                           <Eye className="h-4 w-4" />
@@ -382,19 +446,6 @@ const AdminArtisans = () => {
                           <MessageSquare className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Button
-                        size="icon"
-                        variant={artisan.status === "suspended" ? "default" : "destructive"}
-                        className="w-full"
-                        onClick={() => handleRevoke(artisan)}
-                        aria-label={artisan.status === "suspended" ? "Réactiver" : "Suspendre"}
-                      >
-                        {artisan.status === "suspended" ? (
-                          <CheckCircle className="h-4 w-4" />
-                        ) : (
-                          <UserX className="h-4 w-4" />
-                        )}
-                      </Button>
                       <Button
                         size="icon"
                         variant="destructive"
@@ -489,8 +540,8 @@ const AdminArtisans = () => {
                           </span>
                         </td>
                         <td className="p-4">
-                          <Badge variant={artisan.status === "active" ? "secondary" : "destructive"}>
-                            {artisan.status === "active" ? "Actif" : "Suspendu"}
+                          <Badge variant={getStatusVariant(artisan.status)}>
+                            {getStatusLabel(artisan.status)}
                           </Badge>
                           {artisan.is_verified && (
                             <CheckCircle className="h-4 w-4 text-muted-foreground ml-2 inline" />
@@ -511,7 +562,39 @@ const AdminArtisans = () => {
                           />
                         </td>
                         <td className="p-4">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            {/* 3 status buttons */}
+                            <Button
+                              size="sm"
+                              variant={artisan.status === "active" ? "default" : "outline"}
+                              onClick={() => handleQuickStatus(artisan, "active")}
+                              title="Validé"
+                              disabled={updateStatus.isPending}
+                              className="px-2"
+                            >
+                              <ShieldCheck className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={artisan.status === "disponible" ? "default" : "outline"}
+                              onClick={() => handleQuickStatus(artisan, "disponible")}
+                              title="Disponible"
+                              disabled={updateStatus.isPending}
+                              className="px-2"
+                            >
+                              <UserCheck className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={artisan.status === "suspended" ? "destructive" : "outline"}
+                              onClick={() => handleQuickStatus(artisan, "suspended")}
+                              title="En attente"
+                              disabled={updateStatus.isPending}
+                              className="px-2"
+                            >
+                              <Clock className="h-4 w-4" />
+                            </Button>
+                            <span className="w-px h-6 bg-border mx-1" />
                             <Link to={`/artisan/${artisan.slug || artisan.id}`}>
                               <Button size="sm" variant="outline" title="Voir le profil">
                                 <Eye className="h-4 w-4" />
@@ -527,23 +610,6 @@ const AdminArtisans = () => {
                               }}
                             >
                               <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Link to={`/admin/messagerie?artisan=${artisan.profile_id}`}>
-                              <Button size="sm" variant="outline" title="Messagerie">
-                                <MessageSquare className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            <Button
-                              size="sm"
-                              variant={artisan.status === "suspended" ? "default" : "destructive"}
-                              onClick={() => handleRevoke(artisan)}
-                              title={artisan.status === "suspended" ? "Réactiver" : "Suspendre"}
-                            >
-                              {artisan.status === "suspended" ? (
-                                <CheckCircle className="h-4 w-4" />
-                              ) : (
-                                <UserX className="h-4 w-4" />
-                              )}
                             </Button>
                             <Button
                               size="sm"
