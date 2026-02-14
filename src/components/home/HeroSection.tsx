@@ -39,8 +39,12 @@ const HeroSection = () => {
             <span className="text-gradient-gold tracking-normal md:tracking-[0.02em]">validés pour tous vos projets.</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto mb-8 leading-relaxed">
             Ne confiez plus vos travaux au hasard. Accédez à un réseau d'artisans certifiés, audités sur le terrain et sans harcèlement commercial.
+          </p>
+
+          <p className="text-sm font-medium text-emerald-600 mb-6">
+            ✓ Simple, gratuit et sans harcèlement commercial.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
