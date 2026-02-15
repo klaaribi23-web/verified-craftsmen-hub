@@ -250,8 +250,9 @@ background:rgba(255,184,0,0.1);border:2px solid #FFB800;animation:lock-pulse 2s 
 .lock-icon svg{width:32px;height:32px;fill:none;stroke:#FFB800;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @keyframes lock-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,184,0,0.4)}50%{box-shadow:0 0 0 12px rgba(255,184,0,0)}}
 
-/* Sector analysis tag */
-.sector-tag{font-size:11px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:14px}
+/* Sector analysis tag — capsule badge */
+.sector-tag{display:inline-block;font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:18px;
+padding:8px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px}
 
 /* Infos artisan */
 .artisan-block{margin-bottom:28px}
@@ -260,11 +261,13 @@ background:rgba(255,184,0,0.1);border:2px solid #FFB800;animation:lock-pulse 2s 
 .artisan-city{font-size:12px;color:rgba(255,255,255,0.5);font-weight:500;margin-bottom:10px}
 
 /* Arguments block */
-.args-block{text-align:left;max-width:440px;margin:0 auto 28px}
-.arg-item{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
-.arg-emoji{font-size:22px;flex-shrink:0;line-height:1}
-.arg-content{font-size:12.5px;color:rgba(255,255,255,0.7);line-height:1.7}
-.arg-content strong{color:#FFFFFF;font-weight:800}
+.args-block{text-align:left;max-width:460px;margin:0 auto 32px}
+.arg-item{display:flex;align-items:flex-start;gap:16px;margin-bottom:28px}
+.arg-emoji{font-size:28px;flex-shrink:0;line-height:1;width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.15);border-radius:50%}
+.arg-content{font-size:13px;color:rgba(255,255,255,0.85);line-height:1.75}
+.arg-content strong{color:#FFFFFF;font-weight:900;font-size:13.5px}
+.arg-content .city-hl{font-weight:800;color:#FFB800}
 
 /* Transition phrase */
 .transition-phrase{font-size:13px;font-weight:700;color:rgba(255,255,255,0.5);line-height:1.6;text-align:center;margin-bottom:28px;font-style:italic}
@@ -325,15 +328,15 @@ animation:btn-shimmer 3s ease-in-out infinite}
     <div class="args-block">
       <div class="arg-item">
         <span class="arg-emoji">🏦</span>
-        <div class="arg-content"><strong>UN ACTIF NUMÉRIQUE PRÊT À L'EMPLOI</strong> — Ce n'est pas une simple page, c'est votre vitrine optimisée pour dominer le marché local sur Google. Tout est déjà paramétré.</div>
+        <div class="arg-content"><strong>UN ACTIF NUMÉRIQUE PRÊT À L'EMPLOI</strong> — Ce n'est pas une simple page, c'est votre vitrine optimisée pour dominer le marché local sur Google à <span class="city-hl">${artisan.city}</span>. Tout est déjà paramétré.</div>
       </div>
       <div class="arg-item">
         <span class="arg-emoji">🛑</span>
-        <div class="arg-content"><strong>BARRIÈRE À LA CONCURRENCE</strong> — Votre validation verrouille l'accès à vos concurrents. À ${artisan.city}, il n'y a de la place que pour un seul leader.</div>
+        <div class="arg-content"><strong>BARRIÈRE À LA CONCURRENCE</strong> — Votre validation verrouille l'accès à vos concurrents. À <span class="city-hl">${artisan.city}</span>, il n'y a de la place que pour un seul leader.</div>
       </div>
       <div class="arg-item">
         <span class="arg-emoji">☎️</span>
-        <div class="arg-content"><strong>LIGNE DIRECTE CLIENTS</strong> — Interface « zéro friction » : les clients vous appellent en un clic. Pas d'intermédiaire, pas de partage de leads.</div>
+        <div class="arg-content"><strong>LIGNE DIRECTE CLIENTS</strong> — Interface « zéro friction » : les clients de <span class="city-hl">${artisan.city}</span> vous appellent en un clic. Pas d'intermédiaire, pas de partage de leads.</div>
       </div>
     </div>
 
