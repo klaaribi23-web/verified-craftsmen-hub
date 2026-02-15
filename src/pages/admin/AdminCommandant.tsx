@@ -234,9 +234,10 @@ box-shadow:0 0 60px rgba(255,184,0,0.12),0 30px 80px rgba(0,0,0,0.5)}
 /* ── HEADER BANDEAU ── */
 .card-header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;
 background:rgba(10,25,47,0.95);border-bottom:1px solid rgba(255,184,0,0.15)}
-.brand{display:flex;align-items:center;gap:10px}
-.brand-logo{width:36px;height:36px;background:linear-gradient(135deg,#FFB800,#E5A600);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#0A192F;letter-spacing:1px}
-.brand-text span:first-child{font-size:13px;font-weight:900;color:#FFF;display:block;letter-spacing:3px;line-height:1}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-logo{height:38px;width:auto;object-fit:contain}
+.brand-text{display:flex;flex-direction:column}
+.brand-text span:first-child{font-size:14px;font-weight:900;color:#FFF;display:block;letter-spacing:3px;line-height:1}
 .brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;letter-spacing:3px;margin-top:2px}
 .badge-ready{padding:8px 16px;background:#FFB800;color:#0A192F;font-size:9px;font-weight:900;letter-spacing:1.5px;border-radius:5px;text-transform:uppercase}
 
@@ -254,9 +255,9 @@ background:rgba(255,184,0,0.1);border:2px solid #FFB800;animation:lock-pulse 2s 
 
 /* Infos artisan */
 .artisan-block{margin-bottom:28px}
-.artisan-name{font-size:20px;font-weight:900;color:#FFFFFF;margin-bottom:4px}
+.artisan-name{font-size:20px;font-weight:900;color:#FFFFFF;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:10px}
+.gold-seal{width:28px;height:28px;flex-shrink:0}
 .artisan-city{font-size:12px;color:rgba(255,255,255,0.5);font-weight:500;margin-bottom:10px}
-.badge-cert{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:rgba(255,184,0,0.1);border:1.5px solid rgba(255,184,0,0.4);border-radius:6px;font-size:10px;font-weight:800;color:#FFB800;letter-spacing:1px}
 
 /* Impact text */
 .impact-text{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.8;margin-bottom:32px;max-width:400px;margin-left:auto;margin-right:auto}
@@ -288,8 +289,8 @@ animation:btn-shimmer 3s ease-in-out infinite}
   <!-- HEADER -->
   <div class="card-header">
     <div class="brand">
-      <div class="brand-logo">AV</div>
-      <div class="brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
+      <img class="brand-logo" src="https://verified-craftsmen-hub.lovable.app/favicon.png" alt="Artisans Validés" />
+      <div class="brand-text"><span>ARTISANS VALIDÉS</span><span>RÉSEAU D'EXCELLENCE</span></div>
     </div>
     <div class="badge-ready">VOTRE COMPTE EST PRÊT</div>
   </div>
@@ -306,9 +307,11 @@ animation:btn-shimmer 3s ease-in-out infinite}
 
     <!-- Infos artisan -->
     <div class="artisan-block">
-      <div class="artisan-name">${artisan.business_name}</div>
+      <div class="artisan-name">
+        ${artisan.business_name}
+        <svg class="gold-seal" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" fill="#FFB800"/><circle cx="20" cy="20" r="15" fill="none" stroke="#0A192F" stroke-width="1.5"/><path d="M13 20.5l5 4.5 9-10" stroke="#0A192F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M20 2l2.5 4.5L27 5l-1 5 4.5 2.5-3.5 3.5 1.5 5-5-1-2.5 4.5L18.5 20 14 24l1.5-5L11 16.5l4.5-2.5L14.5 9l5 1L20 2z" fill="#FFB800" opacity="0.3"/></svg>
+      </div>
       <div class="artisan-city">📍 ${artisan.city}${artisan.category?.name ? ` — ${artisan.category.name}` : ''}</div>
-      <div class="badge-cert">🛡️ AV CERTIFIÉ</div>
     </div>
 
     <!-- Impact text -->
