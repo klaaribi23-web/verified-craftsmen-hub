@@ -22,14 +22,26 @@ Deno.serve(async (req) => {
       serviceRoleKey
     );
 
-    // Auth: service role header OR admin user token
+    // Auth: service role header, admin user token, OR self-activation with valid artisanId
     const isServiceRole = authHeader === `Bearer ${serviceRoleKey}`;
+    let isAuthorized = isServiceRole;
     
-    if (!isServiceRole) {
-      if (!authHeader?.startsWith("Bearer ")) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!isAuthorized && artisanId) {
+      // Self-activation: verify artisan exists and has no user_id yet (unclaimed)
+      const { data: artisanCheck } = await supabaseAdmin
+        .from("artisans")
+        .select("id, user_id")
+        .eq("id", artisanId)
+        .single();
+      
+      if (artisanCheck && !artisanCheck.user_id) {
+        isAuthorized = true;
+        console.log("[create-artisan-account] Self-activation for unclaimed artisan:", artisanId);
       }
+    }
 
+    if (!isAuthorized && authHeader?.startsWith("Bearer ")) {
+      // Check if caller is admin
       const supabaseAuth = createClient(
         Deno.env.get("SUPABASE_URL")!,
         Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -38,21 +50,21 @@ Deno.serve(async (req) => {
 
       const token = authHeader.replace("Bearer ", "");
       const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-      if (claimsError || !claimsData?.claims) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!claimsError && claimsData?.claims) {
+        const callerUserId = claimsData.claims.sub as string;
+        const { data: roleData } = await supabaseAdmin
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", callerUserId)
+          .single();
+        if (roleData?.role === "admin") {
+          isAuthorized = true;
+        }
       }
+    }
 
-      const callerUserId = claimsData.claims.sub as string;
-
-      const { data: roleData } = await supabaseAdmin
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", callerUserId)
-        .single();
-
-      if (roleData?.role !== "admin") {
-        return new Response(JSON.stringify({ error: "Admin access required" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
+    if (!isAuthorized) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (!email || !password) {
@@ -163,7 +175,7 @@ Deno.serve(async (req) => {
         .eq("user_id", newUserId);
     }
 
-    // Step 4: Link artisan record if provided
+    // Step 4: Link artisan record if provided + update email
     if (artisanId) {
       const { error: linkError } = await supabaseAdmin
         .from("artisans")
@@ -172,13 +184,14 @@ Deno.serve(async (req) => {
           profile_id: profileId,
           status: "active",
           is_verified: true,
+          email: email, // Always update to the email provided
         })
         .eq("id", artisanId);
 
       if (linkError) {
         console.error("Error linking artisan:", linkError);
       } else {
-        console.log("Linked artisan", artisanId, "to user", newUserId);
+        console.log("Linked artisan", artisanId, "to user", newUserId, "with email", email);
       }
     }
 
