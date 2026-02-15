@@ -85,19 +85,24 @@ const ArtisanPublicProfile = () => {
   }>();
   const [searchParams] = useSearchParams();
   const isPreviewMode = searchParams.get("preview") === "true";
-  // Detect owner mode from URL param or sessionStorage persistence
-  const ownerParam = searchParams.get("view") === "owner";
+  // Detect owner mode — brute force detection via window.location.search
   const [isOwnerView, setIsOwnerView] = useState(() => {
-    return ownerParam || sessionStorage.getItem("owner_mode") === "1";
+    const fromUrl = window.location.search.includes("view=owner");
+    const fromSession = sessionStorage.getItem("owner_mode") === "1";
+    if (fromUrl || fromSession) {
+      console.log("MODE OWNER DÉTECTÉ", { fromUrl, fromSession });
+    }
+    return fromUrl || fromSession;
   });
 
-  // Persist owner mode in sessionStorage (must be in useEffect, not during render)
+  // Persist owner mode in sessionStorage
   useEffect(() => {
-    if (ownerParam) {
+    if (window.location.search.includes("view=owner")) {
       sessionStorage.setItem("owner_mode", "1");
       setIsOwnerView(true);
+      console.log("MODE OWNER PERSISTÉ EN SESSION");
     }
-  }, [ownerParam]);
+  }, []);
   const navigate = useNavigate();
   const { user, isAuthenticated, role } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -1463,27 +1468,29 @@ const ArtisanPublicProfile = () => {
         onClose={() => setStoryViewerOpen(false)}
       />
 
-      {/* Owner Closing Tunnel — activated via ?view=owner */}
-      {isOwnerView && (artisan.status === "pending" || artisan.status === "suspended" || artisan.status === "disponible") && (
+      {/* Owner Closing Tunnel — activated via ?view=owner — delay 0 for test */}
+      {isOwnerView && (
         <OwnerClosingTunnel
           artisanName={artisan.business_name}
           city={artisan.city}
           artisanEmail={(artisan as any).email || null}
           artisanId={artisan.id!}
-          delaySeconds={5}
+          delaySeconds={0}
         />
       )}
 
-      {/* Security Lock Overlay for pending/suspended artisans (standard public view) */}
-      {!isPreviewMode && !isOwnerView && (artisan.status === "pending" || artisan.status === "suspended") && (
+      {/* Orange banner + Security Lock for non-validated artisans (always shown) */}
+      {!isPreviewMode && artisan.status !== "active" && (
         <>
-          {/* Sticky top bar — persists even after overlay dismiss */}
+          {/* Sticky top bar — always visible for non-validated artisans */}
           <div className="fixed top-0 left-0 right-0 z-[65] py-2 text-center text-xs md:text-sm font-bold tracking-wide"
             style={{ background: "linear-gradient(90deg, #0A192F, #122a4a)", color: "#FFB800", borderBottom: "1px solid rgba(255,184,0,0.25)" }}
           >
             ⚠️ ATTENTION : Appels clients en attente de déblocage pour {artisan.business_name}.
           </div>
-          <SecurityLockOverlay artisanName={artisan.business_name} city={artisan.city} />
+          {!isOwnerView && (artisan.status === "pending" || artisan.status === "suspended") && (
+            <SecurityLockOverlay artisanName={artisan.business_name} city={artisan.city} />
+          )}
         </>
       )}
 

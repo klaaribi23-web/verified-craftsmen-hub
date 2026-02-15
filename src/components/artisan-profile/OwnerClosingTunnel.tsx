@@ -110,7 +110,7 @@ const OwnerClosingTunnel = ({
     <>
       {/* ═══ STICKY BOTTOM DECISION BAR ═══ */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-[9999] animate-in slide-in-from-bottom-full duration-500"
+        className="fixed bottom-0 left-0 right-0 z-[999999] animate-in slide-in-from-bottom-full duration-500"
         style={{
           background: "linear-gradient(180deg, #0A192F 0%, #0d1f3c 100%)",
           borderTop: "2px solid #FFB800",
