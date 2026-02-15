@@ -259,9 +259,14 @@ background:rgba(255,184,0,0.1);border:2px solid #FFB800;animation:lock-pulse 2s 
 .gold-seal{width:28px;height:28px;flex-shrink:0}
 .artisan-city{font-size:12px;color:rgba(255,255,255,0.5);font-weight:500;margin-bottom:10px}
 
-/* Impact text */
-.impact-text{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.8;margin-bottom:32px;max-width:400px;margin-left:auto;margin-right:auto}
-.impact-text strong{color:#FFB800;font-weight:700}
+/* Value block */
+.value-block{text-align:left;max-width:420px;margin:0 auto 32px}
+.value-title{font-size:13px;font-weight:900;color:#FFB800;letter-spacing:2px;margin-bottom:16px;text-transform:uppercase;font-family:'Montserrat',sans-serif}
+.value-list{list-style:none;padding:0;margin:0 0 20px}
+.value-list li{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6}
+.value-list li .vl-icon{flex-shrink:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.value-list li strong{color:#FFF;font-weight:700}
+.value-closing{font-size:13px;font-weight:700;color:#FFFFFF;line-height:1.7;text-align:center}
 
 /* ── CTA PRINCIPAL ── */
 .btn-vitrine{display:block;width:100%;padding:22px 24px;background:#FFB800;color:#0A192F;font-size:16px;font-weight:900;letter-spacing:1px;border-radius:12px;text-decoration:none;border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
@@ -314,10 +319,25 @@ animation:btn-shimmer 3s ease-in-out infinite}
       <div class="artisan-city">📍 ${artisan.city}${artisan.category?.name ? ` — ${artisan.category.name}` : ''}</div>
     </div>
 
-    <!-- Impact text -->
-    <p class="impact-text">
-      Votre fiche est configurée et attire déjà l'attention. Cependant, votre <strong>exclusivité prioritaire</strong> n'est pas encore activée. Passé le délai de 18h00 demain, cette position sera proposée à votre concurrent direct sur le secteur.
-    </p>
+    <!-- Value block -->
+    <div class="value-block">
+      <div class="value-title">POURQUOI VOTRE SECTEUR EST PRIORITAIRE ?</div>
+      <ul class="value-list">
+        <li>
+          <span class="vl-icon"><svg viewBox="0 0 20 20" fill="#FFB800" width="18" height="18"><circle cx="10" cy="10" r="9" fill="none" stroke="#FFB800" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="#0A192F" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><strong>OPTIMISATION SEO</strong> — Votre fiche est structurée pour apparaître devant vos concurrents sur Google.</span>
+        </li>
+        <li>
+          <span class="vl-icon"><svg viewBox="0 0 20 20" fill="#FFB800" width="18" height="18"><circle cx="10" cy="10" r="9" fill="none" stroke="#FFB800" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="#0A192F" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><strong>CONVERSION ÉLEVÉE</strong> — Interface conçue pour transformer chaque visite en appel téléphonique.</span>
+        </li>
+        <li>
+          <span class="vl-icon"><svg viewBox="0 0 20 20" fill="#FFB800" width="18" height="18"><circle cx="10" cy="10" r="9" fill="none" stroke="#FFB800" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="#0A192F" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><strong>EXCLUSIVITÉ TOTALE</strong> — Une fois validée, aucune autre entreprise de ${artisan.category?.name || 'votre métier'} ne pourra s'installer sur votre secteur.</span>
+        </li>
+      </ul>
+      <p class="value-closing">Cliquez ci-dessous pour inspecter votre outil de travail avant verrouillage définitif.</p>
+    </div>
 
     <!-- CTA unique -->
     <a class="btn-vitrine" href="${url}"><span>👁️ VOIR MA VITRINE PROFESSIONNELLE</span></a>
