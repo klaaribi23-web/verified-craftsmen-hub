@@ -207,172 +207,130 @@ L'équipe Artisans Validés`;
   const downloadOfferPDF = (artisan: CommandantArtisan) => {
     const url = getProfileUrl(artisan);
     const year = new Date().getFullYear();
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Dashboard Sécurité</title>
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Exclusivité</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Montserrat',system-ui,sans-serif;color:#E2E8F0;background:#0A192F;-webkit-print-color-adjust:exact;print-color-adjust:exact;min-height:100vh;position:relative;overflow-x:hidden}
+body{font-family:'Montserrat',system-ui,sans-serif;color:#E2E8F0;min-height:100vh;display:flex;align-items:center;justify-content:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+background:#070E1A;position:relative;overflow:hidden}
 
-/* ── BACKGROUND PATTERN HAUTE TECHNOLOGIE ── */
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+/* ── FOND FLOUTÉ + CIRCUIT PATTERN ── */
+body::before{content:'';position:fixed;inset:0;z-index:0;
 background:
-  repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(255,184,0,0.025) 60px,rgba(255,184,0,0.025) 61px),
-  repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(255,184,0,0.025) 60px,rgba(255,184,0,0.025) 61px),
-  repeating-linear-gradient(135deg,transparent,transparent 100px,rgba(255,184,0,0.018) 100px,rgba(255,184,0,0.018) 101px),
-  repeating-linear-gradient(45deg,transparent,transparent 140px,rgba(255,184,0,0.012) 140px,rgba(255,184,0,0.012) 141px);
-}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-background:radial-gradient(ellipse at 20% 0%,rgba(255,184,0,0.06) 0%,transparent 50%),
-radial-gradient(ellipse at 80% 100%,rgba(255,184,0,0.04) 0%,transparent 50%)}
-body>*{position:relative;z-index:1}
+  repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(255,184,0,0.02) 60px,rgba(255,184,0,0.02) 61px),
+  repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(255,184,0,0.02) 60px,rgba(255,184,0,0.02) 61px),
+  repeating-linear-gradient(135deg,transparent,transparent 100px,rgba(255,184,0,0.015) 100px,rgba(255,184,0,0.015) 101px);
+backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+body::after{content:'';position:fixed;inset:0;z-index:0;
+background:radial-gradient(ellipse at 30% 20%,rgba(255,184,0,0.07) 0%,transparent 55%),
+radial-gradient(ellipse at 70% 80%,rgba(255,184,0,0.04) 0%,transparent 55%)}
 
-/* ── HEADER D'AUTORITÉ ── */
-.header{background:rgba(10,25,47,0.97);backdrop-filter:blur(16px);padding:20px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(255,184,0,0.15)}
-.nav-brand{display:flex;align-items:center;gap:14px}
-.nav-logo{width:44px;height:44px;background:linear-gradient(135deg,#FFB800,#E5A600);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#0A192F;letter-spacing:1px;box-shadow:0 0 24px rgba(255,184,0,0.35)}
-.nav-brand-text span:first-child{font-size:17px;font-weight:900;color:#FFFFFF;display:block;letter-spacing:4px;line-height:1}
-.nav-brand-text span:last-child{font-size:8px;font-weight:700;color:#FFB800;display:block;letter-spacing:4px;margin-top:3px}
-.badge-lock{padding:12px 24px;background:#FFB800;color:#0A192F;font-size:11px;font-weight:900;letter-spacing:2px;border-radius:6px;text-transform:uppercase;box-shadow:0 0 20px rgba(255,184,0,0.25)}
+/* ── CARD CENTRALE FLOTTANTE ── */
+.lock-card{position:relative;z-index:1;width:100%;max-width:540px;margin:40px auto;
+background:#0A192F;border-radius:20px;overflow:hidden;
+border:1.5px solid #FFB800;
+box-shadow:0 0 60px rgba(255,184,0,0.12),0 30px 80px rgba(0,0,0,0.5)}
 
-/* ── ACCROCHE CHOC ── */
-.hero{padding:80px 48px 44px;text-align:center}
-.hero h1{font-size:38px;font-weight:900;color:#FFB800;line-height:1.15;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:24px;max-width:780px;margin-left:auto;margin-right:auto;text-shadow:0 0 60px rgba(255,184,0,0.2)}
+/* ── HEADER BANDEAU ── */
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;
+background:rgba(10,25,47,0.95);border-bottom:1px solid rgba(255,184,0,0.15)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{width:36px;height:36px;background:linear-gradient(135deg,#FFB800,#E5A600);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#0A192F;letter-spacing:1px}
+.brand-text span:first-child{font-size:13px;font-weight:900;color:#FFF;display:block;letter-spacing:3px;line-height:1}
+.brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;letter-spacing:3px;margin-top:2px}
+.badge-ready{padding:8px 16px;background:#FFB800;color:#0A192F;font-size:9px;font-weight:900;letter-spacing:1.5px;border-radius:5px;text-transform:uppercase}
 
-/* ── CARD ARTISAN (LE CŒUR) ── */
-.artisan-card-wrap{padding:0 48px;margin-top:16px;margin-bottom:56px;display:flex;justify-content:center}
-.artisan-card{background:linear-gradient(150deg,#FFFFFF 0%,#F8FAFC 100%);border-radius:20px;padding:40px 48px;display:flex;align-items:center;gap:32px;box-shadow:0 24px 64px rgba(0,0,0,0.45),0 0 0 1px rgba(255,184,0,0.12);max-width:580px;width:100%}
-.artisan-avatar{width:78px;height:78px;border-radius:18px;background:#E2E8F0;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#0A192F;flex-shrink:0;border:3px solid #FFB800;box-shadow:0 0 20px rgba(255,184,0,0.3)}
-.artisan-info h2{font-size:13px;font-weight:600;color:#64748B;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
-.artisan-info .name{font-size:22px;font-weight:900;color:#0A192F;margin-bottom:4px}
-.artisan-info .city{font-size:13px;color:#64748B;font-weight:500;margin-bottom:12px}
-.badge-certified{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:linear-gradient(135deg,rgba(255,184,0,0.18),rgba(255,184,0,0.08));border:1.5px solid rgba(255,184,0,0.45);border-radius:8px;font-size:11px;font-weight:800;color:#B8860B;letter-spacing:1px}
+/* ── CONTENU CENTRAL ── */
+.card-body{padding:40px 32px 32px;text-align:center}
 
-/* ── 3 ACTIFS STRATÉGIQUES ── */
-.actifs{padding:0 48px 60px}
-.actifs-grid{display:flex;gap:22px}
-.actif-card{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,184,0,0.1);border-radius:16px;padding:36px 26px;text-align:center}
-.actif-icon{width:60px;height:60px;background:rgba(255,184,0,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:28px;box-shadow:0 0 24px rgba(255,184,0,0.1)}
-.actif-card h3{font-size:12px;font-weight:900;color:#FFB800;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase}
-.actif-card p{font-size:11.5px;color:rgba(255,255,255,0.5);line-height:1.85}
+/* Icône cadenas animé */
+.lock-icon{width:64px;height:64px;margin:0 auto 24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+background:rgba(255,184,0,0.1);border:2px solid #FFB800;animation:lock-pulse 2s ease-in-out infinite}
+.lock-icon svg{width:32px;height:32px;fill:none;stroke:#FFB800;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@keyframes lock-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,184,0,0.4)}50%{box-shadow:0 0 0 12px rgba(255,184,0,0)}}
 
-/* ── BOUTONS CTA ── */
-.cta-section{padding:20px 48px 24px;text-align:center}
-.cta-buttons{display:flex;flex-direction:column;align-items:center;gap:18px}
-.btn-secure{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:26px 52px;background:#FFB800;color:#0A192F;font-size:19px;font-weight:900;letter-spacing:1.5px;border-radius:14px;text-decoration:none;border:none;cursor:pointer;box-shadow:0 8px 36px rgba(255,184,0,0.4),0 0 0 1px rgba(255,184,0,0.5);position:relative;overflow:hidden;font-family:'Montserrat',sans-serif;animation:btn-pulse 2.5s ease-in-out infinite}
-.btn-secure::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,0.08) 30%,rgba(255,255,255,0.28) 50%,rgba(255,255,255,0.08) 70%,transparent 100%);animation:btn-shimmer 3s ease-in-out infinite}
-.btn-vitrine{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:18px 44px;background:transparent;color:#FFFFFF;font-size:15px;font-weight:700;letter-spacing:1px;border-radius:12px;text-decoration:none;border:2px solid rgba(255,255,255,0.4);cursor:pointer;font-family:'Montserrat',sans-serif;transition:all 0.3s ease}
-.btn-vitrine:hover{border-color:#FFB800;color:#FFB800;background:rgba(255,184,0,0.06)}
+/* Accroche */
+.headline{font-size:17px;font-weight:900;color:#FFB800;line-height:1.3;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;max-width:420px;margin-left:auto;margin-right:auto}
+
+/* Infos artisan */
+.artisan-block{margin-bottom:28px}
+.artisan-name{font-size:20px;font-weight:900;color:#FFFFFF;margin-bottom:4px}
+.artisan-city{font-size:12px;color:rgba(255,255,255,0.5);font-weight:500;margin-bottom:10px}
+.badge-cert{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:rgba(255,184,0,0.1);border:1.5px solid rgba(255,184,0,0.4);border-radius:6px;font-size:10px;font-weight:800;color:#FFB800;letter-spacing:1px}
+
+/* Impact text */
+.impact-text{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.8;margin-bottom:32px;max-width:400px;margin-left:auto;margin-right:auto}
+.impact-text strong{color:#FFB800;font-weight:700}
+
+/* ── CTA PRINCIPAL ── */
+.btn-vitrine{display:block;width:100%;padding:22px 24px;background:#FFB800;color:#0A192F;font-size:16px;font-weight:900;letter-spacing:1px;border-radius:12px;text-decoration:none;border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
+box-shadow:0 8px 36px rgba(255,184,0,0.4);position:relative;overflow:hidden;
+animation:btn-pulse 2.5s ease-in-out infinite}
+.btn-vitrine::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,0.08) 30%,rgba(255,255,255,0.28) 50%,rgba(255,255,255,0.08) 70%,transparent 100%);
+animation:btn-shimmer 3s ease-in-out infinite}
+.btn-vitrine span{position:relative;z-index:1}
 @keyframes btn-shimmer{0%{left:-100%}60%{left:150%}100%{left:150%}}
 @keyframes btn-pulse{0%,100%{transform:scale(1);box-shadow:0 8px 36px rgba(255,184,0,0.4)}50%{transform:scale(1.02);box-shadow:0 12px 48px rgba(255,184,0,0.55)}}
-.cta-warning{margin-top:20px;font-size:14px;font-weight:800;color:#EF4444;letter-spacing:0.5px}
 
-/* ── FOOTER INSTITUTIONNEL ── */
-.footer{background:rgba(10,25,47,0.7);backdrop-filter:blur(8px);border-top:2px solid rgba(255,184,0,0.1);padding:52px 48px 28px;margin-top:56px}
-.footer-grid{display:flex;gap:32px;margin-bottom:40px}
-.footer-col{flex:1}
-.footer-col-brand{flex:1.6}
-.footer-col-title{font-size:10px;font-weight:800;color:#FFB800;letter-spacing:2.5px;margin-bottom:18px;text-transform:uppercase}
-.footer-col a,.footer-col span{display:block;font-size:9px;color:rgba(255,255,255,0.35);text-decoration:none;margin-bottom:8px}
-.footer-brand{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.footer-brand-logo{width:36px;height:36px;background:rgba(255,184,0,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#FFB800}
-.footer-brand-text span:first-child{font-size:14px;font-weight:900;color:#FFFFFF;display:block;line-height:1}
-.footer-brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;margin-top:2px;letter-spacing:3px}
-.footer-desc{font-size:9px;color:rgba(255,255,255,0.3);line-height:1.85;max-width:250px}
-.footer-slogan{margin-top:20px;font-size:9px;font-weight:900;color:#FFB800;letter-spacing:4px;text-transform:uppercase}
-.footer-contact{margin-top:18px}
-.footer-contact span{display:block;font-size:8px;color:rgba(255,255,255,0.35);margin-bottom:7px}
-.footer-guarantee{margin-top:20px;padding:14px 20px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:8px;font-size:9px;font-weight:700;color:#FFB800;text-align:center}
-.footer-bottom{border-top:1px solid rgba(255,255,255,0.05);padding-top:22px;text-align:center;font-size:7.5px;color:rgba(255,255,255,0.2)}
+/* ── ALERTE URGENCE ── */
+.alert-bar{margin-top:24px;padding:14px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+.alert-bar .bomb{font-size:18px}
+.alert-bar .alert-text{font-size:12px;font-weight:800;color:#EF4444;letter-spacing:0.5px}
+
+/* ── FOOTER LIGHT ── */
+.card-footer{padding:20px 32px;border-top:1px solid rgba(255,184,0,0.08);text-align:center}
+.footer-guarantee{font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);margin-bottom:6px}
+.footer-copy{font-size:8px;color:rgba(255,255,255,0.15)}
 </style></head><body>
 
-<!-- ═══ HEADER D'AUTORITÉ ═══ -->
-<div class="header">
-  <div class="nav-brand">
-    <div class="nav-logo">AV</div>
-    <div class="nav-brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
+<div class="lock-card">
+  <!-- HEADER -->
+  <div class="card-header">
+    <div class="brand">
+      <div class="brand-logo">AV</div>
+      <div class="brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
+    </div>
+    <div class="badge-ready">VOTRE COMPTE EST PRÊT</div>
   </div>
-  <div class="badge-lock">ACCÈS PRIORITAIRE VERROUILLÉ</div>
-</div>
 
-<!-- ═══ ACCROCHE CHOC ═══ -->
-<div class="hero">
-  <h1>NE LAISSEZ PAS VOTRE COMPÉTITEUR VOLER VOTRE SECTEUR.</h1>
-</div>
+  <!-- BODY -->
+  <div class="card-body">
+    <!-- Lock icon -->
+    <div class="lock-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
 
-<!-- ═══ CARD ARTISAN (LE CŒUR) ═══ -->
-<div class="artisan-card-wrap">
-  <div class="artisan-card">
-    <div class="artisan-avatar">${artisan.business_name.charAt(0)}</div>
-    <div class="artisan-info">
-      <h2>Récapitulatif pour</h2>
-      <div class="name">${artisan.business_name}</div>
-      <div class="city">📍 Ville : ${artisan.city}${artisan.category?.name ? ` — ${artisan.category.name}` : ''}</div>
-      <div class="badge-certified">🛡️ AV CERTIFIÉ</div>
-    </div>
-  </div>
-</div>
+    <!-- Accroche -->
+    <div class="headline">NE LAISSEZ PAS VOTRE COMPÉTITEUR VOLER VOTRE SECTEUR.</div>
 
-<!-- ═══ 3 ACTIFS STRATÉGIQUES ═══ -->
-<div class="actifs">
-  <div class="actifs-grid">
-    <div class="actif-card">
-      <div class="actif-icon">🛡️</div>
-      <h3>Exclusivité Géographique</h3>
-      <p>Zéro concurrence. Vous possédez le secteur. Maximum 2 artisans par métier et par ville.</p>
+    <!-- Infos artisan -->
+    <div class="artisan-block">
+      <div class="artisan-name">${artisan.business_name}</div>
+      <div class="artisan-city">📍 ${artisan.city}${artisan.category?.name ? ` — ${artisan.category.name}` : ''}</div>
+      <div class="badge-cert">🛡️ AV CERTIFIÉ</div>
     </div>
-    <div class="actif-card">
-      <div class="actif-icon">✨</div>
-      <h3>Vitrine Clé en Main</h3>
-      <p>Votre profil est déjà configuré et prêt à l'emploi. Recevez des appels directs dès l'activation.</p>
-    </div>
-    <div class="actif-card">
-      <div class="actif-icon">🚀</div>
-      <h3>Visibilité Prioritaire</h3>
-      <p>N°1 sur les recherches locales Google. Aucun intermédiaire. 100% des demandes captées.</p>
+
+    <!-- Impact text -->
+    <p class="impact-text">
+      Votre fiche est configurée et attire déjà l'attention. Cependant, votre <strong>exclusivité prioritaire</strong> n'est pas encore activée. Passé le délai de 18h00 demain, cette position sera proposée à votre concurrent direct sur le secteur.
+    </p>
+
+    <!-- CTA unique -->
+    <a class="btn-vitrine" href="${url}"><span>👁️ VOIR MA VITRINE PROFESSIONNELLE</span></a>
+
+    <!-- Alerte urgence -->
+    <div class="alert-bar">
+      <span class="bomb">💣</span>
+      <span class="alert-text">Expiration automatique demain à 18h00</span>
     </div>
   </div>
-</div>
 
-<!-- ═══ DOUBLE CTA + ALERTE ═══ -->
-<div class="cta-section">
-  <div class="cta-buttons">
-    <a class="btn-secure" href="${url}">🔒 DÉBLOQUER MON EXCLUSIVITÉ MAINTENANT</a>
-    <a class="btn-vitrine" href="${url}">👁️ VOIR MA VITRINE PROFESSIONNELLE</a>
+  <!-- FOOTER -->
+  <div class="card-footer">
+    <div class="footer-guarantee">✅ Satisfaction garantie ou 100% remboursé sous 30 jours</div>
+    <div class="footer-copy">© ${year} Artisans Validés — www.artisansvalides.fr</div>
   </div>
-  <div class="cta-warning">⚠️ Expiration automatique demain à 18h00.</div>
-</div>
-
-<!-- ═══ FOOTER INSTITUTIONNEL ═══ -->
-<div class="footer">
-  <div class="footer-grid">
-    <div class="footer-col footer-col-brand">
-      <div class="footer-brand">
-        <div class="footer-brand-logo">AV</div>
-        <div class="footer-brand-text"><span>ARTISANS</span><span>VALIDÉS</span></div>
-      </div>
-      <div class="footer-desc">La plateforme de confiance qui connecte les particuliers avec des artisans vérifiés et qualifiés dans toute la France.</div>
-      <div class="footer-slogan">MOINS DE BLABLA, PLUS DE RÉSULTATS.</div>
-      <div class="footer-contact">
-        <span>📞 03 53 63 29 99</span>
-        <span>📧 contact@artisansvalides.fr</span>
-        <span>📍 77 rue de la Monnaie, 59800 Lille</span>
-      </div>
-      <div class="footer-guarantee">✅ Satisfaction garantie ou 100% remboursé sous 30 jours</div>
-    </div>
-    <div class="footer-col">
-      <div class="footer-col-title">Nos métiers</div>
-      <a>Plombier</a><a>Électricien</a><a>Chauffagiste</a><a>Peintre</a><a>Serrurier</a><a>Maçon</a>
-    </div>
-    <div class="footer-col">
-      <div class="footer-col-title">Entreprise</div>
-      <a>À propos</a><a>Comment ça marche</a><a>Devenir partenaire</a><a>Blog</a><a>Contact</a>
-    </div>
-    <div class="footer-col">
-      <div class="footer-col-title">Nos régions</div>
-      <a>Île-de-France</a><a>Hauts-de-France</a><a>PACA</a><a>Auvergne-Rhône-Alpes</a><a>Occitanie</a><a>Nouvelle-Aquitaine</a>
-    </div>
-  </div>
-  <div class="footer-bottom">© ${year} Artisans Validés. Tous droits réservés. — www.artisansvalides.fr</div>
 </div>
 
 </body></html>`;
