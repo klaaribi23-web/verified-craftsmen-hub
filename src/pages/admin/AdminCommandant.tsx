@@ -155,12 +155,12 @@ const AdminCommandant = () => {
     onError: () => toast.error("Erreur lors du changement de statut"),
   });
 
-  const getProfileUrl = (artisan: CommandantArtisan) =>
-    `${PUBLISHED_URL}/artisan/${artisan.slug || artisan.id}`;
+  const getProfileUrl = (artisan: CommandantArtisan, ownerMode = false) =>
+    `${PUBLISHED_URL}/artisan/${artisan.slug || artisan.id}${ownerMode ? "?view=owner" : ""}`;
 
   const copyLink = (artisan: CommandantArtisan) => {
-    navigator.clipboard.writeText(getProfileUrl(artisan));
-    toast.success("🔗 Lien Magique copié !");
+    navigator.clipboard.writeText(getProfileUrl(artisan, true));
+    toast.success("🔗 Lien Magique copié (mode owner) !");
   };
 
   const getWhatsAppLink = (artisan: CommandantArtisan) => {

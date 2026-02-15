@@ -85,7 +85,12 @@ const ArtisanPublicProfile = () => {
   }>();
   const [searchParams] = useSearchParams();
   const isPreviewMode = searchParams.get("preview") === "true";
-  const isOwnerView = searchParams.get("view") === "owner";
+  // Persist owner mode in sessionStorage so it survives intra-site navigation
+  const ownerParam = searchParams.get("view") === "owner";
+  if (ownerParam) {
+    sessionStorage.setItem("owner_mode", "1");
+  }
+  const isOwnerView = ownerParam || sessionStorage.getItem("owner_mode") === "1";
   const navigate = useNavigate();
   const { user, isAuthenticated, role } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
