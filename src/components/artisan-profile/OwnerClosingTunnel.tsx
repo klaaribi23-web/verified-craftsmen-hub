@@ -83,8 +83,17 @@ const OwnerClosingTunnel = ({
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      setSent(true);
-      toast.success("Succès ! Vos accès ont été envoyés.");
+      if (data?.email_sent === false) {
+        // Account created but email failed — show password as fallback
+        setSent(true);
+        toast.warning(
+          `Compte créé, mais l'e-mail n'a pas pu être envoyé. Notez votre mot de passe temporaire : ${data.password}`,
+          { duration: 30000 }
+        );
+      } else {
+        setSent(true);
+        toast.success("Succès ! Vos accès ont été envoyés par e-mail.");
+      }
 
       // Clear owner mode persistence
       sessionStorage.removeItem("owner_mode");
