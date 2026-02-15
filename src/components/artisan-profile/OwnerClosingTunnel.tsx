@@ -31,10 +31,22 @@ const OwnerClosingTunnel = ({
   const [isSending, setIsSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  // Show sticky bar after delay
+  // Show sticky bar after delay OR after scrolling 40% of the page
   useEffect(() => {
     const timer = setTimeout(() => setBarVisible(true), delaySeconds * 1000);
-    return () => clearTimeout(timer);
+    
+    const handleScroll = () => {
+      const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      if (scrollPercent > 0.4) {
+        setBarVisible(true);
+      }
+    };
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, [delaySeconds]);
 
   // Update email if prop changes
@@ -98,7 +110,7 @@ const OwnerClosingTunnel = ({
     <>
       {/* ═══ STICKY BOTTOM DECISION BAR ═══ */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-[80] animate-in slide-in-from-bottom-full duration-500"
+        className="fixed bottom-0 left-0 right-0 z-[9999] animate-in slide-in-from-bottom-full duration-500"
         style={{
           background: "linear-gradient(180deg, #0A192F 0%, #0d1f3c 100%)",
           borderTop: "2px solid #FFB800",
