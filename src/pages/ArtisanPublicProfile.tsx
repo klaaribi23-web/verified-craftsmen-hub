@@ -70,6 +70,7 @@ import AuditReportSection from "@/components/artisan-profile/AuditReportSection"
 import ArtisanContactForm from "@/components/artisan-profile/ArtisanContactForm";
 import StickyMobileCTA from "@/components/artisan-profile/StickyMobileCTA";
 import SecurityLockOverlay from "@/components/artisan-profile/SecurityLockOverlay";
+import OwnerClosingTunnel from "@/components/artisan-profile/OwnerClosingTunnel";
 
 // Helper: get tomorrow's date formatted for urgency banner
 const getTomorrowDeadline = () => {
@@ -84,6 +85,7 @@ const ArtisanPublicProfile = () => {
   }>();
   const [searchParams] = useSearchParams();
   const isPreviewMode = searchParams.get("preview") === "true";
+  const isOwnerView = searchParams.get("view") === "owner";
   const navigate = useNavigate();
   const { user, isAuthenticated, role } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -1449,8 +1451,19 @@ const ArtisanPublicProfile = () => {
         onClose={() => setStoryViewerOpen(false)}
       />
 
-      {/* Security Lock Overlay for pending/suspended artisans */}
-      {!isPreviewMode && (artisan.status === "pending" || artisan.status === "suspended") && (
+      {/* Owner Closing Tunnel — activated via ?view=owner */}
+      {isOwnerView && (artisan.status === "pending" || artisan.status === "suspended" || artisan.status === "disponible") && (
+        <OwnerClosingTunnel
+          artisanName={artisan.business_name}
+          city={artisan.city}
+          artisanEmail={(artisan as any).email || null}
+          artisanId={artisan.id!}
+          delaySeconds={20}
+        />
+      )}
+
+      {/* Security Lock Overlay for pending/suspended artisans (standard public view) */}
+      {!isPreviewMode && !isOwnerView && (artisan.status === "pending" || artisan.status === "suspended") && (
         <>
           {/* Sticky top bar — persists even after overlay dismiss */}
           <div className="fixed top-0 left-0 right-0 z-[65] py-2 text-center text-xs md:text-sm font-bold tracking-wide"
