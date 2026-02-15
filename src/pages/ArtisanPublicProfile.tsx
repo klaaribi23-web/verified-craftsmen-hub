@@ -69,6 +69,7 @@ import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
 import AuditReportSection from "@/components/artisan-profile/AuditReportSection";
 import ArtisanContactForm from "@/components/artisan-profile/ArtisanContactForm";
 import StickyMobileCTA from "@/components/artisan-profile/StickyMobileCTA";
+import SecurityLockOverlay from "@/components/artisan-profile/SecurityLockOverlay";
 
 // Helper: get tomorrow's date formatted for urgency banner
 const getTomorrowDeadline = () => {
@@ -1447,6 +1448,19 @@ const ArtisanPublicProfile = () => {
         isOpen={storyViewerOpen}
         onClose={() => setStoryViewerOpen(false)}
       />
+
+      {/* Security Lock Overlay for pending/suspended artisans */}
+      {!isPreviewMode && (artisan.status === "pending" || artisan.status === "suspended") && (
+        <>
+          {/* Sticky top bar — persists even after overlay dismiss */}
+          <div className="fixed top-0 left-0 right-0 z-[65] py-2 text-center text-xs md:text-sm font-bold tracking-wide"
+            style={{ background: "linear-gradient(90deg, #0A192F, #122a4a)", color: "#FFB800", borderBottom: "1px solid rgba(255,184,0,0.25)" }}
+          >
+            ⚠️ ATTENTION : Appels clients en attente de déblocage pour {artisan.business_name}.
+          </div>
+          <SecurityLockOverlay artisanName={artisan.business_name} city={artisan.city} />
+        </>
+      )}
 
       <Footer />
 
