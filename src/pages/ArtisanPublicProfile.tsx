@@ -85,12 +85,19 @@ const ArtisanPublicProfile = () => {
   }>();
   const [searchParams] = useSearchParams();
   const isPreviewMode = searchParams.get("preview") === "true";
-  // Persist owner mode in sessionStorage so it survives intra-site navigation
+  // Detect owner mode from URL param or sessionStorage persistence
   const ownerParam = searchParams.get("view") === "owner";
-  if (ownerParam) {
-    sessionStorage.setItem("owner_mode", "1");
-  }
-  const isOwnerView = ownerParam || sessionStorage.getItem("owner_mode") === "1";
+  const [isOwnerView, setIsOwnerView] = useState(() => {
+    return ownerParam || sessionStorage.getItem("owner_mode") === "1";
+  });
+
+  // Persist owner mode in sessionStorage (must be in useEffect, not during render)
+  useEffect(() => {
+    if (ownerParam) {
+      sessionStorage.setItem("owner_mode", "1");
+      setIsOwnerView(true);
+    }
+  }, [ownerParam]);
   const navigate = useNavigate();
   const { user, isAuthenticated, role } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -1463,7 +1470,7 @@ const ArtisanPublicProfile = () => {
           city={artisan.city}
           artisanEmail={(artisan as any).email || null}
           artisanId={artisan.id!}
-          delaySeconds={20}
+          delaySeconds={5}
         />
       )}
 
