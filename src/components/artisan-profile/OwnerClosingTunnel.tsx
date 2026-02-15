@@ -67,6 +67,9 @@ const OwnerClosingTunnel = ({
       setSent(true);
       toast.success("Vos identifiants ont été envoyés par e-mail !");
 
+      // Clear owner mode persistence
+      sessionStorage.removeItem("owner_mode");
+
       // Redirect after 3 seconds
       setTimeout(() => {
         window.location.href = "/connexion";
