@@ -293,6 +293,41 @@ animation:btn-shimmer 3s ease-in-out infinite}
 .card-footer{padding:20px 32px;border-top:1px solid rgba(255,184,0,0.08);text-align:center}
 .footer-guarantee{font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);margin-bottom:6px}
 .footer-copy{font-size:8px;color:rgba(255,255,255,0.15)}
+
+/* ══════ RESPONSIVE MOBILE ══════ */
+@media(max-width:480px){
+  .lock-card{max-width:95%;border-radius:14px;border-width:1px}
+  .card-header{padding:12px 15px}
+  .brand-logo{height:28px}
+  .brand-text span:first-child{font-size:11px;letter-spacing:2px}
+  .brand-text span:last-child{font-size:6px}
+  .badge-ready{padding:6px 10px;font-size:7.5px}
+  .card-body{padding:24px 15px 20px}
+  .lock-icon{width:48px;height:48px;margin-bottom:16px}
+  .lock-icon svg{width:24px;height:24px}
+  .sector-tag{font-size:9px;padding:6px 12px;letter-spacing:1.5px;margin-bottom:14px}
+  .artisan-name{font-size:20px;gap:8px}
+  .gold-seal{width:22px;height:22px}
+  .artisan-city{font-size:11px}
+
+  /* Args — column layout: icon on top */
+  .args-block{max-width:100%;margin-bottom:24px}
+  .arg-item{flex-direction:column;align-items:center;text-align:center;gap:10px;margin-bottom:24px}
+  .arg-emoji{width:44px;height:44px;font-size:24px}
+  .arg-content{font-size:14px;line-height:1.7}
+  .arg-content strong{font-size:15px;display:block;margin-bottom:4px}
+
+  .transition-phrase{font-size:12px;margin-bottom:20px}
+
+  /* Sticky full-width CTA */
+  .btn-vitrine{font-size:14px;padding:18px 16px;border-radius:10px;letter-spacing:0.5px;
+  position:sticky;bottom:0;z-index:10}
+
+  .alert-bar{padding:10px 14px;margin-top:18px}
+  .alert-bar .alert-text{font-size:11px}
+
+  .card-footer{padding:14px 15px}
+}
 </style></head><body>
 
 <div class="lock-card">
