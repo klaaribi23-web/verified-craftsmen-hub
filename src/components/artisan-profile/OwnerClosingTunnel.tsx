@@ -30,6 +30,7 @@ const OwnerClosingTunnel = ({
   const [email, setEmail] = useState(artisanEmail || "");
   const [isSending, setIsSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [fallbackPassword, setFallbackPassword] = useState<string | null>(null);
 
   // Show sticky bar after delay OR after scrolling 40% of the page
   useEffect(() => {
@@ -84,15 +85,11 @@ const OwnerClosingTunnel = ({
       if (data?.error) throw new Error(data.error);
 
       if (data?.email_sent === false) {
-        // Account created but email failed — show password as fallback
+        // Account created but email failed — show password in UI
+        setFallbackPassword(data.password || tempPassword);
         setSent(true);
-        toast.warning(
-          `Compte créé, mais l'e-mail n'a pas pu être envoyé. Notez votre mot de passe temporaire : ${data.password}`,
-          { duration: 30000 }
-        );
       } else {
         setSent(true);
-        toast.success("Succès ! Vos accès ont été envoyés par e-mail.");
       }
 
       // Clear owner mode persistence
@@ -267,12 +264,40 @@ const OwnerClosingTunnel = ({
               >
                 <span className="text-3xl">🎉</span>
               </div>
-               <h3 className="text-lg font-bold" style={{ color: "#22c55e" }}>
-                 Succès ! Vos accès ont été envoyés.
-               </h3>
-               <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-                 Redirection vers votre bureau dans 3 secondes...
-               </p>
+              <h3 className="text-lg font-bold" style={{ color: "#22c55e" }}>
+                {fallbackPassword ? "Compte créé avec succès !" : "Succès ! Vos accès ont été envoyés."}
+              </h3>
+              {fallbackPassword ? (
+                <div className="space-y-3">
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
+                    L'e-mail n'a pas pu être envoyé. Voici vos identifiants :
+                  </p>
+                  <div className="rounded-lg p-4 text-left space-y-2" style={{ background: "rgba(255,184,0,0.1)", border: "1px solid rgba(255,184,0,0.3)" }}>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>📧 E-mail :</p>
+                    <p className="text-sm font-bold" style={{ color: "#FFB800" }}>{email}</p>
+                    <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.6)" }}>🔒 Mot de passe :</p>
+                    <p className="text-sm font-bold font-mono select-all" style={{ color: "#FFB800" }}>{fallbackPassword}</p>
+                  </div>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    ⚠️ Notez ces informations avant de continuer.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
+                  Redirection vers votre bureau dans 3 secondes...
+                </p>
+              )}
+              <button
+                onClick={() => { window.location.href = "/connexion"; }}
+                className="mt-2 px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wider"
+                style={{
+                  background: "linear-gradient(135deg, #FFB800, #f0a500)",
+                  color: "#0A192F",
+                  fontFamily: "'Montserrat',sans-serif",
+                }}
+              >
+                Accéder à mon espace →
+              </button>
             </div>
           )}
         </DialogContent>
