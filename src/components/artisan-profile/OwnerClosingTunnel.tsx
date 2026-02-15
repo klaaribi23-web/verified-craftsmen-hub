@@ -66,18 +66,25 @@ const OwnerClosingTunnel = ({
 
     setIsSending(true);
     try {
+      // Generate a temporary password for the artisan
+      const tempPassword = `Art${Math.random().toString(36).slice(2, 10)}!${Math.floor(Math.random() * 90 + 10)}`;
+
       // Call the edge function to create account and send credentials
       const { data, error } = await supabase.functions.invoke("create-artisan-account", {
         body: {
-          artisan_id: artisanId,
           email: email,
+          password: tempPassword,
+          firstName: artisanName.split(" ")[0] || "Artisan",
+          lastName: artisanName.split(" ").slice(1).join(" ") || "",
+          artisanId: artisanId,
         },
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       setSent(true);
-      toast.success("Vos identifiants ont été envoyés par e-mail !");
+      toast.success("Succès ! Vos accès ont été envoyés.");
 
       // Clear owner mode persistence
       sessionStorage.removeItem("owner_mode");
@@ -86,9 +93,9 @@ const OwnerClosingTunnel = ({
       setTimeout(() => {
         window.location.href = "/connexion";
       }, 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error creating account:", err);
-      toast.error("Une erreur est survenue. Contactez notre support.");
+      toast.error("Une erreur est survenue. Contactez notre support au " + SUPPORT_PHONE);
     } finally {
       setIsSending(false);
     }
@@ -251,12 +258,12 @@ const OwnerClosingTunnel = ({
               >
                 <span className="text-3xl">🎉</span>
               </div>
-              <h3 className="text-lg font-bold" style={{ color: "#22c55e" }}>
-                Identifiants envoyés !
-              </h3>
-              <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-                Vérifiez votre boîte mail. Redirection vers la connexion en cours...
-              </p>
+               <h3 className="text-lg font-bold" style={{ color: "#22c55e" }}>
+                 Succès ! Vos accès ont été envoyés.
+               </h3>
+               <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
+                 Redirection vers votre bureau dans 3 secondes...
+               </p>
             </div>
           )}
         </DialogContent>
