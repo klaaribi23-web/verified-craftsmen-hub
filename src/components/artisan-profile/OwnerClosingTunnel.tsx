@@ -95,10 +95,15 @@ const OwnerClosingTunnel = ({
       // Clear owner mode persistence
       sessionStorage.removeItem("owner_mode");
 
-      // Redirect after 3 seconds
-      setTimeout(() => {
-        window.location.href = "/connexion";
-      }, 3000);
+      // Sign out any existing session before redirecting to login
+      await supabase.auth.signOut();
+
+      // Redirect after 3 seconds (only if email was sent successfully)
+      if (!fallbackPassword && !(data?.email_sent === false)) {
+        setTimeout(() => {
+          window.location.href = "/connexion";
+        }, 3000);
+      }
     } catch (err: any) {
       console.error("Error creating account:", err);
       toast.error("Une erreur est survenue. Contactez notre support au " + SUPPORT_PHONE);
