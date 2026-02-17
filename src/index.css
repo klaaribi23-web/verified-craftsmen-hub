@@ -6,16 +6,16 @@
 
 @layer base {
   :root {
-    /* Background & Surfaces — Dark Premium Navy */
-    --background: 215 62% 6%;
-    --foreground: 210 40% 92%;
+    /* Background & Surfaces — Dark Premium Navy #0A192F */
+    --background: 215 65% 11%;
+    --foreground: 210 40% 98%;
     
-    /* Cards & Containers — Dark glass */
-    --card: 215 55% 10%;
-    --card-foreground: 210 40% 92%;
+    /* Cards & Containers — Ultra dark #020617 */
+    --card: 215 80% 5%;
+    --card-foreground: 210 40% 98%;
     
-    --popover: 215 55% 10%;
-    --popover-foreground: 210 40% 92%;
+    --popover: 215 80% 5%;
+    --popover-foreground: 210 40% 98%;
     
     /* Primary — Gold Prestige */
     --primary: 43 74% 53%;
@@ -59,8 +59,8 @@
     --radius: 0.75rem;
     
     /* Sidebar */
-    --sidebar-background: 215 62% 8%;
-    --sidebar-foreground: 210 40% 92%;
+    --sidebar-background: 215 80% 5%;
+    --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 43 74% 53%;
     --sidebar-primary-foreground: 215 62% 6%;
     --sidebar-accent: 215 45% 14%;
@@ -87,14 +87,14 @@
   }
 
   .dark {
-    --background: 215 62% 6%;
-    --foreground: 210 40% 92%;
+    --background: 215 65% 11%;
+    --foreground: 210 40% 98%;
     
-    --card: 215 55% 10%;
-    --card-foreground: 210 40% 92%;
+    --card: 215 80% 5%;
+    --card-foreground: 210 40% 98%;
     
-    --popover: 215 55% 10%;
-    --popover-foreground: 210 40% 92%;
+    --popover: 215 80% 5%;
+    --popover-foreground: 210 40% 98%;
     
     --primary: 43 74% 53%;
     --primary-foreground: 215 62% 6%;

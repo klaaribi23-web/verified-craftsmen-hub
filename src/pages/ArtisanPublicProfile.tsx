@@ -494,7 +494,7 @@ const ArtisanPublicProfile = () => {
                             href={ensureHttps((artisan as any).google_maps_url)!}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-border shadow-sm hover:shadow-md hover:border-[#4285F4]/30 transition-all group"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-primary/20 shadow-sm hover:shadow-gold hover:border-primary/40 transition-all group"
                             title="Voir les avis Google"
                           >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
