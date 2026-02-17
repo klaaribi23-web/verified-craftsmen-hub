@@ -15,32 +15,67 @@ async function sendCredentialsEmail(email: string, password: string, firstName: 
   const loginUrl = "https://verified-craftsmen-hub.lovable.app/connexion";
 
   const htmlBody = `
-    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0A192F; color: #ffffff; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #FFB800, #f0a500); padding: 24px; text-align: center;">
-        <h1 style="color: #0A192F; margin: 0; font-size: 22px; font-weight: 800;">🔑 Vos accès sont prêts !</h1>
-      </div>
-      <div style="padding: 32px 24px;">
-        <p style="color: rgba(255,255,255,0.85); font-size: 16px;">Bonjour <strong style="color: #FFB800;">${firstName}</strong>,</p>
-        <p style="color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.6;">
-          Votre espace artisan est activé. Voici vos identifiants de connexion :
-        </p>
-        <div style="background: rgba(255,184,0,0.1); border: 1px solid rgba(255,184,0,0.3); border-radius: 8px; padding: 20px; margin: 24px 0;">
-          <p style="margin: 0 0 12px 0; color: rgba(255,255,255,0.6); font-size: 13px;">📧 E-mail :</p>
-          <p style="margin: 0 0 16px 0; color: #FFB800; font-size: 16px; font-weight: bold;">${email}</p>
-          <p style="margin: 0 0 12px 0; color: rgba(255,255,255,0.6); font-size: 13px;">🔒 Mot de passe temporaire :</p>
-          <p style="margin: 0; color: #FFB800; font-size: 16px; font-weight: bold; font-family: monospace;">${password}</p>
-        </div>
-        <p style="color: rgba(255,255,255,0.5); font-size: 12px;">⚠️ Nous vous recommandons de changer votre mot de passe après votre première connexion.</p>
-        <div style="text-align: center; margin: 28px 0;">
-          <a href="${loginUrl}" style="display: inline-block; background: linear-gradient(135deg, #FFB800, #f0a500); color: #0A192F; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
-            Accéder à mon espace →
-          </a>
-        </div>
-        <p style="color: rgba(255,255,255,0.4); font-size: 12px; text-align: center;">
-          📞 Support : 09 70 70 70 70
-        </p>
-      </div>
-    </div>
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0d1117;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0d1117;padding:40px 0;">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#001529;border-radius:16px;overflow:hidden;max-width:600px;width:100%;">
+        
+        <!-- Header -->
+        <tr><td style="padding:40px 40px 24px;text-align:center;border-bottom:2px solid rgba(255,184,0,0.15);">
+          <div style="display:inline-block;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.25);border-radius:20px;padding:6px 18px;margin-bottom:20px;">
+            <span style="color:#FFB800;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Accès Élite Accordé</span>
+          </div>
+          <h1 style="color:#ffffff;font-size:26px;font-weight:800;margin:16px 0 0;line-height:1.3;">
+            Bienvenue dans l'Élite,<br><span style="color:#FFB800;">${firstName}</span>
+          </h1>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:32px 40px;">
+          <p style="color:rgba(255,255,255,0.8);font-size:15px;line-height:1.7;margin:0 0 24px;">
+            Votre dossier a été examiné et validé par notre comité. Vous faites désormais partie du réseau exclusif <strong style="color:#FFB800;">Artisans Validés</strong> — une sélection rigoureuse limitée à 2 professionnels par zone.
+          </p>
+
+          <!-- Credentials Card -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.2);border-radius:12px;margin-bottom:28px;">
+            <tr><td style="padding:24px;">
+              <p style="margin:0 0 6px;color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Identifiant</p>
+              <p style="margin:0 0 18px;color:#ffffff;font-size:15px;font-weight:600;">${email}</p>
+              <p style="margin:0 0 6px;color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Mot de passe temporaire</p>
+              <p style="margin:0;color:#FFB800;font-size:16px;font-weight:700;font-family:'Courier New',monospace;letter-spacing:1px;">${password}</p>
+            </td></tr>
+          </table>
+
+          <!-- CTA Button -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr><td align="center" style="padding:4px 0 8px;">
+              <a href="${loginUrl}" style="display:inline-block;background:linear-gradient(135deg,#FFB800,#E5A600);color:#001529;text-decoration:none;padding:16px 40px;border-radius:10px;font-weight:800;font-size:14px;letter-spacing:1px;text-transform:uppercase;">
+                Accéder à mon espace Élite →
+              </a>
+            </td></tr>
+          </table>
+
+          <p style="color:rgba(255,255,255,0.4);font-size:12px;text-align:center;margin:20px 0 0;">
+            ⚠️ Nous vous recommandons de modifier votre mot de passe dès votre première connexion.
+          </p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:24px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0;line-height:1.6;">
+            Artisans Validés — Le réseau des professionnels d'exception<br>
+            📞 Support prioritaire : 09 70 70 70 70
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
   `;
 
   try {
@@ -51,9 +86,9 @@ async function sendCredentialsEmail(email: string, password: string, firstName: 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Artisans Vérifiés <onboarding@resend.dev>",
+        from: "Artisans Validés <equipe@artisansvalides.fr>",
         to: [email],
-        subject: "🔑 Vos accès artisan sont prêts",
+        subject: "🏆 Bienvenue dans l'Élite — Vos accès sont prêts",
         html: htmlBody,
       }),
     });
