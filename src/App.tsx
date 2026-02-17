@@ -64,6 +64,7 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import Verifying from "./pages/Verifying";
 import BienvenueElite from "./pages/BienvenueElite";
+import ActivationElite from "./pages/ActivationElite";
 import ActivateAccount from "./pages/ActivateAccount";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -119,6 +120,7 @@ const App = () => (
           <Route path="/confirmer-email" element={<ConfirmEmail />} />
           <Route path="/verifying" element={<Verifying />} />
           <Route path="/bienvenue-elite" element={<BienvenueElite />} />
+          <Route path="/activation-elite" element={<ActivationElite />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/a-propos" element={<APropos />} />
           <Route path="/blog" element={<Blog />} />
