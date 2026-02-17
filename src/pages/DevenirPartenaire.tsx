@@ -76,14 +76,14 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
         </div>
 
         <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-[1.05] mb-6 uppercase tracking-tight">
-          VOTRE SECTEUR EST-IL ENCORE DISPONIBLE ?{" "}
-          <span className="text-gradient-gold">Votre croissance.</span>
+          ARRÊTEZ DE COURIR APRÈS LES DEVIS.{" "}
+          <span className="text-gradient-gold">ENCAISSEZ.</span>
         </h1>
 
-        <p className="text-base md:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Arrêtez de partager vos chantiers. Devenez{" "}
-          <strong className="text-white">l'artisan référent</strong> sur votre secteur
-          et laissez <strong className="text-gold">Jane</strong> piloter votre visibilité locale.
+        <p className="text-base md:text-xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Accédez en exclusivité aux chantiers qualifiés de votre secteur.{" "}
+          <strong className="text-white">Un seul artisan par zone.</strong>{" "}
+          Soyez l'élu.
         </p>
 
         <Button
@@ -92,10 +92,10 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
           className="!font-black !text-base md:!text-lg uppercase tracking-wider"
           onClick={onCTA}
         >
-          <MapPin className="w-5 h-5 mr-2" /> VÉRIFIER LA DISPONIBILITÉ DE MA ZONE <ArrowRight className="w-5 h-5 ml-2" />
+          <MapPin className="w-5 h-5 mr-2" /> VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2" />
         </Button>
 
-        <p className="text-xs text-white/40 mt-4">On ne prend pas tout le monde. On ne garde que les meilleurs.</p>
+        <p className="text-xs text-white/50 mt-4">On ne prend pas tout le monde. On ne garde que les meilleurs.</p>
       </motion.div>
     </div>
   </section>
