@@ -2012,7 +2012,7 @@ const AdminApprovals = () => {
                                     </Button>
                                     <Button
                                       size="sm"
-                                      className={`text-xs h-7 px-2.5 ${prospect.status === "disponible" ? "bg-gray-700 hover:bg-gray-800 text-white ring-2 ring-gray-400" : "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300"}`}
+                                      className={`text-xs h-7 px-2.5 ${prospect.status === "disponible" ? "bg-slate-600 hover:bg-slate-700 text-white ring-2 ring-slate-400" : "bg-white/10 hover:bg-white/20 text-slate-300 border border-white/20"}`}
                                       onClick={() => quickStatusMutation.mutate({ id: prospect.id, status: "disponible" })}
                                       disabled={quickStatusMutation.isPending}
                                     >
