@@ -870,20 +870,20 @@ const ActivateAccount = () => {
           <div className="max-w-md mx-auto">
             <Card className="border-amber-500/50">
               <CardHeader className="text-center">
-                <div className="w-20 h-20 mx-auto bg-amber-500/15 rounded-full flex items-center justify-center mb-4">
-                  <Mail className="h-10 w-10 text-amber-400" />
+                <div className="w-20 h-20 mx-auto bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                  <Mail className="h-10 w-10 text-amber-600" />
                 </div>
-                <CardTitle className="text-2xl text-amber-400">Email différent</CardTitle>
+                <CardTitle className="text-2xl text-amber-600">Email différent</CardTitle>
                 <CardDescription className="text-base mt-2">
                   Vous êtes actuellement connecté avec un email différent de celui associé à cette vitrine artisan.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Email de la vitrine :</span>
-                      <span className="font-semibold text-foreground">{artisanData?.email}</span>
+                      <span className="font-semibold">{artisanData?.email}</span>
                     </div>
                   </div>
                 </div>
@@ -932,8 +932,8 @@ const ActivateAccount = () => {
           <div className="max-w-md mx-auto">
             <Card>
               <CardHeader className="text-center">
-                <div className="w-20 h-20 mx-auto bg-blue-500/15 rounded-full flex items-center justify-center mb-4">
-                  <Mail className="h-10 w-10 text-blue-400" />
+                <div className="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <Mail className="h-10 w-10 text-blue-600" />
                 </div>
                 <CardTitle className="text-2xl">Confirmez votre email</CardTitle>
                 <CardDescription className="text-base mt-2">
@@ -941,10 +941,10 @@ const ActivateAccount = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <Mail className="h-5 w-5 text-blue-400 mt-0.5" />
-                    <div className="text-sm text-blue-200">
+                    <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div className="text-sm text-blue-800">
                       <p className="font-medium mb-2">Étapes à suivre :</p>
                       <ol className="list-decimal list-inside space-y-1">
                         <li>Ouvrez votre boîte email</li>
@@ -988,10 +988,10 @@ const ActivateAccount = () => {
         <Navbar />
         <div className="container mx-auto px-4 pt-32 pb-20">
           <div className="max-w-md mx-auto text-center">
-            <div className="w-20 h-20 mx-auto bg-green-500/15 rounded-full flex items-center justify-center mb-6">
-              <CheckCircle className="h-10 w-10 text-green-400" />
+            <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6">
+              <CheckCircle className="h-10 w-10 text-green-600" />
             </div>
-            <h1 className="text-2xl font-bold text-green-400 mb-2">Bravo !</h1>
+            <h1 className="text-2xl font-bold text-green-600 mb-2">Bravo !</h1>
             <p className="text-lg mb-4">Votre compte a été activé avec succès</p>
             <p className="text-muted-foreground mb-6">
               Vous allez être redirigé vers votre tableau de bord...
@@ -1058,10 +1058,10 @@ const ActivateAccount = () => {
             </CardHeader>
             <CardContent>
               {isExistingClient && (
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                   <div className="flex items-start gap-3">
-                    <Key className="h-5 w-5 text-blue-400 mt-0.5" />
-                    <div className="text-sm text-blue-200">
+                    <Key className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div className="text-sm text-blue-800">
                       <p className="font-medium mb-1">Conversion de compte</p>
                       <p>Votre compte client sera converti en compte artisan. Vous conserverez votre historique de messages et devis.</p>
                     </div>
@@ -1070,10 +1070,10 @@ const ActivateAccount = () => {
               )}
 
               {isExistingArtisan && (
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-6">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
                   <div className="flex items-start gap-3">
-                    <Key className="h-5 w-5 text-amber-400 mt-0.5" />
-                    <div className="text-sm text-amber-200">
+                    <Key className="h-5 w-5 text-amber-600 mt-0.5" />
+                    <div className="text-sm text-amber-800">
                       <p className="font-medium mb-1">Liaison de compte</p>
                       <p>Cette nouvelle vitrine sera ajoutée à votre compte artisan existant.</p>
                     </div>

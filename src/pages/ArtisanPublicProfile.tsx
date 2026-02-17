@@ -494,7 +494,7 @@ const ArtisanPublicProfile = () => {
                             href={ensureHttps((artisan as any).google_maps_url)!}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-primary/20 shadow-sm hover:shadow-gold hover:border-primary/40 transition-all group"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-border shadow-sm hover:shadow-md hover:border-[#4285F4]/30 transition-all group"
                             title="Voir les avis Google"
                           >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -802,17 +802,14 @@ const ArtisanPublicProfile = () => {
                           key={service.id}
                           className="flex items-center justify-between p-3 md:p-4 rounded-lg bg-secondary border border-primary/20 hover:border-primary/40 transition-colors"
                         >
-                          <div className="min-w-0 flex-1 flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                            <div className="min-w-0">
-                              <p className="font-medium text-sm md:text-base truncate text-white">{service.title}</p>
-                              {service.duration && (
-                                <p className="text-xs md:text-sm text-slate-300">
-                                  <Clock className="h-3 w-3 inline mr-1 text-primary" />
-                                  {service.duration}
-                                </p>
-                              )}
-                            </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm md:text-base truncate text-white">{service.title}</p>
+                            {service.duration && (
+                              <p className="text-xs md:text-sm text-slate-400">
+                                <Clock className="h-3 w-3 inline mr-1 text-primary" />
+                                {service.duration}
+                              </p>
+                            )}
                           </div>
                           {service.price ? (
                             <Badge variant="secondary" className="font-semibold shrink-0 ml-2 text-xs md:text-sm border border-primary/20 text-primary">

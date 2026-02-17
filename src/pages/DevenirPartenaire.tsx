@@ -40,7 +40,7 @@ const WhatsAppButton = () => (
     aria-label="Parler à Jane"
   >
     <MessageCircle className="w-6 h-6 text-white" />
-    <span className="absolute -top-8 right-0 bg-card text-foreground text-xs font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-primary/20">Parler à Jane</span>
+    <span className="absolute -top-8 right-0 bg-white text-navy text-xs font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Parler à Jane</span>
   </a>
 );
 
@@ -103,7 +103,7 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
 
 // --- Comparison Section (Eux vs Nous) ---
 const ComparisonSection = () => (
-  <section className="py-16 lg:py-24 bg-background">
+  <section className="py-16 lg:py-24 bg-[#F9FAFB]">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
         <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">Le vrai calcul</span>
@@ -259,14 +259,14 @@ const testimonials = [
 ];
 
 const SocialProofSection = () => (
-  <section className="py-16 lg:py-24 bg-card/50 border-y border-primary/10">
+  <section className="py-16 lg:py-24 bg-muted/40 border-y-2 border-navy/20">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 border border-gold/30 mb-4">
           <Award className="w-4 h-4 text-gold" />
           <span className="text-sm font-bold text-gold">AUDITÉ & VALIDÉ 2026</span>
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Ils ont rejoint l'Alliance. Voici ce qu'ils en disent.</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">Ils ont rejoint l'Alliance. Voici ce qu'ils en disent.</h2>
         <p className="text-muted-foreground max-w-xl mx-auto">Pas de mise en scène. Des artisans qui parlent vrai.</p>
       </motion.div>
       <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -347,7 +347,7 @@ const FormSection = () => {
 
   if (submitted) {
     return (
-      <section id="formulaire" className="py-16 md:py-24 bg-background">
+      <section id="formulaire" className="py-16 md:py-24 bg-muted/40">
         <div className="container mx-auto px-4 max-w-md">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl p-8 shadow-floating text-center">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -373,7 +373,7 @@ const FormSection = () => {
   }
 
   return (
-    <section id="formulaire" className="py-16 md:py-24 bg-background">
+    <section id="formulaire" className="py-16 md:py-24 bg-muted/40">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="max-w-lg mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
@@ -388,9 +388,9 @@ const FormSection = () => {
               </p>
             </div>
 
-            <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-6 md:p-8 shadow-[0_12px_48px_-8px_rgba(0,0,0,0.4)] border-2 border-primary/30">
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.18)] border-2 border-navy/20">
               <div className="text-center mb-6">
-              <h2 className="text-xl md:text-2xl font-black text-foreground mb-1 uppercase tracking-wide">
+              <h2 className="text-xl md:text-2xl font-black text-navy mb-1 uppercase tracking-wide">
                   Réserver mon accès
                 </h2>
                 <p className="text-2xl md:text-3xl font-black text-gold mb-1">149€ <span className="text-base font-semibold">HT / mois</span></p>
@@ -399,25 +399,25 @@ const FormSection = () => {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="fullName" className="text-foreground text-sm">Nom / Prénom *</Label>
+                  <Label htmlFor="fullName" className="text-navy text-sm">Nom / Prénom *</Label>
                   <Input id="fullName" placeholder="Jean Dupont" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} className="mt-1" required />
                 </div>
                 <div>
-                  <Label htmlFor="metier" className="text-foreground text-sm">Métier *</Label>
+                  <Label htmlFor="metier" className="text-navy text-sm">Métier *</Label>
                   <div className="relative mt-1">
                     <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input id="metier" placeholder="Ex: Plombier, Électricien, PAC..." value={formData.metier} onChange={(e) => updateForm("metier", e.target.value)} className="pl-10" required />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="codePostal" className="text-foreground text-sm">Code Postal *</Label>
+                  <Label htmlFor="codePostal" className="text-navy text-sm">Code Postal *</Label>
                   <div className="relative mt-1">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input id="codePostal" placeholder="59000" value={formData.codePostal} onChange={(e) => updateForm("codePostal", e.target.value.replace(/\D/g, "").slice(0, 5))} className="pl-10" required maxLength={5} />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-foreground text-sm">Téléphone *</Label>
+                  <Label htmlFor="phone" className="text-navy text-sm">Téléphone *</Label>
                   <div className="mt-1">
                     <FrenchPhoneInput id="phone" value={formData.phone} onChange={(value) => updateForm("phone", value)} />
                   </div>
@@ -438,7 +438,7 @@ const FormSection = () => {
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground mt-2">
-                  🔒 Validation finale par <strong className="text-foreground">Jane</strong> après examen de votre dossier.
+                  🔒 Validation finale par <strong className="text-navy">Jane</strong> après examen de votre dossier.
                 </p>
               </form>
 
@@ -475,7 +475,7 @@ const FormSection = () => {
 
 // --- CTA Final ---
 const CTAFinal = ({ onCTA }: { onCTA: () => void }) => (
-  <section className="py-16 lg:py-20 bg-background">
+  <section className="py-16 lg:py-20 bg-muted">
     <div className="container mx-auto px-4 lg:px-8">
       <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]">
         <div className="absolute inset-0 opacity-10">

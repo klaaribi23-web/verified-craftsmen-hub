@@ -70,12 +70,12 @@ export const ClientDashboardNew = () => {
         noIndex={true}
       />
       <Navbar />
-        <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
+      <div className="flex min-h-screen bg-gradient-to-br from-teal-50/30 via-background to-sky-50/30 pt-28 lg:pt-20">
         <ClientSidebar />
 
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="bg-card/80 border-b border-primary/20 px-4 md:px-8 py-6">
+          <div className="bg-white border-b border-border px-4 md:px-8 py-6">
             <h1 className="text-2xl font-bold text-foreground">
               Bienvenue{demoMode ? ", Marie" : ""} 👋
             </h1>
@@ -91,12 +91,12 @@ export const ClientDashboardNew = () => {
               <DemoProjectShowcase />
 
               {/* New Project CTA */}
-              <Card className="border border-dashed border-primary/30 hover:shadow-gold transition-shadow">
+              <Card className="border border-dashed border-teal-300 bg-white hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                        <Plus className="w-6 h-6 text-primary" />
+                      <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center">
+                        <Plus className="w-6 h-6 text-teal-600" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">Lancer un nouveau projet</h3>
@@ -106,7 +106,7 @@ export const ClientDashboardNew = () => {
                       </div>
                     </div>
                     <Link to="/demande-devis" className="w-full sm:w-auto">
-                      <Button className="w-full sm:w-auto bg-gradient-gold text-primary-foreground font-bold shadow-gold btn-shine">
+                      <Button className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white shadow-sm">
                         <Plus className="w-4 h-4 mr-2" />
                         Nouveau projet
                       </Button>
@@ -118,10 +118,10 @@ export const ClientDashboardNew = () => {
               {/* Stats Row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { icon: FolderOpen, label: "Projets", value: demoStats.projects, color: "text-teal-400 bg-teal-500/15" },
-                  { icon: MessageSquare, label: "Messages", value: demoStats.messages, color: "text-sky-400 bg-sky-500/15" },
-                  { icon: FileText, label: "Devis reçus", value: demoStats.quotes, color: "text-amber-400 bg-amber-500/15" },
-                  { icon: Heart, label: "Favoris", value: demoStats.favorites, color: "text-rose-400 bg-rose-500/15" },
+                  { icon: FolderOpen, label: "Projets", value: demoStats.projects, color: "text-teal-600 bg-teal-100" },
+                  { icon: MessageSquare, label: "Messages", value: demoStats.messages, color: "text-sky-600 bg-sky-100" },
+                  { icon: FileText, label: "Devis reçus", value: demoStats.quotes, color: "text-amber-600 bg-amber-100" },
+                  { icon: Heart, label: "Favoris", value: demoStats.favorites, color: "text-rose-500 bg-rose-100" },
                 ].map((stat) => (
                   <Card key={stat.label}>
                     <CardContent className="p-4 flex items-center gap-3">

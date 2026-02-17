@@ -1545,9 +1545,9 @@ const AdminApprovals = () => {
             {/* ARTISANS TAB */}
             <TabsContent value="artisans">
               {/* Sub-tabs for Artisans */}
-              <div className="bg-card/50 p-4 md:p-6 border border-primary/20 rounded backdrop-blur-xl">
+              <div className="bg-gradient-to-r from-blue-50 via-blue-100/50 to-blue-50 p-4 md:p-6 border border-blue-200 rounded bg-white">
                 <Tabs value={artisanSubTab} onValueChange={setArtisanSubTab}>
-                  <TabsList className="mb-4 flex-wrap bg-background/80 shadow-sm">
+                  <TabsList className="mb-4 flex-wrap bg-white/80 dark:bg-background/80 shadow-sm">
                     <TabsTrigger value="nouvelles-inscriptions" className="gap-1.5 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
                       <UserCheck className="h-4 w-4" />
                       <span className="hidden sm:inline">Nouvelles</span> Inscriptions
@@ -1857,9 +1857,9 @@ const AdminApprovals = () => {
             {/* VITRINES TAB */}
             <TabsContent value="vitrines">
               {/* Sub-tabs for Vitrines */}
-              <div className="bg-card/50 p-4 md:p-6 border border-primary/20 rounded backdrop-blur-xl">
+              <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 p-4 md:p-6 border border-primary/20 rounded bg-white">
                 <Tabs value={vitrineSubTab} onValueChange={setVitrineSubTab}>
-                  <TabsList className="mb-4 flex-wrap bg-background/80 shadow-sm">
+                  <TabsList className="mb-4 flex-wrap bg-white/80 dark:bg-background/80 shadow-sm">
                     <TabsTrigger value="actives" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                       <Store className="h-4 w-4" />
                       <span className="hidden sm:inline">Vitrines</span> actives
@@ -2012,7 +2012,7 @@ const AdminApprovals = () => {
                                     </Button>
                                     <Button
                                       size="sm"
-                                      className={`text-xs h-7 px-2.5 ${prospect.status === "disponible" ? "bg-slate-600 hover:bg-slate-700 text-white ring-2 ring-slate-400" : "bg-white/10 hover:bg-white/20 text-slate-300 border border-white/20"}`}
+                                      className={`text-xs h-7 px-2.5 ${prospect.status === "disponible" ? "bg-gray-700 hover:bg-gray-800 text-white ring-2 ring-gray-400" : "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300"}`}
                                       onClick={() => quickStatusMutation.mutate({ id: prospect.id, status: "disponible" })}
                                       disabled={quickStatusMutation.isPending}
                                     >
@@ -2656,7 +2656,7 @@ const AdminApprovals = () => {
 
             {/* CANDIDATURES TAB */}
             <TabsContent value="candidatures">
-              <div className="bg-card/50 p-4 md:p-6 border border-gold/20 rounded backdrop-blur-xl">
+              <div className="bg-gradient-to-r from-gold/5 via-gold/10 to-gold/5 p-4 md:p-6 border border-gold/20 rounded bg-white">
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Crown className="h-5 w-5 text-gold" />
                   Nouvelles candidatures artisans
