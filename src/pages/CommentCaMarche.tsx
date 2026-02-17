@@ -96,7 +96,7 @@ const CommentCaMarche = () => {
         </section>
 
         {/* Le Filtre Artisans Validés */}
-        <section className="py-20 lg:py-28 bg-white">
+        <section className="py-20 lg:py-28 bg-secondary/50">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -107,7 +107,7 @@ const CommentCaMarche = () => {
               <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
                 Notre engagement
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                 Le Filtre Artisans Validés
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto">
@@ -123,12 +123,12 @@ const CommentCaMarche = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.12 }}
-                  className="rounded-2xl border border-border bg-muted p-8 text-center"
+                  className="rounded-2xl border border-border bg-card p-8 text-center"
                 >
                   <div className="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center mx-auto mb-5 border border-gold/20">
                     <block.icon className="w-7 h-7 text-gold" />
                   </div>
-                  <h3 className="text-lg font-semibold text-navy mb-3">
+                  <h3 className="text-lg font-semibold text-foreground mb-3">
                     {block.title}
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
@@ -170,7 +170,7 @@ const CommentCaMarche = () => {
                   transition={{ delay: index * 0.12 }}
                   className="flex items-start gap-6 bg-white/10 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/10"
                 >
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center text-navy-dark font-bold text-lg shadow-gold">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground font-bold text-lg shadow-gold">
                     {step.step}
                   </div>
                   <div className="flex-1">

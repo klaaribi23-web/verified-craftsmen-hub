@@ -371,7 +371,7 @@ const DemandeDevis = () => {
                       Continuer <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                     <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-3">
-                      <Shield className="w-3.5 h-3.5 text-teal-600" />
+                      <Shield className="w-3.5 h-3.5 text-success" />
                       Données protégées : Votre numéro ne sera transmis qu'à l'artisan que vous aurez validé.
                     </p>
                   </motion.div>
