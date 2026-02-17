@@ -54,9 +54,9 @@ export const SubscriptionDashboardCard = ({
           </div>
           <Link
             to="/artisan/abonnement"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 px-4 py-2 rounded-md transition-colors whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-navy bg-gradient-to-r from-[#D4AF37] to-[#B8941F] hover:from-[#C9A430] hover:to-[#A6841A] px-5 py-2.5 rounded-lg transition-all whitespace-nowrap shadow-lg shadow-[#D4AF37]/20 hover:shadow-[#D4AF37]/30 hover:scale-[1.02] active:scale-[0.98]"
           >
-            S'abonner
+            🔒 ACTIVER MON EXCLUSIVITÉ SECTEUR
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

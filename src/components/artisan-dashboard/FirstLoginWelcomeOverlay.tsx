@@ -55,12 +55,12 @@ export const FirstLoginWelcomeOverlay = ({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Andrea Avatar */}
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mb-6 shadow-lg">
-              <Sparkles className="w-10 h-10 text-primary-foreground" />
+            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#B8941F] flex items-center justify-center mb-6 shadow-lg shadow-[#D4AF37]/30">
+              <Sparkles className="w-10 h-10 text-navy" />
             </div>
 
             {/* Andrea label */}
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">
+            <p className="text-sm font-semibold text-[#D4AF37] uppercase tracking-wider mb-2">
               Andrea — Votre assistante IA
             </p>
 
@@ -68,7 +68,7 @@ export const FirstLoginWelcomeOverlay = ({
             <h2 className="text-2xl font-bold text-foreground mb-4">
               {isLegacy
                 ? `Ravi de vous revoir, ${artisanName} 🤝`
-                : `Bienvenue dans l'élite, ${artisanName} 🎉`}
+                : `Bienvenue dans le club, ${artisanName} 🏆`}
             </h2>
 
             <p className="text-muted-foreground leading-relaxed mb-6">
@@ -76,16 +76,16 @@ export const FirstLoginWelcomeOverlay = ({
                 ? "Ravi de vous voir sur la nouvelle plateforme ! Votre abonnement historique est maintenu sans changement. Profitez de vos nouveaux outils !"
                 : <>Ton profil est prêt, mais pour recevoir tes premiers leads
                   {city ? ` à ${city}` : ""}, tu dois activer ton{" "}
-                  <span className="font-semibold text-foreground">pack Sérénité</span>.
+                  <span className="font-semibold text-[#D4AF37]">exclusivité secteur</span>.
                   <br />
-                  On commence par là ?</>}
+                  Pendant que tu hésites, ton concurrent prend ta place.</>}
             </p>
 
             {/* CTA */}
             {isLegacy ? (
               <Button
                 size="lg"
-                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg text-base font-bold mb-3"
+                className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B8941F] hover:from-[#C9A430] hover:to-[#A6841A] text-navy shadow-lg shadow-[#D4AF37]/30 text-base font-bold mb-3"
                 onClick={handleSkip}
               >
                 C'EST PARTI !
@@ -93,11 +93,11 @@ export const FirstLoginWelcomeOverlay = ({
             ) : (
               <Button
                 size="lg"
-                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg text-base font-bold mb-3"
+                className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B8941F] hover:from-[#C9A430] hover:to-[#A6841A] text-navy shadow-lg shadow-[#D4AF37]/30 text-base font-bold mb-3"
                 onClick={handleDiscover}
               >
                 <ArrowDown className="w-5 h-5 mr-2" />
-                DÉCOUVRIR MES AVANTAGES
+                ACTIVER MON EXCLUSIVITÉ SECTEUR ET ENCAISSER
               </Button>
             )}
 
