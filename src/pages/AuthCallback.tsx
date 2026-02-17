@@ -237,23 +237,23 @@ const AuthCallback = () => {
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            Analyse de votre secteur en cours...
+            VÉRIFICATION DE VOTRE ACCÈS ÉLITE...
           </motion.p>
 
           <h1 className="text-2xl md:text-3xl font-black text-white uppercase tracking-wide mb-3">
             ACCÈS EXCLUSIF
           </h1>
-          <p className="text-lg text-white/90 mb-2">
+          <p className="text-lg text-white mb-2">
             Secteur <span className="text-primary font-bold">{sectorName.toUpperCase()}</span> réservé
           </p>
 
           {/* Countdown */}
           <div className="flex items-center justify-center gap-1 my-6">
             <Lock className="w-4 h-4 text-primary mr-2" />
-            <span className="text-xs text-white/60 uppercase tracking-wider mr-3">Priorité expire dans</span>
+            <span className="text-xs text-white uppercase tracking-wider mr-3">Priorité expire dans</span>
             {[pad(countdown.h), pad(countdown.m), pad(countdown.s)].map((unit, i) => (
               <span key={i} className="flex items-center">
-                <span className="bg-secondary border border-primary/30 rounded-lg px-3 py-2 text-xl font-mono font-bold text-primary tabular-nums">
+                <span className="border border-primary/30 rounded-lg px-3 py-2 text-xl font-mono font-bold text-primary tabular-nums" style={{ background: '#020617' }}>
                   {unit}
                 </span>
                 {i < 2 && <span className="text-primary font-bold mx-1">:</span>}
@@ -268,7 +268,7 @@ const AuthCallback = () => {
           </div>
 
           {/* Subtle loading bar */}
-          <div className="mt-8 w-full h-1 bg-secondary/50 rounded-full overflow-hidden">
+          <div className="mt-8 w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(212,175,55,0.15)' }}>
             <motion.div
               className="h-full bg-gradient-gold rounded-full"
               initial={{ width: "0%" }}
@@ -276,7 +276,7 @@ const AuthCallback = () => {
               transition={{ duration: 8, ease: "easeOut" }}
             />
           </div>
-          <p className="text-xs text-white/40 mt-3">Vérification sécurisée de votre identité...</p>
+          <p className="text-xs text-white/60 mt-3">Vérification sécurisée de votre identité...</p>
         </motion.div>
       </div>
     </>
