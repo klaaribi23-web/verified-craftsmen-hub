@@ -40,11 +40,7 @@ const ActivationElite = () => {
   const pad = (n: number) => n.toString().padStart(2, "0");
 
   const handleActivate = () => {
-    if (email) {
-      navigate(`/bienvenue-elite?email=${encodeURIComponent(email)}`);
-    } else {
-      navigate("/bienvenue-elite");
-    }
+    navigate("/artisan/dashboard");
   };
 
   return (
