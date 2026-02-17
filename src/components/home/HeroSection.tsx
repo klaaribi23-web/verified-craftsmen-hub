@@ -122,10 +122,12 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          <p className="text-sm text-white/40">
-            <Shield className="w-4 h-4 text-[#D4AF37] inline mr-1.5 -mt-0.5" />
-            Déjà <span className="text-[#D4AF37] font-bold">{displayCount > 40 ? displayCount : 44} artisans validés</span> dans le Nord et l'Île-de-France.
-          </p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+            <Shield className="w-4 h-4 text-primary" />
+            <span className="text-sm text-white font-medium">
+              ✅ CERTIFIÉ IA ANDREA · <span className="text-primary font-bold">{displayCount > 40 ? displayCount : 44} artisans validés</span>
+            </span>
+          </div>
         </motion.div>
       </div>
     </section>
