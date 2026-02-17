@@ -155,10 +155,10 @@ const AdminCommandant = () => {
     onError: () => toast.error("Erreur lors du changement de statut"),
   });
 
-  // Lien Magique → /bienvenue-elite avec email pré-rempli uniquement
+  // Lien Magique → /activation-elite avec email pré-rempli
   const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true) => {
     const email = artisan.email || "";
-    return `${PUBLISHED_URL}/bienvenue-elite?email=${encodeURIComponent(email)}`;
+    return `${PUBLISHED_URL}/activation-elite?email=${encodeURIComponent(email)}`;
   };
 
   const copyLink = (artisan: CommandantArtisan) => {
