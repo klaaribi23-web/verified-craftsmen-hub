@@ -28,10 +28,12 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Chargement...</p>
+          <p className="text-sm font-semibold text-primary uppercase tracking-[0.2em]">
+            VÉRIFICATION DE VOTRE ACCÈS ÉLITE...
+          </p>
         </div>
       </div>
     );
