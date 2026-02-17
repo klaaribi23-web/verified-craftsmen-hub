@@ -426,7 +426,7 @@ const AndreaGlobalWidget = () => {
     }
   }, [savedId, callbackRequested, leadData, location.pathname]);
 
-  if (location.pathname.startsWith("/admin")) return null;
+  if (location.pathname.startsWith("/admin") || location.pathname.startsWith("/activation-elite")) return null;
 
   const extractedFields = Object.entries(leadData)
     .filter(([k, v]) => k !== "lead_type" && v != null && v !== "" && v !== false)
