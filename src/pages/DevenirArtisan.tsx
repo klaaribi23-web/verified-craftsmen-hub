@@ -50,13 +50,13 @@ const MarqueeBanner = () => (
 
 // --- Money Section: Comparatif choc ---
 const ComparisonSection = () => (
-  <section className="py-16 lg:py-24 bg-[#F9FAFB]">
+  <section className="py-16 lg:py-24 bg-secondary/50">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
         <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
           Le vrai calcul
         </span>
-        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
           Comparez et décidez.
         </h2>
       </motion.div>
@@ -157,7 +157,7 @@ const TerritoryWidget = () => (
           <p className="text-white/60 mb-8 max-w-lg mx-auto">
             Nous limitons strictement à 2 artisans par métier et par ville. Quand c'est pris, c'est pris.
           </p>
-          <Button variant="gold" size="xl" className="!font-black !text-lg uppercase tracking-wider" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
+          <Button variant="gold" size="xl" className="!font-black !text-lg uppercase tracking-wider glow-gold-hover" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
             <MapPin className="w-5 h-5 mr-2" /> VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
@@ -168,14 +168,14 @@ const TerritoryWidget = () => (
 
 // --- Dashboard Preview ---
 const DashboardPreview = () => (
-  <section className="py-16 lg:py-24 bg-white">
+  <section className="py-16 lg:py-24 bg-secondary/50">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
           <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
             Votre futur quotidien
           </span>
-          <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
             C'est ce que vous recevrez dès que votre audit sera validé.
           </h2>
         </div>
@@ -269,11 +269,11 @@ const testimonials = [
 ];
 
 const SocialProofSection = () => (
-  <section className="py-16 bg-muted/40 border-y-2 border-navy/20">
+  <section className="py-16 bg-secondary/50 border-y border-border">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
         <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">Témoignages bruts</span>
-        <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">Ils ont rejoint l'Alliance. Voici ce qu'ils en disent.</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Ils ont rejoint l'Alliance. Voici ce qu'ils en disent.</h2>
         <p className="text-muted-foreground max-w-xl mx-auto">Pas de mise en scène. Des artisans du Nord qui parlent de leur expérience.</p>
       </motion.div>
       <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -290,7 +290,7 @@ const SocialProofSection = () => (
                     <p className="text-xs text-muted-foreground">{t.metier} — {t.city}</p>
                   </div>
                   <div className="ml-auto">
-                    <span className="text-xs text-emerald-600 font-medium flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Vérifié</span>
+                    <span className="text-xs text-success font-medium flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Vérifié</span>
                   </div>
                 </div>
               </CardContent>
@@ -379,46 +379,60 @@ const DevenirArtisan = () => {
           city: formData.city,
           phone: formData.phone,
           email: formData.email,
+          status: "pending",
         });
       if (dbError) throw dbError;
+
+      // Notify admins
+      const { data: adminUsers } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
+      if (adminUsers) {
+        for (const admin of adminUsers) {
+          await supabase.rpc("create_notification", {
+            p_user_id: admin.user_id,
+            p_type: "new_candidacy",
+            p_title: "Nouvelle candidature artisan",
+            p_message: `${formData.fullName} (${formData.metier}) à ${formData.city} souhaite rejoindre le réseau.`,
+            p_related_id: null,
+          });
+        }
+      }
+
+      // Send notification email
+      try {
+        await supabase.functions.invoke("send-preregistration-email", {
+          body: { email: formData.email, name: formData.fullName, metier: formData.metier, city: formData.city },
+        });
+      } catch {}
+
       setSubmitted(true);
-      toast({ title: "Zone réservée !", description: "Jane vous rappelle sous 24h pour valider votre accès." });
-    } catch {
-      toast({ title: "Erreur", description: "Une erreur est survenue.", variant: "destructive" });
+      toast({ title: "Candidature envoyée !", description: "Notre équipe va étudier votre dossier sous 24h." });
+    } catch (error: any) {
+      toast({ title: "Erreur", description: error.message || "Une erreur est survenue", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Confirmation screen
   if (submitted) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead title="Zone réservée — Artisans Validés" description="Votre demande d'accès au réseau a bien été reçue." />
         <Navbar />
-        <main className="pt-32 lg:pt-20 pb-20">
-          <div className="container mx-auto px-4 max-w-md">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl p-8 shadow-floating text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Phone className="w-8 h-8 text-primary" />
-              </div>
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4 mb-6 text-left">
-                <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
-                   <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
-                   <p className="font-medium">Zone réservée !</p>
-                 </div>
-               </div>
-              <h1 className="text-2xl font-bold text-foreground mb-4">Votre dossier est en cours d'examen</h1>
-              <p className="text-muted-foreground mb-6">
-                Notre équipe audite votre dossier et vérifie la disponibilité de votre secteur à <strong className="text-foreground">{formData.city}</strong>. Vous serez contacté sous 24h.
+        <main className="pt-32 lg:pt-20 pb-16">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="max-w-lg mx-auto text-center py-20">
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200 }}>
+                <div className="w-24 h-24 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-8">
+                  <CheckCircle2 className="w-12 h-12 text-gold" />
+                </div>
+              </motion.div>
+              <h1 className="text-3xl font-bold text-foreground mb-4">Candidature reçue ✅</h1>
+              <p className="text-muted-foreground mb-8">
+                Merci <strong className="text-foreground">{formData.fullName}</strong> ! Notre équipe va étudier votre dossier et vérifier la disponibilité de votre zone à <strong className="text-gold">{formData.city}</strong>. Réponse sous 24h max.
               </p>
-              <div className="bg-muted rounded-lg p-4 mb-6 text-left">
-                <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Pas de robot, pas de spam.</strong> C'est un humain qui étudie votre dossier et vérifie vos documents.
-                </p>
-              </div>
-              <Button variant="gold" onClick={() => window.location.href = "/"} className="w-full">Retour à l'accueil</Button>
-            </motion.div>
+              <Button variant="gold" size="lg" onClick={() => window.location.href = "/"}>
+                Retour à l'accueil
+              </Button>
+            </div>
           </div>
         </main>
         <Footer />
@@ -429,14 +443,14 @@ const DevenirArtisan = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Rejoindre l'Alliance — Artisans Validés"
-        description="Arrêtez de chercher vos chantiers. Rejoignez l'Alliance Artisans Validés : flux de missions pré-qualifiées, 0% commission, exclusivité territoriale."
+        title="Rejoindre le réseau Artisans Validés — Licence exclusive"
+        description="Accédez à des chantiers pré-qualifiés sur votre secteur. Maximum 2 artisans par ville. 0% commission. Inscription gratuite, audit sous 24h."
         canonical="https://artisansvalides.fr/devenir-artisan"
       />
       <Navbar />
 
-      <main className="pt-20 lg:pt-20">
-        {/* Barre de réassurance */}
+      <main className="pt-28 lg:pt-20">
+        {/* Trust bar */}
         <div className="bg-navy py-2.5 border-b border-white/10">
           <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/90 font-medium">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Entreprise Française</span>
@@ -449,15 +463,15 @@ const DevenirArtisan = () => {
         <MarqueeBanner />
 
         {/* Hero — Crochet Psychologique */}
-        <section className="bg-gradient-to-b from-muted/50 to-white py-12 md:py-20 lg:py-28 relative overflow-hidden">
+        <section className="bg-gradient-to-b from-secondary/50 to-background py-12 md:py-20 lg:py-28 relative overflow-hidden">
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-4xl mx-auto mb-10 md:mb-16">
-              <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-gold text-navy-dark text-sm font-bold mb-6 shadow-gold">
+              <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-gold text-primary-foreground text-sm font-bold mb-6 shadow-gold">
                 <Shield className="w-4 h-4" />
                 Réseau sélectif — Inscription gratuite
               </div>
 
-              <h1 className="text-2xl md:text-4xl lg:text-[3.25rem] font-black text-navy leading-[1.1] mb-5 md:mb-7 uppercase tracking-tight">
+              <h1 className="text-2xl md:text-4xl lg:text-[3.25rem] font-black text-foreground leading-[1.1] mb-5 md:mb-7 uppercase tracking-tight">
                 Arrêtez de chercher vos chantiers.<br />
                 <span className="text-gradient-gold">Commencez à les choisir.</span>
               </h1>
@@ -468,7 +482,7 @@ const DevenirArtisan = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button variant="gold" size="xl" className="!font-black !text-base md:!text-lg uppercase tracking-wider" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
+                <Button variant="gold" size="xl" className="!font-black !text-base md:!text-lg uppercase tracking-wider glow-gold-hover" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
                    <Shield className="w-5 h-5 mr-2" /> VÉRIFIER MA ZONE & RÉSERVER MON ACCÈS <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
@@ -535,13 +549,13 @@ const DevenirArtisan = () => {
         <SocialProofSection />
 
         {/* Formulaire */}
-        <section id="formulaire-licence" className="py-12 md:py-20 bg-muted/40">
+        <section id="formulaire-licence" className="py-12 md:py-20 bg-secondary/30">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="max-w-lg mx-auto">
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <div className="bg-white rounded-2xl p-5 md:p-8 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.18)] border-2 border-navy/20">
+                <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-5 md:p-8 shadow-lg border border-gold/20">
                   <div className="text-center mb-5 md:mb-6">
-                   <h2 className="text-lg md:text-xl font-black text-navy mb-1 md:mb-2 uppercase tracking-wide">
+                   <h2 className="text-lg md:text-xl font-black text-foreground mb-1 md:mb-2 uppercase tracking-wide">
                       Réservez votre accès
                     </h2>
                     <p className="text-xs md:text-sm text-gold font-semibold mb-1">
@@ -550,32 +564,32 @@ const DevenirArtisan = () => {
                      <p className="text-xs md:text-sm text-muted-foreground mb-1">
                        Gratuit · Sans engagement · Audit sous 24h
                      </p>
-                     <p className="text-xs text-navy/70">
-                       🔒 Validation finale de votre accès par <strong className="text-navy">Jane</strong> après examen de votre dossier.
+                     <p className="text-xs text-muted-foreground">
+                       🔒 Validation finale de votre accès par <strong className="text-foreground">Jane</strong> après examen de votre dossier.
                      </p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4 pb-16 md:pb-0">
                     <div>
-                      <Label htmlFor="fullName" className="text-navy text-sm">Prénom / Nom *</Label>
+                      <Label htmlFor="fullName" className="text-foreground text-sm">Prénom / Nom *</Label>
                       <Input id="fullName" placeholder="Jean Dupont" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} className="mt-1 h-9 md:h-10" required />
                     </div>
                     <div>
-                      <Label htmlFor="email" className="text-navy text-sm">Adresse Email *</Label>
+                      <Label htmlFor="email" className="text-foreground text-sm">Adresse Email *</Label>
                       <Input id="email" type="email" placeholder="contact@entreprise.fr" value={formData.email} onChange={(e) => updateForm("email", e.target.value)} className="mt-1 h-9 md:h-10" required />
                     </div>
                     <div>
-                      <Label htmlFor="phone" className="text-navy text-sm">Téléphone *</Label>
+                      <Label htmlFor="phone" className="text-foreground text-sm">Téléphone *</Label>
                       <div className="mt-1">
                         <FrenchPhoneInput id="phone" value={formData.phone} onChange={(value) => updateForm("phone", value)} />
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="city" className="text-navy text-sm">Ville *</Label>
+                      <Label htmlFor="city" className="text-foreground text-sm">Ville *</Label>
                       <Input id="city" placeholder="Ex: Lille, Roubaix, Arras..." value={formData.city} onChange={(e) => updateForm("city", e.target.value)} className="mt-1 h-9 md:h-10" required />
                     </div>
                     <div>
-                      <Label htmlFor="metier" className="text-navy text-sm">Métier *</Label>
+                      <Label htmlFor="metier" className="text-foreground text-sm">Métier *</Label>
                       <Input id="metier" placeholder="Ex: Plombier, Électricien, PAC..." value={formData.metier} onChange={(e) => updateForm("metier", e.target.value)} className="mt-1 h-9 md:h-10" required />
                     </div>
 
@@ -585,20 +599,20 @@ const DevenirArtisan = () => {
                         type="submit"
                         variant="gold"
                         size="xl"
-                        className="w-full !text-lg !py-7 !font-black uppercase tracking-wider hover:brightness-110 hover:shadow-[0_0_24px_rgba(234,179,8,0.4)] transition-all duration-300"
+                        className="w-full !text-lg !py-7 !font-black uppercase tracking-wider hover:brightness-110 hover:shadow-[0_0_24px_rgba(234,179,8,0.4)] transition-all duration-300 glow-gold-hover"
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Shield className="w-5 h-5 mr-2" />}
                         {isLoading ? "Vérification..." : "VÉRIFIER MA ZONE & RÉSERVER MON ACCÈS"}
                       </Button>
                       <p className="text-xs text-muted-foreground mt-3 text-center">
-                        🔒 Validation finale par <strong className="text-navy">Khalid</strong> sous 24h après audit de vos documents.
+                        🔒 Validation finale par <strong className="text-foreground">Khalid</strong> sous 24h après audit de vos documents.
                       </p>
                     </div>
                   </form>
 
                   {/* Mobile sticky submit */}
-                  <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border px-5 py-3 shadow-lg">
+                  <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border px-5 py-3 shadow-lg">
                     <Button
                       type="button"
                       variant="gold"
@@ -639,7 +653,7 @@ const DevenirArtisan = () => {
         </section>
 
         {/* CTA Final */}
-        <section className="py-16 lg:py-20 bg-muted">
+        <section className="py-16 lg:py-20 bg-secondary/30">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]">
               <div className="absolute inset-0 opacity-10">

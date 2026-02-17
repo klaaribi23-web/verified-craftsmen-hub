@@ -9,11 +9,11 @@ const CTASection = () => {
         <h2 id="cta-heading" className="sr-only">Passez à l'action</h2>
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Client CTA */}
-          <motion.article initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="bg-white rounded-3xl p-8 lg:p-12 shadow-soft border border-border">
+          <motion.article initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="bg-card rounded-3xl p-8 lg:p-12 shadow-soft border border-border">
             <div className="w-16 h-16 rounded-2xl bg-gradient-gold flex items-center justify-center mb-6 shadow-gold">
-              <Users className="w-8 h-8 text-navy-dark" aria-hidden="true" />
+              <Users className="w-8 h-8 text-primary-foreground" aria-hidden="true" />
             </div>
-            <h3 className="text-xl lg:text-3xl font-bold text-navy mb-4">
+            <h3 className="text-xl lg:text-3xl font-bold text-foreground mb-4">
               Vous avez un projet de travaux ?
             </h3>
             <p className="text-muted-foreground mb-8 text-lg">
@@ -21,7 +21,7 @@ const CTASection = () => {
               les plus adaptés, vérifiés et validés par notre équipe.
             </p>
             <ul className="space-y-3 mb-8">
-              {["Artisans triés sur le volet par nos soins", "Profils vérifiés manuellement", "Suivi qualité garanti"].map(item => <li key={item} className="flex items-center gap-3 text-navy">
+              {["Artisans triés sur le volet par nos soins", "Profils vérifiés manuellement", "Suivi qualité garanti"].map(item => <li key={item} className="flex items-center gap-3 text-foreground">
                   <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center">
                     <div className="w-2 h-2 rounded-full bg-success" />
                   </div>
