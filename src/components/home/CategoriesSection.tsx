@@ -24,7 +24,7 @@ const CategoriesSection = () => {
 
   // Take first 8 categories for display, add "All" as last
   const displayCategories = categories?.slice(0, 7) || [];
-  return <section className="py-20 lg:py-32 bg-white">
+  return <section className="py-20 lg:py-32 bg-background">
       <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
         <motion.div initial={{
@@ -39,7 +39,7 @@ const CategoriesSection = () => {
           <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
             Nos métiers
           </span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy mb-4 ">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 ">
             Quel artisan recherchez-vous ?
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -63,11 +63,11 @@ const CategoriesSection = () => {
         }} transition={{
           delay: index * 0.05
         }}>
-                <Link to={`/trouver-artisan?category=${category.id}`} className="group block bg-white rounded-2xl border border-border p-6 hover:shadow-elevated hover:border-gold/30 transition-all duration-300 h-full">
+                <Link to={`/trouver-artisan?category=${category.id}`} className="group block bg-card/80 backdrop-blur-xl rounded-2xl border border-primary/20 p-6 hover:shadow-gold hover:border-gold/40 transition-all duration-300 h-full">
                   <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${categoryColors[category.name] || "from-navy to-navy-light"} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <CategoryIcon iconName={category.icon} className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="font-semibold text-navy text-lg mb-2 group-hover:text-gold transition-colors">
+                  <h3 className="font-semibold text-foreground text-lg mb-2 group-hover:text-gold transition-colors">
                     {category.name}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -92,11 +92,11 @@ const CategoriesSection = () => {
         }} transition={{
           delay: 0.35
         }}>
-              <Link to="/trouver-artisan" className="group block bg-white rounded-2xl border border-border p-6 hover:shadow-elevated hover:border-gold/30 transition-all duration-300 h-full">
+              <Link to="/trouver-artisan" className="group block bg-card/80 backdrop-blur-xl rounded-2xl border border-primary/20 p-6 hover:shadow-gold hover:border-gold/40 transition-all duration-300 h-full">
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-navy to-navy-light flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   <ArrowRight className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="font-semibold text-navy text-lg mb-2 group-hover:text-gold transition-colors">
+                <h3 className="font-semibold text-foreground text-lg mb-2 group-hover:text-gold transition-colors">
                   Tous les métiers
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
