@@ -9,8 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+// Navbar/Footer removed — Dark Prestige full-bleed auth
 import { notifyNewDeviceLogin } from "@/hooks/useSecurityNotifications";
 import { trackLoginAttempt, checkIfBlocked } from "@/hooks/useLoginTracking";
 import { 
