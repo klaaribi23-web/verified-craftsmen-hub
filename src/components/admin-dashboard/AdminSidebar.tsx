@@ -70,22 +70,22 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
   return (
     <>
       {/* Logo - Same as ClientSidebar/ArtisanSidebar */}
-      <div className="p-4 lg:p-6 border-b border-sidebar-border">
+      <div className="p-4 lg:p-6 border-b border-white/10">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-            <BadgeCheck className="w-6 h-6 text-accent-foreground" />
+          <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+            <BadgeCheck className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <span className="font-bold text-lg">ARTISANS</span>
-            <span className="text-accent font-bold text-lg"> VALIDÉS</span>
+            <span className="font-bold text-lg text-white">ARTISANS</span>
+            <span className="text-primary font-bold text-lg"> VALIDÉS</span>
           </div>
         </Link>
       </div>
 
       {/* Profile Summary - Same structure as ClientSidebar */}
-      <div className="p-4 border-b border-sidebar-border">
+      <div className="p-4 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-sidebar-accent flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="Photo de profil" className="w-full h-full object-cover" />
             ) : (
@@ -93,10 +93,10 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">
+            <p className="font-medium truncate text-white">
               {isLoading ? "Chargement..." : displayName}
             </p>
-            <p className="text-sm text-sidebar-foreground/70">Administrateur</p>
+            <p className="text-sm text-slate-400">Administrateur</p>
           </div>
         </div>
       </div>
@@ -115,8 +115,8 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 min-h-[44px]",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-primary"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                      ? "bg-primary/10 text-primary"
+                      : "text-slate-300 hover:bg-white/5 hover:text-white"
                   )}
                 >
                   <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -134,10 +134,10 @@ const SidebarContent = ({ onItemClick }: { onItemClick?: () => void }) => {
       </nav>
 
       {/* Logout */}
-      <div className="p-4 border-t border-sidebar-border">
+      <div className="p-4 border-t border-white/10">
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground/80 hover:bg-destructive/20 hover:text-destructive transition-all duration-200 w-full min-h-[44px]"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-destructive/20 hover:text-destructive transition-all duration-200 w-full min-h-[44px]"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           <span>Déconnexion</span>
@@ -151,7 +151,7 @@ export const AdminSidebar = () => {
   // Mobile navigation is now handled by Navbar + avatar sidebar (same as client/artisan)
   // Desktop sidebar is the only one rendered here
   return (
-    <aside className="hidden lg:flex w-64 min-h-screen bg-primary text-primary-foreground flex-col">
+    <aside className="hidden lg:flex w-64 min-h-screen flex-col border-r border-primary/20" style={{ background: '#020617' }}>
       <SidebarContent />
     </aside>
   );

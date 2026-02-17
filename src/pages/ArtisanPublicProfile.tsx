@@ -701,48 +701,48 @@ const ArtisanPublicProfile = () => {
                 <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
                     {/* Identité vérifiée */}
-                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-emerald-200 dark:border-emerald-500/30 shadow-sm hover:shadow-md transition-shadow">
+                     <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-emerald-500/30 shadow-sm hover:shadow-md transition-shadow">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-2">
                         <CheckCircle2 className="h-5 w-5 text-white" />
                       </div>
-                      <span className="text-xs font-medium text-foreground leading-tight">Identité vérifiée</span>
-                    </div>
+                       <span className="text-xs font-medium text-white leading-tight">Identité vérifiée</span>
+                     </div>
 
-                    {/* SIRET contrôlé */}
-                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-blue-200 dark:border-blue-500/30 shadow-sm hover:shadow-md transition-shadow">
+                     {/* SIRET contrôlé */}
+                     <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-blue-500/30 shadow-sm hover:shadow-md transition-shadow">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mb-2">
                         <FileCheck className="h-5 w-5 text-white" />
                       </div>
-                      <span className="text-xs font-medium text-foreground leading-tight">SIRET & assurances</span>
-                    </div>
+                       <span className="text-xs font-medium text-white leading-tight">SIRET & assurances</span>
+                     </div>
 
-                    {/* Expérience */}
-                    {artisan.experience_years && artisan.experience_years > 0 && (
-                      <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-amber-200 dark:border-amber-500/30 shadow-sm hover:shadow-md transition-shadow">
+                     {/* Expérience */}
+                     {artisan.experience_years && artisan.experience_years > 0 && (
+                       <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-amber-500/30 shadow-sm hover:shadow-md transition-shadow">
                         <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-2">
                           <Award className="h-5 w-5 text-white" />
                         </div>
-                        <span className="text-xs font-medium text-foreground leading-tight">
-                          {artisan.experience_years} ans d'expérience
-                        </span>
-                      </div>
-                    )}
+                         <span className="text-xs font-medium text-white leading-tight">
+                           {artisan.experience_years} ans d'expérience
+                         </span>
+                       </div>
+                     )}
 
-                    {/* Avis authentifiés */}
-                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-purple-200 dark:border-purple-500/30 shadow-sm hover:shadow-md transition-shadow">
+                     {/* Avis authentifiés */}
+                     <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-purple-500/30 shadow-sm hover:shadow-md transition-shadow">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mb-2">
                         <Star className="h-5 w-5 text-white" />
                       </div>
-                      <span className="text-xs font-medium text-foreground leading-tight">Avis authentifiés</span>
-                    </div>
+                       <span className="text-xs font-medium text-white leading-tight">Avis authentifiés</span>
+                     </div>
 
-                    {/* Charte qualité */}
-                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-white/80 dark:bg-white/10 border border-rose-200 dark:border-rose-500/30 shadow-sm hover:shadow-md transition-shadow">
+                     {/* Charte qualité */}
+                     <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-rose-500/30 shadow-sm hover:shadow-md transition-shadow">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center mb-2">
                         <ThumbsUp className="h-5 w-5 text-white" />
                       </div>
-                      <span className="text-xs font-medium text-foreground leading-tight">Charte qualité signée</span>
-                    </div>
+                       <span className="text-xs font-medium text-white leading-tight">Charte qualité signée</span>
+                     </div>
                   </div>
                 </CardContent>
               </Card>
