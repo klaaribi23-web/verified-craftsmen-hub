@@ -102,7 +102,7 @@ export const PricingCard = ({
             onClick={onSubscribe}
             disabled={isLoading}
           >
-            {isLoading ? "Chargement..." : "S'abonner"}
+            {isLoading ? "Chargement..." : "ACTIVER MON EXCLUSIVITÉ SECTEUR 🔒"}
           </Button>
         )}
       </CardFooter>

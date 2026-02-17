@@ -70,12 +70,12 @@ export const ClientDashboardNew = () => {
         noIndex={true}
       />
       <Navbar />
-      <div className="flex min-h-screen bg-gradient-to-br from-teal-50/30 via-background to-sky-50/30 pt-28 lg:pt-20">
+        <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
         <ClientSidebar />
 
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="bg-white border-b border-border px-4 md:px-8 py-6">
+          <div className="bg-card/80 border-b border-primary/20 px-4 md:px-8 py-6">
             <h1 className="text-2xl font-bold text-foreground">
               Bienvenue{demoMode ? ", Marie" : ""} 👋
             </h1>
@@ -91,12 +91,12 @@ export const ClientDashboardNew = () => {
               <DemoProjectShowcase />
 
               {/* New Project CTA */}
-              <Card className="border border-dashed border-teal-300 bg-white hover:shadow-md transition-shadow">
+              <Card className="border border-dashed border-primary/30 hover:shadow-gold transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center">
-                        <Plus className="w-6 h-6 text-teal-600" />
+                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                        <Plus className="w-6 h-6 text-primary" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">Lancer un nouveau projet</h3>

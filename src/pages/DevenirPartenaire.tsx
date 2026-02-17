@@ -388,9 +388,9 @@ const FormSection = () => {
               </p>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-[0_12px_48px_-8px_rgba(26,43,72,0.18)] border-2 border-navy/20">
+            <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-6 md:p-8 shadow-[0_12px_48px_-8px_rgba(0,0,0,0.4)] border-2 border-primary/30">
               <div className="text-center mb-6">
-              <h2 className="text-xl md:text-2xl font-black text-navy mb-1 uppercase tracking-wide">
+              <h2 className="text-xl md:text-2xl font-black text-foreground mb-1 uppercase tracking-wide">
                   Réserver mon accès
                 </h2>
                 <p className="text-2xl md:text-3xl font-black text-gold mb-1">149€ <span className="text-base font-semibold">HT / mois</span></p>

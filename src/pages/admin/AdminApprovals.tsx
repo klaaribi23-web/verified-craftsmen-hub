@@ -1545,9 +1545,9 @@ const AdminApprovals = () => {
             {/* ARTISANS TAB */}
             <TabsContent value="artisans">
               {/* Sub-tabs for Artisans */}
-              <div className="bg-gradient-to-r from-blue-50 via-blue-100/50 to-blue-50 p-4 md:p-6 border border-blue-200 rounded bg-white">
+              <div className="bg-card/50 p-4 md:p-6 border border-primary/20 rounded backdrop-blur-xl">
                 <Tabs value={artisanSubTab} onValueChange={setArtisanSubTab}>
-                  <TabsList className="mb-4 flex-wrap bg-white/80 dark:bg-background/80 shadow-sm">
+                  <TabsList className="mb-4 flex-wrap bg-background/80 shadow-sm">
                     <TabsTrigger value="nouvelles-inscriptions" className="gap-1.5 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
                       <UserCheck className="h-4 w-4" />
                       <span className="hidden sm:inline">Nouvelles</span> Inscriptions
@@ -1857,9 +1857,9 @@ const AdminApprovals = () => {
             {/* VITRINES TAB */}
             <TabsContent value="vitrines">
               {/* Sub-tabs for Vitrines */}
-              <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 p-4 md:p-6 border border-primary/20 rounded bg-white">
+              <div className="bg-card/50 p-4 md:p-6 border border-primary/20 rounded backdrop-blur-xl">
                 <Tabs value={vitrineSubTab} onValueChange={setVitrineSubTab}>
-                  <TabsList className="mb-4 flex-wrap bg-white/80 dark:bg-background/80 shadow-sm">
+                  <TabsList className="mb-4 flex-wrap bg-background/80 shadow-sm">
                     <TabsTrigger value="actives" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                       <Store className="h-4 w-4" />
                       <span className="hidden sm:inline">Vitrines</span> actives
@@ -2656,7 +2656,7 @@ const AdminApprovals = () => {
 
             {/* CANDIDATURES TAB */}
             <TabsContent value="candidatures">
-              <div className="bg-gradient-to-r from-gold/5 via-gold/10 to-gold/5 p-4 md:p-6 border border-gold/20 rounded bg-white">
+              <div className="bg-card/50 p-4 md:p-6 border border-gold/20 rounded backdrop-blur-xl">
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Crown className="h-5 w-5 text-gold" />
                   Nouvelles candidatures artisans
