@@ -1,19 +1,25 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Flame, X } from "lucide-react";
 
+/** Routes where the alert banner must NEVER appear */
+const HIDDEN_ROUTES = ["/admin", "/activation-elite", "/artisan/"];
+
 const AlertBanner = () => {
+  const { pathname } = useLocation();
   const [count, setCount] = useState(0);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // Deterministic random count between 40-80 based on day
     const today = new Date();
     const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
     const pseudo = ((seed * 9301 + 49297) % 233280) / 233280;
     setCount(Math.floor(pseudo * 40) + 40);
   }, []);
 
-  if (dismissed || !count) return null;
+  // Hide on admin, artisan dashboard, and activation-elite pages
+  const isHidden = HIDDEN_ROUTES.some((r) => pathname.startsWith(r));
+  if (dismissed || !count || isHidden) return null;
 
   return (
     <div className="bg-destructive/90 backdrop-blur-sm text-destructive-foreground text-xs sm:text-sm font-semibold text-center px-4 py-2 relative z-[60]">
