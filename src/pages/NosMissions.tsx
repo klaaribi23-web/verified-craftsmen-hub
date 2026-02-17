@@ -660,7 +660,7 @@ const NosMissions = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.03 }}
                     >
-                      <Card className="h-full group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-border/60 hover:border-gold/30 overflow-hidden">
+                      <Card className="h-full group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-gold/20 hover:border-gold/40 overflow-hidden glow-gold-hover">
                         <CardContent className="p-0 flex flex-col h-full">
                           {/* Top colored bar */}
                           <div className="h-1.5 bg-gradient-to-r from-gold to-gold-light" />
@@ -668,18 +668,18 @@ const NosMissions = () => {
                           <div className="p-5 md:p-6 flex flex-col h-full">
                             {/* Top row: category + verified badge */}
                             <div className="flex items-center justify-between mb-3 gap-2">
-                              <Badge className="bg-navy/10 text-navy hover:bg-navy/20 gap-1 font-medium text-xs">
+                              <Badge className="bg-secondary text-foreground hover:bg-secondary/80 gap-1 font-medium text-xs">
                                 <Briefcase className="w-3 h-3" />
                                 {mission.category?.name || "Autre"}
                               </Badge>
-                              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 gap-1 text-xs font-semibold">
+                              <Badge className="bg-success/10 text-success border-success/30 gap-1 text-xs font-semibold">
                                 <BadgeCheck className="w-3.5 h-3.5" />
                                 Vérifié
                               </Badge>
                             </div>
 
                             {/* Title */}
-                            <h3 className="font-bold text-base md:text-lg text-foreground mb-3 line-clamp-2 group-hover:text-navy transition-colors">
+                            <h3 className="font-bold text-base md:text-lg text-foreground mb-3 line-clamp-2 group-hover:text-gold transition-colors">
                               {mission.title}
                             </h3>
 

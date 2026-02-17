@@ -198,6 +198,44 @@
   animation: shimmer 2s infinite;
 }
 
+/* Shine sweep effect for gold CTA buttons */
+@keyframes btn-shine {
+  0% { left: -75%; }
+  20% { left: 125%; }
+  100% { left: 125%; }
+}
+
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsla(0, 0%, 100%, 0.35),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: btn-shine 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Golden glow on hover for exclusive zones */
+.glow-gold-hover {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.glow-gold-hover:hover {
+  box-shadow: 0 0 20px hsla(43, 74%, 53%, 0.35), 0 0 40px hsla(43, 74%, 53%, 0.15);
+  border-color: hsl(43, 74%, 53%);
+}
+
 /* Safe area for mobile bottom navbar */
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom, 0);

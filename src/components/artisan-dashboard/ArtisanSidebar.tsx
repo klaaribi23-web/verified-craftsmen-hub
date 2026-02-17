@@ -151,7 +151,7 @@ export const ArtisanSidebar = () => {
   // Desktop sidebar is the only one rendered here
 
   return (
-    <aside className="hidden lg:flex w-64 min-h-screen bg-primary text-primary-foreground flex-col">
+    <aside className="hidden lg:flex w-64 min-h-screen bg-sidebar-background text-sidebar-foreground flex-col">
       <SidebarContent />
     </aside>
   );

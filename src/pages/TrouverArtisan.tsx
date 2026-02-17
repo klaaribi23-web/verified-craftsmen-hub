@@ -198,7 +198,7 @@ const TrouverArtisan = () => {
       
       <main className="pt-28 lg:pt-20">
         {/* Hero Search */}
-        <section className="bg-[#F9FAFB] py-10 md:py-16 lg:py-24 border-b border-border">
+        <section className="bg-secondary/50 py-10 md:py-16 lg:py-24 border-b border-border">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div initial={{
             opacity: 0,
@@ -235,7 +235,7 @@ const TrouverArtisan = () => {
 
 
         {/* Featured Artisans Carousel */}
-        <section className="py-10 md:py-16 bg-muted">
+        <section className="py-10 md:py-16 bg-background">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="mb-6 md:mb-8">
               <h2 className="text-xl md:text-2xl font-bold text-foreground text-center md:text-left">
@@ -250,7 +250,7 @@ const TrouverArtisan = () => {
         </section>
 
         {/* All Artisans with Filters */}
-        <section className="py-10 md:py-16 bg-card" ref={resultsRef} id="artisans-results">
+        <section className="py-10 md:py-16 bg-secondary/30" ref={resultsRef} id="artisans-results">
           <div className="container mx-auto px-4 lg:px-8">
             <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6 md:mb-8">Tous nos artisans</h2>
 
@@ -329,7 +329,7 @@ const TrouverArtisan = () => {
         />
 
         {/* CTA */}
-        <section className="py-10 md:py-16 bg-muted">
+        <section className="py-10 md:py-16 bg-background">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="bg-gradient-gold rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center">
               <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-navy-dark mb-3 md:mb-4">

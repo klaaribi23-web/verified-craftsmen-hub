@@ -420,7 +420,7 @@ const Navbar = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed inset-y-0 right-0 w-full max-w-sm bg-white z-[65] lg:hidden shadow-2xl overflow-y-auto"
+              className="fixed inset-y-0 right-0 w-full max-w-sm bg-card z-[65] lg:hidden shadow-2xl overflow-y-auto"
             >
               {/* Header */}
               <div className="bg-navy p-4 flex items-center justify-between sticky top-0">
@@ -461,7 +461,7 @@ const Navbar = () => {
       {/* Main Header */}
       <header
         className={cn(
-          "fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-border",
+          "fixed left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border",
           // Shift down when top bar is visible (mobile + authenticated)
           showMobileDashboardNav ? "top-12 lg:top-0" : "top-0",
         )}
@@ -473,20 +473,20 @@ const Navbar = () => {
               <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
                 <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform flex-shrink-0" />
                 <div className="flex flex-col">
-                  <span className="text-lg font-bold text-navy leading-tight">ARTISANS</span>
+                  <span className="text-lg font-bold text-foreground leading-tight">ARTISANS</span>
                   <span className="text-xs font-semibold text-gold -mt-1">VALIDÉS</span>
                 </div>
               </Link>
               <nav className="hidden lg:flex items-center gap-6">
                 <Link
                   to="/trouver-artisan"
-                  className="text-[15px] font-bold text-navy hover:text-primary transition-colors whitespace-nowrap"
+                  className="text-[15px] font-bold text-foreground hover:text-primary transition-colors whitespace-nowrap"
                 >
                   Trouver un artisan
                 </Link>
                 <Link
                   to="/nos-missions"
-                  className="text-[15px] font-bold text-navy hover:text-primary transition-colors whitespace-nowrap"
+                  className="text-[15px] font-bold text-foreground hover:text-primary transition-colors whitespace-nowrap"
                 >
                   Consulter les missions
                 </Link>
@@ -502,12 +502,12 @@ const Navbar = () => {
               {!isAuthenticated && !isLoading && (
                 <Link
                   to="/devenir-artisan"
-                  className="text-[15px] font-semibold text-navy hover:text-navy/70 underline-offset-4 hover:underline transition-colors whitespace-nowrap"
+                  className="text-[15px] font-semibold text-foreground hover:text-foreground/70 underline-offset-4 hover:underline transition-colors whitespace-nowrap"
                 >
                   Devenir partenaire
                 </Link>
               )}
-              <Button variant="outline" size="sm" className="border-navy text-navy hover:bg-navy hover:text-white font-semibold text-[13px]" asChild>
+              <Button variant="outline" size="sm" className="border-foreground/30 text-foreground hover:bg-foreground/10 font-semibold text-[13px]" asChild>
                 <Link to="/artisan/dashboard">
                   <User className="w-4 h-4 mr-1" />
                   Espace Pro
@@ -546,14 +546,14 @@ const Navbar = () => {
             <div className="lg:hidden flex items-center gap-1">
               <Link
                 to="/nos-missions"
-                className="p-2 text-navy hover:text-gold transition-colors relative"
+                className="p-2 text-foreground hover:text-gold transition-colors relative"
                 title="Consulter les missions"
               >
                 <Radar className="w-6 h-6" />
               </Link>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-2 text-navy"
+                className="p-2 text-foreground"
               >
                 {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
