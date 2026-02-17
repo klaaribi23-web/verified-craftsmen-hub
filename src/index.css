@@ -254,3 +254,40 @@ body:has(.mobile-navbar-active) footer {
   0%, 100% { transform: scale(1); box-shadow: 0 10px 15px -3px rgb(234 179 8 / 0.3); }
   50% { transform: scale(1.03); box-shadow: 0 10px 25px -3px rgb(234 179 8 / 0.5); }
 }
+
+/* ═══════════════════════════════════════════════
+   INJECTION BRUTALE — Dark Prestige Override
+   Force Navy/Or on ALL auth & system pages.
+   Zero white flash. Zero exception.
+   ═══════════════════════════════════════════════ */
+
+/* Force dark background on any Supabase Auth UI remnant */
+[data-supabase-auth],
+.supabase-auth-ui_ui-container,
+.supabase-auth-ui_ui-anchor,
+.supabase-auth-ui_ui-button,
+.supabase-auth-ui_ui-divider,
+.supabase-auth-ui_ui-input,
+.supabase-auth-ui_ui-label,
+.supabase-auth-ui_ui-message {
+  background-color: hsl(215 62% 6%) !important;
+  color: hsl(0 0% 100%) !important;
+  border-color: hsl(43 74% 53% / 0.3) !important;
+}
+
+[data-supabase-auth] button,
+.supabase-auth-ui_ui-button {
+  background-color: hsl(43 74% 53%) !important;
+  color: hsl(215 62% 6%) !important;
+  font-weight: 700 !important;
+}
+
+/* Global body-level anti-white-flash: ensure root is always navy */
+html, body {
+  background-color: hsl(215 62% 6%) !important;
+}
+
+/* Auth routes: force dark on any stray container */
+#root > div:first-child {
+  min-height: 100vh;
+}
