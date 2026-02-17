@@ -27,7 +27,7 @@
     
     /* Muted — Dark backgrounds */
     --muted: 215 45% 12%;
-    --muted-foreground: 215 15% 75%;
+    --muted-foreground: 215 20% 80%;
     
     /* Accent — Gold Prestige */
     --accent: 43 74% 53%;
@@ -103,7 +103,7 @@
     --secondary-foreground: 210 40% 85%;
     
     --muted: 215 45% 12%;
-    --muted-foreground: 215 15% 75%;
+    --muted-foreground: 215 20% 80%;
     
     --accent: 43 74% 53%;
     --accent-foreground: 215 62% 6%;

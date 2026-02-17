@@ -455,14 +455,14 @@ const Auth = () => {
             </div>
             
             {/* Green success banner */}
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-left">
-              <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
+            <div className="bg-success/10 border border-success/30 rounded-lg p-4 text-left">
+              <div className="flex items-center gap-2 text-success">
                 <CheckCircle className="h-5 w-5 flex-shrink-0" />
                 <p className="font-medium">
                   Votre inscription a bien été prise en compte !
                 </p>
               </div>
-              <p className="text-sm text-green-700 dark:text-green-300 mt-2 ml-7">
+              <p className="text-sm text-slate-300 mt-2 ml-7">
                 Pour continuer, veuillez confirmer votre adresse email en cliquant sur le lien que vous venez de recevoir.
               </p>
             </div>
@@ -471,9 +471,9 @@ const Auth = () => {
             <p className="text-muted-foreground">
               Un email a été envoyé à <strong className="text-foreground">{sentEmail}</strong>.
             </p>
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <p className="text-sm text-amber-800 dark:text-amber-200">
-                <strong>Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email dans votre boîte de réception.
+            <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
+              <p className="text-sm text-slate-200">
+                <strong className="text-primary">Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email dans votre boîte de réception.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
