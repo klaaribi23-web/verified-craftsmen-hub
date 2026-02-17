@@ -18,8 +18,6 @@ const ActivationElite = () => {
   const sector = searchParams.get("sector") || searchParams.get("city") || "VOTRE ZONE";
 
   const [phase, setPhase] = useState<"scanning" | "reveal">("scanning");
-
-  // Countdown 24h from first visit
   const [timeLeft, setTimeLeft] = useState({ h: 23, m: 59, s: 59 });
 
   useEffect(() => {
@@ -42,7 +40,6 @@ const ActivationElite = () => {
   const pad = (n: number) => n.toString().padStart(2, "0");
 
   const handleActivate = () => {
-    // Redirect to subscription or login with email pre-filled
     if (email) {
       navigate(`/bienvenue-elite?email=${encodeURIComponent(email)}`);
     } else {
@@ -59,7 +56,6 @@ const ActivationElite = () => {
 
       <AnimatePresence mode="wait">
         {phase === "scanning" ? (
-          /* ── SCANNING PHASE ── */
           <motion.div
             key="scanner"
             initial={{ opacity: 0 }}
@@ -67,7 +63,6 @@ const ActivationElite = () => {
             exit={{ opacity: 0 }}
             className="flex flex-col items-center justify-center min-h-screen gap-8 px-4"
           >
-            {/* Scanner ring */}
             <div className="relative w-40 h-40">
               <div className="absolute inset-0 rounded-full border-4 border-primary/30 animate-ping" />
               <div className="absolute inset-2 rounded-full border-2 border-primary/60 animate-spin" style={{ animationDuration: "2s" }} />
@@ -87,14 +82,12 @@ const ActivationElite = () => {
             <p className="text-muted-foreground text-sm">Analyse IA Andrea • Audit sectoriel</p>
           </motion.div>
         ) : (
-          /* ── REVEAL PHASE ── */
           <motion.div
             key="reveal"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="max-w-4xl mx-auto px-4 py-12 md:py-20 space-y-12"
           >
-            {/* ── HEADER ── */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -115,7 +108,6 @@ const ActivationElite = () => {
               </p>
             </motion.div>
 
-            {/* ── BLURRED PROJECT CARDS ── */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -130,15 +122,12 @@ const ActivationElite = () => {
                     key={i}
                     className="relative rounded-xl border border-primary/20 bg-[hsl(215,55%,10%)] p-6 overflow-hidden"
                   >
-                    {/* Blur overlay */}
                     <div className="absolute inset-0 backdrop-blur-md bg-[hsl(215,62%,6%)]/60 z-10 flex flex-col items-center justify-center gap-2">
                       <Lock className="w-8 h-8 text-primary" />
                       <span className="text-xs text-primary font-bold tracking-wider">
                         DÉVERROUILLABLE APRÈS ACTIVATION
                       </span>
                     </div>
-
-                    {/* Content behind blur */}
                     <p className="font-bold text-white text-lg">{p.title}</p>
                     <p className="text-white/60 text-sm mt-1">{p.city}</p>
                     <p className="text-primary font-bold mt-3">{p.budget}</p>
@@ -147,7 +136,6 @@ const ActivationElite = () => {
               </div>
             </motion.div>
 
-            {/* ── ARGUMENTS ── */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -168,7 +156,6 @@ const ActivationElite = () => {
               ))}
             </motion.div>
 
-            {/* ── CTA ── */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -182,7 +169,6 @@ const ActivationElite = () => {
                 DÉVERROUILLER MON SECTEUR ET ENCAISSER
               </Button>
 
-              {/* Countdown */}
               <div className="flex items-center justify-center gap-2 text-primary/80 text-sm font-semibold">
                 <span>Votre priorité expire dans :</span>
                 <span className="font-mono bg-primary/10 px-2 py-1 rounded text-primary">
