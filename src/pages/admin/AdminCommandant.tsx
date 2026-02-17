@@ -155,11 +155,10 @@ const AdminCommandant = () => {
     onError: () => toast.error("Erreur lors du changement de statut"),
   });
 
-  // TOUS les liens artisan passent par /bienvenue-elite (Navy/Or) avec email pré-rempli
+  // Lien Magique → /bienvenue-elite avec email pré-rempli uniquement
   const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true) => {
-    const sector = artisan.city || "NORD";
     const email = artisan.email || "";
-    return `${PUBLISHED_URL}/bienvenue-elite?sector=${encodeURIComponent(sector)}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(artisan.business_name)}`;
+    return `${PUBLISHED_URL}/bienvenue-elite?email=${encodeURIComponent(email)}`;
   };
 
   const copyLink = (artisan: CommandantArtisan) => {
