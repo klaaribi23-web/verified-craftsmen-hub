@@ -155,11 +155,11 @@ const AdminCommandant = () => {
     onError: () => toast.error("Erreur lors du changement de statut"),
   });
 
-  // TOUS les liens artisan passent par le tunnel /verifying (Navy/Or)
+  // TOUS les liens artisan passent par /bienvenue-elite (Navy/Or)
   const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true) => {
-    const target = `/artisan/${artisan.slug || artisan.id}`;
     const sector = artisan.city || "NORD";
-    return `${PUBLISHED_URL}/verifying?target=${encodeURIComponent(target)}&sector=${encodeURIComponent(sector)}`;
+    const target = `/artisan/${artisan.slug || artisan.id}`;
+    return `${PUBLISHED_URL}/bienvenue-elite?sector=${encodeURIComponent(sector)}&target=${encodeURIComponent(target)}`;
   };
 
   const copyLink = (artisan: CommandantArtisan) => {
