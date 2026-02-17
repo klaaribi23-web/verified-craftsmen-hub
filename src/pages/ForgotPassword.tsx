@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,19 +7,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { 
   Mail, 
   Loader2,
   ArrowLeft,
-  CheckCircle
+  CheckCircle,
+  Shield
 } from "lucide-react";
 
 const emailSchema = z.string().trim().email("Email invalide").max(255, "Email trop long");
 
 const ForgotPassword = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
@@ -66,111 +66,115 @@ const ForgotPassword = () => {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        
-        <main className="container mx-auto px-4 py-12">
-          <div className="max-w-md mx-auto">
-            <Card>
-              <CardHeader className="text-center">
-                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle className="h-8 w-8 text-primary" />
-                </div>
-                <CardTitle className="text-2xl">Email envoyé</CardTitle>
-                <CardDescription>
-                  Un lien de réinitialisation a été envoyé à <span className="font-medium text-foreground">{email}</span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="bg-muted/50 p-4 rounded-lg text-sm text-muted-foreground">
-                  <p>Cliquez sur le lien dans l'email pour créer un nouveau mot de passe. Le lien expire dans 1 heure.</p>
-                </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
+        <div className="max-w-md mx-auto px-4">
+          <Card className="border-primary/30 shadow-gold" style={{ background: '#020617' }}>
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4 border border-primary/30">
+                <CheckCircle className="h-10 w-10 text-primary" />
+              </div>
+              <CardTitle className="text-2xl text-white uppercase font-black">Email envoyé</CardTitle>
+              <CardDescription className="text-white/80">
+                Un lien de réinitialisation a été envoyé à <span className="font-semibold text-primary">{email}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="border border-primary/30 rounded-lg p-4" style={{ background: 'rgba(212,175,55,0.08)' }}>
+                <p className="text-sm text-white">
+                  Cliquez sur le lien dans l'email pour créer un nouveau mot de passe. Le lien expire dans 1 heure.
+                </p>
+              </div>
 
-                <div className="text-center space-y-4">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setEmailSent(false);
-                      setEmail("");
-                    }}
-                    className="w-full"
-                  >
-                    Renvoyer l'email
-                  </Button>
-                  
-                  <Link to="/auth">
-                    <Button variant="ghost" className="w-full">
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Retour à la connexion
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
+              <div className="border border-primary/20 rounded-lg p-4" style={{ background: 'rgba(212,175,55,0.05)' }}>
+                <p className="text-sm text-white">
+                  <strong className="text-primary">Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email.
+                </p>
+              </div>
 
-        <Footer />
+              <div className="flex flex-col gap-3">
+                <Button 
+                  variant="gold" 
+                  onClick={() => {
+                    setEmailSent(false);
+                    setEmail("");
+                  }}
+                  className="w-full font-bold"
+                >
+                  Renvoyer l'email
+                </Button>
+                
+                <Button variant="outline-gold" onClick={() => navigate("/auth")} className="w-full">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Retour à la connexion
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex items-center justify-center py-12" style={{ background: '#0A192F' }}>
       <SEOHead 
         title="Mot de passe oublié" 
         description="Réinitialisez votre mot de passe Artisans Validés"
         noIndex={true}
       />
-      <Navbar />
       
-      <main className="container mx-auto px-4 py-12">
-        <div className="max-w-md mx-auto">
-          <Link to="/auth" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
-            <ArrowLeft className="h-4 w-4" />
-            Retour à la connexion
-          </Link>
+      <div className="max-w-md mx-auto w-full px-4">
+        <button 
+          onClick={() => navigate("/auth")}
+          className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour à la connexion
+        </button>
 
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Mot de passe oublié</CardTitle>
-              <CardDescription>
-                Entrez votre email pour recevoir un lien de réinitialisation
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="votre@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
+        <Card className="border-primary/30 shadow-gold" style={{ background: '#020617' }}>
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4 border border-primary/30">
+              <Shield className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle className="text-2xl text-white uppercase font-black tracking-wide">
+              Mot de passe oublié
+            </CardTitle>
+            <CardDescription className="text-white/80">
+              Entrez votre email pour recevoir un lien de réinitialisation
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="votre@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 border-primary/30 text-white"
+                    style={{ background: '#0A192F' }}
+                    required
+                  />
                 </div>
+              </div>
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <Mail className="h-4 w-4 mr-2" />
-                  )}
-                  Envoyer le lien de réinitialisation
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-
-      <Footer />
+              <Button type="submit" className="w-full font-bold" variant="gold" disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Mail className="h-4 w-4 mr-2" />
+                )}
+                ENVOYER LE LIEN DE RÉINITIALISATION
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
