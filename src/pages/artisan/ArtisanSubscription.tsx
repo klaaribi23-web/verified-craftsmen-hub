@@ -282,14 +282,13 @@ const ArtisanSubscription = () => {
                     ) : (
                       <Button
                         id="checkout-99"
-                        className="w-full"
-                        variant="outline"
+                        className="w-full bg-gradient-gold text-primary-foreground font-bold shadow-gold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] border-0"
                         onClick={(e) => handleSubscribe(e, STRIPE_PRICES.artisan_valide.monthly)}
                         disabled={!!loadingPriceId}
                       >
                         {loadingPriceId === STRIPE_PRICES.artisan_valide.monthly ? (
                           <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirection…</>
-                        ) : "S'abonner — 99€/mois"}
+                        ) : "🔒 ACTIVER MON EXCLUSIVITÉ SECTEUR — 99€/mois"}
                       </Button>
                     )}
                   </CardFooter>
@@ -363,13 +362,13 @@ const ArtisanSubscription = () => {
                     ) : (
                       <Button
                         id="checkout-990"
-                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground border-0 shadow-lg"
+                        className="w-full bg-gradient-gold text-primary-foreground font-bold shadow-gold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] border-0 text-base"
                         onClick={(e) => handleSubscribe(e, STRIPE_PRICES.artisan_valide.yearly)}
                         disabled={!!loadingPriceId}
                       >
                         {loadingPriceId === STRIPE_PRICES.artisan_valide.yearly ? (
                           <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirection…</>
-                        ) : "S'abonner — 990€ HT/an"}
+                        ) : "🔒 ACTIVER MON EXCLUSIVITÉ SECTEUR — 990€/an"}
                       </Button>
                     )}
                   </CardFooter>
