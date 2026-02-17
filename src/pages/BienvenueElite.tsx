@@ -14,9 +14,10 @@ const BienvenueElite = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sector = searchParams.get("sector") || "NORD";
-  const target = searchParams.get("target") || "/artisan/dashboard";
+  const urlEmail = searchParams.get("email") || "";
+  const artisanName = searchParams.get("name") || "";
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(urlEmail);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
