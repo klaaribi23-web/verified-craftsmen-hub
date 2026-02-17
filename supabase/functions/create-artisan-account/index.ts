@@ -63,8 +63,14 @@ async function sendCredentialsEmail(email: string, password: string, firstName: 
           </p>
         </td></tr>
 
+        <!-- Signature -->
+        <tr><td style="padding:28px 40px 12px;text-align:center;">
+          <p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0 0 4px;font-style:italic;">À très vite sur la plateforme,</p>
+          <p style="color:#FFB800;font-size:15px;font-weight:700;margin:0;">L'équipe Artisans Validés</p>
+        </td></tr>
+
         <!-- Footer -->
-        <tr><td style="padding:24px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+        <tr><td style="padding:16px 40px 24px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
           <p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0;line-height:1.6;">
             Artisans Validés — Le réseau des professionnels d'exception<br>
             📞 Support prioritaire : 09 70 70 70 70
@@ -86,7 +92,7 @@ async function sendCredentialsEmail(email: string, password: string, firstName: 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Artisans Validés <equipe@artisansvalides.fr>",
+        from: "Jane de Artisans Validés <equipe@artisansvalides.fr>",
         to: [email],
         subject: "🏆 Bienvenue dans l'Élite — Vos accès sont prêts",
         html: htmlBody,
