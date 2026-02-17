@@ -711,31 +711,27 @@ const ActivateAccount = () => {
   // Error state
   if (phase === "error") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
         <SEOHead 
           title="Activation de compte" 
           description="Activez votre compte artisan"
           noIndex={true}
         />
-        <Navbar />
-        <div className="container mx-auto px-4 pt-32 pb-20">
-          <div className="max-w-md mx-auto text-center">
-            <div className="w-20 h-20 mx-auto bg-destructive/10 rounded-full flex items-center justify-center mb-6">
-              <AlertCircle className="h-10 w-10 text-destructive" />
-            </div>
-            <h1 className="text-2xl font-bold mb-4">Lien invalide</h1>
-            <p className="text-muted-foreground mb-6">{error}</p>
-            <div className="flex flex-col gap-3">
-              <Button onClick={() => navigate("/auth")}>
-                Se connecter
-              </Button>
-              <Button variant="outline" onClick={() => navigate("/contact")}>
-                Contacter le support
-              </Button>
-            </div>
+        <div className="max-w-md mx-auto text-center px-4">
+          <div className="w-20 h-20 mx-auto bg-destructive/20 rounded-full flex items-center justify-center mb-6 border border-destructive/30">
+            <AlertCircle className="h-10 w-10 text-destructive" />
+          </div>
+          <h1 className="text-2xl font-black text-white mb-4 uppercase">Lien invalide</h1>
+          <p className="text-white mb-6">{error}</p>
+          <div className="flex flex-col gap-3">
+            <Button variant="gold" onClick={() => navigate("/auth")} className="w-full font-bold">
+              Se connecter
+            </Button>
+            <Button variant="outline-gold" onClick={() => navigate("/contact")} className="w-full">
+              Contacter le support
+            </Button>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -743,20 +739,19 @@ const ActivateAccount = () => {
   // Loading state
   if (phase === "loading") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
         <SEOHead 
           title="Activation de compte" 
           description="Activez votre compte artisan"
           noIndex={true}
         />
-        <Navbar />
-        <div className="container mx-auto px-4 pt-32 pb-20">
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Vérification du lien...</p>
+        <div className="flex flex-col items-center justify-center text-center px-4">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl border-2 border-primary/40 flex items-center justify-center bg-primary/10">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
+          <p className="text-sm font-semibold text-primary uppercase tracking-[0.2em] mb-4">VÉRIFICATION DE VOTRE ACCÈS ÉLITE...</p>
+          <p className="text-white">Vérification du lien d'activation...</p>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -764,26 +759,24 @@ const ActivateAccount = () => {
   // Linking state (auto-activation in progress)
   if (phase === "linking") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
         <SEOHead 
           title="Activation en cours" 
           description="Activation de votre compte artisan"
           noIndex={true}
         />
-        <Navbar />
-        <div className="container mx-auto px-4 pt-32 pb-20">
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-            <p className="text-lg font-medium mb-2">Activation de votre compte...</p>
-            <p className="text-muted-foreground">Veuillez patienter quelques secondes</p>
+        <div className="flex flex-col items-center justify-center text-center px-4">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl border-2 border-primary/40 flex items-center justify-center bg-primary/10">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
+          <p className="text-lg font-black text-white mb-2 uppercase">Activation de votre compte...</p>
+          <p className="text-white">Veuillez patienter quelques secondes</p>
         </div>
-        <Footer />
       </div>
     );
   }
 
-  // Admin warning state - SECURITY: Block admin from activating artisan accounts
+  // Admin warning state
   if (phase === "admin_warning") {
     const handleLogout = async () => {
       await supabase.auth.signOut();
@@ -792,65 +785,39 @@ const ActivateAccount = () => {
     };
 
     return (
-      <div className="min-h-screen bg-background">
-        <SEOHead 
-          title="Activation bloquée" 
-          description="Vous devez vous déconnecter pour activer ce compte"
-          noIndex={true}
-        />
-        <Navbar />
-        <div className="container mx-auto px-4 pt-32 pb-20">
-          <div className="max-w-md mx-auto">
-            <Card className="border-destructive/50">
-              <CardHeader className="text-center">
-                <div className="w-20 h-20 mx-auto bg-destructive/10 rounded-full flex items-center justify-center mb-4">
-                  <Shield className="h-10 w-10 text-destructive" />
-                </div>
-                <CardTitle className="text-2xl text-destructive">Compte administrateur détecté</CardTitle>
-                <CardDescription className="text-base mt-2">
-                  Vous êtes connecté avec un compte administrateur. 
-                  Pour des raisons de sécurité, vous ne pouvez pas activer un compte artisan avec cette session.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
-                    <div className="text-sm text-destructive">
-                      <p className="font-medium mb-2">Pourquoi ce blocage ?</p>
-                      <p>
-                        Le compte administrateur doit rester séparé des comptes artisans. 
-                        Veuillez vous déconnecter puis utiliser un compte différent ou créer un nouveau compte pour cet artisan.
-                      </p>
-                    </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
+        <SEOHead title="Activation bloquée" description="Vous devez vous déconnecter pour activer ce compte" noIndex={true} />
+        <div className="max-w-md mx-auto px-4">
+          <Card className="border-destructive/50" style={{ background: '#020617' }}>
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 mx-auto bg-destructive/20 rounded-full flex items-center justify-center mb-4 border border-destructive/30">
+                <Shield className="h-10 w-10 text-destructive" />
+              </div>
+              <CardTitle className="text-2xl text-destructive uppercase">Compte administrateur détecté</CardTitle>
+              <CardDescription className="text-white mt-2">
+                Vous êtes connecté avec un compte administrateur. Pour des raisons de sécurité, vous ne pouvez pas activer un compte artisan avec cette session.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="border border-destructive/30 rounded-lg p-4" style={{ background: 'rgba(220,38,38,0.08)' }}>
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+                  <div className="text-sm text-white">
+                    <p className="font-bold text-destructive mb-2">Pourquoi ce blocage ?</p>
+                    <p>Le compte administrateur doit rester séparé des comptes artisans. Veuillez vous déconnecter puis utiliser un compte différent.</p>
                   </div>
                 </div>
-                
-                <Button 
-                  className="w-full"
-                  variant="destructive"
-                  onClick={handleLogout}
-                >
-                  Se déconnecter
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => navigate("/")}
-                >
-                  Retour à l'accueil
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <Button className="w-full" variant="destructive" onClick={handleLogout}>Se déconnecter</Button>
+              <Button variant="outline-gold" className="w-full" onClick={() => navigate("/")}>Retour à l'accueil</Button>
+            </CardContent>
+          </Card>
         </div>
-        <Footer />
       </div>
     );
   }
 
-  // Email mismatch state - SECURITY: Logged in email doesn't match artisan email
+  // Email mismatch state
   if (phase === "email_mismatch") {
     const handleLogout = async () => {
       await supabase.auth.signOut();
@@ -859,61 +826,36 @@ const ActivateAccount = () => {
     };
 
     return (
-      <div className="min-h-screen bg-background">
-        <SEOHead 
-          title="Email différent" 
-          description="L'email connecté ne correspond pas à l'artisan"
-          noIndex={true}
-        />
-        <Navbar />
-        <div className="container mx-auto px-4 pt-32 pb-20">
-          <div className="max-w-md mx-auto">
-            <Card className="border-amber-500/50">
-              <CardHeader className="text-center">
-                <div className="w-20 h-20 mx-auto bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                  <Mail className="h-10 w-10 text-amber-600" />
-                </div>
-                <CardTitle className="text-2xl text-amber-600">Email différent</CardTitle>
-                <CardDescription className="text-base mt-2">
-                  Vous êtes actuellement connecté avec un email différent de celui associé à cette vitrine artisan.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Email de la vitrine :</span>
-                      <span className="font-semibold">{artisanData?.email}</span>
-                    </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
+        <SEOHead title="Email différent" description="L'email connecté ne correspond pas à l'artisan" noIndex={true} />
+        <div className="max-w-md mx-auto px-4">
+          <Card className="border-primary/30" style={{ background: '#020617' }}>
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 mx-auto bg-primary/20 rounded-full flex items-center justify-center mb-4 border border-primary/30">
+                <Mail className="h-10 w-10 text-primary" />
+              </div>
+              <CardTitle className="text-2xl text-primary uppercase">Email différent</CardTitle>
+              <CardDescription className="text-white mt-2">
+                Vous êtes actuellement connecté avec un email différent de celui associé à cette vitrine artisan.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="border border-primary/30 rounded-lg p-4" style={{ background: 'rgba(212,175,55,0.08)' }}>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-white/60">Email de la vitrine :</span>
+                    <span className="font-semibold text-white">{artisanData?.email}</span>
                   </div>
                 </div>
-                
-                <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
-                  <p>
-                    Pour activer cette vitrine, veuillez vous déconnecter puis vous reconnecter 
-                    avec l'adresse email <span className="font-semibold text-foreground">{artisanData?.email}</span>.
-                  </p>
-                </div>
-                
-                <Button 
-                  className="w-full"
-                  onClick={handleLogout}
-                >
-                  Se déconnecter
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => navigate("/")}
-                >
-                  Retour à l'accueil
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <div className="rounded-lg p-4 text-sm text-white" style={{ background: 'rgba(212,175,55,0.05)' }}>
+                <p>Pour activer cette vitrine, veuillez vous déconnecter puis vous reconnecter avec l'adresse email <span className="font-semibold text-primary">{artisanData?.email}</span>.</p>
+              </div>
+              <Button className="w-full" variant="gold" onClick={handleLogout}>Se déconnecter</Button>
+              <Button variant="outline-gold" className="w-full" onClick={() => navigate("/")}>Retour à l'accueil</Button>
+            </CardContent>
+          </Card>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -921,57 +863,43 @@ const ActivateAccount = () => {
   // Awaiting email confirmation state
   if (phase === "awaiting_confirmation") {
     return (
-      <div className="min-h-screen bg-background">
-        <SEOHead 
-          title="Confirmez votre email" 
-          description="Confirmez votre adresse email pour activer votre compte"
-          noIndex={true}
-        />
-        <Navbar />
-        <div className="container mx-auto px-4 pt-32 pb-20">
-          <div className="max-w-md mx-auto">
-            <Card>
-              <CardHeader className="text-center">
-                <div className="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                  <Mail className="h-10 w-10 text-blue-600" />
-                </div>
-                <CardTitle className="text-2xl">Confirmez votre email</CardTitle>
-                <CardDescription className="text-base mt-2">
-                  Un email de confirmation a été envoyé à <span className="font-semibold text-foreground">{artisanData?.email}</span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
-                    <div className="text-sm text-blue-800">
-                      <p className="font-medium mb-2">Étapes à suivre :</p>
-                      <ol className="list-decimal list-inside space-y-1">
-                        <li>Ouvrez votre boîte email</li>
-                        <li>Cliquez sur le lien de confirmation</li>
-                        <li>Vous serez automatiquement redirigé vers votre tableau de bord</li>
-                      </ol>
-                    </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
+        <SEOHead title="Confirmez votre email" description="Confirmez votre adresse email pour activer votre compte" noIndex={true} />
+        <div className="max-w-md mx-auto px-4">
+          <Card className="border-primary/30" style={{ background: '#020617' }}>
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 mx-auto bg-primary/20 rounded-full flex items-center justify-center mb-4 border border-primary/30">
+                <Mail className="h-10 w-10 text-primary" />
+              </div>
+              <CardTitle className="text-2xl text-white uppercase">Confirmez votre email</CardTitle>
+              <CardDescription className="text-white mt-2">
+                Un email de confirmation a été envoyé à <span className="font-semibold text-primary">{artisanData?.email}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="border border-primary/30 rounded-lg p-4" style={{ background: 'rgba(212,175,55,0.08)' }}>
+                <div className="flex items-start gap-3">
+                  <Mail className="h-5 w-5 text-primary mt-0.5" />
+                  <div className="text-sm text-white">
+                    <p className="font-bold text-primary mb-2">Étapes à suivre :</p>
+                    <ol className="list-decimal list-inside space-y-1">
+                      <li>Ouvrez votre boîte email</li>
+                      <li>Cliquez sur le lien de confirmation</li>
+                      <li>Vous serez automatiquement redirigé</li>
+                    </ol>
                   </div>
                 </div>
-                
-                <div className="text-center text-sm text-muted-foreground">
-                  <p>Vous n'avez pas reçu l'email ?</p>
-                  <p className="mt-1">Vérifiez vos spams ou attendez quelques minutes.</p>
-                </div>
-
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setPhase("form")}
-                >
-                  Revenir au formulaire
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <div className="text-center text-sm text-white/60">
+                <p>Vous n'avez pas reçu l'email ?</p>
+                <p className="mt-1">Vérifiez vos spams ou attendez quelques minutes.</p>
+              </div>
+              <Button variant="outline-gold" className="w-full" onClick={() => setPhase("form")}>
+                Revenir au formulaire
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -979,30 +907,26 @@ const ActivateAccount = () => {
   // Success state
   if (phase === "success") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
         <SEOHead 
           title="Compte activé !" 
           description="Votre compte artisan a été activé"
           noIndex={true}
         />
-        <Navbar />
-        <div className="container mx-auto px-4 pt-32 pb-20">
-          <div className="max-w-md mx-auto text-center">
-            <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6">
-              <CheckCircle className="h-10 w-10 text-green-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-green-600 mb-2">Bravo !</h1>
-            <p className="text-lg mb-4">Votre compte a été activé avec succès</p>
-            <p className="text-muted-foreground mb-6">
-              Vous allez être redirigé vers votre tableau de bord...
-            </p>
-            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Redirection en cours...</span>
-            </div>
+        <div className="max-w-md mx-auto text-center px-4">
+          <div className="w-24 h-24 mx-auto bg-primary/20 rounded-full flex items-center justify-center mb-6 border-2 border-primary/50 shadow-gold">
+            <CheckCircle className="h-12 w-12 text-primary" />
+          </div>
+          <h1 className="text-2xl font-black text-primary mb-2 uppercase tracking-wide">ACCÈS ÉLITE ACTIVÉ !</h1>
+          <p className="text-lg text-white mb-4">Votre compte a été activé avec succès</p>
+          <p className="text-white mb-6">
+            Vous allez être redirigé vers votre tableau de bord...
+          </p>
+          <div className="flex items-center justify-center gap-2 text-white">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            <span>Redirection en cours...</span>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -1013,29 +937,37 @@ const ActivateAccount = () => {
 
   // Form state
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex items-center justify-center py-12" style={{ background: '#0A192F' }}>
       <SEOHead 
         title="Activation de compte" 
         description="Créez votre mot de passe pour activer votre compte artisan"
         noIndex={true}
       />
-      <Navbar />
       
-      <div className="container mx-auto px-4 pt-32 pb-20">
-        <div className="max-w-md mx-auto">
-          <Card>
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                {isExistingClient || isExistingArtisan ? (
-                  <UserCheck className="h-8 w-8 text-primary" />
-                ) : (
-                  <Shield className="h-8 w-8 text-primary" />
-                )}
-              </div>
-              <CardTitle className="text-2xl">
-                {isExistingClient || isExistingArtisan ? "Compte existant détecté" : "Activez votre compte"}
-              </CardTitle>
-              <CardDescription>
+      {/* Top gold banner */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-gold text-center py-2.5 px-4">
+        <p className="text-sm font-black uppercase tracking-wider" style={{ color: '#0A192F' }}>
+          🔒 VOTRE SECTEUR EST RÉSERVÉ POUR 24H
+        </p>
+      </div>
+      
+      <div className="max-w-md mx-auto w-full px-4 mt-12">
+        <Card className="border-primary/30 shadow-gold" style={{ background: '#020617' }}>
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4 border border-primary/30">
+              {isExistingClient || isExistingArtisan ? (
+                <UserCheck className="h-8 w-8 text-primary" />
+              ) : (
+                <Shield className="h-8 w-8 text-primary" />
+              )}
+            </div>
+            <CardTitle className="text-2xl text-white uppercase font-black tracking-wide">
+              {isExistingClient || isExistingArtisan ? "Compte existant détecté" : "BIENVENUE DANS L'EXCLUSIVITÉ"}
+            </CardTitle>
+            <p className="text-sm text-primary font-semibold uppercase tracking-wider mt-1">
+              DERNIÈRE ÉTAPE AVANT VOS CHANTIERS
+            </p>
+            <CardDescription className="text-white mt-3">
                 {isExistingClient ? (
                   <>
                     Bonjour ! Vous avez déjà un compte client avec l'adresse <span className="font-semibold text-foreground">{artisanData?.email}</span>.
@@ -1058,23 +990,23 @@ const ActivateAccount = () => {
             </CardHeader>
             <CardContent>
               {isExistingClient && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="border border-primary/30 rounded-lg p-4 mb-6" style={{ background: 'rgba(212,175,55,0.08)' }}>
                   <div className="flex items-start gap-3">
-                    <Key className="h-5 w-5 text-blue-600 mt-0.5" />
-                    <div className="text-sm text-blue-800">
-                      <p className="font-medium mb-1">Conversion de compte</p>
-                      <p>Votre compte client sera converti en compte artisan. Vous conserverez votre historique de messages et devis.</p>
+                    <Key className="h-5 w-5 text-primary mt-0.5" />
+                    <div className="text-sm text-white">
+                      <p className="font-bold text-primary mb-1">Conversion de compte</p>
+                      <p>Votre compte client sera converti en compte artisan. Vous conserverez votre historique.</p>
                     </div>
                   </div>
                 </div>
               )}
 
               {isExistingArtisan && (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <div className="border border-primary/30 rounded-lg p-4 mb-6" style={{ background: 'rgba(212,175,55,0.08)' }}>
                   <div className="flex items-start gap-3">
-                    <Key className="h-5 w-5 text-amber-600 mt-0.5" />
-                    <div className="text-sm text-amber-800">
-                      <p className="font-medium mb-1">Liaison de compte</p>
+                    <Key className="h-5 w-5 text-primary mt-0.5" />
+                    <div className="text-sm text-white">
+                      <p className="font-bold text-primary mb-1">Liaison de compte</p>
                       <p>Cette nouvelle vitrine sera ajoutée à votre compte artisan existant.</p>
                     </div>
                   </div>
@@ -1083,18 +1015,19 @@ const ActivateAccount = () => {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-white">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={artisanData?.email || ""}
                     disabled
-                    className="mt-1.5 bg-muted"
+                    className="mt-1.5 border-primary/30 text-white"
+                    style={{ background: '#0A192F' }}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="password">
+                  <Label htmlFor="password" className="text-white">
                     {isExistingClient ? "Mot de passe de votre compte client *" : isExistingArtisan ? "Mot de passe de votre compte artisan *" : "Mot de passe *"}
                   </Label>
                   <div className="relative mt-1.5">
@@ -1106,7 +1039,8 @@ const ActivateAccount = () => {
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                       required
                       minLength={8}
-                      className="pr-10"
+                      className="pr-10 border-primary/30 text-white"
+                      style={{ background: '#0A192F' }}
                     />
                     <button
                       type="button"
@@ -1117,13 +1051,13 @@ const ActivateAccount = () => {
                     </button>
                   </div>
                   {!isExistingClient && !isExistingArtisan && (
-                    <p className="text-xs text-muted-foreground mt-1">Minimum 8 caractères</p>
+                    <p className="text-xs text-white/60 mt-1">Minimum 8 caractères</p>
                   )}
                 </div>
 
                 {!isExistingClient && !isExistingArtisan && (
                   <div>
-                    <Label htmlFor="confirmPassword">Confirmer le mot de passe *</Label>
+                    <Label htmlFor="confirmPassword" className="text-white">Confirmer le mot de passe *</Label>
                     <div className="relative mt-1.5">
                       <Input
                         id="confirmPassword"
@@ -1133,7 +1067,8 @@ const ActivateAccount = () => {
                         onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                         required
                         minLength={8}
-                        className="pr-10"
+                        className="pr-10 border-primary/30 text-white"
+                        style={{ background: '#0A192F' }}
                       />
                       <button
                         type="button"
@@ -1148,7 +1083,8 @@ const ActivateAccount = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full" 
+                  className="w-full font-black text-base uppercase" 
+                  variant="gold"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -1157,7 +1093,7 @@ const ActivateAccount = () => {
                       {isExistingClient ? "Conversion en cours..." : isExistingArtisan ? "Liaison en cours..." : "Activation en cours..."}
                     </>
                   ) : (
-                    isExistingClient ? "Convertir mon compte en artisan" : isExistingArtisan ? "Lier cette vitrine à mon compte" : "Activer mon compte"
+                    isExistingClient ? "CONVERTIR MON COMPTE" : isExistingArtisan ? "LIER CETTE VITRINE" : "DÉVERROUILLER MON ACCÈS ET MES CHANTIERS"
                   )}
                 </Button>
               </form>
@@ -1174,7 +1110,7 @@ const ActivateAccount = () => {
               )}
 
               <div className="mt-6 text-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-white/60">
                   Vous avez déjà un compte ?{" "}
                   <button 
                     onClick={() => navigate("/auth")}
@@ -1188,9 +1124,6 @@ const ActivateAccount = () => {
           </Card>
         </div>
       </div>
-      
-      <Footer />
-    </div>
   );
 };
 

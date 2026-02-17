@@ -446,88 +446,82 @@ const Auth = () => {
   // Full-page email sent confirmation
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
-          <div className="text-center space-y-6 p-8 max-w-md">
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Mail className="h-10 w-10 text-primary" />
-            </div>
-            
-            {/* Green success banner */}
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-left">
-              <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
-                <CheckCircle className="h-5 w-5 flex-shrink-0" />
-                <p className="font-medium">
-                  Votre inscription a bien été prise en compte !
-                </p>
-              </div>
-              <p className="text-sm text-green-700 dark:text-green-300 mt-2 ml-7">
-                Pour continuer, veuillez confirmer votre adresse email en cliquant sur le lien que vous venez de recevoir.
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
+        <div className="text-center space-y-6 p-8 max-w-md">
+          <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center border border-primary/30">
+            <Mail className="h-10 w-10 text-primary" />
+          </div>
+          
+          <div className="border border-primary/30 rounded-lg p-4 text-left" style={{ background: 'rgba(212,175,55,0.08)' }}>
+            <div className="flex items-center gap-2 text-primary">
+              <CheckCircle className="h-5 w-5 flex-shrink-0" />
+              <p className="font-bold text-white">
+                Votre inscription a bien été prise en compte !
               </p>
             </div>
-            
-            <h1 className="text-2xl font-bold">Vérifiez votre boîte mail</h1>
-            <p className="text-muted-foreground">
-              Un email a été envoyé à <strong className="text-foreground">{sentEmail}</strong>.
+            <p className="text-sm text-white mt-2 ml-7">
+              Pour continuer, veuillez confirmer votre adresse email en cliquant sur le lien que vous venez de recevoir.
             </p>
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <p className="text-sm text-amber-800 dark:text-amber-200">
-                <strong>Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email dans votre boîte de réception.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button 
-                variant="default" 
-                onClick={handleResendEmail}
-                disabled={isResending || resendCooldown > 0}
-              >
-                {isResending ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : null}
-                {resendCooldown > 0 
-                  ? `Renvoyer (${resendCooldown}s)` 
-                  : "Renvoyer l'email"}
-              </Button>
-              <Button variant="outline" onClick={() => setEmailSent(false)}>
-                Retour
-              </Button>
-            </div>
+          </div>
+          
+          <h1 className="text-2xl font-black text-white uppercase">Vérifiez votre boîte mail</h1>
+          <p className="text-white">
+            Un email a été envoyé à <strong className="text-primary">{sentEmail}</strong>.
+          </p>
+          <div className="border border-primary/30 rounded-lg p-4" style={{ background: 'rgba(212,175,55,0.05)' }}>
+            <p className="text-sm text-white">
+              <strong className="text-primary">Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email dans votre boîte de réception.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button 
+              variant="gold" 
+              onClick={handleResendEmail}
+              disabled={isResending || resendCooldown > 0}
+              className="font-bold"
+            >
+              {isResending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              {resendCooldown > 0 
+                ? `Renvoyer (${resendCooldown}s)` 
+                : "Renvoyer l'email"}
+            </Button>
+            <Button variant="outline-gold" onClick={() => setEmailSent(false)}>
+              Retour
+            </Button>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex items-center justify-center py-12" style={{ background: '#0A192F' }}>
       <SEOHead 
         title="Connexion" 
         description="Connectez-vous à votre compte Artisans Validés"
         noIndex={true}
       />
-      <Navbar />
       
-      <main className="container mx-auto px-4 py-12">
-        <div className="max-w-md mx-auto">
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
-            <ArrowLeft className="h-4 w-4" />
-            Retour à l'accueil
-          </Link>
+      <div className="max-w-md mx-auto w-full px-4">
+        <Link to="/" className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6">
+          <ArrowLeft className="h-4 w-4" />
+          Retour à l'accueil
+        </Link>
 
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">
-                {authMode === "login" ? "Connexion" : "Inscription"}
-              </CardTitle>
-              <CardDescription>
-                {authMode === "login" 
-                  ? "Connectez-vous à votre compte" 
-                  : "Créez votre compte pour commencer"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+        <Card className="border-primary/30 shadow-gold" style={{ background: '#020617' }}>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl text-white uppercase font-black tracking-wide">
+              {authMode === "login" ? "Connexion" : "Inscription"}
+            </CardTitle>
+            <CardDescription className="text-white/80">
+              {authMode === "login" 
+                ? "Connectez-vous à votre espace" 
+                : "Créez votre compte pour commencer"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
               {/* User Type Selection */}
               <Tabs value={userType} onValueChange={(v) => setUserType(v as "client" | "artisan")} className="mb-6">
                 <TabsList className="grid w-full grid-cols-2">
@@ -548,43 +542,45 @@ const Auth = () => {
                     <TabsContent value="login">
                       <form onSubmit={handleEmailSignIn} className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="email">Email</Label>
+                          <Label htmlFor="email" className="text-white">Email</Label>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                             <Input
                               id="email"
                               type="email"
                               placeholder="votre@email.com"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
-                              className="pl-10"
+                              className="pl-10 border-primary/30 text-white"
+                              style={{ background: '#0A192F' }}
                               required
                             />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="password">Mot de passe</Label>
+                          <Label htmlFor="password" className="text-white">Mot de passe</Label>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                             <Input
                               id="password"
                               type="password"
                               placeholder="••••••••"
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}
-                              className="pl-10"
+                              className="pl-10 border-primary/30 text-white"
+                              style={{ background: '#0A192F' }}
                               required
                               minLength={6}
                             />
                           </div>
                         </div>
 
-                        <Button type="submit" className="w-full" disabled={isLoading}>
+                        <Button type="submit" className="w-full font-bold" variant="gold" disabled={isLoading}>
                           {isLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
                           ) : null}
-                          Se connecter
+                          SE CONNECTER
                         </Button>
 
                         <div className="text-center">
@@ -599,72 +595,77 @@ const Auth = () => {
                       <form onSubmit={handleEmailSignUp} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="firstName">Prénom</Label>
+                            <Label htmlFor="firstName" className="text-white">Prénom</Label>
                             <div className="relative">
-                              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                               <Input
                                 id="firstName"
                                 placeholder="Jean"
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
-                                className="pl-10"
+                                className="pl-10 border-primary/30 text-white"
+                                style={{ background: '#0A192F' }}
                                 required
                               />
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="lastName">Nom</Label>
+                            <Label htmlFor="lastName" className="text-white">Nom</Label>
                             <Input
                               id="lastName"
                               placeholder="Dupont"
                               value={lastName}
                               onChange={(e) => setLastName(e.target.value)}
+                              className="border-primary/30 text-white"
+                              style={{ background: '#0A192F' }}
                               required
                             />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="signupEmail">Email</Label>
+                          <Label htmlFor="signupEmail" className="text-white">Email</Label>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                             <Input
                               id="signupEmail"
                               type="email"
                               placeholder="votre@email.com"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
-                              className="pl-10"
+                              className="pl-10 border-primary/30 text-white"
+                              style={{ background: '#0A192F' }}
                               required
                             />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="signupPassword">Mot de passe</Label>
+                          <Label htmlFor="signupPassword" className="text-white">Mot de passe</Label>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                             <Input
                               id="signupPassword"
                               type="password"
                               placeholder="••••••••"
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}
-                              className="pl-10"
+                              className="pl-10 border-primary/30 text-white"
+                              style={{ background: '#0A192F' }}
                               required
                               minLength={8}
                             />
                           </div>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-white/60">
                             Minimum 8 caractères, une majuscule et un chiffre
                           </p>
                         </div>
 
-                        <Button type="submit" className="w-full" disabled={isLoading}>
+                        <Button type="submit" className="w-full font-bold" variant="gold" disabled={isLoading}>
                           {isLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
                           ) : null}
-                          Créer mon compte
+                          CRÉER MON COMPTE
                         </Button>
                       </form>
                     </TabsContent>
@@ -675,43 +676,45 @@ const Auth = () => {
                   {/* Artisan: login only + candidacy CTA */}
                   <form onSubmit={handleEmailSignIn} className="space-y-4 mb-6">
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email professionnel</Label>
+                      <Label htmlFor="email" className="text-white">Email professionnel</Label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                         <Input
                           id="email"
                           type="email"
                           placeholder="votre@email-pro.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 border-primary/30 text-white"
+                          style={{ background: '#0A192F' }}
                           required
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="password">Mot de passe</Label>
+                      <Label htmlFor="password" className="text-white">Mot de passe</Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                         <Input
                           id="password"
                           type="password"
                           placeholder="••••••••"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 border-primary/30 text-white"
+                          style={{ background: '#0A192F' }}
                           required
                           minLength={6}
                         />
                       </div>
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button type="submit" className="w-full font-bold" variant="gold" disabled={isLoading}>
                       {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       ) : null}
-                      Se connecter
+                      SE CONNECTER
                     </Button>
 
                     <div className="text-center">
@@ -722,7 +725,7 @@ const Auth = () => {
                   </form>
 
                   <div className="border-t pt-6 space-y-4">
-                    <p className="text-sm text-center text-muted-foreground">
+                    <p className="text-sm text-center text-white/60">
                       Vous n'avez pas encore d'accès ? Seuls les artisans validés par notre équipe peuvent se connecter.
                     </p>
                     <Link to="/devenir-artisan" className="block">
@@ -731,9 +734,9 @@ const Auth = () => {
                       </Button>
                     </Link>
 
-                    <div className="bg-muted rounded-lg p-4 text-center">
-                      <p className="text-sm text-muted-foreground mb-1">Besoin d'en parler de vive voix ?</p>
-                      <a href="tel:+33612345678" className="inline-flex items-center gap-2 font-semibold text-foreground hover:text-primary transition-colors">
+                    <div className="rounded-lg p-4 text-center border border-primary/20" style={{ background: 'rgba(212,175,55,0.05)' }}>
+                      <p className="text-sm text-white/60 mb-1">Besoin d'en parler de vive voix ?</p>
+                      <a href="tel:+33612345678" className="inline-flex items-center gap-2 font-semibold text-white hover:text-primary transition-colors">
                         <Phone className="h-4 w-4" />
                         06 12 34 56 78
                       </a>
@@ -742,11 +745,8 @@ const Auth = () => {
                 </>
               )}
             </CardContent>
-          </Card>
-        </div>
-      </main>
-
-      <Footer />
+        </Card>
+      </div>
     </div>
   );
 };

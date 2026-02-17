@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle, XCircle, ArrowRight } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, ArrowRight, Shield } from "lucide-react";
+import { motion } from "framer-motion";
 
 const ConfirmEmail = () => {
   const navigate = useNavigate();
@@ -27,7 +26,6 @@ const ConfirmEmail = () => {
       try {
         console.log("[ConfirmEmail] Calling confirm-email Edge Function");
         
-        // Call the secure Edge Function (uses service_role, no token exposed client-side)
         const { data, error } = await supabase.functions.invoke("confirm-email", {
           body: { token },
         });
@@ -62,70 +60,99 @@ const ConfirmEmail = () => {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
       <SEOHead 
         title="Confirmation d'email" 
         description="Confirmez votre adresse email pour activer votre compte"
         noIndex={true}
       />
-      <Navbar />
 
-      <main className="container mx-auto px-4 py-12">
-        <div className="max-w-md mx-auto text-center">
-          {status === "loading" && (
-            <div className="space-y-6 p-8">
-              <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
-              <h1 className="text-2xl font-bold">Confirmation en cours...</h1>
-              <p className="text-muted-foreground">
-                Veuillez patienter pendant que nous vérifions votre email.
-              </p>
+      <div className="max-w-md mx-auto text-center px-4">
+        {status === "loading" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6 p-8"
+          >
+            <div className="w-20 h-20 mx-auto rounded-2xl border-2 border-primary/40 flex items-center justify-center bg-primary/10">
+              <Loader2 className="h-10 w-10 animate-spin text-primary" />
             </div>
-          )}
+            <h1 className="text-2xl font-black text-white uppercase tracking-wide">
+              VÉRIFICATION EN COURS...
+            </h1>
+            <p className="text-white">
+              Veuillez patienter pendant que nous vérifions votre email.
+            </p>
+            <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(212,175,55,0.15)' }}>
+              <motion.div
+                className="h-full bg-gradient-gold rounded-full"
+                initial={{ width: "0%" }}
+                animate={{ width: "80%" }}
+                transition={{ duration: 4, ease: "easeOut" }}
+              />
+            </div>
+          </motion.div>
+        )}
 
-          {status === "success" && (
-            <div className="space-y-6 p-8">
-              <div className="w-20 h-20 mx-auto bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
-                <CheckCircle className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <h1 className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                Email confirmé avec succès !
-              </h1>
-              <p className="text-muted-foreground">
-                Votre compte est maintenant activé.<br />
-                Vous pouvez vous connecter avec vos identifiants.
-              </p>
-              <Button onClick={() => navigate("/auth")} className="gap-2">
-                Se connecter
-                <ArrowRight className="h-4 w-4" />
+        {status === "success" && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-6 p-8"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="w-24 h-24 mx-auto bg-primary/20 rounded-full flex items-center justify-center border-2 border-primary/50 shadow-gold"
+            >
+              <CheckCircle className="h-12 w-12 text-primary" />
+            </motion.div>
+            <h1 className="text-2xl font-black text-primary uppercase tracking-wide">
+              EMAIL CONFIRMÉ AVEC SUCCÈS !
+            </h1>
+            <p className="text-white">
+              Votre compte est maintenant activé.<br />
+              Vous pouvez vous connecter avec vos identifiants.
+            </p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+              <Shield className="w-4 h-4 text-primary" />
+              <span className="text-sm text-white font-medium">✅ CERTIFIÉ IA ANDREA</span>
+            </div>
+            <Button variant="gold" onClick={() => navigate("/auth")} className="w-full gap-2 text-base font-black">
+              ACCÉDER À MON ESPACE
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </motion.div>
+        )}
+
+        {status === "error" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6 p-8"
+          >
+            <div className="w-20 h-20 mx-auto bg-destructive/20 rounded-full flex items-center justify-center border border-destructive/30">
+              <XCircle className="h-10 w-10 text-destructive" />
+            </div>
+            <h1 className="text-2xl font-black text-white">
+              Erreur de confirmation
+            </h1>
+            <p className="text-white">
+              {errorMessage}
+            </p>
+            <div className="flex flex-col gap-3">
+              <Button variant="gold" onClick={() => navigate("/auth")} className="w-full font-bold">
+                Retour à la connexion
+              </Button>
+              <Button variant="outline-gold" onClick={() => navigate("/")} className="w-full">
+                Retour à l'accueil
               </Button>
             </div>
-          )}
-
-          {status === "error" && (
-            <div className="space-y-6 p-8">
-              <div className="w-20 h-20 mx-auto bg-destructive/10 rounded-full flex items-center justify-center">
-                <XCircle className="h-10 w-10 text-destructive" />
-              </div>
-              <h1 className="text-2xl font-bold text-destructive">
-                Erreur de confirmation
-              </h1>
-              <p className="text-muted-foreground">
-                {errorMessage}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button onClick={() => navigate("/auth")} variant="default">
-                  Retour à la connexion
-                </Button>
-                <Button onClick={() => navigate("/")} variant="outline">
-                  Retour à l'accueil
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-
-      <Footer />
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 };
