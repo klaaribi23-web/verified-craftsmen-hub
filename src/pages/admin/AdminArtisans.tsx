@@ -415,7 +415,7 @@ const AdminArtisans = () => {
                       <Button
                         size="sm"
                         variant={artisan.status === "disponible" ? "default" : "outline"}
-                        className={`h-7 px-2 text-xs ${artisan.status === "disponible" ? "bg-gray-500 hover:bg-gray-600 text-white border-gray-500" : "hover:bg-gray-100 hover:text-gray-700 hover:border-gray-400"}`}
+                        className={`h-7 px-2 text-xs ${artisan.status === "disponible" ? "bg-slate-600 hover:bg-slate-700 text-white border-slate-500" : "hover:bg-white/10 hover:text-slate-300 hover:border-white/30"}`}
                         onClick={() => handleQuickStatus(artisan, "disponible")}
                         disabled={updateStatus.isPending}
                       >
@@ -596,7 +596,7 @@ const AdminArtisans = () => {
                               onClick={() => handleQuickStatus(artisan, "disponible")}
                               title="Disponible"
                               disabled={updateStatus.isPending}
-                              className={`px-2 ${artisan.status === "disponible" ? "bg-gray-500 hover:bg-gray-600 text-white border-gray-500" : "hover:bg-gray-100 hover:text-gray-700 hover:border-gray-400"}`}
+                              className={`px-2 ${artisan.status === "disponible" ? "bg-slate-600 hover:bg-slate-700 text-white border-slate-500" : "hover:bg-white/10 hover:text-slate-300 hover:border-white/30"}`}
                             >
                               <UserCheck className="h-4 w-4 mr-1" />
                               Dispo
