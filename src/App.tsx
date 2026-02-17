@@ -10,6 +10,7 @@ import PublicMobileBottomNav from "@/components/layout/PublicMobileBottomNav";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { DemoContactProvider } from "@/contexts/DemoContactContext";
 import ScrollToTop from "@/components/layout/ScrollToTop";
+import AlertBanner from "@/components/layout/AlertBanner";
 import Index from "./pages/Index";
 import TrouverArtisan from "./pages/TrouverArtisan";
 import CityArtisansPage from "./pages/CityArtisansPage";
@@ -93,6 +94,8 @@ const App = () => (
         
         {/* Initialize real-time quote notifications */}
         <QuoteNotificationListener />
+        {/* Alert Banner — conversion urgency */}
+        <AlertBanner />
         
         <Routes>
           {/* Public Routes */}

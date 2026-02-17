@@ -256,7 +256,7 @@ const DemandeDevis = () => {
   const stepLabels = ["Travaux", "Localisation", "Budget", "Photos", "Contact"];
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-screen bg-background">
       <SEOHead
         title="Décrivez votre projet en toute sérénité"
         description="Zéro harcèlement. Nous analysons votre besoin et vous mettons en relation avec l'artisan expert le plus adapté. Données protégées."
@@ -269,7 +269,7 @@ const DemandeDevis = () => {
           <div className="max-w-3xl mx-auto">
             {/* Header */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-              <h1 className="text-3xl md:text-4xl font-bold text-navy mb-4">Décrivez votre projet en toute sérénité</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Décrivez votre projet en toute sérénité</h1>
               <p className="text-muted-foreground max-w-xl mx-auto">Zéro harcèlement. Nous analysons votre besoin et vous mettons en relation avec l'artisan expert le plus adapté à votre projet. C'est vous qui décidez quand partager vos coordonnées.</p>
             </motion.div>
 
@@ -281,7 +281,7 @@ const DemandeDevis = () => {
                     <div key={s} className="flex flex-col items-center gap-1">
                       <div
                         className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm transition-all ${
-                          s < step ? "bg-success text-white" : s === step ? "bg-gold text-navy-dark shadow-gold" : "bg-white text-muted-foreground border border-border"
+                          s < step ? "bg-success text-white" : s === step ? "bg-gold text-navy-dark shadow-gold" : "bg-secondary text-muted-foreground border border-border"
                         }`}
                       >
                         {s < step ? <CheckCircle2 className="w-5 h-5" /> : s}
@@ -290,19 +290,19 @@ const DemandeDevis = () => {
                     </div>
                   ))}
                 </div>
-                <div className="h-2 bg-white rounded-full overflow-hidden">
+                <div className="h-2 bg-secondary rounded-full overflow-hidden">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${((step - 1) / (totalSteps - 1)) * 100}%` }} className="h-full bg-gradient-gold" />
                 </div>
               </div>
             )}
 
             {/* Form Steps */}
-            <div className="bg-white rounded-2xl shadow-soft border border-border p-6 md:p-8">
+            <div className="bg-card/80 backdrop-blur-xl rounded-2xl shadow-soft border border-gold/20 p-6 md:p-8">
               <AnimatePresence mode="wait">
                 {/* ============ STEP 1: Type de travaux ============ */}
                 {step === 1 && (
                   <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-navy mb-6">Quel type de travaux souhaitez-vous réaliser ?</h2>
+                    <h2 className="text-xl font-semibold text-foreground mb-6">Quel type de travaux souhaitez-vous réaliser ?</h2>
 
                     {categoriesLoading ? (
                       <div className="flex items-center justify-center py-8">
@@ -486,9 +486,9 @@ const DemandeDevis = () => {
                       ))}
                     </div>
 
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 mb-6">
-                      <Shield className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
-                      <p className="text-xs text-amber-800">
+                    <div className="flex items-start gap-3 p-3 rounded-xl bg-gold/10 border border-gold/30 mb-6">
+                      <Shield className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                      <p className="text-xs text-foreground/80">
                         <strong>Un lead sans budget n'est pas envoyé aux artisans.</strong> Indiquez une fourchette pour recevoir des devis pertinents.
                       </p>
                     </div>
