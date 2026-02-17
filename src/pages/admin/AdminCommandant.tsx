@@ -155,8 +155,14 @@ const AdminCommandant = () => {
     onError: () => toast.error("Erreur lors du changement de statut"),
   });
 
-  const getProfileUrl = (artisan: CommandantArtisan, ownerMode = false) =>
-    `${PUBLISHED_URL}/artisan/${artisan.slug || artisan.id}${ownerMode ? "?view=owner" : ""}`;
+  const getProfileUrl = (artisan: CommandantArtisan, ownerMode = false) => {
+    if (ownerMode) {
+      const target = `/artisan/${artisan.slug || artisan.id}`;
+      const sector = artisan.city || "NORD";
+      return `${PUBLISHED_URL}/verifying?target=${encodeURIComponent(target)}&sector=${encodeURIComponent(sector)}`;
+    }
+    return `${PUBLISHED_URL}/artisan/${artisan.slug || artisan.id}`;
+  };
 
   const copyLink = (artisan: CommandantArtisan) => {
     navigator.clipboard.writeText(getProfileUrl(artisan, true));

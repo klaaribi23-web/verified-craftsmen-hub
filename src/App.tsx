@@ -62,6 +62,7 @@ import AdminLeads from "./pages/admin/AdminLeads";
 import AdminPartners from "./pages/admin/AdminPartners";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
+import Verifying from "./pages/Verifying";
 import ActivateAccount from "./pages/ActivateAccount";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -115,6 +116,7 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/confirmer-email" element={<ConfirmEmail />} />
+          <Route path="/verifying" element={<Verifying />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/a-propos" element={<APropos />} />
           <Route path="/blog" element={<Blog />} />
