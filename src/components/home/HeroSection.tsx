@@ -78,24 +78,24 @@ const HeroSection = () => {
         >
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 mb-8">
             <Shield className="w-4 h-4 text-[#D4AF37]" />
-            <span className="text-sm font-semibold text-[#D4AF37] tracking-wide">Club fermé — Accès sur audit uniquement</span>
+            <span className="text-sm font-semibold text-[#D4AF37] tracking-wide">Artisans certifiés — Qualité garantie</span>
           </div>
 
           <h1 className="text-3xl md:text-5xl lg:text-[3.5rem] font-bold text-white leading-tight mb-6 tracking-tight">
-            MARRE DES DEVIS QUI DORMENT ?{" "}
+            VOS TRAVAUX D'EXCEPTION{" "}
             <br className="hidden md:block" />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] to-[#F5D060]">
-              ACCÉDEZ À L'ÉLITE QUI ENCAISSE.
+              AVEC L'ÉLITE DES ARTISANS.
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-8 leading-relaxed">
-            Rejoignez le réseau d'artisans audités sur le terrain. Exclusivité sectorielle, zéro harcèlement, leads qualifiés en continu.
+          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8 leading-relaxed">
+            Sécurité, expertise et finitions de luxe. Confiez votre projet aux professionnels certifiés par l'IA Andrea.
           </p>
 
           <p className="text-sm font-medium text-[#D4AF37]/80 mb-6 flex items-center justify-center gap-2">
             <ShieldCheck className="w-4 h-4" />
-            Simple, gratuit pour les particuliers et sans harcèlement commercial.
+            100% gratuit pour les particuliers · Zéro harcèlement commercial.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -105,7 +105,7 @@ const HeroSection = () => {
               asChild
             >
               <Link to="/demande-devis">
-                Trouver un artisan audité
+                DÉPOSER MON PROJET GRATUITEMENT
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </Button>
