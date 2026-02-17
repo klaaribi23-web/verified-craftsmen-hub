@@ -800,23 +800,23 @@ const ArtisanPublicProfile = () => {
                       {services.map((service) => (
                         <div
                           key={service.id}
-                          className="flex items-center justify-between p-3 md:p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                          className="flex items-center justify-between p-3 md:p-4 rounded-lg bg-secondary border border-primary/20 hover:border-primary/40 transition-colors"
                         >
                           <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm md:text-base truncate">{service.title}</p>
+                            <p className="font-medium text-sm md:text-base truncate text-white">{service.title}</p>
                             {service.duration && (
-                              <p className="text-xs md:text-sm text-muted-foreground">
-                                <Clock className="h-3 w-3 inline mr-1" />
+                              <p className="text-xs md:text-sm text-slate-400">
+                                <Clock className="h-3 w-3 inline mr-1 text-primary" />
                                 {service.duration}
                               </p>
                             )}
                           </div>
                           {service.price ? (
-                            <Badge variant="secondary" className="font-semibold shrink-0 ml-2 text-xs md:text-sm">
+                            <Badge variant="secondary" className="font-semibold shrink-0 ml-2 text-xs md:text-sm border border-primary/20 text-primary">
                               {service.price}€
                             </Badge>
                           ) : (
-                            <Badge className="bg-accent/10 text-accent border-accent/20 font-semibold shrink-0 ml-2 text-xs md:text-sm">
+                            <Badge className="bg-primary/10 text-primary border-primary/20 font-semibold shrink-0 ml-2 text-xs md:text-sm">
                               Sur Devis
                             </Badge>
                           )}
@@ -933,13 +933,22 @@ const ArtisanPublicProfile = () => {
                             ? `${hours.start || "08:00"} - ${hours.end || "18:00"}`
                             : "Fermé";
 
+                          const today = new Date().toLocaleDateString("fr-FR", { weekday: "long" }).toLowerCase();
+                          const isToday = day.key === today;
+
                           return (
-                            <div key={day.key} className="flex items-center justify-between py-2">
-                              <span className="text-sm md:text-base font-medium">{day.label}</span>
+                            <div key={day.key} className={cn(
+                              "flex items-center justify-between py-2.5 px-3 rounded-lg transition-colors",
+                              isToday ? "bg-primary/10 border border-primary/30" : "border border-transparent"
+                            )}>
+                              <span className={cn(
+                                "text-sm md:text-base font-medium",
+                                isToday ? "text-primary font-bold" : "text-foreground"
+                              )}>{day.label}</span>
                               <span
                                 className={cn(
                                   "text-xs md:text-sm font-semibold",
-                                  isEnabled ? "text-primary" : "text-red-500",
+                                  !isEnabled ? "text-red-500" : isToday ? "text-primary" : "text-slate-300",
                                 )}
                               >
                                 {displayTime}
@@ -955,7 +964,7 @@ const ArtisanPublicProfile = () => {
                 {/* Infos pratiques Card */}
                 <Card
                   id="infos-pratiques"
-                  className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-background"
+                  className="bg-gradient-to-br from-secondary to-card"
                 >
                   <CardHeader className="p-4 md:p-6">
                     <CardTitle className="flex items-center gap-2 text-base md:text-lg">
@@ -969,9 +978,9 @@ const ArtisanPublicProfile = () => {
                         {/* Zone d'intervention */}
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 cursor-help transition-colors hover:bg-blue-500/10">
-                              <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
-                                <MapPin className="h-5 w-5 text-blue-600" />
+                            <div className="flex items-start gap-3 p-3 rounded-lg bg-secondary border border-primary/10 cursor-help transition-colors hover:border-primary/30">
+                              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                <MapPin className="h-5 w-5 text-primary" />
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Zone d'intervention</p>
@@ -993,9 +1002,9 @@ const ArtisanPublicProfile = () => {
                         {/* SIRET - always visible */}
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20 cursor-help transition-colors hover:bg-emerald-500/10">
-                              <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
-                                <FileCheck className="h-5 w-5 text-emerald-600" />
+                            <div className="flex items-start gap-3 p-3 rounded-lg bg-secondary border border-primary/10 cursor-help transition-colors hover:border-primary/30">
+                              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                <FileCheck className="h-5 w-5 text-primary" />
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">N° SIRET</p>
@@ -1019,9 +1028,9 @@ const ArtisanPublicProfile = () => {
                         {artisan.status === "active" && artisan.updated_at && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20 cursor-help transition-colors hover:bg-amber-500/10">
-                                <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
-                                  <ShieldCheck className="h-5 w-5 text-amber-600" />
+                              <div className="flex items-start gap-3 p-3 rounded-lg bg-secondary border border-primary/10 cursor-help transition-colors hover:border-primary/30">
+                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                  <ShieldCheck className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
                                   <p className="text-sm text-muted-foreground">Dernière vérification Artisan Validé</p>
@@ -1043,9 +1052,9 @@ const ArtisanPublicProfile = () => {
                         {/* Documents vérifiés */}
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-start gap-3 p-3 rounded-lg bg-purple-500/5 border border-purple-500/20 cursor-help transition-colors hover:bg-purple-500/10">
-                              <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0">
-                                <Shield className="h-5 w-5 text-purple-600" />
+                            <div className="flex items-start gap-3 p-3 rounded-lg bg-secondary border border-primary/10 cursor-help transition-colors hover:border-primary/30">
+                              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                <Shield className="h-5 w-5 text-primary" />
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Documents légaux</p>

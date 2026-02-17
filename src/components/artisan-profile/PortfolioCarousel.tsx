@@ -67,7 +67,7 @@ export const PortfolioCarousel = ({ items, type, onItemClick, artisanContext }: 
               key={index} 
               className="flex-[0_0_100%] md:flex-[0_0_33.333%] min-w-0 pl-3"
             >
-              <div className="relative aspect-video rounded-xl overflow-hidden group">
+              <div className="relative aspect-video rounded-xl overflow-hidden group shadow-md hover:shadow-[0_4px_20px_rgba(212,175,55,0.3)] transition-shadow duration-300">
                 {type === "image" ? (
                   <button
                     onClick={() => onItemClick?.(item, index)}
@@ -80,6 +80,10 @@ export const PortfolioCarousel = ({ items, type, onItemClick, artisanContext }: 
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                       <ExternalLink className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    {/* Label Réalisation Élite */}
+                    <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-primary text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border border-primary/30">
+                      ✦ Réalisation Élite
                     </div>
                   </button>
                 ) : (
