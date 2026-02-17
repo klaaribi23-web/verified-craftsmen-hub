@@ -313,7 +313,7 @@ const DemandeDevis = () => {
                       <div className="space-y-6 mb-8">
                         {categoriesHierarchy?.map((parent) => (
                           <div key={parent.id}>
-                            <p className="text-sm font-semibold text-navy mb-2 flex items-center gap-2">
+                            <p className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
                               <CategoryIcon iconName={parent.icon} size={18} className="text-gold" />
                               {parent.name}
                             </p>
@@ -326,7 +326,7 @@ const DemandeDevis = () => {
                                     type="button"
                                     onClick={() => handleCategorySelect(child.id, parent.id)}
                                     className={`flex items-center gap-2 p-3 rounded-xl border-2 text-left text-sm transition-all ${
-                                      isSelected ? "border-gold bg-gold/10 font-medium text-navy" : "border-border hover:border-gold/50 text-muted-foreground"
+                                      isSelected ? "border-gold bg-gold/10 font-medium text-foreground" : "border-border hover:border-gold/50 text-muted-foreground"
                                     }`}
                                   >
                                     <CategoryIcon iconName={child.icon} size={16} className={isSelected ? "text-gold" : "text-muted-foreground"} />
@@ -341,7 +341,7 @@ const DemandeDevis = () => {
                         {/* Sub-question for Rénovation Globale */}
                         {isRenovationGlobale && formData.categoryId && (
                           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="border-t pt-4">
-                            <p className="text-sm font-medium text-navy mb-3">Précisez votre rénovation :</p>
+                            <p className="text-sm font-medium text-foreground mb-3">Précisez votre rénovation :</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               {renovationSubOptions.map((opt) => (
                                 <button
@@ -349,7 +349,7 @@ const DemandeDevis = () => {
                                   type="button"
                                   onClick={() => updateForm("renovationSubType", opt.id)}
                                   className={`p-3 rounded-xl border-2 text-sm text-left transition-all ${
-                                    formData.renovationSubType === opt.id ? "border-gold bg-gold/10 font-medium text-navy" : "border-border hover:border-gold/50 text-muted-foreground"
+                                    formData.renovationSubType === opt.id ? "border-gold bg-gold/10 font-medium text-foreground" : "border-border hover:border-gold/50 text-muted-foreground"
                                   }`}
                                 >
                                   {opt.label}
@@ -380,14 +380,14 @@ const DemandeDevis = () => {
                 {/* ============ STEP 2: Localisation & Urgence ============ */}
                 {step === 2 && (
                   <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-navy mb-6">
+                    <h2 className="text-xl font-semibold text-foreground mb-6">
                       <MapPin className="w-5 h-5 inline-block mr-2" />
                       Localisation & planning
                     </h2>
                     <div className="space-y-6 mb-8">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="postalCode" className="text-navy mb-2 block">Code postal *</Label>
+                          <Label htmlFor="postalCode" className="text-foreground mb-2 block">Code postal *</Label>
                           <Input
                             id="postalCode"
                             placeholder="92100"
@@ -403,7 +403,7 @@ const DemandeDevis = () => {
                           )}
                         </div>
                         <div>
-                          <Label htmlFor="city" className="text-navy mb-2 block">Ville *</Label>
+                          <Label htmlFor="city" className="text-foreground mb-2 block">Ville *</Label>
                           <CityAutocompleteAPI
                             value={formData.city}
                             onChange={(value) => updateForm("city", value)}
@@ -414,7 +414,7 @@ const DemandeDevis = () => {
                       </div>
 
                       <div>
-                        <Label className="text-navy mb-3 block">
+                        <Label className="text-foreground mb-3 block">
                           <Calendar className="w-4 h-4 inline-block mr-2" />
                           Quand souhaitez-vous que les travaux débutent ? *
                         </Label>
@@ -429,7 +429,7 @@ const DemandeDevis = () => {
                               }`}
                             >
                               <span className="text-xl block mb-1">{opt.icon}</span>
-                              <span className={`text-sm font-medium ${formData.timeline === opt.id ? "text-navy" : "text-muted-foreground"}`}>{opt.label}</span>
+                              <span className={`text-sm font-medium ${formData.timeline === opt.id ? "text-foreground" : "text-muted-foreground"}`}>{opt.label}</span>
                             </button>
                           ))}
                         </div>
@@ -456,7 +456,7 @@ const DemandeDevis = () => {
                 {/* ============ STEP 3: Budget ============ */}
                 {step === 3 && (
                   <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-navy mb-2">
+                    <h2 className="text-xl font-semibold text-foreground mb-2">
                       <Euro className="w-5 h-5 inline-block mr-2" />
                       Quel est votre budget estimé ?
                     </h2>
@@ -479,7 +479,7 @@ const DemandeDevis = () => {
                             {formData.budget === opt.id && <div className="w-2.5 h-2.5 rounded-full bg-gold" />}
                           </div>
                           <div>
-                            <div className={`font-medium ${formData.budget === opt.id ? "text-navy" : "text-foreground"}`}>{opt.label}</div>
+                            <div className={`font-medium ${formData.budget === opt.id ? "text-foreground" : "text-foreground"}`}>{opt.label}</div>
                             <div className="text-xs text-muted-foreground">{opt.description}</div>
                           </div>
                         </button>
@@ -507,13 +507,13 @@ const DemandeDevis = () => {
                 {/* ============ STEP 4: Photos & Détails ============ */}
                 {step === 4 && (
                   <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-navy mb-6">
+                    <h2 className="text-xl font-semibold text-foreground mb-6">
                       <Camera className="w-5 h-5 inline-block mr-2" />
                       Photos & détails du projet
                     </h2>
                     <div className="space-y-6 mb-8">
                       <div>
-                        <Label className="text-navy mb-2 block">
+                        <Label className="text-foreground mb-2 block">
                           📸 Prenez en photo la zone des travaux (optionnel mais recommandé)
                         </Label>
                         <div className="flex items-start gap-2 p-3 rounded-lg bg-success/10 border border-success/20 mb-3">
@@ -530,7 +530,7 @@ const DemandeDevis = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="description" className="text-navy mb-2 block">
+                        <Label htmlFor="description" className="text-foreground mb-2 block">
                           Description des travaux *
                         </Label>
                         <Textarea
@@ -560,7 +560,7 @@ const DemandeDevis = () => {
                 {/* ============ STEP 5: Contact ============ */}
                 {step === 5 && (
                   <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-navy mb-2">
+                    <h2 className="text-xl font-semibold text-foreground mb-2">
                       <Lock className="w-5 h-5 inline-block mr-2" />
                       Créer votre espace sécurisé
                     </h2>
@@ -570,33 +570,33 @@ const DemandeDevis = () => {
                     <div className="space-y-6 mb-8">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="firstName" className="text-navy mb-2 block">
+                          <Label htmlFor="firstName" className="text-foreground mb-2 block">
                             <User className="w-4 h-4 inline-block mr-2" /> Prénom *
                           </Label>
                           <Input id="firstName" placeholder="Jean" value={formData.firstName} onChange={(e) => updateForm("firstName", e.target.value)} className="h-12" disabled={isAuthenticated} />
                         </div>
                         <div>
-                          <Label htmlFor="lastName" className="text-navy mb-2 block">Nom *</Label>
+                          <Label htmlFor="lastName" className="text-foreground mb-2 block">Nom *</Label>
                           <Input id="lastName" placeholder="Dupont" value={formData.lastName} onChange={(e) => updateForm("lastName", e.target.value)} className="h-12" disabled={isAuthenticated} />
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="email" className="text-navy mb-2 block">
+                        <Label htmlFor="email" className="text-foreground mb-2 block">
                           <Mail className="w-4 h-4 inline-block mr-2" /> Email *
                         </Label>
                         <Input id="email" type="email" placeholder="jean.dupont@email.com" value={formData.email} onChange={(e) => updateForm("email", e.target.value)} className="h-12" disabled={isAuthenticated} />
                       </div>
                       <div>
-                        <Label htmlFor="phone" className="text-navy mb-2 block">
+                        <Label htmlFor="phone" className="text-foreground mb-2 block">
                           <Phone className="w-4 h-4 inline-block mr-2" /> Téléphone * (format français)
                         </Label>
                         <p className="text-xs text-muted-foreground mb-1">Laissez votre numéro, l'artisan vous rappelle directement.</p>
                         <FrenchPhoneInput id="phone" value={formData.phone} onChange={(value) => updateForm("phone", value)} />
                       </div>
 
-                      <div className="flex items-start gap-3 p-4 rounded-xl bg-teal-50 border border-teal-200">
-                        <Shield className="w-5 h-5 text-teal-600 mt-0.5" />
-                        <p className="text-sm text-teal-800">
+                      <div className="flex items-start gap-3 p-4 rounded-xl bg-success/10 border border-success/20">
+                        <Shield className="w-5 h-5 text-success mt-0.5" />
+                        <p className="text-sm text-foreground/80">
                           🔒 <strong>Vos données restent confidentielles.</strong> Aucune information personnelle ne sera partagée sans votre accord.
                         </p>
                       </div>
@@ -624,14 +624,14 @@ const DemandeDevis = () => {
                 {/* ============ STEP 6: Password (non-auth only) ============ */}
                 {step === 6 && !isAuthenticated && (
                   <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-navy mb-2">
+                    <h2 className="text-xl font-semibold text-foreground mb-2">
                       <Lock className="w-5 h-5 inline-block mr-2" />
                       Créer votre espace sécurisé
                     </h2>
                     <p className="text-muted-foreground mb-6">Sécurisez votre espace pour recevoir la proposition de l'artisan sélectionné en toute confidentialité.</p>
                     <div className="space-y-6 mb-8">
                       <div>
-                        <Label htmlFor="password" className="text-navy mb-2 block">
+                        <Label htmlFor="password" className="text-foreground mb-2 block">
                           <Lock className="w-4 h-4 inline-block mr-2" /> Mot de passe *
                         </Label>
                         <Input id="password" type="password" placeholder="••••••••" value={formData.password} onChange={(e) => updateForm("password", e.target.value)} className="h-12" minLength={8} />
@@ -640,7 +640,7 @@ const DemandeDevis = () => {
                       <div className="flex items-start gap-3 p-4 rounded-xl bg-gold/10">
                         <CheckCircle2 className="w-5 h-5 text-gold mt-0.5" />
                         <div className="text-sm">
-                          <p className="font-medium text-navy">Votre compte vous permettra de :</p>
+                          <p className="font-medium text-foreground">Votre compte vous permettra de :</p>
                           <ul className="text-muted-foreground mt-1 space-y-1">
                             <li>• Suivre l'état de vos demandes</li>
                             <li>• Recevoir et comparer les devis</li>
@@ -665,15 +665,15 @@ const DemandeDevis = () => {
                 {/* ============ SUCCESS ============ */}
                 {step === totalSteps + 1 && (
                   <motion.div key="success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
-                    <div className="w-20 h-20 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-6">
-                      <CheckCircle2 className="w-10 h-10 text-teal-600" />
+                    <div className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle2 className="w-10 h-10 text-success" />
                     </div>
-                    <h2 className="text-2xl font-bold text-navy mb-4">🎉 Félicitations ! Votre projet est en ligne.</h2>
+                    <h2 className="text-2xl font-bold text-foreground mb-4">🎉 Félicitations ! Votre projet est en ligne.</h2>
                     <p className="text-muted-foreground mb-8 max-w-md mx-auto">
                       Vous recevrez des notifications dès qu'un artisan y répondra. Suivez l'avancement depuis votre espace personnel.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => navigate("/dashboard/client")}>
+                      <Button variant="gold" onClick={() => navigate("/client/dashboard")}>
                         Accéder à mon espace
                       </Button>
                       <Button variant="outline" onClick={() => navigate("/trouver-artisan")}>
