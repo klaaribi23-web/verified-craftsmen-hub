@@ -12,6 +12,7 @@ import AskExpertSection from "@/components/home/AskExpertSection";
 import ExpertCaseStudy from "@/components/home/ExpertCaseStudy";
 import LaboAndreaSection from "@/components/home/LaboAndreaSection";
 import SocialProofToast from "@/components/home/SocialProofToast";
+import EliteSelectionProcess from "@/components/home/EliteSelectionProcess";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
@@ -35,14 +36,20 @@ const Index = () => {
         {/* TEMPS 1 — Le Hero épuré */}
         <HeroSection />
 
+        {/* Social proof banner */}
+        <SocialProofBanner />
+
         {/* TEMPS 2 — Bandeau de réassurance */}
-        <section className="bg-navy py-3 border-y border-navy-dark">
-          <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/90 font-medium">
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Entreprise Française</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Support 7j/7</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Paiement Sécurisé Stripe</span>
+        <section className="bg-navy-dark py-3 border-y border-white/5">
+          <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/70 font-medium">
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Entreprise Française</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Support 7j/7</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Paiement Sécurisé Stripe</span>
           </div>
         </section>
+
+        {/* TEMPS 3 — Processus de sélection Élite */}
+        <EliteSelectionProcess />
 
         {/* TEMPS 3 — Les 3 étapes simples */}
         <section className="py-20 md:py-28 bg-background">
