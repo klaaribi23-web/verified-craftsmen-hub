@@ -27,8 +27,8 @@ const GlobalMobileNavbar = () => {
   // Calculate total unread messages
   const unreadMessagesCount = conversations?.reduce((sum, c) => sum + c.unread_count, 0) || 0;
   
-  // Don't show while loading auth or if not authenticated
-  if (authLoading || !user) {
+  // Don't show while loading auth, if not authenticated, or on standalone pages
+  if (authLoading || !user || location.pathname.startsWith("/activation-elite")) {
     return null;
   }
   

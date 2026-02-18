@@ -12,8 +12,9 @@ const PublicMobileBottomNav = () => {
     return null;
   }
 
-  // Don't show for admin
+  // Don't show for admin or standalone pages
   if (role === "admin") return null;
+  if (location.pathname.startsWith("/activation-elite")) return null;
 
   const items = [
     {
