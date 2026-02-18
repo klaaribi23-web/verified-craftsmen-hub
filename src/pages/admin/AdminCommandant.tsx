@@ -158,7 +158,9 @@ const AdminCommandant = () => {
   // Lien Magique → /activation-elite avec email pré-rempli
   const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true) => {
     const email = artisan.email || "";
-    return `${PUBLISHED_URL}/activation-elite?email=${encodeURIComponent(email)}`;
+    const nom = artisan.business_name || "";
+    const ville = artisan.city || "";
+    return `${PUBLISHED_URL}/activation-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}`;
   };
 
   const copyLink = (artisan: CommandantArtisan) => {

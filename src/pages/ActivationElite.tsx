@@ -31,11 +31,12 @@ const ActivationElite = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const email = searchParams.get("email") || "";
-  const sector = searchParams.get("sector") || searchParams.get("city") || "";
+  const nom = searchParams.get("nom") || "";
+  const ville = searchParams.get("ville") || searchParams.get("sector") || searchParams.get("city") || "";
 
   const [phase, setPhase] = useState<"scanning" | "reveal" | "email-capture" | "sent">("scanning");
   const [artisan, setArtisan] = useState<ArtisanData | null>(null);
-  const [displaySector, setDisplaySector] = useState(sector || "VOTRE ZONE");
+  const [displaySector, setDisplaySector] = useState(ville || "VOTRE ZONE");
   const [emailInput, setEmailInput] = useState(email);
   const [isSending, setIsSending] = useState(false);
 
@@ -49,14 +50,14 @@ const ActivationElite = () => {
         });
         if (!error && fnData?.artisan) {
           setArtisan(fnData.artisan);
-          if (!sector) setDisplaySector(fnData.artisan.city);
+          if (!ville) setDisplaySector(fnData.artisan.city);
         }
       } catch (err) {
         console.error("[ActivationElite] Fetch error:", err);
       }
     };
     fetchArtisan();
-  }, [email, sector]);
+  }, [email, ville]);
 
   // Scanner phase
   useEffect(() => {
@@ -215,7 +216,7 @@ const ActivationElite = () => {
                 <h1 className="text-2xl md:text-4xl lg:text-5xl font-black leading-tight">
                   <span className="text-white">REVENDIQUEZ VOTRE FICHE :</span>
                   <br />
-                  <span className="text-[#FFB800]">{artisan?.business_name || displaySector.toUpperCase()}</span>
+                  <span className="text-[#FFB800]">{nom || artisan?.business_name || displaySector.toUpperCase()}</span>
                 </h1>
                 <p className="text-base md:text-lg font-bold tracking-wide" style={{ color: "rgba(255,184,0,0.7)" }}>
                   Statut : 🔒 ACCÈS RÉSERVÉ — IDENTITÉ À CONFIRMER
