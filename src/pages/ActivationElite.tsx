@@ -60,66 +60,24 @@ const ActivationElite = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // === AUTO-LOGIN SILENCIEUX ===
-  const handleActivate = async () => {
-    if (!email || !artisan) {
+  // === ACTIVATION SIMPLE : localStorage + redirect ===
+  const handleActivate = () => {
+    if (!email) {
       toast.error("Lien d'activation invalide.");
       return;
     }
 
     setIsActivating(true);
 
-    try {
-      // Sign out any existing session first
-      await supabase.auth.signOut();
-
-      // Call the silent activation edge function
-      const { data, error } = await supabase.functions.invoke("activate-artisan-silent", {
-        body: { email, artisanId: artisan.id },
-      });
-
-      if (error || !data?.success) {
-        throw new Error(data?.error || error?.message || "Erreur d'activation");
-      }
-
-      // Use the token to verify OTP (magic link token)
-      if (data.token) {
-        const { error: verifyError } = await supabase.auth.verifyOtp({
-          token_hash: data.token,
-          type: "magiclink",
-        });
-
-        if (verifyError) {
-          console.error("[ActivationElite] OTP verify error:", verifyError);
-          // Fallback: try email+token
-          const { error: fallbackError } = await supabase.auth.verifyOtp({
-            email: data.email,
-            token: data.token,
-            type: "magiclink",
-          });
-          if (fallbackError) {
-            throw fallbackError;
-          }
-        }
-      }
-
-      // Wait for session to be established
-      await new Promise(r => setTimeout(r, 800));
-
-      const { data: session } = await supabase.auth.getSession();
-      if (session?.session) {
-        toast.success("Accès Élite activé ! Bienvenue.");
-        navigate("/artisan/dashboard", { replace: true });
-      } else {
-        throw new Error("Session non établie");
-      }
-    } catch (err: any) {
-      console.error("[ActivationElite] Activation error:", err);
-      toast.error("Erreur lors de l'activation. Redirection vers la connexion...");
-      setTimeout(() => navigate("/connexion"), 2000);
-    } finally {
-      setIsActivating(false);
+    // Sauvegarder l'email dans localStorage pour le tunnel
+    localStorage.setItem("elite_activation_email", email);
+    if (artisan) {
+      localStorage.setItem("elite_artisan_id", artisan.id);
+      localStorage.setItem("elite_artisan_name", artisan.business_name);
     }
+
+    toast.success("Accès Élite activé ! Bienvenue.");
+    navigate("/artisan/dashboard", { replace: true });
   };
 
   const handleRefuse = () => {
