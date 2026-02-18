@@ -288,6 +288,3 @@ html, body {
 }
 
 /* Auth routes: force dark on any stray container */
-#root > div:first-child {
-  min-height: 100vh;
-}
