@@ -508,7 +508,7 @@ const DevenirPartenaire = () => {
       />
       <Navbar />
 
-      <main className="pt-20 lg:pt-20">
+      <main>
         <ScarcityBanner />
         <HeroSection onCTA={scrollToForm} />
         <ComparisonSection />

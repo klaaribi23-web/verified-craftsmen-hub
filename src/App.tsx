@@ -10,8 +10,7 @@ import PublicMobileBottomNav from "@/components/layout/PublicMobileBottomNav";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { DemoContactProvider } from "@/contexts/DemoContactContext";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import AlertBanner, { ALERT_BANNER_HEIGHT } from "@/components/layout/AlertBanner";
-import AlertBannerSpacer from "@/components/layout/AlertBannerSpacer";
+import AlertBanner from "@/components/layout/AlertBanner";
 import Index from "./pages/Index";
 import TrouverArtisan from "./pages/TrouverArtisan";
 import CityArtisansPage from "./pages/CityArtisansPage";
@@ -100,8 +99,6 @@ const App = () => (
         <QuoteNotificationListener />
         {/* Alert Banner — conversion urgency (fixed at top) */}
         <AlertBanner />
-        {/* Spacer to push content below the fixed banner */}
-        <AlertBannerSpacer />
         
         <Routes>
           {/* Public Routes */}

@@ -390,7 +390,7 @@ export const ArtisanDocuments = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
+      <div className="flex min-h-screen bg-background">
         <ArtisanSidebar />
       
         <div className="flex-1 flex flex-col">

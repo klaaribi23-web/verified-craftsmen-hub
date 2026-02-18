@@ -240,7 +240,7 @@ const ArtisanPublicProfile = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <section className="pt-24 pb-8">
+        <section className="pb-8">
           <div className="container mx-auto px-4">
             <Skeleton className="h-8 w-64 mb-8" />
             <div className="grid lg:grid-cols-3 gap-8">
@@ -265,7 +265,7 @@ const ArtisanPublicProfile = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <section className="pt-24 pb-8">
+        <section className="pb-8">
           <div className="container mx-auto px-4 text-center py-20">
             <h1 className="text-2xl font-bold mb-4">Artisan non trouvé</h1>
             <p className="text-muted-foreground mb-6">Cet artisan n'existe pas ou n'est plus disponible.</p>
@@ -336,8 +336,7 @@ const ArtisanPublicProfile = () => {
         </div>
       )}
 
-      {/* Spacer for navbar - includes top bar on mobile when authenticated */}
-      <div className={isPreviewMode || (!isPreviewMode && (artisan.status === "pending" || artisan.status === "suspended")) ? "pt-40 lg:pt-28" : "pt-28 lg:pt-20"} />
+      {/* Spacer removed — Navbar component handles it automatically */}
 
       {/* Mobile Back Button - Full width, minimalist */}
       <div className="lg:hidden border-b bg-muted/30">

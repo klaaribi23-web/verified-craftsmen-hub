@@ -168,7 +168,7 @@ export const ArtisanStories = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="flex pt-28 lg:pt-20">
+      <div className="flex">
         <ArtisanSidebar />
         <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6">
           <div className="max-w-6xl mx-auto">

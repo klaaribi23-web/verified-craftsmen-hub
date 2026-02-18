@@ -661,6 +661,24 @@ const Navbar = () => {
           </AnimatePresence>
         </nav>
       </header>
+
+      {/* Flow spacer — reserves vertical space so page content starts below the entire fixed header stack */}
+      <div
+        id="navbar-spacer"
+        aria-hidden
+        style={{
+          height: `calc(${bannerOffset}px + ${showMobileDashboardNav ? '48px + ' : ''}4rem)`,
+        }}
+        className="hidden-on-mobile-override"
+      />
+      {/* Desktop: navbar is h-20 (5rem) instead of h-16 (4rem) */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (min-width: 1024px) {
+          #navbar-spacer {
+            height: calc(${bannerOffset}px + ${showMobileDashboardNav ? '48px + ' : ''}5rem) !important;
+          }
+        }
+      `}} />
     </>
   );
 };

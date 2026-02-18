@@ -103,7 +103,7 @@ const AdminRecommendations = () => {
         description="Gérez et modérez les recommandations clients"
       />
       <Navbar />
-      <div className="flex min-h-screen pt-28 lg:pt-20 bg-background">
+      <div className="flex min-h-screen bg-background">
         <AdminSidebar />
         <main className="flex-1">
           <DashboardHeader 

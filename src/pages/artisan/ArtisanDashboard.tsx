@@ -312,7 +312,7 @@ export const ArtisanDashboard = () => {
     return (
       <>
         <Navbar />
-        <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
+        <div className="flex min-h-screen bg-background">
           <ArtisanSidebar />
           <div className="flex-1 flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -347,7 +347,7 @@ export const ArtisanDashboard = () => {
         />
       )}
 
-      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
+      <div className="flex min-h-screen bg-background">
         <ArtisanSidebar />
         
         <div className="flex-1 flex flex-col">

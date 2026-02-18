@@ -90,7 +90,7 @@ const BlogArticle = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         
-        <main className="pt-20 lg:pt-24">
+        <main>
           {/* Article Header */}
           <div className="relative h-[40vh] min-h-[300px] lg:h-[50vh] overflow-hidden">
             <img

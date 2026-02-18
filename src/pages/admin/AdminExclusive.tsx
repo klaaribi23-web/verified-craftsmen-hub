@@ -146,7 +146,7 @@ const AdminExclusive = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="pt-16 lg:pt-20 pb-20">
+      <main className="pb-20">
         <div className="container mx-auto px-4 lg:px-8">
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">

@@ -70,7 +70,7 @@ const ClientRecommendations = () => {
         description="Gérez vos recommandations d'artisans"
       />
       <Navbar />
-      <div className="flex min-h-screen pt-28 lg:pt-20 bg-background">
+      <div className="flex min-h-screen bg-background">
         <ClientSidebar />
         <main className="flex-1 p-4 md:p-6 overflow-auto">
           <div className="mb-4 sm:mb-6">

@@ -53,7 +53,7 @@ const AdminLeads = () => {
     <>
       <SEOHead title="Leads Andrea" description="Leads qualifiés par Andrea" noIndex />
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
+      <div className="flex min-h-screen bg-background">
         <AdminSidebar />
         <main className="flex-1">
           <DashboardHeader title="Leads Andrea" subtitle="Contacts qualifiés par la Super-IA Experte" />
