@@ -417,7 +417,7 @@ const DevenirArtisan = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="pt-32 lg:pt-20 pb-16">
+        <main className="pt-16 lg:pt-20 pb-16">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="max-w-lg mx-auto text-center py-20">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200 }}>
@@ -449,7 +449,7 @@ const DevenirArtisan = () => {
       />
       <Navbar />
 
-      <main className="pt-28 lg:pt-20">
+      <main className="pt-16 lg:pt-20">
         {/* Trust bar */}
         <div className="bg-navy py-2.5 border-b border-white/10">
           <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/90 font-medium">

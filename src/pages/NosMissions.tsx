@@ -443,9 +443,9 @@ const NosMissions = () => {
       />
       <Navbar />
       
-      <main className="pt-32 lg:pt-20">
-        {/* ── Hero Section ── */}
-        <section className="bg-navy relative overflow-hidden py-12 md:py-20 lg:py-28">
+      <main>
+        {/* ── Hero Section — pt accounts for fixed banner+navbar ── */}
+        <section className="bg-navy relative overflow-hidden pt-[120px] lg:pt-[130px] pb-8 md:pb-12">
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-72 h-72 bg-gold/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />

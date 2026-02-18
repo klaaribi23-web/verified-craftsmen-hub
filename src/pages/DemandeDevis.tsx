@@ -264,7 +264,7 @@ const DemandeDevis = () => {
       />
       <Navbar />
 
-      <main className="pt-32 lg:pt-20 pb-16">
+      <main className="pt-16 lg:pt-20 pb-16">
         <div className="container mx-auto px-4 lg:px-8 py-12">
           <div className="max-w-3xl mx-auto">
             {/* Header */}

@@ -65,7 +65,7 @@ const CommentCaMarche = () => {
       />
       <Navbar />
       
-      <main className="pt-32 lg:pt-20">
+      <main className="pt-16 lg:pt-20">
         {/* Hero — L'Engagement */}
         <section className="py-20 lg:py-28 bg-navy relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
