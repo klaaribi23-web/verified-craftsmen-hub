@@ -155,11 +155,12 @@ const AdminCommandant = () => {
     onError: () => toast.error("Erreur lors du changement de statut"),
   });
 
-  // Lien unifié → /artisan/[slug]?email=[email]
+  // Lien Magique → /activation-artisan-elite avec email pré-rempli
   const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true) => {
-    const slug = artisan.slug || artisan.business_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const email = artisan.email || "";
-    return `${PUBLISHED_URL}/artisan/${encodeURIComponent(slug)}?email=${encodeURIComponent(email)}`;
+    const nom = artisan.business_name || "";
+    const ville = artisan.city || "";
+    return `${PUBLISHED_URL}/activation-artisan-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}`;
   };
 
   const copyLink = (artisan: CommandantArtisan) => {
