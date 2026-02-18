@@ -119,6 +119,7 @@ const App = () => (
           <Route path="/verifying" element={<Verifying />} />
           <Route path="/bienvenue-elite" element={<Navigate to="/activation-elite" replace />} />
           <Route path="/activation-elite" element={<ActivationElite />} />
+          <Route path="/activation-artisan-elite" element={<ActivationElite />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/a-propos" element={<APropos />} />
           <Route path="/blog" element={<Blog />} />
