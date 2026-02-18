@@ -69,7 +69,7 @@ import ProfileNavigation from "@/components/artisan-profile/ProfileNavigation";
 import AuditReportSection from "@/components/artisan-profile/AuditReportSection";
 import ArtisanContactForm from "@/components/artisan-profile/ArtisanContactForm";
 import StickyMobileCTA from "@/components/artisan-profile/StickyMobileCTA";
-import SecurityLockOverlay from "@/components/artisan-profile/SecurityLockOverlay";
+
 import OwnerClosingTunnel from "@/components/artisan-profile/OwnerClosingTunnel";
 
 // Helper: get tomorrow's date formatted for urgency banner
@@ -325,16 +325,7 @@ const ArtisanPublicProfile = () => {
         </div>
       )}
 
-      {/* Urgency Banner for pending/suspended artisans (EN ATTENTE) - NOT for disponible */}
-      {!isPreviewMode && (artisan.status === "pending" || artisan.status === "suspended") && (
-        <div className="fixed top-0 left-0 right-0 z-[60] bg-orange-500 text-white">
-          <div className="container mx-auto px-4 py-3 text-center">
-            <p className="text-sm md:text-base font-bold tracking-wide">
-              ⚠️ RÉSERVATION PRIORITAIRE — CETTE PLACE EXPIRE DEMAIN À 18H00
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Urgency Banner removed — replaced by validation banner below */}
 
       {/* Spacer removed — Navbar component handles it automatically */}
 
@@ -1487,18 +1478,66 @@ const ArtisanPublicProfile = () => {
         />
       )}
 
-      {/* Orange banner + Security Lock for non-validated artisans (always shown) */}
+      {/* ═══ VALIDATION BANNER + FOOTER CONVERSION — for non-active artisans ═══ */}
       {!isPreviewMode && artisan.status !== "active" && (
         <>
-          {/* Sticky top bar — always visible for non-validated artisans */}
-          <div className="fixed top-0 left-0 right-0 z-[65] py-2 text-center text-xs md:text-sm font-bold tracking-wide"
-            style={{ background: "linear-gradient(90deg, #0A192F, #122a4a)", color: "#FFB800", borderBottom: "1px solid rgba(255,184,0,0.25)" }}
+          {/* Fixed top status banner — Navy/Or, institutional tone */}
+          <div
+            className="fixed top-0 left-0 right-0 z-[65] py-3 px-4 text-center"
+            style={{
+              background: "linear-gradient(90deg, #0A192F, #122a4a)",
+              borderBottom: "1px solid rgba(255,184,0,0.25)",
+            }}
           >
-            ⚠️ ATTENTION : Appels clients en attente de déblocage pour {artisan.business_name}.
+            <p className="text-xs md:text-sm font-bold tracking-wide" style={{ color: "#FFB800" }}>
+              📋 Dossier en cours de validation finale. Notre équipe procède aux dernières vérifications.
+            </p>
           </div>
-          {!isOwnerView && (artisan.status === "pending" || artisan.status === "suspended") && (
-            <SecurityLockOverlay artisanName={artisan.business_name} city={artisan.city} />
-          )}
+
+          {/* Footer conversion block — solemn decision area */}
+          <div
+            className="fixed bottom-0 left-0 right-0 z-[999999]"
+            style={{
+              background: "linear-gradient(180deg, #0A192F 0%, #0d1f3c 100%)",
+              borderTop: "2px solid #FFB800",
+              boxShadow: "0 -8px 40px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div className="container mx-auto px-4 py-4 md:py-5 space-y-3">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                {/* GOLD CTA */}
+                <button
+                  onClick={() => window.location.href = "/connexion"}
+                  className="w-full sm:w-auto px-8 py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
+                  style={{
+                    background: "linear-gradient(135deg, #FFB800, #f0a500)",
+                    color: "#0A192F",
+                    boxShadow: "0 8px 30px rgba(255,184,0,0.35)",
+                    fontFamily: "'Montserrat',sans-serif",
+                  }}
+                >
+                  <span className="relative z-10">✅ OUI, JE VEUX MES ACCÈS ET MES CHANTIERS</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                </button>
+
+                {/* Grey refuse link */}
+                <button
+                  onClick={() => {
+                    if (confirm(`Attention : Cette action est irréversible et libère vos chantiers réservés sur ${artisan.city}. Confirmer la suppression ?`)) {
+                      toast.info("Votre demande de suppression a été enregistrée.");
+                      window.location.href = "/";
+                    }
+                  }}
+                  className="text-xs underline transition-colors"
+                  style={{ color: "rgba(255,255,255,0.35)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(239,68,68,0.7)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.35)")}
+                >
+                  Non, supprimer ma fiche et céder à mon concurrent
+                </button>
+              </div>
+            </div>
+          </div>
         </>
       )}
 
@@ -1517,6 +1556,11 @@ const ArtisanPublicProfile = () => {
           }
         }}
       />
+      <style>{`
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 };
