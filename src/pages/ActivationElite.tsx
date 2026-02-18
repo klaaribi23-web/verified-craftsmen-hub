@@ -60,8 +60,8 @@ const ActivationElite = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // === ACTIVATION VIA signInWithOtp — MAGIC LINK ===
-  const handleActivate = async () => {
+  // === ACTIVATION DIRECTE — ZÉRO FRICTION ===
+  const handleActivate = () => {
     if (!email) {
       toast.error("Lien d'activation invalide.");
       return;
@@ -69,45 +69,15 @@ const ActivationElite = () => {
 
     setIsActivating(true);
 
-    // Stocker les données pour le tunnel (fallback + affichage dashboard)
+    // Stocker les données pour le bypass ProtectedRoute
     localStorage.setItem("elite_activation_email", email);
     if (artisan) {
       localStorage.setItem("elite_artisan_id", artisan.id);
       localStorage.setItem("elite_artisan_name", artisan.business_name);
     }
 
-    try {
-      // Envoyer un OTP magic link à l'email de l'artisan
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: false,
-          emailRedirectTo: `${window.location.origin}/artisan/dashboard`,
-        },
-      });
-
-      if (error) {
-        console.warn("[ActivationElite] OTP error, using bypass:", error.message);
-        // Fallback : redirection directe avec bypass localStorage
-        toast.success("Accès Élite activé ! Vérifiez votre boîte mail ou accédez directement.");
-        navigate("/artisan/dashboard", { replace: true });
-        return;
-      }
-
-      toast.success("🔑 Lien d'accès envoyé ! Vérifiez votre boîte mail pour accéder à votre espace Élite.", {
-        duration: 8000,
-      });
-      
-      // Redirection directe via le bypass localStorage en attendant le clic email
-      setTimeout(() => {
-        navigate("/artisan/dashboard", { replace: true });
-      }, 2000);
-    } catch (err) {
-      console.error("[ActivationElite] Unexpected error:", err);
-      // Fallback absolu : on redirige quand même
-      toast.success("Accès Élite activé ! Bienvenue.");
-      navigate("/artisan/dashboard", { replace: true });
-    }
+    // Redirection INSTANTANÉE — pas de délai, pas d'auth
+    window.location.href = "/artisan/dashboard";
   };
 
   const handleRefuse = () => {
