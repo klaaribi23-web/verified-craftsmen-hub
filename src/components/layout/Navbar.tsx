@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, Users, UserCheck, UserPlus, Upload, LogOut, LayoutDashboard, BarChart3, FileText, Settings, MessageCircle, ThumbsUp, ChevronDown, Heart, Briefcase, Camera, ClipboardList, Crown, Gift, Radar, Home, Search, PlusCircle } from "lucide-react";
+import { ALERT_BANNER_HEIGHT } from "@/components/layout/AlertBanner";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -92,6 +93,11 @@ const Navbar = () => {
     if (role === "artisan") return "/artisan/messagerie";
     return "/client/messagerie";
   };
+
+  // Check if alert banner is visible (same logic as AlertBanner component)
+  const BANNER_HIDDEN_ROUTES = ["/admin", "/activation-elite", "/artisan/", "/client/"];
+  const showAlertBanner = !BANNER_HIDDEN_ROUTES.some((r) => location.pathname.startsWith(r));
+  const bannerOffset = showAlertBanner ? ALERT_BANNER_HEIGHT : 0;
 
   const navLinks = [
     { href: "/", label: "Accueil" },
@@ -378,7 +384,7 @@ const Navbar = () => {
     <>
       {/* Mobile/Tablet Top Bar for authenticated users */}
       {showMobileDashboardNav && (
-        <div className="fixed top-0 left-0 right-0 z-[55] bg-navy lg:hidden">
+        <div className="fixed left-0 right-0 z-[55] bg-navy lg:hidden" style={{ top: `${bannerOffset}px` }}>
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-end h-12">
               {/* Avatar only - on the right */}
@@ -458,14 +464,16 @@ const Navbar = () => {
         )}
       </AnimatePresence>
 
-      {/* Main Header */}
+      {/* Main Header — offset accounts for AlertBanner + mobile auth bar */}
       <header
-        className={cn(
-          "fixed left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border",
-          // Shift down when top bar is visible (mobile + authenticated)
-          showMobileDashboardNav ? "top-12 lg:top-0" : "top-0",
-        )}
+        id="main-navbar"
+        className="fixed left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border"
+        style={{ top: `${bannerOffset}px` }}
       >
+        {/* Responsive offset: on mobile (<lg) with auth top bar, shift header down 48px more */}
+        {showMobileDashboardNav && (
+          <style dangerouslySetInnerHTML={{ __html: `@media (max-width: 1023px) { #main-navbar { top: ${bannerOffset + 48}px !important; } }` }} />
+        )}
         <nav className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Left: Logo + Client navigation */}
