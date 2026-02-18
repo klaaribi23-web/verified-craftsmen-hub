@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Shield, Zap, Users, TrendingUp, MapPin, Star, CheckCircle, AlertTriangle } from "lucide-react";
+import { Lock, Shield, Zap, Users, TrendingUp, MapPin, Star, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -46,6 +46,7 @@ const ActivationElite = () => {
   const [phase, setPhase] = useState<"scanning" | "reveal">("scanning");
   const [artisan, setArtisan] = useState<ArtisanData | null>(null);
   const [showRefuseDialog, setShowRefuseDialog] = useState(false);
+  const [loading, setLoading] = useState(!!email);
 
   // Force sign out to prevent session conflicts
   useEffect(() => {
@@ -55,9 +56,11 @@ const ActivationElite = () => {
   // Enrich from DB (optional — URL params are primary)
   useEffect(() => {
     if (!email) return;
+    setLoading(true);
     supabase.functions.invoke("get-artisan-public", { body: { email } })
       .then(({ data }) => { if (data?.artisan) setArtisan(data.artisan); })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [email]);
 
   // Scanner → reveal after 3.2s
@@ -67,16 +70,31 @@ const ActivationElite = () => {
   }, []);
 
   // ═══ VOIR MA FICHE: Redirect to artisan public profile ═══
-  const handleClaim = () => {
-    const slug = artisan?.slug;
-    if (slug) {
-      window.location.href = `/artisan/${slug}?view=owner`;
-    } else if (email) {
-      // Fallback: redirect with email lookup
-      window.location.href = `/trouver-artisan?search=${encodeURIComponent(nom || email)}`;
-    } else {
-      toast.error("Impossible de trouver votre fiche. Contactez votre conseiller.");
+  const handleClaim = async () => {
+    // If we already have the slug, redirect immediately
+    if (artisan?.slug) {
+      window.location.href = `/artisan/${artisan.slug}?view=owner`;
+      return;
     }
+
+    // If no artisan data yet but we have email, try fetching now
+    if (email) {
+      try {
+        const { data } = await supabase.functions.invoke("get-artisan-public", { body: { email } });
+        if (data?.artisan?.slug) {
+          window.location.href = `/artisan/${data.artisan.slug}?view=owner`;
+          return;
+        }
+      } catch {}
+    }
+
+    // Last resort: search by business name
+    if (nom) {
+      window.location.href = `/trouver-artisan?search=${encodeURIComponent(nom)}`;
+      return;
+    }
+
+    toast.error("Impossible de trouver votre fiche. Contactez votre conseiller.");
   };
 
   const displayName = nom || artisan?.business_name || "Votre Entreprise";
@@ -310,7 +328,8 @@ const ActivationElite = () => {
                 {/* BOUTON OR — ENVOI IMMÉDIAT */}
                 <button
                   onClick={handleClaim}
-                  className="w-full md:w-auto px-10 py-5 rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
+                  disabled={loading}
+                  className="w-full md:w-auto px-10 py-5 rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden disabled:opacity-70 disabled:cursor-wait"
                   style={{
                     background: "linear-gradient(135deg, #FFB800, #f0a500)",
                     color: "#0A192F",
@@ -318,7 +337,7 @@ const ActivationElite = () => {
                   }}
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    👁️ VOIR MA FICHE
+                    {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> CHARGEMENT…</> : "👁️ VOIR MA FICHE"}
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
                 </button>
