@@ -199,7 +199,7 @@ const ActivationElite = () => {
               }}
             >
               ⚠️ ATTENTION : Appels clients en attente de déblocage pour{" "}
-              <span className="underline">{artisan?.business_name || "votre entreprise"}</span>
+              <span className="underline">{nom || artisan?.business_name || "votre entreprise"}</span>
             </div>
 
             <div className="max-w-4xl mx-auto px-4 py-8 md:py-14 space-y-10">
@@ -263,7 +263,7 @@ const ActivationElite = () => {
                     <div className="flex-1 space-y-3">
                       <div className="flex items-center gap-3 flex-wrap">
                         <h2 className="text-xl md:text-2xl font-black text-white">
-                          {artisan?.business_name || "Votre Entreprise"}
+                          {nom || artisan?.business_name || "Votre Entreprise"}
                         </h2>
                         {artisan?.is_audited && (
                           <span className="inline-flex items-center gap-1 bg-[#FFB800]/15 border border-[#FFB800]/30 rounded-full px-2.5 py-0.5 text-xs font-bold text-[#FFB800]">
@@ -274,8 +274,8 @@ const ActivationElite = () => {
 
                       <div className="flex items-center gap-4 text-sm text-white/60">
                         <span className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4 text-[#FFB800]/70" />
-                          {artisan?.city || displaySector}
+                         <MapPin className="w-4 h-4 text-[#FFB800]/70" />
+                          {ville || artisan?.city || displaySector}
                         </span>
                         {(artisan?.rating ?? 0) > 0 && (
                           <span className="flex items-center gap-1">
