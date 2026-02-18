@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 Deno.serve(async (req) => {
@@ -77,8 +77,8 @@ Deno.serve(async (req) => {
     console.log("[activate-silent] Creating new account for:", email);
 
     // Delete existing auth user if any
-    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = existingUsers?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
+    const { data: { users: existingUsers } } = await supabaseAdmin.auth.admin.listUsers({ filter: email.toLowerCase() });
+    const existingUser = existingUsers?.find(u => u.email?.toLowerCase() === email.toLowerCase());
     if (existingUser) {
       await supabaseAdmin.from("user_roles").delete().eq("user_id", existingUser.id);
       await supabaseAdmin.from("profiles").delete().eq("user_id", existingUser.id);
