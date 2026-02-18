@@ -345,12 +345,15 @@ const DevenirArtisan = () => {
   const [searchParams] = useSearchParams();
   const missionType = searchParams.get("mission");
   const missionCity = searchParams.get("ville");
+  const prefillEmail = searchParams.get("email");
+  const prefillNom = searchParams.get("nom");
+  const prefillSlug = searchParams.get("slug");
 
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
+    fullName: prefillNom || "",
+    email: prefillEmail || "",
     phone: "",
     city: missionCity || "",
     metier: missionType || "",

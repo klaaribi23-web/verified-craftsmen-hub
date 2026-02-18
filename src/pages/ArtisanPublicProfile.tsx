@@ -85,24 +85,22 @@ const ArtisanPublicProfile = () => {
   }>();
   const [searchParams] = useSearchParams();
   const isPreviewMode = searchParams.get("preview") === "true";
-  // Detect owner mode — brute force detection via window.location.search
+  // Detect owner mode — via ?view=owner OR ?email= parameter
+  const ownerEmail = searchParams.get("email") || "";
   const [isOwnerView, setIsOwnerView] = useState(() => {
-    const fromUrl = window.location.search.includes("view=owner");
+    const fromUrl = window.location.search.includes("view=owner") || !!new URLSearchParams(window.location.search).get("email");
     const fromSession = sessionStorage.getItem("owner_mode") === "1";
-    if (fromUrl || fromSession) {
-      console.log("MODE OWNER DÉTECTÉ", { fromUrl, fromSession });
-    }
     return fromUrl || fromSession;
   });
 
-  // Persist owner mode in sessionStorage
+  // Persist owner mode and email in sessionStorage
   useEffect(() => {
-    if (window.location.search.includes("view=owner")) {
+    if (window.location.search.includes("view=owner") || ownerEmail) {
       sessionStorage.setItem("owner_mode", "1");
+      if (ownerEmail) sessionStorage.setItem("owner_email", ownerEmail);
       setIsOwnerView(true);
-      console.log("MODE OWNER PERSISTÉ EN SESSION");
     }
-  }, []);
+  }, [ownerEmail]);
   const navigate = useNavigate();
   const { user, isAuthenticated, role } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -1479,7 +1477,7 @@ const ArtisanPublicProfile = () => {
       )}
 
       {/* ═══ VALIDATION BANNER + FOOTER CONVERSION — for non-active artisans ═══ */}
-      {!isPreviewMode && artisan.status !== "active" && (
+      {isOwnerView && !isPreviewMode && artisan.status !== "active" && (
         <>
           {/* Fixed top status banner — Navy/Or, institutional tone */}
           <div
@@ -1507,7 +1505,16 @@ const ArtisanPublicProfile = () => {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 {/* GOLD CTA */}
                 <button
-                  onClick={() => window.location.href = "/connexion"}
+                  onClick={() => {
+                    const email = ownerEmail || sessionStorage.getItem("owner_email") || "";
+                    const slug = artisan.slug || "";
+                    const params = new URLSearchParams();
+                    if (email) params.set("email", email);
+                    if (slug) params.set("slug", slug);
+                    if (artisan.business_name) params.set("nom", artisan.business_name);
+                    if (artisan.city) params.set("ville", artisan.city);
+                    window.location.href = `/devenir-artisan?${params.toString()}`;
+                  }}
                   className="w-full sm:w-auto px-8 py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
                   style={{
                     background: "linear-gradient(135deg, #FFB800, #f0a500)",
