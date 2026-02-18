@@ -1467,8 +1467,8 @@ const ArtisanPublicProfile = () => {
         onClose={() => setStoryViewerOpen(false)}
       />
 
-      {/* Owner Closing Tunnel — activated via ?view=owner — delay 0 for test */}
-      {isOwnerView && (
+      {/* Owner Closing Tunnel — only for active artisans in owner view (not duplicating validation block) */}
+      {isOwnerView && artisan.status === "active" && (
         <OwnerClosingTunnel
           artisanName={artisan.business_name}
           city={artisan.city}
@@ -1479,7 +1479,7 @@ const ArtisanPublicProfile = () => {
       )}
 
       {/* ═══ VALIDATION BANNER + FOOTER CONVERSION — for non-active artisans ═══ */}
-      {!isPreviewMode && artisan.status !== "active" && (
+      {isOwnerView && !isPreviewMode && artisan.status !== "active" && (
         <>
           {/* Fixed top status banner — Navy/Or, institutional tone */}
           <div

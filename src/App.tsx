@@ -63,7 +63,6 @@ import AdminPartners from "./pages/admin/AdminPartners";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import Verifying from "./pages/Verifying";
-import BienvenueElite from "./pages/BienvenueElite";
 import ActivationElite from "./pages/ActivationElite";
 import ActivateAccount from "./pages/ActivateAccount";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -117,7 +116,7 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/confirmer-email" element={<ConfirmEmail />} />
           <Route path="/verifying" element={<Verifying />} />
-          <Route path="/bienvenue-elite" element={<Navigate to="/activation-elite" replace />} />
+          <Route path="/bienvenue-elite" element={<Navigate to="/activation-artisan-elite" replace />} />
           <Route path="/activation-elite" element={<ActivationElite />} />
           <Route path="/activation-artisan-elite" element={<ActivationElite />} />
           <Route path="/contact" element={<Contact />} />
