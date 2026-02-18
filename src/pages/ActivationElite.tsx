@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Shield, Zap, Users, TrendingUp, MapPin, Star, CheckCircle, Loader2, Mail } from "lucide-react";
+import { Lock, Shield, Zap, Users, TrendingUp, MapPin, Star, CheckCircle, Loader2, Mail, AlertTriangle } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const SKELETON_PROJECTS = [
   { title: "Rénovation Toiture Complète", city: "En attente…", budget: "25 000 €", urgency: "URGENT" },
@@ -34,13 +44,21 @@ const ActivationElite = () => {
   const nom = searchParams.get("nom") || "";
   const ville = searchParams.get("ville") || searchParams.get("sector") || searchParams.get("city") || "";
 
+  const sector = ville || "votre secteur";
+
   const [phase, setPhase] = useState<"scanning" | "reveal" | "email-capture" | "sent">("scanning");
   const [artisan, setArtisan] = useState<ArtisanData | null>(null);
-  const [displaySector, setDisplaySector] = useState(ville || "VOTRE ZONE");
   const [emailInput, setEmailInput] = useState(email);
   const [isSending, setIsSending] = useState(false);
+  const [showRefuseDialog, setShowRefuseDialog] = useState(false);
 
-  // Fetch artisan data via edge function (bypasses RLS for public access)
+  // CRITICAL: Sign out any existing session so the page always renders
+  // This prevents ProtectedRoute or auth redirects from hijacking the tunnel
+  useEffect(() => {
+    supabase.auth.signOut().catch(() => {});
+  }, []);
+
+  // Fetch artisan data via edge function (enrichment only, URL params are primary)
   useEffect(() => {
     const fetchArtisan = async () => {
       if (!email) return;
@@ -50,14 +68,13 @@ const ActivationElite = () => {
         });
         if (!error && fnData?.artisan) {
           setArtisan(fnData.artisan);
-          if (!ville) setDisplaySector(fnData.artisan.city);
         }
       } catch (err) {
         console.error("[ActivationElite] Fetch error:", err);
       }
     };
     fetchArtisan();
-  }, [email, ville]);
+  }, [email]);
 
   // Scanner phase
   useEffect(() => {
@@ -119,9 +136,12 @@ const ActivationElite = () => {
   };
 
   const handleRefuse = () => {
-    if (confirm("⚠️ Êtes-vous sûr ? Votre vitrine sera supprimée et votre place libérée pour un concurrent direct.")) {
-      navigate("/");
-    }
+    setShowRefuseDialog(true);
+  };
+
+  const confirmRefuse = () => {
+    setShowRefuseDialog(false);
+    navigate("/");
   };
 
   return (
@@ -136,6 +156,32 @@ const ActivationElite = () => {
         title="Sélection Élite — Alliance des Artisans Vérifiés"
         description="Revendiquez votre profil exclusif et accédez aux chantiers qualifiés de votre zone."
       />
+
+      {/* REFUSE DIALOG */}
+      <AlertDialog open={showRefuseDialog} onOpenChange={setShowRefuseDialog}>
+        <AlertDialogContent className="bg-[#0F1B2E] border-red-500/30 text-white max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-400 flex items-center gap-2 text-lg">
+              <AlertTriangle className="w-5 h-5" />
+              Suppression définitive
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70 text-base leading-relaxed">
+              Êtes-vous sûr de vouloir <span className="text-red-400 font-bold">supprimer votre fiche</span> et laisser
+              vos chantiers à un concurrent direct sur <span className="text-[#FFB800] font-bold">{sector}</span> ?
+              <br /><br />
+              <span className="text-white/50 text-sm">Cette action est irréversible. Votre place sera immédiatement libérée.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel className="bg-[#FFB800] text-[#0A192F] font-black border-none hover:bg-[#f0a500]">
+              NON, JE GARDE MA PLACE
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRefuse} className="bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/40">
+              Oui, supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AnimatePresence mode="wait">
         {phase === "scanning" ? (
@@ -214,9 +260,15 @@ const ActivationElite = () => {
                   <Shield className="w-4 h-4" /> CERTIFIÉ IA ANDREA
                 </div>
                 <h1 className="text-2xl md:text-4xl lg:text-5xl font-black leading-tight">
-                  <span className="text-white">REVENDIQUEZ VOTRE FICHE :</span>
-                  <br />
-                  <span className="text-[#FFB800]">{nom || artisan?.business_name || displaySector.toUpperCase()}</span>
+                  {nom || artisan?.business_name ? (
+                    <>
+                      <span className="text-white">REVENDIQUEZ VOTRE FICHE : </span>
+                      <br />
+                      <span className="text-[#FFB800]">{nom || artisan?.business_name}</span>
+                    </>
+                  ) : (
+                    <span className="text-white">REVENDIQUEZ VOTRE FICHE</span>
+                  )}
                 </h1>
                 <p className="text-base md:text-lg font-bold tracking-wide" style={{ color: "rgba(255,184,0,0.7)" }}>
                   Statut : 🔒 ACCÈS RÉSERVÉ — IDENTITÉ À CONFIRMER
@@ -274,8 +326,8 @@ const ActivationElite = () => {
 
                       <div className="flex items-center gap-4 text-sm text-white/60">
                         <span className="flex items-center gap-1">
-                         <MapPin className="w-4 h-4 text-[#FFB800]/70" />
-                          {ville || artisan?.city || displaySector}
+                          <MapPin className="w-4 h-4 text-[#FFB800]/70" />
+                          {ville || artisan?.city || sector}
                         </span>
                         {(artisan?.rating ?? 0) > 0 && (
                           <span className="flex items-center gap-1">
@@ -326,14 +378,14 @@ const ActivationElite = () => {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg md:text-xl font-black text-white">
-                    🔒 Chantiers réservés — Secteur {displaySector}
+                    🔒 Chantiers réservés — Secteur {sector}
                   </h2>
                   <span className="text-xs font-bold text-[#FFB800]/60 bg-[#FFB800]/10 px-3 py-1 rounded-full">
                     ACCÈS VERROUILLÉ
                   </span>
                 </div>
                 <p className="text-sm text-white/50 mb-5">
-                  Ces chantiers sont réservés aux membres Élite du secteur <span className="text-[#FFB800] font-bold">{displaySector}</span>.
+                  Ces chantiers sont réservés aux membres Élite du secteur <span className="text-[#FFB800] font-bold">{sector}</span>.
                 </p>
                 <div className="grid md:grid-cols-3 gap-4">
                   {SKELETON_PROJECTS.map((p, i) => (
@@ -415,7 +467,7 @@ const ActivationElite = () => {
                           fontFamily: "'Montserrat',sans-serif",
                         }}
                       >
-                        <span className="relative z-10">✅ OUI, JE REVENDIQUE MON PROFIL ET MES ACCÈS ÉLITE</span>
+                        <span className="relative z-10">✅ OUI, JE REVENDIQUE MON PROFIL ET MES ACCÈS</span>
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
                       </button>
 
