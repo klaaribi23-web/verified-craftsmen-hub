@@ -160,7 +160,7 @@ const AdminCommandant = () => {
     const email = artisan.email || "";
     const nom = artisan.business_name || "";
     const ville = artisan.city || "";
-    return `${PUBLISHED_URL}/activation-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}`;
+    return `${PUBLISHED_URL}/activation-artisan-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}`;
   };
 
   const copyLink = (artisan: CommandantArtisan) => {
