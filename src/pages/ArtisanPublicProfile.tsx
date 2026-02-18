@@ -283,7 +283,7 @@ const ArtisanPublicProfile = () => {
   const seoCanonical = `https://artisansvalides.fr/artisan/${artisan.slug}`;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen prestige-bg">
       <SEOHead
         title={isPreviewMode ? `[Aperçu] ${seoTitle}` : seoTitle}
         description={seoDescription}
@@ -375,7 +375,7 @@ const ArtisanPublicProfile = () => {
                           </AvatarFallback>
                         </Avatar>
                         {artisan.is_verified && (
-                          <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white rounded-full p-1.5 shadow-lg">
+                          <div className="absolute -bottom-2 -right-2 gold-metallic-bg text-white rounded-full p-1.5 shadow-lg glow-gold-badge">
                             <Shield className="h-5 w-5" />
                           </div>
                         )}
@@ -391,7 +391,7 @@ const ArtisanPublicProfile = () => {
                     {/* Info */}
                     <div className="flex-1 text-center md:text-left">
                       <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
-                        <h1 className="text-2xl md:text-3xl font-bold text-foreground">{artisan.business_name}</h1>
+                        <h1 className="text-2xl md:text-3xl font-bold title-editorial">{artisan.business_name}</h1>
                         {artisan.status === "active" && (
                           <Badge className="bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600 gap-1 self-center md:self-auto">
                             <ShieldCheck className="h-3.5 w-3.5" />
