@@ -9,6 +9,7 @@ import { ProfileViewsCard } from "@/components/artisan-dashboard/ProfileViewsCar
 import { ApprovalNotifications } from "@/components/artisan-dashboard/ApprovalNotifications";
 import { FirstLoginWelcomeOverlay } from "@/components/artisan-dashboard/FirstLoginWelcomeOverlay";
 import { SubscriptionWarningBanner } from "@/components/artisan-dashboard/SubscriptionWarningBanner";
+import { EliteValidationProgress } from "@/components/artisan-dashboard/EliteValidationProgress";
 import { DemoMessaging } from "@/components/demo/DemoMessaging";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -366,6 +367,16 @@ export const ArtisanDashboard = () => {
             <div className="mb-4 md:mb-6">
               <ApprovalNotifications />
             </div>
+
+            {/* Elite Validation Progress */}
+            {!demoMode && (
+              <EliteValidationProgress
+                identityConfirmed={!!user}
+                documentsUploaded={documentStats?.mandatoryUploaded || 0}
+                totalDocuments={TOTAL_MANDATORY_DOCS}
+                isSubscribed={isSubscribed}
+              />
+            )}
 
             {/* Subscription Card */}
             <div id="subscription-section">
