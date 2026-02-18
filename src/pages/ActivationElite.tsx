@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Shield, Zap, Users, TrendingUp, MapPin, Star, CheckCircle, Loader2, Mail, AlertTriangle } from "lucide-react";
+import { Lock, Shield, Zap, Users, TrendingUp, MapPin, Star, CheckCircle, AlertTriangle } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -43,9 +43,8 @@ const ActivationElite = () => {
   const ville = searchParams.get("ville") || "";
   const sector = ville || "votre secteur";
 
-  const [phase, setPhase] = useState<"scanning" | "reveal" | "sent">("scanning");
+  const [phase, setPhase] = useState<"scanning" | "reveal">("scanning");
   const [artisan, setArtisan] = useState<ArtisanData | null>(null);
-  const [isSending, setIsSending] = useState(false);
   const [showRefuseDialog, setShowRefuseDialog] = useState(false);
 
   // Force sign out to prevent session conflicts
@@ -67,40 +66,16 @@ const ActivationElite = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // ═══ 1-CLICK: Send OTP immediately using URL email ═══
-  const handleClaim = async () => {
-    if (!email) {
-      toast.error("Email manquant dans le lien. Contactez votre conseiller.");
-      return;
-    }
-    setIsSending(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: false,
-          emailRedirectTo: `${window.location.origin}/artisan/dashboard`,
-        },
-      });
-      if (error) {
-        console.warn("[ActivationElite] OTP error:", error.message);
-        // Fallback: store and redirect
-        localStorage.setItem("elite_activation_email", email);
-        if (artisan) {
-          localStorage.setItem("elite_artisan_id", artisan.id);
-          localStorage.setItem("elite_artisan_name", artisan.business_name);
-        }
-        toast.success("Accès activé ! Redirection…");
-        setTimeout(() => { window.location.href = "/artisan/dashboard"; }, 1200);
-        return;
-      }
-      setPhase("sent");
-      toast.success("🔑 Lien d'accès envoyé !");
-    } catch {
-      localStorage.setItem("elite_activation_email", email);
-      window.location.href = "/artisan/dashboard";
-    } finally {
-      setIsSending(false);
+  // ═══ VOIR MA FICHE: Redirect to artisan public profile ═══
+  const handleClaim = () => {
+    const slug = artisan?.slug;
+    if (slug) {
+      window.location.href = `/artisan/${slug}?view=owner`;
+    } else if (email) {
+      // Fallback: redirect with email lookup
+      window.location.href = `/trouver-artisan?search=${encodeURIComponent(nom || email)}`;
+    } else {
+      toast.error("Impossible de trouver votre fiche. Contactez votre conseiller.");
     }
   };
 
@@ -181,30 +156,6 @@ const ActivationElite = () => {
           </motion.div>
         )}
 
-        {/* ═══ PHASE: SUCCESS ═══ */}
-        {phase === "sent" && (
-          <motion.div
-            key="sent"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center min-h-screen gap-6 px-4 text-center"
-          >
-            <div className="w-24 h-24 rounded-full bg-[#FFB800]/15 flex items-center justify-center">
-              <Mail className="w-12 h-12 text-[#FFB800]" />
-            </div>
-            <h2 className="text-2xl md:text-3xl font-black text-[#FFB800]">
-              ✅ LIEN D'ACCÈS ENVOYÉ !
-            </h2>
-            <p className="text-white/70 max-w-md text-lg">
-              Vérifiez vos emails pour débloquer{" "}
-              <span className="text-[#FFB800] font-bold">{displayName}</span>.
-            </p>
-            <p className="text-white/40 text-sm">
-              Un lien sécurisé a été envoyé à <span className="text-[#FFB800]">{email}</span>.
-            </p>
-            <p className="text-white/25 text-xs mt-4">Vérifiez vos spams si nécessaire.</p>
-          </motion.div>
-        )}
 
         {/* ═══ PHASE: REVEAL (main page) ═══ */}
         {phase === "reveal" && (
@@ -359,8 +310,7 @@ const ActivationElite = () => {
                 {/* BOUTON OR — ENVOI IMMÉDIAT */}
                 <button
                   onClick={handleClaim}
-                  disabled={isSending}
-                  className="w-full md:w-auto px-10 py-5 rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait relative overflow-hidden"
+                  className="w-full md:w-auto px-10 py-5 rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
                   style={{
                     background: "linear-gradient(135deg, #FFB800, #f0a500)",
                     color: "#0A192F",
@@ -368,11 +318,7 @@ const ActivationElite = () => {
                   }}
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    {isSending ? (
-                      <><Loader2 className="w-5 h-5 animate-spin" /> ENVOI EN COURS…</>
-                    ) : (
-                      <>✅ OUI, JE REVENDIQUE MON PROFIL ET MES CHANTIERS</>
-                    )}
+                    👁️ VOIR MA FICHE
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
                 </button>
