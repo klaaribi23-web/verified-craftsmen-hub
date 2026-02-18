@@ -21,8 +21,11 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
   // Check if demo mode is enabled
   const isDemoAccess = DEMO_MODE && searchParams.get("demo") !== "false";
 
-  // In demo mode, allow access without authentication
-  if (isDemoAccess && !isAuthenticated && !isLoading) {
+  // Elite activation bypass: allow artisans coming from the activation tunnel
+  const isEliteBypass = !!localStorage.getItem("elite_activation_email") && location.pathname.startsWith("/artisan");
+
+  // In demo mode or elite bypass, allow access without authentication
+  if ((isDemoAccess || isEliteBypass) && !isAuthenticated && !isLoading) {
     return <>{children}</>;
   }
 
