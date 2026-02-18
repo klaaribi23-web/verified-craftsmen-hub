@@ -283,7 +283,7 @@ const ArtisanPublicProfile = () => {
   const seoCanonical = `https://artisansvalides.fr/artisan/${artisan.slug}`;
 
   return (
-    <div className="min-h-screen prestige-bg">
+    <div className="min-h-screen bg-background">
       <SEOHead
         title={isPreviewMode ? `[Aperçu] ${seoTitle}` : seoTitle}
         description={seoDescription}
