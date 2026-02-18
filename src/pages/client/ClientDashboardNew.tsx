@@ -70,7 +70,7 @@ export const ClientDashboardNew = () => {
         noIndex={true}
       />
       <Navbar />
-      <div className="flex min-h-screen bg-gradient-to-br from-teal-50/30 via-background to-sky-50/30 pt-28 lg:pt-20">
+      <div className="flex min-h-screen bg-gradient-to-br from-teal-50/30 via-background to-sky-50/30">
         <ClientSidebar />
 
         <div className="flex-1 flex flex-col">

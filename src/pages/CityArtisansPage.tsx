@@ -78,7 +78,7 @@ const CityArtisansPage = () => {
       
       <Navbar />
 
-      <main className="pt-28 lg:pt-20">
+      <main>
         {/* Hero */}
         <section className="bg-navy py-12 md:py-20">
           <div className="container mx-auto px-4 lg:px-8">

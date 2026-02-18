@@ -20,7 +20,7 @@ const LandingMission = () => {
       />
       <Navbar />
 
-      <main className="pt-16 lg:pt-20 pb-20">
+      <main className="pb-20">
         <div className="container mx-auto px-4 max-w-xl">
           {/* Mission title visible */}
           <motion.div

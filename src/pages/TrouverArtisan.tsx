@@ -196,7 +196,7 @@ const TrouverArtisan = () => {
       />
       <Navbar />
       
-      <main className="pt-16 lg:pt-20">
+      <main>
         {/* Hero Search */}
         <section className="bg-secondary/50 py-10 md:py-16 lg:py-24 border-b border-border">
           <div className="container mx-auto px-4 lg:px-8">

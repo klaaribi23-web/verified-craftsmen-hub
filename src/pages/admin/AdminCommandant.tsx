@@ -414,7 +414,7 @@ animation:btn-shimmer 3s ease-in-out infinite}
     <>
       <SEOHead title="Commandant" description="Centre de commandement prospection" noIndex />
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
+      <div className="flex min-h-screen bg-background">
         <AdminSidebar />
         <main className="flex-1">
           <DashboardHeader

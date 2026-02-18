@@ -12,7 +12,7 @@ const CGU = () => {
       />
       <Navbar />
       
-      <main className="min-h-screen pt-16 lg:pt-20">
+      <main className="min-h-screen">
         {/* Hero Section */}
         <section className="bg-navy py-16 md:py-20">
           <div className="container mx-auto px-4">

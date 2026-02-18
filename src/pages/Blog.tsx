@@ -54,7 +54,7 @@ const Blog = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         
-        <main className="pt-16 lg:pt-20">
+        <main>
           {/* Hero Section */}
           <section className="bg-gradient-to-br from-primary/10 via-background to-gold/10 py-16 lg:py-24">
             <div className="container mx-auto px-4 text-center">

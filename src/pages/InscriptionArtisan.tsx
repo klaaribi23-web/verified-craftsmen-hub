@@ -86,7 +86,7 @@ const InscriptionArtisan = () => {
         description="Créez votre compte professionnel et activez vos avantages exclusifs. Andrea, votre IA experte, travaille pour vous 24h/24."
       />
       <Navbar />
-      <main className="min-h-screen bg-background pt-24 pb-16">
+      <main className="min-h-screen bg-background pb-16">
         <div className="container max-w-6xl mx-auto px-4">
           {/* Andrea success message */}
           {showSuccess && (

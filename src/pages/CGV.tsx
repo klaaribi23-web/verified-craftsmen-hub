@@ -11,7 +11,7 @@ const CGV = () => {
         noIndex={true}
       />
       <Navbar />
-      <main className="flex-grow pt-16 lg:pt-20">
+      <main className="flex-grow">
         {/* Hero Section */}
         <section className="bg-navy py-16 md:py-20">
           <div className="container mx-auto px-4 text-center">

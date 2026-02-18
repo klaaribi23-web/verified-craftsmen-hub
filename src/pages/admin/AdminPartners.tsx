@@ -150,7 +150,7 @@ const AdminPartners = () => {
     <>
       <SEOHead title="Gestion Partenaires" description="Gérez les offres partenaires" noIndex />
       <Navbar />
-      <div className="flex min-h-screen bg-background pt-28 lg:pt-20">
+      <div className="flex min-h-screen bg-background">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
           <DashboardHeader title="Gestion Partenaires" subtitle="Créez et gérez les offres partenaires pour les artisans" />
