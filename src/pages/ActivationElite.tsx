@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Shield, Zap, Users, TrendingUp, AlertTriangle, Phone, MapPin, Star, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Lock, Shield, Zap, Users, TrendingUp, MapPin, Star, CheckCircle, Loader2 } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const SKELETON_PROJECTS = [
   { title: "Rénovation Toiture Complète", city: "En attente…", budget: "25 000 €", urgency: "URGENT" },
@@ -35,6 +35,7 @@ const ActivationElite = () => {
   const [phase, setPhase] = useState<"scanning" | "reveal">("scanning");
   const [artisan, setArtisan] = useState<ArtisanData | null>(null);
   const [displaySector, setDisplaySector] = useState(sector || "VOTRE ZONE");
+  const [isActivating, setIsActivating] = useState(false);
 
   // Fetch artisan data from email
   useEffect(() => {
@@ -59,8 +60,66 @@ const ActivationElite = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleActivate = () => {
-    navigate("/artisan/dashboard");
+  // === AUTO-LOGIN SILENCIEUX ===
+  const handleActivate = async () => {
+    if (!email || !artisan) {
+      toast.error("Lien d'activation invalide.");
+      return;
+    }
+
+    setIsActivating(true);
+
+    try {
+      // Sign out any existing session first
+      await supabase.auth.signOut();
+
+      // Call the silent activation edge function
+      const { data, error } = await supabase.functions.invoke("activate-artisan-silent", {
+        body: { email, artisanId: artisan.id },
+      });
+
+      if (error || !data?.success) {
+        throw new Error(data?.error || error?.message || "Erreur d'activation");
+      }
+
+      // Use the token to verify OTP (magic link token)
+      if (data.token) {
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: data.token,
+          type: "magiclink",
+        });
+
+        if (verifyError) {
+          console.error("[ActivationElite] OTP verify error:", verifyError);
+          // Fallback: try email+token
+          const { error: fallbackError } = await supabase.auth.verifyOtp({
+            email: data.email,
+            token: data.token,
+            type: "magiclink",
+          });
+          if (fallbackError) {
+            throw fallbackError;
+          }
+        }
+      }
+
+      // Wait for session to be established
+      await new Promise(r => setTimeout(r, 800));
+
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.session) {
+        toast.success("Accès Élite activé ! Bienvenue.");
+        navigate("/artisan/dashboard", { replace: true });
+      } else {
+        throw new Error("Session non établie");
+      }
+    } catch (err: any) {
+      console.error("[ActivationElite] Activation error:", err);
+      toast.error("Erreur lors de l'activation. Redirection vers la connexion...");
+      setTimeout(() => navigate("/connexion"), 2000);
+    } finally {
+      setIsActivating(false);
+    }
   };
 
   const handleRefuse = () => {
@@ -124,7 +183,8 @@ const ActivationElite = () => {
                 textShadow: "0 1px 2px rgba(0,0,0,0.3)",
               }}
             >
-              🚨 URGENT : 3 PROJETS EN ATTENTE DE CHIFFRAGE SUR VOTRE SECTEUR
+              ⚠️ ATTENTION : Appels clients en attente de déblocage pour{" "}
+              <span className="underline">{artisan?.business_name || "votre entreprise"}</span>
             </div>
 
             <div className="max-w-4xl mx-auto px-4 py-8 md:py-14 space-y-10">
@@ -139,9 +199,9 @@ const ActivationElite = () => {
                   <Shield className="w-4 h-4" /> CERTIFIÉ IA ANDREA
                 </div>
                 <h1 className="text-2xl md:text-4xl lg:text-5xl font-black leading-tight">
-                  <span className="text-white">ARRÊTEZ D'ACHETER DES LEADS,</span>
+                  <span className="text-white">ARRÊTEZ D'ACHETER DES LEADS PARTAGÉS.</span>
                   <br />
-                  <span className="text-[#FFB800]">COMMENCEZ À SIGNER DES CHANTIERS.</span>
+                  <span className="text-[#FFB800]">PRENEZ L'EXCLUSIVITÉ SUR {displaySector.toUpperCase()}.</span>
                 </h1>
                 <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
                   Ici, pas de foire d'empoigne. On ne vend pas vos contacts à 10 concurrents.
@@ -266,7 +326,6 @@ const ActivationElite = () => {
                         background: "#0F1B2E",
                       }}
                     >
-                      {/* Blur overlay */}
                       <div className="absolute inset-0 z-10 backdrop-blur-md bg-[#0A192F]/70 flex flex-col items-center justify-center gap-2">
                         <Lock className="w-8 h-8 text-[#FFB800]" />
                         <span className="text-[10px] font-black tracking-widest text-[#FFB800]">
@@ -326,7 +385,8 @@ const ActivationElite = () => {
               >
                 <button
                   onClick={handleActivate}
-                  className="btn-shine w-full md:w-auto px-10 py-5 rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  disabled={isActivating}
+                  className="w-full md:w-auto px-10 py-5 rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait"
                   style={{
                     background: "linear-gradient(135deg, #FFB800, #f0a500)",
                     color: "#0A192F",
@@ -334,12 +394,20 @@ const ActivationElite = () => {
                     fontFamily: "'Montserrat',sans-serif",
                   }}
                 >
-                  ✅ OUI, J'ACTIVE MON ACCÈS ÉLITE
+                  {isActivating ? (
+                    <span className="flex items-center justify-center gap-3">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      ACTIVATION EN COURS…
+                    </span>
+                  ) : (
+                    "✅ OUI, J'ACTIVE MON ACCÈS ÉLITE"
+                  )}
                 </button>
 
                 <div>
                   <button
                     onClick={handleRefuse}
+                    disabled={isActivating}
                     className="text-xs text-white/30 hover:text-red-400/70 transition-colors underline underline-offset-4 decoration-white/10 hover:decoration-red-400/30"
                   >
                     Non, supprimer ma vitrine et libérer ma place pour un concurrent.
