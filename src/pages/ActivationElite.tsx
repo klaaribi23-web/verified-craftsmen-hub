@@ -44,7 +44,7 @@ const ActivationElite = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(215,62%,6%)] text-white overflow-hidden">
+    <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100vh", zIndex: 9999, backgroundColor: "hsl(215,62%,6%)", overflow: "auto" }} className="text-white">
       <SEOHead
         title="Activation Élite — Alliance des Artisans Vérifiés"
         description="Activez votre secteur exclusif et accédez aux chantiers qualifiés de votre zone."
