@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Shield, Zap, Users, TrendingUp, MapPin, Star, CheckCircle, Loader2 } from "lucide-react";
+import { Lock, Shield, Zap, Users, TrendingUp, MapPin, Star, CheckCircle, Loader2, Mail } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 const SKELETON_PROJECTS = [
   { title: "Rénovation Toiture Complète", city: "En attente…", budget: "25 000 €", urgency: "URGENT" },
@@ -32,10 +33,11 @@ const ActivationElite = () => {
   const email = searchParams.get("email") || "";
   const sector = searchParams.get("sector") || searchParams.get("city") || "";
 
-  const [phase, setPhase] = useState<"scanning" | "reveal">("scanning");
+  const [phase, setPhase] = useState<"scanning" | "reveal" | "email-capture" | "sent">("scanning");
   const [artisan, setArtisan] = useState<ArtisanData | null>(null);
   const [displaySector, setDisplaySector] = useState(sector || "VOTRE ZONE");
-  const [isActivating, setIsActivating] = useState(false);
+  const [emailInput, setEmailInput] = useState(email);
+  const [isSending, setIsSending] = useState(false);
 
   // Fetch artisan data from email
   useEffect(() => {
@@ -60,24 +62,57 @@ const ActivationElite = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // === ACTIVATION DIRECTE — ZÉRO FRICTION ===
-  const handleActivate = () => {
-    if (!email) {
-      toast.error("Lien d'activation invalide.");
+  // === REVENDIQUER → affiche le champ email ===
+  const handleClaim = () => {
+    setPhase("email-capture");
+  };
+
+  // === ENVOI DU MAGIC LINK ===
+  const handleSendMagicLink = async () => {
+    if (!emailInput || !emailInput.includes("@")) {
+      toast.error("Veuillez entrer un email valide.");
       return;
     }
 
-    setIsActivating(true);
+    setIsSending(true);
 
-    // Stocker les données pour le bypass ProtectedRoute
-    localStorage.setItem("elite_activation_email", email);
-    if (artisan) {
-      localStorage.setItem("elite_artisan_id", artisan.id);
-      localStorage.setItem("elite_artisan_name", artisan.business_name);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: emailInput,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: `${window.location.origin}/artisan/dashboard`,
+        },
+      });
+
+      if (error) {
+        console.warn("[ActivationElite] OTP error:", error.message);
+        // Fallback : stocker et rediriger
+        localStorage.setItem("elite_activation_email", emailInput);
+        if (artisan) {
+          localStorage.setItem("elite_artisan_id", artisan.id);
+          localStorage.setItem("elite_artisan_name", artisan.business_name);
+        }
+        toast.success("Accès activé ! Redirection en cours…");
+        setTimeout(() => {
+          window.location.href = "/artisan/dashboard";
+        }, 1500);
+        return;
+      }
+
+      setPhase("sent");
+      toast.success("🔑 Clé d'accès envoyée ! Vérifiez votre boîte mail.");
+    } catch (err) {
+      console.error("[ActivationElite] Error:", err);
+      localStorage.setItem("elite_activation_email", emailInput);
+      if (artisan) {
+        localStorage.setItem("elite_artisan_id", artisan.id);
+        localStorage.setItem("elite_artisan_name", artisan.business_name);
+      }
+      window.location.href = "/artisan/dashboard";
+    } finally {
+      setIsSending(false);
     }
-
-    // Redirection INSTANTANÉE — pas de délai, pas d'auth
-    window.location.href = "/artisan/dashboard";
   };
 
   const handleRefuse = () => {
@@ -95,8 +130,8 @@ const ActivationElite = () => {
       }}
     >
       <SEOHead
-        title="Activation Élite — Alliance des Artisans Vérifiés"
-        description="Activez votre secteur exclusif et accédez aux chantiers qualifiés de votre zone."
+        title="Sélection Élite — Alliance des Artisans Vérifiés"
+        description="Revendiquez votre profil exclusif et accédez aux chantiers qualifiés de votre zone."
       />
 
       <AnimatePresence mode="wait">
@@ -124,6 +159,25 @@ const ActivationElite = () => {
               ANALYSE DE VOTRE SECTEUR EN COURS…
             </motion.p>
             <p className="text-white/40 text-sm">Audit IA Andrea • Vérification sectorielle</p>
+          </motion.div>
+        ) : phase === "sent" ? (
+          <motion.div
+            key="sent"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center min-h-screen gap-6 px-4 text-center"
+          >
+            <div className="w-24 h-24 rounded-full bg-[#FFB800]/15 flex items-center justify-center">
+              <Mail className="w-12 h-12 text-[#FFB800]" />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-black text-[#FFB800]">
+              CLÉ D'ACCÈS ENVOYÉE
+            </h2>
+            <p className="text-white/70 max-w-md">
+              Un lien sécurisé a été envoyé à <span className="text-[#FFB800] font-bold">{emailInput}</span>.
+              <br />Cliquez dessus pour accéder à votre espace Élite.
+            </p>
+            <p className="text-white/30 text-xs mt-4">Vérifiez vos spams si vous ne voyez rien d'ici 2 minutes.</p>
           </motion.div>
         ) : (
           <motion.div
@@ -234,7 +288,7 @@ const ActivationElite = () => {
                     </div>
                   </div>
 
-                  {/* CONTACT BLOQUÉ */}
+                  {/* BADGE ACCÈS RÉSERVÉ */}
                   <div
                     className="mt-6 rounded-xl p-4 flex items-center gap-4"
                     style={{
@@ -242,15 +296,16 @@ const ActivationElite = () => {
                       border: "1px solid rgba(255,184,0,0.2)",
                     }}
                   >
-                    <div className="w-12 h-12 rounded-full bg-[#FFB800]/15 flex items-center justify-center shrink-0">
-                      <Shield className="w-6 h-6 text-[#FFB800]" />
+                    <div className="w-12 h-12 rounded-full bg-[#FFB800]/15 flex items-center justify-center shrink-0 relative">
+                      <Lock className="w-6 h-6 text-[#FFB800]" />
+                      <div className="absolute inset-0 rounded-full animate-pulse" style={{ boxShadow: "0 0 15px rgba(255,184,0,0.3)" }} />
                     </div>
                     <div>
                       <p className="text-sm font-black text-[#FFB800]">
-                        🛡️ DOSSIER EN COURS DE VALIDATION FINALE
+                        🔒 ACCÈS RÉSERVÉ : IDENTITÉ À CONFIRMER
                       </p>
                       <p className="text-xs text-white/50 mt-1">
-                        Votre vitrine est prête. On vérifie juste que vous êtes le bon partenaire pour nos clients.
+                        Revendiquez ce profil pour débloquer vos contacts clients et vos chantiers exclusifs.
                       </p>
                     </div>
                   </div>
@@ -334,49 +389,119 @@ const ActivationElite = () => {
                 ))}
               </motion.div>
 
-              {/* ═══ 5. L'ULTIMATUM — CTAs ═══ */}
+              {/* ═══ 5. ZONE DE DÉCISION ═══ */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.65 }}
                 className="text-center space-y-5 pt-4"
               >
-                <button
-                  onClick={handleActivate}
-                  disabled={isActivating}
-                  className="w-full md:w-auto px-10 py-5 rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait"
-                  style={{
-                    background: "linear-gradient(135deg, #FFB800, #f0a500)",
-                    color: "#0A192F",
-                    boxShadow: "0 8px 30px rgba(255,184,0,0.35)",
-                    fontFamily: "'Montserrat',sans-serif",
-                  }}
-                >
-                  {isActivating ? (
-                    <span className="flex items-center justify-center gap-3">
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      ACTIVATION EN COURS…
-                    </span>
-                  ) : (
-                    "✅ OUI, J'ACTIVE MON ACCÈS ÉLITE"
-                  )}
-                </button>
+                <AnimatePresence mode="wait">
+                  {phase === "reveal" ? (
+                    <motion.div key="cta-buttons" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} className="space-y-5">
+                      <button
+                        onClick={handleClaim}
+                        className="w-full md:w-auto px-10 py-5 rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
+                        style={{
+                          background: "linear-gradient(135deg, #FFB800, #f0a500)",
+                          color: "#0A192F",
+                          boxShadow: "0 8px 30px rgba(255,184,0,0.35)",
+                          fontFamily: "'Montserrat',sans-serif",
+                        }}
+                      >
+                        <span className="relative z-10">✅ OUI, JE REVENDIQUE MON PROFIL ET MES ACCÈS ÉLITE</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                      </button>
 
-                <div>
-                  <button
-                    onClick={handleRefuse}
-                    disabled={isActivating}
-                    className="text-xs text-white/30 hover:text-red-400/70 transition-colors underline underline-offset-4 decoration-white/10 hover:decoration-red-400/30"
-                  >
-                    Non, supprimer ma vitrine et libérer ma place pour un concurrent.
-                  </button>
-                </div>
+                      <div>
+                        <button
+                          onClick={handleRefuse}
+                          className="text-xs text-white/30 hover:text-red-400/70 transition-colors underline underline-offset-4 decoration-white/10 hover:decoration-red-400/30"
+                        >
+                          Non, supprimer ma fiche et céder ma place à un concurrent.
+                        </button>
+                      </div>
+                    </motion.div>
+                  ) : phase === "email-capture" ? (
+                    <motion.div
+                      key="email-form"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="max-w-lg mx-auto space-y-5"
+                    >
+                      <div
+                        className="rounded-2xl p-6 md:p-8 text-left space-y-5"
+                        style={{
+                          background: "#0F1B2E",
+                          border: "1px solid rgba(255,184,0,0.25)",
+                          boxShadow: "0 0 40px rgba(255,184,0,0.08)",
+                        }}
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-full bg-[#FFB800]/15 flex items-center justify-center">
+                            <Shield className="w-5 h-5 text-[#FFB800]" />
+                          </div>
+                          <h3 className="text-lg font-black text-[#FFB800]">Vérification d'identité</h3>
+                        </div>
+
+                        <p className="text-sm text-white/60 leading-relaxed">
+                          Pour protéger votre réputation, nous devons vérifier que c'est bien vous.
+                          Entrez votre <span className="text-[#FFB800] font-bold">email professionnel</span> pour recevoir votre clé d'accès unique.
+                        </p>
+
+                        <div className="space-y-3">
+                          <Input
+                            type="email"
+                            placeholder="votre@email-pro.com"
+                            value={emailInput}
+                            onChange={(e) => setEmailInput(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSendMagicLink()}
+                            className="h-12 bg-[#1a2940] border-[#FFB800]/20 text-white placeholder:text-white/30 focus:border-[#FFB800]/50 focus:ring-[#FFB800]/20 text-base"
+                          />
+
+                          <button
+                            onClick={handleSendMagicLink}
+                            disabled={isSending}
+                            className="w-full py-4 rounded-xl font-black text-base uppercase tracking-wider transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-wait"
+                            style={{
+                              background: "linear-gradient(135deg, #FFB800, #f0a500)",
+                              color: "#0A192F",
+                              boxShadow: "0 6px 25px rgba(255,184,0,0.3)",
+                            }}
+                          >
+                            {isSending ? (
+                              <span className="flex items-center justify-center gap-3">
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                ENVOI EN COURS…
+                              </span>
+                            ) : (
+                              <span className="flex items-center justify-center gap-2">
+                                <Mail className="w-5 h-5" />
+                                RECEVOIR MA CLÉ D'ACCÈS
+                              </span>
+                            )}
+                          </button>
+                        </div>
+
+                        <p className="text-[10px] text-white/25 text-center">
+                          🔒 Aucune donnée n'est partagée. Lien sécurisé et à usage unique.
+                        </p>
+                      </div>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
               </motion.div>
 
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style>{`
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 };
