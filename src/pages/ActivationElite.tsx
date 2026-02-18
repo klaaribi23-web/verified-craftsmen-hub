@@ -39,18 +39,20 @@ const ActivationElite = () => {
   const [emailInput, setEmailInput] = useState(email);
   const [isSending, setIsSending] = useState(false);
 
-  // Fetch artisan data from email
+  // Fetch artisan data via edge function (bypasses RLS for public access)
   useEffect(() => {
     const fetchArtisan = async () => {
       if (!email) return;
-      const { data } = await supabase
-        .from("artisans")
-        .select("id, business_name, city, description, photo_url, rating, review_count, experience_years, is_audited, email, slug")
-        .eq("email", email)
-        .maybeSingle();
-      if (data) {
-        setArtisan(data);
-        if (!sector) setDisplaySector(data.city);
+      try {
+        const { data: fnData, error } = await supabase.functions.invoke("get-artisan-public", {
+          body: { email },
+        });
+        if (!error && fnData?.artisan) {
+          setArtisan(fnData.artisan);
+          if (!sector) setDisplaySector(fnData.artisan.city);
+        }
+      } catch (err) {
+        console.error("[ActivationElite] Fetch error:", err);
       }
     };
     fetchArtisan();
@@ -211,10 +213,13 @@ const ActivationElite = () => {
                   <Shield className="w-4 h-4" /> CERTIFIÉ IA ANDREA
                 </div>
                 <h1 className="text-2xl md:text-4xl lg:text-5xl font-black leading-tight">
-                  <span className="text-white">ARRÊTEZ D'ACHETER DES LEADS PARTAGÉS.</span>
+                  <span className="text-white">REVENDIQUEZ VOTRE FICHE :</span>
                   <br />
-                  <span className="text-[#FFB800]">PRENEZ L'EXCLUSIVITÉ SUR {displaySector.toUpperCase()}.</span>
+                  <span className="text-[#FFB800]">{artisan?.business_name || displaySector.toUpperCase()}</span>
                 </h1>
+                <p className="text-base md:text-lg font-bold tracking-wide" style={{ color: "rgba(255,184,0,0.7)" }}>
+                  Statut : 🔒 ACCÈS RÉSERVÉ — IDENTITÉ À CONFIRMER
+                </p>
                 <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
                   Ici, pas de foire d'empoigne. On ne vend pas vos contacts à 10 concurrents.
                   On crée votre image de marque et on vous apporte l'exclusivité.{" "}
