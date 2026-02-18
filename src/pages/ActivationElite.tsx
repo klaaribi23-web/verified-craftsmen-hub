@@ -1,50 +1,82 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Shield, Zap, Users, TrendingUp } from "lucide-react";
+import { Lock, Shield, Zap, Users, TrendingUp, AlertTriangle, Phone, MapPin, Star, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { supabase } from "@/integrations/supabase/client";
 
-const FAKE_PROJECTS = [
-  { title: "Rénovation Villa Premium", city: "Lyon 6ème", budget: "45 000 €" },
-  { title: "Extension Maison Architecte", city: "Bordeaux", budget: "62 000 €" },
-  { title: "Équipement Cuisine Haut de Gamme", city: "Paris 16ème", budget: "28 000 €" },
+const SKELETON_PROJECTS = [
+  { title: "Rénovation Toiture Complète", city: "En attente…", budget: "25 000 €", urgency: "URGENT" },
+  { title: "Extension Maison + Terrasse", city: "En attente…", budget: "40 000 €", urgency: "NOUVEAU" },
+  { title: "Cuisine Haut de Gamme Sur-Mesure", city: "En attente…", budget: "18 500 €", urgency: "EXCLUSIF" },
 ];
+
+interface ArtisanData {
+  business_name: string;
+  city: string;
+  description: string | null;
+  photo_url: string | null;
+  rating: number | null;
+  review_count: number | null;
+  experience_years: number | null;
+  is_audited: boolean;
+  id: string;
+  email: string | null;
+  slug: string | null;
+}
 
 const ActivationElite = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const email = searchParams.get("email") || "";
-  const sector = searchParams.get("sector") || searchParams.get("city") || "VOTRE ZONE";
+  const sector = searchParams.get("sector") || searchParams.get("city") || "";
 
   const [phase, setPhase] = useState<"scanning" | "reveal">("scanning");
-  const [timeLeft, setTimeLeft] = useState({ h: 23, m: 59, s: 59 });
+  const [artisan, setArtisan] = useState<ArtisanData | null>(null);
+  const [displaySector, setDisplaySector] = useState(sector || "VOTRE ZONE");
 
+  // Fetch artisan data from email
   useEffect(() => {
-    const timer = setTimeout(() => setPhase("reveal"), 3000);
+    const fetchArtisan = async () => {
+      if (!email) return;
+      const { data } = await supabase
+        .from("artisans")
+        .select("id, business_name, city, description, photo_url, rating, review_count, experience_years, is_audited, email, slug")
+        .eq("email", email)
+        .maybeSingle();
+      if (data) {
+        setArtisan(data);
+        if (!sector) setDisplaySector(data.city);
+      }
+    };
+    fetchArtisan();
+  }, [email, sector]);
+
+  // Scanner phase
+  useEffect(() => {
+    const timer = setTimeout(() => setPhase("reveal"), 3200);
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.s > 0) return { ...prev, s: prev.s - 1 };
-        if (prev.m > 0) return { ...prev, m: prev.m - 1, s: 59 };
-        if (prev.h > 0) return { h: prev.h - 1, m: 59, s: 59 };
-        return prev;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const pad = (n: number) => n.toString().padStart(2, "0");
 
   const handleActivate = () => {
     navigate("/artisan/dashboard");
   };
 
+  const handleRefuse = () => {
+    if (confirm("⚠️ Êtes-vous sûr ? Votre vitrine sera supprimée et votre place libérée pour un concurrent direct.")) {
+      navigate("/");
+    }
+  };
+
   return (
-    <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100vh", zIndex: 9999, backgroundColor: "hsl(215,62%,6%)", overflow: "auto" }} className="text-white">
+    <div
+      className="text-white"
+      style={{
+        position: "fixed", top: 0, left: 0, width: "100%", height: "100vh",
+        zIndex: 9999, backgroundColor: "#0A192F", overflow: "auto",
+      }}
+    >
       <SEOHead
         title="Activation Élite — Alliance des Artisans Vérifiés"
         description="Activez votre secteur exclusif et accédez aux chantiers qualifiés de votre zone."
@@ -60,118 +92,262 @@ const ActivationElite = () => {
             className="flex flex-col items-center justify-center min-h-screen gap-8 px-4"
           >
             <div className="relative w-40 h-40">
-              <div className="absolute inset-0 rounded-full border-4 border-primary/30 animate-ping" />
-              <div className="absolute inset-2 rounded-full border-2 border-primary/60 animate-spin" style={{ animationDuration: "2s" }} />
+              <div className="absolute inset-0 rounded-full border-4 border-[#FFB800]/30 animate-ping" />
+              <div className="absolute inset-2 rounded-full border-2 border-[#FFB800]/60 animate-spin" style={{ animationDuration: "2s" }} />
               <div className="absolute inset-0 flex items-center justify-center">
-                <Shield className="w-14 h-14 text-primary" />
+                <Shield className="w-14 h-14 text-[#FFB800]" />
               </div>
             </div>
-
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="text-xl md:text-2xl font-bold text-primary text-center tracking-wide"
+              className="text-xl md:text-2xl font-black text-[#FFB800] text-center tracking-wider"
             >
-              VÉRIFICATION DE VOTRE SECTEUR EN COURS…
+              ANALYSE DE VOTRE SECTEUR EN COURS…
             </motion.p>
-            <p className="text-muted-foreground text-sm">Analyse IA Andrea • Audit sectoriel</p>
+            <p className="text-white/40 text-sm">Audit IA Andrea • Vérification sectorielle</p>
           </motion.div>
         ) : (
           <motion.div
             key="reveal"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="max-w-4xl mx-auto px-4 py-12 md:py-20 space-y-12"
+            className="pb-40"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center space-y-4"
+            {/* ═══ 1. URGENCY BANNER ═══ */}
+            <div
+              className="w-full py-2.5 px-4 text-center text-sm md:text-base font-black tracking-wide"
+              style={{
+                background: "linear-gradient(90deg, #EA580C, #F97316, #EA580C)",
+                color: "#FFFFFF",
+                textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+              }}
             >
-              <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 text-sm text-primary font-semibold mb-4">
-                <Shield className="w-4 h-4" /> CERTIFIÉ IA ANDREA
-              </div>
+              🚨 URGENT : 3 PROJETS EN ATTENTE DE CHIFFRAGE SUR VOTRE SECTEUR
+            </div>
 
-              <h1 className="text-3xl md:text-5xl font-extrabold">
-                <span className="text-primary">VOTRE SECTEUR EST RÉSERVÉ :</span>
-                <br />
-                <span className="text-white uppercase">{sector}</span>
-              </h1>
-              <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
-                2 places disponibles par secteur.{" "}
-                <span className="text-primary font-bold">Ne laissez pas votre concurrent prendre la dernière.</span>
-              </p>
-            </motion.div>
+            <div className="max-w-4xl mx-auto px-4 py-8 md:py-14 space-y-10">
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <h2 className="text-xl font-bold text-white mb-4 text-center">
-                🔒 Chantiers en attente dans votre zone
-              </h2>
-              <div className="grid md:grid-cols-3 gap-4">
-                {FAKE_PROJECTS.map((p, i) => (
+              {/* ═══ HERO COPY ═══ */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center space-y-5"
+              >
+                <div className="inline-flex items-center gap-2 bg-[#FFB800]/10 border border-[#FFB800]/30 rounded-full px-4 py-1.5 text-sm text-[#FFB800] font-bold">
+                  <Shield className="w-4 h-4" /> CERTIFIÉ IA ANDREA
+                </div>
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-black leading-tight">
+                  <span className="text-white">ARRÊTEZ D'ACHETER DES LEADS,</span>
+                  <br />
+                  <span className="text-[#FFB800]">COMMENCEZ À SIGNER DES CHANTIERS.</span>
+                </h1>
+                <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
+                  Ici, pas de foire d'empoigne. On ne vend pas vos contacts à 10 concurrents.
+                  On crée votre image de marque et on vous apporte l'exclusivité.{" "}
+                  <span className="text-[#FFB800] font-bold">
+                    C'est votre secteur, ou celui d'un autre.
+                  </span>
+                </p>
+              </motion.div>
+
+              {/* ═══ 2. LE MIROIR — FICHE ARTISAN ═══ */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="rounded-2xl overflow-hidden"
+                style={{
+                  background: "#0F1B2E",
+                  border: "1px solid rgba(255,184,0,0.25)",
+                  boxShadow: "0 0 40px rgba(255,184,0,0.08)",
+                }}
+              >
+                <div className="p-5 md:p-8">
+                  <p className="text-xs font-bold tracking-widest text-[#FFB800]/60 mb-4">
+                    VOTRE VITRINE PROFESSIONNELLE
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-5">
+                    {/* Photo */}
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden shrink-0 bg-[#1a2940]">
+                      {artisan?.photo_url ? (
+                        <img src={artisan.photo_url} alt={artisan.business_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Shield className="w-10 h-10 text-[#FFB800]/40" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <h2 className="text-xl md:text-2xl font-black text-white">
+                          {artisan?.business_name || "Votre Entreprise"}
+                        </h2>
+                        {artisan?.is_audited && (
+                          <span className="inline-flex items-center gap-1 bg-[#FFB800]/15 border border-[#FFB800]/30 rounded-full px-2.5 py-0.5 text-xs font-bold text-[#FFB800]">
+                            <CheckCircle className="w-3 h-3" /> AUDITÉ
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-4 text-sm text-white/60">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4 text-[#FFB800]/70" />
+                          {artisan?.city || displaySector}
+                        </span>
+                        {(artisan?.rating ?? 0) > 0 && (
+                          <span className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-[#FFB800]" fill="#FFB800" />
+                            {artisan?.rating}/5 ({artisan?.review_count} avis)
+                          </span>
+                        )}
+                        {(artisan?.experience_years ?? 0) > 0 && (
+                          <span>{artisan?.experience_years} ans d'exp.</span>
+                        )}
+                      </div>
+
+                      {artisan?.description && (
+                        <p className="text-sm text-white/50 line-clamp-2">{artisan.description}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* CONTACT BLOQUÉ */}
+                  <div
+                    className="mt-6 rounded-xl p-4 flex items-center gap-4"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(255,184,0,0.08), rgba(255,184,0,0.03))",
+                      border: "1px solid rgba(255,184,0,0.2)",
+                    }}
+                  >
+                    <div className="w-12 h-12 rounded-full bg-[#FFB800]/15 flex items-center justify-center shrink-0">
+                      <Shield className="w-6 h-6 text-[#FFB800]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-[#FFB800]">
+                        🛡️ DOSSIER EN COURS DE VALIDATION FINALE
+                      </p>
+                      <p className="text-xs text-white/50 mt-1">
+                        Votre vitrine est prête. On vérifie juste que vous êtes le bon partenaire pour nos clients.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* ═══ 3. LE COFFRE-FORT — MISSIONS FLOUES ═══ */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg md:text-xl font-black text-white">
+                    🔒 Chantiers réservés — Secteur {displaySector}
+                  </h2>
+                  <span className="text-xs font-bold text-[#FFB800]/60 bg-[#FFB800]/10 px-3 py-1 rounded-full">
+                    ACCÈS VERROUILLÉ
+                  </span>
+                </div>
+                <p className="text-sm text-white/50 mb-5">
+                  Ces chantiers sont réservés aux membres Élite du secteur <span className="text-[#FFB800] font-bold">{displaySector}</span>.
+                </p>
+                <div className="grid md:grid-cols-3 gap-4">
+                  {SKELETON_PROJECTS.map((p, i) => (
+                    <div
+                      key={i}
+                      className="relative rounded-xl overflow-hidden"
+                      style={{
+                        border: "1px solid rgba(255,184,0,0.15)",
+                        background: "#0F1B2E",
+                      }}
+                    >
+                      {/* Blur overlay */}
+                      <div className="absolute inset-0 z-10 backdrop-blur-md bg-[#0A192F]/70 flex flex-col items-center justify-center gap-2">
+                        <Lock className="w-8 h-8 text-[#FFB800]" />
+                        <span className="text-[10px] font-black tracking-widest text-[#FFB800]">
+                          RÉSERVÉ AUX MEMBRES
+                        </span>
+                      </div>
+                      <div className="p-5 space-y-2">
+                        <span
+                          className="text-[10px] font-black px-2 py-0.5 rounded"
+                          style={{
+                            background: p.urgency === "URGENT" ? "rgba(234,88,12,0.2)" : "rgba(255,184,0,0.15)",
+                            color: p.urgency === "URGENT" ? "#F97316" : "#FFB800",
+                          }}
+                        >
+                          {p.urgency}
+                        </span>
+                        <p className="font-bold text-white text-lg">{p.title}</p>
+                        <p className="text-white/40 text-sm">{p.city}</p>
+                        <p className="text-[#FFB800] font-black text-xl mt-2">{p.budget}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* ═══ 4. VALUE PROPS ═══ */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="space-y-3"
+              >
+                {[
+                  { icon: Zap, text: "Filtrage IA Andrea : 0 curieux, 100% de rendez-vous qualifiés." },
+                  { icon: Users, text: "Exclusivité Partagée : Seulement 2 professionnels par métier et par ville." },
+                  { icon: TrendingUp, text: "Zéro Commission : Votre chiffre d'affaires vous appartient à 100%." },
+                ].map(({ icon: Icon, text }, i) => (
                   <div
                     key={i}
-                    className="relative rounded-xl border border-primary/20 bg-[hsl(215,55%,10%)] p-6 overflow-hidden"
+                    className="flex items-start gap-4 rounded-xl p-4"
+                    style={{ background: "#0F1B2E", border: "1px solid rgba(255,184,0,0.1)" }}
                   >
-                    <div className="absolute inset-0 backdrop-blur-md bg-[hsl(215,62%,6%)]/60 z-10 flex flex-col items-center justify-center gap-2">
-                      <Lock className="w-8 h-8 text-primary" />
-                      <span className="text-xs text-primary font-bold tracking-wider">
-                        DÉVERROUILLABLE APRÈS ACTIVATION
-                      </span>
+                    <div className="w-10 h-10 rounded-full bg-[#FFB800]/15 flex items-center justify-center shrink-0">
+                      <Icon className="w-5 h-5 text-[#FFB800]" />
                     </div>
-                    <p className="font-bold text-white text-lg">{p.title}</p>
-                    <p className="text-white/60 text-sm mt-1">{p.city}</p>
-                    <p className="text-primary font-bold mt-3">{p.budget}</p>
+                    <p className="text-white/85 text-sm md:text-base">{text}</p>
                   </div>
                 ))}
-              </div>
-            </motion.div>
+              </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="space-y-4"
-            >
-              {[
-                { icon: Zap, text: "Filtrage IA Andrea : 0 curieux, 100% de rendez-vous qualifiés." },
-                { icon: Users, text: "Exclusivité Partagée : Seulement 2 professionnels par métier." },
-                { icon: TrendingUp, text: "Zéro Commission : Votre chiffre d'affaires vous appartient à 100%." },
-              ].map(({ icon: Icon, text }, i) => (
-                <div key={i} className="flex items-start gap-4 bg-[hsl(215,55%,10%)] border border-primary/15 rounded-xl p-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <p className="text-white/90 text-base md:text-lg">{text}</p>
-                </div>
-              ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 }}
-              className="text-center space-y-4"
-            >
-              <Button
-                onClick={handleActivate}
-                className="btn-shine bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold text-lg md:text-xl px-10 py-7 rounded-xl shadow-gold w-full md:w-auto"
+              {/* ═══ 5. L'ULTIMATUM — CTAs ═══ */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.65 }}
+                className="text-center space-y-5 pt-4"
               >
-                DÉVERROUILLER MON SECTEUR ET ENCAISSER
-              </Button>
+                <button
+                  onClick={handleActivate}
+                  className="btn-shine w-full md:w-auto px-10 py-5 rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    background: "linear-gradient(135deg, #FFB800, #f0a500)",
+                    color: "#0A192F",
+                    boxShadow: "0 8px 30px rgba(255,184,0,0.35)",
+                    fontFamily: "'Montserrat',sans-serif",
+                  }}
+                >
+                  ✅ OUI, J'ACTIVE MON ACCÈS ÉLITE
+                </button>
 
-              <div className="flex items-center justify-center gap-2 text-primary/80 text-sm font-semibold">
-                <span>Votre priorité expire dans :</span>
-                <span className="font-mono bg-primary/10 px-2 py-1 rounded text-primary">
-                  {pad(timeLeft.h)}:{pad(timeLeft.m)}:{pad(timeLeft.s)}
-                </span>
-              </div>
-            </motion.div>
+                <div>
+                  <button
+                    onClick={handleRefuse}
+                    className="text-xs text-white/30 hover:text-red-400/70 transition-colors underline underline-offset-4 decoration-white/10 hover:decoration-red-400/30"
+                  >
+                    Non, supprimer ma vitrine et libérer ma place pour un concurrent.
+                  </button>
+                </div>
+              </motion.div>
+
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
