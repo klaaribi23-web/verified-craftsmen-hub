@@ -200,7 +200,7 @@ const ArtisanCard = ({
         isPremium
           ? "border-2 shadow-lg hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-out"
           : "border hover:shadow-elevated transition-all",
-        "border-[#D4AF37]/10"
+        "border-primary/10"
       )}
     >
       {/* Urgent Badge */}
@@ -249,7 +249,7 @@ const ArtisanCard = ({
             className="absolute top-2 right-10 z-10 cursor-pointer"
             aria-label="Voir le résumé d'audit"
           >
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold shadow-lg text-white border border-[#D4AF37]/50 transition-colors" style={{ backgroundColor: '#D4AF37' }}>
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold shadow-lg bg-primary text-primary-foreground border border-primary/50 transition-colors">
               <Shield className="w-3.5 h-3.5 fill-current" />
               <span>ARTISAN AUDITÉ</span>
             </div>
