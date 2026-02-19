@@ -30,8 +30,8 @@ const PowerBlock = () => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight mb-8 max-w-5xl mx-auto"
-          style={{ lineHeight: '1.6' }}
+          className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-black max-w-5xl mx-auto"
+          style={{ lineHeight: '1.15', letterSpacing: '-0.02em' }}
         >
           <span className="block text-white">
             NE CONFIEZ PLUS VOS TRAVAUX AU{' '}
@@ -41,7 +41,7 @@ const PowerBlock = () => {
             </span>
             .
           </span>
-          <span className="block mt-2 text-white">
+          <span className="block text-white" style={{ marginTop: '15px' }}>
             ACCÉDEZ À{' '}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FFB800] via-[#F0A500] to-[#D48C00]">
               L'ÉLITE VÉRIFIÉE
