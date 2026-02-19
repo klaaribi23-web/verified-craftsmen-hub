@@ -75,10 +75,10 @@ const LaboAndreaSection = () => {
             <Sparkles className="h-4 w-4 text-gold" />
             <span className="text-sm font-medium text-gold">Le Labo d'Andrea</span>
           </div>
-          <h2 className="text-2xl md:text-4xl font-bold text-white mb-3">
+          <h2 className="text-2xl md:text-4xl font-semibold text-white mb-3">
             L'IA qui parle <span className="text-gold">franc.</span>
           </h2>
-          <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto">
+          <p className="text-[#E2E8F0] text-base md:text-lg max-w-2xl mx-auto">
             Pas de langue de bois. Andrea vous donne des réponses cash, forgées par 20 ans de chantier.
           </p>
         </motion.div>

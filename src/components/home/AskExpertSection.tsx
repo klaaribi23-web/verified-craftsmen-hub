@@ -90,9 +90,9 @@ const AskExpertSection = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-navy/10 rounded-full mb-4 border border-navy/15">
             <MessageCircleQuestion className="h-4 w-4 text-navy" />
-            <span className="text-sm font-medium text-navy">Expert IA</span>
+            <span className="text-sm font-semibold text-white">Expert IA</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
+          <h2 className="text-2xl md:text-3xl font-semibold text-white mb-3">
             Un doute sur vos travaux ? Pas de blabla.
           </h2>
           <p className="text-muted-foreground text-base md:text-lg">

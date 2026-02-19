@@ -72,7 +72,7 @@ const Index = () => {
                 Trois étapes pour des travaux en toute sérénité.
               </p>
             </motion.div>
-            <div className="grid md:grid-cols-3 gap-12 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-[3.5rem] max-w-4xl mx-auto">
               {[
                 { step: "01", icon: Camera, title: "Décrivez votre besoin", desc: "Publiez votre projet avec des photos. Vos coordonnées restent anonymes." },
                 { step: "02", icon: MessageSquare, title: "Discutez anonymement", desc: "Échangez directement avec les artisans validés de votre secteur." },
@@ -89,9 +89,9 @@ const Index = () => {
                   <div className="w-16 h-16 rounded-full border-2 border-gold/30 bg-gold/5 flex items-center justify-center mx-auto mb-5">
                     <Icon className="w-7 h-7 text-gold" />
                   </div>
-                  <span className="text-xs font-bold text-gold/60 tracking-widest uppercase mb-2 block">Étape {step}</span>
-                  <h3 className="text-lg font-bold text-foreground mb-2">{title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                  <span className="text-xs font-bold text-gold/60 tracking-widest uppercase mb-2 block text-center">Étape {step}</span>
+                  <h3 className="text-lg font-bold text-foreground mb-2 text-center">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed text-center">{desc}</p>
                 </motion.div>
               ))}
             </div>
