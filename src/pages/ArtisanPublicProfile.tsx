@@ -188,7 +188,7 @@ const ArtisanPublicProfile = () => {
       (_, i) => (
         <Star
           key={i}
-          className={`h-4 w-4 ${i < Math.floor(rating) ? "fill-amber-400 text-amber-400" : i < rating ? "fill-amber-400/50 text-amber-400" : "text-muted-foreground/30"}`}
+          className={`h-4 w-4 ${i < Math.floor(rating) ? "fill-primary text-primary" : i < rating ? "fill-primary/50 text-primary" : "text-muted-foreground/30"}`}
         />
       ),
     );
@@ -366,7 +366,7 @@ const ArtisanPublicProfile = () => {
                         <Avatar
                           className={cn(
                             "h-32 w-32 ring-4",
-                            hasActiveStories ? "ring-green-500 cursor-pointer animate-story-pulse" : "ring-primary/20",
+                            hasActiveStories ? "ring-green-500 cursor-pointer animate-story-pulse" : "ring-primary/30",
                           )}
                         >
                           <AvatarImage src={artisan.photo_url || undefined} alt={artisan.business_name} />
@@ -375,30 +375,36 @@ const ArtisanPublicProfile = () => {
                           </AvatarFallback>
                         </Avatar>
                         {artisan.is_verified && (
-                          <div className="absolute -bottom-2 -right-2 gold-metallic-bg text-white rounded-full p-1.5 shadow-lg glow-gold-badge">
+                          <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-1.5 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
                             <Shield className="h-5 w-5" />
                           </div>
                         )}
                       </div>
-                      {(artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel") && (
-                        <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20">
-                          <Shield className="h-3 w-3 mr-1" />
-                          Artisan Validé
-                        </Badge>
-                      )}
+                      {/* Elite Seal — Diploma-style badge */}
+                      {(artisan as any).is_audited ? (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 border border-primary/40 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                          <ShieldCheck className="h-4 w-4 text-primary" />
+                          <span className="text-xs font-extrabold text-primary uppercase tracking-wider">Artisan Audité</span>
+                        </div>
+                      ) : (artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel") ? (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30">
+                          <Shield className="h-3.5 w-3.5 text-primary" />
+                          <span className="text-xs font-bold text-primary uppercase tracking-wider">Artisan Validé</span>
+                        </div>
+                      ) : null}
                     </div>
 
-                    {/* Info */}
+                    {/* Info — Diploma-style header */}
                     <div className="flex-1 text-center md:text-left">
-                      <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
-                        <h1 className="text-2xl md:text-3xl font-bold title-editorial">{artisan.business_name}</h1>
-                        {artisan.status === "active" && (
-                          <Badge className="bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600 gap-1 self-center md:self-auto">
-                            <ShieldCheck className="h-3.5 w-3.5" />
-                            Partenaire Certifié
-                          </Badge>
-                        )}
+                      <div className="flex flex-col md:flex-row md:items-center gap-2 mb-1">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-white font-['DM_Sans'] tracking-tight">{artisan.business_name}</h1>
                       </div>
+                      {/* Elite exclusivity micro-copy */}
+                      {(artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel" || (artisan as any).is_audited) && (
+                        <p className="text-[11px] text-primary/70 font-semibold uppercase tracking-widest mb-2">
+                          ✦ Fait partie des 2% d'artisans sélectionnés
+                        </p>
+                      )}
 
                       {/* Catégorie principale - avec badge stylé */}
                       {artisan.category?.name && (
@@ -508,8 +514,8 @@ const ArtisanPublicProfile = () => {
                     <div className="flex flex-col gap-2">
                       {/* Message pour les artisans en attente */}
                       {(artisan.status === "pending" || artisan.status === "suspended") && (
-                        <div className="text-center mb-2 pb-3 border-b">
-                          <p className="text-sm font-medium text-orange-600">
+                        <div className="text-center mb-2 pb-3 border-b border-primary/20">
+                          <p className="text-sm font-medium text-primary">
                             <Clock className="h-4 w-4 inline mr-1" />
                             Dossier en cours de validation finale
                           </p>
@@ -520,10 +526,10 @@ const ArtisanPublicProfile = () => {
                       {artisan.status === "prospect" && !(artisan as any).user_id && (
                         <Dialog>
                           <DialogTrigger asChild>
-                            <div className="text-center mb-2 pb-3 border-b cursor-pointer">
+                            <div className="text-center mb-2 pb-3 border-b border-primary/20 cursor-pointer">
                               <p className="text-xs text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
-                              <p className="text-sm font-bold text-amber-600 mb-2">Revendiquez votre fiche</p>
-                              <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white gap-2">
+                              <p className="text-sm font-bold text-primary mb-2">Revendiquez votre fiche</p>
+                              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 font-bold">
                                 <UserPlus className="h-4 w-4" />
                                 Revendiquer cette fiche
                               </Button>
@@ -532,7 +538,7 @@ const ArtisanPublicProfile = () => {
                           <DialogContent>
                             <DialogHeader>
                               <DialogTitle className="flex items-center gap-2">
-                                <Info className="h-5 w-5 text-amber-500" />
+                                <Info className="h-5 w-5 text-primary" />
                                 Revendiquer cette fiche
                               </DialogTitle>
                             </DialogHeader>
@@ -571,9 +577,9 @@ const ArtisanPublicProfile = () => {
                       {artisan.status === "disponible" && (
                         <Dialog>
                           <DialogTrigger asChild>
-                            <div className="text-center mb-2 pb-3 border-b cursor-pointer">
+                            <div className="text-center mb-2 pb-3 border-b border-primary/20 cursor-pointer">
                               <p className="text-xs text-muted-foreground mb-1">Cette place est disponible</p>
-                              <Button className="w-full gap-2 bg-amber-500 hover:bg-amber-600 text-white" size="lg">
+                              <Button className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold" size="lg">
                                 <UserPlus className="h-4 w-4" />
                                 Revendiquer cette place
                               </Button>
@@ -609,6 +615,8 @@ const ArtisanPublicProfile = () => {
                       )}
 
                       <Button
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold uppercase tracking-wider shadow-[0_6px_25px_rgba(212,175,55,0.3)]"
+                        size="lg"
                         onClick={() => {
                           if (!isAuthenticated) {
                             toast.info("Connectez-vous pour demander un devis");
@@ -618,14 +626,14 @@ const ArtisanPublicProfile = () => {
                           setChatOpen(true);
                         }}
                       >
-                        <FileText className="h-4 w-4" />
-                        Demander un devis
+                        <FileText className="h-4 w-4 mr-1" />
+                        Déposer mon projet
                       </Button>
                       {artisanContact.phone && (
                         <a href={`tel:${artisanContact.phone}`} className="w-full">
-                          <Button variant="outline" className="w-full gap-2 text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700">
+                          <Button variant="outline" className="w-full gap-2 text-primary border-primary/30 hover:bg-primary/10">
                             <Phone className="h-4 w-4" />
-                            Appeler
+                            Appeler directement
                           </Button>
                         </a>
                       )}
@@ -678,59 +686,59 @@ const ArtisanPublicProfile = () => {
                 </CardContent>
               </Card>
 
-              {/* Pourquoi cet artisan est validé - Colorful badges */}
+              {/* Garanties & Assurances — Unified Gold block */}
               <Card>
                 <CardHeader className="p-4 md:p-6">
                   <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                     <Shield className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                    Pourquoi cet artisan est validé ?
+                    Garanties & Assurances
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
-                    {/* Identité vérifiée */}
-                     <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-emerald-500/30 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-2">
-                        <CheckCircle2 className="h-5 w-5 text-white" />
+                    {/* Décennale Vérifiée */}
+                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-primary/5 border border-primary/20 shadow-sm hover:shadow-[0_4px_20px_rgba(212,175,55,0.15)] hover:border-primary/40 transition-all">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                        <Shield className="h-5 w-5 text-primary" />
                       </div>
-                       <span className="text-xs font-medium text-white leading-tight">Identité vérifiée</span>
-                     </div>
+                      <span className="text-xs font-bold text-white leading-tight">Décennale Vérifiée</span>
+                    </div>
 
-                     {/* SIRET contrôlé */}
-                     <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-blue-500/30 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mb-2">
-                        <FileCheck className="h-5 w-5 text-white" />
+                    {/* Audit Terrain Validé */}
+                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-primary/5 border border-primary/20 shadow-sm hover:shadow-[0_4px_20px_rgba(212,175,55,0.15)] hover:border-primary/40 transition-all">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                        <ShieldCheck className="h-5 w-5 text-primary" />
                       </div>
-                       <span className="text-xs font-medium text-white leading-tight">SIRET & assurances</span>
-                     </div>
+                      <span className="text-xs font-bold text-white leading-tight">Audit Terrain Validé</span>
+                    </div>
 
-                     {/* Expérience */}
-                     {artisan.experience_years && artisan.experience_years > 0 && (
-                       <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-amber-500/30 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-2">
-                          <Award className="h-5 w-5 text-white" />
+                    {/* Charte Qualité */}
+                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-primary/5 border border-primary/20 shadow-sm hover:shadow-[0_4px_20px_rgba(212,175,55,0.15)] hover:border-primary/40 transition-all">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                        <FileCheck className="h-5 w-5 text-primary" />
+                      </div>
+                      <span className="text-xs font-bold text-white leading-tight">Charte Qualité</span>
+                    </div>
+
+                    {/* Expérience */}
+                    {artisan.experience_years && artisan.experience_years > 0 && (
+                      <div className="flex flex-col items-center text-center p-3 rounded-xl bg-primary/5 border border-primary/20 shadow-sm hover:shadow-[0_4px_20px_rgba(212,175,55,0.15)] hover:border-primary/40 transition-all">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                          <Award className="h-5 w-5 text-primary" />
                         </div>
-                         <span className="text-xs font-medium text-white leading-tight">
-                           {artisan.experience_years} ans d'expérience
-                         </span>
-                       </div>
-                     )}
-
-                     {/* Avis authentifiés */}
-                     <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-purple-500/30 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mb-2">
-                        <Star className="h-5 w-5 text-white" />
+                        <span className="text-xs font-bold text-white leading-tight">
+                          {artisan.experience_years} ans d'expérience
+                        </span>
                       </div>
-                       <span className="text-xs font-medium text-white leading-tight">Avis authentifiés</span>
-                     </div>
+                    )}
 
-                     {/* Charte qualité */}
-                     <div className="flex flex-col items-center text-center p-3 rounded-xl bg-secondary border border-rose-500/30 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center mb-2">
-                        <ThumbsUp className="h-5 w-5 text-white" />
+                    {/* SIRET Contrôlé */}
+                    <div className="flex flex-col items-center text-center p-3 rounded-xl bg-primary/5 border border-primary/20 shadow-sm hover:shadow-[0_4px_20px_rgba(212,175,55,0.15)] hover:border-primary/40 transition-all">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                        <CheckCircle2 className="h-5 w-5 text-primary" />
                       </div>
-                       <span className="text-xs font-medium text-white leading-tight">Charte qualité signée</span>
-                     </div>
+                      <span className="text-xs font-bold text-white leading-tight">SIRET Contrôlé</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -758,7 +766,7 @@ const ArtisanPublicProfile = () => {
                             to={`/trouver-artisan?category=${encodeURIComponent(skill.name.toLowerCase())}`}
                             className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
                           >
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                             <span className="text-sm md:text-base font-medium">{skill.name}</span>
                           </Link>
                         ))}
@@ -1074,10 +1082,10 @@ const ArtisanPublicProfile = () => {
                       {artisan.qualifications.map((cert, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20"
+                          className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20"
                         >
-                          <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                            <Award className="h-5 w-5 text-emerald-600" />
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Award className="h-5 w-5 text-primary" />
                           </div>
                           <span className="font-medium">{cert}</span>
                         </div>
@@ -1103,11 +1111,11 @@ const ArtisanPublicProfile = () => {
             <div className="hidden lg:block lg:col-span-1 space-y-6">
               {/* Message for pending/suspended artisans (EN ATTENTE) */}
               {(artisan.status === "pending" || artisan.status === "suspended") && (
-                <Card className="border-orange-200 bg-orange-50/50">
+                <Card className="border-primary/30">
                   <CardContent className="p-6 text-center">
-                    <Clock className="h-8 w-8 text-orange-500 mx-auto mb-3" />
-                    <p className="font-semibold text-orange-700 text-lg mb-1">Dossier en cours de validation finale</p>
-                    <p className="text-sm text-orange-600/70">Notre équipe procède aux dernières vérifications.</p>
+                    <Clock className="h-8 w-8 text-primary mx-auto mb-3" />
+                    <p className="font-bold text-primary text-lg mb-1 font-['DM_Sans']">Dossier en cours de validation finale</p>
+                    <p className="text-sm text-muted-foreground">Notre équipe procède aux dernières vérifications.</p>
                   </CardContent>
                 </Card>
               )}
@@ -1125,7 +1133,7 @@ const ArtisanPublicProfile = () => {
                         Prenez cette visibilité premium pour votre entreprise et recevez des demandes de clients.
                       </p>
                       <DialogTrigger asChild>
-                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white" size="lg">
+                        <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold" size="lg">
                           <UserPlus className="h-4 w-4 mr-2" />
                           Revendiquer cette place
                         </Button>
@@ -1168,14 +1176,14 @@ const ArtisanPublicProfile = () => {
                     <CardContent className="p-6">
                       <div className="text-center mb-3">
                         <p className="text-sm text-muted-foreground mb-1">Vous êtes cet artisan ?</p>
-                        <p className="text-lg font-bold text-amber-600">Revendiquez votre fiche</p>
+                        <p className="text-lg font-bold text-primary font-['DM_Sans']">Revendiquez votre fiche</p>
                       </div>
                       <p className="text-sm text-muted-foreground text-center mb-3">
                         Cette fiche a été créée pour vous. Réclamez-la pour gérer votre profil et recevoir des demandes
                         de clients.
                       </p>
                       <DialogTrigger asChild>
-                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white" size="lg">
+                        <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold" size="lg">
                           <UserPlus className="h-4 w-4 mr-2" />
                           Revendiquer cette fiche
                         </Button>
@@ -1185,7 +1193,7 @@ const ArtisanPublicProfile = () => {
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
-                        <Info className="h-5 w-5 text-amber-500" />
+                        <Info className="h-5 w-5 text-primary" />
                         Revendiquer cette fiche
                       </DialogTitle>
                     </DialogHeader>
@@ -1379,18 +1387,24 @@ const ArtisanPublicProfile = () => {
         </div>
       </div>
 
-      {/* CTA Section */}
-      <section className="py-12 bg-primary/5">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
+      {/* CTA Section — Gold Signature */}
+      <section className="py-16 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #060C18 0%, #0A192F 100%)' }}>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.08)_0%,transparent_70%)]" />
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-4 font-['DM_Sans']">
             Besoin d'un {artisan.category?.name?.toLowerCase() || "artisan"} de confiance ?
           </h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+          <p className="text-white/50 mb-8 max-w-2xl mx-auto font-['DM_Sans']">
             {artisan.business_name} répond en moyenne en moins de 2 heures. Demandez un devis gratuit et sans
             engagement.
           </p>
-          <Button size="lg" className="px-8" onClick={() => setChatOpen(true)}>
-            Demander un devis gratuit
+          <Button
+            size="lg"
+            className="px-10 py-6 text-base font-extrabold uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_8px_30px_rgba(212,175,55,0.3)] hover:shadow-[0_12px_40px_rgba(212,175,55,0.4)] transition-all hover:scale-[1.02]"
+            onClick={() => setChatOpen(true)}
+          >
+            <FileText className="h-5 w-5 mr-2" />
+            Déposer mon projet gratuitement
           </Button>
         </div>
       </section>
@@ -1426,7 +1440,7 @@ const ArtisanPublicProfile = () => {
             {artisanContact.phone ? (
               <a
                 href={`tel:${artisanContact.phone}`}
-                className="flex items-center gap-3 p-4 rounded-lg bg-emerald-50 hover:bg-emerald-100 transition-colors text-emerald-700"
+                className="flex items-center gap-3 p-4 rounded-lg bg-primary/10 hover:bg-primary/15 transition-colors text-primary"
               >
                 <Phone className="h-5 w-5" />
                 <span className="font-medium">{artisanContact.phone}</span>
@@ -1484,10 +1498,10 @@ const ArtisanPublicProfile = () => {
             className="fixed top-0 left-0 right-0 z-[65] py-3 px-4 text-center"
             style={{
               background: "linear-gradient(90deg, #0A192F, #122a4a)",
-              borderBottom: "1px solid rgba(255,184,0,0.25)",
+              borderBottom: "1px solid rgba(212,175,55,0.25)",
             }}
           >
-            <p className="text-xs md:text-sm font-bold tracking-wide" style={{ color: "#FFB800" }}>
+            <p className="text-xs md:text-sm font-bold tracking-wide text-primary font-['DM_Sans']">
               📋 Dossier en cours de validation finale. Notre équipe procède aux dernières vérifications.
             </p>
           </div>
@@ -1497,7 +1511,7 @@ const ArtisanPublicProfile = () => {
             className="fixed bottom-0 left-0 right-0 z-[999999]"
             style={{
               background: "linear-gradient(180deg, #0A192F 0%, #0d1f3c 100%)",
-              borderTop: "2px solid #FFB800",
+              borderTop: "2px solid hsl(var(--primary))",
               boxShadow: "0 -8px 40px rgba(0,0,0,0.5)",
             }}
           >
@@ -1517,10 +1531,10 @@ const ArtisanPublicProfile = () => {
                   }}
                   className="w-full sm:w-auto px-8 py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
                   style={{
-                    background: "linear-gradient(135deg, #FFB800, #f0a500)",
+                    background: "linear-gradient(135deg, #D4AF37, #b8962e)",
                     color: "#0A192F",
-                    boxShadow: "0 8px 30px rgba(255,184,0,0.35)",
-                    fontFamily: "'Montserrat',sans-serif",
+                    boxShadow: "0 8px 30px rgba(212,175,55,0.35)",
+                    fontFamily: "'DM Sans',sans-serif",
                   }}
                 >
                   <span className="relative z-10">✅ OUI, JE VEUX MES ACCÈS ET MES CHANTIERS</span>

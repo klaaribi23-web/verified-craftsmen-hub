@@ -135,15 +135,15 @@ const ArtisanContactForm = ({
         )}
 
         <div className="text-center mb-1">
-          <p className="text-sm text-muted-foreground">Besoin d'un devis ?</p>
-          <p className="text-xl font-bold text-primary">Contactez {artisanName}</p>
+          <p className="text-sm text-muted-foreground font-['DM_Sans']">Besoin d'un devis ?</p>
+          <p className="text-xl font-extrabold text-primary font-['DM_Sans']">Contactez {artisanName}</p>
         </div>
 
         {artisanPhone && (
           <a href={`tel:${artisanPhone}`} className="block">
-            <Button variant="outline" className="w-full gap-2 text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700" size="lg">
+            <Button variant="outline" className="w-full gap-2 text-primary border-primary/30 hover:bg-primary/10 hover:text-primary" size="lg">
               <Phone className="h-4 w-4" />
-              Appeler
+              Appeler directement
             </Button>
           </a>
         )}
@@ -204,7 +204,7 @@ const ArtisanContactForm = ({
 
           <Button
             type="submit"
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold uppercase tracking-wider shadow-[0_6px_25px_rgba(212,175,55,0.3)] hover:shadow-[0_8px_30px_rgba(212,175,55,0.4)] transition-all hover:scale-[1.01]"
             size="lg"
             disabled={isSubmitting}
           >
@@ -216,7 +216,7 @@ const ArtisanContactForm = ({
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />
-                Envoyer ma demande directe
+                Envoyer ma demande
               </>
             )}
           </Button>
