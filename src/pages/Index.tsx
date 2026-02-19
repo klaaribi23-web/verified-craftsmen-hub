@@ -15,6 +15,7 @@ import SocialProofToast from "@/components/home/SocialProofToast";
 import EliteSelectionProcess from "@/components/home/EliteSelectionProcess";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import PowerBlock from "@/components/home/PowerBlock";
+import TrustPillars from "@/components/home/TrustPillars";
 import CategoryArtisansCarousel from "@/components/home/CategoryArtisansCarousel";
 import { motion } from "framer-motion";
 import { Star, ArrowRight, ShieldCheck, Award, HeartHandshake, UserCheck, CheckCircle2, Camera, MessageSquare } from "lucide-react";
@@ -36,6 +37,7 @@ const Index = () => {
       <main>
         {/* BLOC DE PUISSANCE — Headline + Recherche + Trust */}
         <PowerBlock />
+        <TrustPillars />
 
         {/* TEMPS 1 — Le Hero épuré */}
         <HeroSection />
