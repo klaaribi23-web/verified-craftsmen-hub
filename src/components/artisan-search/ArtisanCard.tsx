@@ -196,10 +196,11 @@ const ArtisanCard = ({
     <div
       onClick={handleProfileClick}
       className={cn(
-        "bg-card rounded-xl shadow-soft border overflow-hidden relative cursor-pointer group h-full flex flex-col",
+        "bg-card rounded-xl shadow-soft overflow-hidden relative cursor-pointer group h-full flex flex-col",
         isPremium
-          ? "border-2 border-amber-400 shadow-lg shadow-amber-200/50 ring-1 ring-amber-200/50 hover:scale-[1.02] hover:shadow-xl hover:shadow-amber-300/40 transition-all duration-300 ease-out"
-          : "border-border hover:shadow-elevated transition-all"
+          ? "border-2 shadow-lg hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-out"
+          : "border hover:shadow-elevated transition-all",
+        "border-[#D4AF37]/10"
       )}
     >
       {/* Urgent Badge */}
@@ -248,7 +249,7 @@ const ArtisanCard = ({
             className="absolute top-2 right-10 z-10 cursor-pointer"
             aria-label="Voir le résumé d'audit"
           >
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg bg-amber-500 text-white border border-amber-300 hover:bg-amber-600 transition-colors">
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold shadow-lg text-white border border-[#D4AF37]/50 transition-colors" style={{ backgroundColor: '#D4AF37' }}>
               <Shield className="w-3.5 h-3.5 fill-current" />
               <span>ARTISAN AUDITÉ</span>
             </div>
@@ -307,7 +308,7 @@ const ArtisanCard = ({
             }}
             className={cn(
               "w-9 h-9 rounded-full object-cover border-2 flex-shrink-0",
-              hasActiveStories ? "border-green-500 cursor-pointer animate-story-pulse" : "border-gold",
+              hasActiveStories ? "border-green-500 cursor-pointer animate-story-pulse" : "border-[#D4AF37]",
             )}
           />
           <div className="flex-1 min-w-0">

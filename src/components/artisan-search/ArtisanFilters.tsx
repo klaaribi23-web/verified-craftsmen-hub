@@ -168,7 +168,8 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
             <div className="flex items-center gap-2 mt-4">
               <Button
                 size="lg"
-                className="flex-1 h-12 rounded-xl text-base font-semibold gap-2 shadow-md hover:shadow-lg transition-shadow"
+                className="flex-1 h-12 rounded-xl text-base font-extrabold gap-2 shadow-md hover:shadow-lg transition-shadow text-[#0A192F]"
+                style={{ backgroundColor: '#D4AF37' }}
                 onClick={() => {
                   document.getElementById("artisans-results")?.scrollIntoView({ behavior: "smooth" });
                 }}
