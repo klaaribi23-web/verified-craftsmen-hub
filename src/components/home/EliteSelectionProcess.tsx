@@ -27,7 +27,7 @@ const steps = [
 
 const EliteSelectionProcess = () => {
   return (
-    <section className="py-20 lg:py-28 bg-navy relative overflow-hidden">
+    <section className="py-20 lg:py-28 bg-[#0A192F] relative overflow-hidden">
       {/* Ambient effects */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -104,7 +104,7 @@ const EliteSelectionProcess = () => {
                   </div>
                 </div>
 
-                <h3 className="text-lg font-bold text-white mb-3 relative z-10">
+                <h3 className="text-lg font-black uppercase text-white mb-3 relative z-10" style={{ letterSpacing: '-0.01em', lineHeight: '1.2' }}>
                   {step.title}
                 </h3>
                 <p className="text-sm text-white/50 leading-relaxed relative z-10">

@@ -18,7 +18,7 @@ const PowerBlock = () => {
   };
 
   return (
-    <section className="relative bg-[#0A192F] pt-28 md:pt-36 pb-16 md:pb-24 overflow-hidden">
+    <section className="relative bg-[#0A192F] pt-28 md:pt-36 pb-24 md:pb-[120px] overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[#D4AF37]/5 blur-[140px]" />
@@ -106,7 +106,7 @@ const PowerBlock = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.55 }}
-          className="flex items-center justify-center gap-6 md:gap-10 flex-wrap"
+          className="flex items-center justify-center gap-6 md:gap-10 flex-wrap mt-6 pt-8"
         >
           {[
             { icon: ShieldCheck, label: "Assurance Décennale Vérifiée" },
@@ -114,8 +114,8 @@ const PowerBlock = () => {
             { icon: Star, label: "Avis Clients Authentiques" },
             { icon: CheckCircle2, label: "Zéro Harcèlement Commercial" },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2 text-white/50 text-xs md:text-sm">
-              <Icon className="w-4 h-4 text-[#D4AF37]/70 shrink-0" />
+            <div key={label} className="flex items-center gap-2 text-[#E2E8F0]/50 text-xs md:text-sm">
+              <Icon className="w-4 h-4 text-[#D4AF37] shrink-0" />
               <span>{label}</span>
             </div>
           ))}
