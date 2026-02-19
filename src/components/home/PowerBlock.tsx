@@ -30,20 +30,24 @@ const PowerBlock = () => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold leading-[1.45] tracking-tight mb-8 max-w-5xl mx-auto"
+          className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight mb-8 max-w-5xl mx-auto"
+          style={{ lineHeight: '1.6' }}
         >
-          <span className="text-white">NE CONFIEZ PLUS VOS TRAVAUX AU </span>
-          <span className="relative inline-block">
-          <span className="text-white">HASARD</span>
-            <span className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-[#FFB800] to-[#D4AF37] rounded-full" />
+          <span className="block text-white">
+            NE CONFIEZ PLUS VOS TRAVAUX AU{' '}
+            <span className="relative inline-block">
+              <span className="text-white">HASARD</span>
+              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-[#FFB800] to-[#D4AF37] rounded-full" />
+            </span>
+            .
           </span>
-          <span className="text-white">.</span>
-          <br className="hidden sm:block" />
-          <span className="text-white"> ACCÉDEZ À </span>
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FFB800] via-[#F0A500] to-[#D48C00]">
-            L'ÉLITE VÉRIFIÉE
+          <span className="block mt-2 text-white">
+            ACCÉDEZ À{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FFB800] via-[#F0A500] to-[#D48C00]">
+              L'ÉLITE VÉRIFIÉE
+            </span>
+            .
           </span>
-          <span className="text-white">.</span>
         </motion.h1>
 
         {/* Search bar */}
