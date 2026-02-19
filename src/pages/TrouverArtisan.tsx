@@ -188,7 +188,7 @@ const TrouverArtisan = () => {
 
   // Get total artisan count
   const totalArtisans = artisansData?.length || 0;
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen" style={{ backgroundColor: '#0A192F' }}>
       <SEOHead 
         title="Trouver un artisan qualifié"
         description="Trouvez et comparez les meilleurs artisans vérifiés près de chez vous. Plombiers, électriciens, peintres et plus. Devis gratuit en 24h."
@@ -198,7 +198,7 @@ const TrouverArtisan = () => {
       
       <main>
         {/* Hero Search */}
-        <section className="bg-secondary/50 py-10 md:py-16 lg:py-24 border-b border-border">
+        <section className="py-10 md:py-16 lg:py-24 border-b border-[#D4AF37]/10" style={{ backgroundColor: '#0A192F' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div initial={{
             opacity: 0,
@@ -207,8 +207,8 @@ const TrouverArtisan = () => {
             opacity: 1,
             y: 0
           }} className="text-center mb-6 md:mb-10">
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
-                Trouvez votre <span style={{ color: '#D4AF37' }}>artisan</span>
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 md:mb-4 font-['DM_Sans']">
+                 Trouvez votre <span style={{ color: '#D4AF37' }}>artisan</span>
               </h1>
               <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
                 Plus de {totalArtisans} artisans vérifiés à votre service
@@ -235,11 +235,11 @@ const TrouverArtisan = () => {
 
 
         {/* Featured Artisans Carousel */}
-        <section className="py-10 md:py-16 bg-background">
+        <section className="py-10 md:py-16" style={{ backgroundColor: '#0D1F35' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <div className="mb-6 md:mb-8">
-              <h2 className="text-xl md:text-2xl font-bold text-foreground text-center md:text-left">
-                La sélection Artisans Validés : dossiers 100% vérifiés
+              <h2 className="text-xl md:text-2xl font-extrabold text-white text-center md:text-left font-['DM_Sans']">
+                 La sélection Artisans Validés : dossiers 100% <span style={{ color: '#D4AF37' }}>vérifiés</span>
               </h2>
               <p className="text-sm text-muted-foreground mt-1 text-center md:text-left">
                 Assurances, SIRET et avis clients contrôlés par notre équipe.
@@ -250,9 +250,9 @@ const TrouverArtisan = () => {
         </section>
 
         {/* All Artisans with Filters */}
-        <section className="py-10 md:py-16 bg-secondary/30" ref={resultsRef} id="artisans-results">
+        <section className="py-10 md:py-16" ref={resultsRef} id="artisans-results" style={{ backgroundColor: '#0A192F' }}>
           <div className="container mx-auto px-4 lg:px-8">
-            <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6 md:mb-8">Tous nos artisans</h2>
+            <h2 className="text-xl md:text-2xl font-extrabold text-white mb-6 md:mb-8 font-['DM_Sans']">Tous nos <span style={{ color: '#D4AF37' }}>artisans</span></h2>
 
             {/* Artisans Grid */}
             <div>
@@ -300,9 +300,9 @@ const TrouverArtisan = () => {
                     </Pagination>}
               </> : <div className="text-center py-16 px-4">
                   <div className="max-w-md mx-auto">
-                    <p className="text-lg font-medium text-foreground mb-2">Pas encore d'artisan référencé ici</p>
-                    <p className="text-muted-foreground mb-6">
-                      Nos experts valident actuellement les meilleurs artisans de votre secteur. Laissez votre demande ici.
+                    <p className="text-lg font-extrabold text-white mb-2 font-['DM_Sans']">Aucun expert ne correspond à ces critères pour le moment.</p>
+                    <p className="text-[#8892B0] mb-6">
+                      Nos auditeurs sont sur le terrain. Laissez votre demande, nous vous recontacterons.
                     </p>
                     <Button asChild variant="default" size="lg">
                       <Link to="/demande-devis">
@@ -329,7 +329,7 @@ const TrouverArtisan = () => {
         />
 
         {/* CTA */}
-        <section className="py-10 md:py-16 bg-background">
+        <section className="py-10 md:py-16" style={{ backgroundColor: '#060C18' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <div className="bg-gradient-gold rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center">
               <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-navy-dark mb-3 md:mb-4">

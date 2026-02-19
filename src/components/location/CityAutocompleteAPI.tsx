@@ -195,18 +195,21 @@ export const CityAutocompleteAPI = ({
 
       {/* Suggestions dropdown */}
       {isOpen && suggestions.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-lg max-h-[250px] overflow-y-auto">
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-[#D4AF37]/20 shadow-lg max-h-[250px] overflow-y-auto" style={{ backgroundColor: '#112240' }}>
           {suggestions.map((suggestion, index) => (
             <button
               key={suggestion.code}
               type="button"
               onClick={() => handleSelect(suggestion)}
               className={cn(
-                "flex w-full items-center gap-2 px-3 py-2.5 text-sm transition-colors text-left",
+                "flex w-full items-center gap-2 px-3 py-2.5 text-sm transition-colors text-left font-['DM_Sans']",
                 highlightedIndex === index
-                  ? "bg-accent text-accent-foreground"
-                  : "hover:bg-accent/50"
+                  ? "text-[#0A192F]"
+                  : "text-white hover:text-[#0A192F]"
               )}
+              style={highlightedIndex === index ? { backgroundColor: '#D4AF37' } : undefined}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = '#D4AF37'; (e.currentTarget as HTMLElement).style.color = '#0A192F'; }}
+              onMouseLeave={(e) => { if (highlightedIndex !== index) { (e.currentTarget as HTMLElement).style.backgroundColor = ''; (e.currentTarget as HTMLElement).style.color = ''; } }}
             >
               <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <div className="flex flex-col min-w-0">
@@ -222,7 +225,7 @@ export const CityAutocompleteAPI = ({
 
       {/* Loading state */}
       {isOpen && isLoading && suggestions.length === 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-lg p-3">
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-[#D4AF37]/20 shadow-lg p-3" style={{ backgroundColor: '#112240' }}>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
             <span>Recherche en cours...</span>
@@ -232,7 +235,7 @@ export const CityAutocompleteAPI = ({
 
       {/* No results message */}
       {isOpen && !isLoading && inputValue.length >= 2 && suggestions.length === 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-lg p-3">
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-[#D4AF37]/20 shadow-lg p-3" style={{ backgroundColor: '#112240' }}>
           <p className="text-sm text-muted-foreground text-center">
             Aucune ville trouvée pour "{inputValue}"
           </p>

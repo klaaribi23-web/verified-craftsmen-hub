@@ -103,7 +103,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   return (
     <div className="space-y-5">
       {/* Main Search Card */}
-      <div className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden">
+      <div className="rounded-2xl shadow-lg border border-[#D4AF37]/20 overflow-hidden" style={{ backgroundColor: '#112240' }}>
         <div className="flex flex-col lg:flex-row">
           {/* Category Megamenu - Left */}
           <div className="flex-1 p-4 border-b lg:border-b-0 lg:border-r border-border">
@@ -127,7 +127,8 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent
-                className="w-[min(90vw,700px)] p-0 shadow-xl z-[60]"
+                className="w-[min(90vw,700px)] p-0 shadow-xl z-[60] border-[#D4AF37]/20"
+                style={{ backgroundColor: '#112240' }}
                 align="start"
                 side="bottom"
                 sideOffset={8}
@@ -168,7 +169,8 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
             <div className="flex items-center gap-2 mt-4">
               <Button
                 size="lg"
-                className="flex-1 h-12 rounded-xl text-base font-extrabold gap-2 shadow-md hover:shadow-lg transition-shadow bg-primary text-primary-foreground hover:bg-primary/90"
+                className="flex-1 h-12 rounded-xl text-base font-extrabold gap-2 shadow-md hover:shadow-lg transition-shadow text-[#0A192F] btn-shine font-['DM_Sans']"
+                style={{ backgroundColor: '#D4AF37' }}
                 onClick={() => {
                   document.getElementById("artisans-results")?.scrollIntoView({ behavior: "smooth" });
                 }}
@@ -212,8 +214,8 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
               exit={{ opacity: 0, x: -10 }}
               className="flex items-center gap-3 bg-card border border-border rounded-full px-4 py-2 shadow-sm"
             >
-              <SlidersHorizontal className="h-4 w-4 text-muted-foreground shrink-0" />
-              <span className="text-sm text-muted-foreground whitespace-nowrap">
+              <SlidersHorizontal className="h-4 w-4 text-[#D4AF37] shrink-0" />
+              <span className="text-sm text-[#8892B0] whitespace-nowrap font-['DM_Sans']">
                 {radius === 0 ? "Ville exacte" : `+${radius} km`}
               </span>
               <Slider
@@ -265,26 +267,26 @@ function CategoryMegamenu({
   onSelect: (id: string, name: string, label: string) => void;
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 max-h-[60vh] overflow-y-auto">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 max-h-[60vh] overflow-y-auto" style={{ backgroundColor: '#112240' }}>
       {categories.map((parent) => (
-        <div key={parent.id} className="p-3 border-b border-r border-border last:border-r-0">
+        <div key={parent.id} className="p-3 border-b border-r border-[#D4AF37]/10 last:border-r-0">
           {/* Parent header — clickable to select parent */}
           <button
             onClick={() => onSelect(parent.id, parent.name, parent.name)}
             className={cn(
-              "flex items-center gap-2 w-full text-left mb-2 p-1.5 rounded-lg transition-colors",
+              "flex items-center gap-2 w-full text-left mb-2 p-1.5 rounded-lg transition-colors font-['DM_Sans']",
               selectedId === parent.id
-                ? "bg-primary/10 text-primary"
-                : "hover:bg-muted text-foreground"
+                ? "bg-[#D4AF37]/15 text-[#D4AF37]"
+                : "hover:bg-[#D4AF37]/10 text-white"
             )}
           >
             <div className={cn(
               "w-7 h-7 rounded-md flex items-center justify-center shrink-0",
-              selectedId === parent.id ? "bg-primary text-primary-foreground" : "bg-muted"
-            )}>
+              selectedId === parent.id ? "text-[#0A192F]" : "bg-[#0A192F] text-[#8892B0]"
+            )} style={selectedId === parent.id ? { backgroundColor: '#D4AF37' } : undefined}>
               <CategoryIcon iconName={parent.icon} size={16} />
             </div>
-            <span className="text-sm font-semibold leading-tight">{parent.name}</span>
+            <span className="text-sm font-semibold leading-tight font-['DM_Sans']">{parent.name}</span>
           </button>
 
           {/* Children */}
@@ -294,10 +296,10 @@ function CategoryMegamenu({
                 key={child.id}
                 onClick={() => onSelect(child.id, child.name, `${parent.name} › ${child.name}`)}
                 className={cn(
-                  "flex items-center gap-2 w-full text-left px-2 py-1.5 rounded-md text-sm transition-colors",
+                  "flex items-center gap-2 w-full text-left px-2 py-1.5 rounded-md text-sm transition-colors font-['DM_Sans']",
                   selectedId === child.id
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-[#D4AF37]/15 text-[#D4AF37] font-medium"
+                    : "text-[#8892B0] hover:bg-[#D4AF37]/10 hover:text-[#D4AF37]"
                 )}
               >
                 <CategoryIcon iconName={child.icon} size={14} className="shrink-0" />
