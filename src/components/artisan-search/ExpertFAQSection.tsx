@@ -54,6 +54,8 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
             body: { category, city, department },
           });
           if (result.error) return;
+          // Detect 402/429 errors returned as data
+          if (result.data?.error) return;
           data = result.data;
         } catch {
           // Silently swallow all FAQ generation errors (402 credits, network, etc.)
