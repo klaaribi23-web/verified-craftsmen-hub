@@ -30,7 +30,7 @@ const PowerBlock = () => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold leading-tight tracking-tight mb-8 max-w-5xl mx-auto"
+          className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold leading-[1.45] tracking-tight mb-8 max-w-5xl mx-auto"
         >
           <span className="text-white">NE CONFIEZ PLUS VOS TRAVAUX AU </span>
           <span className="relative inline-block">
