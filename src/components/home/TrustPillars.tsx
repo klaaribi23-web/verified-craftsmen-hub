@@ -47,7 +47,7 @@ const TrustPillars = () => {
         </motion.div>
 
         {/* 3 Pillars */}
-        <div className="grid md:grid-cols-3 gap-8 lg:gap-12 max-w-5xl mx-auto mb-12">
+        <div className="grid md:grid-cols-3 gap-8 lg:gap-10 max-w-5xl mx-auto mb-12">
           {pillars.map(({ icon: Icon, title, desc }, i) => (
             <motion.div
               key={title}
@@ -55,18 +55,29 @@ const TrustPillars = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.12 }}
-              className="text-center"
+              className="group relative bg-[#112240] border border-[#D4AF37]/15 rounded-2xl p-7 md:p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[#D4AF37]/35 hover:shadow-[0_8px_30px_-12px_rgba(212,175,55,0.15)]"
             >
-              <div className="w-14 h-14 rounded-xl border border-[#D4AF37]/20 bg-[#D4AF37]/5 flex items-center justify-center mx-auto mb-5">
-                <Icon className="w-6 h-6 text-[#D4AF37]" strokeWidth={1.5} />
+              {/* Left gold accent bar */}
+              <div className="absolute left-0 top-6 bottom-6 w-[2px] rounded-full bg-gradient-to-b from-[#D4AF37]/40 via-[#D4AF37]/20 to-transparent" />
+
+              {/* Icon seal */}
+              <div className="w-12 h-12 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 flex items-center justify-center mx-auto mb-5 transition-all duration-300 group-hover:border-[#D4AF37]/50 group-hover:bg-[#D4AF37]/10">
+                <Icon className="w-5 h-5 text-[#D4AF37]" strokeWidth={1.5} />
               </div>
+
+              {/* Title */}
               <h3
-                className="text-base md:text-lg font-black text-white tracking-wide mb-3"
-                style={{ letterSpacing: '0.04em' }}
+                className="text-sm font-black uppercase mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[#FFB800] to-[#D4AF37]"
+                style={{ letterSpacing: '0.1em' }}
               >
                 {title}
               </h3>
-              <p className="text-sm text-[#E2E8F0]/70 leading-relaxed max-w-xs mx-auto">
+
+              {/* Description */}
+              <p
+                className="text-sm text-[#E2E8F0]/70 max-w-xs mx-auto"
+                style={{ lineHeight: '1.6' }}
+              >
                 {desc}
               </p>
             </motion.div>
