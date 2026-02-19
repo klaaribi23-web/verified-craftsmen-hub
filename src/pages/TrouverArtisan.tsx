@@ -208,7 +208,7 @@ const TrouverArtisan = () => {
             y: 0
           }} className="text-center mb-6 md:mb-10">
               <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
-                Trouvez votre <span className="text-primary">artisan</span>
+                Trouvez votre <span style={{ color: '#D4AF37' }}>artisan</span>
               </h1>
               <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
                 Plus de {totalArtisans} artisans vérifiés à votre service
