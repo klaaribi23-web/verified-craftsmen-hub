@@ -41,9 +41,15 @@ const Index = () => {
         {/* Social proof banner */}
         <SocialProofBanner />
 
+        {/* Transition dégradée + ligne Gold fade */}
+        <div className="relative">
+          <div className="h-16 bg-gradient-to-b from-[#0A192F] to-[#060C18]" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
+        </div>
+
         {/* TEMPS 2 — Bandeau de réassurance */}
-        <section className="bg-[#0A192F] py-3">
-          <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/70 font-medium">
+        <section className="bg-[#060C18] py-3">
+          <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/70 font-extrabold">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Entreprise Française</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Support 7j/7</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Paiement Sécurisé Stripe</span>
