@@ -196,12 +196,12 @@ const ArtisanCard = ({
     <div
       onClick={handleProfileClick}
       className={cn(
-        "bg-card rounded-xl shadow-soft overflow-hidden relative cursor-pointer group h-full flex flex-col",
+        "rounded-lg shadow-soft overflow-hidden relative cursor-pointer group h-full flex flex-col",
         isPremium
-          ? "border-2 shadow-lg hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-out"
-          : "border hover:shadow-elevated transition-all",
-        "border-primary/10"
+          ? "border-2 border-[#D4AF37]/30 shadow-lg hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-out"
+          : "border border-[#D4AF37]/15 hover:shadow-elevated hover:border-[#D4AF37]/30 transition-all",
       )}
+      style={{ backgroundColor: '#112240' }}
     >
       {/* Urgent Badge */}
       {isUrgent && (
@@ -312,15 +312,15 @@ const ArtisanCard = ({
             )}
           />
           <div className="flex-1 min-w-0">
-            <h3 className={cn("truncate mb-0.5", isPremium ? "font-bold text-base sm:text-lg" : "font-semibold text-sm sm:text-base")}>{name}</h3>
-            <Badge variant="secondary" className="text-xs">
+            <h3 className={cn("truncate mb-0.5 text-white font-['DM_Sans']", isPremium ? "font-bold text-base sm:text-lg" : "font-semibold text-sm sm:text-base")}>{name}</h3>
+            <Badge variant="secondary" className="text-xs font-semibold font-['DM_Sans']" style={{ color: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.1)', borderColor: 'rgba(212,175,55,0.3)' }}>
               {profession}
             </Badge>
           </div>
         </div>
 
         {/* Location + distance */}
-        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+        <div className="flex items-center gap-1 text-xs text-[#8892B0] mb-2">
           <MapPin className="h-3 w-3 shrink-0" />
           <span className="truncate">{location}</span>
           {distance !== null && distance !== undefined && (
