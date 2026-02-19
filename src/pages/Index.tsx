@@ -42,7 +42,7 @@ const Index = () => {
         <SocialProofBanner />
 
         {/* TEMPS 2 — Bandeau de réassurance */}
-        <section className="bg-navy-dark py-3 border-y border-white/5">
+        <section className="bg-[#0A192F] py-3">
           <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/70 font-medium">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Entreprise Française</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Support 7j/7</span>

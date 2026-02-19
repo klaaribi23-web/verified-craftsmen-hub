@@ -88,7 +88,7 @@ const SocialProofBanner = () => {
   const current = messages[currentIndex];
 
   return (
-    <div className="bg-navy-dark border-b border-[#D4AF37]/10 py-2.5 overflow-hidden">
+    <div className="bg-[#0A192F] py-2.5 overflow-hidden">
       <div className="container mx-auto px-4">
         <div
           className={cn(
