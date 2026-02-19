@@ -21,7 +21,7 @@ const PowerBlock = () => {
     <section className="relative bg-[#0A192F] pt-28 md:pt-36 pb-24 md:pb-[120px] overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[#D4AF37]/5 blur-[140px]" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-primary/5 blur-[140px]" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -30,20 +30,19 @@ const PowerBlock = () => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-black max-w-5xl mx-auto"
-          style={{ lineHeight: '1.15', letterSpacing: '-0.02em' }}
+          className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold max-w-5xl mx-auto leading-[1.2] tracking-tight font-sans"
         >
           <span className="block text-white">
             NE CONFIEZ PLUS VOS TRAVAUX AU{' '}
             <span className="relative inline-block">
               <span className="text-white">HASARD</span>
-              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-[#D4AF37] rounded-full" />
+              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full" />
             </span>
             .
           </span>
-          <span className="block text-white" style={{ marginTop: '15px' }}>
+          <span className="block text-white mt-3">
             ACCÉDEZ À{' '}
-          <span className="text-[#D4AF37] font-extrabold">
+          <span className="text-primary font-extrabold">
               L'ÉLITE VÉRIFIÉE
             </span>
             .
@@ -61,7 +60,7 @@ const PowerBlock = () => {
           <div className="flex flex-col sm:flex-row items-stretch bg-white/[0.06] border border-white/10 rounded-xl sm:rounded-full overflow-hidden backdrop-blur-sm">
             {/* Métier */}
             <div className="flex items-center flex-1 px-5 py-3.5 gap-3 border-b sm:border-b-0 sm:border-r border-white/10">
-              <Search className="w-5 h-5 text-[#D4AF37] shrink-0" />
+              <Search className="w-5 h-5 text-primary shrink-0" />
               <input
                 type="text"
                 placeholder="Quel métier ?"
@@ -72,7 +71,7 @@ const PowerBlock = () => {
             </div>
             {/* Ville */}
             <div className="flex items-center flex-1 px-5 py-3.5 gap-3 border-b sm:border-b-0 sm:border-r border-white/10">
-              <MapPin className="w-5 h-5 text-[#D4AF37] shrink-0" />
+              <MapPin className="w-5 h-5 text-primary shrink-0" />
               <input
                 type="text"
                 placeholder="Quelle ville ?"
@@ -84,7 +83,7 @@ const PowerBlock = () => {
             {/* CTA */}
             <Button
               type="submit"
-              className="m-2 sm:m-1.5 px-7 py-3 rounded-lg sm:rounded-full bg-[#D4AF37] hover:bg-[#C9A430] text-[#0A192F] font-extrabold text-sm md:text-base whitespace-nowrap shadow-lg shadow-[#D4AF37]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="m-2 sm:m-1.5 px-7 py-3 rounded-lg sm:rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold text-sm md:text-base whitespace-nowrap shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               TROUVER MON EXPERT
             </Button>
@@ -115,7 +114,7 @@ const PowerBlock = () => {
             { icon: CheckCircle2, label: "Zéro Harcèlement Commercial" },
           ].map(({ icon: Icon, label }) => (
             <div key={label} className="flex items-center gap-2 text-[#E2E8F0]/50 text-xs md:text-sm">
-              <Icon className="w-4 h-4 text-[#D4AF37] shrink-0" />
+              <Icon className="w-4 h-4 text-primary shrink-0" />
               <span>{label}</span>
             </div>
           ))}
