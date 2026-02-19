@@ -51,6 +51,7 @@ const DynamicFAQ = ({ city, category }: DynamicFAQProps) => {
             body: { city, category },
           });
           if (result.error) return;
+          if (result.data?.error) return;
           data = result.data;
         } catch {
           // Silently swallow all FAQ generation errors (402 credits, network, etc.)
