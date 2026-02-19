@@ -34,7 +34,7 @@ const PowerBlock = () => {
         >
           <span className="text-white">NE CONFIEZ PLUS VOS TRAVAUX AU </span>
           <span className="relative inline-block">
-            <span className="text-red-400/90">HASARD</span>
+          <span className="text-white">HASARD</span>
             <span className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-[#FFB800] to-[#D4AF37] rounded-full" />
           </span>
           <span className="text-white">.</span>
