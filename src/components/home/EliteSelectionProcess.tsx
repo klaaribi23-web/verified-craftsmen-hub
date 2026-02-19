@@ -27,7 +27,7 @@ const steps = [
 
 const EliteSelectionProcess = () => {
   return (
-    <section className="py-20 lg:py-28 bg-[#0A192F] relative overflow-hidden">
+    <section className="py-20 lg:py-28 bg-[#060C18] relative overflow-hidden">
       {/* Ambient effects */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -44,11 +44,11 @@ const EliteSelectionProcess = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] text-sm font-semibold mb-4 border border-[#D4AF37]/20 tracking-wider uppercase">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] text-sm font-extrabold mb-4 border border-[#D4AF37]/20 tracking-wider uppercase">
             Processus de sélection
           </span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-            Seuls les meilleurs <span className="text-[#D4AF37]">passent l'audit</span>
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
+            Seuls les meilleurs <span className="text-[#D4AF37] font-extrabold">passent l'audit</span>
           </h2>
           <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto">
             Un processus en 3 étapes pour garantir l'excellence. 87% des artisans sont refusés.
@@ -104,7 +104,7 @@ const EliteSelectionProcess = () => {
                   </div>
                 </div>
 
-                <h3 className="text-lg font-black uppercase text-white mb-3 relative z-10" style={{ letterSpacing: '-0.01em', lineHeight: '1.2' }}>
+                <h3 className="text-lg font-extrabold uppercase text-white mb-3 relative z-10" style={{ letterSpacing: '-0.01em', lineHeight: '1.2' }}>
                   {step.title}
                 </h3>
                 <p className="text-sm text-white/50 leading-relaxed relative z-10">

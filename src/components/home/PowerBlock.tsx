@@ -37,13 +37,13 @@ const PowerBlock = () => {
             NE CONFIEZ PLUS VOS TRAVAUX AU{' '}
             <span className="relative inline-block">
               <span className="text-white">HASARD</span>
-              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-[#FFB800] to-[#D4AF37] rounded-full" />
+              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-[#D4AF37] rounded-full" />
             </span>
             .
           </span>
           <span className="block text-white" style={{ marginTop: '15px' }}>
             ACCÉDEZ À{' '}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FFB800] via-[#F0A500] to-[#D48C00]">
+          <span className="text-[#D4AF37] font-extrabold">
               L'ÉLITE VÉRIFIÉE
             </span>
             .
@@ -84,7 +84,7 @@ const PowerBlock = () => {
             {/* CTA */}
             <Button
               type="submit"
-              className="m-2 sm:m-1.5 px-7 py-3 rounded-lg sm:rounded-full bg-gradient-to-r from-[#FFB800] to-[#D4AF37] hover:from-[#F0A500] hover:to-[#C9A430] text-[#0A192F] font-bold text-sm md:text-base whitespace-nowrap shadow-lg shadow-[#D4AF37]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="m-2 sm:m-1.5 px-7 py-3 rounded-lg sm:rounded-full bg-[#D4AF37] hover:bg-[#C9A430] text-[#0A192F] font-extrabold text-sm md:text-base whitespace-nowrap shadow-lg shadow-[#D4AF37]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               TROUVER MON EXPERT
             </Button>
@@ -106,7 +106,7 @@ const PowerBlock = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.55 }}
-          className="flex items-center justify-center gap-6 md:gap-10 flex-wrap mt-6 pt-8"
+          className="flex items-center justify-center gap-6 md:gap-10 flex-wrap mt-6 pt-8 -mb-[50px] relative z-20"
         >
           {[
             { icon: ShieldCheck, label: "Assurance Décennale Vérifiée" },
