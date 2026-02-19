@@ -34,10 +34,10 @@ const StickyMobileCTA = ({ artisanName, onRequestQuote }: StickyMobileCTAProps) 
       <Button
         onClick={onRequestQuote}
         size="lg"
-        className="w-full h-14 text-base font-bold shadow-lg bg-gold hover:bg-gold/90 text-navy-dark"
+        className="w-full h-14 text-base font-extrabold uppercase tracking-wider shadow-[0_6px_25px_rgba(212,175,55,0.3)] bg-primary hover:bg-primary/90 text-primary-foreground font-['DM_Sans']"
       >
         <FileText className="w-5 h-5 mr-2" />
-        Demander un devis gratuit
+        Déposer mon projet
       </Button>
     </div>
   );
