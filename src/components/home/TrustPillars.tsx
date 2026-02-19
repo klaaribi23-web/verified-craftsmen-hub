@@ -73,8 +73,8 @@ const TrustPillars = () => {
 
               {/* Title */}
               <h3
-                className="text-sm font-black uppercase mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[#FFB800] to-[#D4AF37]"
-                style={{ letterSpacing: '0.1em' }}
+                className="text-sm md:text-base font-black uppercase mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[#FFB800] to-[#D4AF37]"
+                style={{ letterSpacing: '0.1em', lineHeight: '1.2' }}
               >
                 {title}
               </h3>
