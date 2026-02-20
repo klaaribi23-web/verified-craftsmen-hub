@@ -463,17 +463,17 @@ const AdminArtisans = () => {
             </div>
 
             {/* Desktop: table */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-xs lg:text-sm">
+            <div className="hidden md:block overflow-x-auto max-w-full">
+              <table className="min-w-[1200px] w-full text-xs">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Artisan</th>
-                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Catégorie</th>
-                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Ville</th>
-                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Inscrit le</th>
-                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Statut</th>
-                    <th className="text-center px-2 py-2.5 font-medium whitespace-nowrap">Audité</th>
-                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap sticky right-0 bg-muted/50 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">Actions</th>
+                    <th className="text-left px-2 py-2 font-medium whitespace-nowrap">Artisan</th>
+                    <th className="text-left px-2 py-2 font-medium whitespace-nowrap">Catégorie</th>
+                    <th className="text-left px-2 py-2 font-medium whitespace-nowrap">Ville</th>
+                    <th className="text-left px-2 py-2 font-medium whitespace-nowrap">Inscrit</th>
+                    <th className="text-left px-2 py-2 font-medium whitespace-nowrap">Statut</th>
+                    <th className="text-center px-2 py-2 font-medium whitespace-nowrap">Audité</th>
+                    <th className="text-left px-2 py-2 font-medium whitespace-nowrap sticky right-0 bg-muted z-20 border-l border-border">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -506,7 +506,7 @@ const AdminArtisans = () => {
                   ) : (
                     filteredArtisans.map((artisan) => (
                       <tr key={artisan.id} className="border-t border-border hover:bg-muted/30">
-                        <td className="px-2 py-2">
+                        <td className="px-2 py-1.5">
                           <div className="flex items-center gap-2 min-w-0">
                             <img
                               src={artisan.photo_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"}
@@ -525,24 +525,24 @@ const AdminArtisans = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-2 py-2">
-                          <Badge variant="secondary" className="text-[10px] lg:text-xs">{artisan.category?.name || "—"}</Badge>
+                        <td className="px-2 py-1.5">
+                          <Badge variant="secondary" className="text-[10px]">{artisan.category?.name || "—"}</Badge>
                         </td>
-                        <td className="px-2 py-2 whitespace-nowrap">
+                        <td className="px-2 py-1.5 whitespace-nowrap">
                           <span className="flex items-center gap-1 text-muted-foreground">
                             <MapPin className="h-3 w-3" />
                             {artisan.city}
                           </span>
                         </td>
-                        <td className="px-2 py-2 whitespace-nowrap text-muted-foreground">
+                        <td className="px-2 py-1.5 whitespace-nowrap text-muted-foreground">
                           {format(new Date(artisan.created_at), "dd/MM/yy", { locale: fr })}
                         </td>
-                        <td className="px-2 py-2">
-                          <Badge variant={getStatusVariant(artisan.status)} className="text-[10px] lg:text-xs">
+                        <td className="px-2 py-1.5">
+                          <Badge variant={getStatusVariant(artisan.status)} className="text-[10px]">
                             {getStatusLabel(artisan.status)}
                           </Badge>
                         </td>
-                        <td className="px-2 py-2 text-center">
+                        <td className="px-2 py-1.5 text-center">
                           <Switch
                             checked={(artisan as any).is_audited || false}
                             onCheckedChange={(checked) => {
@@ -556,7 +556,7 @@ const AdminArtisans = () => {
                             }}
                           />
                         </td>
-                        <td className="px-2 py-2 sticky right-0 bg-card z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">
+                        <td className="px-2 py-1.5 sticky right-0 bg-card z-20 border-l border-border">
                           <div className="flex items-center gap-0.5">
                             <Button size="sm" variant={artisan.status === "active" ? "default" : "outline"} onClick={() => handleQuickStatus(artisan, "active")} title="Validé" disabled={updateStatus.isPending} className={`h-7 px-1.5 text-[10px] lg:text-xs ${artisan.status === "active" ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "hover:bg-green-50 hover:text-green-700 hover:border-green-400"}`}>
                               <ShieldCheck className="h-3 w-3 lg:mr-0.5" /><span className="hidden lg:inline">Validé</span>
