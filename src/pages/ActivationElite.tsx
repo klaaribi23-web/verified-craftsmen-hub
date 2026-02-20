@@ -180,12 +180,8 @@ const ActivationElite = () => {
 
             {/* ── URGENCY BANNER ── */}
             <div
-              className="w-full py-3 px-4 text-center text-sm md:text-base font-black tracking-wide"
-              style={{
-                background: "linear-gradient(90deg, #EA580C, #F97316, #EA580C)",
-                color: "#FFF",
-                textShadow: "0 1px 2px rgba(0,0,0,0.3)",
-              }}
+              className="w-full py-3 px-4 text-center text-sm md:text-base font-black tracking-wide bg-gradient-gold text-primary-foreground"
+              style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
             >
               ⚠️ RÉSERVE EXCLUSIVE : 3 CHANTIERS EN ATTENTE SUR{" "}
               <span className="underline uppercase">{displayCity}</span>
