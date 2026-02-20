@@ -464,16 +464,16 @@ const AdminArtisans = () => {
 
             {/* Desktop: table */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full text-xs lg:text-sm">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="text-left p-4 font-medium">Artisan</th>
-                    <th className="text-left p-4 font-medium">Catégorie</th>
-                    <th className="text-left p-4 font-medium">Ville</th>
-                    <th className="text-left p-4 font-medium">Inscrit le</th>
-                    <th className="text-left p-4 font-medium">Statut</th>
-                    <th className="text-center p-4 font-medium">Audité</th>
-                    <th className="text-left p-4 font-medium">Actions</th>
+                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Artisan</th>
+                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Catégorie</th>
+                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Ville</th>
+                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Inscrit le</th>
+                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap">Statut</th>
+                    <th className="text-center px-2 py-2.5 font-medium whitespace-nowrap">Audité</th>
+                    <th className="text-left px-2 py-2.5 font-medium whitespace-nowrap sticky right-0 bg-muted/50 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -506,52 +506,43 @@ const AdminArtisans = () => {
                   ) : (
                     filteredArtisans.map((artisan) => (
                       <tr key={artisan.id} className="border-t border-border hover:bg-muted/30">
-                        <td className="p-4">
-                          <div className="flex items-center gap-3 min-w-0">
+                        <td className="px-2 py-2">
+                          <div className="flex items-center gap-2 min-w-0">
                             <img
-                              src={
-                                artisan.photo_url ||
-                                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
-                              }
+                              src={artisan.photo_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"}
                               alt={artisan.business_name}
-                              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                               loading="lazy"
                             />
                             <div className="min-w-0">
-                              <p className="font-medium text-foreground truncate flex items-center gap-1.5">
-                                <span className={`inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 ${artisan.status === "active" ? "bg-green-500" : artisan.status === "suspended" ? "bg-orange-500" : "bg-gray-400"}`} />
+                              <p className="font-medium text-foreground truncate max-w-[140px] flex items-center gap-1">
+                                <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${artisan.status === "active" ? "bg-green-500" : artisan.status === "suspended" ? "bg-orange-500" : "bg-gray-400"}`} />
                                 {artisan.business_name}
                               </p>
-                              <p className="text-sm text-muted-foreground truncate">
+                              <p className="text-muted-foreground truncate max-w-[140px]">
                                 {artisan.profile?.first_name} {artisan.profile?.last_name}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="p-4">
-                          <Badge variant="secondary">{artisan.category?.name || "Non catégorisé"}</Badge>
+                        <td className="px-2 py-2">
+                          <Badge variant="secondary" className="text-[10px] lg:text-xs">{artisan.category?.name || "—"}</Badge>
                         </td>
-                        <td className="p-4">
+                        <td className="px-2 py-2 whitespace-nowrap">
                           <span className="flex items-center gap-1 text-muted-foreground">
-                            <MapPin className="h-4 w-4" />
+                            <MapPin className="h-3 w-3" />
                             {artisan.city}
                           </span>
                         </td>
-                        <td className="p-4">
-                          <span className="flex items-center gap-1 text-muted-foreground">
-                            <Calendar className="h-4 w-4" />
-                            {format(new Date(artisan.created_at), "dd/MM/yyyy", { locale: fr })}
-                          </span>
+                        <td className="px-2 py-2 whitespace-nowrap text-muted-foreground">
+                          {format(new Date(artisan.created_at), "dd/MM/yy", { locale: fr })}
                         </td>
-                        <td className="p-4">
-                          <Badge variant={getStatusVariant(artisan.status)}>
+                        <td className="px-2 py-2">
+                          <Badge variant={getStatusVariant(artisan.status)} className="text-[10px] lg:text-xs">
                             {getStatusLabel(artisan.status)}
                           </Badge>
-                          {artisan.is_verified && (
-                            <CheckCircle className="h-4 w-4 text-muted-foreground ml-2 inline" />
-                          )}
                         </td>
-                        <td className="p-4 text-center">
+                        <td className="px-2 py-2 text-center">
                           <Switch
                             checked={(artisan as any).is_audited || false}
                             onCheckedChange={(checked) => {
@@ -565,66 +556,26 @@ const AdminArtisans = () => {
                             }}
                           />
                         </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-1">
-                            {/* 3 status buttons */}
-                            <Button
-                              size="sm"
-                              variant={artisan.status === "active" ? "default" : "outline"}
-                              onClick={() => handleQuickStatus(artisan, "active")}
-                              title="Validé"
-                              disabled={updateStatus.isPending}
-                              className={`px-2 ${artisan.status === "active" ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "hover:bg-green-50 hover:text-green-700 hover:border-green-400"}`}
-                            >
-                              <ShieldCheck className="h-4 w-4 mr-1" />
-                              Validé
+                        <td className="px-2 py-2 sticky right-0 bg-card z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">
+                          <div className="flex items-center gap-0.5">
+                            <Button size="sm" variant={artisan.status === "active" ? "default" : "outline"} onClick={() => handleQuickStatus(artisan, "active")} title="Validé" disabled={updateStatus.isPending} className={`h-7 px-1.5 text-[10px] lg:text-xs ${artisan.status === "active" ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "hover:bg-green-50 hover:text-green-700 hover:border-green-400"}`}>
+                              <ShieldCheck className="h-3 w-3 lg:mr-0.5" /><span className="hidden lg:inline">Validé</span>
                             </Button>
-                            <Button
-                              size="sm"
-                              variant={artisan.status === "suspended" ? "default" : "outline"}
-                              onClick={() => handleQuickStatus(artisan, "suspended")}
-                              title="En attente"
-                              disabled={updateStatus.isPending}
-                              className={`px-2 ${artisan.status === "suspended" ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "hover:bg-orange-50 hover:text-orange-700 hover:border-orange-400"}`}
-                            >
-                              <Clock className="h-4 w-4 mr-1" />
-                              Attente
+                            <Button size="sm" variant={artisan.status === "suspended" ? "default" : "outline"} onClick={() => handleQuickStatus(artisan, "suspended")} title="En attente" disabled={updateStatus.isPending} className={`h-7 px-1.5 text-[10px] lg:text-xs ${artisan.status === "suspended" ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "hover:bg-orange-50 hover:text-orange-700 hover:border-orange-400"}`}>
+                              <Clock className="h-3 w-3 lg:mr-0.5" /><span className="hidden lg:inline">Att.</span>
                             </Button>
-                            <Button
-                              size="sm"
-                              variant={artisan.status === "disponible" ? "default" : "outline"}
-                              onClick={() => handleQuickStatus(artisan, "disponible")}
-                              title="Disponible"
-                              disabled={updateStatus.isPending}
-                              className={`px-2 ${artisan.status === "disponible" ? "bg-gray-500 hover:bg-gray-600 text-white border-gray-500" : "hover:bg-gray-100 hover:text-gray-700 hover:border-gray-400"}`}
-                            >
-                              <UserCheck className="h-4 w-4 mr-1" />
-                              Dispo
+                            <Button size="sm" variant={artisan.status === "disponible" ? "default" : "outline"} onClick={() => handleQuickStatus(artisan, "disponible")} title="Disponible" disabled={updateStatus.isPending} className={`h-7 px-1.5 text-[10px] lg:text-xs ${artisan.status === "disponible" ? "bg-gray-500 hover:bg-gray-600 text-white border-gray-500" : "hover:bg-gray-100 hover:text-gray-700 hover:border-gray-400"}`}>
+                              <UserCheck className="h-3 w-3 lg:mr-0.5" /><span className="hidden lg:inline">Dispo</span>
                             </Button>
-                            <span className="w-px h-6 bg-border mx-1" />
+                            <span className="w-px h-5 bg-border mx-0.5" />
                             <Link to={`/artisan/${artisan.slug || artisan.id}`}>
-                              <Button size="sm" variant="outline" title="Voir le profil">
-                                <Eye className="h-4 w-4" />
-                              </Button>
+                              <Button size="sm" variant="outline" title="Voir" className="h-7 px-1.5"><Eye className="h-3 w-3" /></Button>
                             </Link>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              title="Modifier"
-                              onClick={() => {
-                                setSelectedArtisan(artisan);
-                                setEditDialogOpen(true);
-                              }}
-                            >
-                              <Pencil className="h-4 w-4" />
+                            <Button size="sm" variant="outline" title="Modifier" className="h-7 px-1.5" onClick={() => { setSelectedArtisan(artisan); setEditDialogOpen(true); }}>
+                              <Pencil className="h-3 w-3" />
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDelete(artisan)}
-                              title="Supprimer définitivement"
-                            >
-                              <Trash2 className="h-4 w-4" />
+                            <Button size="sm" variant="destructive" onClick={() => handleDelete(artisan)} title="Supprimer" className="h-7 px-1.5">
+                              <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
                         </td>
