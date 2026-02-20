@@ -1490,77 +1490,7 @@ const ArtisanPublicProfile = () => {
         />
       )}
 
-      {/* ═══ VALIDATION BANNER + FOOTER CONVERSION — for non-active artisans ═══ */}
-      {isOwnerView && !isPreviewMode && artisan.status !== "active" && (
-        <>
-          {/* Fixed top status banner — Navy/Or, institutional tone */}
-          <div
-            className="fixed top-0 left-0 right-0 z-[65] py-3 px-4 text-center"
-            style={{
-              background: "linear-gradient(90deg, #0A192F, #122a4a)",
-              borderBottom: "1px solid rgba(212,175,55,0.25)",
-            }}
-          >
-            <p className="text-xs md:text-sm font-bold tracking-wide text-primary font-['DM_Sans']">
-              📋 Dossier en cours de validation finale. Notre équipe procède aux dernières vérifications.
-            </p>
-          </div>
-
-          {/* Footer conversion block — solemn decision area */}
-          <div
-            className="fixed bottom-0 left-0 right-0 z-[999999]"
-            style={{
-              background: "linear-gradient(180deg, #0A192F 0%, #0d1f3c 100%)",
-              borderTop: "2px solid hsl(var(--primary))",
-              boxShadow: "0 -8px 40px rgba(0,0,0,0.5)",
-            }}
-          >
-            <div className="container mx-auto px-4 py-4 md:py-5 space-y-3">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                {/* GOLD CTA */}
-                <button
-                  onClick={() => {
-                    const email = ownerEmail || sessionStorage.getItem("owner_email") || "";
-                    const slug = artisan.slug || "";
-                    const params = new URLSearchParams();
-                    if (email) params.set("email", email);
-                    if (slug) params.set("slug", slug);
-                    if (artisan.business_name) params.set("nom", artisan.business_name);
-                    if (artisan.city) params.set("ville", artisan.city);
-                    window.location.href = `/devenir-artisan?${params.toString()}`;
-                  }}
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
-                  style={{
-                    background: "linear-gradient(135deg, #D4AF37, #b8962e)",
-                    color: "#0A192F",
-                    boxShadow: "0 8px 30px rgba(212,175,55,0.35)",
-                    fontFamily: "'DM Sans',sans-serif",
-                  }}
-                >
-                  <span className="relative z-10">✅ OUI, JE VEUX MES ACCÈS ET MES CHANTIERS</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
-                </button>
-
-                {/* Grey refuse link */}
-                <button
-                  onClick={() => {
-                    if (confirm(`Attention : Cette action est irréversible et libère vos chantiers réservés sur ${artisan.city}. Confirmer la suppression ?`)) {
-                      toast.info("Votre demande de suppression a été enregistrée.");
-                      window.location.href = "/";
-                    }
-                  }}
-                  className="text-xs underline transition-colors"
-                  style={{ color: "rgba(255,255,255,0.35)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(239,68,68,0.7)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.35)")}
-                >
-                  Non, supprimer ma fiche et céder à mon concurrent
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      {/* The OwnerClosingTunnel above handles the full conversion flow with inline modal */}
 
       <Footer />
 
