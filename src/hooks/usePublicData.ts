@@ -185,6 +185,8 @@ export const useDemoMissions = (userId?: string, userRole?: string) => {
 export const usePublicArtisans = () => {
   return useQuery({
     queryKey: ["public-artisans"],
+    staleTime: 0,
+    refetchOnMount: "always",
     queryFn: async () => {
       // Fetch only active artisans for public display
       const { data: artisans, error: artisansError } = await supabase
