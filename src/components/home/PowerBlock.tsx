@@ -121,7 +121,7 @@ const PowerBlock = () => {
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="relative flex items-center gap-2 px-3 py-2 rounded-full bg-[#1E293B]/80 border border-primary/20 backdrop-blur-sm overflow-hidden"
+              className="relative flex items-center gap-2 px-3 py-2 rounded-full bg-[#1E293B]/80 border border-primary/20 backdrop-blur-[4px] overflow-hidden transition-transform duration-200 hover:scale-105 cursor-default"
             >
               {/* Glossy top highlight */}
               <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.10] to-transparent pointer-events-none rounded-t-full" />
