@@ -71,6 +71,7 @@ import ArtisanContactForm from "@/components/artisan-profile/ArtisanContactForm"
 import StickyMobileCTA from "@/components/artisan-profile/StickyMobileCTA";
 
 import OwnerClosingTunnel from "@/components/artisan-profile/OwnerClosingTunnel";
+import PrestigeWelcomeOverlay from "@/components/artisan-profile/PrestigeWelcomeOverlay";
 
 // Helper: get tomorrow's date formatted for urgency banner
 const getTomorrowDeadline = () => {
@@ -1481,13 +1482,23 @@ const ArtisanPublicProfile = () => {
 
       {/* Owner Closing Tunnel — activated via ?view=owner — delay 0 for test */}
       {isOwnerView && (
-        <OwnerClosingTunnel
-          artisanName={artisan.business_name}
-          city={artisan.city}
-          artisanEmail={(artisan as any).email || null}
-          artisanId={artisan.id!}
-          delaySeconds={0}
-        />
+        <>
+          <PrestigeWelcomeOverlay
+            artisanName={artisan.business_name}
+            city={artisan.city}
+            artisanEmail={(artisan as any).email || null}
+            artisanId={artisan.id!}
+            categoryName={artisan.category?.name || null}
+            categoryId={artisan.category_id || null}
+          />
+          <OwnerClosingTunnel
+            artisanName={artisan.business_name}
+            city={artisan.city}
+            artisanEmail={(artisan as any).email || null}
+            artisanId={artisan.id!}
+            delaySeconds={0}
+          />
+        </>
       )}
 
       {/* The OwnerClosingTunnel above handles the full conversion flow with inline modal */}
