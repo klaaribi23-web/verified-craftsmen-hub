@@ -1481,27 +1481,26 @@ const ArtisanPublicProfile = () => {
       />
 
       {/* Owner Closing Tunnel — activated via ?view=owner — delay 0 for test */}
-      {isOwnerView && (
-        <>
-          <PrestigeWelcomeOverlay
-            artisanName={artisan.business_name}
-            city={artisan.city}
-            artisanEmail={(artisan as any).email || null}
-            artisanId={artisan.id!}
-            categoryName={artisan.category?.name || null}
-            categoryId={artisan.category_id || null}
-          />
-          <OwnerClosingTunnel
-            artisanName={artisan.business_name}
-            city={artisan.city}
-            artisanEmail={(artisan as any).email || null}
-            artisanId={artisan.id!}
-            delaySeconds={0}
-          />
-        </>
-      )}
+      {/* Prestige Overlay — always shown for test session */}
+      <PrestigeWelcomeOverlay
+        artisanName={artisan.business_name}
+        city={artisan.city}
+        artisanEmail={(artisan as any).email || null}
+        artisanId={artisan.id!}
+        categoryName={artisan.category?.name || null}
+        categoryId={artisan.category_id || null}
+      />
 
-      {/* The OwnerClosingTunnel above handles the full conversion flow with inline modal */}
+      {/* Owner Closing Tunnel — only for owner view */}
+      {isOwnerView && (
+        <OwnerClosingTunnel
+          artisanName={artisan.business_name}
+          city={artisan.city}
+          artisanEmail={(artisan as any).email || null}
+          artisanId={artisan.id!}
+          delaySeconds={0}
+        />
+      )}
 
       <Footer />
 
