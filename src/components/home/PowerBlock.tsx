@@ -100,7 +100,7 @@ const PowerBlock = () => {
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto mb-5" />
           <p className="text-center text-sm md:text-base text-white/90 font-medium tracking-wide">
             Accès direct aux{' '}
-            <span className="text-primary font-extrabold">5%</span>
+            <span className="text-primary font-black text-base md:text-lg drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]">5%</span>
             {' '}d'artisans sélectionnés pour leur fiabilité.
           </p>
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto mt-5" />
@@ -121,12 +121,12 @@ const PowerBlock = () => {
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#1E293B]/80 border border-white/[0.08] backdrop-blur-sm"
+              className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#1E293B]/80 border border-white/[0.08] backdrop-blur-sm"
             >
               <div className="relative flex-shrink-0">
-                <Icon className="w-[18px] h-[18px] text-[#00C853] drop-shadow-[0_0_8px_rgba(0,200,83,0.6)]" />
+                <Icon className="w-5 h-5 text-[#00C853] drop-shadow-[0_0_8px_rgba(0,200,83,0.6)]" />
               </div>
-              <span className="text-white font-semibold text-xs md:text-sm tracking-wide whitespace-nowrap">
+              <span className="text-white font-semibold text-[10px] md:text-xs tracking-[0.05em] uppercase whitespace-nowrap">
                 {label}
               </span>
             </div>
