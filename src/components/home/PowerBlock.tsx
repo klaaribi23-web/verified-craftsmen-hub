@@ -121,10 +121,10 @@ const PowerBlock = () => {
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#1E293B]/80 border border-white/[0.08] backdrop-blur-sm"
+              className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#1E293B]/80 border border-primary/20 backdrop-blur-sm"
             >
               <div className="relative flex-shrink-0">
-                <Icon className="w-5 h-5 text-[#00C853] drop-shadow-[0_0_8px_rgba(0,200,83,0.6)]" />
+                <Icon className="w-5 h-5 text-[#00FF9D] drop-shadow-[0_0_10px_rgba(0,255,157,0.6)]" />
               </div>
               <span className="text-white font-semibold text-[10px] md:text-xs tracking-[0.05em] uppercase whitespace-nowrap">
                 {label}
