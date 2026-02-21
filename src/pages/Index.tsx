@@ -49,7 +49,7 @@ const Index = () => {
 
         {/* TEMPS 2 — Barre de Garantie Basse */}
         <section className="bg-[#1E293B] py-3 border-t border-primary/10 border-b border-b-primary/10">
-          <div className="container mx-auto px-4 flex items-center justify-center gap-6 md:gap-10 flex-wrap text-[10px] md:text-xs text-white font-semibold tracking-[0.05em] uppercase">
+          <div className="container mx-auto px-4 flex items-center justify-center gap-6 md:gap-10 flex-wrap text-xs md:text-sm text-white font-semibold tracking-[0.05em] uppercase">
             <span className="flex items-center gap-2">
               <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
               Entreprise Française

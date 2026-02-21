@@ -55,7 +55,7 @@ const PowerBlock = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.25 }}
           onSubmit={handleSearch}
-          className="max-w-3xl mx-auto mb-5"
+          className="max-w-3xl mx-auto mb-8"
         >
           <div className="flex flex-col sm:flex-row items-stretch bg-white/[0.06] border border-white/10 rounded-xl sm:rounded-full overflow-hidden backdrop-blur-sm">
             {/* Métier */}
@@ -95,7 +95,7 @@ const PowerBlock = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.45 }}
-          className="max-w-xl mx-auto mb-10 pt-8 pb-5"
+          className="max-w-xl mx-auto mb-10 pt-10 pb-5"
         >
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto mb-5" />
           <p className="text-center text-sm md:text-base text-white/90 font-medium tracking-wide">
@@ -128,7 +128,7 @@ const PowerBlock = () => {
               <div className="relative flex-shrink-0">
                 <Icon className="w-5 h-5 text-[#00FF9D] drop-shadow-[0_0_10px_rgba(0,255,157,0.6)]" />
               </div>
-              <span className="relative text-white font-semibold text-[10px] md:text-xs tracking-[0.05em] uppercase whitespace-nowrap">
+              <span className="relative text-white font-semibold text-[10px] md:text-xs tracking-[0.12em] uppercase whitespace-nowrap">
                 {label}
               </span>
             </div>
