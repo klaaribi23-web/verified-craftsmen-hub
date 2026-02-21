@@ -106,24 +106,29 @@ const PowerBlock = () => {
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto mt-5" />
         </motion.div>
 
-        {/* Trust badges */}
+        {/* Trust badges — Elite Confidence Bar */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.55 }}
-          className="flex items-center justify-center gap-6 md:gap-10 flex-wrap mt-6 pt-8 -mb-[50px] relative z-20"
+          className="grid grid-cols-2 md:flex md:items-center md:justify-center gap-3 md:gap-4 mt-6 pt-8 -mb-[50px] relative z-20"
         >
           {[
-            { icon: ShieldCheck, label: "Assurance Décennale Vérifiée" },
-            { icon: Award, label: "Audit Terrain Systématique" },
-            { icon: Star, label: "Avis Clients Authentiques" },
-            { icon: CheckCircle2, label: "Zéro Harcèlement Commercial" },
+            { icon: ShieldCheck, label: "Décennale Vérifiée" },
+            { icon: Award, label: "Audit Terrain" },
+            { icon: Star, label: "Avis Authentiques" },
+            { icon: CheckCircle2, label: "Zéro Harcèlement" },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2.5 text-xs md:text-sm">
-              <div className="relative">
-                <Icon className="w-[18px] h-[18px] text-emerald-400 shrink-0 drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
+            <div
+              key={label}
+              className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#1E293B]/80 border border-white/[0.08] backdrop-blur-sm"
+            >
+              <div className="relative flex-shrink-0">
+                <Icon className="w-[18px] h-[18px] text-[#00C853] drop-shadow-[0_0_8px_rgba(0,200,83,0.6)]" />
               </div>
-              <span className="text-emerald-300 font-semibold tracking-wide">{label}</span>
+              <span className="text-white font-semibold text-xs md:text-sm tracking-wide whitespace-nowrap">
+                {label}
+              </span>
             </div>
           ))}
         </motion.div>
