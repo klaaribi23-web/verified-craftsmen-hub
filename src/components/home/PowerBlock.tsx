@@ -91,14 +91,20 @@ const PowerBlock = () => {
         </motion.form>
 
         {/* Micro-copy */}
-        <motion.p
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.45 }}
-          className="text-center text-sm text-[#E2E8F0]/60 mb-10 max-w-lg mx-auto"
+          className="max-w-xl mx-auto mb-10 py-5"
         >
-          Accès direct aux 5% d'artisans sélectionnés pour leur fiabilité.
-        </motion.p>
+          <div className="w-24 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto mb-5" />
+          <p className="text-center text-sm md:text-base text-white/90 font-medium tracking-wide">
+            Accès direct aux{' '}
+            <span className="text-primary font-extrabold">5%</span>
+            {' '}d'artisans sélectionnés pour leur fiabilité.
+          </p>
+          <div className="w-24 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto mt-5" />
+        </motion.div>
 
         {/* Trust badges */}
         <motion.div
