@@ -60,8 +60,7 @@ const Index = () => {
             </span>
             <span className="flex items-center gap-2">
               <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Paiement Sécurisé
-              <svg className="w-10 h-4 opacity-70" viewBox="0 0 60 25" fill="none"><path d="M8.31 16.16H5.18L7.09 4.84H10.22L8.31 16.16ZM18.4 5.09C17.78 4.85 16.82 4.58 15.63 4.58C12.54 4.58 10.38 6.19 10.37 8.47C10.35 10.16 11.9 11.1 13.07 11.66C14.27 12.24 14.67 12.61 14.67 13.12C14.66 13.9 13.72 14.26 12.84 14.26C11.62 14.26 10.97 14.08 9.96 13.63L9.56 13.44L9.12 16.13C9.86 16.47 11.24 16.77 12.67 16.78C15.95 16.78 18.07 15.19 18.09 12.76C18.1 11.43 17.28 10.42 15.49 9.59C14.42 9.04 13.76 8.67 13.76 8.13C13.77 7.64 14.32 7.13 15.52 7.13C16.52 7.11 17.24 7.34 17.79 7.58L18.06 7.71L18.4 5.09ZM23.72 4.84H21.27C20.5 4.84 19.92 5.07 19.58 5.86L14.97 16.16H18.24L18.89 14.37H22.87L23.25 16.16H26.16L23.72 4.84ZM19.78 11.93C20.05 11.22 21.12 8.38 21.12 8.38C21.11 8.39 21.4 7.64 21.57 7.18L21.79 8.27L22.44 11.93H19.78ZM4.07 4.84L0.98 12.38L0.66 10.82C0.1 9.02 0 7.5 0 7.5L0 7.5C0 7.5 0.38 9.84 0.66 10.82L3.75 16.16H7.05L7.05 16.15L10.73 4.84H4.07Z" fill="currentColor" className="text-white"/></svg>
+              Paiement Sécurisé <span className="font-bold tracking-[0.08em]">STRIPE</span>
             </span>
           </div>
         </section>
