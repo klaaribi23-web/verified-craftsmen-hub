@@ -86,7 +86,7 @@ export const useArtisans = () => {
           category:categories(id, name),
           profile:profiles(id, first_name, last_name, email)
         `)
-        .in("status", ["active", "suspended", "disponible"])
+        .in("status", ["active", "suspended", "disponible", "pending", "prospect"])
         .order("created_at", { ascending: false });
 
       if (error) throw error;

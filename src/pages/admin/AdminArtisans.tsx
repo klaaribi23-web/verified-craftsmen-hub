@@ -98,7 +98,9 @@ const AdminArtisans = () => {
     const matchesStatus = selectedStatus === "Tous" || 
       (selectedStatus === "Validé" && artisan.status === "active") ||
       (selectedStatus === "En attente" && artisan.status === "suspended") ||
-      (selectedStatus === "Disponible" && artisan.status === "disponible");
+      (selectedStatus === "Disponible" && artisan.status === "disponible") ||
+      (selectedStatus === "Pending" && artisan.status === "pending") ||
+      (selectedStatus === "Prospect" && (artisan.status as string) === "prospect");
     return matchesSearch && matchesCategory && matchesCity && matchesStatus;
   }) || [];
 
@@ -189,6 +191,8 @@ const AdminArtisans = () => {
   const activeCount = artisans?.filter(a => a.status === "active").length || 0;
   const suspendedCount = artisans?.filter(a => a.status === "suspended").length || 0;
   const disponibleCount = artisans?.filter(a => a.status === "disponible").length || 0;
+  const pendingCount = artisans?.filter(a => a.status === "pending").length || 0;
+  const prospectCount = artisans?.filter(a => (a.status as string) === "prospect").length || 0;
 
   const openTunnelTest = (artisan: any) => {
     const email = (artisan as any).email || artisan.profile?.email || "";
@@ -203,6 +207,8 @@ const AdminArtisans = () => {
       case "active": return "Validé";
       case "suspended": return "En attente";
       case "disponible": return "Disponible";
+      case "pending": return "Contacté";
+      case "prospect": return "Prospect";
       default: return status;
     }
   };
@@ -211,6 +217,7 @@ const AdminArtisans = () => {
     switch (status) {
       case "active": return "secondary" as const;
       case "disponible": return "outline" as const;
+      case "prospect": return "outline" as const;
       default: return "destructive" as const;
     }
   };
@@ -274,9 +281,11 @@ const AdminArtisans = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Tous">Tous les statuts</SelectItem>
-                  <SelectItem value="Validé">Validé</SelectItem>
-                  <SelectItem value="En attente">En attente</SelectItem>
-                  <SelectItem value="Disponible">Disponible</SelectItem>
+                   <SelectItem value="Validé">Validé</SelectItem>
+                   <SelectItem value="En attente">En attente</SelectItem>
+                   <SelectItem value="Disponible">Disponible</SelectItem>
+                   <SelectItem value="Pending">Contacté (pending)</SelectItem>
+                   <SelectItem value="Prospect">Prospect</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" onClick={() => { setSearchTerm(""); setSelectedCategory("Tous"); setSelectedCity("Toutes"); setSelectedStatus("Tous"); }} className="w-full">
@@ -287,29 +296,41 @@ const AdminArtisans = () => {
         </Card>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3 mb-4 md:mb-6">
           <Card>
-            <CardContent className="p-3 md:p-4 text-center">
-              <p className="text-xl md:text-2xl font-bold text-foreground">{artisans?.length || 0}</p>
-              <p className="text-xs md:text-sm text-muted-foreground">Total</p>
+            <CardContent className="p-3 text-center">
+              <p className="text-lg md:text-2xl font-bold text-foreground">{artisans?.length || 0}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">Total</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-3 md:p-4 text-center">
-              <p className="text-xl md:text-2xl font-bold text-primary">{activeCount}</p>
-              <p className="text-xs md:text-sm text-muted-foreground">Validés</p>
+            <CardContent className="p-3 text-center">
+              <p className="text-lg md:text-2xl font-bold text-primary">{activeCount}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">Validés</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-3 md:p-4 text-center">
-              <p className="text-xl md:text-2xl font-bold text-accent-foreground">{disponibleCount}</p>
-              <p className="text-xs md:text-sm text-muted-foreground">Disponibles</p>
+            <CardContent className="p-3 text-center">
+              <p className="text-lg md:text-2xl font-bold text-accent-foreground">{disponibleCount}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">Stock</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-3 md:p-4 text-center">
-              <p className="text-xl md:text-2xl font-bold text-destructive">{suspendedCount}</p>
-              <p className="text-xs md:text-sm text-muted-foreground">En attente</p>
+            <CardContent className="p-3 text-center">
+              <p className="text-lg md:text-2xl font-bold text-blue-500">{pendingCount}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">Contactés</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-lg md:text-2xl font-bold text-destructive">{suspendedCount}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">En cours</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-lg md:text-2xl font-bold text-gray-400">{prospectCount}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">Prospects</p>
             </CardContent>
           </Card>
         </div>
