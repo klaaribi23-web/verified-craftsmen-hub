@@ -47,12 +47,21 @@ const Index = () => {
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
         </div>
 
-        {/* TEMPS 2 — Bandeau de réassurance */}
-        <section className="bg-[#060C18] py-3">
-          <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/70 font-extrabold">
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Entreprise Française</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Support 7j/7</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" /> Paiement Sécurisé Stripe</span>
+        {/* TEMPS 2 — Barre de Garantie Basse */}
+        <section className="bg-[#1E293B] py-3 border-t border-primary/10 border-b border-b-primary/10">
+          <div className="container mx-auto px-4 flex items-center justify-center gap-6 md:gap-10 flex-wrap text-[10px] md:text-xs text-white font-semibold tracking-[0.05em] uppercase">
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              Entreprise Française
+            </span>
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              Support 7j/7
+            </span>
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Paiement Sécurisé Stripe
+            </span>
           </div>
         </section>
 

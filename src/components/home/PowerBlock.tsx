@@ -95,7 +95,7 @@ const PowerBlock = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.45 }}
-          className="max-w-xl mx-auto mb-10 py-5"
+          className="max-w-xl mx-auto mb-10 pt-8 pb-5"
         >
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto mb-5" />
           <p className="text-center text-sm md:text-base text-white/90 font-medium tracking-wide">
@@ -111,7 +111,7 @@ const PowerBlock = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.55 }}
-          className="grid grid-cols-2 md:flex md:items-center md:justify-center gap-3 md:gap-4 mt-6 pt-8 -mb-[50px] relative z-20"
+          className="grid grid-cols-2 md:flex md:items-center md:justify-center gap-2 md:gap-3 mt-6 pt-8 -mb-[50px] relative z-20"
         >
           {[
             { icon: ShieldCheck, label: "Décennale Vérifiée" },
@@ -121,12 +121,14 @@ const PowerBlock = () => {
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#1E293B]/80 border border-primary/20 backdrop-blur-sm"
+              className="relative flex items-center gap-2 px-3 py-2 rounded-full bg-[#1E293B]/80 border border-primary/20 backdrop-blur-sm overflow-hidden"
             >
+              {/* Glossy top highlight */}
+              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.10] to-transparent pointer-events-none rounded-t-full" />
               <div className="relative flex-shrink-0">
                 <Icon className="w-5 h-5 text-[#00FF9D] drop-shadow-[0_0_10px_rgba(0,255,157,0.6)]" />
               </div>
-              <span className="text-white font-semibold text-[10px] md:text-xs tracking-[0.05em] uppercase whitespace-nowrap">
+              <span className="relative text-white font-semibold text-[10px] md:text-xs tracking-[0.05em] uppercase whitespace-nowrap">
                 {label}
               </span>
             </div>
