@@ -287,42 +287,40 @@ Votre diagnostic complet est ici :
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Charte d'Attribution Exclusive</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Inter:wght@300;400;500;600;700;800;900&family=Dancing+Script:wght@700&display=swap');
 
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-  font-family:'Montserrat',system-ui,sans-serif;
+  font-family:'Inter',system-ui,sans-serif;
   color:#E2E8F0;
   min-height:100vh;
   -webkit-print-color-adjust:exact;print-color-adjust:exact;
-  background:#0F172A;
+  background:#0A192F;
   padding:48px 24px;
-  /* Subtle paper grain */
   background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(212,175,55,0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(212,175,55,0.02) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 50%, rgba(212,175,55,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(212,175,55,0.03) 0%, transparent 50%),
     url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
 }
 
 /* ═══ MAIN CHARTER ═══ */
 .charter{
   max-width:680px;margin:0 auto;position:relative;
-  background:linear-gradient(175deg, #0F172A 0%, #0A1628 40%, #0D1B33 100%);
-  border-radius:2px;overflow:visible;
-  /* Double gold filet */
-  border:3px solid #D4AF37;
-  outline:1px solid rgba(212,175,55,0.25);
+  background:linear-gradient(180deg, #0A192F 0%, #060C18 100%);
+  border-radius:16px;overflow:visible;
+  border:2px solid rgba(212,175,55,0.4);
+  outline:1px solid rgba(212,175,55,0.1);
   outline-offset:6px;
   box-shadow:
-    0 0 0 8px rgba(15,23,42,1),
+    0 0 0 8px #0A192F,
     0 0 0 9px rgba(212,175,55,0.15),
-    0 30px 100px -20px rgba(0,0,0,0.7),
+    0 30px 80px rgba(0,0,0,0.8),
     0 0 120px rgba(212,175,55,0.06);
 }
 
 /* ═══ ART DÉCO CORNERS ═══ */
-.deco-corner{position:absolute;width:48px;height:48px;z-index:10;pointer-events:none}
+.deco-corner{position:absolute;width:44px;height:44px;z-index:10;pointer-events:none}
 .deco-corner svg{width:100%;height:100%}
 .dc-tl{top:-4px;left:-4px}
 .dc-tr{top:-4px;right:-4px;transform:scaleX(-1)}
@@ -334,177 +332,198 @@ body{
   content:'AV';position:absolute;top:50%;left:50%;
   transform:translate(-50%,-50%) rotate(-15deg);
   font-family:'Playfair Display',serif;
-  font-size:260px;font-weight:900;
-  background:linear-gradient(135deg, rgba(212,175,55,0.025) 0%, rgba(241,210,123,0.015) 100%);
+  font-size:240px;font-weight:900;
+  background:linear-gradient(135deg, rgba(212,175,55,0.02) 0%, rgba(241,210,123,0.01) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   letter-spacing:30px;pointer-events:none;z-index:0;
 }
 
 .inner{position:relative;z-index:2;padding:0}
 
-/* ═══ HEADER ═══ */
+/* ═══ HEADER — mirrors overlay shield badge ═══ */
 .ch-header{
-  padding:44px 48px 24px;text-align:center;
-  border-bottom:1px solid rgba(212,175,55,0.12);
+  padding:40px 48px 20px;text-align:center;
+  border-bottom:1px solid rgba(212,175,55,0.1);
   background:linear-gradient(180deg, rgba(212,175,55,0.04) 0%, transparent 100%);
 }
-.ch-ref{font-size:9px;font-weight:600;color:rgba(212,175,55,0.4);letter-spacing:4px;margin-bottom:20px;font-family:'Montserrat',sans-serif}
-.ch-brand{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:900;color:#fff;letter-spacing:6px;margin-bottom:4px}
-.ch-brand-sub{font-size:8px;font-weight:600;letter-spacing:5px;
+.ch-ref{font-size:9px;font-weight:600;color:rgba(212,175,55,0.35);letter-spacing:4px;margin-bottom:16px}
+.ch-shield{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:8px 20px;border-radius:40px;margin-bottom:8px;
+  background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);
+}
+.ch-shield-icon{font-size:14px}
+.ch-shield-text{font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;
   background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 50%, #B8941E 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
 }
+.ch-brand-sub{font-size:9px;font-weight:600;letter-spacing:4px;color:rgba(255,255,255,0.25);margin-top:6px}
 
 /* ═══ TITLE ═══ */
-.ch-title{padding:40px 48px 12px;text-align:center}
+.ch-title{padding:36px 48px 12px;text-align:center}
 .ch-title h1{
-  font-family:'Playfair Display',serif;font-size:28px;font-weight:900;line-height:1.35;letter-spacing:1.5px;
+  font-family:'Playfair Display',serif;font-size:26px;font-weight:900;line-height:1.35;letter-spacing:1px;
   background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 50%, #B8941E 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 .ch-title .recipient{
-  font-family:'Playfair Display',serif;font-size:17px;color:#fff;font-weight:700;margin-top:16px;font-style:italic;
+  font-size:18px;color:#fff;font-weight:800;margin-top:12px;line-height:1.4;
 }
-.ch-title .city-seal{
-  display:inline-block;margin-top:20px;padding:10px 32px;
-  background:rgba(212,175,55,0.06);
-  border:1px solid rgba(212,175,55,0.25);border-radius:2px;
-  font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;letter-spacing:4px;
-  background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 50%, #B8941E 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+.ch-title .status-line{
+  font-size:13px;color:rgba(255,255,255,0.5);margin-top:10px;line-height:1.6;
 }
-.ch-title .city-seal-wrap{
-  display:inline-block;margin-top:20px;padding:10px 32px;
-  background:rgba(212,175,55,0.06);
-  border:1px solid rgba(212,175,55,0.25);border-radius:2px;
+.ch-title .status-line .prestige{color:#D4AF37;font-weight:700}
+.ch-title .status-line .waiting{color:#F59E0B;font-weight:700}
+
+/* ═══ SCARCITY BAR — mirrors overlay ═══ */
+.scarcity-bar{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin:20px 48px 0;flex-wrap:wrap;
 }
+.scarcity-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 18px;border-radius:10px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+}
+.scarcity-pill .sp-icon{font-size:14px}
+.scarcity-pill .sp-text{font-size:13px;font-weight:700;color:#fff}
+.scarcity-pill .sp-val{color:#D4AF37;margin-left:4px}
+.scarcity-pill.danger{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.15)}
+.scarcity-pill.danger .sp-text{color:#EF4444;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums}
 
 /* ═══ DIVIDER ═══ */
 .gold-divider{
-  height:1px;margin:0 48px;
-  background:linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.4) 30%, rgba(241,210,123,0.5) 50%, rgba(212,175,55,0.4) 70%, transparent 100%);
+  height:1px;margin:28px 48px;
+  background:linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.35) 30%, rgba(241,210,123,0.45) 50%, rgba(212,175,55,0.35) 70%, transparent 100%);
 }
 
 /* ═══ VULNERABILITY ═══ */
 .vuln{
-  padding:36px 48px;display:flex;align-items:center;gap:28px;
+  padding:32px 48px;display:flex;align-items:center;gap:28px;
 }
 .vuln-ring{
-  width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  background:conic-gradient(#EF4444 0% ${vulnScore}%, rgba(255,255,255,0.04) ${vulnScore}% 100%);
+  width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:conic-gradient(#EF4444 0% ${vulnScore}%, rgba(255,255,255,0.03) ${vulnScore}% 100%);
   position:relative;
-  box-shadow:0 0 30px rgba(239,68,68,0.15);
+  box-shadow:0 0 25px rgba(239,68,68,0.12);
 }
-.vuln-ring::after{content:'';position:absolute;inset:10px;border-radius:50%;background:#0F172A}
-.vuln-val{position:relative;z-index:1;font-family:'Montserrat',sans-serif;font-size:32px;font-weight:900;color:#EF4444}
-.vuln-val span{font-size:15px;font-weight:700}
-.vuln-info h3{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:#EF4444;margin-bottom:8px;letter-spacing:0.5px}
-.vuln-info p{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:400;color:rgba(255,255,255,0.45);line-height:1.8}
+.vuln-ring::after{content:'';position:absolute;inset:10px;border-radius:50%;background:#0A192F}
+.vuln-val{position:relative;z-index:1;font-size:28px;font-weight:900;color:#EF4444;font-variant-numeric:tabular-nums}
+.vuln-val span{font-size:14px;font-weight:700}
+.vuln-info h3{font-size:13px;font-weight:800;color:#EF4444;margin-bottom:8px;letter-spacing:0.3px}
+.vuln-info p{font-size:12px;font-weight:400;color:rgba(255,255,255,0.4);line-height:1.8}
 .vuln-info .hl{color:#F1D27B;font-weight:700}
 
-/* ═══ CA LOSS ═══ */
+/* ═══ CA LOSS — dark card with gold border (mirrors dashboard) ═══ */
 .ca-loss{
-  margin:0 48px;padding:24px 28px;text-align:center;border-radius:4px;
-  background:rgba(239,68,68,0.04);
-  border:1px solid rgba(239,68,68,0.15);
-  box-shadow:inset 0 1px 0 rgba(239,68,68,0.08);
+  margin:4px 48px 0;padding:28px 32px;text-align:center;border-radius:12px;
+  background:rgba(212,175,55,0.03);
+  border:1px solid rgba(212,175,55,0.2);
+  box-shadow:0 4px 30px rgba(212,175,55,0.06);
 }
-.ca-loss .label{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
-.ca-loss .amount{font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;color:#EF4444;letter-spacing:1px}
-.ca-loss .sub{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:300;color:rgba(255,255,255,0.35);margin-top:6px;line-height:1.6}
+.ca-loss .label{font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.ca-loss .amount{
+  font-size:32px;font-weight:900;letter-spacing:1px;font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.ca-loss .sub{font-size:11px;font-weight:400;color:rgba(255,255,255,0.3);margin-top:8px;line-height:1.6}
 
 /* ═══ COMPARE ═══ */
-.compare{padding:36px 48px}
-.compare h2{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,0.25);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px;text-align:center}
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.compare-col{padding:24px 20px;border-radius:4px;text-align:center}
+.compare{padding:32px 48px}
+.compare h2{font-size:10px;font-weight:800;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;margin-bottom:16px;text-align:center}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.compare-col{padding:24px 18px;border-radius:12px;text-align:center}
 .compare-col.before{background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1)}
 .compare-col.after{background:rgba(212,175,55,0.03);border:1px solid rgba(212,175,55,0.15);box-shadow:0 4px 20px rgba(212,175,55,0.05)}
-.compare-col .ct{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px}
+.compare-col .ct{font-size:9px;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}
 .compare-col.before .ct{color:#EF4444}
 .compare-col.after .ct{color:#D4AF37}
-.ci{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:400;color:rgba(255,255,255,0.5);margin-bottom:9px;line-height:1.6}
+.ci{font-size:11px;font-weight:400;color:rgba(255,255,255,0.45);margin-bottom:8px;line-height:1.6}
 .compare-col.before .ci::before{content:'✗ ';color:#EF4444;font-weight:800}
 .compare-col.after .ci::before{content:'✓ ';color:#D4AF37;font-weight:800}
 
 /* ═══ CHECKLIST ═══ */
-.checks{padding:32px 48px}
-.checks h2{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,0.25);letter-spacing:4px;text-transform:uppercase;margin-bottom:18px}
-.chk{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.025)}
+.checks{padding:28px 48px}
+.checks h2{font-size:10px;font-weight:800;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;margin-bottom:16px}
+.chk{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.025)}
 .chk-ico{
-  width:30px;height:30px;border-radius:50%;
-  background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);
-  display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.15);
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;
 }
-.chk-lbl{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);flex:1}
-.chk-st{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;color:#10B981;padding:4px 10px;background:rgba(16,185,129,0.06);border-radius:2px;letter-spacing:1px}
+.chk-lbl{font-size:12px;font-weight:500;color:rgba(255,255,255,0.65);flex:1}
+.chk-st{font-size:9px;font-weight:800;color:#D4AF37;padding:4px 10px;background:rgba(212,175,55,0.06);border-radius:6px;letter-spacing:1px}
 .chk-st.warn{color:#F59E0B;background:rgba(245,158,11,0.06)}
 
-/* ═══ SIGNATURE ═══ */
+/* ═══ SIGNATURE — manuscript font ═══ */
 .signature{padding:36px 48px;border-top:1px solid rgba(212,175,55,0.08);position:relative}
 .sig-box{display:flex;align-items:flex-end;gap:24px}
 .sig-seal{
   width:64px;height:64px;border-radius:50%;flex-shrink:0;
   background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 40%, #B8941E 100%);
-  display:flex;align-items:center;justify-content:center;font-size:28px;
+  display:flex;align-items:center;justify-content:center;font-size:26px;
   box-shadow:0 6px 30px rgba(212,175,55,0.35), inset 0 -2px 6px rgba(0,0,0,0.2);
 }
 .sig-text{flex:1}
-.sig-name{font-family:'Playfair Display',serif;font-size:26px;font-style:italic;font-weight:700;
+.sig-name{
+  font-family:'Dancing Script',cursive;font-size:32px;font-weight:700;
   background:linear-gradient(135deg, #D4AF37, #F1D27B);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  margin-bottom:3px;
+  margin-bottom:2px;
 }
-.sig-role{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:2px}
-.sig-date{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:300;color:rgba(255,255,255,0.2);margin-top:8px}
+.sig-role{font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase}
+.sig-date{font-size:9px;font-weight:300;color:rgba(255,255,255,0.18);margin-top:6px}
 
-/* ═══ VALIDATION SEAL (bottom-right) ═══ */
+/* ═══ VALIDATION SEAL ═══ */
 .validation-seal{
-  position:absolute;bottom:20px;right:48px;
-  width:80px;height:80px;border-radius:50%;
-  background:linear-gradient(135deg, rgba(212,175,55,0.08), rgba(241,210,123,0.04));
-  border:2px solid rgba(212,175,55,0.2);
+  position:absolute;bottom:16px;right:48px;
+  width:78px;height:78px;border-radius:50%;
+  background:linear-gradient(135deg, rgba(212,175,55,0.06), rgba(241,210,123,0.03));
+  border:2px solid rgba(212,175,55,0.18);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  opacity:0.7;
+  opacity:0.75;
 }
-.validation-seal .vs-icon{font-size:20px;margin-bottom:2px}
-.validation-seal .vs-text{font-family:'Montserrat',sans-serif;font-size:5px;font-weight:900;color:rgba(212,175,55,0.6);letter-spacing:2px;text-transform:uppercase}
-.validation-seal .vs-year{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:900;color:rgba(212,175,55,0.5)}
+.validation-seal .vs-icon{font-size:18px;margin-bottom:2px}
+.validation-seal .vs-text{font-size:5px;font-weight:900;color:rgba(212,175,55,0.5);letter-spacing:2px;text-transform:uppercase}
+.validation-seal .vs-year{font-size:9px;font-weight:900;color:rgba(212,175,55,0.45)}
 
-/* ═══ CTA ═══ */
+/* ═══ CTA — exact clone of site button ═══ */
 .cta{
-  padding:40px 48px;text-align:center;
+  padding:36px 48px;text-align:center;
   background:linear-gradient(180deg, transparent 0%, rgba(212,175,55,0.03) 100%);
-  border-top:1px solid rgba(212,175,55,0.1);
+  border-top:1px solid rgba(212,175,55,0.08);
 }
 .btn-cta{
-  display:inline-block;padding:22px 64px;
+  display:inline-block;padding:20px 56px;
   background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 50%, #B8941E 100%);
-  color:#0F172A;
-  font-family:'Montserrat',sans-serif;font-size:15px;font-weight:900;letter-spacing:3px;
-  border-radius:4px;text-decoration:none;
+  color:#0A192F;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:900;letter-spacing:3px;text-transform:uppercase;
+  border-radius:10px;text-decoration:none;
   box-shadow:0 8px 40px rgba(212,175,55,0.35), 0 2px 8px rgba(0,0,0,0.3);
   transition:transform 0.2s, box-shadow 0.2s;
 }
 .btn-cta:hover{transform:translateY(-2px);box-shadow:0 12px 50px rgba(212,175,55,0.5)}
-.urgency{font-family:'Montserrat',sans-serif;margin-top:18px;font-size:11px;font-weight:700;color:#EF4444;letter-spacing:0.5px}
+.urgency{margin-top:16px;font-size:11px;font-weight:700;color:#EF4444;letter-spacing:0.3px}
+.guarantee{margin-top:10px;font-size:10px;font-weight:400;color:rgba(255,255,255,0.2)}
 
 /* ═══ FOOTER ═══ */
-.ch-footer{padding:20px 48px;border-top:1px solid rgba(255,255,255,0.03);text-align:center}
-.ch-footer p{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:400;color:rgba(255,255,255,0.15);line-height:2}
+.ch-footer{padding:20px 48px;border-top:1px solid rgba(255,255,255,0.025);text-align:center}
+.ch-footer p{font-size:8px;font-weight:400;color:rgba(255,255,255,0.12);line-height:2.2}
 
 @media(max-width:480px){
   body{padding:20px 10px}
-  .charter{outline-offset:3px}
-  .ch-header,.ch-title,.vuln,.compare,.checks,.signature,.cta,.ch-footer{padding-left:24px;padding-right:24px}
-  .ca-loss{margin-left:24px;margin-right:24px}
+  .charter{outline-offset:3px;border-radius:12px}
+  .ch-header,.ch-title,.vuln,.compare,.checks,.signature,.cta,.ch-footer{padding-left:20px;padding-right:20px}
+  .ca-loss{margin-left:20px;margin-right:20px}
+  .scarcity-bar{margin-left:20px;margin-right:20px}
   .vuln{flex-direction:column;text-align:center}
   .compare-grid{grid-template-columns:1fr}
-  .btn-cta{display:block;width:100%;padding:20px;letter-spacing:2px}
+  .btn-cta{display:block;width:100%;padding:18px;letter-spacing:2px;font-size:13px}
   .sig-box{flex-direction:column;align-items:center;text-align:center}
-  .validation-seal{right:24px;bottom:10px;width:60px;height:60px}
-  .deco-corner{width:36px;height:36px}
+  .validation-seal{right:20px;bottom:10px;width:56px;height:56px}
+  .deco-corner{width:32px;height:32px}
 }
 </style></head><body>
 
@@ -517,18 +536,36 @@ body{
 
   <div class="inner">
 
-  <!-- HEADER -->
+  <!-- HEADER — shield badge like overlay -->
   <div class="ch-header">
     <div class="ch-ref">RÉF. ${refNum}</div>
-    <div class="ch-brand">ARTISANS VALIDÉS</div>
+    <div class="ch-shield">
+      <span class="ch-shield-icon">🛡️</span>
+      <span class="ch-shield-text">Artisans Validés</span>
+    </div>
     <div class="ch-brand-sub">RÉSEAU D'EXCELLENCE · FRANCE</div>
   </div>
 
   <!-- TITRE -->
   <div class="ch-title">
     <h1>CHARTE D'ATTRIBUTION<br/>EXCLUSIVE DE SECTEUR</h1>
-    <div class="recipient">Établie au bénéfice de ${artisan.business_name}</div>
-    <div class="city-seal-wrap"><span class="city-seal">📍 SECTEUR : ${cityUpper}</span></div>
+    <div class="recipient">Félicitations ${artisan.business_name},</div>
+    <div class="status-line">
+      Votre <span class="prestige">Actif Numérique Prestige</span> est prêt.<br/>
+      État : <span class="waiting">EN ATTENTE DE VERROUILLAGE</span>
+    </div>
+  </div>
+
+  <!-- SCARCITY BAR — mirrors overlay pills -->
+  <div class="scarcity-bar">
+    <div class="scarcity-pill">
+      <span class="sp-icon">👥</span>
+      <span class="sp-text">Places sur ${artisan.city} : <span class="sp-val">1/2</span></span>
+    </div>
+    <div class="scarcity-pill danger">
+      <span class="sp-icon">⏱️</span>
+      <span class="sp-text">Expire dans 48h</span>
+    </div>
   </div>
 
   <div class="gold-divider"></div>
@@ -545,14 +582,14 @@ body{
     </div>
   </div>
 
-  <!-- MANQUE À GAGNER -->
+  <!-- MANQUE À GAGNER — gold-bordered dark card -->
   <div class="ca-loss">
     <div class="label">Estimation du manque à gagner annuel</div>
     <div class="amount">${caMin.toLocaleString("fr-FR")}€ — ${caMax.toLocaleString("fr-FR")}€ / an</div>
     <div class="sub">Basé sur le volume de recherches et le panier moyen du secteur ${categoryName} à ${artisan.city}</div>
   </div>
 
-  <div class="gold-divider" style="margin-top:28px"></div>
+  <div class="gold-divider"></div>
 
   <!-- COMPARATIF -->
   <div class="compare">
@@ -592,11 +629,10 @@ body{
       <div class="sig-seal">🛡️</div>
       <div class="sig-text">
         <div class="sig-name">Jane Moreau</div>
-        <div class="sig-role">DIRECTRICE VALIDATION · ARTISANS VALIDÉS</div>
+        <div class="sig-role">Directrice Validation · Artisans Validés</div>
         <div class="sig-date">Établie le ${dateStr}</div>
       </div>
     </div>
-    <!-- Validation Seal -->
     <div class="validation-seal">
       <div class="vs-icon">🏛️</div>
       <div class="vs-text">VALIDÉ</div>
@@ -604,16 +640,16 @@ body{
     </div>
   </div>
 
-  <!-- CTA -->
+  <!-- CTA — exact clone of site button -->
   <div class="cta">
-    <a class="btn-cta" href="${url}">REVENDIQUER MON MONOPOLE →</a>
+    <a class="btn-cta" href="${url}">🔒 REVENDIQUER MON MONOPOLE →</a>
     <div class="urgency">⚠️ Attribution réservée 48h · Passé ce délai, le secteur est ouvert au concurrent suivant</div>
+    <div class="guarantee">✅ 100% satisfait ou remboursé sous 30 jours · Résiliation en 1 clic</div>
   </div>
 
   <!-- FOOTER -->
   <div class="ch-footer">
-    <p>✅ 100% satisfait ou remboursé sous 30 jours · Sans engagement<br/>
-    © ${year} Artisans Validés · www.artisansvalides.fr · Document confidentiel — usage strictement personnel</p>
+    <p>© ${year} Artisans Validés · www.artisansvalides.fr · Document confidentiel — usage strictement personnel</p>
   </div>
 
   </div>
