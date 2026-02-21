@@ -38,6 +38,7 @@ interface CommandantArtisan {
   created_at: string;
   updated_at: string;
   category: { name: string } | null;
+  profile: { email: string } | null;
 }
 
 type TabKey = "stock" | "en-cours" | "clients";
@@ -96,7 +97,8 @@ const AdminCommandant = () => {
         .select(`
           id, business_name, city, email, phone, description, photo_url,
           slug, status, source, created_at, updated_at,
-          category:categories(name)
+          category:categories(name),
+          profile:profiles(email)
         `)
         .in("status", statusForTab[activeTab]);
 
@@ -157,7 +159,7 @@ const AdminCommandant = () => {
 
   // Lien Magique → /activation-artisan-elite avec email pré-rempli
   const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true) => {
-    const email = artisan.email || "";
+    const email = artisan.email || artisan.profile?.email || "";
     const nom = artisan.business_name || "";
     const ville = artisan.city || "";
     return `${PUBLISHED_URL}/activation-artisan-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}`;

@@ -37,7 +37,8 @@ import {
   Trash2,
   Clock,
   ShieldCheck,
-  UserCheck
+  UserCheck,
+  Rocket
 } from "lucide-react";
 import {
   AlertDialog,
@@ -60,6 +61,8 @@ import Navbar from "@/components/layout/Navbar";
 import { DashboardHeader } from "@/components/artisan-dashboard/DashboardHeader";
 import { AdminEditArtisanDialog } from "@/components/admin-dashboard/AdminEditArtisanDialog";
 import { supabase } from "@/integrations/supabase/client";
+
+const PUBLISHED_URL = "https://verified-craftsmen-hub.lovable.app";
 
 const AdminArtisans = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -186,6 +189,14 @@ const AdminArtisans = () => {
   const activeCount = artisans?.filter(a => a.status === "active").length || 0;
   const suspendedCount = artisans?.filter(a => a.status === "suspended").length || 0;
   const disponibleCount = artisans?.filter(a => a.status === "disponible").length || 0;
+
+  const openTunnelTest = (artisan: any) => {
+    const email = (artisan as any).email || artisan.profile?.email || "";
+    const nom = artisan.business_name || "";
+    const ville = artisan.city || "";
+    const url = `${PUBLISHED_URL}/activation-artisan-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}&preview=true`;
+    window.open(url, "_blank");
+  };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
@@ -424,12 +435,21 @@ const AdminArtisans = () => {
                       </Button>
                     </div>
 
-                    <div className="mt-2 grid grid-cols-4 gap-2">
+                    <div className="mt-2 grid grid-cols-5 gap-2">
                       <Link to={`/artisan/${artisan.slug || artisan.id}`} className="w-full">
                         <Button size="icon" variant="outline" className="w-full" aria-label="Voir le profil">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="w-full"
+                        aria-label="Tester le tunnel"
+                        onClick={() => openTunnelTest(artisan)}
+                      >
+                        <Rocket className="h-4 w-4" />
+                      </Button>
                       <Button
                         size="icon"
                         variant="outline"
@@ -571,6 +591,9 @@ const AdminArtisans = () => {
                             <Link to={`/artisan/${artisan.slug || artisan.id}`}>
                               <Button size="sm" variant="outline" title="Voir" className="h-7 px-1.5"><Eye className="h-3 w-3" /></Button>
                             </Link>
+                            <Button size="sm" variant="outline" onClick={() => openTunnelTest(artisan)} title="Tester le tunnel" className="h-7 px-1.5 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-400">
+                              <Rocket className="h-3 w-3" />
+                            </Button>
                             <Button size="sm" variant="outline" title="Modifier" className="h-7 px-1.5" onClick={() => { setSelectedArtisan(artisan); setEditDialogOpen(true); }}>
                               <Pencil className="h-3 w-3" />
                             </Button>

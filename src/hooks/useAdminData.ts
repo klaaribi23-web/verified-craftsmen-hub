@@ -41,6 +41,7 @@ export interface Artisan {
     id: string;
     first_name: string | null;
     last_name: string | null;
+    email: string;
   } | null;
 }
 
@@ -83,7 +84,7 @@ export const useArtisans = () => {
         .select(`
           *,
           category:categories(id, name),
-          profile:profiles(id, first_name, last_name)
+          profile:profiles(id, first_name, last_name, email)
         `)
         .in("status", ["active", "suspended", "disponible"])
         .order("created_at", { ascending: false });
