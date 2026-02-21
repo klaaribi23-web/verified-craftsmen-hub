@@ -170,6 +170,11 @@ const AdminCommandant = () => {
     toast.success("🔗 Lien Magique copié (mode owner) !");
   };
 
+  const openTunnelTest = (artisan: CommandantArtisan) => {
+    const url = getProfileUrl(artisan) + "&preview=true";
+    window.open(url, "_blank");
+  };
+
   const getWhatsAppLink = (artisan: CommandantArtisan) => {
     const phone = artisan.phone?.replace(/[\s.-]/g, "");
     if (!phone) return null;
@@ -492,6 +497,7 @@ animation:btn-shimmer 3s ease-in-out infinite}
                             else toast.error("Pas de numéro de téléphone");
                           }}
                           onViewProfile={() => window.open(getProfileUrl(artisan), "_blank")}
+                          onTestTunnel={() => openTunnelTest(artisan)}
                           onSendAccess={() => setAccessDialog(artisan)}
                           onGenerateMessage={() => setMessageDialog(artisan)}
                           isAssaulting={assaultMutation.isPending}
@@ -596,6 +602,7 @@ interface ArtisanRowProps {
   onCopyLink: () => void;
   onWhatsApp: () => void;
   onViewProfile: () => void;
+  onTestTunnel: () => void;
   onSendAccess: () => void;
   onGenerateMessage: () => void;
   isAssaulting: boolean;
@@ -603,7 +610,7 @@ interface ArtisanRowProps {
 
 const ArtisanRow = ({
   artisan, tabKey, onAssault, onChangeStatus,
-  onCopyLink, onWhatsApp, onViewProfile, onSendAccess, onGenerateMessage, isAssaulting,
+  onCopyLink, onWhatsApp, onViewProfile, onTestTunnel, onSendAccess, onGenerateMessage, isAssaulting,
 }: ArtisanRowProps) => {
   const statusDot = {
     active: "bg-emerald-500",
@@ -712,6 +719,10 @@ const ArtisanRow = ({
               <Button size="sm" variant="outline" className="text-xs h-8 gap-1" onClick={onCopyLink}>
                 <Link2 className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Lien</span>
+              </Button>
+              <Button size="sm" variant="outline" className="text-xs h-8 gap-1 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-400" onClick={onTestTunnel} title="Tester le tunnel">
+                <Rocket className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Tester</span>
               </Button>
               <Button size="sm" variant="outline" className="text-xs h-8 gap-1" onClick={onViewProfile}>
                 <Eye className="h-3.5 w-3.5" />
