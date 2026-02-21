@@ -22,84 +22,101 @@ const getEmailTemplate = (artisanName: string, activationUrl: string) => {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Votre fiche Artisans Validés est prête !</title>
+  <title>Diagnostic terminé — ${artisanName}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #060C18;">
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
     <tr>
       <td style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+        <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #0A192F; border-radius: 16px; overflow: hidden; border: 1px solid rgba(212,175,55,0.2);">
           
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #1a365d 0%, #2d4a7c 100%); padding: 40px 40px 30px; text-align: center;">
-              <h1 style="color: #ffffff; font-size: 28px; margin: 0 0 10px; font-weight: 700;">
-                🎉 Votre fiche est prête !
+            <td style="padding: 28px 36px; border-bottom: 1px solid rgba(212,175,55,0.12);">
+              <table role="presentation" style="width: 100%;">
+                <tr>
+                  <td style="font-size: 13px; font-weight: 900; color: #ffffff; letter-spacing: 3px;">ARTISANS VALIDÉS</td>
+                  <td style="text-align: right;">
+                    <span style="font-size: 9px; font-weight: 800; color: #D4AF37; letter-spacing: 2px; padding: 6px 14px; border: 1px solid rgba(212,175,55,0.3); border-radius: 4px;">DIAGNOSTIC PRÊT</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Hook — Attention -->
+          <tr>
+            <td style="padding: 36px 36px 16px; text-align: center;">
+              <p style="color: #D4AF37; font-size: 11px; font-weight: 700; letter-spacing: 2px; margin: 0 0 12px; text-transform: uppercase;">
+                Analyse de secteur terminée
+              </p>
+              <h1 style="color: #ffffff; font-size: 24px; font-weight: 900; margin: 0 0 8px; line-height: 1.3;">
+                ${artisanName}, votre zone est encore libre.
               </h1>
-              <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 0;">
-                Artisans Validés
+              <p style="color: rgba(255,255,255,0.5); font-size: 14px; margin: 0;">
+                Mais un concurrent est en file d'attente.
               </p>
             </td>
           </tr>
           
-          <!-- Content -->
+          <!-- Intérêt — Value props -->
           <tr>
-            <td style="padding: 40px;">
-              <p style="color: #333; font-size: 18px; line-height: 1.6; margin: 0 0 20px;">
-                Bonjour <strong>${artisanName}</strong>,
-              </p>
-              
-              <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
-                Bonne nouvelle ! Votre fiche artisan a été créée sur <strong>Artisans Validés</strong>, 
-                la plateforme de mise en relation entre particuliers et artisans de confiance.
-              </p>
-              
-              <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 30px;">
-                Pour finaliser votre inscription et accéder à votre espace personnel, 
-                cliquez sur le bouton ci-dessous pour créer votre mot de passe :
-              </p>
-              
-              <!-- CTA Button -->
-              <table role="presentation" style="width: 100%; margin: 30px 0;">
+            <td style="padding: 24px 36px;">
+              <table role="presentation" style="width: 100%; border-spacing: 0;">
                 <tr>
-                  <td style="text-align: center;">
-                    <a href="${activationUrl}" 
-                       style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #1a365d; font-size: 18px; font-weight: 700; text-decoration: none; padding: 16px 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(212,175,55,0.3);">
-                      Activer mon compte
-                    </a>
+                  <td style="padding: 14px 16px; background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.12); border-radius: 10px; margin-bottom: 10px;">
+                    <p style="color: #ffffff; font-size: 13px; font-weight: 700; margin: 0 0 4px;">🏦 Actif Numérique Prêt</p>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin: 0; line-height: 1.6;">Votre fiche optimisée SEO est en ligne. Les clients de votre ville peuvent déjà vous trouver.</p>
+                  </td>
+                </tr>
+                <tr><td style="height: 10px;"></td></tr>
+                <tr>
+                  <td style="padding: 14px 16px; background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.12); border-radius: 10px;">
+                    <p style="color: #ffffff; font-size: 13px; font-weight: 700; margin: 0 0 4px;">🛑 Exclusivité Sectorielle</p>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin: 0; line-height: 1.6;">Un seul artisan par zone et par métier. Celui qui active en premier verrouille le secteur.</p>
                   </td>
                 </tr>
               </table>
-              
-              <!-- Benefits -->
-              <div style="background-color: #f8fafc; border-radius: 12px; padding: 25px; margin: 30px 0;">
-                <p style="color: #1a365d; font-size: 16px; font-weight: 600; margin: 0 0 15px;">
-                  ✨ Ce que vous pourrez faire :
-                </p>
-                <ul style="color: #555; font-size: 15px; line-height: 1.8; margin: 0; padding-left: 20px;">
-                  <li>Gérer votre profil et vos informations</li>
-                  <li>Recevoir des demandes de devis de clients</li>
-                  <li>Échanger directement avec les particuliers</li>
-                  <li>Obtenir le badge "Artisan Validé" après vérification</li>
-                </ul>
-              </div>
-              
-              <p style="color: #888; font-size: 14px; line-height: 1.6; margin: 20px 0 0;">
-                Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :<br>
-                <a href="${activationUrl}" style="color: #d4af37; word-break: break-all;">${activationUrl}</a>
+            </td>
+          </tr>
+
+          <!-- Désir — CTA -->
+          <tr>
+            <td style="padding: 8px 36px 16px; text-align: center;">
+              <a href="${activationUrl}" 
+                 style="display: inline-block; background: #D4AF37; color: #0A192F; font-size: 16px; font-weight: 900; text-decoration: none; padding: 18px 44px; border-radius: 10px; letter-spacing: 1px;">
+                  VOIR MON DIAGNOSTIC →
+              </a>
+            </td>
+          </tr>
+
+          <!-- Action — Urgence -->
+          <tr>
+            <td style="padding: 0 36px 28px; text-align: center;">
+              <p style="color: #EF4444; font-size: 12px; font-weight: 700; margin: 0;">
+                ⚠️ Priorité sectorielle : expiration sous 48h
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Lien fallback -->
+          <tr>
+            <td style="padding: 0 36px 24px;">
+              <p style="color: rgba(255,255,255,0.3); font-size: 11px; line-height: 1.6; margin: 0;">
+                Si le bouton ne fonctionne pas :<br>
+                <a href="${activationUrl}" style="color: #D4AF37; word-break: break-all;">${activationUrl}</a>
               </p>
             </td>
           </tr>
           
           <!-- Footer -->
           <tr>
-            <td style="background-color: #f8fafc; padding: 30px 40px; border-top: 1px solid #e2e8f0;">
-              <p style="color: #888; font-size: 14px; line-height: 1.6; margin: 0; text-align: center;">
-                Des questions ? Contactez-nous à 
-                <a href="mailto:contact@artisansvalides.fr" style="color: #d4af37;">contact@artisansvalides.fr</a>
+            <td style="padding: 20px 36px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
+              <p style="color: rgba(255,255,255,0.3); font-size: 10px; margin: 0;">
+                Jane · Responsable Validation · <a href="mailto:contact@artisansvalides.fr" style="color: #D4AF37;">contact@artisansvalides.fr</a>
               </p>
-              <p style="color: #aaa; font-size: 12px; margin: 15px 0 0; text-align: center;">
-                © 2025 Artisans Validés - Tous droits réservés
+              <p style="color: rgba(255,255,255,0.15); font-size: 9px; margin: 8px 0 0;">
+                © ${new Date().getFullYear()} Artisans Validés — Réseau d'Excellence
               </p>
             </td>
           </tr>
@@ -162,7 +179,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Artisans Validés <noreply@artisansvalides.fr>",
       to: [artisanEmail],
-      subject: "🎉 Votre fiche Artisans Validés est prête ! Finalisez votre inscription",
+      subject: `${artisanName} — Votre diagnostic de secteur est prêt`,
       html: getEmailTemplate(artisanName, activationUrl),
     });
 

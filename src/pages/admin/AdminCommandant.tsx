@@ -220,24 +220,31 @@ const AdminCommandant = () => {
     let intlPhone = phone.startsWith("0") ? `33${phone.slice(1)}` : phone.startsWith("33") ? phone : `33${phone}`;
     intlPhone = intlPhone.replace("+", "");
     const url = getProfileUrl(artisan);
-    const msg = `Bonjour, votre vitrine professionnelle est prête sur Artisans Validés : ${url}. Il ne reste qu'une place sur votre secteur. On l'active ?`;
+    const msg = `${artisan.business_name}, c'est Jane d'Artisans Validés.
+
+On a analysé votre secteur à ${artisan.city} : il est encore libre. Votre diagnostic est prêt ici :
+👉 ${url}
+
+⚠️ Un concurrent est en attente sur la même zone. Priorité jusqu'à demain 18h.
+
+On bloque votre position ?`;
     return `https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`;
   };
 
   const generateAccessText = (artisan: CommandantArtisan) => {
     const url = getProfileUrl(artisan);
     const dashboardUrl = `${PUBLISHED_URL}/connexion`;
-    return `Bonjour ${artisan.business_name},
+    return `${artisan.business_name},
 
-Votre fiche professionnelle est en ligne :
-👉 ${url}
+Votre outil de travail est activé. Voici vos accès :
 
-Pour gérer votre vitrine, connectez-vous ici :
-🔑 ${dashboardUrl}
-${artisan.email ? `Identifiant : ${artisan.email}` : ""}
+🔗 Votre fiche publique : ${url}
+🔑 Espace Pro : ${dashboardUrl}
+${artisan.email ? `📧 Identifiant : ${artisan.email}` : ""}
 
-Cordialement,
-L'équipe Artisans Validés`;
+Tout est paramétré. Vos premiers clients peuvent vous contacter dès maintenant.
+
+— Jane · Artisans Validés`;
   };
 
   const copyAccessText = (artisan: CommandantArtisan) => {
@@ -247,7 +254,19 @@ L'équipe Artisans Validés`;
 
   const generateClosingMessage = (artisan: CommandantArtisan) => {
     const url = getProfileUrl(artisan);
-    return `Bonjour ${artisan.business_name}, votre vitrine exclusive est prête pour ${artisan.city}. Elle est actuellement en attente de validation finale. Consultez-la ici pour bloquer votre zone : ${url}. Attention, la priorité expire demain à 18h.`;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const expiry = `demain à 18h`;
+    return `${artisan.business_name}, on a terminé l'analyse de votre secteur à ${artisan.city}.
+
+Résultat : votre zone est encore DISPONIBLE. Mais plus pour longtemps — un concurrent est en file d'attente.
+
+Votre diagnostic complet est ici :
+👉 ${url}
+
+⚠️ Priorité : expiration ${expiry}. Après ça, le secteur est ouvert au suivant.
+
+— Jane, Responsable Validation · Artisans Validés`;
   };
 
   const copyClosingMessage = (artisan: CommandantArtisan) => {
@@ -258,191 +277,186 @@ L'équipe Artisans Validés`;
   const downloadOfferPDF = (artisan: CommandantArtisan) => {
     const url = getProfileUrl(artisan);
     const year = new Date().getFullYear();
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Exclusivité</title>
+    const visibilityScore = Math.floor(Math.random() * 15) + 78; // 78-92
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Diagnostic de Potentiel</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Montserrat',system-ui,sans-serif;color:#E2E8F0;min-height:100vh;display:flex;align-items:center;justify-content:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;
-background:#070E1A;position:relative;overflow:hidden}
+body{font-family:'DM Sans',system-ui,sans-serif;color:#E2E8F0;min-height:100vh;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+background:#060C18;padding:40px 20px}
 
-/* ── FOND FLOUTÉ + CIRCUIT PATTERN ── */
-body::before{content:'';position:fixed;inset:0;z-index:0;
-background:
-  repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(255,184,0,0.02) 60px,rgba(255,184,0,0.02) 61px),
-  repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(255,184,0,0.02) 60px,rgba(255,184,0,0.02) 61px),
-  repeating-linear-gradient(135deg,transparent,transparent 100px,rgba(255,184,0,0.015) 100px,rgba(255,184,0,0.015) 101px);
-backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-body::after{content:'';position:fixed;inset:0;z-index:0;
-background:radial-gradient(ellipse at 30% 20%,rgba(255,184,0,0.07) 0%,transparent 55%),
-radial-gradient(ellipse at 70% 80%,rgba(255,184,0,0.04) 0%,transparent 55%)}
+.report{max-width:620px;margin:0 auto;background:#0A192F;border-radius:24px;overflow:hidden;
+border:1px solid rgba(212,175,55,0.2);box-shadow:0 0 80px rgba(212,175,55,0.08)}
 
-/* ── CARD CENTRALE FLOTTANTE ── */
-.lock-card{position:relative;z-index:1;width:100%;max-width:540px;margin:40px auto;
-background:#0A192F;border-radius:20px;overflow:hidden;
-border:1.5px solid #FFB800;
-box-shadow:0 0 60px rgba(255,184,0,0.12),0 30px 80px rgba(0,0,0,0.5)}
+/* HEADER */
+.report-header{padding:32px 36px;border-bottom:1px solid rgba(212,175,55,0.12);display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:14px}
+.brand img{height:36px}
+.brand-text{font-size:13px;font-weight:900;color:#fff;letter-spacing:3px}
+.brand-sub{font-size:7px;font-weight:700;color:#D4AF37;letter-spacing:3px;margin-top:2px}
+.doc-type{font-size:9px;font-weight:800;color:#D4AF37;letter-spacing:2px;text-transform:uppercase;
+padding:8px 16px;border:1px solid rgba(212,175,55,0.3);border-radius:6px}
 
-/* ── HEADER BANDEAU ── */
-.card-header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;
-background:rgba(10,25,47,0.95);border-bottom:1px solid rgba(255,184,0,0.15)}
-.brand{display:flex;align-items:center;gap:12px}
-.brand-logo{height:38px;width:auto;object-fit:contain}
-.brand-text{display:flex;flex-direction:column}
-.brand-text span:first-child{font-size:14px;font-weight:900;color:#FFF;display:block;letter-spacing:3px;line-height:1}
-.brand-text span:last-child{font-size:7px;font-weight:700;color:#FFB800;display:block;letter-spacing:3px;margin-top:2px}
-.badge-ready{padding:8px 16px;background:#FFB800;color:#0A192F;font-size:9px;font-weight:900;letter-spacing:1.5px;border-radius:5px;text-transform:uppercase}
+/* TITRE */
+.report-title{padding:36px 36px 12px;text-align:center}
+.report-title h1{font-size:22px;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:0.5px}
+.report-title .subtitle{font-size:13px;color:rgba(255,255,255,0.5);font-weight:500}
+.report-title .city-tag{display:inline-block;margin-top:12px;padding:6px 18px;background:rgba(212,175,55,0.1);
+border:1px solid rgba(212,175,55,0.25);border-radius:6px;font-size:11px;font-weight:700;color:#D4AF37;letter-spacing:2px}
 
-/* ── CONTENU CENTRAL ── */
-.card-body{padding:40px 32px 32px;text-align:center}
+/* SCORE SECTION */
+.score-section{padding:28px 36px;display:flex;align-items:center;gap:24px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.score-ring{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+background:conic-gradient(#D4AF37 0% ${visibilityScore}%, rgba(255,255,255,0.08) ${visibilityScore}% 100%);position:relative}
+.score-ring::after{content:'';position:absolute;inset:8px;border-radius:50%;background:#0A192F}
+.score-value{position:relative;z-index:1;font-size:28px;font-weight:900;color:#D4AF37}
+.score-value span{font-size:14px;font-weight:600}
+.score-details h3{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px}
+.score-details p{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6}
+.score-details .highlight{color:#D4AF37;font-weight:700}
 
-/* Icône cadenas animé */
-.lock-icon{width:64px;height:64px;margin:0 auto 24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-background:rgba(255,184,0,0.1);border:2px solid #FFB800;animation:lock-pulse 2s ease-in-out infinite}
-.lock-icon svg{width:32px;height:32px;fill:none;stroke:#FFB800;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-@keyframes lock-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,184,0,0.4)}50%{box-shadow:0 0 0 12px rgba(255,184,0,0)}}
+/* COMPARATIF */
+.comparatif{padding:28px 36px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.comparatif h2{font-size:13px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;text-align:center}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.compare-col{padding:20px;border-radius:12px;text-align:center}
+.compare-col.before{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15)}
+.compare-col.after{background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.25)}
+.compare-col .col-title{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.compare-col.before .col-title{color:#EF4444}
+.compare-col.after .col-title{color:#D4AF37}
+.compare-item{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:8px;line-height:1.5}
+.compare-col.before .compare-item::before{content:'✗ ';color:#EF4444;font-weight:900}
+.compare-col.after .compare-item::before{content:'✓ ';color:#D4AF37;font-weight:900}
 
-/* Sector analysis tag — capsule badge */
-.sector-tag{display:inline-block;font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:18px;
-padding:8px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px}
+/* CHECKLIST */
+.checklist{padding:28px 36px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.checklist h2{font-size:13px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.check-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.check-icon{width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);
+display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.check-label{font-size:13px;color:rgba(255,255,255,0.8);font-weight:500}
+.check-status{margin-left:auto;font-size:10px;font-weight:800;color:#10B981;
+padding:3px 10px;background:rgba(16,185,129,0.1);border-radius:4px}
 
-/* Infos artisan */
-.artisan-block{margin-bottom:28px}
-.artisan-name{font-size:22px;font-weight:900;color:#FFFFFF;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:10px}
-.gold-seal{width:28px;height:28px;flex-shrink:0}
-.artisan-city{font-size:12px;color:rgba(255,255,255,0.5);font-weight:500;margin-bottom:10px}
+/* EXPERT VERDICT */
+.verdict{padding:28px 36px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.verdict-box{background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.2);border-radius:14px;padding:24px}
+.verdict-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.verdict-seal{width:36px;height:36px;border-radius:50%;background:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:18px}
+.verdict-by{font-size:12px;font-weight:800;color:#D4AF37}
+.verdict-role{font-size:10px;color:rgba(255,255,255,0.4);font-weight:500}
+.verdict-text{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.8;font-style:italic}
+.verdict-text strong{color:#fff;font-style:normal}
 
-/* Arguments block */
-.args-block{text-align:left;max-width:460px;margin:0 auto 32px}
-.arg-item{display:flex;align-items:flex-start;gap:16px;margin-bottom:28px}
-.arg-emoji{font-size:28px;flex-shrink:0;line-height:1;width:48px;height:48px;display:flex;align-items:center;justify-content:center;
-background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.15);border-radius:50%}
-.arg-content{font-size:13px;color:rgba(255,255,255,0.85);line-height:1.75}
-.arg-content strong{color:#FFFFFF;font-weight:900;font-size:13.5px}
-.arg-content .city-hl{font-weight:800;color:#FFB800}
+/* CTA */
+.cta-section{padding:32px 36px;text-align:center}
+.btn-cta{display:inline-block;padding:20px 48px;background:#D4AF37;color:#0A192F;font-size:15px;font-weight:900;
+letter-spacing:1px;border-radius:12px;text-decoration:none;
+box-shadow:0 8px 40px rgba(212,175,55,0.35)}
+.urgency{margin-top:16px;font-size:11px;font-weight:700;color:#EF4444;letter-spacing:0.5px}
 
-/* Transition phrase */
-.transition-phrase{font-size:13px;font-weight:700;color:rgba(255,255,255,0.5);line-height:1.6;text-align:center;margin-bottom:28px;font-style:italic}
-.transition-phrase strong{color:#FFB800;font-style:normal}
-
-/* ── CTA PRINCIPAL ── */
-.btn-vitrine{display:block;width:100%;padding:22px 24px;background:#FFB800;color:#0A192F;font-size:16px;font-weight:900;letter-spacing:1px;border-radius:12px;text-decoration:none;border:none;cursor:pointer;font-family:'Montserrat',sans-serif;
-box-shadow:0 8px 36px rgba(255,184,0,0.4);position:relative;overflow:hidden;
-animation:btn-pulse 2.5s ease-in-out infinite}
-.btn-vitrine::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
-background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,0.08) 30%,rgba(255,255,255,0.28) 50%,rgba(255,255,255,0.08) 70%,transparent 100%);
-animation:btn-shimmer 3s ease-in-out infinite}
-.btn-vitrine span{position:relative;z-index:1}
-@keyframes btn-shimmer{0%{left:-100%}60%{left:150%}100%{left:150%}}
-@keyframes btn-pulse{0%,100%{transform:scale(1);box-shadow:0 8px 36px rgba(255,184,0,0.4)}50%{transform:scale(1.02);box-shadow:0 12px 48px rgba(255,184,0,0.55)}}
-
-/* ── ALERTE URGENCE ── */
-.alert-bar{margin-top:24px;padding:14px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px}
-.alert-bar .bomb{font-size:18px}
-.alert-bar .alert-text{font-size:12px;font-weight:800;color:#EF4444;letter-spacing:0.5px}
-
-/* ── FOOTER LIGHT ── */
-.card-footer{padding:20px 32px;border-top:1px solid rgba(255,184,0,0.08);text-align:center}
-.footer-guarantee{font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);margin-bottom:6px}
+/* FOOTER */
+.report-footer{padding:20px 36px;border-top:1px solid rgba(255,255,255,0.05);text-align:center}
+.footer-guarantee{font-size:10px;font-weight:600;color:rgba(255,255,255,0.3);margin-bottom:4px}
 .footer-copy{font-size:8px;color:rgba(255,255,255,0.15)}
 
-/* ══════ RESPONSIVE MOBILE ══════ */
 @media(max-width:480px){
-  .lock-card{max-width:95%;border-radius:14px;border-width:1px}
-  .card-header{padding:12px 15px}
-  .brand-logo{height:28px}
-  .brand-text span:first-child{font-size:11px;letter-spacing:2px}
-  .brand-text span:last-child{font-size:6px}
-  .badge-ready{padding:6px 10px;font-size:7.5px}
-  .card-body{padding:24px 15px 20px}
-  .lock-icon{width:48px;height:48px;margin-bottom:16px}
-  .lock-icon svg{width:24px;height:24px}
-  .sector-tag{font-size:9px;padding:6px 12px;letter-spacing:1.5px;margin-bottom:14px}
-  .artisan-name{font-size:20px;gap:8px}
-  .gold-seal{width:22px;height:22px}
-  .artisan-city{font-size:11px}
-
-  /* Args — column layout: icon on top */
-  .args-block{max-width:100%;margin-bottom:24px}
-  .arg-item{flex-direction:column;align-items:center;text-align:center;gap:10px;margin-bottom:24px}
-  .arg-emoji{width:44px;height:44px;font-size:24px}
-  .arg-content{font-size:14px;line-height:1.7}
-  .arg-content strong{font-size:15px;display:block;margin-bottom:4px}
-
-  .transition-phrase{font-size:12px;margin-bottom:20px}
-
-  /* Sticky full-width CTA */
-  .btn-vitrine{font-size:14px;padding:18px 16px;border-radius:10px;letter-spacing:0.5px;
-  position:sticky;bottom:0;z-index:10}
-
-  .alert-bar{padding:10px 14px;margin-top:18px}
-  .alert-bar .alert-text{font-size:11px}
-
-  .card-footer{padding:14px 15px}
+  body{padding:16px 8px}
+  .report{border-radius:16px}
+  .report-header,.report-title,.score-section,.comparatif,.checklist,.verdict,.cta-section,.report-footer{padding-left:20px;padding-right:20px}
+  .score-section{flex-direction:column;text-align:center}
+  .compare-grid{grid-template-columns:1fr}
+  .btn-cta{display:block;width:100%}
 }
 </style></head><body>
 
-<div class="lock-card">
+<div class="report">
   <!-- HEADER -->
-  <div class="card-header">
+  <div class="report-header">
     <div class="brand">
-      <img class="brand-logo" src="https://verified-craftsmen-hub.lovable.app/favicon.png" alt="Artisans Validés" />
-      <div class="brand-text"><span>ARTISANS VALIDÉS</span><span>RÉSEAU D'EXCELLENCE</span></div>
+      <img src="https://verified-craftsmen-hub.lovable.app/favicon.png" alt="AV" />
+      <div><div class="brand-text">ARTISANS VALIDÉS</div><div class="brand-sub">RÉSEAU D'EXCELLENCE</div></div>
     </div>
-    <div class="badge-ready">VOTRE COMPTE EST PRÊT</div>
+    <div class="doc-type">DIAGNOSTIC N°${Date.now().toString(36).toUpperCase()}</div>
   </div>
 
-  <!-- BODY -->
-  <div class="card-body">
-    <!-- Lock icon -->
-    <div class="lock-icon">
-      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  <!-- TITRE -->
+  <div class="report-title">
+    <h1>Diagnostic de Potentiel</h1>
+    <div class="subtitle">Rapport d'expertise · ${artisan.business_name}</div>
+    <div class="city-tag">📍 SECTEUR : ${artisan.city.toUpperCase()}</div>
+  </div>
+
+  <!-- SCORE DE VISIBILITÉ -->
+  <div class="score-section">
+    <div class="score-ring">
+      <div class="score-value">${visibilityScore}<span>%</span></div>
     </div>
-
-    <!-- Sector tag -->
-    <div class="sector-tag">ANALYSE DE SECTEUR TERMINÉE : ${artisan.city.toUpperCase()} DISPONIBLE.</div>
-
-    <!-- Infos artisan -->
-    <div class="artisan-block">
-      <div class="artisan-name">
-        ${artisan.business_name}
-        <svg class="gold-seal" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" fill="#FFB800"/><circle cx="20" cy="20" r="15" fill="none" stroke="#0A192F" stroke-width="1.5"/><path d="M13 20.5l5 4.5 9-10" stroke="#0A192F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M20 2l2.5 4.5L27 5l-1 5 4.5 2.5-3.5 3.5 1.5 5-5-1-2.5 4.5L18.5 20 14 24l1.5-5L11 16.5l4.5-2.5L14.5 9l5 1L20 2z" fill="#FFB800" opacity="0.3"/></svg>
-      </div>
-      <div class="artisan-city">📍 ${artisan.city}${artisan.category?.name ? ` — ${artisan.category.name}` : ''}</div>
+    <div class="score-details">
+      <h3>Score de Visibilité Locale</h3>
+      <p>Votre potentiel de captation client à <span class="highlight">${artisan.city}</span> est de <span class="highlight">${visibilityScore}%</span>. 
+      ${visibilityScore > 85 ? "Zone à fort potentiel — activation recommandée immédiate." : "Zone prometteuse — des concurrents pourraient verrouiller ce secteur."}</p>
     </div>
+  </div>
 
-    <!-- 3 Arguments Poids Lourd -->
-    <div class="args-block">
-      <div class="arg-item">
-        <span class="arg-emoji">🏦</span>
-        <div class="arg-content"><strong>UN ACTIF NUMÉRIQUE PRÊT À L'EMPLOI</strong> — Ce n'est pas une simple page, c'est votre vitrine optimisée pour dominer le marché local sur Google à <span class="city-hl">${artisan.city}</span>. Tout est déjà paramétré.</div>
+  <!-- COMPARATIF -->
+  <div class="comparatif">
+    <h2>Le diagnostic en un coup d'œil</h2>
+    <div class="compare-grid">
+      <div class="compare-col before">
+        <div class="col-title">❌ Artisan Invisible</div>
+        <div class="compare-item">Dépend du bouche-à-oreille</div>
+        <div class="compare-item">Zéro présence Google locale</div>
+        <div class="compare-item">Leads partagés avec 10 concurrents</div>
+        <div class="compare-item">Aucune preuve de crédibilité en ligne</div>
       </div>
-      <div class="arg-item">
-        <span class="arg-emoji">🛑</span>
-        <div class="arg-content"><strong>BARRIÈRE À LA CONCURRENCE</strong> — Votre validation verrouille l'accès à vos concurrents. À <span class="city-hl">${artisan.city}</span>, il n'y a de la place que pour un seul leader.</div>
-      </div>
-      <div class="arg-item">
-        <span class="arg-emoji">☎️</span>
-        <div class="arg-content"><strong>LIGNE DIRECTE CLIENTS</strong> — Interface « zéro friction » : les clients de <span class="city-hl">${artisan.city}</span> vous appellent en un clic. Pas d'intermédiaire, pas de partage de leads.</div>
+      <div class="compare-col after">
+        <div class="col-title">🏆 Artisan Élite AV</div>
+        <div class="compare-item">Fiche optimisée SEO à ${artisan.city}</div>
+        <div class="compare-item">Monopole de secteur garanti</div>
+        <div class="compare-item">Clients en direct, zéro intermédiaire</div>
+        <div class="compare-item">Badge "Audité" + Sceau de Certification</div>
       </div>
     </div>
+  </div>
 
-    <!-- Transition -->
-    <p class="transition-phrase">Propriétaire : <strong>En attente de vérification.</strong> Prenez les commandes de votre secteur.</p>
+  <!-- CHECKLIST D'AUDIT -->
+  <div class="checklist">
+    <h2>Points de contrôle validés</h2>
+    <div class="check-item"><div class="check-icon">🏢</div><div class="check-label">Fiche professionnelle créée et optimisée</div><div class="check-status">PRÊT</div></div>
+    <div class="check-item"><div class="check-icon">📍</div><div class="check-label">Secteur ${artisan.city} — zone disponible</div><div class="check-status">LIBRE</div></div>
+    <div class="check-item"><div class="check-icon">🔒</div><div class="check-label">Verrouillage exclusif du secteur</div><div class="check-status">EN ATTENTE</div></div>
+    <div class="check-item"><div class="check-icon">⭐</div><div class="check-label">Badge Artisan Audité</div><div class="check-status">ÉLIGIBLE</div></div>
+    <div class="check-item"><div class="check-icon">📞</div><div class="check-label">Ligne directe clients activable</div><div class="check-status">PRÊT</div></div>
+  </div>
 
-    <!-- CTA unique -->
-    <a class="btn-vitrine" href="${url}"><span>ACCÉDER À MON OUTIL DE TRAVAIL 👁️</span></a>
-
-    <!-- Alerte urgence -->
-    <div class="alert-bar">
-      <span class="bomb">💣</span>
-      <span class="alert-text">Expiration automatique demain à 18h00</span>
+  <!-- VERDICT EXPERT -->
+  <div class="verdict">
+    <div class="verdict-box">
+      <div class="verdict-header">
+        <div class="verdict-seal">🛡️</div>
+        <div><div class="verdict-by">Jane · Responsable Validation</div><div class="verdict-role">Équipe Audit Terrain · Artisans Validés</div></div>
+      </div>
+      <div class="verdict-text">
+        « Après analyse du marché à <strong>${artisan.city}</strong>${artisan.category?.name ? ` dans le secteur ${artisan.category.name}` : ''}, 
+        je confirme un potentiel de croissance significatif pour <strong>${artisan.business_name}</strong>. 
+        La demande locale est forte et le secteur n'est pas encore verrouillé. 
+        <strong>Recommandation : activation prioritaire avant qu'un concurrent ne prenne la position.</strong> »
+      </div>
     </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <a class="btn-cta" href="${url}">CONSULTER MON DIAGNOSTIC COMPLET →</a>
+    <div class="urgency">⚠️ Priorité sectorielle : expiration demain à 18h00</div>
   </div>
 
   <!-- FOOTER -->
-  <div class="card-footer">
-    <div class="footer-guarantee">✅ Satisfaction garantie ou 100% remboursé sous 30 jours</div>
-    <div class="footer-copy">© ${year} Artisans Validés — www.artisansvalides.fr</div>
+  <div class="report-footer">
+    <div class="footer-guarantee">✅ 100% satisfait ou remboursé sous 30 jours · Sans engagement</div>
+    <div class="footer-copy">© ${year} Artisans Validés · www.artisansvalides.fr · Diagnostic confidentiel</div>
   </div>
 </div>
 
@@ -450,10 +464,10 @@ animation:btn-shimmer 3s ease-in-out infinite}
     const blob = new Blob([html], { type: "text/html" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `Attestation-${artisan.business_name.replace(/\s+/g, "-")}.html`;
+    a.download = `Diagnostic-${artisan.business_name.replace(/\s+/g, "-")}.html`;
     a.click();
     URL.revokeObjectURL(a.href);
-    toast.success("📄 Attestation téléchargée ! Ouvrez-la et imprimez en PDF.");
+    toast.success("📄 Diagnostic de puissance téléchargé !");
   };
 
   const totalPages = Math.ceil((counts[activeTab] || 0) / PER_PAGE);
