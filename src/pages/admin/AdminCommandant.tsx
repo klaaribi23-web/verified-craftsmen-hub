@@ -277,186 +277,218 @@ Votre diagnostic complet est ici :
   const downloadOfferPDF = (artisan: CommandantArtisan) => {
     const url = getProfileUrl(artisan);
     const year = new Date().getFullYear();
-    const visibilityScore = Math.floor(Math.random() * 15) + 78; // 78-92
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Diagnostic de Potentiel</title>
+    const vulnScore = Math.floor(Math.random() * 15) + 78; // 78-92
+    const caMin = Math.floor(Math.random() * 10 + 25) * 1000; // 25k-35k
+    const caMax = caMin + Math.floor(Math.random() * 15 + 15) * 1000; // +15k-30k
+    const refNum = `AV-${Date.now().toString(36).toUpperCase()}`;
+    const dateStr = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Charte d'Attribution Exclusive</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',system-ui,sans-serif;color:#E2E8F0;min-height:100vh;-webkit-print-color-adjust:exact;print-color-adjust:exact;
 background:#060C18;padding:40px 20px}
 
-.report{max-width:620px;margin:0 auto;background:#0A192F;border-radius:24px;overflow:hidden;
-border:1px solid rgba(212,175,55,0.2);box-shadow:0 0 80px rgba(212,175,55,0.08)}
+.charter{max-width:640px;margin:0 auto;background:#0A192F;border-radius:4px;overflow:hidden;position:relative;
+border:2px solid #D4AF37;box-shadow:0 0 0 6px rgba(212,175,55,0.08),0 0 80px rgba(212,175,55,0.1)}
+
+/* Watermark seal */
+.charter::before{content:'AV';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+font-size:200px;font-weight:900;color:rgba(212,175,55,0.03);letter-spacing:20px;pointer-events:none;z-index:0}
+
+/* Corner ornaments */
+.corner{position:absolute;width:40px;height:40px;border-color:#D4AF37;z-index:1}
+.corner-tl{top:12px;left:12px;border-top:2px solid;border-left:2px solid}
+.corner-tr{top:12px;right:12px;border-top:2px solid;border-right:2px solid}
+.corner-bl{bottom:12px;left:12px;border-bottom:2px solid;border-left:2px solid}
+.corner-br{bottom:12px;right:12px;border-bottom:2px solid;border-right:2px solid}
+
+.inner{position:relative;z-index:2;padding:0}
 
 /* HEADER */
-.report-header{padding:32px 36px;border-bottom:1px solid rgba(212,175,55,0.12);display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:14px}
-.brand img{height:36px}
-.brand-text{font-size:13px;font-weight:900;color:#fff;letter-spacing:3px}
-.brand-sub{font-size:7px;font-weight:700;color:#D4AF37;letter-spacing:3px;margin-top:2px}
-.doc-type{font-size:9px;font-weight:800;color:#D4AF37;letter-spacing:2px;text-transform:uppercase;
-padding:8px 16px;border:1px solid rgba(212,175,55,0.3);border-radius:6px}
+.ch-header{padding:36px 40px 20px;text-align:center;border-bottom:1px solid rgba(212,175,55,0.15)}
+.ch-ref{font-size:8px;font-weight:700;color:rgba(212,175,55,0.5);letter-spacing:3px;margin-bottom:16px}
+.ch-logo{height:32px;margin-bottom:8px}
+.ch-brand{font-size:11px;font-weight:900;color:#fff;letter-spacing:4px;margin-bottom:4px}
+.ch-brand-sub{font-size:7px;font-weight:700;color:#D4AF37;letter-spacing:4px}
 
-/* TITRE */
-.report-title{padding:36px 36px 12px;text-align:center}
-.report-title h1{font-size:22px;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:0.5px}
-.report-title .subtitle{font-size:13px;color:rgba(255,255,255,0.5);font-weight:500}
-.report-title .city-tag{display:inline-block;margin-top:12px;padding:6px 18px;background:rgba(212,175,55,0.1);
-border:1px solid rgba(212,175,55,0.25);border-radius:6px;font-size:11px;font-weight:700;color:#D4AF37;letter-spacing:2px}
+/* TITLE */
+.ch-title{padding:28px 40px 8px;text-align:center}
+.ch-title h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:#D4AF37;margin-bottom:4px;letter-spacing:1px;line-height:1.3}
+.ch-title .recipient{font-size:14px;color:#fff;font-weight:700;margin-top:12px}
+.ch-title .city-seal{display:inline-block;margin-top:14px;padding:8px 24px;background:rgba(212,175,55,0.08);
+border:1px solid rgba(212,175,55,0.3);border-radius:4px;font-size:11px;font-weight:800;color:#D4AF37;letter-spacing:3px}
 
-/* SCORE SECTION */
-.score-section{padding:28px 36px;display:flex;align-items:center;gap:24px;border-bottom:1px solid rgba(255,255,255,0.05)}
-.score-ring{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-background:conic-gradient(#D4AF37 0% ${visibilityScore}%, rgba(255,255,255,0.08) ${visibilityScore}% 100%);position:relative}
-.score-ring::after{content:'';position:absolute;inset:8px;border-radius:50%;background:#0A192F}
-.score-value{position:relative;z-index:1;font-size:28px;font-weight:900;color:#D4AF37}
-.score-value span{font-size:14px;font-weight:600}
-.score-details h3{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px}
-.score-details p{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6}
-.score-details .highlight{color:#D4AF37;font-weight:700}
+/* VULN SECTION */
+.vuln{padding:28px 40px;display:flex;align-items:center;gap:24px;border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
+.vuln-ring{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+background:conic-gradient(#EF4444 0% ${vulnScore}%, rgba(255,255,255,0.06) ${vulnScore}% 100%);position:relative}
+.vuln-ring::after{content:'';position:absolute;inset:9px;border-radius:50%;background:#0A192F}
+.vuln-val{position:relative;z-index:1;font-size:30px;font-weight:900;color:#EF4444}
+.vuln-val span{font-size:14px;font-weight:600}
+.vuln-info h3{font-size:15px;font-weight:800;color:#EF4444;margin-bottom:6px}
+.vuln-info p{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7}
+.vuln-info .hl{color:#D4AF37;font-weight:700}
+
+/* CA PERDU */
+.ca-loss{margin:0 40px;padding:20px 24px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:8px;text-align:center;margin-bottom:4px}
+.ca-loss .label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.ca-loss .amount{font-size:28px;font-weight:900;color:#EF4444}
+.ca-loss .sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px}
 
 /* COMPARATIF */
-.comparatif{padding:28px 36px;border-bottom:1px solid rgba(255,255,255,0.05)}
-.comparatif h2{font-size:13px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;text-align:center}
+.compare{padding:28px 40px;border-top:1px solid rgba(255,255,255,0.04)}
+.compare h2{font-size:11px;font-weight:800;color:rgba(255,255,255,0.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;text-align:center}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.compare-col{padding:20px;border-radius:12px;text-align:center}
-.compare-col.before{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15)}
-.compare-col.after{background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.25)}
-.compare-col .col-title{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
-.compare-col.before .col-title{color:#EF4444}
-.compare-col.after .col-title{color:#D4AF37}
-.compare-item{font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:8px;line-height:1.5}
-.compare-col.before .compare-item::before{content:'✗ ';color:#EF4444;font-weight:900}
-.compare-col.after .compare-item::before{content:'✓ ';color:#D4AF37;font-weight:900}
+.compare-col{padding:20px;border-radius:8px;text-align:center}
+.compare-col.before{background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.12)}
+.compare-col.after{background:rgba(212,175,55,0.05);border:1px solid rgba(212,175,55,0.2)}
+.compare-col .ct{font-size:9px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.compare-col.before .ct{color:#EF4444}
+.compare-col.after .ct{color:#D4AF37}
+.ci{font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:7px;line-height:1.5}
+.compare-col.before .ci::before{content:'✗ ';color:#EF4444;font-weight:900}
+.compare-col.after .ci::before{content:'✓ ';color:#D4AF37;font-weight:900}
 
 /* CHECKLIST */
-.checklist{padding:28px 36px;border-bottom:1px solid rgba(255,255,255,0.05)}
-.checklist h2{font-size:13px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
-.check-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.check-icon{width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);
-display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.check-label{font-size:13px;color:rgba(255,255,255,0.8);font-weight:500}
-.check-status{margin-left:auto;font-size:10px;font-weight:800;color:#10B981;
-padding:3px 10px;background:rgba(16,185,129,0.1);border-radius:4px}
+.checks{padding:24px 40px}
+.checks h2{font-size:11px;font-weight:800;color:rgba(255,255,255,0.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}
+.chk{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.chk-ico{width:26px;height:26px;border-radius:50%;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);
+display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.chk-lbl{font-size:12px;color:rgba(255,255,255,0.75);font-weight:500;flex:1}
+.chk-st{font-size:9px;font-weight:800;color:#10B981;padding:3px 9px;background:rgba(16,185,129,0.08);border-radius:3px}
+.chk-st.warn{color:#F59E0B;background:rgba(245,158,11,0.08)}
 
-/* EXPERT VERDICT */
-.verdict{padding:28px 36px;border-bottom:1px solid rgba(255,255,255,0.05)}
-.verdict-box{background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.2);border-radius:14px;padding:24px}
-.verdict-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.verdict-seal{width:36px;height:36px;border-radius:50%;background:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:18px}
-.verdict-by{font-size:12px;font-weight:800;color:#D4AF37}
-.verdict-role{font-size:10px;color:rgba(255,255,255,0.4);font-weight:500}
-.verdict-text{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.8;font-style:italic}
-.verdict-text strong{color:#fff;font-style:normal}
+/* SIGNATURE */
+.signature{padding:28px 40px;border-top:1px solid rgba(212,175,55,0.1)}
+.sig-box{display:flex;align-items:flex-end;gap:20px}
+.sig-seal{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#D4AF37,#B8941E);
+display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;
+box-shadow:0 4px 20px rgba(212,175,55,0.3)}
+.sig-text{flex:1}
+.sig-name{font-family:'Playfair Display',serif;font-size:22px;font-style:italic;color:#D4AF37;margin-bottom:2px}
+.sig-role{font-size:10px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px}
+.sig-date{font-size:9px;color:rgba(255,255,255,0.25);margin-top:6px}
 
 /* CTA */
-.cta-section{padding:32px 36px;text-align:center}
-.btn-cta{display:inline-block;padding:20px 48px;background:#D4AF37;color:#0A192F;font-size:15px;font-weight:900;
-letter-spacing:1px;border-radius:12px;text-decoration:none;
-box-shadow:0 8px 40px rgba(212,175,55,0.35)}
+.cta{padding:32px 40px;text-align:center;background:rgba(212,175,55,0.03);border-top:1px solid rgba(212,175,55,0.15)}
+.btn-cta{display:inline-block;padding:22px 56px;background:#D4AF37;color:#0A192F;font-size:16px;font-weight:900;
+letter-spacing:2px;border-radius:8px;text-decoration:none;font-family:'DM Sans',sans-serif;
+box-shadow:0 10px 50px rgba(212,175,55,0.4)}
 .urgency{margin-top:16px;font-size:11px;font-weight:700;color:#EF4444;letter-spacing:0.5px}
 
 /* FOOTER */
-.report-footer{padding:20px 36px;border-top:1px solid rgba(255,255,255,0.05);text-align:center}
-.footer-guarantee{font-size:10px;font-weight:600;color:rgba(255,255,255,0.3);margin-bottom:4px}
-.footer-copy{font-size:8px;color:rgba(255,255,255,0.15)}
+.ch-footer{padding:18px 40px;border-top:1px solid rgba(255,255,255,0.04);text-align:center}
+.ch-footer p{font-size:8px;color:rgba(255,255,255,0.2);line-height:1.8}
 
 @media(max-width:480px){
   body{padding:16px 8px}
-  .report{border-radius:16px}
-  .report-header,.report-title,.score-section,.comparatif,.checklist,.verdict,.cta-section,.report-footer{padding-left:20px;padding-right:20px}
-  .score-section{flex-direction:column;text-align:center}
+  .charter{border-radius:2px}
+  .ch-header,.ch-title,.vuln,.ca-loss,.compare,.checks,.signature,.cta,.ch-footer{padding-left:20px;padding-right:20px}
+  .ca-loss{margin-left:20px;margin-right:20px}
+  .vuln{flex-direction:column;text-align:center}
   .compare-grid{grid-template-columns:1fr}
-  .btn-cta{display:block;width:100%}
+  .btn-cta{display:block;width:100%;padding:20px}
+  .sig-box{flex-direction:column;align-items:center;text-align:center}
 }
 </style></head><body>
 
-<div class="report">
+<div class="charter">
+  <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+  <div class="inner">
+
   <!-- HEADER -->
-  <div class="report-header">
-    <div class="brand">
-      <img src="https://verified-craftsmen-hub.lovable.app/favicon.png" alt="AV" />
-      <div><div class="brand-text">ARTISANS VALIDÉS</div><div class="brand-sub">RÉSEAU D'EXCELLENCE</div></div>
-    </div>
-    <div class="doc-type">DIAGNOSTIC N°${Date.now().toString(36).toUpperCase()}</div>
+  <div class="ch-header">
+    <div class="ch-ref">RÉF. ${refNum}</div>
+    <img class="ch-logo" src="https://verified-craftsmen-hub.lovable.app/favicon.png" alt="AV" />
+    <div class="ch-brand">ARTISANS VALIDÉS</div>
+    <div class="ch-brand-sub">RÉSEAU D'EXCELLENCE · FRANCE</div>
   </div>
 
   <!-- TITRE -->
-  <div class="report-title">
-    <h1>Diagnostic de Potentiel</h1>
-    <div class="subtitle">Rapport d'expertise · ${artisan.business_name}</div>
-    <div class="city-tag">📍 SECTEUR : ${artisan.city.toUpperCase()}</div>
+  <div class="ch-title">
+    <h1>CHARTE D'ATTRIBUTION<br/>EXCLUSIVE DE SECTEUR</h1>
+    <div class="recipient">Établie au bénéfice de ${artisan.business_name}</div>
+    <div class="city-seal">📍 SECTEUR : ${artisan.city.toUpperCase()}</div>
   </div>
 
-  <!-- SCORE DE VISIBILITÉ -->
-  <div class="score-section">
-    <div class="score-ring">
-      <div class="score-value">${visibilityScore}<span>%</span></div>
+  <!-- INDICE DE VULNÉRABILITÉ -->
+  <div class="vuln">
+    <div class="vuln-ring">
+      <div class="vuln-val">${vulnScore}<span>%</span></div>
     </div>
-    <div class="score-details">
-      <h3>Score de Visibilité Locale</h3>
-      <p>Votre potentiel de captation client à <span class="highlight">${artisan.city}</span> est de <span class="highlight">${visibilityScore}%</span>. 
-      ${visibilityScore > 85 ? "Zone à fort potentiel — activation recommandée immédiate." : "Zone prometteuse — des concurrents pourraient verrouiller ce secteur."}</p>
+    <div class="vuln-info">
+      <h3>⚠️ Indice de Vulnérabilité</h3>
+      <p>Votre taux de perte de clients potentiels sur <span class="hl">${artisan.city}</span> est estimé à <span class="hl">${vulnScore}%</span>. 
+      Ces prospects contactent actuellement vos concurrents faute de vous trouver en ligne.</p>
     </div>
+  </div>
+
+  <!-- MANQUE À GAGNER -->
+  <div class="ca-loss">
+    <div class="label">Estimation du manque à gagner annuel</div>
+    <div class="amount">${caMin.toLocaleString("fr-FR")}€ — ${caMax.toLocaleString("fr-FR")}€ / an</div>
+    <div class="sub">Basé sur le volume de recherches et le panier moyen du secteur ${artisan.category?.name || "BTP"} à ${artisan.city}</div>
   </div>
 
   <!-- COMPARATIF -->
-  <div class="comparatif">
-    <h2>Le diagnostic en un coup d'œil</h2>
+  <div class="compare">
+    <h2>Votre situation actuelle vs. attribution</h2>
     <div class="compare-grid">
       <div class="compare-col before">
-        <div class="col-title">❌ Artisan Invisible</div>
-        <div class="compare-item">Dépend du bouche-à-oreille</div>
-        <div class="compare-item">Zéro présence Google locale</div>
-        <div class="compare-item">Leads partagés avec 10 concurrents</div>
-        <div class="compare-item">Aucune preuve de crédibilité en ligne</div>
+        <div class="ct">❌ SANS ATTRIBUTION</div>
+        <div class="ci">Dépend du bouche-à-oreille</div>
+        <div class="ci">Invisible sur Google local</div>
+        <div class="ci">Leads partagés avec 10+ concurrents</div>
+        <div class="ci">Aucune preuve de crédibilité</div>
       </div>
       <div class="compare-col after">
-        <div class="col-title">🏆 Artisan Élite AV</div>
-        <div class="compare-item">Fiche optimisée SEO à ${artisan.city}</div>
-        <div class="compare-item">Monopole de secteur garanti</div>
-        <div class="compare-item">Clients en direct, zéro intermédiaire</div>
-        <div class="compare-item">Badge "Audité" + Sceau de Certification</div>
+        <div class="ct">🏆 SECTEUR ATTRIBUÉ</div>
+        <div class="ci">Monopole garanti sur ${artisan.city}</div>
+        <div class="ci">Fiche SEO optimisée #1</div>
+        <div class="ci">Clients en direct exclusif</div>
+        <div class="ci">Sceau Audité + Certification</div>
       </div>
     </div>
   </div>
 
-  <!-- CHECKLIST D'AUDIT -->
-  <div class="checklist">
-    <h2>Points de contrôle validés</h2>
-    <div class="check-item"><div class="check-icon">🏢</div><div class="check-label">Fiche professionnelle créée et optimisée</div><div class="check-status">PRÊT</div></div>
-    <div class="check-item"><div class="check-icon">📍</div><div class="check-label">Secteur ${artisan.city} — zone disponible</div><div class="check-status">LIBRE</div></div>
-    <div class="check-item"><div class="check-icon">🔒</div><div class="check-label">Verrouillage exclusif du secteur</div><div class="check-status">EN ATTENTE</div></div>
-    <div class="check-item"><div class="check-icon">⭐</div><div class="check-label">Badge Artisan Audité</div><div class="check-status">ÉLIGIBLE</div></div>
-    <div class="check-item"><div class="check-icon">📞</div><div class="check-label">Ligne directe clients activable</div><div class="check-status">PRÊT</div></div>
+  <!-- CHECKLIST -->
+  <div class="checks">
+    <h2>Points de contrôle de l'attribution</h2>
+    <div class="chk"><div class="chk-ico">🏢</div><div class="chk-lbl">Fiche professionnelle créée et optimisée</div><div class="chk-st">PRÊT</div></div>
+    <div class="chk"><div class="chk-ico">📍</div><div class="chk-lbl">Secteur ${artisan.city} — ${artisan.category?.name || "BTP"}</div><div class="chk-st">LIBRE</div></div>
+    <div class="chk"><div class="chk-ico">🔒</div><div class="chk-lbl">Verrouillage exclusif (2 places max)</div><div class="chk-st warn">EN ATTENTE</div></div>
+    <div class="chk"><div class="chk-ico">⭐</div><div class="chk-lbl">Badge Artisan Audité</div><div class="chk-st">ÉLIGIBLE</div></div>
+    <div class="chk"><div class="chk-ico">📞</div><div class="chk-lbl">Ligne directe clients</div><div class="chk-st">PRÊT</div></div>
+    <div class="chk"><div class="chk-ico">📊</div><div class="chk-lbl">Tableau de bord performance</div><div class="chk-st">PRÊT</div></div>
   </div>
 
-  <!-- VERDICT EXPERT -->
-  <div class="verdict">
-    <div class="verdict-box">
-      <div class="verdict-header">
-        <div class="verdict-seal">🛡️</div>
-        <div><div class="verdict-by">Jane · Responsable Validation</div><div class="verdict-role">Équipe Audit Terrain · Artisans Validés</div></div>
-      </div>
-      <div class="verdict-text">
-        « Après analyse du marché à <strong>${artisan.city}</strong>${artisan.category?.name ? ` dans le secteur ${artisan.category.name}` : ''}, 
-        je confirme un potentiel de croissance significatif pour <strong>${artisan.business_name}</strong>. 
-        La demande locale est forte et le secteur n'est pas encore verrouillé. 
-        <strong>Recommandation : activation prioritaire avant qu'un concurrent ne prenne la position.</strong> »
+  <!-- SIGNATURE -->
+  <div class="signature">
+    <div class="sig-box">
+      <div class="sig-seal">🛡️</div>
+      <div class="sig-text">
+        <div class="sig-name">Jane Moreau</div>
+        <div class="sig-role">DIRECTRICE VALIDATION · ARTISANS VALIDÉS</div>
+        <div class="sig-date">Établie le ${dateStr}</div>
       </div>
     </div>
   </div>
 
   <!-- CTA -->
-  <div class="cta-section">
-    <a class="btn-cta" href="${url}">CONSULTER MON DIAGNOSTIC COMPLET →</a>
-    <div class="urgency">⚠️ Priorité sectorielle : expiration demain à 18h00</div>
+  <div class="cta">
+    <a class="btn-cta" href="${url}">REVENDIQUER MON MONOPOLE →</a>
+    <div class="urgency">⚠️ Attribution réservée 48h · Passé ce délai, le secteur est ouvert au concurrent suivant</div>
   </div>
 
   <!-- FOOTER -->
-  <div class="report-footer">
-    <div class="footer-guarantee">✅ 100% satisfait ou remboursé sous 30 jours · Sans engagement</div>
-    <div class="footer-copy">© ${year} Artisans Validés · www.artisansvalides.fr · Diagnostic confidentiel</div>
+  <div class="ch-footer">
+    <p>✅ 100% satisfait ou remboursé sous 30 jours · Sans engagement<br/>
+    © ${year} Artisans Validés · www.artisansvalides.fr · Document confidentiel — usage strictement personnel</p>
+  </div>
+
   </div>
 </div>
 
@@ -464,10 +496,10 @@ box-shadow:0 8px 40px rgba(212,175,55,0.35)}
     const blob = new Blob([html], { type: "text/html" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `Diagnostic-${artisan.business_name.replace(/\s+/g, "-")}.html`;
+    a.download = `Charte-Attribution-${artisan.business_name.replace(/\s+/g, "-")}.html`;
     a.click();
     URL.revokeObjectURL(a.href);
-    toast.success("📄 Diagnostic de puissance téléchargé !");
+    toast.success("📜 Charte d'Attribution téléchargée !");
   };
 
   const totalPages = Math.ceil((counts[activeTab] || 0) / PER_PAGE);
