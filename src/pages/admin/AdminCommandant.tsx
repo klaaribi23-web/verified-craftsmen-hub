@@ -15,7 +15,7 @@ import {
   Rocket, Package, Clock, UserCheck,
   MapPin, Search, Copy, Link2, ExternalLink,
   Send, Eye, Loader2, ChevronLeft, ChevronRight,
-  MessageCircle, FileText, Download,
+  MessageCircle, FileText, Download, Mail, TrendingUp,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -115,7 +115,7 @@ const AdminCommandant = () => {
     },
   });
 
-  // "Lancer l'assaut" — move to pending
+  // "Lancer l'assaut" — move to suspended (EN COURS)
   const assaultMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -131,6 +131,45 @@ const AdminCommandant = () => {
       queryClient.invalidateQueries({ queryKey: ["public-artisans"] });
     },
     onError: () => toast.error("Erreur lors du lancement"),
+  });
+
+  // "Email d'assaut" — send preregistration email, move to pending (CONTACTÉ)
+  const emailAssaultMutation = useMutation({
+    mutationFn: async (artisan: CommandantArtisan) => {
+      const artisanEmail = artisan.email || artisan.profile?.email;
+      if (!artisanEmail) throw new Error("Pas d'email pour cet artisan");
+
+      // 1. Call send-preregistration-email edge function
+      const { data, error: fnError } = await supabase.functions.invoke("send-preregistration-email", {
+        body: {
+          artisanId: artisan.id,
+          artisanEmail,
+          artisanName: artisan.business_name,
+        },
+      });
+
+      if (fnError) throw fnError;
+      if (!data?.success) throw new Error("Échec d'envoi de l'email");
+
+      // 2. Update reminder_sent_at
+      const { error: updateError } = await supabase
+        .from("artisans")
+        .update({ 
+          reminder_sent_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", artisan.id);
+
+      if (updateError) throw updateError;
+
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("📧 Email de pré-inscription envoyé ! Statut → CONTACTÉ");
+      queryClient.invalidateQueries({ queryKey: ["commandant-artisans"] });
+      queryClient.invalidateQueries({ queryKey: ["commandant-counts"] });
+    },
+    onError: (error: any) => toast.error(error.message || "Erreur envoi email"),
   });
 
   // Move to other statuses
@@ -431,6 +470,42 @@ animation:btn-shimmer 3s ease-in-out infinite}
             subtitle="Pilotez votre prospection artisan"
           />
           <div className="p-4 md:p-8">
+            {/* KPI Dashboard de Guerre */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <Card className="border-gray-500/30">
+                <CardContent className="p-3 text-center">
+                  <Package className="h-5 w-5 mx-auto mb-1 text-gray-400" />
+                  <p className="text-2xl font-bold text-foreground">{counts.stock || 0}</p>
+                  <p className="text-xs text-muted-foreground">STOCK</p>
+                </CardContent>
+              </Card>
+              <Card className="border-blue-500/30">
+                <CardContent className="p-3 text-center">
+                  <Mail className="h-5 w-5 mx-auto mb-1 text-blue-500" />
+                  <p className="text-2xl font-bold text-blue-500">{counts["en-cours"] || 0}</p>
+                  <p className="text-xs text-muted-foreground">CONTACTÉS / EN COURS</p>
+                </CardContent>
+              </Card>
+              <Card className="border-emerald-500/30">
+                <CardContent className="p-3 text-center">
+                  <UserCheck className="h-5 w-5 mx-auto mb-1 text-emerald-500" />
+                  <p className="text-2xl font-bold text-emerald-500">{counts.clients || 0}</p>
+                  <p className="text-xs text-muted-foreground">CONVERTIS</p>
+                </CardContent>
+              </Card>
+              <Card className="border-primary/30">
+                <CardContent className="p-3 text-center">
+                  <TrendingUp className="h-5 w-5 mx-auto mb-1 text-primary" />
+                  <p className="text-2xl font-bold text-primary">
+                    {((counts.stock || 0) + (counts["en-cours"] || 0) + (counts.clients || 0)) > 0
+                      ? Math.round(((counts.clients || 0) / ((counts.stock || 0) + (counts["en-cours"] || 0) + (counts.clients || 0))) * 100)
+                      : 0}%
+                  </p>
+                  <p className="text-xs text-muted-foreground">CONVERSION</p>
+                </CardContent>
+              </Card>
+            </div>
+
             <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="mb-6 flex-wrap bg-muted/50">
                 {tabConfig.map((tab) => (
@@ -489,6 +564,7 @@ animation:btn-shimmer 3s ease-in-out infinite}
                           artisan={artisan}
                           tabKey={activeTab}
                           onAssault={() => assaultMutation.mutate(artisan.id)}
+                          onEmailAssault={() => emailAssaultMutation.mutate(artisan)}
                           onChangeStatus={(status) => changeStatusMutation.mutate({ id: artisan.id, status })}
                           onCopyLink={() => copyLink(artisan)}
                           onWhatsApp={() => {
@@ -501,6 +577,7 @@ animation:btn-shimmer 3s ease-in-out infinite}
                           onSendAccess={() => setAccessDialog(artisan)}
                           onGenerateMessage={() => setMessageDialog(artisan)}
                           isAssaulting={assaultMutation.isPending}
+                          isEmailSending={emailAssaultMutation.isPending}
                         />
                       ))}
                     </div>
@@ -598,6 +675,7 @@ interface ArtisanRowProps {
   artisan: CommandantArtisan;
   tabKey: TabKey;
   onAssault: () => void;
+  onEmailAssault: () => void;
   onChangeStatus: (status: ArtisanStatus) => void;
   onCopyLink: () => void;
   onWhatsApp: () => void;
@@ -606,11 +684,12 @@ interface ArtisanRowProps {
   onSendAccess: () => void;
   onGenerateMessage: () => void;
   isAssaulting: boolean;
+  isEmailSending: boolean;
 }
 
 const ArtisanRow = ({
-  artisan, tabKey, onAssault, onChangeStatus,
-  onCopyLink, onWhatsApp, onViewProfile, onTestTunnel, onSendAccess, onGenerateMessage, isAssaulting,
+  artisan, tabKey, onAssault, onEmailAssault, onChangeStatus,
+  onCopyLink, onWhatsApp, onViewProfile, onTestTunnel, onSendAccess, onGenerateMessage, isAssaulting, isEmailSending,
 }: ArtisanRowProps) => {
   const statusDot = {
     active: "bg-emerald-500",
@@ -649,17 +728,29 @@ const ArtisanRow = ({
 
             {/* Actions */}
             <div className="flex flex-wrap gap-1.5">
-              {/* STOCK tab: Lancer l'assaut */}
+              {/* STOCK tab: Lancer l'assaut + Email */}
               {tabKey === "stock" && (
-                <Button
-                  size="sm"
-                  className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 gap-1"
-                  onClick={onAssault}
-                  disabled={isAssaulting}
-                >
-                  <Rocket className="h-3.5 w-3.5" />
-                  Lancer l'assaut
-                </Button>
+                <>
+                  <Button
+                    size="sm"
+                    className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 gap-1"
+                    onClick={onAssault}
+                    disabled={isAssaulting}
+                  >
+                    <Rocket className="h-3.5 w-3.5" />
+                    Assaut
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 gap-1"
+                    onClick={onEmailAssault}
+                    disabled={isEmailSending || !artisan.email}
+                    title={!artisan.email ? "Pas d'email" : "Envoyer email de pré-inscription"}
+                  >
+                    {isEmailSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
+                    📧 Email
+                  </Button>
+                </>
               )}
 
               {/* EN COURS tab: Copy magic link + Generate message + Move to CLIENTS or back to STOCK */}

@@ -54,6 +54,7 @@ const ActivationElite = () => {
   }, []);
 
   // Enrich from DB (optional — URL params are primary)
+  // Auto-tracking (pending → suspended) is handled server-side in get-artisan-public
   useEffect(() => {
     if (!email) return;
     setLoading(true);

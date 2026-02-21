@@ -490,7 +490,7 @@ const AdminBulkImport = () => {
           const artisanData: any = {
             business_name: artisan.businessName || "À compléter",
             city: artisan.city || "À compléter",
-            status: "prospect" as const,
+            status: "disponible" as const,
             is_verified: false,
             description: DEFAULT_DESCRIPTION, // Description générique par défaut
             source: "import", // Artisan importé via import massif
