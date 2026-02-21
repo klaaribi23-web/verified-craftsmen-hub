@@ -113,9 +113,11 @@ const PowerBlock = () => {
             { icon: Star, label: "Avis Clients Authentiques" },
             { icon: CheckCircle2, label: "Zéro Harcèlement Commercial" },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2 text-[#E2E8F0]/50 text-xs md:text-sm">
-              <Icon className="w-4 h-4 text-primary shrink-0" />
-              <span>{label}</span>
+            <div key={label} className="flex items-center gap-2.5 text-xs md:text-sm">
+              <div className="relative">
+                <Icon className="w-[18px] h-[18px] text-emerald-400 shrink-0 drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
+              </div>
+              <span className="text-emerald-300 font-semibold tracking-wide">{label}</span>
             </div>
           ))}
         </motion.div>
