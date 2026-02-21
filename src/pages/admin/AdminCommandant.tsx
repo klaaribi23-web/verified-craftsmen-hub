@@ -277,132 +277,249 @@ Votre diagnostic complet est ici :
   const downloadOfferPDF = (artisan: CommandantArtisan) => {
     const url = getProfileUrl(artisan);
     const year = new Date().getFullYear();
-    const vulnScore = Math.floor(Math.random() * 15) + 78; // 78-92
-    const caMin = Math.floor(Math.random() * 10 + 25) * 1000; // 25k-35k
-    const caMax = caMin + Math.floor(Math.random() * 15 + 15) * 1000; // +15k-30k
+    const vulnScore = Math.floor(Math.random() * 15) + 78;
+    const caMin = Math.floor(Math.random() * 10 + 25) * 1000;
+    const caMax = caMin + Math.floor(Math.random() * 15 + 15) * 1000;
     const refNum = `AV-${Date.now().toString(36).toUpperCase()}`;
     const dateStr = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    const categoryName = artisan.category?.name || "BTP";
+    const cityUpper = artisan.city.toUpperCase();
+
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${artisan.business_name} — Charte d'Attribution Exclusive</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',system-ui,sans-serif;color:#E2E8F0;min-height:100vh;-webkit-print-color-adjust:exact;print-color-adjust:exact;
-background:#060C18;padding:40px 20px}
 
-.charter{max-width:640px;margin:0 auto;background:#0A192F;border-radius:4px;overflow:hidden;position:relative;
-border:2px solid #D4AF37;box-shadow:0 0 0 6px rgba(212,175,55,0.08),0 0 80px rgba(212,175,55,0.1)}
+body{
+  font-family:'Montserrat',system-ui,sans-serif;
+  color:#E2E8F0;
+  min-height:100vh;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  background:#0F172A;
+  padding:48px 24px;
+  /* Subtle paper grain */
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(212,175,55,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(212,175,55,0.02) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+}
 
-/* Watermark seal */
-.charter::before{content:'AV';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-font-size:200px;font-weight:900;color:rgba(212,175,55,0.03);letter-spacing:20px;pointer-events:none;z-index:0}
+/* ═══ MAIN CHARTER ═══ */
+.charter{
+  max-width:680px;margin:0 auto;position:relative;
+  background:linear-gradient(175deg, #0F172A 0%, #0A1628 40%, #0D1B33 100%);
+  border-radius:2px;overflow:visible;
+  /* Double gold filet */
+  border:3px solid #D4AF37;
+  outline:1px solid rgba(212,175,55,0.25);
+  outline-offset:6px;
+  box-shadow:
+    0 0 0 8px rgba(15,23,42,1),
+    0 0 0 9px rgba(212,175,55,0.15),
+    0 30px 100px -20px rgba(0,0,0,0.7),
+    0 0 120px rgba(212,175,55,0.06);
+}
 
-/* Corner ornaments */
-.corner{position:absolute;width:40px;height:40px;border-color:#D4AF37;z-index:1}
-.corner-tl{top:12px;left:12px;border-top:2px solid;border-left:2px solid}
-.corner-tr{top:12px;right:12px;border-top:2px solid;border-right:2px solid}
-.corner-bl{bottom:12px;left:12px;border-bottom:2px solid;border-left:2px solid}
-.corner-br{bottom:12px;right:12px;border-bottom:2px solid;border-right:2px solid}
+/* ═══ ART DÉCO CORNERS ═══ */
+.deco-corner{position:absolute;width:48px;height:48px;z-index:10;pointer-events:none}
+.deco-corner svg{width:100%;height:100%}
+.dc-tl{top:-4px;left:-4px}
+.dc-tr{top:-4px;right:-4px;transform:scaleX(-1)}
+.dc-bl{bottom:-4px;left:-4px;transform:scaleY(-1)}
+.dc-br{bottom:-4px;right:-4px;transform:scale(-1)}
+
+/* ═══ WATERMARK ═══ */
+.charter::before{
+  content:'AV';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(-15deg);
+  font-family:'Playfair Display',serif;
+  font-size:260px;font-weight:900;
+  background:linear-gradient(135deg, rgba(212,175,55,0.025) 0%, rgba(241,210,123,0.015) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:30px;pointer-events:none;z-index:0;
+}
 
 .inner{position:relative;z-index:2;padding:0}
 
-/* HEADER */
-.ch-header{padding:36px 40px 20px;text-align:center;border-bottom:1px solid rgba(212,175,55,0.15)}
-.ch-ref{font-size:8px;font-weight:700;color:rgba(212,175,55,0.5);letter-spacing:3px;margin-bottom:16px}
-.ch-logo{height:32px;margin-bottom:8px}
-.ch-brand{font-size:11px;font-weight:900;color:#fff;letter-spacing:4px;margin-bottom:4px}
-.ch-brand-sub{font-size:7px;font-weight:700;color:#D4AF37;letter-spacing:4px}
+/* ═══ HEADER ═══ */
+.ch-header{
+  padding:44px 48px 24px;text-align:center;
+  border-bottom:1px solid rgba(212,175,55,0.12);
+  background:linear-gradient(180deg, rgba(212,175,55,0.04) 0%, transparent 100%);
+}
+.ch-ref{font-size:9px;font-weight:600;color:rgba(212,175,55,0.4);letter-spacing:4px;margin-bottom:20px;font-family:'Montserrat',sans-serif}
+.ch-brand{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:900;color:#fff;letter-spacing:6px;margin-bottom:4px}
+.ch-brand-sub{font-size:8px;font-weight:600;letter-spacing:5px;
+  background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 50%, #B8941E 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
 
-/* TITLE */
-.ch-title{padding:28px 40px 8px;text-align:center}
-.ch-title h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:#D4AF37;margin-bottom:4px;letter-spacing:1px;line-height:1.3}
-.ch-title .recipient{font-size:14px;color:#fff;font-weight:700;margin-top:12px}
-.ch-title .city-seal{display:inline-block;margin-top:14px;padding:8px 24px;background:rgba(212,175,55,0.08);
-border:1px solid rgba(212,175,55,0.3);border-radius:4px;font-size:11px;font-weight:800;color:#D4AF37;letter-spacing:3px}
+/* ═══ TITLE ═══ */
+.ch-title{padding:40px 48px 12px;text-align:center}
+.ch-title h1{
+  font-family:'Playfair Display',serif;font-size:28px;font-weight:900;line-height:1.35;letter-spacing:1.5px;
+  background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 50%, #B8941E 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:8px;
+}
+.ch-title .recipient{
+  font-family:'Playfair Display',serif;font-size:17px;color:#fff;font-weight:700;margin-top:16px;font-style:italic;
+}
+.ch-title .city-seal{
+  display:inline-block;margin-top:20px;padding:10px 32px;
+  background:rgba(212,175,55,0.06);
+  border:1px solid rgba(212,175,55,0.25);border-radius:2px;
+  font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;letter-spacing:4px;
+  background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 50%, #B8941E 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.ch-title .city-seal-wrap{
+  display:inline-block;margin-top:20px;padding:10px 32px;
+  background:rgba(212,175,55,0.06);
+  border:1px solid rgba(212,175,55,0.25);border-radius:2px;
+}
 
-/* VULN SECTION */
-.vuln{padding:28px 40px;display:flex;align-items:center;gap:24px;border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
-.vuln-ring{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-background:conic-gradient(#EF4444 0% ${vulnScore}%, rgba(255,255,255,0.06) ${vulnScore}% 100%);position:relative}
-.vuln-ring::after{content:'';position:absolute;inset:9px;border-radius:50%;background:#0A192F}
-.vuln-val{position:relative;z-index:1;font-size:30px;font-weight:900;color:#EF4444}
-.vuln-val span{font-size:14px;font-weight:600}
-.vuln-info h3{font-size:15px;font-weight:800;color:#EF4444;margin-bottom:6px}
-.vuln-info p{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7}
-.vuln-info .hl{color:#D4AF37;font-weight:700}
+/* ═══ DIVIDER ═══ */
+.gold-divider{
+  height:1px;margin:0 48px;
+  background:linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.4) 30%, rgba(241,210,123,0.5) 50%, rgba(212,175,55,0.4) 70%, transparent 100%);
+}
 
-/* CA PERDU */
-.ca-loss{margin:0 40px;padding:20px 24px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:8px;text-align:center;margin-bottom:4px}
-.ca-loss .label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
-.ca-loss .amount{font-size:28px;font-weight:900;color:#EF4444}
-.ca-loss .sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px}
+/* ═══ VULNERABILITY ═══ */
+.vuln{
+  padding:36px 48px;display:flex;align-items:center;gap:28px;
+}
+.vuln-ring{
+  width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:conic-gradient(#EF4444 0% ${vulnScore}%, rgba(255,255,255,0.04) ${vulnScore}% 100%);
+  position:relative;
+  box-shadow:0 0 30px rgba(239,68,68,0.15);
+}
+.vuln-ring::after{content:'';position:absolute;inset:10px;border-radius:50%;background:#0F172A}
+.vuln-val{position:relative;z-index:1;font-family:'Montserrat',sans-serif;font-size:32px;font-weight:900;color:#EF4444}
+.vuln-val span{font-size:15px;font-weight:700}
+.vuln-info h3{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:#EF4444;margin-bottom:8px;letter-spacing:0.5px}
+.vuln-info p{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:400;color:rgba(255,255,255,0.45);line-height:1.8}
+.vuln-info .hl{color:#F1D27B;font-weight:700}
 
-/* COMPARATIF */
-.compare{padding:28px 40px;border-top:1px solid rgba(255,255,255,0.04)}
-.compare h2{font-size:11px;font-weight:800;color:rgba(255,255,255,0.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;text-align:center}
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.compare-col{padding:20px;border-radius:8px;text-align:center}
-.compare-col.before{background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.12)}
-.compare-col.after{background:rgba(212,175,55,0.05);border:1px solid rgba(212,175,55,0.2)}
-.compare-col .ct{font-size:9px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+/* ═══ CA LOSS ═══ */
+.ca-loss{
+  margin:0 48px;padding:24px 28px;text-align:center;border-radius:4px;
+  background:rgba(239,68,68,0.04);
+  border:1px solid rgba(239,68,68,0.15);
+  box-shadow:inset 0 1px 0 rgba(239,68,68,0.08);
+}
+.ca-loss .label{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.ca-loss .amount{font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;color:#EF4444;letter-spacing:1px}
+.ca-loss .sub{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:300;color:rgba(255,255,255,0.35);margin-top:6px;line-height:1.6}
+
+/* ═══ COMPARE ═══ */
+.compare{padding:36px 48px}
+.compare h2{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,0.25);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px;text-align:center}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.compare-col{padding:24px 20px;border-radius:4px;text-align:center}
+.compare-col.before{background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.1)}
+.compare-col.after{background:rgba(212,175,55,0.03);border:1px solid rgba(212,175,55,0.15);box-shadow:0 4px 20px rgba(212,175,55,0.05)}
+.compare-col .ct{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px}
 .compare-col.before .ct{color:#EF4444}
 .compare-col.after .ct{color:#D4AF37}
-.ci{font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:7px;line-height:1.5}
-.compare-col.before .ci::before{content:'✗ ';color:#EF4444;font-weight:900}
-.compare-col.after .ci::before{content:'✓ ';color:#D4AF37;font-weight:900}
+.ci{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:400;color:rgba(255,255,255,0.5);margin-bottom:9px;line-height:1.6}
+.compare-col.before .ci::before{content:'✗ ';color:#EF4444;font-weight:800}
+.compare-col.after .ci::before{content:'✓ ';color:#D4AF37;font-weight:800}
 
-/* CHECKLIST */
-.checks{padding:24px 40px}
-.checks h2{font-size:11px;font-weight:800;color:rgba(255,255,255,0.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}
-.chk{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
-.chk-ico{width:26px;height:26px;border-radius:50%;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);
-display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-.chk-lbl{font-size:12px;color:rgba(255,255,255,0.75);font-weight:500;flex:1}
-.chk-st{font-size:9px;font-weight:800;color:#10B981;padding:3px 9px;background:rgba(16,185,129,0.08);border-radius:3px}
-.chk-st.warn{color:#F59E0B;background:rgba(245,158,11,0.08)}
+/* ═══ CHECKLIST ═══ */
+.checks{padding:32px 48px}
+.checks h2{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,0.25);letter-spacing:4px;text-transform:uppercase;margin-bottom:18px}
+.chk{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.025)}
+.chk-ico{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);
+  display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;
+}
+.chk-lbl{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);flex:1}
+.chk-st{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;color:#10B981;padding:4px 10px;background:rgba(16,185,129,0.06);border-radius:2px;letter-spacing:1px}
+.chk-st.warn{color:#F59E0B;background:rgba(245,158,11,0.06)}
 
-/* SIGNATURE */
-.signature{padding:28px 40px;border-top:1px solid rgba(212,175,55,0.1)}
-.sig-box{display:flex;align-items:flex-end;gap:20px}
-.sig-seal{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#D4AF37,#B8941E);
-display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;
-box-shadow:0 4px 20px rgba(212,175,55,0.3)}
+/* ═══ SIGNATURE ═══ */
+.signature{padding:36px 48px;border-top:1px solid rgba(212,175,55,0.08);position:relative}
+.sig-box{display:flex;align-items:flex-end;gap:24px}
+.sig-seal{
+  width:64px;height:64px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 40%, #B8941E 100%);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 6px 30px rgba(212,175,55,0.35), inset 0 -2px 6px rgba(0,0,0,0.2);
+}
 .sig-text{flex:1}
-.sig-name{font-family:'Playfair Display',serif;font-size:22px;font-style:italic;color:#D4AF37;margin-bottom:2px}
-.sig-role{font-size:10px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px}
-.sig-date{font-size:9px;color:rgba(255,255,255,0.25);margin-top:6px}
+.sig-name{font-family:'Playfair Display',serif;font-size:26px;font-style:italic;font-weight:700;
+  background:linear-gradient(135deg, #D4AF37, #F1D27B);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:3px;
+}
+.sig-role{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:2px}
+.sig-date{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:300;color:rgba(255,255,255,0.2);margin-top:8px}
 
-/* CTA */
-.cta{padding:32px 40px;text-align:center;background:rgba(212,175,55,0.03);border-top:1px solid rgba(212,175,55,0.15)}
-.btn-cta{display:inline-block;padding:22px 56px;background:#D4AF37;color:#0A192F;font-size:16px;font-weight:900;
-letter-spacing:2px;border-radius:8px;text-decoration:none;font-family:'DM Sans',sans-serif;
-box-shadow:0 10px 50px rgba(212,175,55,0.4)}
-.urgency{margin-top:16px;font-size:11px;font-weight:700;color:#EF4444;letter-spacing:0.5px}
+/* ═══ VALIDATION SEAL (bottom-right) ═══ */
+.validation-seal{
+  position:absolute;bottom:20px;right:48px;
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg, rgba(212,175,55,0.08), rgba(241,210,123,0.04));
+  border:2px solid rgba(212,175,55,0.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0.7;
+}
+.validation-seal .vs-icon{font-size:20px;margin-bottom:2px}
+.validation-seal .vs-text{font-family:'Montserrat',sans-serif;font-size:5px;font-weight:900;color:rgba(212,175,55,0.6);letter-spacing:2px;text-transform:uppercase}
+.validation-seal .vs-year{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:900;color:rgba(212,175,55,0.5)}
 
-/* FOOTER */
-.ch-footer{padding:18px 40px;border-top:1px solid rgba(255,255,255,0.04);text-align:center}
-.ch-footer p{font-size:8px;color:rgba(255,255,255,0.2);line-height:1.8}
+/* ═══ CTA ═══ */
+.cta{
+  padding:40px 48px;text-align:center;
+  background:linear-gradient(180deg, transparent 0%, rgba(212,175,55,0.03) 100%);
+  border-top:1px solid rgba(212,175,55,0.1);
+}
+.btn-cta{
+  display:inline-block;padding:22px 64px;
+  background:linear-gradient(135deg, #D4AF37 0%, #F1D27B 50%, #B8941E 100%);
+  color:#0F172A;
+  font-family:'Montserrat',sans-serif;font-size:15px;font-weight:900;letter-spacing:3px;
+  border-radius:4px;text-decoration:none;
+  box-shadow:0 8px 40px rgba(212,175,55,0.35), 0 2px 8px rgba(0,0,0,0.3);
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 12px 50px rgba(212,175,55,0.5)}
+.urgency{font-family:'Montserrat',sans-serif;margin-top:18px;font-size:11px;font-weight:700;color:#EF4444;letter-spacing:0.5px}
+
+/* ═══ FOOTER ═══ */
+.ch-footer{padding:20px 48px;border-top:1px solid rgba(255,255,255,0.03);text-align:center}
+.ch-footer p{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:400;color:rgba(255,255,255,0.15);line-height:2}
 
 @media(max-width:480px){
-  body{padding:16px 8px}
-  .charter{border-radius:2px}
-  .ch-header,.ch-title,.vuln,.ca-loss,.compare,.checks,.signature,.cta,.ch-footer{padding-left:20px;padding-right:20px}
-  .ca-loss{margin-left:20px;margin-right:20px}
+  body{padding:20px 10px}
+  .charter{outline-offset:3px}
+  .ch-header,.ch-title,.vuln,.compare,.checks,.signature,.cta,.ch-footer{padding-left:24px;padding-right:24px}
+  .ca-loss{margin-left:24px;margin-right:24px}
   .vuln{flex-direction:column;text-align:center}
   .compare-grid{grid-template-columns:1fr}
-  .btn-cta{display:block;width:100%;padding:20px}
+  .btn-cta{display:block;width:100%;padding:20px;letter-spacing:2px}
   .sig-box{flex-direction:column;align-items:center;text-align:center}
+  .validation-seal{right:24px;bottom:10px;width:60px;height:60px}
+  .deco-corner{width:36px;height:36px}
 }
 </style></head><body>
 
 <div class="charter">
-  <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
-  <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+  <!-- Art Déco corners -->
+  <div class="deco-corner dc-tl"><svg viewBox="0 0 48 48"><path d="M0 0 L48 0 L48 6 L6 6 L6 48 L0 48 Z" fill="none" stroke="#D4AF37" stroke-width="1.5"/><path d="M0 0 L16 0 L16 3 L3 3 L3 16 L0 16 Z" fill="rgba(212,175,55,0.15)"/></svg></div>
+  <div class="deco-corner dc-tr"><svg viewBox="0 0 48 48"><path d="M0 0 L48 0 L48 6 L6 6 L6 48 L0 48 Z" fill="none" stroke="#D4AF37" stroke-width="1.5"/><path d="M0 0 L16 0 L16 3 L3 3 L3 16 L0 16 Z" fill="rgba(212,175,55,0.15)"/></svg></div>
+  <div class="deco-corner dc-bl"><svg viewBox="0 0 48 48"><path d="M0 0 L48 0 L48 6 L6 6 L6 48 L0 48 Z" fill="none" stroke="#D4AF37" stroke-width="1.5"/><path d="M0 0 L16 0 L16 3 L3 3 L3 16 L0 16 Z" fill="rgba(212,175,55,0.15)"/></svg></div>
+  <div class="deco-corner dc-br"><svg viewBox="0 0 48 48"><path d="M0 0 L48 0 L48 6 L6 6 L6 48 L0 48 Z" fill="none" stroke="#D4AF37" stroke-width="1.5"/><path d="M0 0 L16 0 L16 3 L3 3 L3 16 L0 16 Z" fill="rgba(212,175,55,0.15)"/></svg></div>
+
   <div class="inner">
 
   <!-- HEADER -->
   <div class="ch-header">
     <div class="ch-ref">RÉF. ${refNum}</div>
-    <img class="ch-logo" src="https://verified-craftsmen-hub.lovable.app/favicon.png" alt="AV" />
     <div class="ch-brand">ARTISANS VALIDÉS</div>
     <div class="ch-brand-sub">RÉSEAU D'EXCELLENCE · FRANCE</div>
   </div>
@@ -411,8 +528,10 @@ box-shadow:0 10px 50px rgba(212,175,55,0.4)}
   <div class="ch-title">
     <h1>CHARTE D'ATTRIBUTION<br/>EXCLUSIVE DE SECTEUR</h1>
     <div class="recipient">Établie au bénéfice de ${artisan.business_name}</div>
-    <div class="city-seal">📍 SECTEUR : ${artisan.city.toUpperCase()}</div>
+    <div class="city-seal-wrap"><span class="city-seal">📍 SECTEUR : ${cityUpper}</span></div>
   </div>
+
+  <div class="gold-divider"></div>
 
   <!-- INDICE DE VULNÉRABILITÉ -->
   <div class="vuln">
@@ -420,9 +539,9 @@ box-shadow:0 10px 50px rgba(212,175,55,0.4)}
       <div class="vuln-val">${vulnScore}<span>%</span></div>
     </div>
     <div class="vuln-info">
-      <h3>⚠️ Indice de Vulnérabilité</h3>
-      <p>Votre taux de perte de clients potentiels sur <span class="hl">${artisan.city}</span> est estimé à <span class="hl">${vulnScore}%</span>. 
-      Ces prospects contactent actuellement vos concurrents faute de vous trouver en ligne.</p>
+      <h3>⚠️ Indice de Vulnérabilité Sectorielle</h3>
+      <p>Votre taux de perte de clients potentiels sur <span class="hl">${artisan.city}</span> est estimé à <span class="hl">${vulnScore}%</span>.
+      Ces prospects contactent actuellement vos concurrents faute de vous trouver en première position.</p>
     </div>
   </div>
 
@@ -430,8 +549,10 @@ box-shadow:0 10px 50px rgba(212,175,55,0.4)}
   <div class="ca-loss">
     <div class="label">Estimation du manque à gagner annuel</div>
     <div class="amount">${caMin.toLocaleString("fr-FR")}€ — ${caMax.toLocaleString("fr-FR")}€ / an</div>
-    <div class="sub">Basé sur le volume de recherches et le panier moyen du secteur ${artisan.category?.name || "BTP"} à ${artisan.city}</div>
+    <div class="sub">Basé sur le volume de recherches et le panier moyen du secteur ${categoryName} à ${artisan.city}</div>
   </div>
+
+  <div class="gold-divider" style="margin-top:28px"></div>
 
   <!-- COMPARATIF -->
   <div class="compare">
@@ -458,14 +579,14 @@ box-shadow:0 10px 50px rgba(212,175,55,0.4)}
   <div class="checks">
     <h2>Points de contrôle de l'attribution</h2>
     <div class="chk"><div class="chk-ico">🏢</div><div class="chk-lbl">Fiche professionnelle créée et optimisée</div><div class="chk-st">PRÊT</div></div>
-    <div class="chk"><div class="chk-ico">📍</div><div class="chk-lbl">Secteur ${artisan.city} — ${artisan.category?.name || "BTP"}</div><div class="chk-st">LIBRE</div></div>
+    <div class="chk"><div class="chk-ico">📍</div><div class="chk-lbl">Secteur ${artisan.city} — ${categoryName}</div><div class="chk-st">LIBRE</div></div>
     <div class="chk"><div class="chk-ico">🔒</div><div class="chk-lbl">Verrouillage exclusif (2 places max)</div><div class="chk-st warn">EN ATTENTE</div></div>
     <div class="chk"><div class="chk-ico">⭐</div><div class="chk-lbl">Badge Artisan Audité</div><div class="chk-st">ÉLIGIBLE</div></div>
     <div class="chk"><div class="chk-ico">📞</div><div class="chk-lbl">Ligne directe clients</div><div class="chk-st">PRÊT</div></div>
     <div class="chk"><div class="chk-ico">📊</div><div class="chk-lbl">Tableau de bord performance</div><div class="chk-st">PRÊT</div></div>
   </div>
 
-  <!-- SIGNATURE -->
+  <!-- SIGNATURE + SEAL -->
   <div class="signature">
     <div class="sig-box">
       <div class="sig-seal">🛡️</div>
@@ -474,6 +595,12 @@ box-shadow:0 10px 50px rgba(212,175,55,0.4)}
         <div class="sig-role">DIRECTRICE VALIDATION · ARTISANS VALIDÉS</div>
         <div class="sig-date">Établie le ${dateStr}</div>
       </div>
+    </div>
+    <!-- Validation Seal -->
+    <div class="validation-seal">
+      <div class="vs-icon">🏛️</div>
+      <div class="vs-text">VALIDÉ</div>
+      <div class="vs-year">${year}</div>
     </div>
   </div>
 
