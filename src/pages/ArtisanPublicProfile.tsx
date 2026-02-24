@@ -1473,16 +1473,17 @@ const ArtisanPublicProfile = () => {
         onClose={() => setStoryViewerOpen(false)}
       />
 
-      {/* Owner Closing Tunnel — activated via ?view=owner — delay 0 for test */}
-      {/* Prestige Overlay — always shown for test session */}
-      <PrestigeWelcomeOverlay
-        artisanName={artisan.business_name}
-        city={artisan.city}
-        artisanEmail={(artisan as any).email || null}
-        artisanId={artisan.id!}
-        categoryName={artisan.category?.name || null}
-        categoryId={artisan.category_id || null}
-      />
+      {/* Prestige Overlay — only for owner view (artisan prospect), never for public visitors */}
+      {isOwnerView && (
+        <PrestigeWelcomeOverlay
+          artisanName={artisan.business_name}
+          city={artisan.city}
+          artisanEmail={(artisan as any).email || null}
+          artisanId={artisan.id!}
+          categoryName={artisan.category?.name || null}
+          categoryId={artisan.category_id || null}
+        />
+      )}
 
       {/* Owner Closing Tunnel — only for owner view */}
       {isOwnerView && (
