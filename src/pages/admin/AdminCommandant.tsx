@@ -220,7 +220,7 @@ const AdminCommandant = () => {
     let intlPhone = phone.startsWith("0") ? `33${phone.slice(1)}` : phone.startsWith("33") ? phone : `33${phone}`;
     intlPhone = intlPhone.replace("+", "");
     const url = getProfileUrl(artisan);
-    const msg = `${artisan.business_name}, c'est Jane d'Artisans Validés.
+    const msg = `${artisan.business_name}, c'est Andrea d'Artisans Validés.
 
 On a analysé votre secteur à ${artisan.city} : il est encore libre. Votre diagnostic est prêt ici :
 👉 ${url}
@@ -244,7 +244,7 @@ ${artisan.email ? `📧 Identifiant : ${artisan.email}` : ""}
 
 Tout est paramétré. Vos premiers clients peuvent vous contacter dès maintenant.
 
-— Jane · Artisans Validés`;
+— Andrea · Artisans Validés`;
   };
 
   const copyAccessText = (artisan: CommandantArtisan) => {
@@ -266,7 +266,7 @@ Votre diagnostic complet est ici :
 
 ⚠️ Priorité : expiration ${expiry}. Après ça, le secteur est ouvert au suivant.
 
-— Jane, Responsable Validation · Artisans Validés`;
+— Andrea, IA d'audit · Artisans Validés`;
   };
 
   const copyClosingMessage = (artisan: CommandantArtisan) => {
@@ -628,8 +628,8 @@ body{
     <div class="sig-box">
       <div class="sig-seal">🛡️</div>
       <div class="sig-text">
-        <div class="sig-name">Jane Moreau</div>
-        <div class="sig-role">Directrice Validation · Artisans Validés</div>
+        <div class="sig-name">Andrea</div>
+        <div class="sig-role">IA d'audit · Artisans Validés</div>
         <div class="sig-date">Établie le ${dateStr}</div>
       </div>
     </div>

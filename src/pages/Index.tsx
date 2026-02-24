@@ -28,9 +28,10 @@ const Index = () => {
   return (
     <div className="min-h-screen overflow-x-hidden">
       <SEOHead
-        title="Artisans Validés | L'élite des artisans audités sur le terrain"
-        description="Ne confiez plus vos travaux au hasard. Accédez à un réseau d'artisans certifiés, audités et sans harcèlement commercial. Votre anonymat est garanti."
+        title="Artisans Validés — L'élite vérifiée des artisans en France"
+        description="Trouvez un artisan vérifié et audité près de chez vous. 87% des candidatures refusées. Décennale contrôlée. Zéro commission."
         canonical="https://artisansvalides.fr"
+        ogImage="https://artisansvalides.fr/og-image.png"
       />
       <OrganizationSchema />
       <Navbar />

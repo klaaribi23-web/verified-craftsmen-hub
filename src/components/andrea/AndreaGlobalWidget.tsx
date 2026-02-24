@@ -786,7 +786,7 @@ const AndreaGlobalWidget = () => {
                 {showArtisanCTA && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="w-full space-y-1.5">
                     <p className="text-[10px] text-center tracking-wide" style={{ color: "hsla(45, 90%, 65%, 0.7)" }}>
-                      500+ audits/mois · Seuls les meilleurs passent
+                      500+ candidatures reçues · Seuls les 13% passent
                     </p>
                     <Button
                       onClick={() => { setIsOpen(false); navigate("/devenir-artisan"); }}
@@ -876,7 +876,7 @@ const AndreaGlobalWidget = () => {
                     </button>
                   </div>
                   <p className="text-[9px] text-center mb-2 tracking-wide" style={{ color: "hsla(45, 80%, 65%, 0.55)" }}>
-                    🛡️ 500+ audits mensuels · 70% des artisans refusés · Zéro commission
+                    🛡️ 500+ candidatures reçues · 87% des candidatures refusées · Zéro commission
                   </p>
                 </>
               )}

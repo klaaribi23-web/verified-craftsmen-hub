@@ -92,7 +92,7 @@ async function sendCredentialsEmail(email: string, password: string, firstName: 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Jane de Artisans Validés <equipe@artisansvalides.fr>",
+        from: "Andrea de Artisans Validés <equipe@artisansvalides.fr>",
         to: [email],
         subject: "🏆 Bienvenue dans l'Élite — Vos accès sont prêts",
         html: htmlBody,

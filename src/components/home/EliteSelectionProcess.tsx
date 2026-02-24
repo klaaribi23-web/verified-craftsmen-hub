@@ -13,7 +13,7 @@ const steps = [
     icon: FileCheck,
     step: "02",
     title: "Validation des Assurances",
-    description: "RC Pro, Décennale, Kbis — chaque document est contrôlé manuellement par Jane avant toute activation.",
+    description: "RC Pro, Décennale, Kbis — chaque document est contrôlé par Andrea avant toute activation.",
     glow: "from-[#D4AF37]/15 to-transparent",
   },
   {

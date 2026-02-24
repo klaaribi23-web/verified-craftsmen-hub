@@ -16,53 +16,39 @@ const categoryColors: Record<string, string> = {
   "Artisans spécialisés": "from-indigo-500 to-indigo-600",
   "Services liés au bâtiment": "from-slate-500 to-slate-600"
 };
-const CategoriesSection = () => {
-  const {
-    data: categories,
-    isLoading
-  } = useCategoriesWithCount();
 
-  // Take first 8 categories for display, add "All" as last
-  const displayCategories = categories?.slice(0, 7) || [];
-  return <section className="py-20 lg:py-32 bg-white">
+const CategoriesSection = () => {
+  const { data: categories, isLoading } = useCategoriesWithCount();
+
+  const withArtisans = categories?.filter(c => c.count > 0).slice(0, 7) || [];
+  const emptyCategories = categories?.filter(c => c.count === 0).slice(0, 3) || [];
+
+  return (
+    <section className="py-20 lg:py-32 bg-white">
       <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
-        <motion.div initial={{
-        opacity: 0,
-        y: 20
-      }} whileInView={{
-        opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} className="text-center mb-16">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
             Nos métiers
           </span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy mb-4 ">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy mb-4">
             Quel artisan recherchez-vous ?
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Sélectionnez le corps de métier dont vous avez besoin et trouvez 
+            Sélectionnez le corps de métier dont vous avez besoin et trouvez
             rapidement un professionnel qualifié près de chez vous.
           </p>
         </motion.div>
 
         {/* Categories Grid */}
-        {isLoading ? <div className="flex items-center justify-center py-12">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-            {displayCategories.map((category, index) => <motion.div key={category.id} initial={{
-          opacity: 0,
-          y: 20
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} viewport={{
-          once: true
-        }} transition={{
-          delay: index * 0.05
-        }}>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+            {withArtisans.map((category, index) => (
+              <motion.div key={category.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }}>
                 <Link to={`/trouver-artisan?category=${category.id}`} className="group block bg-white rounded-2xl border border-border p-6 hover:shadow-elevated hover:border-gold/30 transition-all duration-300 h-full">
                   <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${categoryColors[category.name] || "from-navy to-navy-light"} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <CategoryIcon iconName={category.icon} className="w-7 h-7 text-white" />
@@ -78,20 +64,28 @@ const CategoriesSection = () => {
                     <ArrowRight className="w-4 h-4" />
                   </div>
                 </Link>
-              </motion.div>)}
+              </motion.div>
+            ))}
+
+            {/* Empty categories — "Bientôt" badge */}
+            {emptyCategories.map((category, index) => (
+              <motion.div key={category.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: (withArtisans.length + index) * 0.05 }}>
+                <div className="block bg-white rounded-2xl border border-border p-6 opacity-60 h-full">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-muted to-muted-foreground/20 flex items-center justify-center mb-4">
+                    <CategoryIcon iconName={category.icon} className="w-7 h-7 text-muted-foreground" />
+                  </div>
+                  <h3 className="font-semibold text-navy text-lg mb-2">
+                    {category.name}
+                  </h3>
+                  <span className="inline-block text-xs font-medium text-muted-foreground bg-muted px-3 py-1 rounded-full">
+                    Bientôt dans votre ville
+                  </span>
+                </div>
+              </motion.div>
+            ))}
 
             {/* "All categories" card */}
-            <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} viewport={{
-          once: true
-        }} transition={{
-          delay: 0.35
-        }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.35 }}>
               <Link to="/trouver-artisan" className="group block bg-white rounded-2xl border border-border p-6 hover:shadow-elevated hover:border-gold/30 transition-all duration-300 h-full">
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-navy to-navy-light flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   <ArrowRight className="w-7 h-7 text-white" />
@@ -108,8 +102,11 @@ const CategoriesSection = () => {
                 </div>
               </Link>
             </motion.div>
-          </div>}
+          </div>
+        )}
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default CategoriesSection;
