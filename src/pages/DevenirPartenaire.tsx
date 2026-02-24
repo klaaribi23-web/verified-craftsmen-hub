@@ -33,14 +33,14 @@ import {
 // --- Floating WhatsApp Button ---
 const WhatsAppButton = () => (
   <a
-    href="https://wa.me/33612345678?text=Bonjour%20Jane%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20la%20licence%20Artisans%20Valid%C3%A9s."
+    href="https://wa.me/33612345678?text=Bonjour%20Andrea%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20la%20licence%20Artisans%20Valid%C3%A9s."
     target="_blank"
     rel="noopener noreferrer"
     className="group fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25d366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-    aria-label="Parler à Jane"
+    aria-label="Parler à Andrea"
   >
     <MessageCircle className="w-6 h-6 text-white" />
-    <span className="absolute -top-8 right-0 bg-white text-navy text-xs font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Parler à Jane</span>
+    <span className="absolute -top-8 right-0 bg-white text-navy text-xs font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Parler à Andrea</span>
   </a>
 );
 
@@ -166,7 +166,7 @@ const ComparisonSection = () => (
                   "Exclusivité zone : 2 artisans max par secteur",
                   "Audit de confiance — Badge « Validé 2026 »",
                   "SEO local inclus — n°1 sur Google",
-                  "Secrétariat Jane : appels filtrés pour vous",
+                  "Secrétariat Andrea : appels filtrés pour vous",
                   "0% de commission, vous gardez tout",
                   "Le client vient à vous.",
                 ].map((item) => (
@@ -188,8 +188,8 @@ const ComparisonSection = () => (
   </section>
 );
 
-// --- Méthode Jane ---
-const MethodeJane = () => (
+// --- Méthode Andrea ---
+const MethodeAndrea = () => (
   <section className="py-16 lg:py-24 bg-navy relative overflow-hidden">
     <div className="absolute inset-0 overflow-hidden">
       <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
@@ -198,7 +198,7 @@ const MethodeJane = () => (
     <div className="container mx-auto px-4 lg:px-8 relative z-10">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
         <span className="inline-block px-4 py-1.5 rounded-full bg-gold/20 text-gold text-sm font-medium mb-4">Comment ça marche</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">La « Méthode Jane »</h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">La « Méthode Andrea »</h2>
         <p className="text-white/60 max-w-xl mx-auto">3 étapes. Zéro bullshit. Que du concret.</p>
       </motion.div>
       <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
@@ -219,7 +219,7 @@ const MethodeJane = () => (
             step: "03",
             icon: Filter,
             title: "Gestion",
-            desc: "Jane filtre les demandes et vous envoie les meilleurs chantiers directement sur WhatsApp. Vous ne perdez plus de temps.",
+            desc: "Andrea filtre les demandes et vous envoie les meilleurs chantiers directement sur WhatsApp. Vous ne perdez plus de temps.",
           },
         ].map((item, index) => (
           <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15 }} className="text-center">
@@ -337,7 +337,7 @@ const FormSection = () => {
       });
       if (dbError) throw dbError;
       setSubmitted(true);
-      toast({ title: "Zone réservée !", description: "Jane vous rappelle sous 24h." });
+      toast({ title: "Zone réservée !", description: "Andrea vous rappelle sous 24h." });
     } catch {
       toast({ title: "Erreur", description: "Une erreur est survenue.", variant: "destructive" });
     } finally {
@@ -359,9 +359,9 @@ const FormSection = () => {
                 <p className="font-medium">Zone réservée !</p>
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Votre dossier est entre les mains de Jane</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">Votre dossier est entre les mains d'Andrea</h2>
             <p className="text-muted-foreground mb-6">
-              Pas de robot, pas de spam. <strong className="text-foreground">Jane</strong> étudie personnellement votre dossier et vous rappelle sous 24h.
+              Pas de robot, pas de spam. <strong className="text-foreground">Andrea</strong>, notre IA d'audit, analyse votre dossier et vous rappelle sous 24h.
             </p>
             <Button variant="gold" onClick={() => (window.location.href = "/")} className="w-full">
               Retour à l'accueil
@@ -438,7 +438,7 @@ const FormSection = () => {
                 </Button>
 
                 <p className="text-xs text-center text-slate-400 mt-2">
-                  🔒 Validation finale par <strong className="text-primary">Jane</strong> après examen de votre dossier.
+                  🔒 Validation finale par <strong className="text-primary">Andrea</strong> après examen de votre dossier.
                 </p>
               </form>
 
@@ -512,7 +512,7 @@ const DevenirPartenaire = () => {
         <ScarcityBanner />
         <HeroSection onCTA={scrollToForm} />
         <ComparisonSection />
-        <MethodeJane />
+        <MethodeAndrea />
         <SocialProofSection />
         <FormSection />
         <CTAFinal onCTA={scrollToForm} />

@@ -90,9 +90,9 @@ const ExpertCaseStudy = () => {
             className="mt-8 bg-navy rounded-xl p-5 md:p-6 text-center"
           >
             <p className="text-white/80 italic text-sm md:text-base">
-              « Je ne certifie que les artisans chez qui j'enverrais ma propre famille. C'est mon seul critère. »
+              « Je valide uniquement les artisans qui passent 100% de nos critères d'audit. Aucune exception. »
             </p>
-            <p className="text-gold font-semibold text-sm mt-2">— Andrea, Fondateur & Expert Terrain</p>
+            <p className="text-gold font-semibold text-sm mt-2">— Andrea, IA d'audit Artisans Validés</p>
           </motion.div>
         </div>
       </div>

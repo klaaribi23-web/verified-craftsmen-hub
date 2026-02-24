@@ -113,7 +113,7 @@ const getEmailTemplate = (artisanName: string, activationUrl: string) => {
           <tr>
             <td style="padding: 20px 36px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
               <p style="color: rgba(255,255,255,0.3); font-size: 10px; margin: 0;">
-                Jane · Responsable Validation · <a href="mailto:contact@artisansvalides.fr" style="color: #D4AF37;">contact@artisansvalides.fr</a>
+                Andrea · IA d'audit · <a href="mailto:contact@artisansvalides.fr" style="color: #D4AF37;">contact@artisansvalides.fr</a>
               </p>
               <p style="color: rgba(255,255,255,0.15); font-size: 9px; margin: 8px 0 0;">
                 © ${new Date().getFullYear()} Artisans Validés — Réseau d'Excellence

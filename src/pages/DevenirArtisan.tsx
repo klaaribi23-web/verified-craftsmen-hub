@@ -43,7 +43,7 @@ const MarqueeBanner = () => (
       transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
       className="whitespace-nowrap text-xs md:text-sm font-semibold text-gold tracking-wide"
     >
-      🔒 Accès limité : 2 places restantes à Lille · 1 place à Roubaix · Complet à Valenciennes · 1 place à Arras · Complet à Douai · 2 places à Cambrai &nbsp;&nbsp;&nbsp;&nbsp; 🔒 Accès limité : 2 places restantes à Lille · 1 place à Roubaix · Complet à Valenciennes · 1 place à Arras · Complet à Douai · 2 places à Cambrai
+      🔒 Places limitées — 2 artisans max par ville et par métier · Audit sous 24h · Exclusivité garantie &nbsp;&nbsp;&nbsp;&nbsp; 🔒 Places limitées — 2 artisans max par ville et par métier · Audit sous 24h · Exclusivité garantie
     </motion.div>
   </div>
 );
@@ -446,8 +446,8 @@ const DevenirArtisan = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Rejoindre le réseau Artisans Validés — Licence exclusive"
-        description="Accédez à des chantiers pré-qualifiés sur votre secteur. Maximum 2 artisans par ville. 0% commission. Inscription gratuite, audit sous 24h."
+        title="Rejoindre le réseau — Artisans Validés"
+        description="99€/mois, 0% commission, exclusivité par zone. Rejoignez les 13% d'artisans qui passent notre audit."
         canonical="https://artisansvalides.fr/devenir-artisan"
       />
       <Navbar />
@@ -532,7 +532,7 @@ const DevenirArtisan = () => {
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {[
                 { step: "01", icon: FileText, title: "Réservation de votre Zone", desc: "Indiquez votre secteur d'intervention pour vérifier la disponibilité des places. Gratuit et sans engagement." },
-                { step: "02", icon: Search, title: "Audit de conformité", desc: "Jane valide votre profil et vos assurances sous 24h. Décennales, références et avis clients passés au crible." },
+                { step: "02", icon: Search, title: "Audit de conformité", desc: "Andrea valide votre profil et vos assurances sous 24h. Décennales, références et avis clients passés au crible." },
                 { step: "03", icon: Rocket, title: "Activation du Cockpit", desc: "Une fois validé, accédez à votre radar et à la liste des missions qualifiées." },
               ].map((item, index) => (
                 <motion.div key={item.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15 }} className="text-center">
@@ -568,7 +568,7 @@ const DevenirArtisan = () => {
                        Gratuit · Sans engagement · Audit sous 24h
                      </p>
                      <p className="text-xs text-muted-foreground">
-                       🔒 Validation finale de votre accès par <strong className="text-foreground">Jane</strong> après examen de votre dossier.
+                       🔒 Validation finale de votre accès par <strong className="text-foreground">Andrea</strong> après examen de votre dossier.
                      </p>
                   </div>
 

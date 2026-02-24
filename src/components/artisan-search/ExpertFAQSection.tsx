@@ -187,7 +187,7 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
                         {item.answer}
                       </p>
                       <p className="text-[11px] text-amber-600/60 dark:text-amber-400/50 mt-2 italic">
-                        — Andrea, Fondateur & Expert Terrain
+                        — Andrea, IA d'audit Artisans Validés
                       </p>
                     </div>
                   </div>

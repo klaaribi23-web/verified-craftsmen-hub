@@ -131,7 +131,7 @@ const LaboAndreaSection = () => {
                     {answer}
                   </p>
                   <p className="text-xs text-gold/70 italic mb-4">
-                    — Andrea, Fondateur & Expert Terrain
+                    — Andrea, IA d'audit Artisans Validés
                   </p>
                   <Button asChild variant="gold" size="lg" className="w-full sm:w-auto group">
                     <Link to="/demande-devis">

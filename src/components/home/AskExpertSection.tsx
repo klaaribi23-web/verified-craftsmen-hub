@@ -96,7 +96,7 @@ const AskExpertSection = () => {
             Un doute sur vos travaux ? Pas de blabla.
           </h2>
           <p className="text-muted-foreground text-base md:text-lg">
-            Posez votre question à <span className="font-semibold text-foreground">Andrea, Directrice du Réseau</span> — elle filtre le vrai du faux, sans langue de bois.
+            Posez votre question à <span className="font-semibold text-foreground">Andrea, notre IA d'audit</span> — elle filtre le vrai du faux, sans langue de bois.
           </p>
         </motion.div>
 
@@ -181,8 +181,8 @@ const AskExpertSection = () => {
                   <p className="text-foreground leading-relaxed whitespace-pre-line mb-4">
                     {answer}
                   </p>
-                  <p className="text-sm text-muted-foreground italic mb-4">
-                    — Andrea, Directrice du Réseau Artisans Validés
+                   <p className="text-sm text-muted-foreground italic mb-4">
+                    — Andrea, IA d'audit Artisans Validés
                   </p>
                   <Button asChild variant="gold" size="lg" className="w-full sm:w-auto group">
                     <Link to="/demande-devis">
@@ -206,7 +206,7 @@ const AskExpertSection = () => {
         >
           <Zap className="h-4 w-4 text-gold" />
           <p className="text-xs md:text-sm">
-            <span className="font-bold text-foreground">500+ audits mensuels</span> · 70% des artisans refusés · Zéro commission sur vos devis.
+            <span className="font-bold text-foreground">500+ candidatures reçues</span> · 87% des candidatures refusées · Zéro commission sur vos devis.
           </p>
         </motion.div>
       </div>

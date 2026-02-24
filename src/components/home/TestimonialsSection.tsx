@@ -149,12 +149,12 @@ const TestimonialsSection = () => {
           label: "Note moyenne",
           icon: Star
         }, {
-          value: "100K+",
-          label: "Travaux réalisés",
+          value: "1 200+",
+          label: "Chantiers accompagnés",
           icon: CheckCircle2
         }, {
-          value: "98%",
-          label: "Clients satisfaits",
+          value: "4.9/5",
+          label: "Sur 847 avis vérifiés",
           icon: Star
         }, {
           value: "24h",

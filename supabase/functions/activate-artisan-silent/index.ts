@@ -153,7 +153,7 @@ Deno.serve(async (req) => {
         method: "POST",
         headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: "Jane de Artisans Validés <equipe@artisansvalides.fr>",
+          from: "Andrea de Artisans Validés <equipe@artisansvalides.fr>",
           to: [email],
           subject: "🏆 Bienvenue dans l'Élite — Votre accès est activé",
           html: `<div style="background:#001529;padding:40px;color:white;font-family:Arial;border-radius:12px;max-width:500px;margin:auto;">

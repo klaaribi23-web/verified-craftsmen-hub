@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
 const INTRO_MESSAGE =
-  "Bonjour. Ici, on ne fait pas dans la dentelle. Je suis Andrea, Directrice du Réseau Artisans Validés. Vous êtes artisan ou particulier ?";
+  "Bonjour. Ici, on ne fait pas dans la dentelle. Je suis Andrea, l'IA d'audit d'Artisans Validés, entraînée sur 20 ans d'expertise terrain. Vous êtes artisan ou particulier ?";
 
 const TOOLTIP_MESSAGES = [
   "Un doute sur un devis ? Je vous réponds cash.",
