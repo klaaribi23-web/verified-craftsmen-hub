@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Search, RotateCcw, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { useCategoriesHierarchy, CategoryWithChildren } from "@/hooks/useCategories";
+import { useCategoryKeywords, searchKeywords, KeywordSuggestion } from "@/hooks/useCategoryKeywords";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,7 +42,18 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   const [showDistanceSlider, setShowDistanceSlider] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
 
+  // Semantic search state
+  const [semanticQuery, setSemanticQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
   const { data: categoriesData } = useCategoriesHierarchy();
+  const { data: keywordsData } = useCategoryKeywords();
+
+  const suggestions = useMemo(
+    () => searchKeywords(semanticQuery, keywordsData),
+    [semanticQuery, keywordsData]
+  );
 
   const hasFilters = selectedCategoryId || selectedCity || locationInput;
 
@@ -59,6 +71,17 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   useEffect(() => {
     setShowDistanceSlider(!!coordinates);
   }, [coordinates]);
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const selectCategory = useCallback((id: string, name: string, label: string) => {
     if (selectedCategoryId === id) {
@@ -84,9 +107,22 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
         selectCategory(child.id, child.name, pill.label);
       }
     } else {
-      // Select parent category
       selectCategory(parent.id, parent.name, pill.label);
     }
+  }, [categoriesData, selectCategory]);
+
+  const handleSuggestionClick = useCallback((suggestion: KeywordSuggestion) => {
+    // Find parent name for label
+    let label = suggestion.categoryName;
+    if (suggestion.parentId && categoriesData) {
+      const parent = categoriesData.find(p => p.id === suggestion.parentId);
+      if (parent) {
+        label = `${parent.name} › ${suggestion.categoryName}`;
+      }
+    }
+    selectCategory(suggestion.categoryId, suggestion.categoryName, label);
+    setSemanticQuery("");
+    setShowSuggestions(false);
   }, [categoriesData, selectCategory]);
 
   const handleReset = () => {
@@ -98,10 +134,75 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
     setCoordinates(null);
     setRadius(DEFAULT_RADIUS);
     setShowDistanceSlider(false);
+    setSemanticQuery("");
+    setShowSuggestions(false);
   };
 
   return (
     <div className="space-y-5">
+      {/* Semantic Search Bar */}
+      <div className="relative" ref={suggestionsRef}>
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#8892B0] pointer-events-none" />
+          <input
+            type="text"
+            value={semanticQuery}
+            onChange={(e) => {
+              setSemanticQuery(e.target.value);
+              setShowSuggestions(e.target.value.length >= 3);
+            }}
+            onFocus={() => {
+              if (semanticQuery.length >= 3) setShowSuggestions(true);
+            }}
+            placeholder="Décrivez votre besoin... ex: fuite de toit, changer mes fenêtres, rats dans la maison"
+            className="w-full h-14 pl-12 pr-4 rounded-2xl text-base font-medium text-white placeholder:text-[#8892B0] border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 outline-none transition-all font-['DM_Sans']"
+            style={{ backgroundColor: '#112240' }}
+          />
+        </div>
+
+        {/* Suggestions dropdown */}
+        <AnimatePresence>
+          {showSuggestions && semanticQuery.length >= 3 && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="absolute z-50 w-full mt-2 rounded-xl border border-[#D4AF37]/20 shadow-xl overflow-hidden"
+              style={{ backgroundColor: '#112240' }}
+            >
+              {suggestions.length > 0 ? (
+                <ul className="py-1">
+                  {suggestions.map((s) => (
+                    <li key={s.categoryId}>
+                      <button
+                        onClick={() => handleSuggestionClick(s)}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-left transition-colors hover:bg-[#D4AF37]/10"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-[#0A192F] flex items-center justify-center shrink-0">
+                          <CategoryIcon iconName={s.categoryIcon} size={18} className="text-[#D4AF37]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-white truncate font-['DM_Sans']">
+                            {s.categoryName}
+                          </p>
+                          <p className="text-xs text-[#8892B0] truncate">
+                            correspond à « {s.matchedKeyword} »
+                          </p>
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="px-4 py-4 text-sm text-[#8892B0] text-center font-['DM_Sans']">
+                  Aucun métier trouvé — essayez avec d'autres mots
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Main Search Card */}
       <div className="rounded-2xl shadow-lg border border-[#D4AF37]/20 overflow-hidden" style={{ backgroundColor: '#112240' }}>
         <div className="flex flex-col lg:flex-row">
@@ -270,7 +371,6 @@ function CategoryMegamenu({
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 max-h-[60vh] overflow-y-auto" style={{ backgroundColor: '#112240' }}>
       {categories.map((parent) => (
         <div key={parent.id} className="p-3 border-b border-r border-[#D4AF37]/10 last:border-r-0">
-          {/* Parent header — clickable to select parent */}
           <button
             onClick={() => onSelect(parent.id, parent.name, parent.name)}
             className={cn(
@@ -289,7 +389,6 @@ function CategoryMegamenu({
             <span className="text-sm font-semibold leading-tight font-['DM_Sans']">{parent.name}</span>
           </button>
 
-          {/* Children */}
           <div className="space-y-0.5 pl-1">
             {parent.children.map((child) => (
               <button
