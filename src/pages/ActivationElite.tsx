@@ -252,21 +252,41 @@ const ActivationElite = () => {
                   </div>
 
                   {/* BADGE STATUS */}
-                  <div
-                    className="mt-6 rounded-xl p-4 flex items-center gap-4 bg-primary/5"
-                    style={{ border: "1px solid hsl(var(--primary) / 0.2)" }}
-                  >
-                    <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center shrink-0 relative">
-                      <Lock className="w-6 h-6 text-primary" />
-                      <div className="absolute inset-0 rounded-full animate-pulse" style={{ boxShadow: "0 0 15px hsl(var(--primary) / 0.3)" }} />
+                  <div className="flex flex-wrap gap-3 mt-6">
+                    <div
+                      className="flex-1 min-w-[200px] rounded-xl p-4 flex items-center gap-4 bg-primary/5"
+                      style={{ border: "1px solid hsl(var(--primary) / 0.2)" }}
+                    >
+                      <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center shrink-0 relative">
+                        <Lock className="w-6 h-6 text-primary" />
+                        <div className="absolute inset-0 rounded-full animate-pulse" style={{ boxShadow: "0 0 15px hsl(var(--primary) / 0.3)" }} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-primary">
+                          🔒 STATUT : VÉRIFICATION D'IDENTITÉ REQUISE
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Confirmez votre identité en un clic pour débloquer vos contacts clients.
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-black text-primary">
-                        🔒 STATUT : VÉRIFICATION D'IDENTITÉ REQUISE
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Confirmez votre identité en un clic pour débloquer vos contacts clients.
-                      </p>
+
+                    {/* RGE pending badge */}
+                    <div
+                      className="rounded-xl p-4 flex items-center gap-3 bg-muted/50"
+                      style={{ border: "1px solid hsl(var(--muted-foreground) / 0.15)" }}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                        <Shield className="w-5 h-5 text-muted-foreground/50" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-muted-foreground/60">
+                          RGE — Certification en cours de vérification
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/40 mt-0.5">
+                          Fournissez votre attestation RGE pour débloquer ce badge.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

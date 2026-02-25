@@ -202,6 +202,7 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
           portfolio_videos: data.portfolio_videos,
           experience_years: data.experience_years,
           is_verified: data.is_verified,
+          is_rge: (data as any).is_rge || false,
           facebook_url: data.facebook_url,
           instagram_url: data.instagram_url,
           linkedin_url: data.linkedin_url,
@@ -522,6 +523,14 @@ export const AdminEditArtisanDialog = ({ open, onOpenChange, artisan }: AdminEdi
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_verified: checked }))}
                 />
                 <Label>Artisan vérifié</Label>
+              </div>
+
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted">
+                <Switch
+                  checked={(formData as any).is_rge || false}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_rge: checked }))}
+                />
+                <Label>Certifié RGE</Label>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
