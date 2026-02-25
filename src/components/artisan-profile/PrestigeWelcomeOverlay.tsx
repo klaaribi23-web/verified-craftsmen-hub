@@ -53,15 +53,19 @@ const PrestigeWelcomeOverlay = ({
     checkSector();
   }, [city, categoryId]);
 
-  // 24h countdown timer
+  // Dynamic 24h countdown from first visit (stored in localStorage)
   useEffect(() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(18, 0, 0, 0);
+    const storageKey = `prestige_first_visit_${artisanId}`;
+    let firstVisit = localStorage.getItem(storageKey);
+    if (!firstVisit) {
+      firstVisit = new Date().toISOString();
+      localStorage.setItem(storageKey, firstVisit);
+    }
+    const deadline = new Date(new Date(firstVisit).getTime() + 24 * 60 * 60 * 1000);
 
     const tick = () => {
       const now = new Date();
-      const diff = tomorrow.getTime() - now.getTime();
+      const diff = deadline.getTime() - now.getTime();
       if (diff <= 0) {
         setCountdown("EXPIRÉ");
         return;
@@ -75,7 +79,7 @@ const PrestigeWelcomeOverlay = ({
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [artisanId]);
 
   const isSectorFull = sectorCount !== null && sectorCount >= 2;
   const placesLeft = sectorCount !== null ? Math.max(0, 2 - sectorCount) : 1;
@@ -191,8 +195,9 @@ const PrestigeWelcomeOverlay = ({
                   <ul className="space-y-1.5 mb-5 text-xs text-white/50">
                     <li className="flex items-center gap-1.5"><Lock className="h-3 w-3 text-primary" /> Exclusivité secteur immédiate</li>
                     <li className="flex items-center gap-1.5"><Shield className="h-3 w-3 text-primary" /> Badge Artisan Validé</li>
-                    <li className="flex items-center gap-1.5"><Star className="h-3 w-3 text-primary" /> Sans engagement</li>
+                     <li className="flex items-center gap-1.5"><Star className="h-3 w-3 text-primary" /> Sans engagement</li>
                   </ul>
+                  <p className="text-[10px] text-white/40 mb-3 text-center">✓ Satisfait ou remboursé 30 jours · Résiliation en 1 clic</p>
                   <Button
                     className="w-full bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider hover:bg-primary/90"
                     onClick={() => handleCheckout(STRIPE_PRICES.artisan_valide.monthly)}
@@ -227,8 +232,9 @@ const PrestigeWelcomeOverlay = ({
                   <ul className="space-y-1.5 mb-5 text-xs text-white/50">
                     <li className="flex items-center gap-1.5"><Lock className="h-3 w-3 text-primary" /> Exclusivité secteur immédiate</li>
                     <li className="flex items-center gap-1.5"><Shield className="h-3 w-3 text-amber-400" /> Badge Audité offert</li>
-                    <li className="flex items-center gap-1.5"><Star className="h-3 w-3 text-amber-400" /> 3 RDV qualifiés garantis</li>
+                     <li className="flex items-center gap-1.5"><Star className="h-3 w-3 text-amber-400" /> 3 RDV qualifiés garantis</li>
                   </ul>
+                  <p className="text-[10px] text-white/40 mb-3 text-center">✓ Satisfait ou remboursé 30 jours · Résiliation en 1 clic</p>
                   <Button
                     className="w-full bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider hover:bg-primary/90 relative overflow-hidden"
                     onClick={() => handleCheckout(STRIPE_PRICES.artisan_valide.yearly)}

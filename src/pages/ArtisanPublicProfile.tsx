@@ -146,14 +146,14 @@ const ArtisanPublicProfile = () => {
     if (!artisan) return [];
     const sections: string[] = ["description"]; // Always show description
     if (secondarySkills.length > 0) sections.push("competences");
-    sections.push("prestations"); // Always show prestations
+    if (services && services.length > 0) sections.push("prestations");
     sections.push("realisations"); // Always show (placeholder if no photos)
     if (artisan.portfolio_videos && artisan.portfolio_videos.length > 0) sections.push("videos");
     if (hasWorkingHours) sections.push("horaires");
     sections.push("avis"); // Always show avis
     if (hasRecommendations) sections.push("recommandations"); // Only show if has recommendations
     return sections;
-  }, [artisan, secondarySkills.length, portfolio.length, hasWorkingHours, hasRecommendations]);
+  }, [artisan, secondarySkills.length, portfolio.length, hasWorkingHours, hasRecommendations, services]);
 
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const handleShare = (platform: string) => {
@@ -672,8 +672,17 @@ const ArtisanPublicProfile = () => {
                   <div className="bg-muted/30 rounded-lg p-4">
                     <p className="text-muted-foreground italic leading-relaxed text-sm md:text-base">
                       "
-                      {artisan.description ||
-                        "Artisan passionné par mon métier, je mets tout mon savoir-faire au service de mes clients. Qualité, ponctualité et satisfaction sont mes priorités. N'hésitez pas à me contacter pour discuter de votre projet et obtenir un devis personnalisé adapté à vos besoins."}
+                      {(() => {
+                        const desc = artisan.description || "";
+                        const isDefault = !desc || desc.includes("Artisan passionné par mon métier") || desc.includes("Professionnel qualifié à votre service");
+                        if (isDefault) {
+                          const metier = artisan.category?.name || "artisan";
+                          const ville = artisan.city || "";
+                          const dept = artisan.postal_code ? ` (${artisan.postal_code.substring(0, 2)})` : "";
+                          return `Spécialiste ${metier} dans le secteur de ${ville}${dept}, j'interviens rapidement pour vos projets. Devis gratuit sous 24h.`;
+                        }
+                        return desc;
+                      })()}
                       "
                     </p>
                   </div>
@@ -770,22 +779,16 @@ const ArtisanPublicProfile = () => {
                 );
               })()}
 
-              {/* Services Section - Always visible (no accordion) */}
-              <Card id="prestations">
-                <CardHeader className="p-4 md:p-6">
-                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                    <Wrench className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                    Prestations proposées
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
-                  {servicesLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
-                      {[1, 2, 3, 4].map((i) => (
-                        <Skeleton key={i} className="h-16 md:h-20 rounded-lg" />
-                      ))}
-                    </div>
-                  ) : services && services.length > 0 ? (
+              {/* Services Section - Only visible if has services */}
+              {!servicesLoading && services && services.length > 0 && (
+                <Card id="prestations">
+                  <CardHeader className="p-4 md:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                      <Wrench className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                      Prestations proposées
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                       {services.map((service) => (
                         <div
@@ -813,11 +816,9 @@ const ArtisanPublicProfile = () => {
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <p className="text-muted-foreground text-center py-4">Aucune prestation renseignée</p>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Portfolio Section - Photos */}
               <Card id="realisations">
@@ -989,30 +990,30 @@ const ArtisanPublicProfile = () => {
                           </TooltipContent>
                         </Tooltip>
 
-                        {/* SIRET - always visible */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-start gap-3 p-3 rounded-lg bg-secondary border border-primary/10 cursor-help transition-colors hover:border-primary/30">
-                              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                <FileCheck className="h-5 w-5 text-primary" />
+                        {/* SIRET - only show if artisan has a SIRET number */}
+                        {(artisan as any).siret ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-start gap-3 p-3 rounded-lg bg-secondary border border-primary/10 cursor-help transition-colors hover:border-primary/30">
+                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                  <FileCheck className="h-5 w-5 text-primary" />
+                                </div>
+                                <div>
+                                  <p className="text-sm text-muted-foreground">N° SIRET</p>
+                                  <p className="font-semibold font-mono tracking-wide">
+                                    {(artisan as any).siret}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">N° SIRET</p>
-                                <p className="font-semibold font-mono tracking-wide">
-                                  {(artisan as any).siret || (
-                                    <span className="text-muted-foreground italic">En attente</span>
-                                  )}
-                                </p>
-                              </div>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-xs">
-                            <p>
-                              Numéro d'identification unique de l'entreprise, garantissant son existence légale en
-                              France.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              <p>
+                                Numéro d'identification unique de l'entreprise, garantissant son existence légale en
+                                France.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : null}
 
                         {/* Dernière vérification - only for active artisans */}
                         {artisan.status === "active" && artisan.updated_at && (
