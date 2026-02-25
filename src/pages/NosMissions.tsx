@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -51,9 +51,11 @@ import { CityAutocompleteAPI } from "@/components/location/CityAutocompleteAPI";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useDemoMissions } from "@/hooks/usePublicData";
-import { useCategoriesHierarchy } from "@/hooks/useCategories";
+import { useCategoriesHierarchy, CategoryWithChildren } from "@/hooks/useCategories";
 import { CategorySelect } from "@/components/categories/CategorySelect";
 import { CategoryIcon } from "@/components/categories/CategoryIcon";
+import { useCategoryKeywords, searchKeywords, KeywordSuggestion } from "@/hooks/useCategoryKeywords";
+import { AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
@@ -180,6 +182,12 @@ const NosMissions = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showTeasingModal, setShowTeasingModal] = useState(false);
 
+  // Semantic search state
+  const [semanticQuery, setSemanticQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const { data: keywordsData } = useCategoryKeywords();
+
   const { 
     canApply: canApplyLimit, 
     appliedThisMonth, 
@@ -207,6 +215,35 @@ const NosMissions = () => {
 
   const { data: dbMissions, isLoading: missionsLoading } = useDemoMissions(user?.id, role);
   const { data: categories } = useCategoriesHierarchy();
+
+  // Semantic search suggestions
+  const suggestions = useMemo(
+    () => searchKeywords(semanticQuery, keywordsData),
+    [semanticQuery, keywordsData]
+  );
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Helper: get all child category names for a parent category name
+  const getCategoryNamesForFilter = useMemo(() => {
+    if (!categories || !categoryFilter || categoryFilter === "all") return null;
+    // Check if categoryFilter matches a parent category
+    const parent = categories.find(c => c.name === categoryFilter);
+    if (parent && parent.children.length > 0) {
+      // Return parent name + all children names
+      return new Set([parent.name, ...parent.children.map(ch => ch.name)]);
+    }
+    return null; // exact match only
+  }, [categories, categoryFilter]);
 
   // Parse structured metadata from description
   const parseStructuredInfo = (desc: string | null) => {
@@ -255,8 +292,15 @@ const NosMissions = () => {
     const distances = new Map<string, number>();
     
     const filtered = missions.filter(mission => {
-      if (categoryFilter && categoryFilter !== "all" && mission.category?.name !== categoryFilter) {
-        return false;
+      if (categoryFilter && categoryFilter !== "all") {
+        const missionCatName = mission.category?.name || "";
+        if (getCategoryNamesForFilter) {
+          // Parent category selected → match any child
+          if (!getCategoryNamesForFilter.has(missionCatName)) return false;
+        } else {
+          // Exact subcategory match
+          if (missionCatName !== categoryFilter) return false;
+        }
       }
       
       const missionCity = mission.city || "";
@@ -380,6 +424,8 @@ const NosMissions = () => {
     setSelectedCity("");
     setSearchCoordinates(null);
     setRadiusFilter(0);
+    setSemanticQuery("");
+    setShowSuggestions(false);
     setCurrentPage(1);
   };
 
@@ -487,6 +533,80 @@ const NosMissions = () => {
               className="max-w-4xl mx-auto"
             >
               <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 md:p-6">
+                {/* Semantic Search Bar */}
+                <div className="relative mb-4" ref={suggestionsRef}>
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={semanticQuery}
+                      onChange={(e) => {
+                        setSemanticQuery(e.target.value);
+                        setShowSuggestions(e.target.value.length >= 3);
+                      }}
+                      onFocus={() => {
+                        if (semanticQuery.length >= 3) setShowSuggestions(true);
+                      }}
+                      placeholder="Décrivez le chantier... ex: fuite de toit, tableau électrique, jardin à aménager"
+                      className="w-full h-14 pl-12 pr-10 rounded-xl text-base font-medium text-white placeholder:text-white/40 bg-white/5 border border-white/20 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 outline-none transition-all"
+                    />
+                    {semanticQuery && (
+                      <button
+                        onClick={() => { setSemanticQuery(""); setShowSuggestions(false); }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Suggestions dropdown */}
+                  <AnimatePresence>
+                    {showSuggestions && semanticQuery.length >= 3 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="absolute z-50 w-full mt-2 rounded-xl border border-[#D4AF37]/30 shadow-xl overflow-hidden bg-[#112240]"
+                      >
+                        {suggestions.length > 0 ? (
+                          <ul className="py-1">
+                            {suggestions.map((s) => (
+                              <li key={s.categoryId}>
+                                <button
+                                  onClick={() => {
+                                    setCategoryFilter(s.categoryName);
+                                    setSemanticQuery("");
+                                    setShowSuggestions(false);
+                                    setCurrentPage(1);
+                                  }}
+                                  className="flex items-center gap-3 w-full px-4 py-3 text-left transition-colors hover:bg-[#D4AF37]/10"
+                                >
+                                  <div className="w-8 h-8 rounded-lg bg-[#0A192F] flex items-center justify-center shrink-0">
+                                    <CategoryIcon iconName={s.categoryIcon} size={18} className="text-[#D4AF37]" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-semibold text-white truncate">
+                                      {s.categoryName}
+                                    </p>
+                                    <p className="text-xs text-white/50 truncate">
+                                      correspond à « {s.matchedKeyword} »
+                                    </p>
+                                  </div>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="px-4 py-4 text-sm text-white/50 text-center">
+                            Aucun métier trouvé — essayez avec d'autres mots
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
                 <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-end">
                   {/* Category filter */}
                   <div className="flex-1 w-full">
