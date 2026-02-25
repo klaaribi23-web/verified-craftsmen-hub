@@ -94,6 +94,8 @@ export const ArtisanProfile = () => {
   const [city, setCity] = useState("");
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [interventionRadius, setInterventionRadius] = useState<number>(50);
+  const [interventionZones, setInterventionZones] = useState<string[]>([]);
+  const [newZone, setNewZone] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [siret, setSiret] = useState("");
   const [siretError, setSiretError] = useState("");
@@ -162,6 +164,7 @@ export const ArtisanProfile = () => {
         setCoordinates({ lat: artisan.latitude, lng: artisan.longitude });
       }
       setInterventionRadius(artisan.intervention_radius ?? 50);
+      setInterventionZones((artisan as any).intervention_zone || []);
       // Load working hours from artisan data
       if (artisan.working_hours && typeof artisan.working_hours === 'object') {
         setWorkingHours(artisan.working_hours as WorkingHours);
@@ -326,11 +329,14 @@ export const ArtisanProfile = () => {
       interventionRadius,
     });
 
-    // Save google_maps_url directly (not in useArtisanProfile)
+    // Save google_maps_url and intervention_zone directly
     if (artisan?.id) {
       await supabase
         .from("artisans")
-        .update({ google_maps_url: googleBusinessUrl || null })
+        .update({ 
+          google_maps_url: googleBusinessUrl || null,
+          intervention_zone: interventionZones.length > 0 ? interventionZones : null,
+        })
         .eq("id", artisan.id);
     }
     // Categories are saved in real-time, no need to save here
@@ -725,6 +731,62 @@ export const ArtisanProfile = () => {
                   <p className="text-xs text-muted-foreground">
                     0 km = uniquement dans votre ville | 200 km = zone étendue
                   </p>
+                </div>
+
+                {/* Intervention Zones */}
+                <div className="space-y-2 md:col-span-2">
+                  <Label className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4" />
+                    Mes zones d'intervention spécifiques
+                  </Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Ajoutez des villes ou quartiers spécifiques en plus du rayon kilométrique
+                  </p>
+                  <div className="flex gap-2">
+                    <Input
+                      value={newZone}
+                      onChange={(e) => setNewZone(e.target.value)}
+                      placeholder="Ex: Lille Centre, Roubaix, Tourcoing..."
+                      className="text-sm flex-1"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newZone.trim()) {
+                          e.preventDefault();
+                          if (!interventionZones.includes(newZone.trim())) {
+                            setInterventionZones(prev => [...prev, newZone.trim()]);
+                          }
+                          setNewZone("");
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (newZone.trim() && !interventionZones.includes(newZone.trim())) {
+                          setInterventionZones(prev => [...prev, newZone.trim()]);
+                          setNewZone("");
+                        }
+                      }}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  {interventionZones.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {interventionZones.map((zone, idx) => (
+                        <Badge key={idx} variant="secondary" className="gap-1 pr-1">
+                          {zone}
+                          <button
+                            onClick={() => setInterventionZones(prev => prev.filter((_, i) => i !== idx))}
+                            className="ml-1 hover:text-destructive"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -81,6 +81,7 @@ const DemandeDevis = () => {
     timeline: "",
     postalCode: "",
     city: "",
+    cityCoordinates: null as { lat: number; lng: number } | null,
     firstName: "",
     lastName: "",
     email: "",
@@ -213,9 +214,7 @@ const DemandeDevis = () => {
         `Code postal : ${formData.postalCode}`,
       ].filter(Boolean).join("\n");
 
-      const { data: missionData, error: missionError } = await supabase
-        .from("missions")
-        .insert({
+      const missionInsert: any = {
           client_id: profileId,
           title: `Demande ${formData.category || "de travaux"}`,
           description: fullDescription,
@@ -224,7 +223,15 @@ const DemandeDevis = () => {
           status: "pending_approval",
           budget: formData.budget === "lt5k" ? 5000 : formData.budget === "5k-15k" ? 15000 : formData.budget === "15k-50k" ? 50000 : 100000,
           photos: formData.photos.length > 0 ? formData.photos : null,
-        })
+        };
+      if (formData.cityCoordinates) {
+        missionInsert.latitude = formData.cityCoordinates.lat;
+        missionInsert.longitude = formData.cityCoordinates.lng;
+      }
+
+      const { data: missionData, error: missionError } = await supabase
+        .from("missions")
+        .insert(missionInsert)
         .select("id")
         .single();
 
@@ -416,7 +423,9 @@ const DemandeDevis = () => {
                           <Label htmlFor="city" className="text-foreground mb-2 block">Ville *</Label>
                           <CityAutocompleteAPI
                             value={formData.city}
-                            onChange={(value) => updateForm("city", value)}
+                            onChange={(value, coords) => {
+                              setFormData(prev => ({ ...prev, city: value, cityCoordinates: coords ?? null }));
+                            }}
                             placeholder="Rechercher votre ville..."
                             className="h-12"
                           />

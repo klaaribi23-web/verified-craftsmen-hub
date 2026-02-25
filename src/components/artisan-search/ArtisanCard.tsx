@@ -347,7 +347,7 @@ const ArtisanCard = ({
           <MapPin className="h-3 w-3 shrink-0" />
           <span className="truncate">{location}</span>
           {distance !== null && distance !== undefined && (
-            <span className="text-gold font-medium ml-1">• {Math.round(distance)} km</span>
+            <span className="text-gold font-medium ml-1">• À {Math.round(distance)} km</span>
           )}
         </div>
 
