@@ -20,6 +20,7 @@ interface ArtisanFiltersProps {
     radius: number;
     coordinates: { lat: number; lng: number } | null;
     urgency?: boolean;
+    rge?: boolean;
   }) => void;
 }
 
@@ -43,6 +44,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   const [showDistanceSlider, setShowDistanceSlider] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
   const [urgencyActive, setUrgencyActive] = useState(false);
+  const [rgeActive, setRgeActive] = useState(false);
 
   // Semantic search state
   const [semanticQuery, setSemanticQuery] = useState("");
@@ -59,6 +61,18 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
 
   const hasFilters = selectedCategoryId || selectedCity || locationInput;
 
+  // Categories eligible for RGE/aides d'État
+  const RGE_ELIGIBLE_CATEGORIES = useMemo(() => new Set([
+    "Photovoltaïque", "PAC", "Chauffage", "Isolation", "Borne de recharge IRVE",
+    "Menuiserie extérieure", "Énergie & Solaire", "Toiture & Façade",
+    "Domotique", "Chauffage en panne"
+  ].map(s => s.toLowerCase())), []);
+
+  const isRgeEligibleCategory = useMemo(() => {
+    if (!selectedCategoryName) return false;
+    return RGE_ELIGIBLE_CATEGORIES.has(selectedCategoryName.toLowerCase());
+  }, [selectedCategoryName, RGE_ELIGIBLE_CATEGORIES]);
+
   useEffect(() => {
     onFiltersChange({
       category: selectedCategoryId,
@@ -68,8 +82,9 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
       radius: coordinates ? radius : 0,
       coordinates,
       urgency: urgencyActive,
+      rge: rgeActive,
     });
-  }, [selectedCategoryId, selectedCategoryName, selectedCity, locationInput, coordinates, radius, urgencyActive]);
+  }, [selectedCategoryId, selectedCategoryName, selectedCity, locationInput, coordinates, radius, urgencyActive, rgeActive]);
 
   useEffect(() => {
     setShowDistanceSlider(!!coordinates);
@@ -140,6 +155,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
     setSemanticQuery("");
     setShowSuggestions(false);
     setUrgencyActive(false);
+    setRgeActive(false);
   };
 
   return (
@@ -370,8 +386,40 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
               </motion.div>
             );
           })}
+
+          {/* RGE pill */}
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Badge
+              variant={rgeActive ? "default" : "outline"}
+              className={cn(
+                "cursor-pointer px-3 py-1.5 text-sm font-medium transition-all",
+                rgeActive 
+                  ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-sm" 
+                  : "hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/40"
+              )}
+              onClick={() => setRgeActive(!rgeActive)}
+            >
+              ✓ Certifié RGE
+            </Badge>
+          </motion.div>
         </div>
       </div>
+
+      {/* Contextual RGE aide message */}
+      <AnimatePresence>
+        {isRgeEligibleCategory && !rgeActive && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3"
+          >
+            <p className="text-sm text-emerald-400 font-medium">
+              💡 Ces travaux sont éligibles aux aides d'État. Filtrez par artisans <button onClick={() => setRgeActive(true)} className="underline font-bold hover:text-emerald-300">RGE</button> pour bénéficier de MaPrimeRénov' et des CEE.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

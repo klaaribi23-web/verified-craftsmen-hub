@@ -503,6 +503,41 @@ const DemandeDevis = () => {
                       </p>
                     </div>
 
+                    {/* Aides d'État simulator */}
+                    {(() => {
+                      const catName = formData.category.toLowerCase();
+                      const aidesMap: Record<string, { aides: string[]; note?: string }> = {
+                        "photovoltaïque": { aides: ["MaPrimeRénov' Sérénité", "Prime CEE", "TVA réduite 10%"] },
+                        "pac": { aides: ["MaPrimeRénov' (jusqu'à 10 000€)", "Prime CEE", "Éco-PTZ", "TVA réduite 5.5%"] },
+                        "chauffage": { aides: ["MaPrimeRénov'", "Prime CEE", "Éco-PTZ", "TVA réduite 5.5%"] },
+                        "isolation": { aides: ["MaPrimeRénov' (jusqu'à 75% du coût)", "Prime CEE", "Éco-PTZ", "TVA réduite 5.5%"] },
+                        "borne de recharge irve": { aides: ["Crédit d'impôt CITE 300€", "TVA réduite 5.5%"] },
+                        "menuiserie extérieure": { aides: ["MaPrimeRénov'", "Prime CEE", "TVA réduite 5.5%"] },
+                        "domotique": { aides: ["Prime CEE", "TVA réduite 5.5%"] },
+                      };
+                      const matchedKey = Object.keys(aidesMap).find(k => catName.includes(k));
+                      if (!matchedKey) return null;
+                      const { aides } = aidesMap[matchedKey];
+                      return (
+                        <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                          <p className="text-sm font-bold text-emerald-400 mb-2">
+                            💰 Ce projet est éligible aux aides d'État
+                          </p>
+                          <ul className="space-y-1 mb-3">
+                            {aides.map((aide, i) => (
+                              <li key={i} className="text-xs text-emerald-300 flex items-center gap-2">
+                                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                                {aide}
+                              </li>
+                            ))}
+                          </ul>
+                          <p className="text-[11px] text-emerald-400/70">
+                            Un artisan RGE certifié est obligatoire pour bénéficier de ces aides. Tous nos artisans éligibles sont certifiés RGE.
+                          </p>
+                        </div>
+                      );
+                    })()}
+
                     {/* Description & Photos merged here */}
                     <div className="space-y-6 mb-8 border-t border-border pt-6">
                       <div>

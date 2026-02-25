@@ -32,8 +32,8 @@ export interface ArtisanPublic {
   city: string;
   department: string | null;
   region: string | null;
-  address: string | null;
-  postal_code: string | null;
+  address?: string | null;
+  postal_code?: string | null;
   hourly_rate: number | null;
   experience_years: number | null;
   rating: number | null;
@@ -65,6 +65,7 @@ export interface ArtisanPublic {
   profile_id?: string | null;
   available_urgent?: boolean;
   available_urgent_at?: string | null;
+  is_rge?: boolean;
   category?: {
     id: string;
     name: string;

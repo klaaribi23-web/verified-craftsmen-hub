@@ -49,6 +49,7 @@ interface ArtisanCardProps {
   isUrgent?: boolean;
   isAudited?: boolean;
   availableUrgent?: boolean;
+  isRge?: boolean;
 }
 
 // Default logo for artisans without photos
@@ -78,6 +79,7 @@ const ArtisanCard = ({
   isUrgent,
   isAudited,
   availableUrgent,
+  isRge,
 }: ArtisanCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -288,6 +290,15 @@ const ArtisanCard = ({
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/15 text-orange-500 border border-orange-500/30 animate-pulse">
               <Zap className="w-3 h-3 fill-current" />
               Disponible aujourd'hui
+            </span>
+          </div>
+        )}
+
+        {/* RGE Badge */}
+        {isRge && (
+          <div className="flex items-center gap-1 mb-2">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+              ✓ RGE
             </span>
           </div>
         )}

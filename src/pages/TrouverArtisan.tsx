@@ -23,6 +23,7 @@ const ITEMS_PER_PAGE = 21;
 const TrouverArtisan = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [urgencyFilter, setUrgencyFilter] = useState(false);
+  const [rgeFilter, setRgeFilter] = useState(false);
   const [filters, setFilters] = useState({
     category: "",
     categoryName: "",
@@ -61,9 +62,11 @@ const TrouverArtisan = () => {
     radius: number;
     coordinates: { lat: number; lng: number } | null;
     urgency?: boolean;
+    rge?: boolean;
   }) => {
     setFilters(newFilters);
     if (newFilters.urgency !== undefined) setUrgencyFilter(newFilters.urgency);
+    if (newFilters.rge !== undefined) setRgeFilter(newFilters.rge);
     setCurrentPage(1);
   }, []);
 
@@ -95,6 +98,11 @@ const TrouverArtisan = () => {
     const depannageChildIds = parentChildMap.get("dépannage urgent");
     
     const filtered = artisansData.filter(artisan => {
+      // RGE filter
+      if (rgeFilter) {
+        if (!(artisan as any).is_rge) return false;
+      }
+
       // Urgency filter
       if (urgencyFilter) {
         const isAvailableUrgent = (artisan as any).available_urgent === true;
@@ -169,7 +177,7 @@ const TrouverArtisan = () => {
     });
     
     return { filteredArtisans: filtered, artisanDistances: distances };
-  }, [artisansData, filters, getCoordinates, parentChildMap, urgencyFilter]);
+  }, [artisansData, filters, getCoordinates, parentChildMap, urgencyFilter, rgeFilter]);
 
   // Sort: available_urgent first, then audited, then premium, then others
   const sortedArtisans = useMemo(() => {
@@ -288,7 +296,7 @@ const TrouverArtisan = () => {
                   opacity: 1,
                   y: 0
                 }}>
-                        <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} portfolioVideos={artisan.portfolio_videos || undefined} distance={artisanDistances.get(artisan.id) ?? null} subscriptionTier={artisan.subscription_tier} phone={undefined} siret={undefined} facebookUrl={artisan.facebook_url} instagramUrl={artisan.instagram_url} linkedinUrl={artisan.linkedin_url} websiteUrl={artisan.website_url} isAudited={artisan.is_audited || false} availableUrgent={(artisan as any).available_urgent || false} />
+                        <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} portfolioVideos={artisan.portfolio_videos || undefined} distance={artisanDistances.get(artisan.id) ?? null} subscriptionTier={artisan.subscription_tier} phone={undefined} siret={undefined} facebookUrl={artisan.facebook_url} instagramUrl={artisan.instagram_url} linkedinUrl={artisan.linkedin_url} websiteUrl={artisan.website_url} isAudited={artisan.is_audited || false} availableUrgent={(artisan as any).available_urgent || false} isRge={(artisan as any).is_rge || false} />
                       </motion.div>)}
                   </div>
 

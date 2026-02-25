@@ -236,6 +236,7 @@ export type Database = {
           intervention_radius: number | null
           is_audited: boolean
           is_permanent: boolean
+          is_rge: boolean
           is_verified: boolean | null
           last_mission_reset: string | null
           latitude: number | null
@@ -295,6 +296,7 @@ export type Database = {
           intervention_radius?: number | null
           is_audited?: boolean
           is_permanent?: boolean
+          is_rge?: boolean
           is_verified?: boolean | null
           last_mission_reset?: string | null
           latitude?: number | null
@@ -354,6 +356,7 @@ export type Database = {
           intervention_radius?: number | null
           is_audited?: boolean
           is_permanent?: boolean
+          is_rge?: boolean
           is_verified?: boolean | null
           last_mission_reset?: string | null
           latitude?: number | null
@@ -1622,6 +1625,7 @@ export type Database = {
           instagram_url: string | null
           intervention_radius: number | null
           is_audited: boolean | null
+          is_rge: boolean | null
           is_verified: boolean | null
           latitude: number | null
           linkedin_url: string | null
@@ -1662,6 +1666,7 @@ export type Database = {
           instagram_url?: string | null
           intervention_radius?: number | null
           is_audited?: boolean | null
+          is_rge?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
           linkedin_url?: string | null
@@ -1702,6 +1707,7 @@ export type Database = {
           instagram_url?: string | null
           intervention_radius?: number | null
           is_audited?: boolean | null
+          is_rge?: boolean | null
           is_verified?: boolean | null
           latitude?: number | null
           linkedin_url?: string | null

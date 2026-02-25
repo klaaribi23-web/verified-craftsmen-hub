@@ -406,6 +406,11 @@ const ArtisanPublicProfile = () => {
                             Disponible aujourd'hui
                           </span>
                         )}
+                        {(artisan as any).is_rge && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 whitespace-nowrap">
+                            ✓ Certifié RGE
+                          </span>
+                        )}
                       </div>
                       {/* Elite exclusivity micro-copy */}
                       {(artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel" || (artisan as any).is_audited) && (
