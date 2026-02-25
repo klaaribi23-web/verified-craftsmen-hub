@@ -179,20 +179,30 @@ const TrouverArtisan = () => {
     return { filteredArtisans: filtered, artisanDistances: distances };
   }, [artisansData, filters, getCoordinates, parentChildMap, urgencyFilter, rgeFilter]);
 
-  // Sort: available_urgent first, then audited, then premium, then others
+  // Sort: by distance if available, then available_urgent, then audited, then premium, then rating
   const sortedArtisans = useMemo(() => {
     return [...filteredArtisans].sort((a, b) => {
-      // 0. Available urgent first
+      // 0. If distance available, sort by distance first
+      const aDist = artisanDistances.get(a.id);
+      const bDist = artisanDistances.get(b.id);
+      if (aDist !== undefined && bDist !== undefined) {
+        if (aDist !== bDist) return aDist - bDist;
+      }
+      // Put artisans with distance before those without
+      if (aDist !== undefined && bDist === undefined) return -1;
+      if (aDist === undefined && bDist !== undefined) return 1;
+
+      // 1. Available urgent first
       const aUrgent = (a as any).available_urgent ? 1 : 0;
       const bUrgent = (b as any).available_urgent ? 1 : 0;
       if (bUrgent !== aUrgent) return bUrgent - aUrgent;
 
-      // 1. Audited first
+      // 2. Audited first
       const aAudited = a.is_audited ? 1 : 0;
       const bAudited = b.is_audited ? 1 : 0;
       if (bAudited !== aAudited) return bAudited - aAudited;
       
-      // 2. Premium tier next
+      // 3. Premium tier next
       const tierOrder = (tier: string | null | undefined) => {
         if (tier === 'premium') return 2;
         if (tier === 'standard') return 1;
@@ -202,10 +212,10 @@ const TrouverArtisan = () => {
       const bTier = tierOrder(b.subscription_tier);
       if (bTier !== aTier) return bTier - aTier;
       
-      // 3. By rating
+      // 4. By rating
       return (b.rating || 0) - (a.rating || 0);
     });
-  }, [filteredArtisans]);
+  }, [filteredArtisans, artisanDistances]);
 
   // Paginate sorted artisans
   const totalPages = Math.ceil(sortedArtisans.length / ITEMS_PER_PAGE);

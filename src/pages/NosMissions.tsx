@@ -202,7 +202,7 @@ const NosMissions = () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from("artisans")
-        .select("id, business_name")
+        .select("id, business_name, latitude, longitude, intervention_radius, city")
         .eq("user_id", user.id)
         .single();
       if (error) return null;
@@ -210,6 +210,20 @@ const NosMissions = () => {
     },
     enabled: !!user?.id && role === "artisan",
   });
+
+  // Artisan proximity radius slider
+  const [artisanRadius, setArtisanRadius] = useState<number>(50);
+  const radiusOptions = [15, 30, 50, 100, 0]; // 0 = Toute la France
+
+  // Auto-set artisan coordinates for filtering
+  useEffect(() => {
+    if (artisanProfile?.latitude && artisanProfile?.longitude && !searchCoordinates && !selectedCity) {
+      setSearchCoordinates({ lat: artisanProfile.latitude, lng: artisanProfile.longitude });
+      setSelectedCity(artisanProfile.city || "");
+      setRadiusFilter(artisanProfile.intervention_radius ?? 50);
+      setArtisanRadius(artisanProfile.intervention_radius ?? 50);
+    }
+  }, [artisanProfile]);
 
   const [searchCoordinates, setSearchCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -677,11 +691,47 @@ const NosMissions = () => {
                   </Button>
                 </div>
 
+                {/* Radius slider for artisans */}
+                {role === "artisan" && artisanProfile?.latitude && (
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <Label className="text-white/80 text-sm mb-2 block flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      Rayon de recherche : {artisanRadius === 0 ? "Toute la France" : `${artisanRadius} km`}
+                    </Label>
+                    <div className="flex items-center gap-3">
+                      {[15, 30, 50, 100].map(r => (
+                        <button
+                          key={r}
+                          onClick={() => { setArtisanRadius(r); setRadiusFilter(r); setCurrentPage(1); }}
+                          className={cn(
+                            "text-xs font-semibold rounded-full px-3 py-1.5 transition-all border",
+                            artisanRadius === r
+                              ? "bg-gold text-navy-dark border-gold"
+                              : "bg-white/10 text-white border-white/20 hover:border-gold/40"
+                          )}
+                        >
+                          {r} km
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => { setArtisanRadius(0); setRadiusFilter(0); setSelectedCity(""); setSearchCoordinates(null); setCurrentPage(1); }}
+                        className={cn(
+                          "text-xs font-semibold rounded-full px-3 py-1.5 transition-all border",
+                          artisanRadius === 0
+                            ? "bg-gold text-navy-dark border-gold"
+                            : "bg-white/10 text-white border-white/20 hover:border-gold/40"
+                        )}
+                      >
+                        🇫🇷 France
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Quick filter tags */}
                 <div className="flex flex-wrap gap-2 mt-4">
                   {[
                     { label: "Urgences 🚨", filter: () => { 
-                      // Filter for "Dépannage Urgent" parent category + text-based urgent matching
                       if (categoryFilter === "__urgent__") {
                         setCategoryFilter(""); 
                       } else {
@@ -690,7 +740,7 @@ const NosMissions = () => {
                       setCurrentPage(1); 
                     } },
                     { label: "Gros Chantiers 💰", filter: () => { setCategoryFilter("Rénovation Globale"); setCurrentPage(1); } },
-                    { label: "Moins de 15km 📍", filter: () => { if (searchCoordinates) { setRadiusFilter(15); setCurrentPage(1); } else { toast({ title: "Sélectionnez une ville", description: "Entrez votre ville pour activer le filtre distance." }); } } },
+                    { label: "Moins de 15km 📍", filter: () => { if (searchCoordinates) { setRadiusFilter(15); setArtisanRadius(15); setCurrentPage(1); } else { toast({ title: "Sélectionnez une ville", description: "Entrez votre ville pour activer le filtre distance." }); } } },
                   ].map((tag) => (
                     <button
                       key={tag.label}
