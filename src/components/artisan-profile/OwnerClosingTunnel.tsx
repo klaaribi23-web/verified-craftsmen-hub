@@ -14,7 +14,7 @@ interface OwnerClosingTunnelProps {
   delaySeconds?: number;
 }
 
-const SUPPORT_PHONE = "09 70 70 70 70";
+const SUPPORT_PHONE = "03 53 63 29 99";
 
 const OwnerClosingTunnel = ({
   artisanName,
@@ -172,7 +172,7 @@ const OwnerClosingTunnel = ({
               className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs font-medium transition-all border border-muted-foreground/15 text-muted-foreground/50 hover:border-red-500/50 hover:text-red-400/80"
               style={{ background: "transparent" }}
             >
-              Non, supprimer la fiche
+              Non, abandonner mes chantiers
             </button>
           </div>
         </div>

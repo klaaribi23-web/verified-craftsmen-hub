@@ -89,8 +89,8 @@ const DemandeDevis = () => {
     photos: [] as string[],
   });
 
-  // 5 content steps + password step for non-auth
-  const totalSteps = isAuthenticated ? 5 : 6;
+  // 4 content steps + password step for non-auth
+  const totalSteps = isAuthenticated ? 4 : 5;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -253,7 +253,7 @@ const DemandeDevis = () => {
     }
   };
 
-  const stepLabels = ["Travaux", "Localisation", "Budget", "Photos", "Contact"];
+  const stepLabels = ["Travaux", "Localisation", "Budget & Détails", "Contact"];
 
   return (
     <div className="min-h-screen bg-background">
@@ -277,7 +277,7 @@ const DemandeDevis = () => {
             {step <= totalSteps && (
               <div className="mb-10">
                 <div className="flex justify-between mb-2">
-                  {Array.from({ length: Math.min(totalSteps, 5) }, (_, i) => i + 1).map((s) => (
+                  {Array.from({ length: Math.min(totalSteps, 4) }, (_, i) => i + 1).map((s) => (
                     <div key={s} className="flex flex-col items-center gap-1">
                       <div
                         className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm transition-all ${
@@ -293,6 +293,11 @@ const DemandeDevis = () => {
                 <div className="h-2 bg-secondary rounded-full overflow-hidden">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${((step - 1) / (totalSteps - 1)) * 100}%` }} className="h-full bg-gradient-gold" />
                 </div>
+                {/* Social proof line */}
+                <p className="text-center text-xs text-muted-foreground mt-3">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-success mr-1.5 animate-pulse" />
+                  847 projets déposés ce mois-ci · Réponse artisan en moins de 2h en moyenne
+                </p>
               </div>
             )}
 
@@ -401,6 +406,11 @@ const DemandeDevis = () => {
                               <Sparkles className="w-3 h-3 mr-1" /> Secteur Prioritaire Artisans Validés
                             </Badge>
                           )}
+                          {formData.postalCode.length === 5 && !isPrioritySector && (
+                            <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                              Nous n'avons pas encore d'artisan dans votre zone — votre projet sera mis en attente prioritaire dès qu'un artisan est validé près de chez vous.
+                            </p>
+                          )}
                         </div>
                         <div>
                           <Label htmlFor="city" className="text-foreground mb-2 block">Ville *</Label>
@@ -453,7 +463,7 @@ const DemandeDevis = () => {
                   </motion.div>
                 )}
 
-                {/* ============ STEP 3: Budget ============ */}
+                {/* ============ STEP 3: Budget + Photos & Description (merged) ============ */}
                 {step === 3 && (
                   <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                     <h2 className="text-xl font-semibold text-foreground mb-2">
@@ -463,7 +473,7 @@ const DemandeDevis = () => {
                     <p className="text-sm text-muted-foreground mb-6">
                       Un budget précis permet aux artisans de vous envoyer un devis adapté.
                     </p>
-                    <div className="space-y-3 mb-8">
+                    <div className="space-y-3 mb-6">
                       {budgetOptions.map((opt) => (
                         <button
                           key={opt.id}
@@ -493,28 +503,38 @@ const DemandeDevis = () => {
                       </p>
                     </div>
 
-                    <div className="flex gap-4">
-                      <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
-                        <ArrowLeft className="w-5 h-5 mr-2" /> Retour
-                      </Button>
-                      <Button variant="gold" size="lg" onClick={handleNext} disabled={!formData.budget} className="flex-1">
-                        Continuer <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
+                    {/* Description & Photos merged here */}
+                    <div className="space-y-6 mb-8 border-t border-border pt-6">
+                      <div>
+                        <Label htmlFor="description" className="text-foreground mb-2 block">
+                          Description des travaux *
+                        </Label>
+                        <Textarea
+                          id="description"
+                          placeholder="Décrivez en détail les travaux que vous souhaitez réaliser..."
+                          value={formData.description}
+                          onChange={(e) => updateForm("description", e.target.value)}
+                          rows={4}
+                          maxLength={2000}
+                          className="resize-none"
+                        />
+                        <div className="flex items-center justify-between mt-1">
+                          <div>
+                            {formData.description.length >= 10 && (
+                              <p className="text-xs text-success font-medium flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Bonne description, vous pouvez continuer !
+                              </p>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{formData.description.length}/2000</p>
+                        </div>
+                      </div>
 
-                {/* ============ STEP 4: Photos & Détails ============ */}
-                {step === 4 && (
-                  <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-foreground mb-6">
-                      <Camera className="w-5 h-5 inline-block mr-2" />
-                      Photos & détails du projet
-                    </h2>
-                    <div className="space-y-6 mb-8">
                       <div>
                         <Label className="text-foreground mb-2 block">
-                          📸 Prenez en photo la zone des travaux (optionnel mais recommandé)
+                          <Camera className="w-4 h-4 inline-block mr-2" />
+                          📸 Photos de la zone des travaux (optionnel mais recommandé)
                         </Label>
                         <div className="flex items-start gap-2 p-3 rounded-lg bg-success/10 border border-success/20 mb-3">
                           <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" />
@@ -528,38 +548,22 @@ const DemandeDevis = () => {
                           maxPhotos={5}
                         />
                       </div>
-
-                      <div>
-                        <Label htmlFor="description" className="text-foreground mb-2 block">
-                          Description des travaux *
-                        </Label>
-                        <Textarea
-                          id="description"
-                          placeholder="Décrivez en détail les travaux que vous souhaitez réaliser..."
-                          value={formData.description}
-                          onChange={(e) => updateForm("description", e.target.value)}
-                          rows={5}
-                          maxLength={2000}
-                          className="resize-none"
-                        />
-                        <p className="text-xs text-muted-foreground text-right mt-1">{formData.description.length}/2000</p>
-                      </div>
                     </div>
 
                     <div className="flex gap-4">
                       <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
                         <ArrowLeft className="w-5 h-5 mr-2" /> Retour
                       </Button>
-                      <Button variant="gold" size="lg" onClick={handleNext} disabled={!formData.description} className="flex-1">
+                      <Button variant="gold" size="lg" onClick={handleNext} disabled={!formData.budget || !formData.description} className="flex-1">
                         Continuer <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </div>
                   </motion.div>
                 )}
 
-                {/* ============ STEP 5: Contact ============ */}
-                {step === 5 && (
-                  <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                {/* ============ STEP 4: Contact ============ */}
+                {step === 4 && (
+                  <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                     <h2 className="text-xl font-semibold text-foreground mb-2">
                       <Lock className="w-5 h-5 inline-block mr-2" />
                       Créer votre espace sécurisé
@@ -586,19 +590,21 @@ const DemandeDevis = () => {
                         </Label>
                         <Input id="email" type="email" placeholder="jean.dupont@email.com" value={formData.email} onChange={(e) => updateForm("email", e.target.value)} className="h-12" disabled={isAuthenticated} />
                       </div>
+
+                      {/* Confidentiality notice above phone */}
+                      <div className="flex items-start gap-3 p-4 rounded-xl bg-success/10 border border-success/20">
+                        <Shield className="w-5 h-5 text-success mt-0.5" />
+                        <p className="text-sm text-foreground/80">
+                          🔒 <strong>Vos données restent confidentielles.</strong> Aucune information personnelle ne sera partagée sans votre accord.
+                        </p>
+                      </div>
+
                       <div>
                         <Label htmlFor="phone" className="text-foreground mb-2 block">
                           <Phone className="w-4 h-4 inline-block mr-2" /> Téléphone * (format français)
                         </Label>
                         <p className="text-xs text-muted-foreground mb-1">Laissez votre numéro, l'artisan vous rappelle directement.</p>
                         <FrenchPhoneInput id="phone" value={formData.phone} onChange={(value) => updateForm("phone", value)} />
-                      </div>
-
-                      <div className="flex items-start gap-3 p-4 rounded-xl bg-success/10 border border-success/20">
-                        <Shield className="w-5 h-5 text-success mt-0.5" />
-                        <p className="text-sm text-foreground/80">
-                          🔒 <strong>Vos données restent confidentielles.</strong> Aucune information personnelle ne sera partagée sans votre accord.
-                        </p>
                       </div>
                     </div>
 
@@ -614,16 +620,16 @@ const DemandeDevis = () => {
                         className="flex-1"
                       >
                         {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                        {isAuthenticated ? "Déposer ma mission" : "Continuer"}
-                        {!isLoading && <ArrowRight className="w-5 h-5 ml-2" />}
+                        {isAuthenticated ? "Trouver mon artisan →" : "Continuer"}
+                        {!isLoading && !isAuthenticated && <ArrowRight className="w-5 h-5 ml-2" />}
                       </Button>
                     </div>
                   </motion.div>
                 )}
 
-                {/* ============ STEP 6: Password (non-auth only) ============ */}
-                {step === 6 && !isAuthenticated && (
-                  <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                {/* ============ STEP 5: Password (non-auth only) ============ */}
+                {step === 5 && !isAuthenticated && (
+                  <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                     <h2 className="text-xl font-semibold text-foreground mb-2">
                       <Lock className="w-5 h-5 inline-block mr-2" />
                       Créer votre espace sécurisé
@@ -655,8 +661,7 @@ const DemandeDevis = () => {
                       </Button>
                       <Button variant="gold" size="lg" onClick={handleSubmit} disabled={!formData.password || formData.password.length < 8 || isLoading} className="flex-1">
                         {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                        Créer mon compte et déposer
-                        {!isLoading && <ArrowRight className="w-5 h-5 ml-2" />}
+                        Trouver mon artisan →
                       </Button>
                     </div>
                   </motion.div>
