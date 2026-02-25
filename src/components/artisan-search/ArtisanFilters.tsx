@@ -19,6 +19,7 @@ interface ArtisanFiltersProps {
     cityInput: string;
     radius: number;
     coordinates: { lat: number; lng: number } | null;
+    urgency?: boolean;
   }) => void;
 }
 
@@ -41,6 +42,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
   const [radius, setRadius] = useState(DEFAULT_RADIUS);
   const [showDistanceSlider, setShowDistanceSlider] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
+  const [urgencyActive, setUrgencyActive] = useState(false);
 
   // Semantic search state
   const [semanticQuery, setSemanticQuery] = useState("");
@@ -65,8 +67,9 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
       cityInput: locationInput,
       radius: coordinates ? radius : 0,
       coordinates,
+      urgency: urgencyActive,
     });
-  }, [selectedCategoryId, selectedCategoryName, selectedCity, locationInput, coordinates, radius]);
+  }, [selectedCategoryId, selectedCategoryName, selectedCity, locationInput, coordinates, radius, urgencyActive]);
 
   useEffect(() => {
     setShowDistanceSlider(!!coordinates);
@@ -136,6 +139,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
     setShowDistanceSlider(false);
     setSemanticQuery("");
     setShowSuggestions(false);
+    setUrgencyActive(false);
   };
 
   return (
@@ -334,6 +338,21 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
         {/* Popular Pills */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-muted-foreground font-medium">Populaire :</span>
+          {/* Urgency pill */}
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Badge
+              variant={urgencyActive ? "default" : "outline"}
+              className={cn(
+                "cursor-pointer px-3 py-1.5 text-sm font-medium transition-all",
+                urgencyActive 
+                  ? "bg-orange-500 text-white border-orange-500 hover:bg-orange-600 shadow-sm" 
+                  : "hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/40"
+              )}
+              onClick={() => setUrgencyActive(!urgencyActive)}
+            >
+              ⚡ Urgence
+            </Badge>
+          </motion.div>
           {POPULAR_PILLS.map((pill) => {
             const isActive = selectedLabel === pill.label;
             return (

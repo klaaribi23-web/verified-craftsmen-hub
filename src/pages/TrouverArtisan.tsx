@@ -22,6 +22,7 @@ import ExpertFAQSection from "@/components/artisan-search/ExpertFAQSection";
 const ITEMS_PER_PAGE = 21;
 const TrouverArtisan = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [urgencyFilter, setUrgencyFilter] = useState(false);
   const [filters, setFilters] = useState({
     category: "",
     categoryName: "",
@@ -59,8 +60,10 @@ const TrouverArtisan = () => {
     cityInput: string;
     radius: number;
     coordinates: { lat: number; lng: number } | null;
+    urgency?: boolean;
   }) => {
     setFilters(newFilters);
+    if (newFilters.urgency !== undefined) setUrgencyFilter(newFilters.urgency);
     setCurrentPage(1);
   }, []);
 
@@ -87,8 +90,21 @@ const TrouverArtisan = () => {
     if (!artisansData) return { filteredArtisans: [], artisanDistances: new Map<string, number>() };
     
     const distances = new Map<string, number>();
+
+    // Get "Dépannage Urgent" child IDs for urgency filter
+    const depannageChildIds = parentChildMap.get("dépannage urgent");
     
     const filtered = artisansData.filter(artisan => {
+      // Urgency filter
+      if (urgencyFilter) {
+        const isAvailableUrgent = (artisan as any).available_urgent === true;
+        const isDepannageCategory = depannageChildIds && (
+          (artisan.category_id && depannageChildIds.has(artisan.category_id)) ||
+          artisan.categories?.some(cat => depannageChildIds.has(cat.id))
+        );
+        if (!isAvailableUrgent && !isDepannageCategory) return false;
+      }
+
       // Filter by category from hero search or sidebar
       const categoryFilter = filters.categoryName;
       if (categoryFilter && categoryFilter !== "all") {
@@ -115,7 +131,6 @@ const TrouverArtisan = () => {
         const artisanCoords = getCoordinates(artisanCity);
         
         if (filters.radius === 0) {
-          // Rayon 0 = correspondance stricte par nom de ville
           const normalizedArtisanCity = normalizeCity(artisanCity);
           const normalizedSelectedCity = normalizeCity(filters.city);
           
@@ -123,7 +138,6 @@ const TrouverArtisan = () => {
             return false;
           }
           
-          // Calculer la distance pour l'affichage
           if (artisanCoords) {
             const distance = calculateDistance(
               filters.coordinates.lat, filters.coordinates.lng,
@@ -132,7 +146,6 @@ const TrouverArtisan = () => {
             distances.set(artisan.id, distance);
           }
         } else {
-          // Rayon > 0 = filtrage par distance
           if (!artisanCoords) return false;
           
           const distance = calculateDistance(
@@ -144,7 +157,6 @@ const TrouverArtisan = () => {
           if (distance > filters.radius) return false;
         }
       } else if (filters.cityInput && filters.cityInput.length >= 2 && !filters.city) {
-        // Texte tapé sans sélection = filtrage dynamique par texte
         const normalizedArtisanCity = normalizeCity(artisanCity);
         const normalizedFilter = normalizeCity(filters.cityInput);
         
@@ -157,11 +169,16 @@ const TrouverArtisan = () => {
     });
     
     return { filteredArtisans: filtered, artisanDistances: distances };
-  }, [artisansData, filters, getCoordinates, parentChildMap]);
+  }, [artisansData, filters, getCoordinates, parentChildMap, urgencyFilter]);
 
-  // Sort: audited first, then premium, then others
+  // Sort: available_urgent first, then audited, then premium, then others
   const sortedArtisans = useMemo(() => {
     return [...filteredArtisans].sort((a, b) => {
+      // 0. Available urgent first
+      const aUrgent = (a as any).available_urgent ? 1 : 0;
+      const bUrgent = (b as any).available_urgent ? 1 : 0;
+      if (bUrgent !== aUrgent) return bUrgent - aUrgent;
+
       // 1. Audited first
       const aAudited = a.is_audited ? 1 : 0;
       const bAudited = b.is_audited ? 1 : 0;
@@ -271,7 +288,7 @@ const TrouverArtisan = () => {
                   opacity: 1,
                   y: 0
                 }}>
-                        <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} portfolioVideos={artisan.portfolio_videos || undefined} distance={artisanDistances.get(artisan.id) ?? null} subscriptionTier={artisan.subscription_tier} phone={undefined} siret={undefined} facebookUrl={artisan.facebook_url} instagramUrl={artisan.instagram_url} linkedinUrl={artisan.linkedin_url} websiteUrl={artisan.website_url} isAudited={artisan.is_audited || false} />
+                        <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} portfolioVideos={artisan.portfolio_videos || undefined} distance={artisanDistances.get(artisan.id) ?? null} subscriptionTier={artisan.subscription_tier} phone={undefined} siret={undefined} facebookUrl={artisan.facebook_url} instagramUrl={artisan.instagram_url} linkedinUrl={artisan.linkedin_url} websiteUrl={artisan.website_url} isAudited={artisan.is_audited || false} availableUrgent={(artisan as any).available_urgent || false} />
                       </motion.div>)}
                   </div>
 

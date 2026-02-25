@@ -213,6 +213,8 @@ export type Database = {
           activation_token: string | null
           address: string | null
           approval_requested_at: string | null
+          available_urgent: boolean
+          available_urgent_at: string | null
           business_name: string
           category_id: string | null
           city: string
@@ -270,6 +272,8 @@ export type Database = {
           activation_token?: string | null
           address?: string | null
           approval_requested_at?: string | null
+          available_urgent?: boolean
+          available_urgent_at?: string | null
           business_name: string
           category_id?: string | null
           city: string
@@ -327,6 +331,8 @@ export type Database = {
           activation_token?: string | null
           address?: string | null
           approval_requested_at?: string | null
+          available_urgent?: boolean
+          available_urgent_at?: string | null
           business_name?: string
           category_id?: string | null
           city?: string
@@ -1597,6 +1603,8 @@ export type Database = {
     Views: {
       public_artisans: {
         Row: {
+          available_urgent: boolean | null
+          available_urgent_at: string | null
           business_name: string | null
           category_id: string | null
           city: string | null
@@ -1635,6 +1643,8 @@ export type Database = {
           working_hours: Json | null
         }
         Insert: {
+          available_urgent?: boolean | null
+          available_urgent_at?: string | null
           business_name?: string | null
           category_id?: string | null
           city?: string | null
@@ -1673,6 +1683,8 @@ export type Database = {
           working_hours?: Json | null
         }
         Update: {
+          available_urgent?: boolean | null
+          available_urgent_at?: string | null
           business_name?: string | null
           category_id?: string | null
           city?: string | null

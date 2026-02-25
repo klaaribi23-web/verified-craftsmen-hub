@@ -235,15 +235,23 @@ const NosMissions = () => {
 
   // Helper: get all child category names for a parent category name
   const getCategoryNamesForFilter = useMemo(() => {
-    if (!categories || !categoryFilter || categoryFilter === "all") return null;
-    // Check if categoryFilter matches a parent category
+    if (!categories || !categoryFilter || categoryFilter === "all" || categoryFilter === "__urgent__") return null;
     const parent = categories.find(c => c.name === categoryFilter);
     if (parent && parent.children.length > 0) {
-      // Return parent name + all children names
       return new Set([parent.name, ...parent.children.map(ch => ch.name)]);
     }
-    return null; // exact match only
+    return null;
   }, [categories, categoryFilter]);
+
+  // Helper: get "Dépannage Urgent" category names for urgency filter
+  const getCategoryNamesForUrgent = useMemo(() => {
+    if (!categories) return null;
+    const parent = categories.find(c => c.name === "Dépannage Urgent");
+    if (parent) {
+      return new Set([parent.name, ...parent.children.map(ch => ch.name)]);
+    }
+    return null;
+  }, [categories]);
 
   // Parse structured metadata from description
   const parseStructuredInfo = (desc: string | null) => {
@@ -267,7 +275,15 @@ const NosMissions = () => {
     const dbIds = new Set(enrichedDb.map((m: any) => m.id));
     const demos = DEMO_MISSIONS.filter(d => !dbIds.has(d.id));
     const all = [...enrichedDb, ...demos] as any[];
-    all.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    // Sort: urgent missions first (Dépannage Urgent category or is_urgent flag), then by date
+    const urgentNames = getCategoryNamesForUrgent;
+    all.sort((a: any, b: any) => {
+      const aIsUrgent = (urgentNames && urgentNames.has(a.category?.name || "")) || a.is_urgent ? 1 : 0;
+      const bIsUrgent = (urgentNames && urgentNames.has(b.category?.name || "")) || b.is_urgent ? 1 : 0;
+      if (bIsUrgent !== aIsUrgent) return bIsUrgent - aIsUrgent;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+    return all;
     return all;
   }, [dbMissions]);
 
@@ -292,13 +308,19 @@ const NosMissions = () => {
     const distances = new Map<string, number>();
     
     const filtered = missions.filter(mission => {
-      if (categoryFilter && categoryFilter !== "all") {
+      // Special "__urgent__" filter: match Dépannage Urgent category or urgent keywords in title/description
+      if (categoryFilter === "__urgent__") {
+        const missionCatName = mission.category?.name || "";
+        const depannageNames = getCategoryNamesForUrgent;
+        const isDepannageCategory = depannageNames && depannageNames.has(missionCatName);
+        const titleDesc = ((mission.title || "") + " " + (mission.description || "")).toLowerCase();
+        const hasUrgentKeyword = /urgent|urgence|dépannage|aujourd'hui|immédiatement/.test(titleDesc);
+        if (!isDepannageCategory && !hasUrgentKeyword) return false;
+      } else if (categoryFilter && categoryFilter !== "all") {
         const missionCatName = mission.category?.name || "";
         if (getCategoryNamesForFilter) {
-          // Parent category selected → match any child
           if (!getCategoryNamesForFilter.has(missionCatName)) return false;
         } else {
-          // Exact subcategory match
           if (missionCatName !== categoryFilter) return false;
         }
       }
@@ -658,14 +680,27 @@ const NosMissions = () => {
                 {/* Quick filter tags */}
                 <div className="flex flex-wrap gap-2 mt-4">
                   {[
-                    { label: "Urgences 🚨", filter: () => { setCategoryFilter(""); setCurrentPage(1); /* Scroll to urgent missions */ } },
+                    { label: "Urgences 🚨", filter: () => { 
+                      // Filter for "Dépannage Urgent" parent category + text-based urgent matching
+                      if (categoryFilter === "__urgent__") {
+                        setCategoryFilter(""); 
+                      } else {
+                        setCategoryFilter("__urgent__"); 
+                      }
+                      setCurrentPage(1); 
+                    } },
                     { label: "Gros Chantiers 💰", filter: () => { setCategoryFilter("Rénovation Globale"); setCurrentPage(1); } },
                     { label: "Moins de 15km 📍", filter: () => { if (searchCoordinates) { setRadiusFilter(15); setCurrentPage(1); } else { toast({ title: "Sélectionnez une ville", description: "Entrez votre ville pour activer le filtre distance." }); } } },
                   ].map((tag) => (
                     <button
                       key={tag.label}
                       onClick={tag.filter}
-                      className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-gold/40 text-white text-xs md:text-sm font-semibold rounded-full px-4 py-2 transition-all hover:scale-105 active:scale-95"
+                      className={cn(
+                        "border text-xs md:text-sm font-semibold rounded-full px-4 py-2 transition-all hover:scale-105 active:scale-95",
+                        (tag.label === "Urgences 🚨" && categoryFilter === "__urgent__")
+                          ? "bg-orange-500 text-white border-orange-500"
+                          : "bg-white/10 hover:bg-white/20 border-white/20 hover:border-gold/40 text-white"
+                      )}
                     >
                       {tag.label}
                     </button>
@@ -772,6 +807,7 @@ const NosMissions = () => {
                   {paginatedMissions.map((mission, index) => {
                     const urgency = (mission as any).urgency;
                     const budgetRange = (mission as any).budget_range;
+                    const isUrgentMission = (getCategoryNamesForUrgent && getCategoryNamesForUrgent.has(mission.category?.name || "")) || (mission as any).is_urgent;
                     
                     return (
                     <motion.div
@@ -780,18 +816,35 @@ const NosMissions = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.03 }}
                     >
-                      <Card className="h-full group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-gold/20 hover:border-gold/40 overflow-hidden glow-gold-hover">
+                      <Card className={cn(
+                        "h-full group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden glow-gold-hover",
+                        isUrgentMission 
+                          ? "border-orange-500/40 hover:border-orange-500/60" 
+                          : "border-gold/20 hover:border-gold/40"
+                      )}>
                         <CardContent className="p-0 flex flex-col h-full">
                           {/* Top colored bar */}
-                          <div className="h-1.5 bg-gradient-to-r from-gold to-gold-light" />
+                          <div className={cn(
+                            "h-1.5",
+                            isUrgentMission 
+                              ? "bg-gradient-to-r from-orange-500 to-red-500" 
+                              : "bg-gradient-to-r from-gold to-gold-light"
+                          )} />
                           
                           <div className="p-5 md:p-6 flex flex-col h-full">
-                            {/* Top row: category + verified badge */}
+                            {/* Top row: category + badges */}
                             <div className="flex items-center justify-between mb-3 gap-2">
-                              <Badge className="bg-secondary text-foreground hover:bg-secondary/80 gap-1 font-medium text-xs">
-                                <Briefcase className="w-3 h-3" />
-                                {mission.category?.name || "Autre"}
-                              </Badge>
+                              <div className="flex items-center gap-1.5">
+                                <Badge className="bg-secondary text-foreground hover:bg-secondary/80 gap-1 font-medium text-xs">
+                                  <Briefcase className="w-3 h-3" />
+                                  {mission.category?.name || "Autre"}
+                                </Badge>
+                                {isUrgentMission && (
+                                  <Badge className="bg-orange-500/15 text-orange-600 border-orange-500/30 gap-1 text-xs font-bold">
+                                    ⚡ URGENT
+                                  </Badge>
+                                )}
+                              </div>
                               <Badge className="bg-success/10 text-success border-success/30 gap-1 text-xs font-semibold">
                                 <BadgeCheck className="w-3.5 h-3.5" />
                                 Vérifié

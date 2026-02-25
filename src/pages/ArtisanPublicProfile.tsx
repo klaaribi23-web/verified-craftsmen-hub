@@ -43,6 +43,7 @@ import {
   ShieldCheck,
   ArrowUp,
   FileText,
+  Zap,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import CategoryIcon from "@/components/categories/CategoryIcon";
@@ -399,6 +400,12 @@ const ArtisanPublicProfile = () => {
                     <div className="flex-1 text-center md:text-left">
                       <div className="flex flex-col md:flex-row md:items-center gap-2 mb-1">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-white font-['DM_Sans'] tracking-tight">{artisan.business_name}</h1>
+                        {(artisan as any).available_urgent && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-orange-500/15 text-orange-500 border border-orange-500/30 animate-pulse whitespace-nowrap">
+                            <Zap className="w-3.5 h-3.5 fill-current" />
+                            Disponible aujourd'hui
+                          </span>
+                        )}
                       </div>
                       {/* Elite exclusivity micro-copy */}
                       {(artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel" || (artisan as any).is_audited) && (
