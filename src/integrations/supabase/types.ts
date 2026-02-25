@@ -431,6 +431,35 @@ export type Database = {
           },
         ]
       }
+      category_keywords: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          keywords: string[]
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          keywords?: string[]
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          keywords?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_keywords_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_favorites: {
         Row: {
           artisan_id: string
