@@ -37,7 +37,8 @@ import {
   Link as LinkIcon,
   Upload,
   Loader2,
-  Clock
+  Clock,
+  Zap
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 
@@ -537,6 +538,42 @@ export const ArtisanProfile = () => {
                   )}
                   Enregistrer
                 </Button>
+              </div>
+            </div>
+
+            {/* Urgent Availability Toggle */}
+            <div className="bg-card rounded-xl border border-border shadow-soft p-4 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-orange-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-semibold text-foreground">Disponible pour urgences</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Activez pour apparaître en priorité auprès des clients cherchant une intervention rapide. Se désactive automatiquement à minuit.
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={(artisan as any)?.available_urgent || false}
+                  onCheckedChange={async (checked) => {
+                    if (!artisan?.id) return;
+                    const { error } = await supabase
+                      .from("artisans")
+                      .update({ 
+                        available_urgent: checked, 
+                        available_urgent_at: checked ? new Date().toISOString() : null 
+                      })
+                      .eq("id", artisan.id);
+                    if (error) {
+                      toast.error("Erreur lors de la mise à jour");
+                    } else {
+                      toast.success(checked ? "Vous êtes marqué disponible aujourd'hui ⚡" : "Disponibilité urgente désactivée");
+                      queryClient.invalidateQueries({ queryKey: ["artisan-profile"] });
+                    }
+                  }}
+                />
               </div>
             </div>
 

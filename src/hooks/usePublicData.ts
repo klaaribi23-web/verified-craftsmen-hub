@@ -63,6 +63,8 @@ export interface ArtisanPublic {
   longitude?: number | null;
   is_audited?: boolean;
   profile_id?: string | null;
+  available_urgent?: boolean;
+  available_urgent_at?: string | null;
   category?: {
     id: string;
     name: string;

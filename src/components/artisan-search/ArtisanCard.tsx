@@ -48,6 +48,7 @@ interface ArtisanCardProps {
   websiteUrl?: string | null;
   isUrgent?: boolean;
   isAudited?: boolean;
+  availableUrgent?: boolean;
 }
 
 // Default logo for artisans without photos
@@ -76,6 +77,7 @@ const ArtisanCard = ({
   websiteUrl,
   isUrgent,
   isAudited,
+  availableUrgent,
 }: ArtisanCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -278,8 +280,18 @@ const ArtisanCard = ({
         </button>
       </div>
 
-      {/* Content - flex-1 to fill remaining space */}
+        {/* Content - flex-1 to fill remaining space */}
       <div className="p-3 sm:p-4 flex flex-col flex-1">
+        {/* Available Urgent Badge */}
+        {availableUrgent && (
+          <div className="flex items-center gap-1 mb-2">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/15 text-orange-500 border border-orange-500/30 animate-pulse">
+              <Zap className="w-3 h-3 fill-current" />
+              Disponible aujourd'hui
+            </span>
+          </div>
+        )}
+
         {/* Premium Certification Badges - only for paying subscribers */}
         {isPaying && (
           <div className="flex flex-wrap items-center gap-1.5 mb-2">
