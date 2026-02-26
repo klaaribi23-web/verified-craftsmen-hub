@@ -90,10 +90,10 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
           <Button
             variant="gold"
             size="xl"
-            className="!font-black !text-base md:!text-lg uppercase tracking-wider"
+            className="w-full sm:w-auto !font-black !text-base md:!text-lg uppercase tracking-wider whitespace-normal text-center px-6"
             onClick={onCTA}
           >
-            VÉRIFIER MA ZONE & RÉSERVER MON ACCÈS <ArrowRight className="w-5 h-5 ml-2" />
+            VÉRIFIER MA ZONE & RÉSERVER MON ACCÈS <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
           </Button>
 
           {/* 4 Stats */}
@@ -192,8 +192,8 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
       </div>
 
       <div className="text-center mt-10">
-        <Button variant="gold" size="xl" onClick={onCTA} className="!font-black uppercase tracking-wider">
-          VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2" />
+        <Button variant="gold" size="xl" onClick={onCTA} className="w-full sm:w-auto !font-black uppercase tracking-wider whitespace-normal text-center px-6">
+          VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
         </Button>
       </div>
     </div>
@@ -274,8 +274,8 @@ const FOMOSection = ({ onCTA }: { onCTA: () => void }) => (
           <span className="text-gold">Quand c'est pris, c'est pris.</span>
         </h2>
         <p className="text-white/60 mb-8">Disponibilité dans votre zone : vérifiez maintenant</p>
-        <Button variant="gold" size="xl" onClick={onCTA} className="!font-black uppercase tracking-wider">
-          VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2" />
+        <Button variant="gold" size="xl" onClick={onCTA} className="w-full sm:w-auto !font-black uppercase tracking-wider whitespace-normal text-center px-6">
+          VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
         </Button>
       </motion.div>
     </div>
@@ -687,8 +687,8 @@ const CTAFinal = ({ onCTA }: { onCTA: () => void }) => (
           <p className="text-white/60 mb-8 max-w-xl mx-auto">
             2 licences max par secteur. Quand c'est pris, c'est pris.
           </p>
-          <Button variant="gold" size="xl" onClick={onCTA} className="!font-black uppercase tracking-wider">
-            REJOINDRE L'ALLIANCE <ArrowRight className="w-5 h-5 ml-2" />
+          <Button variant="gold" size="xl" onClick={onCTA} className="w-full sm:w-auto !font-black uppercase tracking-wider whitespace-normal text-center px-6">
+            REJOINDRE L'ALLIANCE <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
           </Button>
         </div>
       </div>
