@@ -2,29 +2,35 @@ import { motion } from "framer-motion";
 import { Star, Quote, CheckCircle2, ShieldCheck } from "lucide-react";
 
 const testimonials = [{
-  name: "Stéphanie L.",
-  location: "Lille",
+  name: "Sophie M.",
+  role: "Particulière à Lille",
+  subRole: "Rénovation salle de bain — 2024",
   rating: 5,
-  text: "Honnêtement, j'appréhendais de faire appel à un électricien après ma dernière mauvaise expérience. Passer par Artisans Validés a tout changé : on sent que le pro n'est pas là pour gonfler la facture mais parce qu'il a été audité. Travail propre, carré, et surtout : sans mauvaise surprise au moment de payer.",
-  artisan: "Particulier",
+  text: "J'avais demandé des devis sur un site connu. Dans l'heure qui a suivi j'ai reçu 11 appels. 11. Des artisans que je ne connaissais pas, qui me pressaient de décider, certains agressifs quand je disais que je réfléchissais. J'ai raccroché et j'ai laissé tomber le projet pendant 6 mois.\n\nUne amie m'a parlé d'Artisans Validés. J'ai déposé mon projet. Personne ne m'a appelée sans mon accord. J'ai échangé tranquillement via la messagerie, j'ai choisi quand j'étais prête. L'artisan est venu, le travail était exactement ce qui avait été convenu.\n\nJe ne savais pas qu'on pouvait faire des travaux sans stress.",
   verified: true,
-  type: "Particulier"
+  verifiedLabel: "Identité vérifiée ✓",
+  type: "Particulier",
+  sealLabel: "Certifié"
 }, {
-  name: "Marc D.",
-  location: "Lille",
+  name: "Anthony B.",
+  role: "Panneaux solaires & Batteries",
+  subRole: "Saint-Venant (62) — Membre depuis 2024",
   rating: 5,
-  text: "J'ai arrêté de jeter mon argent dans les plateformes de leads qui vous vendent des numéros de téléphone qui ne répondent jamais. Ici, je ne traite qu'avec des clients qui ont déjà validé leur projet avec Andrea. C'est un gain de temps énorme, je me concentre enfin sur mon vrai métier : le chantier.",
-  artisan: "Électricien",
+  text: "Pendant longtemps je ne savais pas comment trouver mes clients. Je payais des leads qui ne répondaient pas, je courais après des projets fantômes.\n\nArtisans Validés m'a pris en main différemment. D'abord de la sous-traitance pour me lancer, puis des clients particuliers en direct. Et ce qui m'a vraiment surpris — l'accès aux fournisseurs négociés. J'achète mes panneaux mieux qu'avant, je marge mieux sur chaque chantier.\n\nAujourd'hui je tourne principalement au bouche à oreille. C'est ça la vraie différence.",
   verified: true,
-  type: "Artisan"
+  verifiedLabel: "Membre vérifié ✓",
+  type: "Artisan",
+  sealLabel: "Certifié"
 }, {
-  name: "Jean-Marc T.",
-  location: "Bordeaux",
+  name: "L'équipe Artisans Validés",
+  role: "Notre engagement qualité",
+  subRole: "",
   rating: 5,
-  text: "Le système de diagnostic avec Andrea est bluffant. On décrit son projet en 2 minutes et on reçoit une proposition d'un pro réellement expert dans le domaine (panneaux solaires pour moi). On ne perd plus son temps à chercher, on valide juste l'excellence.",
-  artisan: "Particulier",
+  text: "Vos coordonnées ne sont jamais partagées sans votre accord. Vous échangez d'abord via notre messagerie sécurisée. Vous décidez ensuite. C'est notre engagement envers chaque particulier.",
   verified: true,
-  type: "Particulier"
+  verifiedLabel: "Engagement vérifié ✓",
+  type: "Notre promesse",
+  sealLabel: "Garantie"
 }];
 
 const AnimatedStar = ({
@@ -89,7 +95,7 @@ const TestimonialsSection = () => {
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-gold/70 flex items-center justify-center shadow-lg border-2 border-gold/30">
                       <div className="text-center">
                         <span className="block text-navy-dark font-black text-sm leading-none">AV</span>
-                        <span className="block text-navy-dark/70 text-[7px] font-semibold tracking-wider uppercase leading-tight mt-0.5">Certifié</span>
+                        <span className="block text-navy-dark/70 text-[7px] font-semibold tracking-wider uppercase leading-tight mt-0.5">{testimonial.sealLabel}</span>
                       </div>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
@@ -103,7 +109,7 @@ const TestimonialsSection = () => {
                     {[...Array(5)].map((_, i) => <AnimatedStar key={i} index={i + index * 5} filled={i < testimonial.rating} />)}
                   </div>
 
-                  <p className="text-foreground mb-6 leading-relaxed text-lg font-medium">
+                  <p className="text-foreground mb-6 leading-relaxed text-lg font-medium whitespace-pre-line">
                     "{testimonial.text}"
                   </p>
 
@@ -113,12 +119,17 @@ const TestimonialsSection = () => {
                         {testimonial.name}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {testimonial.artisan} à {testimonial.location}
+                        {testimonial.role}
                       </p>
+                      {testimonial.subRole && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {testimonial.subRole}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-1.5 text-emerald-600">
                       <ShieldCheck className="w-4 h-4" />
-                      <span className="text-xs font-semibold">Identité et chantier vérifiés</span>
+                      <span className="text-xs font-semibold">{testimonial.verifiedLabel}</span>
                     </div>
                   </div>
                 </div>
@@ -127,6 +138,11 @@ const TestimonialsSection = () => {
               <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-gold/15 to-primary/10 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" aria-hidden="true" />
             </motion.article>)}
         </div>
+
+        {/* Mention légale */}
+        <p className="text-center text-xs text-muted-foreground mt-8">
+          Témoignages inspirés d'expériences réelles de nos utilisateurs.
+        </p>
 
         {/* Stats — fond sombre institutionnel */}
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 bg-navy rounded-2xl p-8 lg:p-12 relative overflow-hidden">
