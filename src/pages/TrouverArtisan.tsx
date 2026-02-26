@@ -98,6 +98,9 @@ const TrouverArtisan = () => {
     const depannageChildIds = parentChildMap.get("dépannage urgent");
     
     const filtered = artisansData.filter(artisan => {
+      // Hide artisans with payment_failed subscription status
+      if ((artisan as any).subscription_status === 'payment_failed') return false;
+
       // RGE filter
       if (rgeFilter) {
         if (!(artisan as any).is_rge) return false;

@@ -262,6 +262,7 @@ export type Database = {
           status: Database["public"]["Enums"]["artisan_status"]
           stripe_customer_id: string | null
           subscription_end: string | null
+          subscription_status: string
           subscription_tier: string | null
           updated_at: string
           user_id: string | null
@@ -322,6 +323,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["artisan_status"]
           stripe_customer_id?: string | null
           subscription_end?: string | null
+          subscription_status?: string
           subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
@@ -382,6 +384,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["artisan_status"]
           stripe_customer_id?: string | null
           subscription_end?: string | null
+          subscription_status?: string
           subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
@@ -1542,6 +1545,54 @@ export type Database = {
           },
         ]
       }
+      subscription_events: {
+        Row: {
+          amount: number | null
+          artisan_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          status: string
+          stripe_event_id: string
+        }
+        Insert: {
+          amount?: number | null
+          artisan_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          status: string
+          stripe_event_id: string
+        }
+        Update: {
+          amount?: number | null
+          artisan_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          status?: string
+          stripe_event_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_events_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_events_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_devices: {
         Row: {
           browser: string | null
@@ -1641,6 +1692,7 @@ export type Database = {
           review_count: number | null
           slug: string | null
           status: Database["public"]["Enums"]["artisan_status"] | null
+          subscription_status: string | null
           subscription_tier: string | null
           updated_at: string | null
           website_url: string | null
@@ -1682,6 +1734,7 @@ export type Database = {
           review_count?: number | null
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
+          subscription_status?: string | null
           subscription_tier?: string | null
           updated_at?: string | null
           website_url?: string | null
@@ -1723,6 +1776,7 @@ export type Database = {
           review_count?: number | null
           slug?: string | null
           status?: Database["public"]["Enums"]["artisan_status"] | null
+          subscription_status?: string | null
           subscription_tier?: string | null
           updated_at?: string | null
           website_url?: string | null
