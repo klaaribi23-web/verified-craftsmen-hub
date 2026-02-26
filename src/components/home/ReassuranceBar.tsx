@@ -4,7 +4,7 @@ const items = [
   "87% des artisans refusés à l'audit",
   "Audit terrain obligatoire",
   "Zéro commission sur vos chantiers",
-  "Exclusivité territoriale garantie",
+  "Vos coordonnées jamais partagées sans votre accord",
 ];
 
 const ReassuranceBar = () => (
