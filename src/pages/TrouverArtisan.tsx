@@ -307,7 +307,27 @@ const TrouverArtisan = () => {
             {/* Artisans Grid */}
             <div>
               {artisansLoading ? <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <Skeleton key={i} className="h-80 rounded-2xl" />)}
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                    <div key={i} className="rounded-lg overflow-hidden" style={{ backgroundColor: '#112240' }}>
+                      <Skeleton className="w-full" style={{ aspectRatio: '16/9' }} />
+                      <div className="p-3 space-y-2.5">
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="w-9 h-9 rounded-full" />
+                          <div className="flex-1 space-y-1.5">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
+                        </div>
+                        <Skeleton className="h-3 w-2/3" />
+                        <Skeleton className="h-3 w-1/3" />
+                        <div className="flex gap-1.5 pt-1">
+                          <Skeleton className="w-5 h-5 rounded-full" />
+                          <Skeleton className="w-5 h-5 rounded-full" />
+                          <Skeleton className="w-5 h-5 rounded-full" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div> : paginatedArtisans.length > 0 ? <>
                   <div className="mb-4 text-sm text-muted-foreground">
                     {filteredArtisans.length} artisan{filteredArtisans.length > 1 ? "s" : ""} trouvé{filteredArtisans.length > 1 ? "s" : ""}
