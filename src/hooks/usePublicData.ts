@@ -57,6 +57,7 @@ export interface ArtisanPublic {
   google_rating: number | null;
   google_review_count: number | null;
   subscription_tier?: string | null;
+  subscription_status?: string | null;
   display_priority?: number | null;
   intervention_radius?: number | null;
   latitude?: number | null;

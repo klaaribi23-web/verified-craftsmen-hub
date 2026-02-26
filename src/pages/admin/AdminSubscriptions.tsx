@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { AdminSidebar } from "@/components/admin-dashboard/AdminSidebar";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,12 +84,7 @@ interface SubscriptionDetails {
 }
 
 type TierFilter = "all" | "essentiel" | "pro" | "elite";
-type StatusFilter = "all" | "active" | "canceled";
-
-interface ArtisanSubscriptionStatus {
-  artisanId: string;
-  canceled: boolean;
-}
+type StatusFilter = "all" | "active" | "cancelled" | "payment_failed";
 
 const AdminSubscriptions = () => {
   const { data: artisans, isLoading, refetch, error } = useSubscribedArtisans();
@@ -100,74 +95,24 @@ const AdminSubscriptions = () => {
   // Filters
   const [tierFilter, setTierFilter] = useState<TierFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  
-  // Subscription statuses cache
-  const [subscriptionStatuses, setSubscriptionStatuses] = useState<Record<string, ArtisanSubscriptionStatus>>({});
-  const [loadingStatuses, setLoadingStatuses] = useState(false);
 
-  // Fetch all subscription statuses on mount
-  useEffect(() => {
-    const fetchAllStatuses = async () => {
-      if (!artisans || artisans.length === 0) return;
-      
-      setLoadingStatuses(true);
-      const statuses: Record<string, ArtisanSubscriptionStatus> = {};
-      
-      // Fetch in parallel with a batch size to avoid overwhelming Stripe
-      const batchSize = 5;
-      for (let i = 0; i < artisans.length; i += batchSize) {
-        const batch = artisans.slice(i, i + batchSize);
-        await Promise.all(
-          batch.map(async (artisan) => {
-            if (!artisan.stripe_customer_id) {
-              statuses[artisan.id] = { artisanId: artisan.id, canceled: false };
-              return;
-            }
-            
-            try {
-              const { data, error } = await supabase.functions.invoke("get-subscription-details", {
-                body: { stripe_customer_id: artisan.stripe_customer_id }
-              });
-              
-              if (error) throw error;
-              statuses[artisan.id] = { 
-                artisanId: artisan.id, 
-                canceled: data?.canceled || false 
-              };
-            } catch {
-              statuses[artisan.id] = { artisanId: artisan.id, canceled: false };
-            }
-          })
-        );
-      }
-      
-      setSubscriptionStatuses(statuses);
-      setLoadingStatuses(false);
-    };
-    
-    fetchAllStatuses();
-  }, [artisans]);
-
-  // Filtered artisans
+  // Filtered artisans - now uses subscription_status from DB (fed by webhooks)
   const filteredArtisans = useMemo(() => {
     if (!artisans) return [];
     
     return artisans.filter((artisan) => {
-      // Tier filter
       if (tierFilter !== "all" && artisan.subscription_tier !== tierFilter) {
         return false;
       }
       
-      // Status filter
       if (statusFilter !== "all") {
-        const status = subscriptionStatuses[artisan.id];
-        if (statusFilter === "canceled" && !status?.canceled) return false;
-        if (statusFilter === "active" && status?.canceled) return false;
+        const dbStatus = artisan.subscription_status || "inactive";
+        if (statusFilter !== dbStatus) return false;
       }
       
       return true;
     });
-  }, [artisans, tierFilter, statusFilter, subscriptionStatuses]);
+  }, [artisans, tierFilter, statusFilter]);
 
   const handleViewSubscription = async (artisan: SubscribedArtisan) => {
     setSelectedArtisan(artisan);
@@ -329,22 +274,21 @@ const AdminSubscriptions = () => {
                             Actif
                           </div>
                         </SelectItem>
-                        <SelectItem value="canceled">
+                        <SelectItem value="cancelled">
                           <div className="flex items-center gap-2">
                             <XCircle className="w-3 h-3 text-destructive" />
                             Annulé
                           </div>
                         </SelectItem>
+                        <SelectItem value="payment_failed">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="w-3 h-3 text-destructive" />
+                            Paiement échoué
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  
-                  {loadingStatuses && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Chargement des statuts...
-                    </div>
-                  )}
                   
                   {/* Results count */}
                   <div className="ml-auto text-sm text-muted-foreground">
@@ -399,7 +343,7 @@ const AdminSubscriptions = () => {
                       </TableHeader>
                       <TableBody>
                         {filteredArtisans.map((artisan) => {
-                          const status = subscriptionStatuses[artisan.id];
+                          const subStatus = artisan.subscription_status || "inactive";
                           return (
                           <TableRow key={artisan.id}>
                             <TableCell>
@@ -434,17 +378,24 @@ const AdminSubscriptions = () => {
                               {getTierBadge(artisan.subscription_tier)}
                             </TableCell>
                             <TableCell>
-                              {loadingStatuses ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                              ) : status?.canceled ? (
+                              {subStatus === "active" ? (
+                                <Badge variant="outline" className="gap-1 text-green-600 border-green-600">
+                                  <CheckCircle className="w-3 h-3" />
+                                  Actif
+                                </Badge>
+                              ) : subStatus === "payment_failed" ? (
+                                <Badge variant="destructive" className="gap-1">
+                                  <AlertTriangle className="w-3 h-3" />
+                                  Paiement échoué
+                                </Badge>
+                              ) : subStatus === "cancelled" ? (
                                 <Badge variant="destructive" className="gap-1">
                                   <XCircle className="w-3 h-3" />
                                   Annulé
                                 </Badge>
                               ) : (
-                                <Badge variant="outline" className="gap-1 text-green-600 border-green-600">
-                                  <CheckCircle className="w-3 h-3" />
-                                  Actif
+                                <Badge variant="secondary" className="gap-1">
+                                  Inactif
                                 </Badge>
                               )}
                             </TableCell>

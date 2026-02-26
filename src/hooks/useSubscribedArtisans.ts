@@ -10,6 +10,7 @@ export interface SubscribedArtisan {
   slug: string | null;
   status: string;
   subscription_tier: string | null;
+  subscription_status: string | null;
   subscription_end: string | null;
   stripe_customer_id: string | null;
   created_at: string;
@@ -34,6 +35,7 @@ export const useSubscribedArtisans = () => {
           slug,
           status,
           subscription_tier,
+          subscription_status,
           subscription_end,
           stripe_customer_id,
           created_at,
