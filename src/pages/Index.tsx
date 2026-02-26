@@ -89,15 +89,7 @@ const Index = () => {
         </section>
 
         {/* SECTION 8 — Témoignages */}
-        <section className="relative">
-          <div className="text-center pt-16 pb-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
-              <Star className="h-4 w-4 text-primary fill-primary" />
-              <span className="text-sm font-bold text-primary">⭐ 4.9/5 — 847 avis vérifiés</span>
-            </div>
-          </div>
-          <TestimonialsSection />
-        </section>
+        <TestimonialsSection />
 
         {/* SECTION 9 — Double CTA final */}
         <DoubleCTAFinal />
