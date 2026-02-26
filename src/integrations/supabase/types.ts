@@ -1513,6 +1513,78 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_cities: {
+        Row: {
+          created_at: string
+          department: string | null
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          population: number | null
+          region: string | null
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          population?: number | null
+          region?: string | null
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          population?: number | null
+          region?: string | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      seo_metiers: {
+        Row: {
+          category_name: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          is_rge_eligible: boolean
+          meta_description_template: string | null
+          name: string
+          slug: string
+        }
+        Insert: {
+          category_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_rge_eligible?: boolean
+          meta_description_template?: string | null
+          name: string
+          slug: string
+        }
+        Update: {
+          category_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_rge_eligible?: boolean
+          meta_description_template?: string | null
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       story_views: {
         Row: {
           id: string
