@@ -21,7 +21,7 @@ const EnhancedCategories = () => {
   const allCats = categories || [];
 
   return (
-    <section className="py-20 lg:py-28 bg-background">
+    <section className="py-14 lg:py-20 bg-background">
       <div className="container mx-auto px-4 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -44,7 +44,7 @@ const EnhancedCategories = () => {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-5">
             {allCats.map((category, index) => {
               const isRge = RGE_CATEGORIES.some(
                 (r) => category.name.toLowerCase().includes(r.toLowerCase())
@@ -83,12 +83,12 @@ const EnhancedCategories = () => {
                       </p>
                     </Link>
                   ) : (
-                    <div className="block rounded-xl border border-border bg-card p-5 opacity-50 h-full">
+                    <div className="block rounded-xl border border-border bg-card p-3 md:p-5 opacity-50 h-full">
                       <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center mb-3">
                         <CategoryIcon iconName={category.icon} className="w-5 h-5 text-muted-foreground" />
                       </div>
                       <h3 className="font-semibold text-foreground text-sm mb-1">{category.name}</h3>
-                      <span className="text-[10px] text-muted-foreground">Bientôt disponible</span>
+                      <span className="text-[10px] text-muted-foreground break-words">Bientôt disponible</span>
                     </div>
                   )}
                 </motion.div>

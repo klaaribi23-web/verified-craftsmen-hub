@@ -10,9 +10,9 @@ const items = [
 const ReassuranceBar = () => (
   <section className="bg-navy-dark py-3 border-t border-b border-primary/10">
     <div className="container mx-auto px-4">
-      <div className="flex items-center justify-center gap-4 md:gap-6 flex-wrap">
+      <div className="grid grid-cols-2 md:flex items-center justify-center gap-3 md:gap-6">
         {items.map((text, i) => (
-          <span key={i} className="flex items-center gap-1.5 text-xs md:text-sm text-foreground font-medium whitespace-nowrap">
+          <span key={i} className="flex items-center gap-1.5 text-xs md:text-sm text-foreground font-medium">
             {i > 0 && <span className="hidden md:inline text-primary mr-2">·</span>}
             <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
             {text}

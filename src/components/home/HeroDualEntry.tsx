@@ -27,7 +27,7 @@ const HeroDualEntry = () => {
     .find(c => c.id === selectedCategory)?.name;
 
   return (
-    <section className="relative bg-background pt-28 md:pt-36 pb-16 md:pb-24 overflow-hidden">
+    <section className="relative bg-background pt-24 md:pt-32 pb-10 md:pb-16 overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
@@ -126,7 +126,7 @@ const HeroDualEntry = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 btn-shine"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 min-h-[52px] btn-shine"
               >
                 Trouver mon artisan
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -159,7 +159,7 @@ const HeroDualEntry = () => {
 
               <Button
                 variant="outline"
-                className="w-full border-2 border-primary/30 text-primary hover:bg-primary/10 font-bold py-6"
+                className="w-full border-2 border-primary/30 text-primary hover:bg-primary/10 font-bold py-6 min-h-[52px]"
                 asChild
               >
                 <Link to="/devenir-partenaire">
