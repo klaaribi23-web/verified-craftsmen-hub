@@ -95,6 +95,7 @@ const GallerySection = () => {
                   src={image.url}
                   alt={`Réalisation de ${image.artisanName}`}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
                   onError={(e) => {
                     e.currentTarget.src = "/favicon.png";
                   }}
