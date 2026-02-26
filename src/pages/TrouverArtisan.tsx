@@ -254,14 +254,14 @@ const TrouverArtisan = () => {
 
             {/* Reassurance Bar */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="max-w-4xl mx-auto mt-5">
-              <div className="rounded-xl py-3 px-4 flex items-center justify-center gap-4 md:gap-6 flex-wrap" style={{ backgroundColor: '#0D1F35' }}>
+              <div className="rounded-xl py-3 px-4 grid grid-cols-2 md:flex items-center justify-center gap-3 md:gap-6" style={{ backgroundColor: '#0D1F35' }}>
                 {[
                   "87% des artisans refusés à l'audit",
                   "Vos coordonnées protégées",
                   "Zéro commission",
                   "Réponse sous 2h",
                 ].map((text, i) => (
-                  <span key={i} className="flex items-center gap-1.5 text-xs md:text-sm text-white/90 font-medium whitespace-nowrap">
+                  <span key={i} className="flex items-center gap-1.5 text-[11px] md:text-sm text-white/90 font-medium text-center justify-center">
                     <span style={{ color: '#D4AF37' }}>✓</span>
                     {text}
                   </span>
@@ -297,16 +297,23 @@ const TrouverArtisan = () => {
               </p>
             </div>
 
+            {/* Geo hint when no filter active */}
+            {!filters.city && !filters.cityInput && (
+              <div className="mb-4 rounded-lg px-3.5 py-2.5 text-[13px] text-white/80 font-medium" style={{ backgroundColor: '#0D1F35' }}>
+                📍 Entrez votre ville ci-dessus pour voir les artisans de votre zone en premier
+              </div>
+            )}
+
             {/* Artisans Grid */}
             <div>
-              {artisansLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              {artisansLoading ? <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <Skeleton key={i} className="h-80 rounded-2xl" />)}
                 </div> : paginatedArtisans.length > 0 ? <>
                   <div className="mb-4 text-sm text-muted-foreground">
                     {filteredArtisans.length} artisan{filteredArtisans.length > 1 ? "s" : ""} trouvé{filteredArtisans.length > 1 ? "s" : ""}
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch gap-4 md:gap-6 mb-8">
+                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch gap-3 md:gap-6 mb-8">
                     {paginatedArtisans.map(artisan => <motion.div key={artisan.id} className="h-full" initial={{
                   opacity: 0,
                   y: 20
@@ -374,14 +381,14 @@ const TrouverArtisan = () => {
         {/* CTA */}
         <section className="py-10 md:py-16" style={{ backgroundColor: '#060C18' }}>
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="bg-gradient-gold rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center">
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-navy-dark mb-3 md:mb-4">
+            <div className="bg-gradient-gold rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center mx-0">
+              <h2 className="text-[clamp(18px,5vw,24px)] md:text-2xl lg:text-3xl font-bold text-navy-dark mb-3 md:mb-4">
                 Vous ne trouvez pas ce que vous cherchez ?
               </h2>
               <p className="text-navy-dark/70 mb-6 md:mb-8 max-w-xl mx-auto text-sm md:text-base">
                 Décrivez votre projet et nous vous mettrons en relation avec les artisans les plus adaptés.
               </p>
-              <Button variant="default" size="lg" asChild className="w-full sm:w-auto">
+              <Button variant="default" size="lg" asChild className="w-full sm:w-auto min-h-[52px]">
                 <Link to="/demande-devis">
                   Déposer une demande de devis
                   <ArrowRight className="w-5 h-5 ml-2" />

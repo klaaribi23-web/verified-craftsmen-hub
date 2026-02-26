@@ -223,11 +223,16 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
         </AnimatePresence>
       </div>
 
+      {/* Geo tip */}
+      <p className="text-xs text-[#8892B0] italic px-1">
+        💡 Conseil : entrez votre ville pour voir les artisans disponibles près de chez vous
+      </p>
+
       {/* Main Search Card */}
       <div className="rounded-2xl shadow-lg border border-[#D4AF37]/20 overflow-hidden" style={{ backgroundColor: '#112240' }}>
-        <div className="flex flex-col lg:flex-row">
+        <div className="flex flex-col md:flex-row">
           {/* Category Megamenu - Left */}
-          <div className="flex-1 p-4 border-b lg:border-b-0 lg:border-r border-border">
+          <div className="flex-1 p-4 border-b md:border-b-0 md:border-r border-border">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
               Quel métier ?
             </p>
@@ -287,10 +292,10 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
               />
             </div>
 
-            <div className="flex items-center gap-2 mt-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-4">
               <Button
                 size="lg"
-                className="flex-1 h-12 rounded-xl text-base font-extrabold gap-2 shadow-md hover:shadow-lg transition-shadow text-[#0A192F] btn-shine font-['DM_Sans']"
+                className="flex-1 h-[52px] md:h-12 rounded-xl text-[15px] md:text-base font-extrabold gap-2 shadow-md hover:shadow-lg transition-shadow text-[#0A192F] btn-shine font-['DM_Sans']"
                 style={{ backgroundColor: '#D4AF37' }}
                 onClick={() => {
                   document.getElementById("artisans-results")?.scrollIntoView({ behavior: "smooth" });
@@ -353,19 +358,19 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
 
         {/* Popular Pills */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-muted-foreground font-medium">Populaire :</span>
+          <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">Populaire :</span>
           {/* Urgency pill */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Badge
-              variant={urgencyActive ? "default" : "outline"}
-              className={cn(
-                "cursor-pointer px-3 py-1.5 text-sm font-medium transition-all",
-                urgencyActive 
-                  ? "bg-orange-500 text-white border-orange-500 hover:bg-orange-600 shadow-sm" 
-                  : "hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/40"
-              )}
-              onClick={() => setUrgencyActive(!urgencyActive)}
-            >
+              <Badge
+                variant={urgencyActive ? "default" : "outline"}
+                className={cn(
+                  "cursor-pointer px-3.5 py-2 min-h-[36px] text-sm font-medium transition-all whitespace-nowrap",
+                  urgencyActive 
+                    ? "bg-orange-500 text-white border-orange-500 hover:bg-orange-600 shadow-sm" 
+                    : "hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/40"
+                )}
+                onClick={() => setUrgencyActive(!urgencyActive)}
+              >
               ⚡ Urgence
             </Badge>
           </motion.div>
@@ -376,8 +381,11 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
                 <Badge
                   variant={isActive ? "default" : "outline"}
                   className={cn(
-                    "cursor-pointer px-3 py-1.5 text-sm font-medium transition-all",
-                    isActive ? "shadow-sm" : "hover:bg-muted"
+                    "cursor-pointer px-3.5 py-2 min-h-[36px] text-sm font-medium transition-all whitespace-nowrap",
+                    isActive
+                      ? "shadow-sm text-[#0A192F]"
+                      : "hover:bg-muted",
+                    isActive && "bg-[#D4AF37] border-[#D4AF37] hover:bg-[#D4AF37]/90"
                   )}
                   onClick={() => selectPill(pill)}
                 >
@@ -389,16 +397,16 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
 
           {/* RGE pill */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Badge
-              variant={rgeActive ? "default" : "outline"}
-              className={cn(
-                "cursor-pointer px-3 py-1.5 text-sm font-medium transition-all",
-                rgeActive 
-                  ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-sm" 
-                  : "hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/40"
-              )}
-              onClick={() => setRgeActive(!rgeActive)}
-            >
+              <Badge
+                variant={rgeActive ? "default" : "outline"}
+                className={cn(
+                  "cursor-pointer px-3.5 py-2 min-h-[36px] text-sm font-medium transition-all whitespace-nowrap",
+                  rgeActive 
+                    ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-sm" 
+                    : "hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/40"
+                )}
+                onClick={() => setRgeActive(!rgeActive)}
+              >
               ✓ Certifié RGE
             </Badge>
           </motion.div>
