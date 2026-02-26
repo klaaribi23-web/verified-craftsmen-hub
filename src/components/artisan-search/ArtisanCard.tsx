@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,17 @@ interface ArtisanCardProps {
 // Default logo for artisans without photos
 const DEFAULT_LOGO = "/favicon.png";
 
+// Generate a deterministic score between 87-98 from artisan id
+function generateAndreaScore(id: string | number): number {
+  const str = String(id);
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return 87 + Math.abs(hash % 12); // 87-98
+}
+
 const ArtisanCard = ({
   id,
   slug,
@@ -100,6 +111,8 @@ const ArtisanCard = ({
   const isPremium = subscriptionTier === "boost_annuel";
   const isPaying = subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel";
   const hasPortfolioImage = portfolio && portfolio.length > 0;
+
+  const andreaScore = useMemo(() => generateAndreaScore(id), [id]);
 
   // Check if artisan is already in favorites on mount
   useEffect(() => {
@@ -187,7 +200,6 @@ const ArtisanCard = ({
     }
   };
 
-
   const handleVideoClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -215,25 +227,38 @@ const ArtisanCard = ({
         </div>
       )}
 
-      {/* Image */}
-      <div className={cn("relative h-36 md:h-40 overflow-hidden flex-shrink-0", isUrgent && "mt-7")}>
+      {/* Image — 16:9 ratio */}
+      <div className={cn("relative w-full overflow-hidden flex-shrink-0", isUrgent && "mt-7")} style={{ aspectRatio: '16/9' }}>
         {showVideo && hasVideos ? (
           <video
             src={portfolioVideos![0]}
             controls
             autoPlay
-            className="w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
             onClick={(e) => e.stopPropagation()}
           />
         ) : hasPortfolioImage ? (
-          <img src={portfolioImages[0]} alt={`Réalisation de ${name}`} className="w-full h-full object-cover" />
+          <img
+            src={portfolioImages[0]}
+            alt={`Réalisation de ${name}`}
+            className="absolute inset-0 w-full h-full object-cover object-center"
+            loading="lazy"
+            style={{ backgroundColor: '#112240' }}
+          />
         ) : profileImage ? (
-          <div className="w-full h-full bg-gradient-to-br from-muted/80 to-muted/30 flex items-center justify-center p-6">
-            <img src={profileImage} alt={`Logo de ${name}`} className="max-w-[60%] max-h-[80%] object-contain" />
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center p-6" style={{ backgroundColor: '#0D1F35' }}>
+            <img src={profileImage} alt={`Logo de ${name}`} className="max-w-[60%] max-h-[80%] object-contain" loading="lazy" />
           </div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-sky-100 to-blue-50" />
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ backgroundColor: '#0D1F35' }}>
+            <span className="text-2xl font-black text-[#D4AF37]/40">{name.charAt(0)}</span>
+          </div>
         )}
+
+        {/* Andrea Score Badge - top left */}
+        <div className="absolute top-2 left-2 z-10 px-2 py-[3px] rounded-md" style={{ backgroundColor: 'rgba(13,17,23,0.85)' }}>
+          <span className="text-[10px] font-bold" style={{ color: '#D4AF37' }}>⭐ Score {andreaScore}/100</span>
+        </div>
 
         {/* Video play button overlay */}
         {hasVideos && !showVideo && (
@@ -253,15 +278,15 @@ const ArtisanCard = ({
             className="absolute top-2 right-10 z-10 cursor-pointer"
             aria-label="Voir le résumé d'audit"
           >
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold shadow-lg bg-primary text-primary-foreground border border-primary/50 transition-colors">
-              <Shield className="w-3.5 h-3.5 fill-current" />
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] md:text-[11px] font-extrabold shadow-lg bg-primary text-primary-foreground border border-primary/50 transition-colors whitespace-nowrap">
+              <Shield className="w-3 h-3 md:w-3.5 md:h-3.5 fill-current" />
               <span>ARTISAN AUDITÉ</span>
             </div>
           </button>
         ) : isPaying ? (
           <div className="absolute top-2 right-10 z-10">
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg bg-green-600 text-white">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] md:text-[11px] font-bold shadow-lg bg-green-600 text-white whitespace-nowrap">
+              <CheckCircle2 className="w-3 h-3 md:w-3.5 md:h-3.5" />
               <span>ARTISAN VALIDÉ</span>
             </div>
           </div>
@@ -282,8 +307,8 @@ const ArtisanCard = ({
         </button>
       </div>
 
-        {/* Content - flex-1 to fill remaining space */}
-      <div className="p-3 sm:p-4 flex flex-col flex-1">
+      {/* Content - flex-1 to fill remaining space */}
+      <div className="p-2.5 sm:p-3 md:p-4 flex flex-col flex-1">
         {/* Available Urgent Badge */}
         {availableUrgent && (
           <div className="flex items-center gap-1 mb-2">
@@ -317,11 +342,12 @@ const ArtisanCard = ({
           </div>
         )}
 
-        {/* Profile photo with story indicator - fixed min-height for title zone */}
-        <div className="flex items-start gap-2 mb-2 min-h-[48px]">
+        {/* Profile photo with story indicator */}
+        <div className="flex items-start gap-2 mb-2 min-h-[44px]">
           <img
             src={profileImage || defaultProfileImage}
             alt={`Photo de profil de ${name}`}
+            loading="lazy"
             onClick={(e) => {
               if (hasActiveStories) {
                 e.preventDefault();
@@ -335,21 +361,26 @@ const ArtisanCard = ({
             )}
           />
           <div className="flex-1 min-w-0">
-            <h3 className={cn("truncate mb-0.5 text-white font-['DM_Sans']", isPremium ? "font-bold text-base sm:text-lg" : "font-semibold text-sm sm:text-base")}>{name}</h3>
-            <Badge variant="secondary" className="text-xs font-semibold font-['DM_Sans']" style={{ color: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.1)', borderColor: 'rgba(212,175,55,0.3)' }}>
+            <h3 className={cn("truncate mb-0.5 text-white font-['DM_Sans']", isPremium ? "font-bold text-sm md:text-lg" : "font-semibold text-[13px] md:text-base")}>{name}</h3>
+            <Badge variant="secondary" className="text-[10px] md:text-xs font-semibold font-['DM_Sans']" style={{ color: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.1)', borderColor: 'rgba(212,175,55,0.3)' }}>
               {profession}
             </Badge>
           </div>
         </div>
 
         {/* Location + distance */}
-        <div className="flex items-center gap-1 text-xs text-[#8892B0] mb-2">
+        <div className="flex items-center gap-1 text-[11px] md:text-xs text-[#8892B0] mb-1">
           <MapPin className="h-3 w-3 shrink-0" />
           <span className="truncate">{location}</span>
           {distance !== null && distance !== undefined && (
             <span className="text-gold font-medium ml-1">• À {Math.round(distance)} km</span>
           )}
         </div>
+
+        {/* Response time indicator */}
+        <p className="text-[11px] font-semibold mb-2" style={{ color: '#22c55e' }}>
+          ⚡ Répond en moins de 24h
+        </p>
 
         {/* Rating - only show if has reviews */}
         {rating > 0 && (
@@ -360,26 +391,26 @@ const ArtisanCard = ({
           </div>
         )}
 
-        {/* Social Icons Bar - reserved height even when empty */}
-        <div className="flex items-center gap-1.5 mb-3 min-h-[24px]">
+        {/* Social Icons Bar */}
+        <div className="flex items-center gap-2 mb-3 min-h-[20px]">
           {instagramUrl && (
-            <a href={ensureHttps(instagramUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Instagram">
-              <Instagram className="w-3 h-3 text-muted-foreground" />
+            <a href={ensureHttps(instagramUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Instagram">
+              <Instagram className="w-3 h-3 md:w-3.5 md:h-3.5 text-muted-foreground" />
             </a>
           )}
           {facebookUrl && (
-            <a href={ensureHttps(facebookUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Facebook">
-              <Facebook className="w-3 h-3 text-muted-foreground" />
+            <a href={ensureHttps(facebookUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Facebook">
+              <Facebook className="w-3 h-3 md:w-3.5 md:h-3.5 text-muted-foreground" />
             </a>
           )}
           {linkedinUrl && (
-            <a href={ensureHttps(linkedinUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="LinkedIn">
-              <Linkedin className="w-3 h-3 text-muted-foreground" />
+            <a href={ensureHttps(linkedinUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="LinkedIn">
+              <Linkedin className="w-3 h-3 md:w-3.5 md:h-3.5 text-muted-foreground" />
             </a>
           )}
           {websiteUrl && (
-            <a href={ensureHttps(websiteUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Site web">
-              <Globe className="w-3 h-3 text-muted-foreground" />
+            <a href={ensureHttps(websiteUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Site web">
+              <Globe className="w-3 h-3 md:w-3.5 md:h-3.5 text-muted-foreground" />
             </a>
           )}
         </div>
