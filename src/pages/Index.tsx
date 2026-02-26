@@ -48,7 +48,7 @@ const Index = () => {
         <EnhancedCategories />
 
         {/* SECTION 7 — Sélection artisans */}
-        <section className="py-16 md:py-24 bg-background">
+        <section className="py-11 md:py-16 bg-background">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -96,6 +96,8 @@ const Index = () => {
       </main>
 
       <SocialProofToast />
+      {/* Spacer for fixed bottom toast */}
+      <div className="h-10" />
       <Footer />
     </div>
   );

@@ -22,15 +22,15 @@ const testimonials = [{
   type: "Artisan",
   sealLabel: "Certifié"
 }, {
-  name: "L'équipe Artisans Validés",
-  role: "Notre engagement qualité",
-  subRole: "",
+  name: "Stéphane D.",
+  role: "Rénovation d'ampleur — Armentières (59)",
+  subRole: "Membre depuis 2024",
   rating: 5,
-  text: "Vos coordonnées ne sont jamais partagées sans votre accord. Vous décidez de tout.",
+  text: "Les travaux de rénovation que je réalise sont complexes. Artisans Validés m'envoie des clients qui ont un vrai projet, un vrai budget. Je ne perds plus mon temps sur des chantiers qui n'aboutissent pas.",
   verified: true,
-  verifiedLabel: "Engagement vérifié ✓",
-  type: "Notre promesse",
-  sealLabel: "Garantie"
+  verifiedLabel: "Membre vérifié ✓",
+  type: "Artisan",
+  sealLabel: "Certifié"
 }];
 
 const AnimatedStar = ({
@@ -68,7 +68,7 @@ const AnimatedStar = ({
   </motion.div>;
 
 const TestimonialsSection = () => {
-  return <section className="py-20 lg:py-32 relative overflow-hidden">
+  return <section className="py-14 lg:py-22 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
       
@@ -78,7 +78,7 @@ const TestimonialsSection = () => {
             <Star className="w-4 h-4 fill-gold" />
             L'humain au centre
           </motion.span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+          <h2 className="text-xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
             Le Livre d'Or de l'Alliance
           </h2>
           <p className="text-lg text-white/80 max-w-2xl mx-auto">
@@ -86,7 +86,7 @@ const TestimonialsSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-stretch">
           {testimonials.map((testimonial, index) => <motion.article key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15, duration: 0.5 }} whileHover={{ y: -4, transition: { duration: 0.3 } }} className="relative group h-full">
               <div className="bg-navy rounded-2xl overflow-hidden h-full border border-gold/15 hover:border-gold/40 hover:shadow-xl transition-all duration-300 flex flex-col">
                 <div className="p-6 flex flex-col flex-1">
@@ -109,7 +109,7 @@ const TestimonialsSection = () => {
                     {[...Array(5)].map((_, i) => <AnimatedStar key={i} index={i + index * 5} filled={i < testimonial.rating} />)}
                   </div>
 
-                  <p className="text-white mb-6 leading-relaxed text-base whitespace-pre-line flex-1">
+                  <p className="text-white mb-6 leading-relaxed text-[13px] md:text-base whitespace-pre-line flex-1 break-words">
                     "{testimonial.text}"
                   </p>
 

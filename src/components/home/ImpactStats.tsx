@@ -5,7 +5,7 @@ const stats = [
   { value: 1200, suffix: "+", label: "chantiers accompagnés" },
   { value: 87, suffix: "%", label: "taux de refus artisans" },
   { value: 4.9, suffix: "/5", label: "satisfaction clients", decimals: 1 },
-  { value: 48, suffix: "h", label: "délai moyen de réponse" },
+  { value: 24, suffix: "h", label: "délai moyen de réponse" },
 ];
 
 const AnimatedNumber = ({ target, suffix, decimals = 0 }: { target: number; suffix: string; decimals?: number }) => {
@@ -43,7 +43,7 @@ const AnimatedNumber = ({ target, suffix, decimals = 0 }: { target: number; suff
   }, [started, target]);
 
   return (
-    <div ref={ref} className="text-4xl md:text-5xl font-extrabold text-primary">
+    <div ref={ref} className="text-[clamp(32px,8vw,48px)] md:text-5xl font-extrabold text-primary">
       {decimals > 0 ? count.toFixed(decimals) : Math.floor(count)}
       {suffix}
     </div>
@@ -51,7 +51,7 @@ const AnimatedNumber = ({ target, suffix, decimals = 0 }: { target: number; suff
 };
 
 const ImpactStats = () => (
-  <section className="py-16 md:py-24 bg-secondary/30">
+  <section className="py-11 md:py-16 bg-secondary/30">
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 max-w-4xl mx-auto">
         {stats.map((stat, i) => (

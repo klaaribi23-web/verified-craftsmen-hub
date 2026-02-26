@@ -105,7 +105,7 @@ const Footer = () => {
             <h2 className="font-semibold text-white mb-4">Nos métiers</h2>
             <ul className="space-y-3">
               {footerLinks.services.map(link => <li key={link.label}>
-                  <Link to={link.href} className="text-sm text-white/70 hover:text-gold transition-colors">
+                  <Link to={link.href} className="text-[13px] md:text-sm text-white/70 hover:text-gold transition-colors block min-h-[44px] flex items-center">
                     {link.label}
                   </Link>
                 </li>)}
@@ -117,7 +117,7 @@ const Footer = () => {
             <h2 className="font-semibold text-white mb-4">Entreprise</h2>
             <ul className="space-y-3">
               {footerLinks.company.map(link => <li key={link.href}>
-                  <Link to={link.href} className="text-sm text-white/70 hover:text-gold transition-colors">
+                  <Link to={link.href} className="text-[13px] md:text-sm text-white/70 hover:text-gold transition-colors block min-h-[44px] flex items-center">
                     {link.label}
                   </Link>
                 </li>)}
@@ -129,7 +129,7 @@ const Footer = () => {
             <h2 className="font-semibold text-white mb-4">Informations</h2>
             <ul className="space-y-3">
           {footerLinks.legal.map(link => <li key={link.href}>
-                  <Link to={link.href} className="text-sm text-white/70 hover:text-gold transition-colors">
+                  <Link to={link.href} className="text-[13px] md:text-sm text-white/70 hover:text-gold transition-colors block min-h-[44px] flex items-center">
                     {link.label}
                   </Link>
                 </li>)}

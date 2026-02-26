@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const PROOF_MESSAGES = [
-  "Audit validé à Paris",
-  "Nouvel artisan certifié à Lyon",
-  "Audit validé à Marseille",
-  "Artisan certifié à Bordeaux",
-  "Audit validé à Lille",
-  "Artisan certifié à Nantes",
+  "✅ Artisan certifié à Bordeaux — il y a quelques minutes",
+  "✅ Nouveau projet déposé à Lyon — il y a 2 minutes",
+  "✅ Audit validé à Lille — il y a 5 minutes",
+  "✅ Artisan certifié à Paris — il y a 8 minutes",
+  "✅ Nouveau projet déposé à Marseille — il y a 3 minutes",
 ];
 
 const SocialProofToast = () => {
@@ -21,19 +20,19 @@ const SocialProofToast = () => {
   }, []);
 
   return (
-    <div className="bg-navy/95 border-t border-navy-dark py-2.5 text-center">
-      <div className="container mx-auto px-4">
+    <div className="bg-navy/95 border-t border-navy-dark py-2.5 text-center fixed bottom-0 left-0 right-0 z-50 px-4">
+      <div className="container mx-auto">
         <AnimatePresence mode="wait">
           <motion.p
             key={currentIndex}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-            className="text-xs md:text-sm text-white/80 font-medium"
+            transition={{ duration: 0.4 }}
+            className="text-xs md:text-sm text-white/80 font-medium break-words"
           >
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse" />
-            ✅ {PROOF_MESSAGES[currentIndex]} — il y a quelques minutes
+            {PROOF_MESSAGES[currentIndex]}
           </motion.p>
         </AnimatePresence>
       </div>

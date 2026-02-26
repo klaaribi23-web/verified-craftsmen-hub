@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 const DoubleCTAFinal = () => (
-  <section className="py-20 md:py-28 bg-background">
+  <section className="py-14 md:py-20 bg-background">
     <div className="container mx-auto px-4">
       <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {/* Particuliers */}
