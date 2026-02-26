@@ -73,10 +73,10 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold/20 border border-gold/30 mb-8">
             <Shield className="w-4 h-4 text-gold" />
-            <span className="text-sm font-bold text-gold">Réseau sélectif — Inscription gratuite</span>
+            <span className="text-sm font-bold text-gold">🔒 Réseau sélectif — Places limitées</span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-6 tracking-tight">
+          <h1 className="text-[clamp(28px,7vw,44px)] md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-6 tracking-tight">
             Arrêtez de chercher vos chantiers.
             <br />
             <span className="text-gradient-gold">Commencez à les choisir.</span>
@@ -105,8 +105,8 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
               { value: "24h", label: "Délai d'audit" },
             ].map((s) => (
               <div key={s.label} className="text-center">
-                <p className="text-2xl md:text-3xl font-black text-gold">{s.value}</p>
-                <p className="text-xs text-white/60 mt-1">{s.label}</p>
+                <p className="text-[clamp(28px,7vw,40px)] md:text-3xl font-black text-gold">{s.value}</p>
+                <p className="text-[11px] md:text-xs text-white/60 mt-1">{s.label}</p>
               </div>
             ))}
           </div>
@@ -124,11 +124,11 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Le vrai calcul. Comparez et décidez.</h2>
       </motion.div>
 
-      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {/* Lead Classique */}
         <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
           <Card className="h-full border-2 border-destructive/30 bg-destructive/5">
-            <CardContent className="p-6 md:p-8">
+            <CardContent className="p-4 md:p-8">
               <div className="mb-6">
                 <h3 className="font-bold text-lg text-foreground">Le Lead Classique</h3>
                 <p className="text-xs text-muted-foreground">Ce que vous payez aujourd'hui</p>
@@ -143,9 +143,9 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
                   "Vous courez après le client",
                   "Coût moyen : 400 à 1 200€/mois",
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm">
+                  <li key={item} className="flex items-start gap-3 text-[13px] md:text-sm">
                     <XCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
-                    <span className="text-foreground">{item}</span>
+                    <span className="text-foreground break-words">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -162,7 +162,7 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-navy text-xs font-black px-4 py-1 rounded-full uppercase">
               Meilleur choix
             </div>
-            <CardContent className="p-6 md:p-8 pt-8">
+            <CardContent className="p-4 md:p-8 pt-8">
               <div className="mb-6">
                 <h3 className="font-bold text-lg text-foreground">La Licence Artisans Validés</h3>
                 <p className="text-xs text-gold font-medium">Ce que vous méritez</p>
@@ -177,9 +177,9 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
                   "Accès fournisseurs négociés — achetez mieux, margez mieux",
                   "Le client vient à vous directement",
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm">
+                  <li key={item} className="flex items-start gap-3 text-[13px] md:text-sm">
                     <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
-                    <span className="text-foreground font-medium">{item}</span>
+                    <span className="text-foreground font-medium break-words">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -212,7 +212,7 @@ const PillarsSection = () => (
           L'Alliance Artisans Validés — bien plus qu'une plateforme
         </h2>
       </motion.div>
-      <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
         {[
           {
             icon: Target,
@@ -238,12 +238,12 @@ const PillarsSection = () => (
             transition={{ delay: i * 0.15 }}
           >
             <Card className="h-full border-border/40 bg-card/60 backdrop-blur">
-              <CardContent className="p-6 md:p-8 text-center">
+              <CardContent className="p-4 md:p-8 text-center">
                 <div className="w-14 h-14 rounded-full border-2 border-gold bg-gold/10 flex items-center justify-center mx-auto mb-5">
                   <p.icon className="w-7 h-7 text-gold" />
                 </div>
-                <h3 className="font-bold text-white text-lg mb-3">{p.title}</h3>
-                <p className="text-sm text-white/60 leading-relaxed">{p.desc}</p>
+                <h3 className="font-bold text-white text-[15px] md:text-lg mb-3">{p.title}</h3>
+                <p className="text-[13px] md:text-sm text-white/60 leading-relaxed">{p.desc}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -328,15 +328,15 @@ const CockpitSection = () => (
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 md:gap-3">
                 {[
                   { value: "5", label: "Missions ce mois" },
                   { value: "92%", label: "Taux de réponse" },
                   { value: "18 400€", label: "CA estimé" },
                 ].map((s) => (
                   <div key={s.label} className="text-center p-2 bg-navy/60 rounded-lg">
-                    <p className="text-lg font-black text-gold">{s.value}</p>
-                    <p className="text-[10px] text-white/50">{s.label}</p>
+                    <p className="text-sm md:text-lg font-black text-gold">{s.value}</p>
+                    <p className="text-[9px] md:text-[10px] text-white/50 leading-tight">{s.label}</p>
                   </div>
                 ))}
               </div>
@@ -406,18 +406,21 @@ const IntegrationSection = () => (
 // --- SECTION 7: TÉMOIGNAGES ---
 const testimonials = [
   {
+    headline: "Aujourd'hui je tourne au bouche à oreille.",
     text: "Je galérais à trouver mes premiers clients. Artisans Validés m'a pris en main — sous-traitance au départ, puis des particuliers en direct. Ce qui m'a vraiment surpris c'est l'accès aux fournisseurs négociés. J'achète mes panneaux mieux qu'avant et je marge mieux sur chaque chantier. Aujourd'hui je tourne principalement au bouche à oreille.",
     name: "Anthony B.",
     metier: "Panneaux solaires & Batteries",
     city: "Saint-Venant (62)",
   },
   {
+    headline: "Des clients qualifiés dès le premier mois.",
     text: "Venant du monde de l'énergie en tant que Directeur des Opérations, j'avais des exigences élevées quand j'ai créé ma boîte. Artisans Validés les a tenues. Clients qualifiés, accompagnement stratégique, et des conseils fournisseurs qui m'ont permis d'optimiser mes marges dès le départ. Un vrai réseau professionnel.",
     name: "Louis R.",
     metier: "PAC & Panneaux solaires",
     city: "Bordeaux (33)",
   },
   {
+    headline: "J'achète mieux, je marge mieux sur chaque chantier.",
     text: "Ce qui m'a convaincu c'est l'accompagnement global. Pas juste des contacts clients — une vraie stratégie de développement, des conseils sur mes achats matériaux, et un suivi qui fait la différence sur les marges. Sur la rénovation d'ampleur les volumes sont importants — acheter mieux c'est gagner plusieurs milliers d'euros par chantier.",
     name: "Stéphane D.",
     metier: "Rénovation d'ampleur",
@@ -436,13 +439,14 @@ const TestimonialsSection = () => (
           Pas de mise en scène. Des artisans qui parlent de leur expérience.
         </p>
       </motion.div>
-      <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
         {testimonials.map((t, i) => (
           <motion.div key={t.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
             <Card className="h-full border-border/60">
               <CardContent className="p-6">
                 <Quote className="w-6 h-6 text-gold/40 mb-3" />
-                <p className="text-sm text-foreground leading-relaxed mb-4 italic">"{t.text}"</p>
+                <p className="text-lg font-bold text-gold mb-3 leading-snug">"{t.headline}"</p>
+                <p className="text-[13px] text-foreground leading-relaxed mb-4 italic break-words">"{t.text}"</p>
                 <div className="pt-3 border-t border-border">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-xs font-bold text-gold">
@@ -452,8 +456,8 @@ const TestimonialsSection = () => (
                       <p className="text-sm font-semibold text-foreground">{t.name}</p>
                       <p className="text-xs text-muted-foreground">{t.metier} — {t.city}</p>
                     </div>
-                    <div className="ml-auto">
-                      <span className="text-xs text-emerald-500 font-medium flex items-center gap-1">
+                    <div className="ml-auto flex-shrink-0">
+                      <span className="text-xs text-emerald-500 font-medium flex items-center gap-1 whitespace-nowrap">
                         <CheckCircle2 className="w-3 h-3" /> Membre vérifié
                       </span>
                     </div>
@@ -467,6 +471,41 @@ const TestimonialsSection = () => (
     </div>
   </section>
 );
+
+// --- AVAILABILITY TICKER ---
+const AVAILABILITY_MESSAGES = [
+  "🔴 Bordeaux — Plomberie : 1 place restante",
+  "🟢 Lyon — Électricité : disponible",
+  "🔴 Lille — Menuiserie : 1 place restante",
+  "🟢 Paris — Chauffage PAC : disponible",
+  "🔴 Marseille — Solaire : complet",
+];
+
+const AvailabilityTicker = () => {
+  const [index, setIndex] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIndex((prev) => (prev + 1) % AVAILABILITY_MESSAGES.length);
+        setVisible(true);
+      }, 300);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="w-full bg-navy-dark border border-gold/20 rounded-lg px-4 py-2.5 mb-6 text-center">
+      <p
+        className={`text-[13px] font-semibold text-white/90 transition-opacity duration-300 break-words ${visible ? "opacity-100" : "opacity-0"}`}
+      >
+        {AVAILABILITY_MESSAGES[index]}
+      </p>
+    </div>
+  );
+};
 
 // --- SECTION 8: FORMULAIRE ---
 const formSchema = z.object({
@@ -578,11 +617,14 @@ const FormSection = () => {
               </p>
             </div>
 
-            <div className="bg-gold/5 border border-gold/20 rounded-lg p-3 mb-6 text-center">
+            <div className="bg-gold/5 border border-gold/20 rounded-lg p-3 mb-3 text-center">
               <p className="text-sm text-gold font-bold flex items-center justify-center gap-2">
                 <Award className="w-4 h-4" /> Artisan Fondateur — parmi les premiers de votre ville
               </p>
             </div>
+
+            {/* Availability ticker */}
+            <AvailabilityTicker />
 
             <div className="bg-card rounded-2xl p-6 md:p-8 shadow-gold border-2 border-primary/30">
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -622,8 +664,36 @@ const FormSection = () => {
                 <div>
                   <Label htmlFor="metier" className="text-white text-sm">Métier *</Label>
                   <div className="relative mt-1">
-                    <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="metier" placeholder="Ex: Plombier, Électricien, PAC..." value={formData.metier} onChange={(e) => updateForm("metier", e.target.value)} className="pl-10" required />
+                    <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+                    <select
+                      id="metier"
+                      value={formData.metier}
+                      onChange={(e) => updateForm("metier", e.target.value)}
+                      required
+                      className="w-full min-h-[52px] pl-10 pr-4 rounded-md border border-border bg-navy-dark text-white text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    >
+                      <option value="" disabled>Sélectionner votre métier...</option>
+                      {[
+                        "Plomberie & Sanitaire",
+                        "Électricité",
+                        "Chauffage & PAC",
+                        "Panneaux solaires & Énergie",
+                        "Rénovation globale",
+                        "Menuiserie & Fenêtres",
+                        "Toiture & Charpente",
+                        "Carrelage & Sol",
+                        "Peinture & Décoration",
+                        "Cuisine & Salle de bain",
+                        "Maçonnerie & Gros œuvre",
+                        "Isolation & Combles",
+                        "Climatisation",
+                        "Serrurerie",
+                        "Jardinage & Espaces verts",
+                        "Autre (préciser)",
+                      ].map((m) => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -676,7 +746,7 @@ const FormSection = () => {
 const CTAFinal = ({ onCTA }: { onCTA: () => void }) => (
   <section className="py-16 lg:py-20 bg-secondary">
     <div className="container mx-auto px-4 lg:px-8">
-      <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]">
+      <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]" style={{ background: "linear-gradient(180deg, rgba(240,165,0,0.08) 0%, transparent 100%), var(--navy)" }}>
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-64 h-64 bg-gold rounded-full blur-3xl" />
         </div>
@@ -687,9 +757,10 @@ const CTAFinal = ({ onCTA }: { onCTA: () => void }) => (
           <p className="text-white/60 mb-8 max-w-xl mx-auto">
             2 licences max par secteur. Quand c'est pris, c'est pris.
           </p>
-          <Button variant="gold" size="xl" onClick={onCTA} className="w-full sm:w-auto !font-black uppercase tracking-wider whitespace-normal text-center px-6">
+          <Button variant="gold" size="xl" onClick={onCTA} className="w-full sm:w-auto !font-extrabold uppercase tracking-wider whitespace-normal text-center !text-[16px] !px-12 !py-[18px]">
             REJOINDRE L'ALLIANCE <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
           </Button>
+          <p className="text-xs text-muted-foreground mt-4">🔒 Aucun paiement avant validation de votre dossier</p>
         </div>
       </div>
     </div>
