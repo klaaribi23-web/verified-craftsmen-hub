@@ -631,7 +631,7 @@ const FormSection = () => {
                   type="submit"
                   variant="gold"
                   size="xl"
-                  className="w-full !text-base md:!text-lg !font-black uppercase tracking-wider !py-6"
+                  className="w-full !font-black uppercase tracking-wider whitespace-normal text-center min-h-[56px] px-4 py-3"
                   disabled={isLoading}
                 >
                   {isLoading ? (
