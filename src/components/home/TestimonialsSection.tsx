@@ -78,10 +78,10 @@ const TestimonialsSection = () => {
             <Star className="w-4 h-4 fill-gold" />
             L'humain au centre
           </motion.span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
             Le Livre d'Or de l'Alliance
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-white/80 max-w-2xl mx-auto">
             Particuliers et artisans témoignent de leur expérience avec Artisans Validés.
           </p>
         </motion.div>
