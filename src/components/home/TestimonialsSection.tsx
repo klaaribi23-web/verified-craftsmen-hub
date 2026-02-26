@@ -6,7 +6,7 @@ const testimonials = [{
   role: "Particulière à Lille",
   subRole: "Rénovation salle de bain — 2024",
   rating: 5,
-  text: "J'avais demandé des devis sur un site connu. Dans l'heure qui a suivi j'ai reçu 11 appels. 11. Des artisans que je ne connaissais pas, qui me pressaient de décider, certains agressifs quand je disais que je réfléchissais. J'ai raccroché et j'ai laissé tomber le projet pendant 6 mois.\n\nUne amie m'a parlé d'Artisans Validés. J'ai déposé mon projet. Personne ne m'a appelée sans mon accord. J'ai échangé tranquillement via la messagerie, j'ai choisi quand j'étais prête. L'artisan est venu, le travail était exactement ce qui avait été convenu.\n\nJe ne savais pas qu'on pouvait faire des travaux sans stress.",
+  text: "J'ai reçu 11 appels dans l'heure après avoir demandé des devis ailleurs. Avec Artisans Validés, personne ne m'a contactée sans mon accord. Je ne savais pas qu'on pouvait faire des travaux sans stress.",
   verified: true,
   verifiedLabel: "Identité vérifiée ✓",
   type: "Particulier",
@@ -16,7 +16,7 @@ const testimonials = [{
   role: "Panneaux solaires & Batteries",
   subRole: "Saint-Venant (62) — Membre depuis 2024",
   rating: 5,
-  text: "Pendant longtemps je ne savais pas comment trouver mes clients. Je payais des leads qui ne répondaient pas, je courais après des projets fantômes.\n\nArtisans Validés m'a pris en main différemment. D'abord de la sous-traitance pour me lancer, puis des clients particuliers en direct. Et ce qui m'a vraiment surpris — l'accès aux fournisseurs négociés. J'achète mes panneaux mieux qu'avant, je marge mieux sur chaque chantier.\n\nAujourd'hui je tourne principalement au bouche à oreille. C'est ça la vraie différence.",
+  text: "Je courais après des prospects qui ne répondaient pas. Artisans Validés m'a mis en contact avec de vrais clients. Aujourd'hui je tourne au bouche à oreille.",
   verified: true,
   verifiedLabel: "Membre vérifié ✓",
   type: "Artisan",
@@ -26,7 +26,7 @@ const testimonials = [{
   role: "Notre engagement qualité",
   subRole: "",
   rating: 5,
-  text: "Vos coordonnées ne sont jamais partagées sans votre accord. Vous échangez d'abord via notre messagerie sécurisée. Vous décidez ensuite. C'est notre engagement envers chaque particulier.",
+  text: "Vos coordonnées ne sont jamais partagées sans votre accord. Vous décidez de tout.",
   verified: true,
   verifiedLabel: "Engagement vérifié ✓",
   type: "Notre promesse",
@@ -68,7 +68,7 @@ const AnimatedStar = ({
   </motion.div>;
 
 const TestimonialsSection = () => {
-  return <section className="py-20 lg:py-32 bg-white relative overflow-hidden border-y-2 border-navy/20">
+  return <section className="py-20 lg:py-32 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
       
@@ -86,10 +86,10 @@ const TestimonialsSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => <motion.article key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15, duration: 0.5 }} whileHover={{ y: -4, transition: { duration: 0.3 } }} className="relative group">
-              <div className="bg-background rounded-2xl overflow-hidden h-full border border-gold/20 hover:border-gold/50 hover:shadow-xl transition-all duration-300">
-                <div className="p-8">
+        <div className="grid md:grid-cols-3 gap-8 items-stretch">
+          {testimonials.map((testimonial, index) => <motion.article key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15, duration: 0.5 }} whileHover={{ y: -4, transition: { duration: 0.3 } }} className="relative group h-full">
+              <div className="bg-navy rounded-2xl overflow-hidden h-full border border-gold/15 hover:border-gold/40 hover:shadow-xl transition-all duration-300 flex flex-col">
+                <div className="p-6 flex flex-col flex-1">
                   {/* Badge Sceau AV */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-gold/70 flex items-center justify-center shadow-lg border-2 border-gold/30">
@@ -98,7 +98,7 @@ const TestimonialsSection = () => {
                         <span className="block text-navy-dark/70 text-[7px] font-semibold tracking-wider uppercase leading-tight mt-0.5">{testimonial.sealLabel}</span>
                       </div>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                    <span className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-xs font-medium">
                       {testimonial.type}
                     </span>
                   </div>
@@ -109,25 +109,25 @@ const TestimonialsSection = () => {
                     {[...Array(5)].map((_, i) => <AnimatedStar key={i} index={i + index * 5} filled={i < testimonial.rating} />)}
                   </div>
 
-                  <p className="text-foreground mb-6 leading-relaxed text-lg font-medium whitespace-pre-line">
+                  <p className="text-white mb-6 leading-relaxed text-base whitespace-pre-line flex-1">
                     "{testimonial.text}"
                   </p>
 
-                  <div className="pt-5 border-t border-border/50 space-y-3">
+                  <div className="pt-5 border-t border-white/10 space-y-3 mt-auto">
                     <div>
-                      <h3 className="font-bold text-foreground text-base">
+                      <h3 className="font-bold text-white text-base">
                         {testimonial.name}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-white/60">
                         {testimonial.role}
                       </p>
                       {testimonial.subRole && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
+                        <p className="text-xs text-white/40 mt-0.5">
                           {testimonial.subRole}
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 text-emerald-600">
+                    <div className="flex items-center gap-1.5 text-emerald-400">
                       <ShieldCheck className="w-4 h-4" />
                       <span className="text-xs font-semibold">{testimonial.verifiedLabel}</span>
                     </div>
