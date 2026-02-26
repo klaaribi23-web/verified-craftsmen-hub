@@ -504,10 +504,10 @@ const Navbar = () => {
               {/* Devenir partenaire - text link, hidden when authenticated */}
               {!isAuthenticated && !isLoading && (
                 <Link
-                  to="/devenir-artisan"
+                  to="/devenir-partenaire"
                   className="text-[15px] font-semibold text-foreground hover:text-foreground/70 underline-offset-4 hover:underline transition-colors whitespace-nowrap"
                 >
-                  Devenir partenaire
+                  Rejoindre le réseau
                 </Link>
               )}
               <Button variant="outline" size="sm" className="border-foreground/30 text-foreground hover:bg-foreground/10 font-semibold text-[13px]" asChild>
@@ -587,15 +587,15 @@ const Navbar = () => {
                     Consulter les missions
                   </Link>
                   <Link
-                    to="/devenir-artisan"
+                    to="/devenir-partenaire"
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/devenir-artisan") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
+                      isActive("/devenir-partenaire") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
                     )}
                   >
                     <Crown className="w-5 h-5" />
-                    Devenir partenaire
+                    Rejoindre le réseau
                   </Link>
                   <Link
                     to="/auth"
