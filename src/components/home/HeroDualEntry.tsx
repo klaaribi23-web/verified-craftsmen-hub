@@ -162,7 +162,7 @@ const HeroDualEntry = () => {
                 className="w-full border-2 border-primary/30 text-primary hover:bg-primary/10 font-bold py-6"
                 asChild
               >
-                <Link to="/devenir-artisan">
+                <Link to="/devenir-partenaire">
                   Vérifier mon secteur
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
