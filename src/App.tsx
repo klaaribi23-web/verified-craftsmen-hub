@@ -81,6 +81,8 @@ import Confidentialite from "./pages/Confidentialite";
 import CookieConsent from "./components/cookies/CookieConsent";
 import AndreaGlobalWidget from "./components/andrea/AndreaGlobalWidget";
 import MarketingLab from "./pages/MarketingLab";
+import ArtisansSeoPage from "./pages/ArtisansSeoPage";
+import ArtisansSeoIndex from "./pages/ArtisansSeoIndex";
 
 const queryClient = new QueryClient();
 
@@ -132,6 +134,8 @@ const App = () => (
           <Route path="/landing-mission" element={<LandingMission />} />
           <Route path="/marketing-lab" element={<MarketingLab />} />
           <Route path="/artisans-ville/:citySlug" element={<CityArtisansPage />} />
+          <Route path="/artisans" element={<ArtisansSeoIndex />} />
+          <Route path="/artisans/:slug" element={<ArtisansSeoPage />} />
           
           <Route path="/artisan/:slug" element={<ArtisanPublicProfile />} />
           
