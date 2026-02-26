@@ -74,7 +74,7 @@ const HeroDualEntry = () => {
             </div>
             <h2 className="text-xl font-bold text-foreground mb-2">Je cherche un artisan</h2>
             <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-              Recevez 1 devis d'un artisan audité près de chez vous. Sans harcèlement.
+              1 artisan audité. Vos coordonnées protégées. Vous décidez de tout.
             </p>
 
             <form onSubmit={handleParticulierSearch} className="space-y-3 mt-auto">

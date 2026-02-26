@@ -3,9 +3,9 @@ import { FileText, Search, Phone, CheckCircle2, Target, ClipboardList, Briefcase
 import { motion, AnimatePresence } from "framer-motion";
 
 const particulierSteps = [
-  { icon: FileText, title: "Décrivez votre projet en 2 minutes", num: "01" },
-  { icon: Search, title: "Andrea sélectionne le meilleur artisan de votre zone", num: "02" },
-  { icon: Phone, title: "L'artisan vous contacte sous 2h", num: "03" },
+  { icon: FileText, title: "Décrivez votre projet ou trouvez un artisan", num: "01" },
+  { icon: Phone, title: "Échangez en sécurité via notre messagerie", num: "02" },
+  { icon: Search, title: "Partagez vos coordonnées quand VOUS êtes prêt", num: "03" },
   { icon: CheckCircle2, title: "Chantier réalisé, avis déposé", num: "04" },
 ];
 

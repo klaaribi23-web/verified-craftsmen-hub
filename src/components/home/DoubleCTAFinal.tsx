@@ -16,7 +16,7 @@ const DoubleCTAFinal = () => (
         >
           <h3 className="text-xl font-bold text-foreground mb-2">Vous avez un projet ?</h3>
           <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-            Déposez-le gratuitement. Un artisan audité vous répond sous 2h.
+            Déposez votre projet gratuitement. Vos coordonnées restent privées jusqu'à ce que vous décidiez.
           </p>
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold btn-shine" asChild>
             <Link to="/demande-devis">
