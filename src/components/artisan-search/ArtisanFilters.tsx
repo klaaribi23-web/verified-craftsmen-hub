@@ -174,7 +174,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
             onFocus={() => {
               if (semanticQuery.length >= 3) setShowSuggestions(true);
             }}
-            placeholder="Décrivez votre besoin... ex: fuite de toit, changer mes fenêtres, rats dans la maison"
+            placeholder="Décrivez votre besoin... ex: fuite de toit, changer mes fenêtres, panneaux solaires"
             className="w-full h-14 pl-12 pr-4 rounded-2xl text-base font-medium text-white placeholder:text-[#8892B0] border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 outline-none transition-all font-['DM_Sans']"
             style={{ backgroundColor: '#112240' }}
           />

@@ -224,8 +224,7 @@ const TrouverArtisan = () => {
   const totalPages = Math.ceil(sortedArtisans.length / ITEMS_PER_PAGE);
   const paginatedArtisans = sortedArtisans.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  // Get total artisan count
-  const totalArtisans = artisansData?.length || 0;
+  
   return <div className="min-h-screen" style={{ backgroundColor: '#0A192F' }}>
       <SEOHead 
         title="Trouver un artisan qualifié"
@@ -238,35 +237,36 @@ const TrouverArtisan = () => {
         {/* Hero Search */}
         <section className="py-10 md:py-16 lg:py-24 border-b border-[#D4AF37]/10" style={{ backgroundColor: '#0A192F' }}>
           <div className="container mx-auto px-4 lg:px-8">
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} className="text-center mb-6 md:mb-10">
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 md:mb-4 font-['DM_Sans']">
-                 Trouvez votre <span style={{ color: '#D4AF37' }}>artisan</span>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6 md:mb-10">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 md:mb-4 font-['DM_Sans'] leading-tight">
+                Les artisans que vous <span style={{ color: '#D4AF37' }}>méritez</span>.<br className="hidden md:block" />
+                Vérifiés, audités, exclusifs.
               </h1>
-              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
-                Plus de {totalArtisans} artisans vérifiés à votre service
+              <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto px-4 leading-relaxed">
+                Chaque artisan a passé l'audit Andrea. Assurances contrôlées, SIRET vérifié, avis authentiques. Vous échangez en sécurité — vos coordonnées restent privées jusqu'à ce que vous décidiez.
               </p>
             </motion.div>
 
             {/* Dynamic Search Bar */}
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            delay: 0.1
-          }} className="max-w-4xl mx-auto">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="max-w-4xl mx-auto">
               <ArtisanFilters onFiltersChange={handleFiltersChange} />
-              <p className="text-xs text-muted-foreground text-center mt-3 italic">
-                🔍 Vérification de 12 nouveaux dossiers d'artisans en cours
-              </p>
+            </motion.div>
+
+            {/* Reassurance Bar */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="max-w-4xl mx-auto mt-5">
+              <div className="rounded-xl py-3 px-4 flex items-center justify-center gap-4 md:gap-6 flex-wrap" style={{ backgroundColor: '#0D1F35' }}>
+                {[
+                  "87% des artisans refusés à l'audit",
+                  "Vos coordonnées protégées",
+                  "Zéro commission",
+                  "Réponse sous 2h",
+                ].map((text, i) => (
+                  <span key={i} className="flex items-center gap-1.5 text-xs md:text-sm text-white/90 font-medium whitespace-nowrap">
+                    <span style={{ color: '#D4AF37' }}>✓</span>
+                    {text}
+                  </span>
+                ))}
+              </div>
             </motion.div>
           </div>
         </section>
@@ -277,10 +277,10 @@ const TrouverArtisan = () => {
           <div className="container mx-auto px-4 lg:px-8">
             <div className="mb-6 md:mb-8">
               <h2 className="text-xl md:text-2xl font-extrabold text-white text-center md:text-left font-['DM_Sans']">
-                 La sélection Artisans Validés : dossiers 100% <span style={{ color: '#D4AF37' }}>vérifiés</span>
+                L'élite <span style={{ color: '#D4AF37' }}>vérifiée</span> — et seulement l'élite
               </h2>
-              <p className="text-sm text-muted-foreground mt-1 text-center md:text-left">
-                Assurances, SIRET et avis clients contrôlés par notre équipe.
+              <p className="text-sm text-white/60 mt-1 text-center md:text-left">
+                Pas de quantité. De la qualité. Chaque artisan audité sur le terrain par notre équipe.
               </p>
             </div>
             <FeaturedArtisansCarousel />
@@ -290,7 +290,12 @@ const TrouverArtisan = () => {
         {/* All Artisans with Filters */}
         <section className="py-10 md:py-16" ref={resultsRef} id="artisans-results" style={{ backgroundColor: '#0A192F' }}>
           <div className="container mx-auto px-4 lg:px-8">
-            <h2 className="text-xl md:text-2xl font-extrabold text-white mb-6 md:mb-8 font-['DM_Sans']">Tous nos <span style={{ color: '#D4AF37' }}>artisans</span></h2>
+            <div className="mb-6 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-extrabold text-white font-['DM_Sans']">Tous nos <span style={{ color: '#D4AF37' }}>artisans</span></h2>
+              <p className="text-sm text-white/60 mt-1">
+                Chaque artisan visible ici a passé notre audit — 87% des candidats ont été refusés
+              </p>
+            </div>
 
             {/* Artisans Grid */}
             <div>
