@@ -1,11 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFeaturedArtisans } from "@/hooks/usePublicData";
 import { Skeleton } from "@/components/ui/skeleton";
-import { optimizeImageUrl } from "@/lib/utils";
+import ArtisanCard from "@/components/artisan-search/ArtisanCard";
 
 interface FeaturedArtisan {
   id: string;
@@ -20,6 +18,9 @@ interface FeaturedArtisan {
   profileImage: string;
   portfolio: string[];
   subscriptionTier: string | null;
+  isAudited: boolean;
+  phone: string | null;
+  siret: string | null;
 }
 
 const FeaturedArtisansCarousel = () => {
@@ -49,6 +50,9 @@ const FeaturedArtisansCarousel = () => {
     profileImage: artisan.photo_url || "/favicon.png",
     portfolio: artisan.portfolio_images?.length ? artisan.portfolio_images : ["/favicon.png"],
     subscriptionTier: artisan.subscription_tier || null,
+    isAudited: artisan.is_audited || false,
+    phone: (artisan as any).phone || null,
+    siret: (artisan as any).siret || null,
   }));
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
@@ -126,7 +130,23 @@ const FeaturedArtisansCarousel = () => {
         <div className="flex -ml-4">
           {featuredArtisansData.map((artisan) => (
             <div key={artisan.id} className="flex-[0_0_100%] md:flex-[0_0_25%] min-w-0 pl-4">
-              <FeaturedArtisanCard artisan={artisan} />
+              <ArtisanCard
+                id={artisan.id}
+                slug={artisan.slug}
+                name={artisan.name}
+                profession={artisan.profession}
+                location={artisan.location}
+                rating={artisan.rating}
+                reviews={artisan.reviews}
+                verified={artisan.verified}
+                experience={artisan.experience}
+                profileImage={artisan.profileImage}
+                portfolio={artisan.portfolio}
+                subscriptionTier={artisan.subscriptionTier}
+                isAudited={artisan.isAudited}
+                phone={artisan.phone}
+                siret={artisan.siret}
+              />
             </div>
           ))}
         </div>
@@ -151,51 +171,4 @@ const FeaturedArtisansCarousel = () => {
   );
 };
 
-const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
-  const portfolioImage = artisan.portfolio[0] || artisan.profileImage || "/favicon.png";
-
-  return (
-    <Link to={`/artisan/${artisan.slug || artisan.id}`}>
-      <div className="bg-card rounded-xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden cursor-pointer">
-        {/* Image */}
-        <div className="relative h-36 md:h-40 overflow-hidden">
-          <img src={optimizeImageUrl(portfolioImage, 'card')} alt={artisan.name} className="w-full h-full object-cover" loading="lazy" />
-
-          {/* Artisan Validé Badge - only for subscribers */}
-          {(artisan.subscriptionTier === "artisan_valide" || artisan.subscriptionTier === "boost_annuel") && (
-            <div className="absolute top-2 left-2 z-10">
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>Artisan Validé</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="p-3 sm:p-4">
-          <h3 className="font-semibold text-sm sm:text-base truncate mb-1">{artisan.name}</h3>
-
-          <div className="inline-block bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full mb-2">
-            {artisan.profession}
-          </div>
-
-          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-            <MapPin className="h-3 w-3 shrink-0" />
-            <span className="truncate">{artisan.location}</span>
-          </div>
-
-          {/* Rating */}
-          {artisan.rating > 0 && (
-            <div className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-gold text-gold" />
-              <span className="text-xs font-semibold">{artisan.rating.toFixed(1)}</span>
-              {artisan.reviews > 0 && <span className="text-xs text-muted-foreground">({artisan.reviews} avis)</span>}
-            </div>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
-};
 export default FeaturedArtisansCarousel;
