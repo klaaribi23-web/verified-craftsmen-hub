@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2 } from "lucide-react";
 import { useFeaturedArtisans } from "@/hooks/usePublicData";
 import { Skeleton } from "@/components/ui/skeleton";
+import { optimizeImageUrl } from "@/lib/utils";
 
 interface FeaturedArtisan {
   id: string;
@@ -158,7 +159,7 @@ const FeaturedArtisanCard = ({ artisan }: { artisan: FeaturedArtisan }) => {
       <div className="bg-card rounded-xl shadow-soft border border-border hover:shadow-elevated transition-shadow overflow-hidden cursor-pointer">
         {/* Image */}
         <div className="relative h-36 md:h-40 overflow-hidden">
-          <img src={portfolioImage} alt={artisan.name} className="w-full h-full object-cover" loading="lazy" />
+          <img src={optimizeImageUrl(portfolioImage, 'card')} alt={artisan.name} className="w-full h-full object-cover" loading="lazy" />
 
           {/* Artisan Validé Badge - only for subscribers */}
           {(artisan.subscriptionTier === "artisan_valide" || artisan.subscriptionTier === "boost_annuel") && (
