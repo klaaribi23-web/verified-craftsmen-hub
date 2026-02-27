@@ -254,8 +254,8 @@ const ArtisanCard = ({
           </div>
         )}
 
-        {/* Andrea Score Badge - top left */}
-        <div className="absolute top-2 left-2 z-10 px-2 py-[3px] rounded-md" style={{ backgroundColor: 'rgba(13,17,23,0.85)' }}>
+        {/* Andrea Score Badge - top-left on desktop, bottom-left on mobile */}
+        <div className="absolute top-2 left-2 md:top-2 md:left-2 bottom-auto md:bottom-auto z-10 px-2 py-[3px] rounded-md max-[767px]:top-auto max-[767px]:bottom-2" style={{ backgroundColor: 'rgba(13,17,23,0.85)' }}>
           <span className="text-[10px] font-bold" style={{ color: '#D4AF37' }}>⭐ Score {andreaScore}/100</span>
         </div>
 
