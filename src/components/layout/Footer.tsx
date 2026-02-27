@@ -170,7 +170,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="flex flex-col items-center gap-2 mb-4">
             <h2 className="font-semibold text-white">Nos zones d'intervention</h2>
-            <p className="text-xs text-white/50">Plus de 500 artisans certifiés répartis sur le territoire.</p>
+            <p className="text-xs text-white/50">Présents dans toute la France.</p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             {regionLinks.map(region => (
