@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle2, Crown, Award, Medal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { cn, optimizeImageUrl } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -250,7 +250,7 @@ const CompactArtisanCard = ({ artisan }: CompactArtisanCardProps) => {
   };
 
   const badgeConfig = getBadgeConfig();
-  const portfolioImage = artisan.portfolio_images?.[0] || artisan.photo_url || "/favicon.png";
+  const portfolioImage = optimizeImageUrl(artisan.portfolio_images?.[0] || artisan.photo_url || "/favicon.png", 'card');
 
   return (
     <Link to={`/artisan/${artisan.slug || artisan.id}`}>

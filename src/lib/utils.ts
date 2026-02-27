@@ -18,3 +18,18 @@ export function ensureHttps(url: string | null | undefined): string | null {
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
   return `https://${trimmed}`;
 }
+
+/**
+ * Adds Supabase Storage image transformation parameters to optimize delivery.
+ * Only applies to Supabase Storage URLs (containing 'supabase.co/storage').
+ * Skips URLs that already have query parameters.
+ */
+export function optimizeImageUrl(url: string | null | undefined, size: 'card' | 'large' = 'large'): string {
+  if (!url) return '';
+  if (!url.includes('supabase.co/storage')) return url;
+  if (url.includes('?')) return url;
+  const params = size === 'card'
+    ? '?width=400&quality=75&format=webp'
+    : '?width=800&quality=75&format=webp';
+  return `${url}${params}`;
+}

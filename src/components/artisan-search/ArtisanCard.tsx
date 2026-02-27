@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
-import { cn, ensureHttps } from "@/lib/utils";
+import { cn, ensureHttps, optimizeImageUrl } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
 import AuditSummaryDialog from "@/components/artisan-search/AuditSummaryDialog";
 
@@ -238,7 +238,7 @@ const ArtisanCard = ({
           />
         ) : hasPortfolioImage ? (
           <img
-            src={portfolioImages[0]}
+            src={optimizeImageUrl(portfolioImages[0], 'card')}
             alt={`Réalisation de ${name}`}
             className="absolute inset-0 w-full h-full object-cover object-center"
             loading="lazy"
@@ -246,7 +246,7 @@ const ArtisanCard = ({
           />
         ) : profileImage ? (
           <div className="absolute inset-0 w-full h-full flex items-center justify-center p-6" style={{ backgroundColor: '#0D1F35' }}>
-            <img src={profileImage} alt={`Logo de ${name}`} className="max-w-[60%] max-h-[80%] object-contain" loading="lazy" />
+            <img src={optimizeImageUrl(profileImage, 'card')} alt={`Logo de ${name}`} className="max-w-[60%] max-h-[80%] object-contain" loading="lazy" />
           </div>
         ) : (
           <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ backgroundColor: '#0D1F35' }}>
@@ -344,7 +344,7 @@ const ArtisanCard = ({
         {/* Profile photo with story indicator */}
         <div className="flex items-start gap-2 mb-2 min-h-[44px]">
           <img
-            src={profileImage || defaultProfileImage}
+            src={optimizeImageUrl(profileImage || defaultProfileImage, 'card')}
             alt={`Photo de profil de ${name}`}
             loading="lazy"
             onClick={(e) => {

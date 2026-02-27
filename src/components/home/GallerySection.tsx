@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Camera, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { optimizeImageUrl } from "@/lib/utils";
 
 const GallerySection = () => {
   const { data: portfolioImages, isLoading } = useQuery({
@@ -92,7 +93,7 @@ const GallerySection = () => {
             >
               <div className={`aspect-square ${index === 0 || index === 5 ? "md:aspect-[4/3]" : ""}`}>
                 <img
-                  src={image.url}
+                  src={optimizeImageUrl(image.url, 'card')}
                   alt={`Réalisation de ${image.artisanName}`}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
