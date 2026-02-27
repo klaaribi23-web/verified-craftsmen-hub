@@ -413,11 +413,15 @@ const ArtisanPublicProfile = () => {
                         )}
                       </div>
                       {/* Elite exclusivity micro-copy */}
-                      {(artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel" || (artisan as any).is_audited) && (
+                      {(artisan as any).is_audited ? (
                         <p className="text-[11px] text-primary/70 font-semibold uppercase tracking-widest mb-2">
-                          ✦ Fait partie des 2% d'artisans sélectionnés
+                          ✦ Parmi les rares artisans à avoir passé l'audit terrain
                         </p>
-                      )}
+                      ) : (artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel") ? (
+                        <p className="text-[11px] text-primary/70 font-semibold uppercase tracking-widest mb-2">
+                          ✦ Artisan vérifié du réseau Artisans Validés
+                        </p>
+                      ) : null}
 
                       {/* Catégorie principale - avec badge stylé */}
                       {artisan.category?.name && (

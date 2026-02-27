@@ -1,13 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, ChevronLeft, ChevronRight, Shield, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSimilarArtisans } from "@/hooks/usePublicData";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+import ArtisanCard from "@/components/artisan-search/ArtisanCard";
 
 interface SimilarArtisansCarouselProps {
   currentArtisanId: string;
@@ -16,7 +15,6 @@ interface SimilarArtisansCarouselProps {
 }
 
 const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: SimilarArtisansCarouselProps) => {
-  const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
     align: "start",
@@ -25,7 +23,10 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   
-  const { data: similarArtisans = [], isLoading } = useSimilarArtisans(categoryId, currentArtisanId);
+  const { data: allSimilarArtisans = [], isLoading } = useSimilarArtisans(categoryId, currentArtisanId);
+
+  // Filter out artisans with rating 0
+  const similarArtisans = allSimilarArtisans.filter(a => (a.rating || 0) > 0);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -45,27 +46,6 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
       emblaApi.off("select", onSelect);
     };
   }, [emblaApi, onSelect]);
-
-  const handleViewProfile = (slugOrId: string) => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    navigate(`/artisan/${slugOrId}`);
-  };
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        className={cn(
-          "h-3 w-3",
-          i < Math.floor(rating)
-            ? "fill-amber-400 text-amber-400"
-            : "text-muted-foreground/30"
-        )}
-      />
-    ));
-  };
-
-  // No more tier badges - all artisans get the same "Artisan Validé" badge
 
   if (isLoading) {
     return (
@@ -124,80 +104,36 @@ const SimilarArtisansCarousel = ({ currentArtisanId, categoryId, trade }: Simila
           )}
         </div>
 
-        {/* Embla Carousel - 1x1 mobile, 3x3 tablet, 4x4 desktop */}
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex -ml-4">
             {similarArtisans.map((artisan) => (
-                <div 
-                  key={artisan.id} 
-                  className="flex-[0_0_100%] sm:flex-[0_0_33.333%] lg:flex-[0_0_25%] min-w-0 pl-4"
-                >
-                  <Card 
-                    className="overflow-hidden hover:shadow-xl transition-all cursor-pointer h-full border-border"
-                    onClick={() => handleViewProfile(artisan.slug || artisan.id)}
-                  >
-                    <div className="relative h-32 sm:h-36 lg:h-40 overflow-hidden bg-muted">
-                      <img 
-                        src={
-                          artisan.photo_url || 
-                          (artisan.portfolio_images && artisan.portfolio_images.length > 0 
-                            ? artisan.portfolio_images[0] 
-                            : "/placeholder.svg")
-                        } 
-                        alt={artisan.business_name || "Artisan"}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                      {/* Badge Artisan Validé - only for subscribers */}
-                      {(artisan.subscription_tier === "artisan_valide" || artisan.subscription_tier === "boost_annuel") && (
-                        <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold shadow-lg bg-success text-success-foreground">
-                          <CheckCircle2 className="w-3 h-3" />
-                          <span className="hidden sm:inline">Artisan Validé</span>
-                        </div>
-                      )}
-                      {/* Badge vérifié */}
-                      {artisan.is_verified && (
-                        <div className="absolute bottom-2 left-2 bg-success text-success-foreground rounded-full p-1.5 shadow-lg">
-                          <Shield className="h-3 w-3" />
-                        </div>
-                      )}
-                    </div>
-                    
-                    <CardContent className="p-3 sm:p-4">
-                      <h3 className="font-semibold text-sm sm:text-base truncate mb-1">
-                        {artisan.business_name}
-                      </h3>
-                      
-                      <Badge variant="secondary" className="text-xs mb-2">
-                        {artisan.category?.name || trade}
-                      </Badge>
-                      
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                        <MapPin className="h-3 w-3 shrink-0" />
-                        <span className="truncate">{artisan.city}</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-0.5">
-                          {renderStars(artisan.rating || 0)}
-                          <span className="text-xs font-medium ml-1">
-                            {artisan.rating?.toFixed(1) || "0.0"}
-                          </span>
-                        </div>
-                        {artisan.hourly_rate && (
-                          <span className="text-xs font-semibold text-primary">
-                            {artisan.hourly_rate}€/h
-                          </span>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
+              <div 
+                key={artisan.id} 
+                className="flex-[0_0_100%] sm:flex-[0_0_33.333%] lg:flex-[0_0_25%] min-w-0 pl-4"
+              >
+                <ArtisanCard
+                  id={artisan.id}
+                  slug={artisan.slug}
+                  name={artisan.business_name}
+                  profession={artisan.category?.name || trade}
+                  location={artisan.city}
+                  rating={artisan.rating || 0}
+                  reviews={artisan.review_count || 0}
+                  verified={artisan.is_verified || false}
+                  experience={artisan.experience_years ? `${artisan.experience_years} ans` : ""}
+                  profileImage={artisan.photo_url || undefined}
+                  portfolio={artisan.portfolio_images || undefined}
+                  portfolioVideos={artisan.portfolio_videos || undefined}
+                  subscriptionTier={artisan.subscription_tier}
+                  isAudited={artisan.is_audited}
+                  availableUrgent={artisan.available_urgent}
+                  isRge={artisan.is_rge}
+                />
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Dots pagination - visible on mobile */}
         {scrollSnaps.length > 1 && (
           <div className="flex justify-center gap-1.5 mt-4 sm:mt-6">
             {scrollSnaps.slice(0, Math.min(8, scrollSnaps.length)).map((_, idx) => (
