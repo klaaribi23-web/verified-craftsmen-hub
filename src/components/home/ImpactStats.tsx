@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
-const stats = [
+type StatItem = 
+  | { type?: "animated"; value: number; suffix: string; label: string; decimals?: number; subLabel?: string }
+  | { type: "static"; display: string; label: string; subLabel?: string };
+
+const stats: StatItem[] = [
   { value: 1200, suffix: "+", label: "chantiers accompagnés" },
   { value: 87, suffix: "%", label: "taux de refus artisans" },
-  { value: 4.9, suffix: "/5", label: "satisfaction clients", decimals: 1 },
+  { type: "static", display: "N°1", label: "Sélection rigoureuse", subLabel: "Qualité avant la quantité" },
   { value: 24, suffix: "h", label: "délai moyen de réponse" },
 ];
 
@@ -63,8 +67,20 @@ const ImpactStats = () => (
             transition={{ delay: i * 0.1 }}
             className="text-center"
           >
-            <AnimatedNumber target={stat.value} suffix={stat.suffix} decimals={stat.decimals} />
-            <p className="text-sm text-muted-foreground mt-2 font-medium">{stat.label}</p>
+            {stat.type === "static" ? (
+              <>
+                <div className="text-[clamp(32px,8vw,48px)] md:text-5xl font-extrabold text-primary">
+                  {stat.display}
+                </div>
+                <p className="text-sm text-muted-foreground mt-2 font-medium">{stat.label}</p>
+                {stat.subLabel && <p className="text-xs text-muted-foreground/70 mt-0.5">{stat.subLabel}</p>}
+              </>
+            ) : (
+              <>
+                <AnimatedNumber target={stat.value} suffix={stat.suffix} decimals={stat.decimals} />
+                <p className="text-sm text-muted-foreground mt-2 font-medium">{stat.label}</p>
+              </>
+            )}
           </motion.div>
         ))}
       </div>
