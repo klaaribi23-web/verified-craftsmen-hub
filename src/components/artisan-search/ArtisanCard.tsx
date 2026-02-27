@@ -5,7 +5,7 @@ import {
   Star,
   CheckCircle2,
   Heart,
-  Shield,
+  ShieldCheck,
   Phone,
   Zap,
   Play,
@@ -232,16 +232,38 @@ const ArtisanCard = ({
             className="absolute top-2 right-10 z-10 cursor-pointer"
             aria-label="Voir le résumé d'audit"
           >
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] md:text-[11px] font-extrabold shadow-lg bg-primary text-primary-foreground border border-primary/50 transition-colors whitespace-nowrap">
-              <Shield className="w-3 h-3 md:w-3.5 md:h-3.5 fill-current" />
-              <span>ARTISAN AUDITÉ</span>
+            <div
+              className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
+              style={{
+                backgroundColor: '#f0a500',
+                color: '#0d1117',
+                borderRadius: '20px',
+                padding: '4px 10px',
+                fontSize: '10px',
+                fontWeight: 800,
+                boxShadow: '0 2px 8px rgba(240,165,0,0.5)',
+              }}
+            >
+              <ShieldCheck className="flex-shrink-0" style={{ width: '11px', height: '11px' }} />
+              <span>✓ AUDITÉ</span>
             </div>
           </button>
         ) : isPaying ? (
           <div className="absolute top-2 right-10 z-10">
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] md:text-[11px] font-bold shadow-lg bg-green-600 text-white whitespace-nowrap">
-              <CheckCircle2 className="w-3 h-3 md:w-3.5 md:h-3.5" />
-              <span>ARTISAN VALIDÉ</span>
+            <div
+              className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
+              style={{
+                backgroundColor: '#22c55e',
+                color: '#0d1117',
+                borderRadius: '20px',
+                padding: '4px 10px',
+                fontSize: '10px',
+                fontWeight: 800,
+                boxShadow: '0 2px 8px rgba(34,197,94,0.5)',
+              }}
+            >
+              <ShieldCheck className="flex-shrink-0" style={{ width: '11px', height: '11px' }} />
+              <span>✓ VALIDÉ</span>
             </div>
           </div>
         ) : null}
