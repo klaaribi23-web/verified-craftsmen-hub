@@ -144,63 +144,6 @@ const TestimonialsSection = () => {
           Témoignages inspirés d'expériences réelles de nos utilisateurs.
         </p>
 
-        {/* Stats — fond sombre institutionnel */}
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 bg-navy rounded-2xl p-8 lg:p-12 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            {[...Array(6)].map((_, i) => <motion.div key={i} className="absolute w-24 h-24 border border-gold/30 rounded-full" style={{
-            left: `${i % 3 * 40}%`,
-            top: `${Math.floor(i / 3) * 60}%`
-          }} animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.6, 0.3]
-          }} transition={{
-            duration: 3,
-            repeat: Infinity,
-            delay: i * 0.5
-          }} />)}
-          </div>
-          
-          {[{
-          value: "4.9/5",
-          label: "Note moyenne",
-          icon: Star
-        }, {
-          value: "1 200+",
-          label: "Chantiers accompagnés",
-          icon: CheckCircle2
-        }, {
-          value: "4.9/5",
-          label: "Sur 847 avis vérifiés",
-          icon: Star
-        }, {
-          value: "24h",
-          label: "Temps de réponse",
-          icon: CheckCircle2
-        }].map((stat, index) => <motion.div key={stat.label} initial={{
-          opacity: 0,
-          y: 20
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} viewport={{
-          once: true
-        }} transition={{
-          delay: 0.4 + index * 0.1
-        }} className="text-center relative z-10">
-              <motion.div className="text-3xl md:text-4xl font-bold text-gold mb-1" animate={{
-            scale: [1, 1.05, 1]
-          }} transition={{
-            duration: 2,
-            repeat: Infinity,
-            delay: index * 0.3
-          }}>
-                {stat.value}
-              </motion.div>
-              <div className="text-white/70 text-sm font-medium">
-                {stat.label}
-              </div>
-            </motion.div>)}
-        </motion.div>
       </div>
     </section>;
 };
