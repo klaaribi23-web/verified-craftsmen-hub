@@ -63,6 +63,7 @@ const ArtisanCard = ({
   const [storyViewerOpen, setStoryViewerOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [badgeTooltip, setBadgeTooltip] = useState<'audited' | 'validated' | null>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
@@ -227,44 +228,100 @@ const ArtisanCard = ({
 
         {/* ─ OVERLAY: Status Badge (top-right) ─ */}
         {isAudited ? (
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAuditDialogOpen(true); }}
-            className="absolute top-2 right-10 z-10 cursor-pointer"
-            aria-label="Voir le résumé d'audit"
-          >
-            <div
-              className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
-              style={{
-                backgroundColor: '#f0a500',
-                color: '#0d1117',
-                borderRadius: '20px',
-                padding: '4px 10px',
-                fontSize: '10px',
-                fontWeight: 800,
-                boxShadow: '0 2px 8px rgba(240,165,0,0.5)',
+          <div className="absolute top-2 right-10 z-10">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (badgeTooltip === 'audited') {
+                  setBadgeTooltip(null);
+                  setAuditDialogOpen(true);
+                } else {
+                  setBadgeTooltip('audited');
+                  setTimeout(() => setBadgeTooltip(prev => prev === 'audited' ? null : prev), 3000);
+                }
               }}
+              className="cursor-pointer"
+              aria-label="Voir le résumé d'audit"
             >
-              <ShieldCheck className="flex-shrink-0" style={{ width: '11px', height: '11px' }} />
-              <span>✓ AUDITÉ</span>
-            </div>
-          </button>
+              <div
+                className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
+                style={{
+                  backgroundColor: '#f0a500',
+                  color: '#0d1117',
+                  borderRadius: '20px',
+                  padding: '4px 10px',
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  boxShadow: '0 2px 8px rgba(240,165,0,0.5)',
+                }}
+              >
+                <ShieldCheck className="flex-shrink-0" style={{ width: '11px', height: '11px' }} />
+                <span>✓ AUDITÉ</span>
+              </div>
+            </button>
+            {badgeTooltip === 'audited' && (
+              <div
+                className="absolute top-full mt-1 right-0 z-50 animate-fade-in"
+                style={{
+                  backgroundColor: '#0A192F',
+                  color: 'white',
+                  fontSize: '11px',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  width: '200px',
+                  lineHeight: '1.4',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                }}
+              >
+                Artisan vérifié physiquement sur le terrain par l'équipe Artisans Validés
+              </div>
+            )}
+          </div>
         ) : isPaying ? (
           <div className="absolute top-2 right-10 z-10">
-            <div
-              className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
-              style={{
-                backgroundColor: '#22c55e',
-                color: '#0d1117',
-                borderRadius: '20px',
-                padding: '4px 10px',
-                fontSize: '10px',
-                fontWeight: 800,
-                boxShadow: '0 2px 8px rgba(34,197,94,0.5)',
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setBadgeTooltip(badgeTooltip === 'validated' ? null : 'validated');
+                setTimeout(() => setBadgeTooltip(prev => prev === 'validated' ? null : prev), 3000);
               }}
+              className="cursor-pointer"
             >
-              <ShieldCheck className="flex-shrink-0" style={{ width: '11px', height: '11px' }} />
-              <span>✓ VALIDÉ</span>
-            </div>
+              <div
+                className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
+                style={{
+                  backgroundColor: '#22c55e',
+                  color: '#0d1117',
+                  borderRadius: '20px',
+                  padding: '4px 10px',
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  boxShadow: '0 2px 8px rgba(34,197,94,0.5)',
+                }}
+              >
+                <ShieldCheck className="flex-shrink-0" style={{ width: '11px', height: '11px' }} />
+                <span>✓ VALIDÉ</span>
+              </div>
+            </button>
+            {badgeTooltip === 'validated' && (
+              <div
+                className="absolute top-full mt-1 right-0 z-50 animate-fade-in"
+                style={{
+                  backgroundColor: '#0A192F',
+                  color: 'white',
+                  fontSize: '11px',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  width: '200px',
+                  lineHeight: '1.4',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                }}
+              >
+                Assurances, SIRET et décennale vérifiés administrativement
+              </div>
+            )}
           </div>
         ) : null}
 

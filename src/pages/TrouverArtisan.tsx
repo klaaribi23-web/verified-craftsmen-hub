@@ -10,7 +10,7 @@ import ArtisanCard from "@/components/artisan-search/ArtisanCard";
 import FeaturedArtisansCarousel from "@/components/artisan-search/FeaturedArtisansCarousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { usePublicArtisans } from "@/hooks/usePublicData";
 import { useCategoriesHierarchy } from "@/hooks/useCategories";
 
@@ -331,6 +331,47 @@ const TrouverArtisan = () => {
                 <>
                   <div className="mb-4 text-sm text-muted-foreground">
                     {filteredArtisans.length} artisan{filteredArtisans.length > 1 ? "s" : ""} trouvé{filteredArtisans.length > 1 ? "s" : ""}
+                  </div>
+
+                  {/* Badge Legend */}
+                  <div className="mb-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0" style={{ backgroundColor: '#0D1F35', borderRadius: '8px', padding: '10px 14px' }}>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
+                        style={{
+                          backgroundColor: '#f0a500',
+                          color: '#0d1117',
+                          borderRadius: '20px',
+                          padding: '4px 10px',
+                          fontSize: '10px',
+                          fontWeight: 800,
+                          boxShadow: '0 2px 8px rgba(240,165,0,0.5)',
+                        }}
+                      >
+                        <ShieldCheck style={{ width: '11px', height: '11px', flexShrink: 0 }} />
+                        <span>✓ AUDITÉ</span>
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#8b95a8' }}>Vérifié sur le terrain par notre équipe</span>
+                    </div>
+                    <div className="hidden sm:block mx-4" style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
+                        style={{
+                          backgroundColor: '#22c55e',
+                          color: '#0d1117',
+                          borderRadius: '20px',
+                          padding: '4px 10px',
+                          fontSize: '10px',
+                          fontWeight: 800,
+                          boxShadow: '0 2px 8px rgba(34,197,94,0.5)',
+                        }}
+                      >
+                        <ShieldCheck style={{ width: '11px', height: '11px', flexShrink: 0 }} />
+                        <span>✓ VALIDÉ</span>
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#8b95a8' }}>Assurances et SIRET contrôlés</span>
+                    </div>
                   </div>
                   
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-stretch gap-2.5 sm:gap-3.5 lg:gap-4 mb-8">
