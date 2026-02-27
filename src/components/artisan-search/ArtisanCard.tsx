@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   MapPin,
   Star,
@@ -51,10 +49,8 @@ interface ArtisanCardProps {
   isRge?: boolean;
 }
 
-// Default logo for artisans without photos
 const DEFAULT_LOGO = "/favicon.png";
 
-// Generate a deterministic score between 87-98 from artisan id
 function generateAndreaScore(id: string | number): number {
   const str = String(id);
   let hash = 0;
@@ -62,34 +58,14 @@ function generateAndreaScore(id: string | number): number {
     hash = ((hash << 5) - hash) + str.charCodeAt(i);
     hash |= 0;
   }
-  return 87 + Math.abs(hash % 12); // 87-98
+  return 87 + Math.abs(hash % 12);
 }
 
 const ArtisanCard = ({
-  id,
-  slug,
-  name,
-  profession,
-  location,
-  rating,
-  reviews,
-  verified,
-  experience,
-  profileImage,
-  portfolio,
-  portfolioVideos,
-  distance,
-  subscriptionTier,
-  phone,
-  siret,
-  facebookUrl,
-  instagramUrl,
-  linkedinUrl,
-  websiteUrl,
-  isUrgent,
-  isAudited,
-  availableUrgent,
-  isRge,
+  id, slug, name, profession, location, rating, reviews, verified, experience,
+  profileImage, portfolio, portfolioVideos, distance, subscriptionTier, phone,
+  siret, facebookUrl, instagramUrl, linkedinUrl, websiteUrl, isUrgent,
+  isAudited, availableUrgent, isRge,
 }: ArtisanCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -107,7 +83,6 @@ const ArtisanCard = ({
   const defaultProfileImage = profileImage || DEFAULT_LOGO;
   const hasVideos = portfolioVideos && portfolioVideos.length > 0;
   const hasSocialLinks = facebookUrl || instagramUrl || linkedinUrl || websiteUrl;
-  const isPremium = subscriptionTier === "boost_annuel";
   const isPaying = subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel";
   const hasPortfolioImage = portfolio && portfolio.length > 0;
 
@@ -137,40 +112,30 @@ const ArtisanCard = ({
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (!isAuthenticated || !user) {
       toast.error("Connectez-vous pour ajouter des favoris");
       navigate("/auth");
       return;
     }
-
     setIsLoading(true);
     try {
       const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-
+        .from("profiles").select("id").eq("user_id", user.id).single();
       if (profileError || !profile) {
         toast.error("Erreur lors de la récupération du profil");
         setIsLoading(false);
         return;
       }
-
       if (isFavorite) {
         const { error } = await supabase
-          .from("client_favorites")
-          .delete()
-          .eq("client_id", profile.id)
-          .eq("artisan_id", artisanId);
+          .from("client_favorites").delete()
+          .eq("client_id", profile.id).eq("artisan_id", artisanId);
         if (error) throw error;
         setIsFavorite(false);
         toast.info("Artisan retiré de vos favoris");
       } else {
         const { error } = await supabase.from("client_favorites").insert({
-          client_id: profile.id,
-          artisan_id: artisanId,
+          client_id: profile.id, artisan_id: artisanId,
         });
         if (error) throw error;
         setIsFavorite(true);
@@ -207,27 +172,29 @@ const ArtisanCard = ({
 
   const portfolioImage = portfolioImages[0] || defaultProfileImage;
 
+  // Build badges for info zone
+  const infoBadges: { label: string }[] = [];
+  if (isRge) infoBadges.push({ label: "✓ RGE" });
+  if (isPaying) {
+    infoBadges.push({ label: "Décennale" });
+    if (siret) infoBadges.push({ label: "SIRET" });
+  }
+
   return (
     <div
       onClick={handleProfileClick}
       className={cn(
-        "rounded-lg shadow-soft overflow-hidden relative cursor-pointer group h-full flex flex-col",
-        isPremium
-          ? "border-2 border-[#D4AF37]/30 shadow-lg hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-out"
-          : "border border-[#D4AF37]/15 hover:shadow-elevated hover:border-[#D4AF37]/30 transition-all",
+        "rounded-xl overflow-hidden relative cursor-pointer group h-full flex flex-col",
+        "border border-white/[0.06]",
+        "transition-all duration-250 ease-out",
+        "hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(240,165,0,0.15)]",
+        "active:scale-[0.98] active:transition-[transform] active:duration-150",
       )}
-      style={{ backgroundColor: '#112240' }}
+      style={{ backgroundColor: '#111827' }}
     >
-      {/* Urgent Badge */}
-      {isUrgent && (
-        <div className="absolute top-0 left-0 right-0 z-20 bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1.5 flex items-center justify-center gap-1.5 animate-pulse">
-          <Zap className="w-3.5 h-3.5 fill-current" />
-          Dépannage Urgent 24/7
-        </div>
-      )}
-
-      {/* Image — 16:9 ratio */}
-      <div className={cn("relative w-full overflow-hidden flex-shrink-0", isUrgent && "mt-7")} style={{ aspectRatio: '16/9' }}>
+      {/* ══ IMAGE ZONE ══ */}
+      <div className="relative w-full overflow-hidden flex-shrink-0" style={{ aspectRatio: '4/3' }}>
+        {/* Image content */}
         {showVideo && hasVideos ? (
           <video
             src={portfolioVideos![0]}
@@ -240,9 +207,9 @@ const ArtisanCard = ({
           <img
             src={optimizeImageUrl(portfolioImages[0], 'card')}
             alt={`Réalisation de ${name}`}
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-400 group-hover:scale-[1.04]"
             loading="lazy"
-            style={{ backgroundColor: '#112240' }}
+            style={{ backgroundColor: '#111827' }}
           />
         ) : profileImage ? (
           <div className="absolute inset-0 w-full h-full flex items-center justify-center p-6" style={{ backgroundColor: '#0D1F35' }}>
@@ -250,27 +217,38 @@ const ArtisanCard = ({
           </div>
         ) : (
           <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ backgroundColor: '#0D1F35' }}>
-            <span className="text-2xl font-black text-[#D4AF37]/40">{name.charAt(0)}</span>
+            <span className="text-3xl font-black" style={{ color: 'rgba(240,165,0,0.3)' }}>{name.charAt(0)}</span>
           </div>
         )}
 
-        {/* Andrea Score Badge - top-left on desktop, bottom-left on mobile */}
-        <div className="absolute top-2 left-2 md:top-2 md:left-2 bottom-auto md:bottom-auto z-10 px-2 py-[3px] rounded-md max-[767px]:top-auto max-[767px]:bottom-2" style={{ backgroundColor: 'rgba(13,17,23,0.85)' }}>
-          <span className="text-[10px] font-bold" style={{ color: '#D4AF37' }}>⭐ Score {andreaScore}/100</span>
-        </div>
+        {/* Bottom gradient overlay for name */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[1]"
+          style={{ background: 'linear-gradient(to top, rgba(10,15,28,0.95) 0%, rgba(10,15,28,0.4) 50%, transparent 100%)' }}
+        />
 
-        {/* Video play button overlay */}
-        {hasVideos && !showVideo && (
-          <button
-            onClick={handleVideoClick}
-            className="absolute bottom-2 left-2 z-10 bg-foreground/70 hover:bg-foreground/90 text-background rounded-full p-1.5 transition-colors"
-            aria-label="Voir la vidéo"
-          >
-            <Play className="w-4 h-4 fill-current" />
-          </button>
+        {/* ─ OVERLAY: Urgent ribbon (top-left, above everything) ─ */}
+        {isUrgent && (
+          <div className="absolute top-0 left-0 z-20 px-2.5 py-1 text-[10px] font-bold text-white bg-red-600 rounded-br-lg flex items-center gap-1 animate-pulse">
+            <Zap className="w-3 h-3 fill-current" />
+            URGENT 24/7
+          </div>
         )}
 
-        {/* Status Badge - Audité (gold, top tier) OR Validé (green) - never both */}
+        {/* ─ OVERLAY: Andrea Score Badge (top-left) ─ */}
+        <div
+          className={cn("absolute left-2 z-10 px-2 py-[3px] rounded-md", isUrgent ? "top-7" : "top-2")}
+          style={{
+            backgroundColor: 'rgba(10,15,28,0.8)',
+            border: '1px solid rgba(240,165,0,0.4)',
+            borderRadius: '6px',
+            padding: '3px 8px',
+          }}
+        >
+          <span className="text-[10px] font-bold" style={{ color: '#f0a500' }}>⭐ Score {andreaScore}/100</span>
+        </div>
+
+        {/* ─ OVERLAY: Status Badge (top-right) ─ */}
         {isAudited ? (
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAuditDialogOpen(true); }}
@@ -291,7 +269,7 @@ const ArtisanCard = ({
           </div>
         ) : null}
 
-        {/* Favorite Button */}
+        {/* ─ OVERLAY: Favorite Button (top-right, beside status) ─ */}
         <button
           onClick={handleFavoriteClick}
           disabled={isLoading}
@@ -304,48 +282,25 @@ const ArtisanCard = ({
         >
           <Heart className={cn("w-4 h-4", isFavorite && "fill-current")} />
         </button>
-      </div>
 
-      {/* Content - flex-1 to fill remaining space */}
-      <div className="p-2.5 sm:p-3 md:p-4 flex flex-col flex-1">
-        {/* Available Urgent Badge */}
-        {availableUrgent && (
-          <div className="flex items-center gap-1 mb-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/15 text-orange-500 border border-orange-500/30 animate-pulse">
-              <Zap className="w-3 h-3 fill-current" />
-              Disponible aujourd'hui
-            </span>
-          </div>
+        {/* ─ OVERLAY: Video play button (centered) ─ */}
+        {hasVideos && !showVideo && (
+          <button
+            onClick={handleVideoClick}
+            className="absolute inset-0 m-auto w-10 h-10 z-10 rounded-full flex items-center justify-center transition-colors"
+            style={{ backgroundColor: 'rgba(255,255,255,0.75)' }}
+            aria-label="Voir la vidéo"
+          >
+            <Play className="w-5 h-5 fill-current" style={{ color: '#f0a500' }} />
+          </button>
         )}
 
-        {/* RGE Badge */}
-        {isRge && (
-          <div className="flex items-center gap-1 mb-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
-              ✓ RGE
-            </span>
-          </div>
-        )}
-
-        {/* Premium Certification Badges - only for paying subscribers */}
-        {isPaying && (
-          <div className="flex flex-wrap items-center gap-1.5 mb-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
-              <Shield className="w-3 h-3" />
-              Décennale
-            </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
-              <Shield className="w-3 h-3" />
-              {siret ? "SIRET" : "Vérifié"}
-            </span>
-          </div>
-        )}
-
-        {/* Profile photo with story indicator */}
-        <div className="flex items-start gap-2 mb-2 min-h-[44px]">
+        {/* ─ OVERLAY: Name + Profession (bottom-left, over gradient) ─ */}
+        <div className="absolute bottom-2 left-2.5 right-2.5 z-[2] flex items-end gap-2">
+          {/* Story-aware profile photo */}
           <img
             src={optimizeImageUrl(profileImage || defaultProfileImage, 'card')}
-            alt={`Photo de profil de ${name}`}
+            alt={`Photo de ${name}`}
             loading="lazy"
             onClick={(e) => {
               if (hasActiveStories) {
@@ -355,81 +310,133 @@ const ArtisanCard = ({
               }
             }}
             className={cn(
-              "w-9 h-9 rounded-full object-cover border-2 flex-shrink-0",
-              hasActiveStories ? "border-green-500 cursor-pointer animate-story-pulse" : "border-[#D4AF37]",
+              "w-8 h-8 rounded-full object-cover border-2 flex-shrink-0",
+              hasActiveStories ? "border-green-500 cursor-pointer animate-story-pulse" : "border-[#f0a500]/60",
             )}
           />
           <div className="flex-1 min-w-0">
-            <h3 className={cn("truncate mb-0.5 text-white font-['DM_Sans']", isPremium ? "font-bold text-sm md:text-lg" : "font-semibold text-[13px] md:text-base")}>{name}</h3>
-            <Badge variant="secondary" className="text-[10px] md:text-xs font-semibold font-['DM_Sans']" style={{ color: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.1)', borderColor: 'rgba(212,175,55,0.3)' }}>
+            <h3
+              className="truncate text-white font-['Syne'] leading-tight"
+              style={{ fontSize: '15px', fontWeight: 800 }}
+            >
+              {name}
+            </h3>
+            <p
+              className="truncate leading-tight"
+              style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(240,165,0,0.9)' }}
+            >
               {profession}
-            </Badge>
+            </p>
           </div>
         </div>
+      </div>
 
-        {/* Location + distance */}
-        <div className="flex items-center gap-1 text-[11px] md:text-xs text-[#8892B0] mb-1">
-          <MapPin className="h-3 w-3 shrink-0" />
-          <span className="truncate">{location}</span>
-          {distance !== null && distance !== undefined && (
-            <span className="text-gold font-medium ml-1">• À {Math.round(distance)} km</span>
-          )}
+      {/* ══ INFO ZONE ══ */}
+      <div className="p-3 flex flex-col flex-1 gap-1.5" style={{ backgroundColor: '#111827' }}>
+        {/* Line 1: City + response time */}
+        <div className="flex items-center gap-1 text-[11px] min-w-0" style={{ color: '#8b95a8' }}>
+          <span className="truncate flex items-center gap-1">
+            📍 {location}
+            {distance !== null && distance !== undefined && (
+              <span className="font-medium" style={{ color: '#f0a500' }}>({Math.round(distance)} km)</span>
+            )}
+          </span>
+          <span className="shrink-0">&nbsp;·&nbsp;</span>
+          <span className="shrink-0 flex items-center gap-0.5">
+            {availableUrgent ? (
+              <span className="font-semibold" style={{ color: '#f97316' }}>⚡ Dispo. immédiate</span>
+            ) : (
+              <span style={{ color: '#22c55e' }}>⚡ Répond en 24h</span>
+            )}
+          </span>
         </div>
 
-        {/* Response time indicator */}
-        <p className="text-[11px] font-semibold mb-2" style={{ color: '#22c55e' }}>
-          ⚡ Répond en moins de 24h
-        </p>
-
-        {/* Rating - only show if has reviews */}
+        {/* Rating (compact, only if > 0) */}
         {rating > 0 && (
-          <div className="flex items-center gap-1 mb-3">
-            <Star className="w-3.5 h-3.5 fill-gold text-gold" />
-            <span className="text-xs font-semibold">{rating.toFixed(1)}</span>
-            {reviews > 0 && <span className="text-xs text-muted-foreground">({reviews} avis)</span>}
+          <div className="flex items-center gap-1 text-[11px]">
+            <Star className="w-3 h-3 fill-[#f0a500] text-[#f0a500]" />
+            <span className="font-semibold text-white">{rating.toFixed(1)}</span>
+            {reviews > 0 && <span style={{ color: '#8b95a8' }}>({reviews})</span>}
           </div>
         )}
 
-        {/* Social Icons Bar */}
-        <div className="flex items-center gap-2 mb-3 min-h-[20px]">
-          {instagramUrl && (
-            <a href={ensureHttps(instagramUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Instagram">
-              <Instagram className="w-3 h-3 md:w-3.5 md:h-3.5 text-muted-foreground" />
-            </a>
-          )}
-          {facebookUrl && (
-            <a href={ensureHttps(facebookUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Facebook">
-              <Facebook className="w-3 h-3 md:w-3.5 md:h-3.5 text-muted-foreground" />
-            </a>
-          )}
-          {linkedinUrl && (
-            <a href={ensureHttps(linkedinUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="LinkedIn">
-              <Linkedin className="w-3 h-3 md:w-3.5 md:h-3.5 text-muted-foreground" />
-            </a>
-          )}
-          {websiteUrl && (
-            <a href={ensureHttps(websiteUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Site web">
-              <Globe className="w-3 h-3 md:w-3.5 md:h-3.5 text-muted-foreground" />
-            </a>
-          )}
-        </div>
+        {/* Line 2: Badges (RGE, Décennale, SIRET) - max 2 visible */}
+        {infoBadges.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {infoBadges.slice(0, 2).map((b, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                style={{
+                  backgroundColor: 'rgba(34,197,94,0.1)',
+                  color: '#22c55e',
+                  borderRadius: '4px',
+                  height: '20px',
+                }}
+              >
+                {b.label}
+              </span>
+            ))}
+          </div>
+        )}
 
-        {/* Spacer to push urgent button to bottom */}
+        {/* Social Icons - hidden on mobile */}
+        {hasSocialLinks && (
+          <div className="hidden md:flex items-center gap-2">
+            {instagramUrl && (
+              <a href={ensureHttps(instagramUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Instagram">
+                <Instagram className="w-3 h-3 text-muted-foreground" />
+              </a>
+            )}
+            {facebookUrl && (
+              <a href={ensureHttps(facebookUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Facebook">
+                <Facebook className="w-3 h-3 text-muted-foreground" />
+              </a>
+            )}
+            {linkedinUrl && (
+              <a href={ensureHttps(linkedinUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="LinkedIn">
+                <Linkedin className="w-3 h-3 text-muted-foreground" />
+              </a>
+            )}
+            {websiteUrl && (
+              <a href={ensureHttps(websiteUrl)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="w-5 h-5 rounded-full bg-muted flex items-center justify-center hover:bg-accent/20 transition-colors" title="Site web">
+                <Globe className="w-3 h-3 text-muted-foreground" />
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Urgent CTA only */}
-        {isUrgent && (
-          <div className="mt-2">
-            <Button
-              variant="destructive"
-              size="sm"
-              className="w-full text-xs"
-              onClick={handleCallUrgent}
-            >
-              <Phone className="w-3.5 h-3.5" />
-              Appeler pour une urgence
-            </Button>
-          </div>
+        {/* CTA Button */}
+        {isUrgent ? (
+          <button
+            onClick={handleCallUrgent}
+            className="w-full flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-[13px] font-extrabold transition-all bg-red-600 text-white hover:bg-red-500 active:scale-[0.98]"
+          >
+            <Phone className="w-3.5 h-3.5" />
+            Appeler pour une urgence
+          </button>
+        ) : (
+          <button
+            className="w-full rounded-lg py-2.5 text-[13px] font-extrabold transition-all active:scale-[0.98]"
+            style={{
+              backgroundColor: '#f0a500',
+              color: '#0d1117',
+              borderRadius: '8px',
+            }}
+            onMouseEnter={(e) => {
+              (e.target as HTMLElement).style.backgroundColor = '#ffc13d';
+              (e.target as HTMLElement).style.boxShadow = '0 0 16px rgba(240,165,0,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLElement).style.backgroundColor = '#f0a500';
+              (e.target as HTMLElement).style.boxShadow = 'none';
+            }}
+          >
+            Voir le profil →
+          </button>
         )}
       </div>
 
