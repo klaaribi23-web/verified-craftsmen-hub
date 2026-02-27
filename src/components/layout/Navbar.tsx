@@ -491,7 +491,7 @@ const Navbar = () => {
                   to="/nos-missions"
                   className="text-[15px] font-bold text-foreground hover:text-primary transition-colors whitespace-nowrap"
                 >
-                  Consulter les missions
+                  Voir les projets
                 </Link>
               </nav>
             </div>
@@ -550,7 +550,7 @@ const Navbar = () => {
               <Link
                 to="/nos-missions"
                 className="p-2 text-foreground hover:text-gold transition-colors relative"
-                title="Consulter les missions"
+                title="Voir les projets"
               >
                 <Radar className="w-6 h-6" />
               </Link>
@@ -584,7 +584,7 @@ const Navbar = () => {
                     )}
                   >
                     <Radar className="w-5 h-5 text-gold" />
-                    Consulter les missions
+                    Voir les projets
                   </Link>
                   <Link
                     to="/devenir-partenaire"
