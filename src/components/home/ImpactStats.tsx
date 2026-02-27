@@ -8,7 +8,7 @@ type StatItem =
 const stats: StatItem[] = [
   { value: 1200, suffix: "+", label: "chantiers accompagnés" },
   { value: 87, suffix: "%", label: "taux de refus artisans" },
-  { type: "static", display: "N°1", label: "Sélection rigoureuse", subLabel: "Qualité avant la quantité" },
+  { type: "static", display: "N°1", label: "Sélection rigoureuse" },
   { value: 24, suffix: "h", label: "délai moyen de réponse" },
 ];
 
