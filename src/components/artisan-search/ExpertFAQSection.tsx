@@ -67,8 +67,8 @@ const ExpertFAQSection = ({ category, city, department }: ExpertFAQSectionProps)
           setNearbyCities(data.nearby_cities || []);
           cacheRef.current.set(cacheKey, { questions: data.questions, nearby_cities: data.nearby_cities });
         }
-      } catch (err) {
-        console.error("Expert FAQ fetch error:", err);
+      } catch {
+        // Silently ignore all FAQ errors
       } finally {
         setLoading(false);
       }

@@ -306,4 +306,15 @@ html, body {
   background-color: hsl(215 62% 6%) !important;
 }
 
+/* Shimmer gold skeleton for artisan cards */
+.shimmer-gold-skeleton {
+  background: linear-gradient(110deg, rgba(240,165,0,0.03) 0%, rgba(240,165,0,0.08) 40%, rgba(240,165,0,0.03) 60%);
+  background-size: 200% 100%;
+  animation: shimmer-gold 2s ease-in-out infinite;
+}
+@keyframes shimmer-gold {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* Auth routes: force dark on any stray container */

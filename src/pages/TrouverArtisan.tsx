@@ -20,6 +20,21 @@ import DynamicFAQ from "@/components/artisan-search/DynamicFAQ";
 import ExpertFAQSection from "@/components/artisan-search/ExpertFAQSection";
 
 const ITEMS_PER_PAGE = 21;
+
+// ── Skeleton card matching new premium layout ──
+const ArtisanCardSkeleton = () => (
+  <div className="rounded-xl overflow-hidden border border-white/[0.06]" style={{ backgroundColor: '#111827' }}>
+    <div className="relative w-full overflow-hidden" style={{ aspectRatio: '4/3' }}>
+      <div className="absolute inset-0 shimmer-gold-skeleton" />
+    </div>
+    <div className="p-3 space-y-2">
+      <Skeleton className="h-3 w-3/4" style={{ backgroundColor: 'rgba(240,165,0,0.06)' }} />
+      <Skeleton className="h-3 w-1/2" style={{ backgroundColor: 'rgba(240,165,0,0.04)' }} />
+      <Skeleton className="h-9 w-full rounded-lg mt-2" style={{ backgroundColor: 'rgba(240,165,0,0.08)' }} />
+    </div>
+  </div>
+);
+
 const TrouverArtisan = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [urgencyFilter, setUrgencyFilter] = useState(false);
@@ -306,69 +321,77 @@ const TrouverArtisan = () => {
 
             {/* Artisans Grid */}
             <div>
-              {artisansLoading ? <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+              {artisansLoading ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 lg:gap-4">
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                    <div key={i} className="rounded-lg overflow-hidden" style={{ backgroundColor: '#112240' }}>
-                      <Skeleton className="w-full" style={{ aspectRatio: '16/9' }} />
-                      <div className="p-3 space-y-2.5">
-                        <div className="flex items-center gap-2">
-                          <Skeleton className="w-9 h-9 rounded-full" />
-                          <div className="flex-1 space-y-1.5">
-                            <Skeleton className="h-4 w-3/4" />
-                            <Skeleton className="h-3 w-1/2" />
-                          </div>
-                        </div>
-                        <Skeleton className="h-3 w-2/3" />
-                        <Skeleton className="h-3 w-1/3" />
-                        <div className="flex gap-1.5 pt-1">
-                          <Skeleton className="w-5 h-5 rounded-full" />
-                          <Skeleton className="w-5 h-5 rounded-full" />
-                          <Skeleton className="w-5 h-5 rounded-full" />
-                        </div>
-                      </div>
-                    </div>
+                    <ArtisanCardSkeleton key={i} />
                   ))}
-                </div> : paginatedArtisans.length > 0 ? <>
+                </div>
+              ) : paginatedArtisans.length > 0 ? (
+                <>
                   <div className="mb-4 text-sm text-muted-foreground">
                     {filteredArtisans.length} artisan{filteredArtisans.length > 1 ? "s" : ""} trouvé{filteredArtisans.length > 1 ? "s" : ""}
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch gap-3 md:gap-6 mb-8">
-                    {paginatedArtisans.map(artisan => <motion.div key={artisan.id} className="h-full" initial={{
-                  opacity: 0,
-                  y: 20
-                }} animate={{
-                  opacity: 1,
-                  y: 0
-                }}>
-                        <ArtisanCard id={artisan.id} slug={artisan.slug} name={artisan.business_name} profession={artisan.category?.name || "Artisan"} location={artisan.city} rating={artisan.rating || 0} reviews={artisan.review_count || 0} verified={artisan.is_verified || false} experience={`${artisan.experience_years || 0} ans`} profileImage={artisan.photo_url || undefined} portfolio={artisan.portfolio_images || undefined} portfolioVideos={artisan.portfolio_videos || undefined} distance={artisanDistances.get(artisan.id) ?? null} subscriptionTier={artisan.subscription_tier} phone={undefined} siret={undefined} facebookUrl={artisan.facebook_url} instagramUrl={artisan.instagram_url} linkedinUrl={artisan.linkedin_url} websiteUrl={artisan.website_url} isAudited={artisan.is_audited || false} availableUrgent={(artisan as any).available_urgent || false} isRge={(artisan as any).is_rge || false} />
-                      </motion.div>)}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-stretch gap-2.5 sm:gap-3.5 lg:gap-4 mb-8">
+                    {paginatedArtisans.map(artisan => (
+                      <motion.div key={artisan.id} className="h-full" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                        <ArtisanCard
+                          id={artisan.id}
+                          slug={artisan.slug}
+                          name={artisan.business_name}
+                          profession={artisan.category?.name || "Artisan"}
+                          location={artisan.city}
+                          rating={artisan.rating || 0}
+                          reviews={artisan.review_count || 0}
+                          verified={artisan.is_verified || false}
+                          experience={`${artisan.experience_years || 0} ans`}
+                          profileImage={artisan.photo_url || undefined}
+                          portfolio={artisan.portfolio_images || undefined}
+                          portfolioVideos={artisan.portfolio_videos || undefined}
+                          distance={artisanDistances.get(artisan.id) ?? null}
+                          subscriptionTier={artisan.subscription_tier}
+                          phone={undefined}
+                          siret={undefined}
+                          facebookUrl={artisan.facebook_url}
+                          instagramUrl={artisan.instagram_url}
+                          linkedinUrl={artisan.linkedin_url}
+                          websiteUrl={artisan.website_url}
+                          isAudited={artisan.is_audited || false}
+                          availableUrgent={(artisan as any).available_urgent || false}
+                          isRge={(artisan as any).is_rge || false}
+                        />
+                      </motion.div>
+                    ))}
                   </div>
 
                   {/* Pagination */}
-                  {totalPages > 1 && <Pagination>
+                  {totalPages > 1 && (
+                    <Pagination>
                       <PaginationContent className="flex-wrap gap-1">
                         <PaginationItem>
                           <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className={`${currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} min-h-[44px]`} />
                         </PaginationItem>
                         
-                        {Array.from({
-                    length: totalPages
-                  }, (_, i) => i + 1).slice(
-                    Math.max(0, currentPage - 3),
-                    Math.min(totalPages, currentPage + 2)
-                  ).map(page => <PaginationItem key={page}>
-                            <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer min-h-[44px] min-w-[44px]">
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>)}
+                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                          .slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))
+                          .map(page => (
+                            <PaginationItem key={page}>
+                              <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer min-h-[44px] min-w-[44px]">
+                                {page}
+                              </PaginationLink>
+                            </PaginationItem>
+                          ))}
                         
                         <PaginationItem>
                           <PaginationNext onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className={`${currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} min-h-[44px]`} />
                         </PaginationItem>
                       </PaginationContent>
-                    </Pagination>}
-              </> : <div className="text-center py-16 px-4">
+                    </Pagination>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-16 px-4">
                   <div className="max-w-md mx-auto">
                     <p className="text-lg font-extrabold text-white mb-2 font-['DM_Sans']">Aucun expert ne correspond à ces critères pour le moment.</p>
                     <p className="text-[#8892B0] mb-6">
@@ -381,7 +404,8 @@ const TrouverArtisan = () => {
                       </Link>
                     </Button>
                   </div>
-                </div>}
+                </div>
+              )}
             </div>
           </div>
         </section>
