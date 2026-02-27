@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   MapPin,
@@ -51,15 +51,6 @@ interface ArtisanCardProps {
 
 const DEFAULT_LOGO = "/favicon.png";
 
-function generateAndreaScore(id: string | number): number {
-  const str = String(id);
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return 87 + Math.abs(hash % 12);
-}
 
 const ArtisanCard = ({
   id, slug, name, profession, location, rating, reviews, verified, experience,
@@ -85,8 +76,6 @@ const ArtisanCard = ({
   const hasSocialLinks = facebookUrl || instagramUrl || linkedinUrl || websiteUrl;
   const isPaying = subscriptionTier === "artisan_valide" || subscriptionTier === "boost_annuel";
   const hasPortfolioImage = portfolio && portfolio.length > 0;
-
-  const andreaScore = useMemo(() => generateAndreaScore(id), [id]);
 
   // Check if artisan is already in favorites on mount
   useEffect(() => {
@@ -235,18 +224,6 @@ const ArtisanCard = ({
           </div>
         )}
 
-        {/* ─ OVERLAY: Andrea Score Badge (top-left) ─ */}
-        <div
-          className={cn("absolute left-2 z-10 px-2 py-[3px] rounded-md", isUrgent ? "top-7" : "top-2")}
-          style={{
-            backgroundColor: 'rgba(10,15,28,0.8)',
-            border: '1px solid rgba(240,165,0,0.4)',
-            borderRadius: '6px',
-            padding: '3px 8px',
-          }}
-        >
-          <span className="text-[10px] font-bold" style={{ color: '#f0a500' }}>⭐ Score {andreaScore}/100</span>
-        </div>
 
         {/* ─ OVERLAY: Status Badge (top-right) ─ */}
         {isAudited ? (
