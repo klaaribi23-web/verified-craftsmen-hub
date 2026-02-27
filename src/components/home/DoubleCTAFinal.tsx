@@ -39,8 +39,7 @@ const DoubleCTAFinal = () => (
             Vérifiez si votre secteur est encore disponible. Places limitées.
           </p>
           <Button
-            variant="outline"
-            className="border-2 border-primary/30 text-primary hover:bg-primary/10 font-bold"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold btn-shine"
             asChild
           >
             <Link to="/devenir-partenaire">
