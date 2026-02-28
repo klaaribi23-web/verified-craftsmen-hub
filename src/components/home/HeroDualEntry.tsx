@@ -36,7 +36,7 @@ const HeroDualEntry = () => {
           className="w-full h-full object-cover"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-[rgba(10,15,28,0.85)]" />
+        <div className="absolute inset-0 bg-[rgba(10,15,28,0.82)]" />
       </div>
 
       {/* Ambient glow */}
@@ -60,7 +60,7 @@ const HeroDualEntry = () => {
             La plateforme qui met fin au{" "}
             <span className="relative inline-block">
               <span className="text-foreground">hasard</span>
-              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-white/40 rounded-full" />
+              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full" />
             </span>{" "}
             dans le bâtiment.
           </h1>
@@ -169,8 +169,7 @@ const HeroDualEntry = () => {
               </div>
 
               <Button
-                variant="outline"
-                className="w-full border-2 border-primary/30 text-primary hover:bg-primary/10 font-bold py-6 min-h-[52px]"
+                className="w-full bg-primary hover:bg-primary/90 text-[#0d1117] font-[800] py-6 min-h-[52px]"
                 asChild
               >
                 <Link to="/devenir-partenaire">
