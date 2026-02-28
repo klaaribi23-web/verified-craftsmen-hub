@@ -74,8 +74,8 @@ const TestimonialsSection = () => {
       
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-          <motion.span initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
-            <Star className="w-4 h-4 fill-gold" />
+          <motion.span initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-white text-sm font-medium mb-4">
+            <Star className="w-4 h-4 fill-white" />
             L'humain au centre
           </motion.span>
           <h2 className="text-xl md:text-4xl lg:text-5xl font-bold text-white mb-4">

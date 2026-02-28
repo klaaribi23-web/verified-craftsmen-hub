@@ -57,9 +57,9 @@ const Index = () => {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4">
-                <Star className="h-4 w-4 text-primary fill-primary" />
-                <span className="text-sm font-medium text-primary">Top artisans</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-4">
+                <Star className="h-4 w-4 text-white fill-white" />
+                <span className="text-sm font-medium text-white">Top artisans</span>
               </div>
               <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
                 La sélection Artisans Validés —

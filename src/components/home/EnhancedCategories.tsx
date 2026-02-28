@@ -41,7 +41,7 @@ const EnhancedCategories = () => {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <Loader2 className="w-8 h-8 animate-spin text-white/60" />
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-5">
@@ -65,8 +65,8 @@ const EnhancedCategories = () => {
                       className="group block rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-all duration-300 h-full card-hover"
                     >
                       <div className="flex items-start justify-between mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <CategoryIcon iconName={category.icon} className="w-5 h-5 text-primary" />
+                         <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                          <CategoryIcon iconName={category.icon} className="w-5 h-5 text-white" />
                         </div>
                         {isRge && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
@@ -75,7 +75,7 @@ const EnhancedCategories = () => {
                           </span>
                         )}
                       </div>
-                      <h3 className="font-semibold text-foreground text-sm mb-1 group-hover:text-primary transition-colors">
+                      <h3 className="font-semibold text-foreground text-sm mb-1 group-hover:text-white transition-colors">
                         {category.name}
                       </h3>
                       <p className="text-xs text-muted-foreground">
@@ -106,10 +106,10 @@ const EnhancedCategories = () => {
                 to="/trouver-artisan"
                 className="group block rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-all duration-300 h-full card-hover"
               >
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                  <ArrowRight className="w-5 h-5 text-primary" />
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mb-3">
+                  <ArrowRight className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="font-semibold text-foreground text-sm mb-1 group-hover:text-primary transition-colors">
+                <h3 className="font-semibold text-foreground text-sm mb-1 group-hover:text-white transition-colors">
                   Tous les métiers
                 </h3>
                 <p className="text-xs text-muted-foreground">Voir l'annuaire complet</p>
