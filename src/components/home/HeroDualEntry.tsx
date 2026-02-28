@@ -28,6 +28,17 @@ const HeroDualEntry = () => {
 
   return (
     <section className="relative bg-background pt-24 md:pt-32 pb-10 md:pb-16 overflow-hidden">
+      {/* Background image + dark overlay */}
+      <div className="absolute inset-0">
+        <img
+          src="/images/hero-artisan-bg.jpg"
+          alt=""
+          className="w-full h-full object-cover"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-[rgba(10,15,28,0.85)]" />
+      </div>
+
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
