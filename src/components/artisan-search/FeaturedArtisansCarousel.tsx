@@ -160,7 +160,7 @@ const FeaturedArtisansCarousel = () => {
               key={index}
               onClick={() => scrollTo(index)}
               className={`h-2 rounded-full transition-all touch-manipulation ${
-                index === selectedIndex ? "bg-gold w-6" : "bg-border w-2"
+                index === selectedIndex ? "bg-[#f0f2f5] w-6" : "bg-border w-2"
               }`}
               aria-label={`Page ${index + 1}`}
             />

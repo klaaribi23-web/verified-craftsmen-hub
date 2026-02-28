@@ -55,7 +55,7 @@ const AnimatedNumber = ({ target, suffix, decimals = 0 }: { target: number; suff
 };
 
 const ImpactStats = () => (
-  <section className="py-11 md:py-16 bg-secondary/30">
+  <section className="py-11 md:py-16 bg-[#111827]">
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 max-w-4xl mx-auto">
         {stats.map((stat, i) => (

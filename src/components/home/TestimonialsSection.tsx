@@ -68,14 +68,14 @@ const AnimatedStar = ({
   </motion.div>;
 
 const TestimonialsSection = () => {
-  return <section className="py-14 lg:py-22 relative overflow-hidden">
+  return <section className="py-14 lg:py-22 relative overflow-hidden bg-[#1a2235]">
       <div className="absolute top-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
       
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-          <motion.span initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-white text-sm font-medium mb-4">
-            <Star className="w-4 h-4 fill-white" />
+          <motion.span initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-[#f0f2f5] text-sm font-medium mb-4">
+            <Star className="w-4 h-4 fill-[#f0f2f5] text-[#f0f2f5]" />
             L'humain au centre
           </motion.span>
           <h2 className="text-xl md:text-4xl lg:text-5xl font-bold text-white mb-4">

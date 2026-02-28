@@ -48,7 +48,7 @@ const Index = () => {
         <EnhancedCategories />
 
         {/* SECTION 7 — Sélection artisans */}
-        <section className="py-11 md:py-16 bg-background">
+        <section className="py-11 md:py-16 bg-[#111827]">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -58,8 +58,8 @@ const Index = () => {
               className="text-center mb-12"
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-4">
-                <Star className="h-4 w-4 text-white fill-white" />
-                <span className="text-sm font-medium text-white">Top artisans</span>
+                <Star className="h-4 w-4 text-[#f0f2f5] fill-[#f0f2f5]" />
+                <span className="text-sm font-medium text-[#f0f2f5]">Top artisans</span>
               </div>
               <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
                 La sélection Artisans Validés —
