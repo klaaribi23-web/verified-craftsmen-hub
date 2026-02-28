@@ -31,7 +31,7 @@ const HeroDualEntry = () => {
       {/* Background image + dark overlay */}
       <div className="absolute inset-0">
         <img
-          src="/images/hero-artisan-bg.jpg"
+          src="https://cstxrauedasufcecaouq.supabase.co/storage/v1/object/public/public/hero-artisan-bg.jpg"
           alt=""
           className="w-full h-full object-cover"
           loading="eager"
