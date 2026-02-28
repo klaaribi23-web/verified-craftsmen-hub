@@ -76,7 +76,7 @@ const AndreaShowcase = () => {
   }, [phase, seqIndex, seq, typeText]);
 
   return (
-    <section className="py-14 md:py-20 bg-background">
+    <section className="py-14 md:py-20 bg-[#1a2235]">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -85,8 +85,8 @@ const AndreaShowcase = () => {
           className="text-center mb-14"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-4">
-            <ShieldCheck className="h-4 w-4 text-white" />
-            <span className="text-sm font-medium text-white">Intelligence artificielle</span>
+            <ShieldCheck className="h-4 w-4 text-[#f0f2f5]" />
+            <span className="text-sm font-medium text-[#f0f2f5]">Intelligence artificielle</span>
           </div>
           <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
             Andrea, notre IA d'audit,
