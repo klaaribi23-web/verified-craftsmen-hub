@@ -72,7 +72,7 @@ const HowItWorksTabs = () => {
           >
             <div className="grid md:grid-cols-4 gap-6 md:gap-4 relative">
               {/* Connection line — desktop only */}
-              <div className="hidden md:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+              <div className="hidden md:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
               {steps.map(({ icon: Icon, title, num }, i) => (
                 <motion.div
@@ -83,10 +83,10 @@ const HowItWorksTabs = () => {
                   transition={{ delay: i * 0.1 }}
                   className="text-center relative"
                 >
-                  <div className="w-16 h-16 rounded-full border-2 border-primary/30 bg-primary/5 flex items-center justify-center mx-auto mb-4 relative z-10">
-                    <Icon className="w-7 h-7 text-primary" />
+                  <div className="w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 flex items-center justify-center mx-auto mb-4 relative z-10">
+                    <Icon className="w-7 h-7 text-white" />
                   </div>
-                  <span className="text-xs font-bold text-primary/60 tracking-widest uppercase mb-2 block">
+                  <span className="text-xs font-bold text-white/50 tracking-widest uppercase mb-2 block">
                     Étape {num}
                   </span>
                   <h3 className="text-sm font-bold text-foreground leading-snug">{title}</h3>

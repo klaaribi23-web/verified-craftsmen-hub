@@ -13,8 +13,8 @@ const ReassuranceBar = () => (
       <div className="grid grid-cols-2 md:flex items-center justify-center gap-3 md:gap-6">
         {items.map((text, i) => (
           <span key={i} className="flex items-center gap-1.5 text-xs md:text-sm text-foreground font-medium">
-            {i > 0 && <span className="hidden md:inline text-primary mr-2">·</span>}
-            <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+            {i > 0 && <span className="hidden md:inline text-white/40 mr-2">·</span>}
+            <CheckCircle2 className="w-3.5 h-3.5 text-white/70 flex-shrink-0" />
             {text}
           </span>
         ))}
