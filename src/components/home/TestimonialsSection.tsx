@@ -103,7 +103,7 @@ const TestimonialsSection = () => {
                     </span>
                   </div>
 
-                  <Quote className="w-7 h-7 text-primary-foreground/25 mb-4" />
+                  <Quote className="w-7 h-7 text-white/30 mb-4" />
 
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => <AnimatedStar key={i} index={i + index * 5} filled={i < testimonial.rating} />)}

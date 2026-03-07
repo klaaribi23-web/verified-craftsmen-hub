@@ -78,7 +78,7 @@ const Index = () => {
               viewport={{ once: true }}
               className="text-center mt-10"
             >
-              <Button asChild size="lg" variant="gold" className="group">
+              <Button asChild size="lg" variant="default" className="group">
                 <Link to="/trouver-artisan">
                   Voir tous les artisans
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
