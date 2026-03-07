@@ -60,7 +60,7 @@ const ConfirmEmail = () => {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <SEOHead 
         title="Confirmation d'email" 
         description="Confirmez votre adresse email pour activer votre compte"
@@ -77,15 +77,15 @@ const ConfirmEmail = () => {
             <div className="w-20 h-20 mx-auto rounded-2xl border-2 border-primary/40 flex items-center justify-center bg-primary/10">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
             </div>
-            <h1 className="text-2xl font-black text-white uppercase tracking-wide">
+            <h1 className="text-2xl font-black text-foreground uppercase tracking-wide">
               VÉRIFICATION EN COURS...
             </h1>
-            <p className="text-white">
+            <p className="text-muted-foreground">
               Veuillez patienter pendant que nous vérifions votre email.
             </p>
-            <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(212,175,55,0.15)' }}>
+            <div className="w-full h-1 rounded-full overflow-hidden bg-primary/15">
               <motion.div
-                className="h-full bg-gradient-gold rounded-full"
+                className="h-full bg-primary rounded-full"
                 initial={{ width: "0%" }}
                 animate={{ width: "80%" }}
                 transition={{ duration: 4, ease: "easeOut" }}
@@ -105,20 +105,20 @@ const ConfirmEmail = () => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="w-24 h-24 mx-auto bg-primary/20 rounded-full flex items-center justify-center border-2 border-primary/50 shadow-gold"
+              className="w-24 h-24 mx-auto bg-primary/20 rounded-full flex items-center justify-center border-2 border-primary/50"
             >
               <CheckCircle className="h-12 w-12 text-primary" />
             </motion.div>
             <h1 className="text-2xl font-black text-primary uppercase tracking-wide">
               EMAIL CONFIRMÉ AVEC SUCCÈS !
             </h1>
-            <p className="text-white">
+            <p className="text-muted-foreground">
               Votre compte est maintenant activé.<br />
               Vous pouvez vous connecter avec vos identifiants.
             </p>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
               <Shield className="w-4 h-4 text-primary" />
-              <span className="text-sm text-white font-medium">✅ CERTIFIÉ IA ANDREA</span>
+              <span className="text-sm text-foreground font-medium">✅ CERTIFIÉ IA ANDREA</span>
             </div>
             <Button variant="gold" onClick={() => navigate("/auth")} className="w-full gap-2 text-base font-black">
               ACCÉDER À MON ESPACE
@@ -136,17 +136,17 @@ const ConfirmEmail = () => {
             <div className="w-20 h-20 mx-auto bg-destructive/20 rounded-full flex items-center justify-center border border-destructive/30">
               <XCircle className="h-10 w-10 text-destructive" />
             </div>
-            <h1 className="text-2xl font-black text-white">
+            <h1 className="text-2xl font-black text-foreground">
               Erreur de confirmation
             </h1>
-            <p className="text-white">
+            <p className="text-muted-foreground">
               {errorMessage}
             </p>
             <div className="flex flex-col gap-3">
               <Button variant="gold" onClick={() => navigate("/auth")} className="w-full font-bold">
                 Retour à la connexion
               </Button>
-              <Button variant="outline-gold" onClick={() => navigate("/")} className="w-full">
+              <Button variant="outline" onClick={() => navigate("/")} className="w-full">
                 Retour à l'accueil
               </Button>
             </div>
