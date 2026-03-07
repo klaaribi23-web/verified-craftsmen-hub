@@ -20,7 +20,7 @@ const SocialProofToast = () => {
   }, []);
 
   return (
-    <div className="bg-navy/95 border-t border-navy-dark py-2.5 text-center fixed bottom-0 left-0 right-0 z-50 px-4">
+    <div className="bg-primary border-t border-primary/80 py-2.5 text-center fixed bottom-0 left-0 right-0 z-50 px-4">
       <div className="container mx-auto">
         <AnimatePresence mode="wait">
           <motion.p
@@ -29,7 +29,7 @@ const SocialProofToast = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.4 }}
-            className="text-xs md:text-sm text-white/80 font-medium break-words"
+            className="text-xs md:text-sm text-primary-foreground/80 font-medium break-words"
           >
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse" />
             {PROOF_MESSAGES[currentIndex]}

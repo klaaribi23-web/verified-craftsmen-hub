@@ -36,7 +36,7 @@ const HeroDualEntry = () => {
           className="w-full h-full object-cover"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-[rgba(10,15,28,0.3)]" />
+        <div className="absolute inset-0 bg-[rgba(10,15,28,0.55)]" />
       </div>
 
       {/* Ambient glow */}
@@ -56,15 +56,15 @@ const HeroDualEntry = () => {
           transition={{ duration: 0.7 }}
           className="text-center max-w-4xl mx-auto mb-12 md:mb-16"
         >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-foreground leading-[1.15] tracking-tight mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-white leading-[1.15] tracking-tight mb-6">
             La plateforme qui met fin au{" "}
             <span className="relative inline-block">
-              <span className="text-foreground">hasard</span>
-              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full" />
+              <span className="text-white">hasard</span>
+              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-accent rounded-full" />
             </span>{" "}
             dans le bâtiment.
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
             Pour les particuliers qui veulent un artisan de confiance.
             <br className="hidden sm:block" />
             Pour les artisans qui veulent des clients qualifiés.
