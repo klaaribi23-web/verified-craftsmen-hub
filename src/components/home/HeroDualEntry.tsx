@@ -56,7 +56,7 @@ const HeroDualEntry = () => {
           transition={{ duration: 0.7 }}
           className="text-center max-w-4xl mx-auto mb-12 md:mb-16"
         >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-white leading-[1.15] tracking-tight mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-[3.5rem] font-black text-white leading-[1.15] tracking-tight mb-6">
             La plateforme qui met fin au{" "}
             <span className="relative inline-block">
               <span className="text-white">hasard</span>
@@ -72,7 +72,7 @@ const HeroDualEntry = () => {
         </motion.div>
 
         {/* PARTIE BASSE — Deux cards */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
           {/* Card Particuliers */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -137,7 +137,7 @@ const HeroDualEntry = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 min-h-[52px] btn-shine"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold min-h-[48px] md:min-h-[52px] btn-shine"
               >
                 Trouver mon artisan
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -161,15 +161,15 @@ const HeroDualEntry = () => {
             </p>
 
             <div className="mt-auto space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/15 border border-accent/30">
-                <Zap className="w-3.5 h-3.5 text-accent" />
-                <span className="text-xs font-semibold text-accent">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent text-white font-bold">
+                <Zap className="w-3.5 h-3.5 text-white" />
+                <span className="text-xs font-bold text-white">
                   ⚡ Places limitées dans votre ville
                 </span>
               </div>
 
               <Button
-                className="w-full bg-primary hover:bg-primary/90 text-[#0d1117] font-[800] py-6 min-h-[52px]"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold min-h-[48px] md:min-h-[52px]"
                 asChild
               >
                 <Link to="/devenir-partenaire">
