@@ -161,9 +161,9 @@ const HeroDualEntry = () => {
             </p>
 
             <div className="mt-auto space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/10 border border-destructive/20">
-                <Zap className="w-3.5 h-3.5 text-destructive" />
-                <span className="text-xs font-semibold text-destructive">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/15 border border-accent/30">
+                <Zap className="w-3.5 h-3.5 text-accent" />
+                <span className="text-xs font-semibold text-accent">
                   ⚡ Places limitées dans votre ville
                 </span>
               </div>
