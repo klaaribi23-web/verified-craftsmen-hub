@@ -163,7 +163,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
       {/* Semantic Search Bar */}
       <div className="relative" ref={suggestionsRef}>
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#8892B0] pointer-events-none" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             value={semanticQuery}
@@ -175,61 +175,59 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
               if (semanticQuery.length >= 3) setShowSuggestions(true);
             }}
             placeholder="Décrivez votre besoin... ex: fuite de toit, changer mes fenêtres, panneaux solaires"
-            className="w-full h-14 pl-12 pr-4 rounded-2xl text-base font-medium text-white placeholder:text-[#8892B0] border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 outline-none transition-all font-['DM_Sans']"
-            style={{ backgroundColor: '#112240' }}
+            className="w-full h-14 pl-12 pr-4 rounded-2xl text-base font-medium text-foreground placeholder:text-muted-foreground bg-white border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-['DM_Sans']"
           />
         </div>
 
         {/* Suggestions dropdown */}
         <AnimatePresence>
           {showSuggestions && semanticQuery.length >= 3 && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="absolute z-50 w-full mt-2 rounded-xl border border-[#D4AF37]/20 shadow-xl overflow-hidden"
-              style={{ backgroundColor: '#112240' }}
-            >
-              {suggestions.length > 0 ? (
-                <ul className="py-1">
-                  {suggestions.map((s) => (
-                    <li key={s.categoryId}>
-                      <button
-                        onClick={() => handleSuggestionClick(s)}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-left transition-colors hover:bg-[#D4AF37]/10"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-[#0A192F] flex items-center justify-center shrink-0">
-                          <CategoryIcon iconName={s.categoryIcon} size={18} className="text-[#D4AF37]" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-white truncate font-['DM_Sans']">
-                            {s.categoryName}
-                          </p>
-                          <p className="text-xs text-[#8892B0] truncate">
-                            correspond à « {s.matchedKeyword} »
-                          </p>
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="px-4 py-4 text-sm text-[#8892B0] text-center font-['DM_Sans']">
-                  Aucun métier trouvé — essayez avec d'autres mots
-                </div>
-              )}
+             <motion.div
+               initial={{ opacity: 0, y: -4 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -4 }}
+               className="absolute z-50 w-full mt-2 rounded-xl border border-border bg-white shadow-xl overflow-hidden"
+             >
+               {suggestions.length > 0 ? (
+                 <ul className="py-1">
+                   {suggestions.map((s) => (
+                     <li key={s.categoryId}>
+                       <button
+                         onClick={() => handleSuggestionClick(s)}
+                         className="flex items-center gap-3 w-full px-4 py-3 text-left transition-colors hover:bg-muted"
+                       >
+                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                           <CategoryIcon iconName={s.categoryIcon} size={18} className="text-primary" />
+                         </div>
+                         <div className="min-w-0">
+                           <p className="text-sm font-semibold text-foreground truncate font-['DM_Sans']">
+                             {s.categoryName}
+                           </p>
+                           <p className="text-xs text-muted-foreground truncate">
+                             correspond à « {s.matchedKeyword} »
+                           </p>
+                         </div>
+                       </button>
+                     </li>
+                   ))}
+                 </ul>
+               ) : (
+                 <div className="px-4 py-4 text-sm text-muted-foreground text-center font-['DM_Sans']">
+                   Aucun métier trouvé — essayez avec d'autres mots
+                 </div>
+               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
       {/* Geo tip */}
-      <p className="text-xs text-[#8892B0] italic px-1">
+      <p className="text-xs text-muted-foreground italic px-1">
         💡 Conseil : entrez votre ville pour voir les artisans disponibles près de chez vous
       </p>
 
       {/* Main Search Card */}
-      <div className="rounded-2xl shadow-lg border border-[#D4AF37]/20 overflow-hidden" style={{ backgroundColor: '#112240' }}>
+      <div className="rounded-2xl shadow-lg border border-border bg-white overflow-hidden">
         <div className="flex flex-col md:flex-row">
           {/* Category Megamenu - Left */}
           <div className="flex-1 p-4 border-b md:border-b-0 md:border-r border-border">
@@ -252,9 +250,8 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent
-                className="w-[min(90vw,700px)] p-0 shadow-xl z-[60] border-[#D4AF37]/20"
-                style={{ backgroundColor: '#112240' }}
+               <PopoverContent
+                 className="w-[min(90vw,700px)] p-0 shadow-xl z-[60] border-border bg-white"
                 align="start"
                 side="bottom"
                 sideOffset={8}
@@ -293,10 +290,9 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-4">
-              <Button
-                size="lg"
-                className="flex-1 h-[52px] md:h-12 rounded-xl text-[15px] md:text-base font-extrabold gap-2 shadow-md hover:shadow-lg transition-shadow text-[#0A192F] btn-shine font-['DM_Sans']"
-                style={{ backgroundColor: '#D4AF37' }}
+                 <Button
+                   size="lg"
+                   className="flex-1 h-[52px] md:h-12 rounded-xl text-[15px] md:text-base font-extrabold gap-2 shadow-md hover:shadow-lg transition-shadow bg-gold hover:bg-gold-dark text-primary-foreground btn-shine font-['DM_Sans']"
                 onClick={() => {
                   document.getElementById("artisans-results")?.scrollIntoView({ behavior: "smooth" });
                 }}
@@ -340,8 +336,8 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
               exit={{ opacity: 0, x: -10 }}
               className="flex items-center gap-3 bg-card border border-border rounded-full px-4 py-2 shadow-sm"
             >
-              <SlidersHorizontal className="h-4 w-4 text-[#D4AF37] shrink-0" />
-              <span className="text-sm text-[#8892B0] whitespace-nowrap font-['DM_Sans']">
+              <SlidersHorizontal className="h-4 w-4 text-gold shrink-0" />
+              <span className="text-sm text-muted-foreground whitespace-nowrap font-['DM_Sans']">
                 {radius === 0 ? "Ville exacte" : `+${radius} km`}
               </span>
               <Slider
@@ -382,10 +378,10 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
                   variant={isActive ? "default" : "outline"}
                   className={cn(
                     "cursor-pointer px-3.5 py-2 min-h-[36px] text-sm font-medium transition-all whitespace-nowrap",
-                    isActive
-                      ? "shadow-sm text-[#0A192F]"
-                      : "hover:bg-muted",
-                    isActive && "bg-[#D4AF37] border-[#D4AF37] hover:bg-[#D4AF37]/90"
+                     isActive
+                       ? "shadow-sm text-white"
+                       : "bg-muted text-foreground hover:bg-muted/80",
+                     isActive && "bg-gold border-gold hover:bg-gold-dark"
                   )}
                   onClick={() => selectPill(pill)}
                 >
@@ -422,8 +418,8 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
             exit={{ opacity: 0, height: 0 }}
             className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3"
           >
-            <p className="text-sm text-emerald-400 font-medium">
-              💡 Ces travaux sont éligibles aux aides d'État. Filtrez par artisans <button onClick={() => setRgeActive(true)} className="underline font-bold hover:text-emerald-300">RGE</button> pour bénéficier de MaPrimeRénov' et des CEE.
+            <p className="text-sm text-emerald-700 font-medium">
+               💡 Ces travaux sont éligibles aux aides d'État. Filtrez par artisans <button onClick={() => setRgeActive(true)} className="underline font-bold hover:text-emerald-900">RGE</button> pour bénéficier de MaPrimeRénov' et des CEE.
             </p>
           </motion.div>
         )}
@@ -443,22 +439,22 @@ function CategoryMegamenu({
   onSelect: (id: string, name: string, label: string) => void;
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 max-h-[60vh] overflow-y-auto" style={{ backgroundColor: '#112240' }}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 max-h-[60vh] overflow-y-auto bg-white">
       {categories.map((parent) => (
-        <div key={parent.id} className="p-3 border-b border-r border-[#D4AF37]/10 last:border-r-0">
+        <div key={parent.id} className="p-3 border-b border-r border-border last:border-r-0">
           <button
             onClick={() => onSelect(parent.id, parent.name, parent.name)}
             className={cn(
               "flex items-center gap-2 w-full text-left mb-2 p-1.5 rounded-lg transition-colors font-['DM_Sans']",
               selectedId === parent.id
-                ? "bg-[#D4AF37]/15 text-[#D4AF37]"
-                : "hover:bg-[#D4AF37]/10 text-white"
+                ? "bg-gold/15 text-gold-dark"
+                : "hover:bg-muted text-foreground"
             )}
           >
             <div className={cn(
               "w-7 h-7 rounded-md flex items-center justify-center shrink-0",
-              selectedId === parent.id ? "text-[#0A192F]" : "bg-[#0A192F] text-[#8892B0]"
-            )} style={selectedId === parent.id ? { backgroundColor: '#D4AF37' } : undefined}>
+              selectedId === parent.id ? "bg-gold text-white" : "bg-muted text-muted-foreground"
+            )}>
               <CategoryIcon iconName={parent.icon} size={16} />
             </div>
             <span className="text-sm font-semibold leading-tight font-['DM_Sans']">{parent.name}</span>
@@ -472,8 +468,8 @@ function CategoryMegamenu({
                 className={cn(
                   "flex items-center gap-2 w-full text-left px-2 py-1.5 rounded-md text-sm transition-colors font-['DM_Sans']",
                   selectedId === child.id
-                    ? "bg-[#D4AF37]/15 text-[#D4AF37] font-medium"
-                    : "text-[#8892B0] hover:bg-[#D4AF37]/10 hover:text-[#D4AF37]"
+                    ? "bg-gold/15 text-gold-dark font-medium"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 <CategoryIcon iconName={child.icon} size={14} className="shrink-0" />
