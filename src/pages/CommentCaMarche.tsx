@@ -67,7 +67,7 @@ const CommentCaMarche = () => {
       
       <main>
         {/* Hero — L'Engagement */}
-        <section className="py-20 lg:py-28 bg-navy relative overflow-hidden">
+        <section className="py-20 lg:py-28 bg-primary relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold rounded-full blur-3xl" />
@@ -78,10 +78,10 @@ const CommentCaMarche = () => {
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-3xl mx-auto"
             >
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
                 Ne prenez plus de risques<br className="hidden md:block" /> pour vos travaux.
               </h1>
-              <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl text-primary-foreground/70 mb-10 max-w-2xl mx-auto leading-relaxed">
                 Nous sélectionnons pour vous des artisans locaux dont nous avons 
                 personnellement vérifié le dossier. Gratuit, direct, sécurisé.
               </p>
@@ -141,7 +141,7 @@ const CommentCaMarche = () => {
         </section>
 
         {/* Le Processus en 3 Étapes */}
-        <section className="py-20 lg:py-28 bg-navy">
+        <section className="py-20 lg:py-28 bg-primary">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -152,10 +152,10 @@ const CommentCaMarche = () => {
               <span className="inline-block px-4 py-1.5 rounded-full bg-gold/15 text-gold text-sm font-medium mb-4 border border-gold/20">
                 Simple & rapide
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
                 Comment ça se passe ?
               </h2>
-              <p className="text-white/60 max-w-xl mx-auto">
+              <p className="text-primary-foreground/60 max-w-xl mx-auto">
                 Trois étapes pour des travaux en toute sérénité.
               </p>
             </motion.div>
@@ -176,11 +176,11 @@ const CommentCaMarche = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <step.icon className="w-5 h-5 text-gold flex-shrink-0" />
-                      <h3 className="text-lg font-semibold text-white">
+                      <h3 className="text-lg font-semibold text-primary-foreground">
                         {step.title}
                       </h3>
                     </div>
-                    <p className="text-white/60 leading-relaxed">
+                    <p className="text-primary-foreground/60 leading-relaxed">
                       {step.description}
                     </p>
                   </div>
@@ -200,7 +200,7 @@ const CommentCaMarche = () => {
         </section>
 
         {/* Bandeau Accompagnement */}
-        <section className="py-14 bg-navy">
+        <section className="py-14 bg-primary">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 15 }}
@@ -217,14 +217,14 @@ const CommentCaMarche = () => {
                 </div>
               </div>
               <div>
-                <p className="text-white font-medium text-base md:text-lg">
+                <p className="text-primary-foreground font-medium text-base md:text-lg">
                   Un doute ? Une question ?
                 </p>
-                <p className="text-white/60 text-sm mt-1">
+                <p className="text-primary-foreground/60 text-sm mt-1">
                   Nos experts vous accompagnent gratuitement dans le choix de votre artisan.
                 </p>
               </div>
-              <Button variant="outline" size="lg" asChild className="border-white/20 text-white hover:bg-white/10 ml-0 md:ml-4">
+              <Button variant="outline" size="lg" asChild className="border-white/20 text-primary-foreground hover:bg-white/10 ml-0 md:ml-4">
                 <Link to="/contact">Nous contacter</Link>
               </Button>
             </motion.div>

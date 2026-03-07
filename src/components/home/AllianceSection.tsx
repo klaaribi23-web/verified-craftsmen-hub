@@ -69,7 +69,7 @@ const AllianceSection = () => {
             className="bg-card rounded-3xl p-8 lg:p-10 border border-border shadow-soft"
           >
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-xl bg-navy flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center shadow-lg">
                 <Cpu className="w-7 h-7 text-white" />
               </div>
               <h3 className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
@@ -105,9 +105,9 @@ const AllianceSection = () => {
           viewport={{ once: true }}
           className="max-w-3xl mx-auto"
         >
-          <div className="bg-navy rounded-2xl p-8 md:p-10 border-l-4 border-gold mb-6">
+          <div className="bg-primary rounded-2xl p-8 md:p-10 border-l-4 border-gold mb-6">
             <Quote className="w-8 h-8 text-gold/60 mb-4" />
-            <p className="text-white text-lg md:text-xl lg:text-2xl font-bold leading-relaxed italic">
+            <p className="text-primary-foreground text-lg md:text-xl lg:text-2xl font-bold leading-relaxed italic">
               « Nous utilisons la technologie pour éliminer les mauvais payeurs et les mauvais poseurs. Pas de blabla, juste des chantiers vérifiés et des pros certifiés. »
             </p>
           </div>

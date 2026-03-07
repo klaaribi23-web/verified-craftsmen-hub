@@ -50,9 +50,9 @@ const WhatsAppButton = () => (
 
 // --- SECTION 1: HERO ---
 const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
-  <section className="bg-navy relative overflow-hidden">
+  <section className="bg-primary relative overflow-hidden">
     {/* Ticker */}
-    <div className="bg-navy/90 border-b border-primary/10 overflow-hidden py-2.5">
+    <div className="bg-primary/90 border-b border-primary-foreground/10 overflow-hidden py-2.5">
       <motion.div
         animate={{ x: ["100%", "-100%"] }}
         transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
@@ -76,15 +76,15 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
             <span className="text-sm font-bold text-gold">🔒 Réseau sélectif — Places limitées</span>
           </div>
 
-          <h1 className="text-[clamp(28px,7vw,44px)] md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-6 tracking-tight">
+          <h1 className="text-[clamp(28px,7vw,44px)] md:text-5xl lg:text-6xl font-black text-primary-foreground leading-[1.1] mb-6 tracking-tight">
             Arrêtez de chercher vos chantiers.
             <br />
             <span className="text-gradient-gold">Commencez à les choisir.</span>
           </h1>
 
-          <p className="text-base md:text-xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 leading-relaxed">
             Accédez à la licence exclusive Artisans Validés. Un flux continu de missions pré-qualifiées sur votre secteur.{" "}
-            <strong className="text-white">Pas de commission. Pas de concurrence déloyale.</strong>
+            <strong className="text-primary-foreground">Pas de commission. Pas de concurrence déloyale.</strong>
           </p>
 
           <Button
@@ -106,7 +106,7 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <p className="text-[clamp(28px,7vw,40px)] md:text-3xl font-black text-gold">{s.value}</p>
-                <p className="text-[11px] md:text-xs text-white/60 mt-1">{s.label}</p>
+                <p className="text-[11px] md:text-xs text-primary-foreground/60 mt-1">{s.label}</p>
               </div>
             ))}
           </div>
@@ -121,7 +121,7 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
   <section className="py-16 lg:py-24 bg-secondary">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Le vrai calcul. Comparez et décidez.</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Le vrai calcul. Comparez et décidez.</h2>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -202,13 +202,13 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
 
 // --- SECTION 3: LES 3 PILIERS ---
 const PillarsSection = () => (
-  <section className="py-16 lg:py-24 bg-navy relative overflow-hidden">
+  <section className="py-16 lg:py-24 bg-primary relative overflow-hidden">
     <div className="absolute inset-0 overflow-hidden">
       <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
     </div>
     <div className="container mx-auto px-4 lg:px-8 relative z-10">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+        <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-3">
           L'Alliance Artisans Validés — bien plus qu'une plateforme
         </h2>
       </motion.div>
@@ -242,8 +242,8 @@ const PillarsSection = () => (
                 <div className="w-14 h-14 rounded-full border-2 border-gold bg-gold/10 flex items-center justify-center mx-auto mb-5">
                   <p.icon className="w-7 h-7 text-gold" />
                 </div>
-                <h3 className="font-bold text-white text-[15px] md:text-lg mb-3">{p.title}</h3>
-                <p className="text-[13px] md:text-sm text-white/60 leading-relaxed">{p.desc}</p>
+                <h3 className="font-bold text-foreground text-[15px] md:text-lg mb-3">{p.title}</h3>
+                <p className="text-[13px] md:text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -268,12 +268,12 @@ const FOMOSection = ({ onCTA }: { onCTA: () => void }) => (
           <Lock className="w-4 h-4 text-gold" />
           <span className="text-sm font-black text-gold uppercase">Places limitées</span>
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
           Nous limitons strictement à 2 artisans par métier et par ville.
           <br />
           <span className="text-gold">Quand c'est pris, c'est pris.</span>
         </h2>
-        <p className="text-white/60 mb-8">Disponibilité dans votre zone : vérifiez maintenant</p>
+        <p className="text-muted-foreground mb-8">Disponibilité dans votre zone : vérifiez maintenant</p>
         <Button variant="gold" size="xl" onClick={onCTA} className="w-full sm:w-auto !font-black uppercase tracking-wider whitespace-normal text-center px-6">
           VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
         </Button>
@@ -284,11 +284,11 @@ const FOMOSection = ({ onCTA }: { onCTA: () => void }) => (
 
 // --- SECTION 5: COCKPIT SIMULATION ---
 const CockpitSection = () => (
-  <section className="py-16 lg:py-24 bg-navy relative overflow-hidden">
+  <section className="py-16 lg:py-24 bg-primary relative overflow-hidden">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Votre futur quotidien</h2>
-        <p className="text-white/60">Ce que vous recevrez dès que votre audit sera validé.</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-3">Votre futur quotidien</h2>
+        <p className="text-primary-foreground/60">Ce que vous recevrez dès que votre audit sera validé.</p>
       </motion.div>
 
       <motion.div
@@ -300,18 +300,18 @@ const CockpitSection = () => (
         <Card className="border-2 border-gold/20 bg-card/80 backdrop-blur overflow-hidden">
           <CardContent className="p-0">
             {/* Header */}
-            <div className="bg-navy px-5 py-3 border-b border-primary/20 flex items-center gap-2">
+            <div className="bg-primary px-5 py-3 border-b border-primary-foreground/20 flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-500" />
               <div className="w-3 h-3 rounded-full bg-yellow-500" />
               <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="ml-2 text-xs text-white/60 font-mono">cockpit-artisan.av</span>
+              <span className="ml-2 text-xs text-primary-foreground/60 font-mono">cockpit-artisan.av</span>
             </div>
 
             <div className="p-5 space-y-4">
               {/* Missions */}
               <div className="flex items-center gap-3 p-3 bg-gold/10 rounded-lg border border-gold/20">
                 <TrendingUp className="w-5 h-5 text-gold flex-shrink-0" />
-                <p className="text-sm font-bold text-white">3 nouvelles missions aujourd'hui</p>
+                <p className="text-sm font-bold text-foreground">3 nouvelles missions aujourd'hui</p>
               </div>
 
               {/* Notification */}
@@ -320,7 +320,7 @@ const CockpitSection = () => (
                   <Bell className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-xs text-gold font-bold mb-1">🔔 Nouveau projet</p>
-                    <p className="text-sm text-white/80 leading-relaxed">
+                    <p className="text-sm text-foreground/80 leading-relaxed">
                       Rénovation complète 25 000€ à 12km de vous. Client vérifié, budget confirmé.
                     </p>
                   </div>
@@ -334,9 +334,9 @@ const CockpitSection = () => (
                   { value: "92%", label: "Taux de réponse" },
                   { value: "18 400€", label: "CA estimé" },
                 ].map((s) => (
-                  <div key={s.label} className="text-center p-2 bg-navy/60 rounded-lg">
+                  <div key={s.label} className="text-center p-2 bg-primary/60 rounded-lg">
                     <p className="text-sm md:text-lg font-black text-gold">{s.value}</p>
-                    <p className="text-[9px] md:text-[10px] text-white/50 leading-tight">{s.label}</p>
+                    <p className="text-[9px] md:text-[10px] text-primary-foreground/50 leading-tight">{s.label}</p>
                   </div>
                 ))}
               </div>
@@ -354,8 +354,8 @@ const IntegrationSection = () => (
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
         <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">Audit & Validation</span>
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Votre Parcours d'Intégration</h2>
-        <p className="text-white/60 max-w-xl mx-auto">Un processus rigoureux pour garantir l'excellence du réseau.</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Votre Parcours d'Intégration</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto">Un processus rigoureux pour garantir l'excellence du réseau.</p>
       </motion.div>
 
       <div className="max-w-2xl mx-auto space-y-0">
@@ -389,12 +389,12 @@ const IntegrationSection = () => (
               <div className="absolute left-[27px] top-14 w-0.5 h-[calc(100%-56px)] bg-gradient-to-b from-gold/60 to-gold/10" />
             )}
             {/* Number circle */}
-            <div className="flex-shrink-0 w-14 h-14 rounded-full border-2 border-gold bg-navy flex items-center justify-center z-10">
+            <div className="flex-shrink-0 w-14 h-14 rounded-full border-2 border-gold bg-primary flex items-center justify-center z-10">
               <span className="text-sm font-black text-gold">{step.num}</span>
             </div>
             <div className="pt-2">
-              <h3 className="font-bold text-white text-lg mb-2">{step.title}</h3>
-              <p className="text-sm text-white/60 leading-relaxed">{step.desc}</p>
+              <h3 className="font-bold text-foreground text-lg mb-2">{step.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
             </div>
           </motion.div>
         ))}
@@ -432,8 +432,8 @@ const TestimonialsSection = () => (
   <section className="py-16 lg:py-24 bg-card border-y border-primary/10">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Témoignages bruts</h2>
-        <p className="text-slate-400 max-w-xl mx-auto">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Témoignages bruts</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto">
           Ils ont rejoint l'Alliance. Voici ce qu'ils en disent.
           <br />
           Pas de mise en scène. Des artisans qui parlent de leur expérience.
@@ -497,9 +497,9 @@ const AvailabilityTicker = () => {
   }, []);
 
   return (
-    <div className="w-full bg-navy-dark border border-gold/20 rounded-lg px-4 py-2.5 mb-6 text-center">
+    <div className="w-full bg-primary border border-gold/20 rounded-lg px-4 py-2.5 mb-6 text-center">
       <p
-        className={`text-[13px] font-semibold text-white/90 transition-opacity duration-300 break-words ${visible ? "opacity-100" : "opacity-0"}`}
+        className={`text-[13px] font-semibold text-primary-foreground/90 transition-opacity duration-300 break-words ${visible ? "opacity-100" : "opacity-0"}`}
       >
         {AVAILABILITY_MESSAGES[index]}
       </p>
@@ -585,7 +585,7 @@ const FormSection = () => {
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-8 h-8 text-gold" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Zone réservée !</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Zone réservée !</h2>
             <p className="text-muted-foreground mb-6">
               Notre équipe analyse votre dossier et vous recontacte sous 24h.
             </p>
@@ -608,7 +608,7 @@ const FormSection = () => {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="max-w-lg mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-6">Réservez votre accès</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-6">Réservez votre accès</h2>
 
             {/* Gold encart */}
             <div className="bg-gold/10 border border-gold/30 rounded-xl p-4 mb-4 text-center">
@@ -630,39 +630,39 @@ const FormSection = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firstName" className="text-white text-sm">Prénom *</Label>
+                    <Label htmlFor="firstName" className="text-foreground text-sm">Prénom *</Label>
                     <div className="relative mt-1">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input id="firstName" placeholder="Jean" value={formData.firstName} onChange={(e) => updateForm("firstName", e.target.value)} className="pl-10" required />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="lastName" className="text-white text-sm">Nom *</Label>
+                    <Label htmlFor="lastName" className="text-foreground text-sm">Nom *</Label>
                     <Input id="lastName" placeholder="Dupont" value={formData.lastName} onChange={(e) => updateForm("lastName", e.target.value)} className="mt-1" required />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-white text-sm">Email *</Label>
+                  <Label htmlFor="email" className="text-foreground text-sm">Email *</Label>
                   <div className="relative mt-1">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input id="email" type="email" placeholder="jean@exemple.fr" value={formData.email} onChange={(e) => updateForm("email", e.target.value)} className="pl-10" required />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-white text-sm">Téléphone *</Label>
+                  <Label htmlFor="phone" className="text-foreground text-sm">Téléphone *</Label>
                   <div className="mt-1">
                     <FrenchPhoneInput id="phone" value={formData.phone} onChange={(value) => updateForm("phone", value)} />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="city" className="text-white text-sm">Ville *</Label>
+                  <Label htmlFor="city" className="text-foreground text-sm">Ville *</Label>
                   <div className="relative mt-1">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input id="city" placeholder="Lille" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} className="pl-10" required />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="metier" className="text-white text-sm">Métier *</Label>
+                  <Label htmlFor="metier" className="text-foreground text-sm">Métier *</Label>
                   <div className="relative mt-1">
                     <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
                     <select
@@ -670,7 +670,7 @@ const FormSection = () => {
                       value={formData.metier}
                       onChange={(e) => updateForm("metier", e.target.value)}
                       required
-                      className="w-full min-h-[52px] pl-10 pr-4 rounded-md border border-border bg-navy-dark text-white text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
+                      className="w-full min-h-[52px] pl-10 pr-4 rounded-md border border-border bg-background text-foreground text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
                     >
                       <option value="" disabled>Sélectionner votre métier...</option>
                       {[
@@ -711,7 +711,7 @@ const FormSection = () => {
                   )}
                 </Button>
 
-                <p className="text-xs text-center text-slate-400">
+                <p className="text-xs text-center text-muted-foreground">
                   🔒 Validation finale par notre équipe sous 24h après audit de vos documents.
                 </p>
               </form>
@@ -723,7 +723,7 @@ const FormSection = () => {
                   "Audit humain sous 24h",
                   "Activation après validation uniquement",
                 ].map((g) => (
-                  <div key={g} className="flex items-center gap-2 text-sm text-white/80">
+                  <div key={g} className="flex items-center gap-2 text-sm text-foreground/80">
                     <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0" />
                     <span>{g}</span>
                   </div>
@@ -746,15 +746,15 @@ const FormSection = () => {
 const CTAFinal = ({ onCTA }: { onCTA: () => void }) => (
   <section className="py-16 lg:py-20 bg-secondary">
     <div className="container mx-auto px-4 lg:px-8">
-      <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]" style={{ background: "linear-gradient(180deg, rgba(240,165,0,0.08) 0%, transparent 100%), var(--navy)" }}>
+      <div className="bg-primary rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-lg" style={{ background: "linear-gradient(180deg, rgba(240,165,0,0.08) 0%, transparent 100%), hsl(var(--primary))" }}>
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-64 h-64 bg-gold rounded-full blur-3xl" />
         </div>
         <div className="relative z-10">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-primary-foreground mb-4">
             Votre ville est peut-être encore disponible.
           </h2>
-          <p className="text-white/60 mb-8 max-w-xl mx-auto">
+          <p className="text-primary-foreground/60 mb-8 max-w-xl mx-auto">
             2 licences max par secteur. Quand c'est pris, c'est pris.
           </p>
           <Button variant="gold" size="xl" onClick={onCTA} className="w-full sm:w-auto !font-extrabold uppercase tracking-wider whitespace-normal text-center !text-[16px] !px-12 !py-[18px]">

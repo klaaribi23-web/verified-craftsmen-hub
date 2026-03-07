@@ -28,7 +28,7 @@ const APropos = () => {
 
       <main className="min-h-screen">
         {/* Hero — Typographic */}
-        <section className="relative bg-navy text-white py-16 md:py-28 lg:py-36 overflow-hidden">
+        <section className="relative bg-primary text-primary-foreground py-16 md:py-28 lg:py-36 overflow-hidden">
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
           <motion.div
             className="relative z-10 container mx-auto px-4 max-w-4xl text-center"
@@ -115,7 +115,7 @@ const APropos = () => {
         </section>
 
         {/* Le Concept — Les 2 Piliers */}
-        <section className="py-12 md:py-20 lg:py-24 bg-navy text-white">
+        <section className="py-12 md:py-20 lg:py-24 bg-primary text-primary-foreground">
           <div className="container mx-auto px-4">
             <motion.div
               className="max-w-3xl mx-auto"
@@ -128,7 +128,7 @@ const APropos = () => {
                 Le Concept
               </motion.h2>
               <motion.div variants={fadeInUp} className="w-12 h-1 bg-gold mb-8" />
-              <motion.p variants={fadeInUp} className="text-base md:text-lg text-white/80 leading-relaxed mb-8 md:mb-10">
+              <motion.p variants={fadeInUp} className="text-base md:text-lg text-primary-foreground/80 leading-relaxed mb-8 md:mb-10">
                 D'un côté, <span className="text-gold font-semibold">20 ans d'expertise chantier</span> pour valider le savoir-faire. De l'autre, un <span className="text-gold font-semibold">algorithme de confiance</span> qui sécurise les mises en relation.
               </motion.p>
 
@@ -142,15 +142,15 @@ const APropos = () => {
                       <Icon className="w-5 h-5 text-gold" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-white mb-1">{label}</h3>
-                      <p className="text-white/60 text-sm leading-relaxed">{desc}</p>
+                      <h3 className="font-bold text-primary-foreground mb-1">{label}</h3>
+                      <p className="text-primary-foreground/60 text-sm leading-relaxed">{desc}</p>
                     </div>
                   </div>
                 ))}
               </motion.div>
 
               <motion.div variants={fadeInUp} className="bg-white/5 border border-gold/20 rounded-xl p-6">
-                <p className="text-white/90 leading-relaxed">
+                <p className="text-primary-foreground/90 leading-relaxed">
                   Ici, le client garde le <span className="text-gold font-semibold">contrôle total</span> : ses coordonnées ne sont transmises qu'à l'artisan qu'il a lui-même validé. Pas de vente de leads, pas de démarchage sauvage.
                 </p>
               </motion.div>
@@ -198,7 +198,7 @@ const APropos = () => {
         </section>
 
         {/* CTA Final */}
-        <section className="py-14 md:py-20 lg:py-28 bg-gradient-to-r from-navy to-primary text-white">
+        <section className="py-14 md:py-20 lg:py-28 bg-primary text-primary-foreground">
           <div className="container mx-auto px-4">
             <motion.div
               className="max-w-2xl mx-auto text-center"
@@ -207,13 +207,13 @@ const APropos = () => {
               viewport={{ once: true }}
               variants={staggerContainer}
             >
-              <motion.p variants={fadeInUp} className="text-white/70 text-sm leading-relaxed max-w-xl mx-auto mb-8">
+              <motion.p variants={fadeInUp} className="text-primary-foreground/70 text-sm leading-relaxed max-w-xl mx-auto mb-8">
                 Artisans Validés est né de la rencontre entre des experts du bâtiment fatigués des dérives du web et des ingénieurs convaincus que la technologie doit servir à protéger les gens, pas à les exploiter.
               </motion.p>
               <motion.div variants={fadeInUp} className="bg-white/10 border border-gold/30 rounded-xl px-6 py-4 inline-block mb-8">
                 <p className="text-gold font-bold text-lg">Notre engagement : Moins de blabla, plus de résultats.</p>
               </motion.div>
-              <motion.p variants={fadeInUp} className="text-white/50 text-xs mb-10">
+              <motion.p variants={fadeInUp} className="text-primary-foreground/50 text-xs mb-10">
                 Andrea & Associée — L'expertise du chantier au service du digital.
               </motion.p>
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -223,7 +223,7 @@ const APropos = () => {
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="text-base md:text-lg border-white/30 text-white hover:bg-white/10 h-14">
+                <Button asChild size="lg" variant="outline" className="text-base md:text-lg border-white/30 text-primary-foreground hover:bg-white/10 h-14">
                   <Link to="/trouver-artisan">
                     Trouver un artisan
                   </Link>
