@@ -80,8 +80,8 @@ const HeroDualEntry = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="rounded-2xl border border-border bg-secondary/50 p-6 md:p-8 flex flex-col"
           >
-            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-4">
-              <Home className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+              <Home className="w-6 h-6 text-primary" />
             </div>
             <h2 className="text-xl font-bold text-foreground mb-2">Je cherche un artisan</h2>
             <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
@@ -105,7 +105,7 @@ const HeroDualEntry = () => {
                   <div className="absolute z-50 mt-1 w-full rounded-lg border border-border bg-popover shadow-lg max-h-[250px] overflow-y-auto">
                     {categories?.map(parent => (
                       <div key={parent.id}>
-                        <div className="px-3 py-2 text-xs font-semibold text-white/70 uppercase tracking-wider">
+                        <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                           {parent.name}
                         </div>
                         {parent.children.map(child => (
@@ -152,8 +152,8 @@ const HeroDualEntry = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="rounded-2xl border border-primary/20 bg-gradient-to-br from-secondary/50 to-primary/5 p-6 md:p-8 flex flex-col"
           >
-            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-4">
-              <ShieldCheck className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+              <ShieldCheck className="w-6 h-6 text-primary" />
             </div>
             <h2 className="text-xl font-bold text-foreground mb-2">Je suis artisan</h2>
             <p className="text-sm text-muted-foreground mb-6 leading-relaxed">

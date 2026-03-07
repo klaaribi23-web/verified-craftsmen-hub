@@ -28,7 +28,7 @@ const trustFeatures = [{
 }];
 
 const TrustSection = () => {
-  return <section className="py-20 lg:py-32 bg-navy relative overflow-hidden">
+  return <section className="py-20 lg:py-32 bg-primary relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 left-0 w-96 h-96 bg-gold rounded-full blur-3xl" />
@@ -41,10 +41,10 @@ const TrustSection = () => {
           <span className="inline-block px-4 py-1.5 rounded-full bg-gold/20 text-gold text-sm font-medium mb-4">
             Notre processus de sélection
           </span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4">
             C'est <span className="text-gradient-gold">nous</span> qui vérifions tout
           </h2>
-          <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto text-center">
+          <p className="text-base md:text-lg text-primary-foreground/70 max-w-2xl mx-auto text-center">
             Contrairement aux annuaires classiques, chaque artisan est personnellement 
             contrôlé et validé par notre équipe avant d'intégrer le réseau.
           </p>
@@ -56,10 +56,10 @@ const TrustSection = () => {
               <div className="w-14 h-14 rounded-xl bg-gradient-gold flex items-center justify-center mb-6 shadow-gold">
                 <feature.icon className="w-7 h-7 text-navy-dark" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">
+              <h3 className="text-xl font-semibold text-primary-foreground mb-3">
                 {feature.title}
               </h3>
-              <p className="text-white/70 leading-relaxed">
+              <p className="text-primary-foreground/70 leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>)}

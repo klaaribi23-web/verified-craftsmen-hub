@@ -27,7 +27,7 @@ const steps = [
 
 const EliteSelectionProcess = () => {
   return (
-    <section className="py-20 lg:py-28 bg-[#060C18] relative overflow-hidden">
+    <section className="py-20 lg:py-28 bg-muted/30 relative overflow-hidden">
       {/* Ambient effects */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -47,10 +47,10 @@ const EliteSelectionProcess = () => {
           <span className="inline-block px-4 py-1.5 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] text-sm font-extrabold mb-4 border border-[#D4AF37]/20 tracking-wider uppercase">
             Processus de sélection
           </span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4">
-            Seuls les meilleurs <span className="text-[#D4AF37] font-extrabold">passent l'audit</span>
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-4">
+            Seuls les meilleurs <span className="text-accent font-extrabold">passent l'audit</span>
           </h2>
-          <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Un processus en 3 étapes pour garantir l'excellence. 87% des artisans sont refusés.
           </p>
         </motion.div>
@@ -80,7 +80,7 @@ const EliteSelectionProcess = () => {
 
               {/* Step badge */}
               <motion.div
-                className="absolute -top-3 left-6 z-20 w-8 h-8 rounded-full border border-[#D4AF37]/40 bg-navy-dark flex items-center justify-center text-[#D4AF37] text-xs font-bold"
+                className="absolute -top-3 left-6 z-20 w-8 h-8 rounded-full border border-accent/40 bg-card flex items-center justify-center text-accent text-xs font-bold"
                 whileHover={{ scale: 1.1 }}
               >
                 {step.step}
@@ -88,7 +88,7 @@ const EliteSelectionProcess = () => {
 
               {/* Card with glassmorphism */}
               <motion.div
-                className="bg-white/[0.04] backdrop-blur-md rounded-2xl p-7 pt-10 border border-white/[0.08] relative h-full transition-all duration-500 group-hover:border-[#D4AF37]/20 group-hover:bg-white/[0.06]"
+                className="bg-card backdrop-blur-md rounded-2xl p-7 pt-10 border border-border relative h-full transition-all duration-500 group-hover:border-accent/20 group-hover:bg-card/80"
                 whileHover={{
                   y: -6,
                   boxShadow: "0 0 40px -10px rgba(212, 175, 55, 0.15)",
@@ -104,10 +104,10 @@ const EliteSelectionProcess = () => {
                   </div>
                 </div>
 
-                <h3 className="text-lg font-extrabold uppercase text-white mb-3 relative z-10" style={{ letterSpacing: '-0.01em', lineHeight: '1.2' }}>
+                <h3 className="text-lg font-extrabold uppercase text-foreground mb-3 relative z-10" style={{ letterSpacing: '-0.01em', lineHeight: '1.2' }}>
                   {step.title}
                 </h3>
-                <p className="text-sm text-white/50 leading-relaxed relative z-10">
+                <p className="text-sm text-muted-foreground leading-relaxed relative z-10">
                   {step.description}
                 </p>
               </motion.div>

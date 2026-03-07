@@ -37,22 +37,22 @@ const CTASection = () => {
           </motion.article>
 
           {/* Artisan CTA */}
-          <motion.article initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="bg-navy rounded-3xl p-8 lg:p-12 relative overflow-hidden">
+          <motion.article initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="bg-primary rounded-3xl p-8 lg:p-12 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl" aria-hidden="true" />
             
             <div className="relative z-10">
               <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-6">
                 <Shield className="w-8 h-8 text-gold" aria-hidden="true" />
               </div>
-              <h3 className="text-xl lg:text-3xl font-bold text-white mb-4">
+              <h3 className="text-xl lg:text-3xl font-bold text-primary-foreground mb-4">
                 Vous êtes artisan ?
               </h3>
-              <p className="text-white/70 mb-8 text-lg">
+              <p className="text-primary-foreground/70 mb-8 text-lg">
                 Candidatez pour rejoindre notre réseau exclusif. 
                 Nous vérifions chaque profil et ne retenons que les meilleurs.
               </p>
               <ul className="space-y-3 mb-8">
-                {["Sélection sur dossier uniquement", "Exclusivité par zone géographique", "Chantiers qualifiés garantis"].map(item => <li key={item} className="flex items-center gap-3 text-white">
+                {["Sélection sur dossier uniquement", "Exclusivité par zone géographique", "Chantiers qualifiés garantis"].map(item => <li key={item} className="flex items-center gap-3 text-primary-foreground">
                     <div className="w-5 h-5 rounded-full bg-gold/20 flex items-center justify-center">
                       <div className="w-2 h-2 rounded-full bg-gold" />
                     </div>
