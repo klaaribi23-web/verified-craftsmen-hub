@@ -159,7 +159,6 @@ const ForgotPassword = () => {
                     className="pl-10"
                     required
                   />
-                  />
                 </div>
               </div>
 
