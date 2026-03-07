@@ -57,7 +57,7 @@ const HeroDualEntry = () => {
           className="text-center max-w-4xl mx-auto mb-12 md:mb-16"
         >
           <h1 className="text-3xl md:text-5xl lg:text-[3.5rem] font-black text-white leading-[1.15] tracking-tight mb-6">
-            La plateforme qui met f{"\u200B"}in au{" "}
+            La plateforme qui met fin au{" "}
             <span className="relative inline-block">
               <span className="text-white">hasard</span>
               <span className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full" />
