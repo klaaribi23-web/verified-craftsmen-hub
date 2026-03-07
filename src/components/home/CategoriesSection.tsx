@@ -50,10 +50,10 @@ const CategoriesSection = () => {
             {withArtisans.map((category, index) => (
               <motion.div key={category.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }}>
                 <Link to={`/trouver-artisan?category=${category.id}`} className="group block bg-white rounded-2xl border border-border p-6 hover:shadow-elevated hover:border-gold/30 transition-all duration-300 h-full">
-                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${categoryColors[category.name] || "from-navy to-navy-light"} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${categoryColors[category.name] || "from-primary to-primary/70"} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <CategoryIcon iconName={category.icon} className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="font-semibold text-navy text-lg mb-2 group-hover:text-gold transition-colors">
+                  <h3 className="font-semibold text-foreground text-lg mb-2 group-hover:text-primary transition-colors">
                     {category.name}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -74,7 +74,7 @@ const CategoriesSection = () => {
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-muted to-muted-foreground/20 flex items-center justify-center mb-4">
                     <CategoryIcon iconName={category.icon} className="w-7 h-7 text-muted-foreground" />
                   </div>
-                  <h3 className="font-semibold text-navy text-lg mb-2">
+                  <h3 className="font-semibold text-foreground text-lg mb-2">
                     {category.name}
                   </h3>
                   <span className="inline-block text-xs font-medium text-muted-foreground bg-muted px-3 py-1 rounded-full">
@@ -87,10 +87,10 @@ const CategoriesSection = () => {
             {/* "All categories" card */}
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.35 }}>
               <Link to="/trouver-artisan" className="group block bg-white rounded-2xl border border-border p-6 hover:shadow-elevated hover:border-gold/30 transition-all duration-300 h-full">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-navy to-navy-light flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   <ArrowRight className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="font-semibold text-navy text-lg mb-2 group-hover:text-gold transition-colors">
+                <h3 className="font-semibold text-foreground text-lg mb-2 group-hover:text-primary transition-colors">
                   Tous les métiers
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">

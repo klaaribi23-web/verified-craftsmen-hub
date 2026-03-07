@@ -58,7 +58,7 @@ const LaboAndreaSection = () => {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-navy relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-primary relative overflow-hidden">
       {/* Subtle glow effects */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
@@ -75,10 +75,10 @@ const LaboAndreaSection = () => {
             <Sparkles className="h-4 w-4 text-gold" />
             <span className="text-sm font-medium text-gold">Le Labo d'Andrea</span>
           </div>
-          <h2 className="text-2xl md:text-4xl font-semibold text-white mb-3">
+          <h2 className="text-2xl md:text-4xl font-semibold text-primary-foreground mb-3">
             L'IA qui parle <span className="text-gold">franc.</span>
           </h2>
-          <p className="text-[#E2E8F0] text-base md:text-lg max-w-2xl mx-auto">
+          <p className="text-primary-foreground/70 text-base md:text-lg max-w-2xl mx-auto">
             Pas de langue de bois. Andrea vous donne des réponses cash, forgées par 20 ans de chantier.
           </p>
         </motion.div>
@@ -101,7 +101,7 @@ const LaboAndreaSection = () => {
               }`}
             >
               <span className="text-2xl mb-3 block">{q.emoji}</span>
-              <p className="text-white text-sm font-medium leading-snug group-hover:text-gold transition-colors">
+              <p className="text-primary-foreground text-sm font-medium leading-snug group-hover:text-gold transition-colors">
                 {q.label}
               </p>
               {/* Glow border effect */}
@@ -121,13 +121,13 @@ const LaboAndreaSection = () => {
               className="bg-white/5 backdrop-blur-sm border border-gold/20 rounded-xl p-6 shadow-[0_0_30px_rgba(var(--gold-rgb,212,175,55),0.08)]"
             >
               {isLoading ? (
-                <div className="flex items-center gap-3 text-white/70">
+                <div className="flex items-center gap-3 text-primary-foreground/70">
                   <Loader2 className="h-5 w-5 animate-spin text-gold" />
                   <span>Andrea analyse votre question…</span>
                 </div>
               ) : (
                 <>
-                  <p className="text-white leading-relaxed whitespace-pre-line mb-4 text-sm md:text-base">
+                  <p className="text-primary-foreground leading-relaxed whitespace-pre-line mb-4 text-sm md:text-base">
                     {answer}
                   </p>
                   <p className="text-xs text-gold/70 italic mb-4">
