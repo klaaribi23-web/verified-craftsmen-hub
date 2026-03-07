@@ -33,7 +33,7 @@ const MentionsLegales = () => {
               {/* Éditeur du site */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">1</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">1</span>
                   Éditeur du site
                 </h2>
                 <div className="space-y-3 text-muted-foreground">
@@ -52,7 +52,7 @@ const MentionsLegales = () => {
               {/* Directeur de la publication */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">2</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">2</span>
                   Directeur de la publication
                 </h2>
                 <div className="space-y-3 text-muted-foreground">
@@ -64,7 +64,7 @@ const MentionsLegales = () => {
               {/* Hébergeur */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">3</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">3</span>
                   Hébergeur
                 </h2>
                 <div className="space-y-3 text-muted-foreground">
@@ -77,7 +77,7 @@ const MentionsLegales = () => {
               {/* Propriété intellectuelle */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">4</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">4</span>
                   Propriété intellectuelle
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -96,7 +96,7 @@ const MentionsLegales = () => {
               {/* Protection des données personnelles */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">5</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">5</span>
                   Protection des données personnelles
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -119,7 +119,7 @@ const MentionsLegales = () => {
               {/* Cookies */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">6</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">6</span>
                   Cookies
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -135,7 +135,7 @@ const MentionsLegales = () => {
               {/* Limitation de responsabilité */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">7</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">7</span>
                   Limitation de responsabilité
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -151,7 +151,7 @@ const MentionsLegales = () => {
               {/* Droit applicable */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">8</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">8</span>
                   Droit applicable
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
