@@ -37,7 +37,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 
 // --- Marquee Banner ---
 const MarqueeBanner = () => (
-  <div className="bg-navy overflow-hidden py-2.5 shadow-[0_4px_16px_-2px_rgba(26,43,72,0.25)] relative z-40">
+  <div className="bg-primary overflow-hidden py-2.5 shadow-[0_4px_16px_-2px_rgba(26,43,72,0.25)] relative z-40">
     <motion.div
       animate={{ x: ["100%", "-100%"] }}
       transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
@@ -140,7 +140,7 @@ const ComparisonSection = () => (
 
 // --- Territory Widget ---
 const TerritoryWidget = () => (
-  <section className="py-12 lg:py-16 bg-navy relative overflow-hidden">
+  <section className="py-12 lg:py-16 bg-primary relative overflow-hidden">
     <div className="absolute inset-0 overflow-hidden">
       <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
     </div>
@@ -151,10 +151,10 @@ const TerritoryWidget = () => (
             <AlertTriangle className="w-4 h-4 text-gold" />
             <span className="text-sm font-bold text-gold animate-pulse">PLACES LIMITÉES</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-3 uppercase tracking-wide">
+          <h2 className="text-2xl md:text-3xl font-black text-primary-foreground mb-3 uppercase tracking-wide">
             Disponibilité dans le Nord : <span className="text-gold">1 place restante</span>
           </h2>
-          <p className="text-white/60 mb-8 max-w-lg mx-auto">
+          <p className="text-primary-foreground/60 mb-8 max-w-lg mx-auto">
             Nous limitons strictement à 2 artisans par métier et par ville. Quand c'est pris, c'est pris.
           </p>
           <Button variant="gold" size="xl" className="!font-black !text-lg uppercase tracking-wider glow-gold-hover" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
@@ -182,7 +182,7 @@ const DashboardPreview = () => (
 
         {/* Fake dashboard */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
-          <div className="bg-navy rounded-2xl p-6 md:p-8 shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]">
+          <div className="bg-primary rounded-2xl p-6 md:p-8 shadow-lg">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -190,8 +190,8 @@ const DashboardPreview = () => (
                   <Zap className="w-5 h-5 text-gold" />
                 </div>
                 <div>
-                  <p className="text-white font-bold text-sm">Cockpit Artisan</p>
-                  <p className="text-white/40 text-xs">3 nouvelles missions aujourd'hui</p>
+                  <p className="text-primary-foreground font-bold text-sm">Cockpit Artisan</p>
+                  <p className="text-primary-foreground/40 text-xs">3 nouvelles missions aujourd'hui</p>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/20 border border-gold/30">
@@ -208,10 +208,10 @@ const DashboardPreview = () => (
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-white font-bold text-sm">📲 WhatsApp — Artisans Validés</p>
-                    <span className="text-white/40 text-xs">il y a 3 min</span>
+                    <p className="text-primary-foreground font-bold text-sm">📲 WhatsApp — Artisans Validés</p>
+                    <span className="text-primary-foreground/40 text-xs">il y a 3 min</span>
                   </div>
-                  <p className="text-white/80 text-sm">
+                  <p className="text-primary-foreground/80 text-sm">
                     🔔 <strong className="text-gold">Nouveau projet :</strong> Rénovation complète 25 000€ à 12km de vous. Client vérifié, budget confirmé.
                   </p>
                   <div className="flex gap-2 mt-3">
@@ -235,7 +235,7 @@ const DashboardPreview = () => (
               ].map((s) => (
                 <div key={s.label} className="bg-white/5 rounded-lg p-3 text-center">
                   <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
-                  <p className="text-white/40 text-xs">{s.label}</p>
+                  <p className="text-primary-foreground/40 text-xs">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -305,9 +305,9 @@ const SocialProofSection = () => (
 // --- Risk Reversal ---
 const RiskReversal = () => (
   <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-lg mx-auto mt-8">
-    <div className="bg-navy rounded-2xl p-6 shadow-[0_8px_32px_-4px_rgba(26,43,72,0.25)]">
+    <div className="bg-primary rounded-2xl p-6 shadow-lg">
       <div className="text-center mb-4">
-        <h3 className="text-white font-black text-lg uppercase tracking-wide">Sans engagement.</h3>
+        <h3 className="text-primary-foreground font-black text-lg uppercase tracking-wide">Sans engagement.</h3>
         <p className="text-gold font-bold text-base mt-1">Testez un mois. Si vous ne décrochez pas de chantier, vous coupez.</p>
       </div>
       <div className="space-y-3 mb-5">
@@ -318,12 +318,12 @@ const RiskReversal = () => (
         ].map((item) => (
           <div key={item} className="flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-gold flex-shrink-0" />
-            <span className="text-white text-sm font-medium">{item}</span>
+            <span className="text-primary-foreground text-sm font-medium">{item}</span>
           </div>
         ))}
       </div>
       <div className="border-t border-white/10 pt-4">
-        <p className="text-xs text-white/70 leading-relaxed">
+        <p className="text-xs text-primary-foreground/70 leading-relaxed">
           Nous ne sommes pas des vendeurs de leads. Nous sommes un <strong className="text-gold">réseau de confiance</strong>. Aucun paiement ne vous sera demandé avant que votre dossier ne soit validé par notre équipe.
         </p>
       </div>
@@ -454,8 +454,8 @@ const DevenirArtisan = () => {
 
       <main>
         {/* Trust bar */}
-        <div className="bg-navy py-2.5 border-b border-white/10">
-          <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-white/90 font-medium">
+        <div className="bg-primary py-2.5 border-b border-primary-foreground/10">
+          <div className="container mx-auto px-4 flex items-center justify-center gap-4 md:gap-8 flex-wrap text-xs md:text-sm text-primary-foreground/90 font-medium">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Entreprise Française</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Support 7j/7</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-gold fill-gold/20" /> Paiement Sécurisé Stripe</span>
@@ -518,7 +518,7 @@ const DevenirArtisan = () => {
         <DashboardPreview />
 
         {/* Parcours d'Intégration */}
-        <section className="py-16 lg:py-24 bg-navy relative overflow-hidden">
+        <section className="py-16 lg:py-24 bg-primary relative overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl" />
             <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
@@ -526,8 +526,8 @@ const DevenirArtisan = () => {
           <div className="container mx-auto px-4 lg:px-8 relative z-10">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
               <span className="inline-block px-4 py-1.5 rounded-full bg-gold/20 text-gold text-sm font-medium mb-4">Audit & Validation</span>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Votre Parcours d'Intégration</h2>
-              <p className="text-white/60 max-w-xl mx-auto">Un processus rigoureux pour garantir l'excellence du réseau.</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">Votre Parcours d'Intégration</h2>
+              <p className="text-primary-foreground/60 max-w-xl mx-auto">Un processus rigoureux pour garantir l'excellence du réseau.</p>
             </motion.div>
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {[
@@ -540,8 +540,8 @@ const DevenirArtisan = () => {
                     <item.icon className="w-8 h-8 text-gold" />
                   </div>
                   <div className="text-xs text-gold font-bold mb-2 tracking-widest">ÉTAPE {item.step}</div>
-                  <h3 className="font-bold text-white text-lg mb-2">{item.title}</h3>
-                  <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
+                  <h3 className="font-bold text-primary-foreground text-lg mb-2">{item.title}</h3>
+                  <p className="text-sm text-primary-foreground/60 leading-relaxed">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -658,13 +658,13 @@ const DevenirArtisan = () => {
         {/* CTA Final */}
         <section className="py-16 lg:py-20 bg-secondary/30">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="bg-navy rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-[0_16px_64px_-8px_rgba(26,43,72,0.4)]">
+            <div className="bg-primary rounded-3xl p-8 lg:p-16 text-center relative overflow-hidden shadow-lg">
               <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gold rounded-full blur-3xl" />
               </div>
               <div className="relative z-10">
-                <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Votre ville est peut-être encore disponible.</h2>
-                <p className="text-white/60 mb-8 max-w-xl mx-auto">2 licences max par secteur. Quand c'est pris, c'est pris.</p>
+                <h2 className="text-3xl lg:text-4xl font-bold text-primary-foreground mb-4">Votre ville est peut-être encore disponible.</h2>
+                <p className="text-primary-foreground/60 mb-8 max-w-xl mx-auto">2 licences max par secteur. Quand c'est pris, c'est pris.</p>
                 <Button variant="gold" size="xl" onClick={() => document.getElementById('formulaire-licence')?.scrollIntoView({ behavior: 'smooth' })}>
                   <Shield className="w-5 h-5 mr-2" /> REJOINDRE L'ALLIANCE <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
