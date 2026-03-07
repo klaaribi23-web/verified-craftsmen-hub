@@ -127,8 +127,9 @@
 
   h1, h2 {
     font-family: 'Playfair Display', Georgia, serif;
-    letter-spacing: -0.01em;
-    font-feature-settings: 'liga' 1, 'kern' 1;
+    letter-spacing: 0.01em;
+    font-feature-settings: 'kern' 1;
+    font-variant-ligatures: no-common-ligatures;
   }
 }
 
