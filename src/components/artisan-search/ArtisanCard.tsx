@@ -476,20 +476,7 @@ const ArtisanCard = ({
           </button>
         ) : (
           <button
-            className="w-full rounded-lg py-2.5 text-[13px] font-extrabold transition-all active:scale-[0.98]"
-            style={{
-              backgroundColor: '#f0a500',
-              color: '#0d1117',
-              borderRadius: '8px',
-            }}
-            onMouseEnter={(e) => {
-              (e.target as HTMLElement).style.backgroundColor = '#ffc13d';
-              (e.target as HTMLElement).style.boxShadow = '0 0 16px rgba(240,165,0,0.4)';
-            }}
-            onMouseLeave={(e) => {
-              (e.target as HTMLElement).style.backgroundColor = '#f0a500';
-              (e.target as HTMLElement).style.boxShadow = 'none';
-            }}
+            className="w-full rounded-lg py-2.5 text-[13px] font-extrabold transition-all active:scale-[0.98] bg-primary text-primary-foreground hover:bg-primary/90"
           >
             Voir le profil →
           </button>
