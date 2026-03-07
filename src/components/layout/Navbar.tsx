@@ -394,7 +394,7 @@ const Navbar = () => {
                     src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR}
                     alt="Avatar"
                   />
-                  <AvatarFallback className="bg-gold/20 text-white text-sm">
+                  <AvatarFallback className="bg-gold/20 text-foreground text-sm">
                     {getUserInitials()}
                   </AvatarFallback>
                 </Avatar>
@@ -433,20 +433,20 @@ const Navbar = () => {
                       src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR}
                       alt="Avatar"
                     />
-                    <AvatarFallback className="bg-gold/20 text-white">
+                    <AvatarFallback className="bg-gold/20 text-foreground">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-white font-semibold">
+                    <p className="text-foreground font-semibold">
                       {role === "admin" ? "Administrateur" : role === "artisan" ? "Artisan" : "Client"}
                     </p>
-                    <p className="text-white/70 text-sm truncate max-w-[180px]">{user?.email}</p>
+                    <p className="text-muted-foreground text-sm truncate max-w-[180px]">{user?.email}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsDashboardSidebarOpen(false)}
-                  className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="text-foreground p-2 hover:bg-muted rounded-lg transition-colors"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -574,16 +574,16 @@ const Navbar = () => {
               >
                 <div className="py-3">
                   {/* SECTION ARTISANS */}
-                  <p className="px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-white/50">Artisans</p>
+                  <p className="px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Artisans</p>
                   <Link
                     to="/nos-missions"
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-bold transition-colors",
-                      isActive("/nos-missions") ? "bg-white/15 text-gold" : "text-white hover:bg-white/10"
+                      isActive("/nos-missions") ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                     )}
                   >
-                    <Radar className="w-5 h-5 text-gold" />
+                    <Radar className="w-5 h-5 text-primary" />
                     Voir les projets
                   </Link>
                   <Link
@@ -591,7 +591,7 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/devenir-partenaire") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
+                      isActive("/devenir-partenaire") ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                     )}
                   >
                     <Crown className="w-5 h-5" />
@@ -602,7 +602,7 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/auth") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
+                      isActive("/auth") ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                     )}
                   >
                     <User className="w-5 h-5" />
@@ -610,10 +610,10 @@ const Navbar = () => {
                   </Link>
 
                   {/* Séparateur */}
-                  <div className="border-t border-white/15 my-3 mx-4" />
+                  <div className="border-t border-border my-3 mx-4" />
 
                   {/* SECTION PARTICULIERS */}
-                  <p className="px-4 pt-1 pb-1 text-[11px] font-bold uppercase tracking-wider text-white/50">Particuliers</p>
+                  <p className="px-4 pt-1 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Particuliers</p>
                   <Link
                     to="/demande-devis"
                     onClick={() => setIsOpen(false)}
@@ -629,7 +629,7 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/trouver-artisan") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
+                      isActive("/trouver-artisan") ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                     )}
                   >
                     <Search className="w-5 h-5" />
@@ -639,11 +639,11 @@ const Navbar = () => {
                   {/* Authenticated shortcut */}
                   {isAuthenticated && !isLoading && (
                     <>
-                      <div className="border-t border-white/15 my-3 mx-4" />
+                      <div className="border-t border-border my-3 mx-4" />
                       <Link
                         to={getDashboardLink()}
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-white hover:bg-white/10 transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
                       >
                         <LayoutDashboard className="w-5 h-5" />
                         Mon espace

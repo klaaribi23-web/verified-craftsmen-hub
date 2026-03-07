@@ -77,11 +77,11 @@ export const DemoMessaging = ({ viewAs, contactsShared = false, onShareContacts 
         <div className={`px-4 py-3 border-b flex items-center justify-between ${
           viewAs === "client" 
             ? "bg-teal-50 border-teal-200" 
-            : "bg-navy/5 border-navy/10"
+            : "bg-primary/5 border-primary/10"
         }`}>
           <div className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              viewAs === "client" ? "bg-teal-500" : "bg-navy"
+              viewAs === "client" ? "bg-teal-500" : "bg-primary"
             }`}>
               <User className="w-4 h-4 text-white" />
             </div>
@@ -185,7 +185,7 @@ export const DemoMessaging = ({ viewAs, contactsShared = false, onShareContacts 
                   isOwn 
                     ? viewAs === "client" 
                       ? "bg-teal-500 text-white rounded-br-md" 
-                      : "bg-navy text-white rounded-br-md"
+                      : "bg-primary text-white rounded-br-md"
                     : "bg-muted rounded-bl-md"
                 }`}>
                   <p className="text-sm leading-relaxed">{content}</p>
@@ -251,10 +251,10 @@ export const DemoMessaging = ({ viewAs, contactsShared = false, onShareContacts 
               <input 
                 type="text" 
                 placeholder="Écrire un message..." 
-                className="flex-1 px-4 py-2 rounded-full bg-muted text-sm border-0 focus:outline-none focus:ring-2 focus:ring-navy"
+                className="flex-1 px-4 py-2 rounded-full bg-muted text-sm border-0 focus:outline-none focus:ring-2 focus:ring-primary"
                 disabled
               />
-              <Button size="icon" className="rounded-full bg-navy hover:bg-navy-light h-9 w-9" disabled>
+              <Button size="icon" className="rounded-full bg-primary hover:bg-primary/90 h-9 w-9" disabled>
                 <Send className="w-4 h-4 text-white" />
               </Button>
             </div>
