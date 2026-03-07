@@ -292,7 +292,7 @@ const ArtisanFilters = ({ onFiltersChange }: ArtisanFiltersProps) => {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-4">
                  <Button
                    size="lg"
-                   className="flex-1 h-[52px] md:h-12 rounded-xl text-[15px] md:text-base font-extrabold gap-2 shadow-md hover:shadow-lg transition-shadow bg-gold hover:bg-gold-dark text-primary-foreground btn-shine font-['DM_Sans']"
+                   className="flex-1 h-[52px] md:h-12 rounded-xl text-[15px] md:text-base font-extrabold gap-2 shadow-md hover:shadow-lg transition-shadow bg-accent hover:bg-accent/90 text-accent-foreground btn-shine font-['DM_Sans']"
                 onClick={() => {
                   document.getElementById("artisans-results")?.scrollIntoView({ behavior: "smooth" });
                 }}
