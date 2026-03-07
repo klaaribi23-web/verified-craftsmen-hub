@@ -62,8 +62,8 @@ const ExpertCaseStudy = () => {
                   transition={{ delay: i * 0.12, duration: 0.4 }}
                   className="flex gap-4 md:gap-6 items-start"
                 >
-                  <div className="relative z-10 flex-shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-xl bg-navy flex items-center justify-center shadow-lg">
-                    <step.icon className="w-6 h-6 md:w-7 md:h-7 text-gold" />
+                  <div className="relative z-10 flex-shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-xl bg-primary flex items-center justify-center shadow-lg">
+                    <step.icon className="w-6 h-6 md:w-7 md:h-7 text-primary-foreground" />
                   </div>
                   <div className="bg-background rounded-xl border border-border p-5 md:p-6 flex-1 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2 mb-2">
@@ -87,9 +87,9 @@ const ExpertCaseStudy = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.5 }}
-            className="mt-8 bg-navy rounded-xl p-5 md:p-6 text-center"
+            className="mt-8 bg-primary rounded-xl p-5 md:p-6 text-center"
           >
-            <p className="text-white/80 italic text-sm md:text-base">
+            <p className="text-primary-foreground/80 italic text-sm md:text-base">
               « Je valide uniquement les artisans qui passent 100% de nos critères d'audit. Aucune exception. »
             </p>
             <p className="text-gold font-semibold text-sm mt-2">— Andrea, IA d'audit Artisans Validés</p>

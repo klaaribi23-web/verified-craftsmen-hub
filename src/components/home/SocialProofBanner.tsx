@@ -88,21 +88,21 @@ const SocialProofBanner = () => {
   const current = messages[currentIndex];
 
   return (
-    <div className="bg-[#0A192F] py-2.5 overflow-hidden">
+    <div className="bg-muted py-2.5 overflow-hidden border-b border-border">
       <div className="container mx-auto px-4">
         <div
           className={cn(
-            "flex items-center justify-center gap-2 text-sm text-white/80 transition-all duration-400",
+            "flex items-center justify-center gap-2 text-sm text-foreground/80 transition-all duration-400",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
           )}
         >
           <span className="relative flex h-2 w-2 mr-1">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4AF37] opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D4AF37]"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
           </span>
-          <span className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-wider mr-1.5">Live</span>
+          <span className="text-[10px] font-bold text-accent uppercase tracking-wider mr-1.5">Live</span>
           <span className="font-medium">{current.text}</span>
-          <ShieldCheck className="h-3.5 w-3.5 text-[#D4AF37]/60 flex-shrink-0 ml-1" />
+          <ShieldCheck className="h-3.5 w-3.5 text-accent/60 flex-shrink-0 ml-1" />
         </div>
       </div>
     </div>

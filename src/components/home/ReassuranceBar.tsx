@@ -8,7 +8,7 @@ const items = [
 ];
 
 const ReassuranceBar = () => (
-  <section className="bg-[#111827] py-3 border-t border-b border-white/5">
+  <section className="bg-muted py-3 border-t border-b border-border">
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-2 md:flex items-center justify-center gap-3 md:gap-6">
         {items.map((text, i) => (
