@@ -288,7 +288,7 @@ const DemandeDevis = () => {
                     <div key={s} className="flex flex-col items-center gap-1">
                       <div
                         className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm transition-all ${
-                          s < step ? "bg-success text-white" : s === step ? "bg-gold text-navy-dark shadow-gold" : "bg-secondary text-muted-foreground border border-border"
+                          s < step ? "bg-success text-white" : s === step ? "bg-gold text-primary-foreground shadow-gold" : "bg-secondary text-muted-foreground border border-border"
                         }`}
                       >
                         {s < step ? <CheckCircle2 className="w-5 h-5" /> : s}
