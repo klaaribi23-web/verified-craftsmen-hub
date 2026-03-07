@@ -527,7 +527,7 @@ const NosMissions = () => {
       
       <main>
         {/* ── Hero Section — pt accounts for fixed banner+navbar ── */}
-        <section className="bg-navy relative overflow-hidden pt-8 md:pt-12 pb-8 md:pb-12">
+        <section className="bg-primary relative overflow-hidden pt-8 md:pt-12 pb-8 md:pb-12">
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-72 h-72 bg-gold/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
@@ -553,10 +553,10 @@ const NosMissions = () => {
                 📡 SCAN EN COURS : {filteredMissions.length} missions disponibles autour de vous
               </motion.div>
 
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4">
                 Trouvez votre prochaine <span className="text-gradient-gold">opportunité</span>
               </h1>
-              <p className="text-lg text-white/70">
+              <p className="text-lg text-primary-foreground/70">
                 Des chantiers vérifiés et des clients qualifiés vous attendent.
               </p>
             </motion.div>
@@ -1129,17 +1129,17 @@ const NosMissions = () => {
         </section>
 
         {/* ── Conversion Banner ── */}
-        <section className="bg-navy py-16">
+        <section className="bg-primary py-16">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="max-w-3xl mx-auto text-center">
               <BadgeCheck className="w-12 h-12 text-gold mx-auto mb-4" />
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-4">
                 La technologie au service du terrain
               </h2>
-              <p className="text-lg text-white/70 mb-4 max-w-xl mx-auto">
+              <p className="text-lg text-primary-foreground/70 mb-4 max-w-xl mx-auto">
                 Nous utilisons la technologie pour éliminer les mauvais payeurs et les mauvais poseurs. Pas de blabla, juste des chantiers vérifiés et des pros certifiés.
               </p>
-              <p className="text-sm text-white/50 mb-8 max-w-lg mx-auto">
+              <p className="text-sm text-primary-foreground/50 mb-8 max-w-lg mx-auto">
                 Notre algorithme de confiance, combiné à 20 ans de savoir-faire terrain, sélectionne les meilleurs artisans de France.
               </p>
               <Link to="/devenir-artisan">

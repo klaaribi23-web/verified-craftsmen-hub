@@ -70,7 +70,7 @@ const LandingMission = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-navy rounded-2xl p-8 text-center mb-8"
+            className="bg-primary rounded-2xl p-8 text-center mb-8"
           >
             <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-5">
               <Shield className="w-8 h-8 text-gold" />
@@ -78,7 +78,7 @@ const LandingMission = () => {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-xs font-bold text-gold mb-4">
               AV CERTIFIÉ
             </div>
-            <p className="text-white text-base leading-relaxed max-w-sm mx-auto">
+            <p className="text-primary-foreground text-base leading-relaxed max-w-sm mx-auto">
               Cette opportunité est <strong className="text-gold">réservée aux artisans certifiés</strong>. Pour garantir la qualité, nous limitons les accès par secteur.
             </p>
           </motion.div>
