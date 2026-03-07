@@ -83,8 +83,8 @@ const HeroDualEntry = () => {
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
               <Home className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">Je cherche un artisan</h2>
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+            <h2 className="text-xl font-bold text-white mb-2">Je cherche un artisan</h2>
+            <p className="text-sm text-white/90 mb-6 leading-relaxed">
               1 artisan audité. Vos coordonnées protégées. Vous décidez de tout.
             </p>
 
@@ -155,8 +155,8 @@ const HeroDualEntry = () => {
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
               <ShieldCheck className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">Je suis artisan</h2>
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+            <h2 className="text-xl font-bold text-white mb-2">Je suis artisan</h2>
+            <p className="text-sm text-white/90 mb-6 leading-relaxed">
               Devenez le seul artisan de votre métier sur votre secteur. Zéro commission.
             </p>
 
