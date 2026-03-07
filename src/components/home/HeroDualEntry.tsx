@@ -36,7 +36,7 @@ const HeroDualEntry = () => {
           className="w-full h-full object-cover"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-[rgba(10,15,28,0.82)]" />
+        <div className="absolute inset-0 bg-[rgba(10,15,28,0.3)]" />
       </div>
 
       {/* Ambient glow */}

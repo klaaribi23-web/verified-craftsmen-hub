@@ -394,7 +394,7 @@ const Navbar = () => {
                     src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR}
                     alt="Avatar"
                   />
-                  <AvatarFallback className="bg-gold/20 text-white text-sm">
+                  <AvatarFallback className="bg-gold/20 text-foreground text-sm">
                     {getUserInitials()}
                   </AvatarFallback>
                 </Avatar>
@@ -433,20 +433,20 @@ const Navbar = () => {
                       src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR}
                       alt="Avatar"
                     />
-                    <AvatarFallback className="bg-gold/20 text-white">
+                    <AvatarFallback className="bg-gold/20 text-foreground">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-white font-semibold">
+                    <p className="text-foreground font-semibold">
                       {role === "admin" ? "Administrateur" : role === "artisan" ? "Artisan" : "Client"}
                     </p>
-                    <p className="text-white/70 text-sm truncate max-w-[180px]">{user?.email}</p>
+                    <p className="text-muted-foreground text-sm truncate max-w-[180px]">{user?.email}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsDashboardSidebarOpen(false)}
-                  className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="text-foreground p-2 hover:bg-muted rounded-lg transition-colors"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -629,7 +629,7 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/trouver-artisan") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
+                      isActive("/trouver-artisan") ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                     )}
                   >
                     <Search className="w-5 h-5" />
@@ -639,11 +639,11 @@ const Navbar = () => {
                   {/* Authenticated shortcut */}
                   {isAuthenticated && !isLoading && (
                     <>
-                      <div className="border-t border-white/15 my-3 mx-4" />
+                      <div className="border-t border-border my-3 mx-4" />
                       <Link
                         to={getDashboardLink()}
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-white hover:bg-white/10 transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
                       >
                         <LayoutDashboard className="w-5 h-5" />
                         Mon espace
