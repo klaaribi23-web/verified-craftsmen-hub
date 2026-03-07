@@ -333,7 +333,7 @@ const Navbar = () => {
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar className="h-10 w-10 border-2 border-gold">
               <AvatarImage src={role === "artisan" && artisanPhotoUrl ? artisanPhotoUrl : DEFAULT_AVATAR} alt="Avatar" />
-              <AvatarFallback className="bg-gold/20 text-navy font-semibold">
+              <AvatarFallback className="bg-primary/20 text-primary font-semibold">
                 {getUserInitials()}
               </AvatarFallback>
             </Avatar>

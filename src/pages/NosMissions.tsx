@@ -1234,7 +1234,7 @@ const NosMissions = () => {
           </DialogHeader>
           
           <div className="py-6 space-y-4">
-            <div className="bg-navy/5 border border-navy/10 rounded-xl p-6 text-center">
+            <div className="bg-primary/5 border border-primary/10 rounded-xl p-6 text-center">
               <p className="text-foreground font-medium text-lg mb-3">
                 Cet accès est réservé aux membres du réseau national Artisans Validés.
               </p>
