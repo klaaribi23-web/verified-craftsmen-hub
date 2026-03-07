@@ -381,7 +381,7 @@ const Navbar = () => {
     <>
       {/* Mobile/Tablet Top Bar for authenticated users */}
       {showMobileDashboardNav && (
-        <div className="fixed top-0 left-0 right-0 z-[55] bg-navy lg:hidden">
+        <div className="fixed top-0 left-0 right-0 z-[55] bg-background border-b border-border lg:hidden">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-end h-12">
               {/* Avatar only - on the right */}
@@ -426,7 +426,7 @@ const Navbar = () => {
               className="fixed inset-y-0 right-0 w-full max-w-sm bg-card z-[65] lg:hidden shadow-2xl overflow-y-auto"
             >
               {/* Header */}
-              <div className="bg-navy p-4 flex items-center justify-between sticky top-0">
+              <div className="bg-card p-4 flex items-center justify-between sticky top-0 border-b border-border">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12 border-2 border-gold">
                     <AvatarImage
@@ -463,7 +463,7 @@ const Navbar = () => {
 
       <header
         id="main-navbar"
-        className="fixed left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border top-0"
+        className="fixed left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm top-0"
       >
         {/* Responsive offset: on mobile (<lg) with auth top bar, shift header down 48px more */}
         {showMobileDashboardNav && (
@@ -570,7 +570,7 @@ const Navbar = () => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="lg:hidden overflow-hidden bg-navy -mx-4 px-4 rounded-b-xl"
+                className="lg:hidden overflow-hidden bg-card -mx-4 px-4 rounded-b-xl border-b border-border"
               >
                 <div className="py-3">
                   {/* SECTION ARTISANS */}
