@@ -23,14 +23,14 @@ const ITEMS_PER_PAGE = 21;
 
 // ── Skeleton card matching new premium layout ──
 const ArtisanCardSkeleton = () => (
-  <div className="rounded-xl overflow-hidden border border-white/[0.06]" style={{ backgroundColor: '#111827' }}>
+  <div className="rounded-xl overflow-hidden border border-border bg-card">
     <div className="relative w-full overflow-hidden" style={{ aspectRatio: '4/3' }}>
-      <div className="absolute inset-0 shimmer-gold-skeleton" />
+      <Skeleton className="absolute inset-0" />
     </div>
     <div className="p-3 space-y-2">
-      <Skeleton className="h-3 w-3/4" style={{ backgroundColor: 'rgba(240,165,0,0.06)' }} />
-      <Skeleton className="h-3 w-1/2" style={{ backgroundColor: 'rgba(240,165,0,0.04)' }} />
-      <Skeleton className="h-9 w-full rounded-lg mt-2" style={{ backgroundColor: 'rgba(240,165,0,0.08)' }} />
+      <Skeleton className="h-3 w-3/4" />
+      <Skeleton className="h-3 w-1/2" />
+      <Skeleton className="h-9 w-full rounded-lg mt-2" />
     </div>
   </div>
 );
@@ -240,7 +240,7 @@ const TrouverArtisan = () => {
   const paginatedArtisans = sortedArtisans.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   
-  return <div className="min-h-screen" style={{ backgroundColor: '#0A192F' }}>
+  return <div className="min-h-screen bg-background">
       <SEOHead 
         title="Trouver un artisan qualifié"
         description="Trouvez et comparez les meilleurs artisans vérifiés près de chez vous. Plombiers, électriciens, peintres et plus. Devis gratuit en 24h."
@@ -250,14 +250,14 @@ const TrouverArtisan = () => {
       
       <main>
         {/* Hero Search */}
-        <section className="py-10 md:py-16 lg:py-24 border-b border-[#D4AF37]/10" style={{ backgroundColor: '#0A192F' }}>
+        <section className="py-10 md:py-16 lg:py-24 border-b border-border bg-background">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6 md:mb-10">
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 md:mb-4 font-['DM_Sans'] leading-tight">
-                Les artisans que vous <span style={{ color: '#D4AF37' }}>méritez</span>.<br className="hidden md:block" />
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-3 md:mb-4 font-['DM_Sans'] leading-tight">
+                Les artisans que vous <span className="text-primary">méritez</span>.<br className="hidden md:block" />
                 Vérifiés, audités, exclusifs.
               </h1>
-              <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto px-4 leading-relaxed">
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4 leading-relaxed">
                 Chaque artisan a passé l'audit Andrea. Assurances contrôlées, SIRET vérifié, avis authentiques. Vous échangez en sécurité — vos coordonnées restent privées jusqu'à ce que vous décidiez.
               </p>
             </motion.div>
@@ -269,15 +269,15 @@ const TrouverArtisan = () => {
 
             {/* Reassurance Bar */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="max-w-4xl mx-auto mt-5">
-              <div className="rounded-xl py-3 px-4 grid grid-cols-2 md:flex items-center justify-center gap-3 md:gap-6" style={{ backgroundColor: '#0D1F35' }}>
+              <div className="rounded-xl py-3 px-4 grid grid-cols-2 md:flex items-center justify-center gap-3 md:gap-6 bg-muted">
                 {[
                   "87% des artisans refusés à l'audit",
                   "Vos coordonnées protégées",
                   "Zéro commission",
                   "Réponse sous 2h",
                 ].map((text, i) => (
-                  <span key={i} className="flex items-center gap-1.5 text-[11px] md:text-sm text-white/90 font-medium text-center justify-center">
-                    <span style={{ color: '#D4AF37' }}>✓</span>
+                  <span key={i} className="flex items-center gap-1.5 text-[11px] md:text-sm text-foreground font-medium text-center justify-center">
+                    <span className="text-primary">✓</span>
                     {text}
                   </span>
                 ))}
@@ -288,13 +288,13 @@ const TrouverArtisan = () => {
 
 
         {/* Featured Artisans Carousel */}
-        <section className="py-10 md:py-16" style={{ backgroundColor: '#0D1F35' }}>
+        <section className="py-10 md:py-16 bg-muted/50">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="mb-6 md:mb-8">
-              <h2 className="text-xl md:text-2xl font-extrabold text-white text-center md:text-left font-['DM_Sans']">
-                L'élite <span style={{ color: '#D4AF37' }}>vérifiée</span> — et seulement l'élite
+              <h2 className="text-xl md:text-2xl font-extrabold text-foreground text-center md:text-left font-['DM_Sans']">
+                L'élite <span className="text-primary">vérifiée</span> — et seulement l'élite
               </h2>
-              <p className="text-sm text-white/60 mt-1 text-center md:text-left">
+              <p className="text-sm text-muted-foreground mt-1 text-center md:text-left">
                 Pas de quantité. De la qualité. Chaque artisan audité sur le terrain par notre équipe.
               </p>
             </div>
@@ -303,18 +303,18 @@ const TrouverArtisan = () => {
         </section>
 
         {/* All Artisans with Filters */}
-        <section className="py-10 md:py-16" ref={resultsRef} id="artisans-results" style={{ backgroundColor: '#0A192F' }}>
+        <section className="py-10 md:py-16 bg-background" ref={resultsRef} id="artisans-results">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="mb-6 md:mb-8">
-              <h2 className="text-xl md:text-2xl font-extrabold text-white font-['DM_Sans']">Tous nos <span style={{ color: '#D4AF37' }}>artisans</span></h2>
-              <p className="text-sm text-white/60 mt-1">
+              <h2 className="text-xl md:text-2xl font-extrabold text-foreground font-['DM_Sans']">Tous nos <span className="text-primary">artisans</span></h2>
+              <p className="text-sm text-muted-foreground mt-1">
                 Chaque artisan visible ici a passé notre audit — 87% des candidats ont été refusés
               </p>
             </div>
 
             {/* Geo hint when no filter active */}
             {!filters.city && !filters.cityInput && (
-              <div className="mb-4 rounded-lg px-3.5 py-2.5 text-[13px] text-white/80 font-medium" style={{ backgroundColor: '#0D1F35' }}>
+              <div className="mb-4 rounded-lg px-3.5 py-2.5 text-[13px] text-foreground font-medium bg-muted">
                 📍 Entrez votre ville ci-dessus pour voir les artisans de votre zone en premier
               </div>
             )}
@@ -334,43 +334,25 @@ const TrouverArtisan = () => {
                   </div>
 
                   {/* Badge Legend */}
-                  <div className="mb-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0" style={{ backgroundColor: '#0D1F35', borderRadius: '8px', padding: '10px 14px' }}>
+                  <div className="mb-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0 bg-muted p-2.5 sm:p-3">
                     <div className="flex items-center gap-2">
                       <span
-                        className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
-                        style={{
-                          backgroundColor: '#f0a500',
-                          color: '#0d1117',
-                          borderRadius: '20px',
-                          padding: '4px 10px',
-                          fontSize: '10px',
-                          fontWeight: 800,
-                          boxShadow: '0 2px 8px rgba(240,165,0,0.5)',
-                        }}
+                        className="badge-shimmer flex items-center gap-1 whitespace-nowrap bg-accent text-accent-foreground rounded-full px-2.5 py-1 text-[10px] font-extrabold shadow-sm"
                       >
-                        <ShieldCheck style={{ width: '11px', height: '11px', flexShrink: 0 }} />
+                        <ShieldCheck className="w-[11px] h-[11px] flex-shrink-0" />
                         <span>✓ AUDITÉ</span>
                       </span>
-                      <span style={{ fontSize: '11px', color: '#8b95a8' }}>Vérifié sur le terrain par notre équipe</span>
+                      <span className="text-[11px] text-muted-foreground">Vérifié sur le terrain par notre équipe</span>
                     </div>
-                    <div className="hidden sm:block mx-4" style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
+                    <div className="hidden sm:block mx-4 w-px h-5 bg-border" />
                     <div className="flex items-center gap-2">
                       <span
-                        className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
-                        style={{
-                          backgroundColor: '#22c55e',
-                          color: '#0d1117',
-                          borderRadius: '20px',
-                          padding: '4px 10px',
-                          fontSize: '10px',
-                          fontWeight: 800,
-                          boxShadow: '0 2px 8px rgba(34,197,94,0.5)',
-                        }}
+                        className="badge-shimmer flex items-center gap-1 whitespace-nowrap bg-success text-success-foreground rounded-full px-2.5 py-1 text-[10px] font-extrabold shadow-sm"
                       >
-                        <ShieldCheck style={{ width: '11px', height: '11px', flexShrink: 0 }} />
+                        <ShieldCheck className="w-[11px] h-[11px] flex-shrink-0" />
                         <span>✓ VALIDÉ</span>
                       </span>
-                      <span style={{ fontSize: '11px', color: '#8b95a8' }}>Assurances et SIRET contrôlés</span>
+                      <span className="text-[11px] text-muted-foreground">Assurances et SIRET contrôlés</span>
                     </div>
                   </div>
                   
@@ -434,8 +416,8 @@ const TrouverArtisan = () => {
               ) : (
                 <div className="text-center py-16 px-4">
                   <div className="max-w-md mx-auto">
-                    <p className="text-lg font-extrabold text-white mb-2 font-['DM_Sans']">Aucun expert ne correspond à ces critères pour le moment.</p>
-                    <p className="text-[#8892B0] mb-6">
+                    <p className="text-lg font-extrabold text-foreground mb-2 font-['DM_Sans']">Aucun expert ne correspond à ces critères pour le moment.</p>
+                    <p className="text-muted-foreground mb-6">
                       Nos auditeurs sont sur le terrain. Laissez votre demande, nous vous recontacterons.
                     </p>
                     <Button asChild variant="default" size="lg">
@@ -464,16 +446,16 @@ const TrouverArtisan = () => {
         />
 
         {/* CTA */}
-        <section className="py-10 md:py-16" style={{ backgroundColor: '#060C18' }}>
+        <section className="py-10 md:py-16 bg-muted/30">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="bg-gradient-gold rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center mx-0">
-              <h2 className="text-[clamp(18px,5vw,24px)] md:text-2xl lg:text-3xl font-bold text-navy-dark mb-3 md:mb-4">
+            <div className="bg-primary rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center mx-0">
+              <h2 className="text-[clamp(18px,5vw,24px)] md:text-2xl lg:text-3xl font-bold text-primary-foreground mb-3 md:mb-4">
                 Vous ne trouvez pas ce que vous cherchez ?
               </h2>
-              <p className="text-navy-dark/70 mb-6 md:mb-8 max-w-xl mx-auto text-sm md:text-base">
+              <p className="text-primary-foreground/70 mb-6 md:mb-8 max-w-xl mx-auto text-sm md:text-base">
                 Décrivez votre projet et nous vous mettrons en relation avec les artisans les plus adaptés.
               </p>
-              <Button variant="default" size="lg" asChild className="w-full sm:w-auto min-h-[52px]">
+              <Button variant="gold" size="lg" asChild className="w-full sm:w-auto min-h-[52px]">
                 <Link to="/demande-devis">
                   Déposer une demande de devis
                   <ArrowRight className="w-5 h-5 ml-2" />

@@ -79,7 +79,7 @@ const AskExpertSection = () => {
   };
 
   return (
-    <section className="py-16 md:py-20 bg-muted/50 border-t-2 border-navy/10">
+    <section className="py-16 md:py-20 bg-muted/50 border-t-2 border-border">
       <div className="container mx-auto px-4 max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -88,11 +88,11 @@ const AskExpertSection = () => {
           viewport={{ once: true }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-navy/10 rounded-full mb-4 border border-navy/15">
-            <MessageCircleQuestion className="h-4 w-4 text-navy" />
-            <span className="text-sm font-semibold" style={{ color: '#FFFFFF', fontWeight: 600, opacity: 1 }}>Expert IA</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4 border border-primary/15">
+            <MessageCircleQuestion className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold text-foreground">Expert IA</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-semibold mb-3" style={{ color: '#FFFFFF', fontWeight: 600, opacity: 1 }}>
+          <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
             Un doute sur vos travaux ? Pas de blabla.
           </h2>
           <p className="text-muted-foreground text-base md:text-lg">

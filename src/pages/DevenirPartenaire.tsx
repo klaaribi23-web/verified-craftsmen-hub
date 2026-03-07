@@ -42,7 +42,7 @@ const WhatsAppButton = () => (
     aria-label="Parler à Andrea"
   >
     <MessageCircle className="w-6 h-6 text-white" />
-    <span className="absolute -top-8 right-0 bg-white text-navy text-xs font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+    <span className="absolute -top-8 right-0 bg-white text-foreground text-xs font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
       Parler à Andrea
     </span>
   </a>
@@ -159,7 +159,7 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
         {/* Licence AV */}
         <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
           <Card className="h-full border-2 border-gold shadow-lg shadow-gold/10 relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-navy text-xs font-black px-4 py-1 rounded-full uppercase">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-primary-foreground text-xs font-black px-4 py-1 rounded-full uppercase">
               Meilleur choix
             </div>
             <CardContent className="p-4 md:p-8 pt-8">

@@ -81,7 +81,6 @@ const ResetPassword = () => {
 
       if (error) throw error;
 
-      // Send security notification for password change
       if (data.user) {
         notifyPasswordChanged(data.user.id);
       }
@@ -106,7 +105,7 @@ const ResetPassword = () => {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="w-20 h-20 rounded-2xl border-2 border-primary/40 flex items-center justify-center bg-primary/10">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -121,15 +120,15 @@ const ResetPassword = () => {
 
   if (!isValidSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="max-w-md mx-auto px-4">
-          <Card className="border-primary/30 shadow-gold" style={{ background: '#020617' }}>
+          <Card className="border shadow-sm">
             <CardHeader className="text-center">
               <div className="w-16 h-16 mx-auto bg-destructive/20 rounded-full flex items-center justify-center mb-4 border border-destructive/30">
                 <Shield className="h-8 w-8 text-destructive" />
               </div>
-              <CardTitle className="text-2xl text-white uppercase font-black">Lien expiré</CardTitle>
-              <CardDescription className="text-white/80">
+              <CardTitle className="text-2xl text-foreground uppercase font-black">Lien expiré</CardTitle>
+              <CardDescription>
                 Ce lien de réinitialisation n'est plus valide ou a expiré.
               </CardDescription>
             </CardHeader>
@@ -142,7 +141,7 @@ const ResetPassword = () => {
                 Demander un nouveau lien
               </Button>
               <Button 
-                variant="outline-gold"
+                variant="outline"
                 onClick={() => navigate("/auth")}
                 className="w-full"
               >
@@ -157,7 +156,7 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12" style={{ background: '#0A192F' }}>
+    <div className="min-h-screen flex items-center justify-center py-12 bg-background">
       <SEOHead 
         title="Réinitialiser le mot de passe" 
         description="Créez un nouveau mot de passe pour votre compte"
@@ -165,22 +164,22 @@ const ResetPassword = () => {
       />
       
       <div className="max-w-md mx-auto w-full px-4">
-        <Card className="border-primary/30 shadow-gold" style={{ background: '#020617' }}>
+        <Card className="border shadow-sm">
           <CardHeader className="text-center">
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4 border border-primary/30">
               <Lock className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="text-2xl text-white uppercase font-black tracking-wide">
+            <CardTitle className="text-2xl text-foreground uppercase font-black tracking-wide">
               Nouveau mot de passe
             </CardTitle>
-            <CardDescription className="text-white/80">
+            <CardDescription>
               Créez un nouveau mot de passe pour votre compte
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-white">Nouveau mot de passe</Label>
+                <Label htmlFor="password">Nouveau mot de passe</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                   <Input
@@ -189,19 +188,18 @@ const ResetPassword = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 border-primary/30 text-white"
-                    style={{ background: '#0A192F' }}
+                    className="pl-10"
                     required
                     minLength={8}
                   />
                 </div>
-                <p className="text-xs text-white/60">
+                <p className="text-xs text-muted-foreground">
                   Minimum 8 caractères, une majuscule et un chiffre
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-white">Confirmer le mot de passe</Label>
+                <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                   <Input
@@ -210,8 +208,7 @@ const ResetPassword = () => {
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-10 border-primary/30 text-white"
-                    style={{ background: '#0A192F' }}
+                    className="pl-10"
                     required
                     minLength={8}
                   />

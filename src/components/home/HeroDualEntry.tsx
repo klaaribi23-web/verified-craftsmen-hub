@@ -60,7 +60,7 @@ const HeroDualEntry = () => {
             La plateforme qui met fin au{" "}
             <span className="relative inline-block">
               <span className="text-white">hasard</span>
-              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-accent rounded-full" />
+              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full" />
             </span>{" "}
             dans le bâtiment.
           </h1>

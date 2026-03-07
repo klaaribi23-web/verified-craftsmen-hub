@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-// Navbar/Footer removed — Dark Prestige full-bleed auth
 import { notifyNewDeviceLogin } from "@/hooks/useSecurityNotifications";
 import { trackLoginAttempt, checkIfBlocked } from "@/hooks/useLoginTracking";
 import { 
@@ -117,7 +116,6 @@ const Auth = () => {
         businessName: userType === "artisan" ? businessName : undefined,
       });
 
-      // Additional validation for artisan business name
       if (userType === "artisan" && (!businessName || businessName.trim().length < 2)) {
         toast({
           title: "Erreur de validation",
@@ -141,7 +139,6 @@ const Auth = () => {
 
       const validatedData = validationResult.data;
 
-      // Create user WITHOUT email confirmation (we handle it with OTP)
       const { data, error } = await supabase.auth.signUp({
         email: validatedData.email,
         password: validatedData.password,
@@ -158,7 +155,6 @@ const Auth = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Check if user already exists
         if (data.user.identities && data.user.identities.length === 0) {
           toast({
             title: "Email déjà utilisé",
@@ -170,7 +166,6 @@ const Auth = () => {
           return;
         }
 
-        // Wait for profile to be created by trigger with retry logic
         let profile = null;
         let retries = 0;
         const maxRetries = 5;
@@ -192,15 +187,12 @@ const Auth = () => {
         }
 
         if (!profile) {
-          // Sign out the user since we can't complete registration
           await supabase.auth.signOut();
           throw new Error("Erreur lors de la création du profil. Veuillez réessayer.");
         }
 
-        // Generate a confirmation token
         const confirmationToken = crypto.randomUUID();
 
-        // Update profile with confirmation token - MUST NOT ignore this error
         const { error: updateError } = await supabase
           .from("profiles")
           .update({
@@ -218,7 +210,6 @@ const Auth = () => {
 
         console.log("[AUTH] Confirmation token saved successfully:", confirmationToken);
 
-        // If artisan, create empty artisan profile
         if (userType === "artisan") {
           const { error: artisanError } = await supabase
             .from("artisans")
@@ -245,10 +236,8 @@ const Auth = () => {
           }
         }
 
-        // Build confirmation URL with our custom token
         const confirmationUrl = `${window.location.origin}/confirmer-email?token=${confirmationToken}`;
 
-        // Send custom branded confirmation email - only AFTER token is saved
         const { error: emailError } = await supabase.functions.invoke("send-confirmation-email", {
           body: {
             email: validatedData.email,
@@ -261,13 +250,10 @@ const Auth = () => {
 
         if (emailError) {
           console.error("[AUTH] Error sending confirmation email:", emailError);
-          // Don't throw here - token is saved, user can request resend
         }
 
-        // Sign out the user so they must confirm email before logging in
         await supabase.auth.signOut();
 
-        // Show full-page confirmation instead of toast
         setSentEmail(validatedData.email);
         setSentFirstName(validatedData.firstName);
         setEmailSent(true);
@@ -306,7 +292,6 @@ const Auth = () => {
 
       const validatedData = validationResult.data;
 
-      // Check if IP is blocked before attempting login
       const isBlocked = await checkIfBlocked();
       if (isBlocked) {
         toast({
@@ -324,7 +309,6 @@ const Auth = () => {
       });
 
       if (error) {
-        // Track failed login attempt
         const trackResult = await trackLoginAttempt({
           email: validatedData.email,
           success: false,
@@ -343,13 +327,11 @@ const Auth = () => {
         throw error;
       }
 
-      // Track successful login
       trackLoginAttempt({
         email: validatedData.email,
         success: true,
       });
 
-      // Check if email is confirmed in our system
       if (data.user) {
         const { data: profile } = await supabase
           .from("profiles")
@@ -357,7 +339,6 @@ const Auth = () => {
           .eq("user_id", data.user.id)
           .single();
 
-        // If profile exists and email is not confirmed, block login
         if (profile && profile.email_confirmed === false) {
           await supabase.auth.signOut();
           toast({
@@ -369,7 +350,6 @@ const Auth = () => {
           return;
         }
 
-        // Send new device notification (runs in background)
         notifyNewDeviceLogin(data.user.id);
       }
 
@@ -402,7 +382,6 @@ const Auth = () => {
     try {
       console.log("[Auth] Calling resend-confirmation-email Edge Function");
       
-      // Call secure Edge Function (uses service_role, server-side rate limiting)
       const { data, error } = await supabase.functions.invoke("resend-confirmation-email", {
         body: {
           email: sentEmail,
@@ -418,7 +397,6 @@ const Auth = () => {
 
       if (!data?.success) {
         console.log("[Auth] Resend failed:", data?.message);
-        // If server returns cooldown remaining, use it
         if (data?.cooldownRemaining) {
           setResendCooldown(data.cooldownRemaining);
         }
@@ -430,7 +408,7 @@ const Auth = () => {
         title: "Email renvoyé !",
         description: "Un nouvel email de confirmation a été envoyé.",
       });
-      setResendCooldown(60); // 60 seconds cooldown
+      setResendCooldown(60);
     } catch (error: any) {
       console.error("[Auth] Resend error:", error);
       toast({
@@ -442,33 +420,34 @@ const Auth = () => {
       setIsResending(false);
     }
   };
+
   // Full-page email sent confirmation
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A192F' }}>
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-6 p-8 max-w-md">
           <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center border border-primary/30">
             <Mail className="h-10 w-10 text-primary" />
           </div>
           
-          <div className="border border-primary/30 rounded-lg p-4 text-left" style={{ background: 'rgba(212,175,55,0.08)' }}>
+          <div className="border border-primary/30 rounded-lg p-4 text-left bg-primary/5">
             <div className="flex items-center gap-2 text-primary">
               <CheckCircle className="h-5 w-5 flex-shrink-0" />
-              <p className="font-bold text-white">
+              <p className="font-bold text-foreground">
                 Votre inscription a bien été prise en compte !
               </p>
             </div>
-            <p className="text-sm text-white mt-2 ml-7">
+            <p className="text-sm text-muted-foreground mt-2 ml-7">
               Pour continuer, veuillez confirmer votre adresse email en cliquant sur le lien que vous venez de recevoir.
             </p>
           </div>
           
-          <h1 className="text-2xl font-black text-white uppercase">Vérifiez votre boîte mail</h1>
-          <p className="text-white">
+          <h1 className="text-2xl font-black text-foreground uppercase">Vérifiez votre boîte mail</h1>
+          <p className="text-muted-foreground">
             Un email a été envoyé à <strong className="text-primary">{sentEmail}</strong>.
           </p>
-          <div className="border border-primary/30 rounded-lg p-4" style={{ background: 'rgba(212,175,55,0.05)' }}>
-            <p className="text-sm text-white">
+          <div className="border border-primary/30 rounded-lg p-4 bg-primary/5">
+            <p className="text-sm text-muted-foreground">
               <strong className="text-primary">Pensez à vérifier vos spams</strong> si vous ne trouvez pas l'email dans votre boîte de réception.
             </p>
           </div>
@@ -486,7 +465,7 @@ const Auth = () => {
                 ? `Renvoyer (${resendCooldown}s)` 
                 : "Renvoyer l'email"}
             </Button>
-            <Button variant="outline-gold" onClick={() => setEmailSent(false)}>
+            <Button variant="outline" onClick={() => setEmailSent(false)}>
               Retour
             </Button>
           </div>
@@ -496,7 +475,7 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12" style={{ background: '#0A192F' }}>
+    <div className="min-h-screen flex items-center justify-center py-12 bg-background">
       <SEOHead 
         title="Connexion" 
         description="Connectez-vous à votre compte Artisans Validés"
@@ -504,17 +483,17 @@ const Auth = () => {
       />
       
       <div className="max-w-md mx-auto w-full px-4">
-        <Link to="/" className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6">
+        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="h-4 w-4" />
           Retour à l'accueil
         </Link>
 
-        <Card className="border-primary/30 shadow-gold" style={{ background: '#020617' }}>
+        <Card className="border shadow-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-white uppercase font-black tracking-wide">
+            <CardTitle className="text-2xl text-foreground uppercase font-black tracking-wide">
               {authMode === "login" ? "Connexion" : "Inscription"}
             </CardTitle>
-            <CardDescription className="text-white/80">
+            <CardDescription>
               {authMode === "login" 
                 ? "Connectez-vous à votre espace" 
                 : "Créez votre compte pour commencer"}
@@ -541,7 +520,7 @@ const Auth = () => {
                     <TabsContent value="login">
                       <form onSubmit={handleEmailSignIn} className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="email" className="text-white">Email</Label>
+                          <Label htmlFor="email">Email</Label>
                           <div className="relative">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                             <Input
@@ -550,15 +529,14 @@ const Auth = () => {
                               placeholder="votre@email.com"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
-                              className="pl-10 border-primary/30 text-white"
-                              style={{ background: '#0A192F' }}
+                              className="pl-10"
                               required
                             />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="password" className="text-white">Mot de passe</Label>
+                          <Label htmlFor="password">Mot de passe</Label>
                           <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                             <Input
@@ -567,8 +545,7 @@ const Auth = () => {
                               placeholder="••••••••"
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}
-                              className="pl-10 border-primary/30 text-white"
-                              style={{ background: '#0A192F' }}
+                              className="pl-10"
                               required
                               minLength={6}
                             />
@@ -594,7 +571,7 @@ const Auth = () => {
                       <form onSubmit={handleEmailSignUp} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="firstName" className="text-white">Prénom</Label>
+                            <Label htmlFor="firstName">Prénom</Label>
                             <div className="relative">
                               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                               <Input
@@ -602,28 +579,25 @@ const Auth = () => {
                                 placeholder="Jean"
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
-                                className="pl-10 border-primary/30 text-white"
-                                style={{ background: '#0A192F' }}
+                                className="pl-10"
                                 required
                               />
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="lastName" className="text-white">Nom</Label>
+                            <Label htmlFor="lastName">Nom</Label>
                             <Input
                               id="lastName"
                               placeholder="Dupont"
                               value={lastName}
                               onChange={(e) => setLastName(e.target.value)}
-                              className="border-primary/30 text-white"
-                              style={{ background: '#0A192F' }}
                               required
                             />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="signupEmail" className="text-white">Email</Label>
+                          <Label htmlFor="signupEmail">Email</Label>
                           <div className="relative">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                             <Input
@@ -632,15 +606,14 @@ const Auth = () => {
                               placeholder="votre@email.com"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
-                              className="pl-10 border-primary/30 text-white"
-                              style={{ background: '#0A192F' }}
+                              className="pl-10"
                               required
                             />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="signupPassword" className="text-white">Mot de passe</Label>
+                          <Label htmlFor="signupPassword">Mot de passe</Label>
                           <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                             <Input
@@ -649,13 +622,12 @@ const Auth = () => {
                               placeholder="••••••••"
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}
-                              className="pl-10 border-primary/30 text-white"
-                              style={{ background: '#0A192F' }}
+                              className="pl-10"
                               required
                               minLength={8}
                             />
                           </div>
-                          <p className="text-xs text-white/60">
+                          <p className="text-xs text-muted-foreground">
                             Minimum 8 caractères, une majuscule et un chiffre
                           </p>
                         </div>
@@ -675,7 +647,7 @@ const Auth = () => {
                   {/* Artisan: login only + candidacy CTA */}
                   <form onSubmit={handleEmailSignIn} className="space-y-4 mb-6">
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-white">Email professionnel</Label>
+                      <Label htmlFor="email">Email professionnel</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                         <Input
@@ -684,15 +656,14 @@ const Auth = () => {
                           placeholder="votre@email-pro.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="pl-10 border-primary/30 text-white"
-                          style={{ background: '#0A192F' }}
+                          className="pl-10"
                           required
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="text-white">Mot de passe</Label>
+                      <Label htmlFor="password">Mot de passe</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
                         <Input
@@ -701,8 +672,7 @@ const Auth = () => {
                           placeholder="••••••••"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10 border-primary/30 text-white"
-                          style={{ background: '#0A192F' }}
+                          className="pl-10"
                           required
                           minLength={6}
                         />
@@ -724,7 +694,7 @@ const Auth = () => {
                   </form>
 
                   <div className="border-t pt-6 space-y-4">
-                    <p className="text-sm text-center text-white/60">
+                    <p className="text-sm text-center text-muted-foreground">
                       Vous n'avez pas encore d'accès ? Seuls les artisans validés par notre équipe peuvent se connecter.
                     </p>
                     <Link to="/devenir-artisan" className="block">
@@ -733,9 +703,9 @@ const Auth = () => {
                       </Button>
                     </Link>
 
-                    <div className="rounded-lg p-4 text-center border border-primary/20" style={{ background: 'rgba(212,175,55,0.05)' }}>
-                      <p className="text-sm text-white/60 mb-1">Besoin d'en parler de vive voix ?</p>
-                      <a href="tel:+33612345678" className="inline-flex items-center gap-2 font-semibold text-white hover:text-primary transition-colors">
+                    <div className="rounded-lg p-4 text-center border border-primary/20 bg-primary/5">
+                      <p className="text-sm text-muted-foreground mb-1">Besoin d'en parler de vive voix ?</p>
+                      <a href="tel:+33612345678" className="inline-flex items-center gap-2 font-semibold text-foreground hover:text-primary transition-colors">
                         <Phone className="h-4 w-4" />
                         06 12 34 56 78
                       </a>

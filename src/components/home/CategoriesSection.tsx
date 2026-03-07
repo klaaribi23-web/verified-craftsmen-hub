@@ -31,7 +31,7 @@ const CategoriesSection = () => {
           <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-4">
             Nos métiers
           </span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-navy mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             Quel artisan recherchez-vous ?
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">

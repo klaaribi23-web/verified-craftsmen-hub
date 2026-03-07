@@ -101,14 +101,13 @@ const BienvenueElite = () => {
         noIndex={true}
       />
       <div
-        className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-4"
-        style={{ background: "#0A192F" }}
+        className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-4 bg-background"
       >
         {/* Scanner sweep */}
         <motion.div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: "linear-gradient(180deg, transparent 0%, rgba(212,175,55,0.06) 50%, transparent 100%)",
+            background: "linear-gradient(180deg, transparent 0%, hsl(var(--primary) / 0.06) 50%, transparent 100%)",
           }}
           animate={{ y: ["-100%", "100%"] }}
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -129,7 +128,7 @@ const BienvenueElite = () => {
           <motion.div
             className="w-16 h-16 mx-auto mb-5 rounded-2xl border-2 border-primary/40 flex items-center justify-center bg-primary/10"
             animate={{
-              borderColor: ["rgba(212,175,55,0.4)", "rgba(212,175,55,0.8)", "rgba(212,175,55,0.4)"],
+              borderColor: ["hsl(var(--primary) / 0.4)", "hsl(var(--primary) / 0.8)", "hsl(var(--primary) / 0.4)"],
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
@@ -145,22 +144,21 @@ const BienvenueElite = () => {
             SECTEUR {sector.toUpperCase()} — ACCÈS RÉSERVÉ
           </motion.p>
 
-          <h1 className="text-2xl md:text-3xl font-black text-white uppercase tracking-wide text-center mb-2">
+          <h1 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-wide text-center mb-2">
             VOTRE ACCÈS ÉLITE EST PRÊT
           </h1>
-          <p className="text-white/80 text-center mb-6">
+          <p className="text-muted-foreground text-center mb-6">
             Finalisez votre profil pour commencer à recevoir vos chantiers.
           </p>
 
           {/* Countdown */}
           <div className="flex items-center justify-center gap-1 mb-6">
             <Lock className="w-3.5 h-3.5 text-primary mr-2" />
-            <span className="text-xs text-white/70 uppercase tracking-wider mr-2">Priorité expire dans</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider mr-2">Priorité expire dans</span>
             {[pad(countdown.h), pad(countdown.m), pad(countdown.s)].map((unit, i) => (
               <span key={i} className="flex items-center">
                 <span
-                  className="border border-primary/30 rounded px-2 py-1 text-sm font-mono font-bold text-primary tabular-nums"
-                  style={{ background: "#020617" }}
+                  className="border border-primary/30 rounded px-2 py-1 text-sm font-mono font-bold text-primary tabular-nums bg-muted"
                 >
                   {unit}
                 </span>
@@ -170,11 +168,11 @@ const BienvenueElite = () => {
           </div>
 
           {/* Login card */}
-          <Card className="border-primary/20 shadow-gold" style={{ background: "#020617" }}>
+          <Card className="border shadow-sm">
             <CardContent className="pt-6 pb-6 px-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-white text-sm font-medium">Email professionnel</Label>
+                  <Label className="text-sm font-medium">Email professionnel</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60" />
                     <Input
@@ -183,14 +181,13 @@ const BienvenueElite = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="pl-10 border-primary/30 text-white placeholder:text-white/30 focus:border-primary"
-                      style={{ background: "#0A192F" }}
+                      className="pl-10"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-white text-sm font-medium">Mot de passe</Label>
+                  <Label className="text-sm font-medium">Mot de passe</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/60" />
                     <Input
@@ -200,13 +197,12 @@ const BienvenueElite = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={mode === "signup" ? 8 : 1}
-                      className="pl-10 pr-10 border-primary/30 text-white placeholder:text-white/30 focus:border-primary"
-                      style={{ background: "#0A192F" }}
+                      className="pl-10 pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -216,7 +212,7 @@ const BienvenueElite = () => {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-gold text-primary-foreground font-bold uppercase tracking-wider btn-shine h-12"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-wider h-12"
                 >
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -247,7 +243,7 @@ const BienvenueElite = () => {
                   <button
                     type="button"
                     onClick={() => navigate("/forgot-password")}
-                    className="text-xs text-white/40 hover:text-white/60 transition-colors"
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Mot de passe oublié ?
                   </button>
@@ -260,14 +256,14 @@ const BienvenueElite = () => {
           <div className="flex items-center justify-center gap-2 mt-5">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
               <Shield className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs text-white font-medium">✅ CERTIFIÉ IA ANDREA</span>
+              <span className="text-xs text-foreground font-medium">✅ CERTIFIÉ IA ANDREA</span>
             </div>
           </div>
 
           {/* Progress bar */}
-          <div className="mt-5 w-full h-0.5 rounded-full overflow-hidden" style={{ background: "rgba(212,175,55,0.15)" }}>
+          <div className="mt-5 w-full h-0.5 rounded-full overflow-hidden bg-primary/15">
             <motion.div
-              className="h-full bg-gradient-gold rounded-full"
+              className="h-full bg-primary rounded-full"
               initial={{ width: "0%" }}
               animate={{ width: "60%" }}
               transition={{ duration: 4, ease: "easeOut" }}

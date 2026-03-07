@@ -68,7 +68,7 @@ const AnimatedStar = ({
   </motion.div>;
 
 const TestimonialsSection = () => {
-  return <section className="py-14 lg:py-22 relative overflow-hidden bg-[#1a2235]">
+  return <section className="py-14 lg:py-22 relative overflow-hidden bg-primary">
       <div className="absolute top-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
       
@@ -88,14 +88,14 @@ const TestimonialsSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-stretch">
           {testimonials.map((testimonial, index) => <motion.article key={testimonial.name} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.15, duration: 0.5 }} whileHover={{ y: -4, transition: { duration: 0.3 } }} className="relative group h-full">
-              <div className="bg-navy rounded-2xl overflow-hidden h-full border border-gold/15 hover:border-gold/40 hover:shadow-xl transition-all duration-300 flex flex-col">
+              <div className="bg-primary/80 rounded-2xl overflow-hidden h-full border border-primary-foreground/15 hover:border-accent/40 hover:shadow-xl transition-all duration-300 flex flex-col">
                 <div className="p-6 flex flex-col flex-1">
                   {/* Badge Sceau AV */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-gold/70 flex items-center justify-center shadow-lg border-2 border-gold/30">
                       <div className="text-center">
-                        <span className="block text-navy-dark font-black text-sm leading-none">AV</span>
-                        <span className="block text-navy-dark/70 text-[7px] font-semibold tracking-wider uppercase leading-tight mt-0.5">{testimonial.sealLabel}</span>
+                        <span className="block text-primary font-black text-sm leading-none">AV</span>
+                        <span className="block text-primary/70 text-[7px] font-semibold tracking-wider uppercase leading-tight mt-0.5">{testimonial.sealLabel}</span>
                       </div>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-xs font-medium">
@@ -103,7 +103,7 @@ const TestimonialsSection = () => {
                     </span>
                   </div>
 
-                  <Quote className="w-7 h-7 text-gold/25 mb-4" />
+                  <Quote className="w-7 h-7 text-primary-foreground/25 mb-4" />
 
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => <AnimatedStar key={i} index={i + index * 5} filled={i < testimonial.rating} />)}

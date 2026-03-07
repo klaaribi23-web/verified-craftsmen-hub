@@ -146,11 +146,11 @@ export const DemoMessaging = ({ viewAs, contactsShared = false, onShareContacts 
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="font-medium text-navy">{clientContact.phone}</span>
+                      <span className="font-medium text-foreground">{clientContact.phone}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Mail className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="font-medium text-navy">{clientContact.email}</span>
+                      <span className="font-medium text-foreground">{clientContact.email}</span>
                     </div>
                   </div>
                 </div>

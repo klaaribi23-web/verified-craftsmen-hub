@@ -54,7 +54,7 @@ const TrustSection = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {trustFeatures.map((feature, index) => <motion.div key={feature.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:bg-white/10 transition-colors">
               <div className="w-14 h-14 rounded-xl bg-gradient-gold flex items-center justify-center mb-6 shadow-gold">
-                <feature.icon className="w-7 h-7 text-navy-dark" />
+                <feature.icon className="w-7 h-7 text-primary" />
               </div>
               <h3 className="text-xl font-semibold text-primary-foreground mb-3">
                 {feature.title}
