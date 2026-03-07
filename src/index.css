@@ -6,55 +6,44 @@
 
 @layer base {
   :root {
-    /* Background & Surfaces — Dark Premium Navy */
-    --background: 215 62% 6%;
-    --foreground: 210 40% 92%;
+    --background: 40 30% 96%;
+    --foreground: 0 0% 8%;
     
-    /* Cards & Containers — Dark glass */
-    --card: 215 55% 10%;
-    --card-foreground: 210 40% 92%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
     
-    --popover: 215 55% 10%;
-    --popover-foreground: 210 40% 92%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
     
-    /* Primary — Gold Prestige */
-    --primary: 43 74% 53%;
-    --primary-foreground: 215 62% 6%;
+    --primary: 150 44% 26%;
+    --primary-foreground: 0 0% 100%;
     
-    /* Secondary — Subtle dark */
-    --secondary: 215 45% 14%;
-    --secondary-foreground: 210 40% 85%;
+    --secondary: 40 20% 90%;
+    --secondary-foreground: 0 0% 15%;
     
-    /* Muted — Dark backgrounds */
-    --muted: 215 45% 12%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 40 15% 92%;
+    --muted-foreground: 0 0% 45%;
     
-    /* Accent — Gold Prestige */
-    --accent: 43 74% 53%;
-    --accent-foreground: 215 62% 6%;
+    --accent: 22 67% 46%;
+    --accent-foreground: 0 0% 100%;
     
-    /* Gold/Premium variants */
-    --gold: 43 74% 53%;
-    --gold-light: 43 80% 62%;
-    --gold-dark: 43 70% 42%;
+    --gold: 22 67% 46%;
+    --gold-light: 22 70% 55%;
+    --gold-dark: 22 65% 36%;
     
-    /* Navy Blue variants — Bleu Marine Profond #0A192F */
-    --navy: 215 62% 11%;
-    --navy-light: 215 45% 20%;
-    --navy-dark: 215 70% 6%;
+    --navy: 150 44% 20%;
+    --navy-light: 150 30% 35%;
+    --navy-dark: 150 50% 12%;
     
-    /* Success/Verified */
-    --success: 142 71% 45%;
+    --success: 142 71% 35%;
     --success-foreground: 0 0% 100%;
     
-    /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
     
-    /* Borders & Inputs — Subtle gold tint */
-    --border: 215 30% 18%;
-    --input: 215 30% 18%;
-    --ring: 43 74% 53%;
+    --border: 40 20% 82%;
+    --input: 40 20% 82%;
+    --ring: 150 44% 26%;
     
     --radius: 0.75rem;
     
@@ -87,33 +76,33 @@
   }
 
   .dark {
-    --background: 215 62% 6%;
-    --foreground: 210 40% 92%;
+    --background: 40 30% 96%;
+    --foreground: 0 0% 8%;
     
-    --card: 215 55% 10%;
-    --card-foreground: 210 40% 92%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
     
-    --popover: 215 55% 10%;
-    --popover-foreground: 210 40% 92%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
     
-    --primary: 43 74% 53%;
-    --primary-foreground: 215 62% 6%;
+    --primary: 150 44% 26%;
+    --primary-foreground: 0 0% 100%;
     
-    --secondary: 215 45% 14%;
-    --secondary-foreground: 210 40% 85%;
+    --secondary: 40 20% 90%;
+    --secondary-foreground: 0 0% 15%;
     
-    --muted: 215 45% 12%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 40 15% 92%;
+    --muted-foreground: 0 0% 45%;
     
-    --accent: 43 74% 53%;
-    --accent-foreground: 215 62% 6%;
+    --accent: 22 67% 46%;
+    --accent-foreground: 0 0% 100%;
     
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 40% 98%;
     
-    --border: 215 30% 18%;
-    --input: 215 30% 18%;
-    --ring: 43 74% 53%;
+    --border: 40 20% 82%;
+    --input: 40 20% 82%;
+    --ring: 150 44% 26%;
   }
 }
 
@@ -303,7 +292,7 @@ body:has(.mobile-navbar-active) footer {
 
 /* Global body-level anti-white-flash: ensure root is always navy */
 html, body {
-  background-color: hsl(215 62% 6%) !important;
+  background-color: hsl(40 30% 96%);
 }
 
 /* Shimmer gold skeleton for artisan cards */
