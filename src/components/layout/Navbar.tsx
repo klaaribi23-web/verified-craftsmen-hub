@@ -574,16 +574,16 @@ const Navbar = () => {
               >
                 <div className="py-3">
                   {/* SECTION ARTISANS */}
-                  <p className="px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-white/50">Artisans</p>
+                  <p className="px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Artisans</p>
                   <Link
                     to="/nos-missions"
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-bold transition-colors",
-                      isActive("/nos-missions") ? "bg-white/15 text-gold" : "text-white hover:bg-white/10"
+                      isActive("/nos-missions") ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                     )}
                   >
-                    <Radar className="w-5 h-5 text-gold" />
+                    <Radar className="w-5 h-5 text-primary" />
                     Voir les projets
                   </Link>
                   <Link
@@ -591,7 +591,7 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/devenir-partenaire") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
+                      isActive("/devenir-partenaire") ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                     )}
                   >
                     <Crown className="w-5 h-5" />
@@ -602,7 +602,7 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                      isActive("/auth") ? "bg-white/10 text-gold" : "text-white/80 hover:bg-white/10"
+                      isActive("/auth") ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                     )}
                   >
                     <User className="w-5 h-5" />
@@ -610,10 +610,10 @@ const Navbar = () => {
                   </Link>
 
                   {/* Séparateur */}
-                  <div className="border-t border-white/15 my-3 mx-4" />
+                  <div className="border-t border-border my-3 mx-4" />
 
                   {/* SECTION PARTICULIERS */}
-                  <p className="px-4 pt-1 pb-1 text-[11px] font-bold uppercase tracking-wider text-white/50">Particuliers</p>
+                  <p className="px-4 pt-1 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Particuliers</p>
                   <Link
                     to="/demande-devis"
                     onClick={() => setIsOpen(false)}
