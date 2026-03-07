@@ -137,10 +137,10 @@ const Contact = () => {
       <Navbar />
 
       {/* Hero */}
-      <section className="bg-navy pb-16">
+      <section className="bg-primary pb-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Contactez-nous</h1>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-4">Contactez-nous</h1>
+          <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto">
             Notre équipe est à votre écoute pour répondre à toutes vos questions
           </p>
         </div>

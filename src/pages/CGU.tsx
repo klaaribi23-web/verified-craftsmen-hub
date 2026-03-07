@@ -14,12 +14,12 @@ const CGU = () => {
       
       <main className="min-h-screen">
         {/* Hero Section */}
-        <section className="bg-navy py-16 md:py-20">
+        <section className="bg-primary py-16 md:py-20">
           <div className="container mx-auto px-4">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground text-center">
               Conditions Générales d'Utilisation
             </h1>
-            <p className="text-white/80 text-center mt-4 max-w-2xl mx-auto">
+            <p className="text-primary-foreground/80 text-center mt-4 max-w-2xl mx-auto">
               Règles d'accès et d'utilisation de la plateforme Artisans Validés
             </p>
           </div>

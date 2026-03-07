@@ -13,12 +13,12 @@ const CGV = () => {
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-navy py-16 md:py-20">
+        <section className="bg-primary py-16 md:py-20">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4">
               Conditions Générales de Vente
             </h1>
-            <p className="text-lg text-white/80 max-w-2xl mx-auto">
+            <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto">
               Applicables aux services proposés sur la plateforme Artisans Validés
             </p>
           </div>
