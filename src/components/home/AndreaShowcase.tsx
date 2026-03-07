@@ -76,7 +76,7 @@ const AndreaShowcase = () => {
   }, [phase, seqIndex, seq, typeText]);
 
   return (
-    <section className="py-14 md:py-20 bg-[#1a2235]">
+    <section className="py-14 md:py-20 bg-muted">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -84,9 +84,9 @@ const AndreaShowcase = () => {
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-4">
-            <ShieldCheck className="h-4 w-4 text-[#f0f2f5]" />
-            <span className="text-sm font-medium text-[#f0f2f5]">Intelligence artificielle</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Intelligence artificielle</span>
           </div>
           <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
             Andrea, notre IA d'audit,
@@ -108,8 +108,8 @@ const AndreaShowcase = () => {
             <div className="space-y-5 mb-8">
               {features.map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Icon className="w-4 h-4 text-white" />
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Icon className="w-4 h-4 text-primary" />
                   </div>
                   <span className="text-foreground text-sm font-medium">{text}</span>
                 </div>
@@ -146,7 +146,7 @@ const AndreaShowcase = () => {
                 {/* User message */}
                 {displayedUser && (
                   <div className="flex justify-end">
-                    <div className="bg-white/5 border border-white/10 rounded-xl rounded-tr-sm px-4 py-2.5 max-w-[85%]">
+                    <div className="bg-secondary border border-border rounded-xl rounded-tr-sm px-4 py-2.5 max-w-[85%]">
                       <p className="text-sm text-foreground">{displayedUser}</p>
                     </div>
                   </div>
@@ -155,12 +155,12 @@ const AndreaShowcase = () => {
                 {/* Andrea response */}
                 {displayedAndrea && (
                   <div className="flex justify-start">
-                    <div className="bg-secondary border border-border rounded-xl rounded-tl-sm px-4 py-2.5 max-w-[85%]">
-                      <p className="text-xs font-semibold text-white/70 mb-1">Andrea IA</p>
+                    <div className="bg-muted border border-border rounded-xl rounded-tl-sm px-4 py-2.5 max-w-[85%]">
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">Andrea IA</p>
                       <p className="text-sm text-foreground">
                         {displayedAndrea}
                         {phase === "andrea" && (
-                          <span className="inline-block w-0.5 h-4 bg-white/60 ml-0.5 animate-pulse" />
+                          <span className="inline-block w-0.5 h-4 bg-foreground/60 ml-0.5 animate-pulse" />
                         )}
                       </p>
                     </div>
@@ -170,7 +170,7 @@ const AndreaShowcase = () => {
                 {/* Empty state cursor */}
                 {!displayedUser && !displayedAndrea && (
                   <div className="flex items-center gap-1 text-muted-foreground text-sm">
-                    <span className="inline-block w-0.5 h-4 bg-white/60 animate-pulse" />
+                    <span className="inline-block w-0.5 h-4 bg-foreground/60 animate-pulse" />
                   </div>
                 )}
               </div>
