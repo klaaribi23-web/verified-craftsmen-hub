@@ -14,9 +14,9 @@ const DoubleCTAFinal = () => (
           viewport={{ once: true }}
           className="rounded-2xl border border-primary/20 bg-card p-8 text-center flex flex-col items-center"
         >
-          <h3 className="text-xl font-bold text-foreground mb-2">Vous avez un projet ?</h3>
+          <h3 className="text-xl font-bold text-foreground mb-2">Prêt à lancer vos travaux ?</h3>
           <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-            Déposez votre projet gratuitement. Vos coordonnées restent privées jusqu'à ce que vous décidiez.
+            Décrivez votre besoin en 2 minutes. Vos coordonnées ne sont jamais partagées sans votre accord.
           </p>
           <Button variant="gold" className="font-bold btn-shine" asChild>
             <Link to="/demande-devis">
@@ -34,9 +34,9 @@ const DoubleCTAFinal = () => (
           transition={{ delay: 0.1 }}
           className="rounded-2xl border border-primary/20 bg-card p-8 text-center flex flex-col items-center"
         >
-          <h3 className="text-xl font-bold text-foreground mb-2">Vous êtes artisan ?</h3>
+          <h3 className="text-xl font-bold text-foreground mb-2">Artisan ? Votre secteur est peut-être encore libre.</h3>
           <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-            Vérifiez si votre secteur est encore disponible. Places limitées.
+            2 places max par ville et par métier. Pendant que vous hésitez, un concurrent peut prendre la vôtre.
           </p>
           <Button
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold btn-shine"

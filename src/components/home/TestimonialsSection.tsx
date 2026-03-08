@@ -139,10 +139,13 @@ const TestimonialsSection = () => {
             </motion.article>)}
         </div>
 
-        {/* Mention légale */}
-        <p className="text-center text-xs text-muted-foreground mt-8">
-          Témoignages inspirés d'expériences réelles de nos utilisateurs.
-        </p>
+        {/* Trust reinforcement */}
+        <div className="flex items-center justify-center gap-2 mt-10">
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <p className="text-center text-sm text-white/70 font-medium">
+            Identités vérifiées par notre équipe — Témoignages authentiques
+          </p>
+        </div>
 
       </div>
     </section>;
