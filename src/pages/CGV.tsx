@@ -268,7 +268,7 @@ const CGV = () => {
                   Le traitement des données personnelles est effectué conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi Informatique et Libertés.
                 </p>
                 <p className="text-muted-foreground">
-                  Pour plus d'informations, veuillez consulter notre <a href="/confidentialite" className="text-gold hover:underline">Politique de Confidentialité</a>.
+                  Pour plus d'informations, veuillez consulter notre <a href="/confidentialite" className="text-primary hover:underline">Politique de Confidentialité</a>.
                 </p>
               </article>
 

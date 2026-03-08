@@ -20,11 +20,11 @@ const steps = [{
 
 const HowItWorksSection = () => {
   return (
-    <section className="py-20 lg:py-32 bg-navy relative overflow-hidden">
+    <section className="py-20 lg:py-32 bg-primary relative overflow-hidden">
       {/* Subtle glow effects */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gold/10 blur-3xl"
+          className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-accent/10 blur-3xl"
           animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
           transition={{ duration: 8, repeat: Infinity }}
         />
@@ -43,7 +43,7 @@ const HowItWorksSection = () => {
           className="text-center mb-16"
         >
           <motion.span
-            className="inline-block px-4 py-1.5 rounded-full bg-gold/15 text-gold text-sm font-medium mb-4 border border-gold/20"
+            className="inline-block px-4 py-1.5 rounded-full bg-accent/15 text-accent text-sm font-medium mb-4 border border-accent/20"
             initial={{ scale: 0.8, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
@@ -51,10 +51,10 @@ const HowItWorksSection = () => {
           >
             Un service de conciergerie
           </motion.span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4">
             Comment ça marche ?
           </h2>
-          <p className="text-base md:text-lg text-white/60 max-w-2xl mx-auto text-center">
+          <p className="text-base md:text-lg text-primary-foreground/60 max-w-2xl mx-auto text-center">
             Nous faisons le travail de sélection pour vous.
             Chaque artisan est vérifié et validé par notre équipe.
           </p>
@@ -73,19 +73,19 @@ const HowItWorksSection = () => {
               {/* Connector arrow */}
               {index < steps.length - 1 && (
                 <div className="hidden lg:flex absolute top-10 left-[65%] w-full items-center">
-                  <div className="flex-1 h-0.5 bg-gradient-to-r from-white/20 to-white/10" />
+                  <div className="flex-1 h-0.5 bg-gradient-to-r from-primary-foreground/20 to-primary-foreground/10" />
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <ArrowRight className="w-5 h-5 text-gold" />
+                    <ArrowRight className="w-5 h-5 text-accent" />
                   </motion.div>
                 </div>
               )}
 
               {/* Step number badge — Gold */}
               <motion.div
-                className="absolute -top-3 left-8 z-20 w-10 h-10 rounded-full border-2 border-gold bg-navy flex items-center justify-center text-white text-sm font-bold shadow-lg"
+                className="absolute -top-3 left-8 z-20 w-10 h-10 rounded-full border-2 border-accent bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold shadow-lg"
                 whileHover={{ scale: 1.1 }}
               >
                 {step.step}
@@ -93,7 +93,7 @@ const HowItWorksSection = () => {
 
               {/* Card */}
               <motion.div
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 pt-10 border border-white/10 relative h-full hover:bg-white/15 transition-colors duration-300"
+                className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-8 pt-10 border border-primary-foreground/10 relative h-full hover:bg-primary-foreground/15 transition-colors duration-300"
                 whileHover={{
                   y: -8,
                   boxShadow: "0 20px 40px -15px rgba(0,0,0,0.3)"
@@ -101,15 +101,15 @@ const HowItWorksSection = () => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="mb-6 relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gold/15 border border-gold/20 flex items-center justify-center">
-                    <step.icon className="w-8 h-8 text-gold" strokeWidth={1.5} />
+                  <div className="w-16 h-16 rounded-2xl bg-accent/15 border border-accent/20 flex items-center justify-center">
+                    <step.icon className="w-8 h-8 text-accent" strokeWidth={1.5} />
                   </div>
                 </div>
 
-                <h3 className="text-xl font-semibold text-white mb-3 relative z-10">
+                <h3 className="text-xl font-semibold text-primary-foreground mb-3 relative z-10">
                   {step.title}
                 </h3>
-                <p className="text-white/60 leading-relaxed relative z-10">
+                <p className="text-primary-foreground/60 leading-relaxed relative z-10">
                   {step.description}
                 </p>
               </motion.div>
