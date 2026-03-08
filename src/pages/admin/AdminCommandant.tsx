@@ -38,6 +38,7 @@ interface CommandantArtisan {
   source: string | null;
   created_at: string;
   updated_at: string;
+  heat_score: number | null;
   category: { name: string } | null;
   profile: { email: string } | null;
 }
@@ -289,7 +290,7 @@ const AdminCommandant = () => {
         .from("artisans")
         .select(`
           id, business_name, city, email, phone, description, photo_url,
-          slug, status, source, created_at, updated_at,
+          slug, status, source, created_at, updated_at, heat_score,
           category:categories(name),
           profile:profiles(email)
         `)
