@@ -62,6 +62,7 @@ import ChatWidget from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
 
 import { supabase } from "@/integrations/supabase/client";
+import { useFounderBadge } from "@/hooks/useFounderBadge";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn, DEFAULT_AVATAR, ensureHttps } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
@@ -408,6 +409,8 @@ const ArtisanPublicProfile = () => {
                           <span className="text-xs font-bold text-primary uppercase tracking-wider">Artisan Validé</span>
                         </div>
                       ) : null}
+                      {/* Founder Badge */}
+                      {artisan?.id && <FounderBadgeInline artisanId={artisan.id} />}
                     </div>
 
                     {/* Info — Diploma-style header */}
