@@ -1118,6 +1118,19 @@ const ArtisanRow = ({
             <div className="flex items-center gap-2 mb-0.5">
               <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${statusDot}`} />
               <h3 className="font-semibold text-sm md:text-base truncate">{artisan.business_name}</h3>
+              {/* Heat Score Badge */}
+              {artisan.heat_score != null && artisan.heat_score > 0 && (
+                <Badge 
+                  variant="outline" 
+                  className={`text-[10px] px-1.5 py-0 font-bold shrink-0 ${
+                    artisan.heat_score >= 70 ? "border-destructive/50 text-destructive bg-destructive/10" :
+                    artisan.heat_score >= 40 ? "border-accent/50 text-accent bg-accent/10" :
+                    "border-muted-foreground/30 text-muted-foreground"
+                  }`}
+                >
+                  🔥 {artisan.heat_score}
+                </Badge>
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2">
               <span className="flex items-center gap-1">
