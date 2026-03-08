@@ -301,6 +301,7 @@ const AdminCommandant = () => {
       }
 
       const { data, error } = await query
+        .order("heat_score", { ascending: false, nullsFirst: false })
         .order("updated_at", { ascending: false })
         .range(page * PER_PAGE, (page + 1) * PER_PAGE - 1);
 
