@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
 const ArtisanSubscription = () => {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
