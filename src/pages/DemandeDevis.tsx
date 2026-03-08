@@ -667,46 +667,6 @@ const DemandeDevis = () => {
                   </motion.div>
                 )}
 
-                {/* ============ STEP 5: Password (non-auth only) ============ */}
-                {step === 5 && !isAuthenticated && (
-                  <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <h2 className="text-xl font-semibold text-foreground mb-2">
-                      <Lock className="w-5 h-5 inline-block mr-2" />
-                      Créer votre espace sécurisé
-                    </h2>
-                    <p className="text-muted-foreground mb-6">Sécurisez votre espace pour recevoir la proposition de l'artisan sélectionné en toute confidentialité.</p>
-                    <div className="space-y-6 mb-8">
-                      <div>
-                        <Label htmlFor="password" className="text-foreground mb-2 block">
-                          <Lock className="w-4 h-4 inline-block mr-2" /> Mot de passe *
-                        </Label>
-                        <Input id="password" type="password" placeholder="••••••••" value={formData.password} onChange={(e) => updateForm("password", e.target.value)} className="h-12" minLength={8} />
-                        <p className="text-xs text-muted-foreground mt-1">Minimum 8 caractères</p>
-                      </div>
-                      <div className="flex items-start gap-3 p-4 rounded-xl bg-gold/10">
-                        <CheckCircle2 className="w-5 h-5 text-gold mt-0.5" />
-                        <div className="text-sm">
-                          <p className="font-medium text-foreground">Votre compte vous permettra de :</p>
-                          <ul className="text-muted-foreground mt-1 space-y-1">
-                            <li>• Suivre l'état de vos demandes</li>
-                            <li>• Recevoir et comparer les devis</li>
-                            <li>• Communiquer avec les artisans</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
-                        <ArrowLeft className="w-5 h-5 mr-2" /> Retour
-                      </Button>
-                      <Button variant="gold" size="lg" onClick={handleSubmit} disabled={!formData.password || formData.password.length < 8 || isLoading} className="flex-1">
-                        {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                        Trouver mon artisan →
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-
                 {/* ============ SUCCESS ============ */}
                 {step === totalSteps + 1 && (
                   <motion.div key="success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
@@ -714,9 +674,19 @@ const DemandeDevis = () => {
                       <CheckCircle2 className="w-10 h-10 text-success" />
                     </div>
                     <h2 className="text-2xl font-bold text-foreground mb-4">🎉 Félicitations ! Votre projet est en ligne.</h2>
-                    <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                      Vous recevrez des notifications dès qu'un artisan y répondra. Suivez l'avancement depuis votre espace personnel.
+                    <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                      Vous recevrez des notifications dès qu'un artisan y répondra.
                     </p>
+                    {!isAuthenticated && (
+                      <div className="bg-accent/10 border border-accent/20 rounded-xl p-4 mb-6 max-w-sm mx-auto">
+                        <p className="text-sm text-foreground font-medium">
+                          📧 Un email de confirmation vous a été envoyé à <strong>{formData.email}</strong>
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Cliquez sur le lien pour activer votre espace et suivre vos devis.
+                        </p>
+                      </div>
+                    )}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <Button variant="gold" onClick={() => navigate("/client/dashboard")}>
                         Accéder à mon espace
