@@ -130,9 +130,9 @@ const PricingSection = ({ onCTA }: { onCTA: () => void }) => (
         </p>
       </motion.div>
 
-      <div className="max-w-md mx-auto">
+      <div className="max-w-md mx-auto pt-4">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <Card className="border-2 border-accent shadow-lg shadow-accent/10 relative overflow-hidden">
+          <Card className="border-2 border-accent shadow-lg shadow-accent/10 relative overflow-visible">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-black px-4 py-1 rounded-full uppercase whitespace-nowrap">
               🏆 Licence Exclusive
             </div>
