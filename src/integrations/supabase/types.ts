@@ -838,6 +838,51 @@ export type Database = {
         }
         Relationships: []
       }
+      link_clicks: {
+        Row: {
+          artisan_id: string | null
+          clicked_at: string
+          email: string | null
+          id: string
+          ip_address: string | null
+          source: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          artisan_id?: string | null
+          clicked_at?: string
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          source?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          artisan_id?: string | null
+          clicked_at?: string
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          source?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_clicks_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "link_clicks_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       login_attempts: {
         Row: {
           attempted_at: string | null
