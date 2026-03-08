@@ -4,23 +4,23 @@ import { motion } from "framer-motion";
 
 const sequences = [
   {
-    user: "Comment fonctionne l'audit ?",
-    andrea: "J'analyse 47 critères pour chaque artisan : SIRET, assurances, avis clients, historique chantiers. Seuls les meilleurs passent.",
+    user: "J'ai peur de tomber sur un artisan pas fiable...",
+    andrea: "Je vérifie tout avant vous : décennale, RC Pro, avis clients, SIRET. Si un dossier ne passe pas mes 47 critères, l'artisan n'apparaît pas sur la plateforme.",
   },
   {
-    user: "Mon artisan est-il vraiment vérifié ?",
-    andrea: "Oui. Décennale vérifiée, RC Pro contrôlée, audit terrain réalisé. Votre artisan a obtenu un score de 94/100.",
+    user: "Comment je sais que ses assurances sont à jour ?",
+    andrea: "Je contrôle chaque document en temps réel. Votre artisan a une décennale valide jusqu'en 2034 et une RC Pro vérifiée. Vous êtes protégé.",
   },
   {
-    user: "Puis-je faire confiance à Artisans Validés ?",
-    andrea: "87% des artisans candidats sont refusés. Vous n'accédez qu'à l'élite vérifiée.",
+    user: "Mes coordonnées seront partagées ?",
+    andrea: "Jamais sans votre accord. Vous échangez via messagerie sécurisée. Vous décidez quand — et si — vous partagez votre numéro.",
   },
 ];
 
 const features = [
-  { icon: FileSearch, text: "Vérification SIRET et documents légaux" },
-  { icon: Star, text: "Analyse des avis et réputation en ligne" },
-  { icon: BarChart3, text: "Score de fiabilité sur 100 points" },
+  { icon: FileSearch, text: "Assurances et décennale vérifiées pour vous" },
+  { icon: Star, text: "Avis clients contrôlés — pas de faux 5 étoiles" },
+  { icon: BarChart3, text: "Score de fiabilité calculé sur 47 critères" },
 ];
 
 const AndreaShowcase = () => {
@@ -86,12 +86,12 @@ const AndreaShowcase = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4">
             <ShieldCheck className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Intelligence artificielle</span>
+            <span className="text-sm font-medium text-primary">Votre assistante personnelle</span>
           </div>
           <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
-            Andrea, notre IA d'audit,
+            Andrea vérifie tout
             <br className="hidden sm:block" />
-            veille sur chaque dossier
+            pour que vous n'ayez rien à vérifier.
           </h2>
         </motion.div>
 
@@ -103,7 +103,7 @@ const AndreaShowcase = () => {
             viewport={{ once: true }}
           >
             <p className="text-muted-foreground mb-8 leading-relaxed">
-              Andrea analyse chaque candidature artisan avant qu'il ne rejoigne la plateforme.
+              Avant que vous ne voyiez un artisan, Andrea a déjà vérifié ses assurances, son SIRET et ses avis clients. Si quelque chose cloche, il n'apparaît pas.
             </p>
             <div className="space-y-5 mb-8">
               {features.map(({ icon: Icon, text }) => (

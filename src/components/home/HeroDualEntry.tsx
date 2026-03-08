@@ -57,17 +57,17 @@ const HeroDualEntry = () => {
           className="text-center max-w-4xl mx-auto mb-12 md:mb-16"
         >
           <h1 className="text-3xl md:text-5xl lg:text-[3.5rem] font-black text-white leading-[1.15] tracking-tight mb-6">
-            La plateforme qui met fin au{" "}
+            Vous méritez un artisan vérifié.
+            <br />
             <span className="relative inline-block">
-              <span className="text-white">hasard</span>
-              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full" />
-            </span>{" "}
-            dans le bâtiment.
+              <span className="text-white">Pas 11 appels en 1 heure.</span>
+              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-accent rounded-full" />
+            </span>
           </h1>
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-            Pour les particuliers qui veulent un artisan de confiance.
+            Vos coordonnées restent privées. Aucun démarchage.
             <br className="hidden sm:block" />
-            Pour les artisans qui veulent des clients qualifiés.
+            Vous choisissez qui vous contacte — et quand.
           </p>
         </motion.div>
 
@@ -83,9 +83,9 @@ const HeroDualEntry = () => {
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
               <Home className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-xl font-semibold font-sans text-white mb-2">Je cherche un artisan</h2>
+            <h2 className="text-xl font-semibold font-sans text-white mb-2">J'ai un projet de travaux</h2>
             <p className="text-sm text-white/90 mb-6 leading-relaxed">
-              1 artisan audité. Vos coordonnées protégées. Vous décidez de tout.
+              Décrivez votre besoin. On vous met en relation avec un artisan audité — sans partager vos coordonnées.
             </p>
 
             <form onSubmit={handleParticulierSearch} className="space-y-3 mt-auto">
@@ -157,7 +157,7 @@ const HeroDualEntry = () => {
             </div>
             <h2 className="text-xl font-semibold font-sans text-white mb-2">Je suis artisan</h2>
             <p className="text-sm text-white/90 mb-6 leading-relaxed">
-              Devenez le seul artisan de votre métier sur votre secteur. Zéro commission.
+              Verrouillez votre zone. 2 artisans max par ville et par métier. Clients directs, zéro commission.
             </p>
 
             <div className="mt-auto space-y-4">
