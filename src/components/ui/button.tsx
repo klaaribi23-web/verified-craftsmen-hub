@@ -15,12 +15,12 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent/10 hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Premium gold button - texte noir/navy pour contraste sur jaune
-        gold: "bg-gradient-gold text-navy-dark font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] btn-shine",
+        // Premium accent CTA button (ambre terracotta)
+        gold: "bg-accent text-accent-foreground font-bold shadow-md hover:shadow-lg hover:bg-accent/90 hover:scale-[1.02] active:scale-[0.98] btn-shine",
         // Hero CTA button
-        hero: "bg-gradient-gold text-navy-dark font-bold text-base px-8 py-6 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] rounded-xl btn-shine",
-        // Outline gold
-        "outline-gold": "border-2 border-gold bg-transparent text-gold hover:bg-gold hover:text-navy-dark",
+        hero: "bg-accent text-accent-foreground font-bold text-base px-8 py-6 shadow-md hover:shadow-lg hover:bg-accent/90 hover:scale-[1.02] active:scale-[0.98] rounded-xl btn-shine",
+        // Outline accent
+        "outline-gold": "border-2 border-accent bg-transparent text-accent hover:bg-accent hover:text-accent-foreground",
         // White button for dark backgrounds
         white: "bg-white text-foreground hover:bg-white/90 shadow-sm",
         // Subtle button

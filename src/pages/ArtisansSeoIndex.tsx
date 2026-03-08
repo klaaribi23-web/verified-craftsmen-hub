@@ -36,12 +36,12 @@ const ArtisansSeoIndex = () => {
 
       <main className="pt-20 pb-16">
         {/* Hero */}
-        <section className="py-12 md:py-20" style={{ background: 'linear-gradient(180deg, hsl(215 62% 6%) 0%, hsl(215 55% 12%) 100%)' }}>
+        <section className="py-12 md:py-20 bg-primary">
           <div className="max-w-6xl mx-auto px-4 text-center">
-            <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-4 font-['DM_Sans']">
+            <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">
               Trouvez un artisan vérifié par métier et par ville
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-primary-foreground/70 max-w-2xl mx-auto">
               {metiers?.length || 0} métiers × {cities?.length || 0} villes — Des artisans audités sur le terrain, partout en France.
             </p>
           </div>
