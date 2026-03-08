@@ -115,8 +115,8 @@ const AndreaShowcase = () => {
                 </div>
               ))}
             </div>
-            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-destructive/10 border border-destructive/20">
-              <span className="text-sm font-bold text-destructive">
+            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary/10 border border-primary/20">
+              <span className="text-sm font-bold text-primary">
                 87% des candidats refusés par Andrea en 2024
               </span>
             </div>
