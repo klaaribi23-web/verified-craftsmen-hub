@@ -229,6 +229,7 @@ export type Database = {
           google_maps_url: string | null
           google_rating: number | null
           google_review_count: number | null
+          heat_score: number | null
           hourly_rate: number | null
           id: string
           instagram_url: string | null
@@ -290,6 +291,7 @@ export type Database = {
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
+          heat_score?: number | null
           hourly_rate?: number | null
           id?: string
           instagram_url?: string | null
@@ -351,6 +353,7 @@ export type Database = {
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
+          heat_score?: number | null
           hourly_rate?: number | null
           id?: string
           instagram_url?: string | null
@@ -1968,6 +1971,7 @@ export type Database = {
         }
         Returns: string
       }
+      calculate_heat_score: { Args: { p_artisan_id: string }; Returns: number }
       cleanup_old_expert_calls: { Args: never; Returns: undefined }
       cleanup_old_login_attempts: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
@@ -2017,6 +2021,7 @@ export type Database = {
         Args: { p_story_id: string; p_viewer_id?: string }
         Returns: boolean
       }
+      refresh_all_heat_scores: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "artisan" | "client"
