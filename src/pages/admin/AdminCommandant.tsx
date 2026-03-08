@@ -219,7 +219,7 @@ const AdminCommandant = () => {
     if (!phone) return null;
     let intlPhone = phone.startsWith("0") ? `33${phone.slice(1)}` : phone.startsWith("33") ? phone : `33${phone}`;
     intlPhone = intlPhone.replace("+", "");
-    const url = getProfileUrl(artisan);
+    const url = getProfileUrl(artisan, true, "whatsapp");
     const msg = `${artisan.business_name}, c'est Andrea d'Artisans Validés.
 
 On a analysé votre secteur à ${artisan.city} : il est encore libre. Votre diagnostic est prêt ici :
@@ -232,7 +232,7 @@ On bloque votre position ?`;
   };
 
   const generateAccessText = (artisan: CommandantArtisan) => {
-    const url = getProfileUrl(artisan);
+    const url = getProfileUrl(artisan, true, "sms");
     const dashboardUrl = `${PUBLISHED_URL}/connexion`;
     return `${artisan.business_name},
 
@@ -253,7 +253,7 @@ Tout est paramétré. Vos premiers clients peuvent vous contacter dès maintenan
   };
 
   const generateClosingMessage = (artisan: CommandantArtisan) => {
-    const url = getProfileUrl(artisan);
+    const url = getProfileUrl(artisan, true, "closing");
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const expiry = `demain à 18h`;
