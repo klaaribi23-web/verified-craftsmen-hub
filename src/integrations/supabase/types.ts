@@ -1181,6 +1181,45 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_views: {
+        Row: {
+          artisan_id: string
+          id: string
+          viewed_at: string
+          viewer_ip: string | null
+          viewer_user_id: string | null
+        }
+        Insert: {
+          artisan_id: string
+          id?: string
+          viewed_at?: string
+          viewer_ip?: string | null
+          viewer_user_id?: string | null
+        }
+        Update: {
+          artisan_id?: string
+          id?: string
+          viewed_at?: string
+          viewer_ip?: string | null
+          viewer_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_views_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_views_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "public_artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

@@ -235,6 +235,20 @@ const ArtisanPublicProfile = () => {
     fetchArtisanContact();
   }, [isAuthenticated, artisan?.id]);
 
+  // Track profile view
+  useEffect(() => {
+    if (!artisan?.id || isOwnerView) return;
+    const trackView = async () => {
+      try {
+        await supabase.from("profile_views").insert({
+          artisan_id: artisan.id,
+          viewer_user_id: user?.id || null,
+        });
+      } catch {}
+    };
+    trackView();
+  }, [artisan?.id, isOwnerView, user?.id]);
+
   // Loading state
   if (artisanLoading) {
     return (

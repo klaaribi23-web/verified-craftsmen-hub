@@ -11,9 +11,14 @@ import { MONTHLY_PLAN, YEARLY_PLAN, STRIPE_PRICES } from "@/config/subscriptionP
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import { Crown, Calendar, Settings, CreditCard, Check, Shield, Star, Sparkles, Loader2 } from "lucide-react";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
+import MoneySection from "@/components/subscription/MoneySection";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const ArtisanSubscription = () => {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -79,6 +84,21 @@ const ArtisanSubscription = () => {
       setLoadingPriceId(null);
     }
   };
+
+  // Fetch artisan profile for MoneySection context
+  const { data: artisanProfile } = useQuery({
+    queryKey: ["artisan-profile-sub", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from("artisans")
+        .select("city, category_id, categories:category_id(name)")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user?.id,
+  });
 
   const isSubscribed = tier !== "free";
   const isLegacy = tier === "legacy";
@@ -227,6 +247,16 @@ const ArtisanSubscription = () => {
                     )}
                   </CardContent>
                 </Card>
+              )}
+
+              {/* Money Section — revenue projection for non-subscribers */}
+              {!isSubscribed && !isLegacy && (
+                <MoneySection
+                  city={artisanProfile?.city}
+                  categoryName={(artisanProfile as any)?.categories?.name}
+                  onCheckout={(priceId) => handleSubscribe({ stopPropagation: () => {} } as React.MouseEvent, priceId)}
+                  isLoading={!!loadingPriceId}
+                />
               )}
 
               {/* Pricing Section — hidden for legacy */}
