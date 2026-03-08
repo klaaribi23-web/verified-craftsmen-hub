@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ROISimulator from "@/components/devenir-partenaire/ROISimulator";
+import { DynamicScarcityWidget } from "@/components/devenir-partenaire/DynamicScarcityWidget";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
@@ -181,6 +182,9 @@ const PricingSection = ({ onCTA }: { onCTA: () => void }) => (
           </Card>
         </motion.div>
       </div>
+
+      {/* Dynamic Scarcity Widget */}
+      <DynamicScarcityWidget />
     </div>
   </section>
 );

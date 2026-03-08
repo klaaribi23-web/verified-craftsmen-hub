@@ -38,6 +38,7 @@ interface CommandantArtisan {
   source: string | null;
   created_at: string;
   updated_at: string;
+  heat_score: number | null;
   category: { name: string } | null;
   profile: { email: string } | null;
 }
@@ -289,7 +290,7 @@ const AdminCommandant = () => {
         .from("artisans")
         .select(`
           id, business_name, city, email, phone, description, photo_url,
-          slug, status, source, created_at, updated_at,
+          slug, status, source, created_at, updated_at, heat_score,
           category:categories(name),
           profile:profiles(email)
         `)
@@ -300,6 +301,7 @@ const AdminCommandant = () => {
       }
 
       const { data, error } = await query
+        .order("heat_score", { ascending: false, nullsFirst: false })
         .order("updated_at", { ascending: false })
         .range(page * PER_PAGE, (page + 1) * PER_PAGE - 1);
 
@@ -387,6 +389,20 @@ const AdminCommandant = () => {
       queryClient.invalidateQueries({ queryKey: ["public-artisans"] });
     },
     onError: () => toast.error("Erreur lors du changement de statut"),
+  });
+
+  // Refresh all heat scores
+  const refreshScoresMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.rpc("refresh_all_heat_scores");
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (count) => {
+      toast.success(`🔥 Heat scores mis à jour pour ${count} prospects`);
+      queryClient.invalidateQueries({ queryKey: ["commandant-artisans"] });
+    },
+    onError: () => toast.error("Erreur lors du calcul des scores"),
   });
 
   // Lien Magique → /activation-artisan-elite avec email pré-rempli + source tracking
@@ -911,6 +927,23 @@ body{
             {/* 📊 Stats de Clics — Link Tracking */}
             <LinkClicksStats />
 
+            {/* 🔥 Heat Score Refresh */}
+            <div className="flex items-center justify-end mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refreshScoresMutation.mutate()}
+                disabled={refreshScoresMutation.isPending}
+                className="text-xs"
+              >
+                {refreshScoresMutation.isPending ? (
+                  <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Calcul…</>
+                ) : (
+                  <>🔥 Recalculer Heat Scores</>
+                )}
+              </Button>
+            </div>
+
             <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="mb-6 flex-wrap bg-muted/50">
                 {tabConfig.map((tab) => (
@@ -1117,6 +1150,19 @@ const ArtisanRow = ({
             <div className="flex items-center gap-2 mb-0.5">
               <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${statusDot}`} />
               <h3 className="font-semibold text-sm md:text-base truncate">{artisan.business_name}</h3>
+              {/* Heat Score Badge */}
+              {artisan.heat_score != null && artisan.heat_score > 0 && (
+                <Badge 
+                  variant="outline" 
+                  className={`text-[10px] px-1.5 py-0 font-bold shrink-0 ${
+                    artisan.heat_score >= 70 ? "border-destructive/50 text-destructive bg-destructive/10" :
+                    artisan.heat_score >= 40 ? "border-accent/50 text-accent bg-accent/10" :
+                    "border-muted-foreground/30 text-muted-foreground"
+                  }`}
+                >
+                  🔥 {artisan.heat_score}
+                </Badge>
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2">
               <span className="flex items-center gap-1">
