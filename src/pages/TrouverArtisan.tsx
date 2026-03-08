@@ -253,7 +253,7 @@ const TrouverArtisan = () => {
         <section className="py-10 md:py-16 lg:py-24 border-b border-border bg-background">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6 md:mb-10">
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-3 md:mb-4 font-['DM_Sans'] leading-tight">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4 font-display leading-tight">
                 Les artisans que vous <span className="text-primary">méritez</span>.<br className="hidden md:block" />
                 Vérifiés, audités, exclusifs.
               </h1>
