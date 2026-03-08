@@ -249,6 +249,16 @@ const ArtisanSubscription = () => {
                 </Card>
               )}
 
+              {/* Money Section — revenue projection for non-subscribers */}
+              {!isSubscribed && !isLegacy && (
+                <MoneySection
+                  city={artisanProfile?.city}
+                  categoryName={(artisanProfile as any)?.categories?.name}
+                  onCheckout={(priceId) => handleSubscribe({ stopPropagation: () => {} } as React.MouseEvent, priceId)}
+                  isLoading={!!loadingPriceId}
+                />
+              )}
+
               {/* Pricing Section — hidden for legacy */}
               {!isLegacy && (
               <>
