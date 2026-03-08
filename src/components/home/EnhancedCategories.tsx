@@ -30,12 +30,10 @@ const EnhancedCategories = () => {
           className="text-center mb-14"
         >
           <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
-            Tous les métiers du bâtiment,
-            <br className="hidden sm:block" />
-            vérifiés et certifiés
+            Quel artisan recherchez-vous ?
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Sélectionnez le corps de métier dont vous avez besoin.
+            Chaque profil a été vérifié par Andrea. Assurances, SIRET et avis contrôlés.
           </p>
         </motion.div>
 

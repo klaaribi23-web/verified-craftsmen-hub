@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import heroBgV2 from "@/assets/hero-artisan-bg-v2.jpg";
 import { Link } from "react-router-dom";
 import { Home, ShieldCheck, ArrowRight, Zap, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,8 +32,8 @@ const HeroDualEntry = () => {
       {/* Background image + dark overlay */}
       <div className="absolute inset-0">
         <img
-          src="https://cstxrauedasufcecaouq.supabase.co/storage/v1/object/public/public/hero-artisan-bg.jpg"
-          alt=""
+          src={heroBgV2}
+          alt="Artisan professionnel installant des panneaux solaires au coucher du soleil"
           className="w-full h-full object-cover"
           loading="eager"
         />
