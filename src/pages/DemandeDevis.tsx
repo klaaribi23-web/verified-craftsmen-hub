@@ -90,8 +90,8 @@ const DemandeDevis = () => {
     photos: [] as string[],
   });
 
-  // 4 content steps + password step for non-auth
-  const totalSteps = isAuthenticated ? 4 : 5;
+  // No more password step — auto-create account with magic link
+  const totalSteps = 4;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -166,15 +166,12 @@ const DemandeDevis = () => {
       let profileId: string | null = null;
 
       if (!isAuthenticated) {
-        if (formData.password.length < 8) {
-          toast({ title: "Mot de passe trop court", description: "Le mot de passe doit contenir au moins 8 caractères", variant: "destructive" });
-          setIsLoading(false);
-          return;
-        }
+        // Auto-create account with a generated password (user gets magic link to set their own)
+        const autoPassword = crypto.randomUUID().slice(0, 16) + "Aa1!";
         const redirectUrl = `${window.location.origin}/auth/callback`;
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: formData.email,
-          password: formData.password,
+          password: autoPassword,
           options: {
             emailRedirectTo: redirectUrl,
             data: { first_name: formData.firstName, last_name: formData.lastName, user_type: "client" },
@@ -659,13 +656,12 @@ const DemandeDevis = () => {
                       <Button
                         variant="gold"
                         size="lg"
-                        onClick={isAuthenticated ? handleSubmit : handleNext}
+                        onClick={handleSubmit}
                         disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone || isLoading}
                         className="flex-1"
                       >
                         {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                        {isAuthenticated ? "Trouver mon artisan →" : "Continuer"}
-                        {!isLoading && !isAuthenticated && <ArrowRight className="w-5 h-5 ml-2" />}
+                        {isLoading ? "Envoi en cours..." : "Trouver mon artisan →"}
                       </Button>
                     </div>
                   </motion.div>
