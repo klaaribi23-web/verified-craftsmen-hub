@@ -77,14 +77,15 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
           </div>
 
           <h1 className="text-[clamp(28px,7vw,44px)] md:text-5xl lg:text-6xl font-black text-primary-foreground leading-[1.1] mb-6 tracking-tight">
-            Arrêtez de chercher vos chantiers.
+            Pendant que vous hésitez,
             <br />
-            <span className="text-gradient-gold">Commencez à les choisir.</span>
+            <span className="text-gradient-gold">un concurrent prend votre place.</span>
           </h1>
 
           <p className="text-base md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Accédez à la licence exclusive Artisans Validés. Un flux continu de missions pré-qualifiées sur votre secteur.{" "}
-            <strong className="text-primary-foreground">Pas de commission. Pas de concurrence déloyale.</strong>
+            2 artisans max par ville et par métier. Quand c'est pris, c'est pris.
+            <br />
+            <strong className="text-primary-foreground">99€ HT/mois. Zéro commission. Clients directs.</strong>
           </p>
 
           <Button
@@ -116,12 +117,79 @@ const HeroSection = ({ onCTA }: { onCTA: () => void }) => (
   </section>
 );
 
-// --- SECTION 2: COMPARATIF ---
+// --- SECTION 2: PRICING STANDALONE ---
+const PricingSection = ({ onCTA }: { onCTA: () => void }) => (
+  <section className="py-16 lg:py-24 bg-background">
+    <div className="container mx-auto px-4 lg:px-8">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Un prix fixe. Pas de surprise.</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto">
+          Comparez avec ce que vous dépensez aujourd'hui en leads vendus à 5 artisans.
+        </p>
+      </motion.div>
+
+      <div className="max-w-md mx-auto">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <Card className="border-2 border-accent shadow-lg shadow-accent/10 relative overflow-hidden">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-black px-4 py-1 rounded-full uppercase whitespace-nowrap">
+              🏆 Licence Exclusive
+            </div>
+            <CardContent className="p-8 pt-10">
+              {/* Price anchor */}
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <span className="text-2xl text-muted-foreground line-through font-medium">400–1 200€</span>
+                  <span className="text-xs bg-accent/20 text-accent font-bold px-2 py-1 rounded-full">-90%</span>
+                </div>
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-6xl font-black text-foreground">99</span>
+                  <span className="text-2xl font-bold text-foreground">€</span>
+                  <span className="text-muted-foreground font-medium ml-1">HT / mois</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">Un seul chantier rembourse votre année entière</p>
+              </div>
+
+              {/* What's included */}
+              <ul className="space-y-3 mb-8">
+                {[
+                  "Exclusivité : 2 artisans max par ville et métier",
+                  "Clients pré-qualifiés, projet et budget vérifiés",
+                  "0% de commission — vous gardez 100%",
+                  "Fiche vitrine optimisée SEO par Andrea IA",
+                  "Accès au Club Avantages fournisseurs",
+                  "Messagerie sécurisée avec les clients",
+                  "Support dédié 7j/7",
+                  "Satisfait ou remboursé 30 jours",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                    <span className="text-foreground font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Button variant="gold" size="xl" onClick={onCTA} className="w-full !font-black uppercase tracking-wider">
+                VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
+              </Button>
+
+              <p className="text-xs text-center text-muted-foreground mt-4">
+                🔒 Aucun paiement avant validation de votre dossier
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+);
+
+// --- SECTION 3: COMPARATIF ---
 const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
   <section className="py-16 lg:py-24 bg-secondary">
     <div className="container mx-auto px-4 lg:px-8">
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Le vrai calcul. Comparez et décidez.</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Vous payez encore des leads partagés ?</h2>
+        <p className="text-muted-foreground">Voici pourquoi les meilleurs artisans ont arrêté.</p>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -130,18 +198,17 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
           <Card className="h-full border-2 border-destructive/30 bg-destructive/5">
             <CardContent className="p-4 md:p-8">
               <div className="mb-6">
-                <h3 className="font-bold text-lg text-foreground">Le Lead Classique</h3>
-                <p className="text-xs text-muted-foreground">Ce que vous payez aujourd'hui</p>
+                <h3 className="font-bold text-lg text-foreground">❌ Le Lead Classique</h3>
+                <p className="text-xs text-destructive font-medium">Ce que vous perdez chaque mois</p>
               </div>
               <ul className="space-y-3">
                 {[
-                  "30 à 80€ par lead",
-                  "Vendu à 5 artisans simultanément",
-                  "Contact non vérifié, souvent faux numéro",
-                  "Aucune exclusivité territoriale",
+                  "30 à 80€ par lead — vendu à 5 artisans",
+                  "Le client reçoit 11 appels en 1 heure",
+                  "Faux numéros, projets fantômes",
                   "Commission sur chaque chantier signé",
-                  "Vous courez après le client",
-                  "Coût moyen : 400 à 1 200€/mois",
+                  "Coût réel : 400 à 1 200€/mois",
+                  "Résultat : vous courez après le client",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-[13px] md:text-sm">
                     <XCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
@@ -149,52 +216,42 @@ const ComparisonSection = ({ onCTA }: { onCTA: () => void }) => (
                   </li>
                 ))}
               </ul>
-              <div className="mt-6 p-4 bg-destructive/10 rounded-lg text-center">
-                <p className="text-xs text-muted-foreground">Pour des résultats aléatoires</p>
-              </div>
             </CardContent>
           </Card>
         </motion.div>
 
         {/* Licence AV */}
         <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-          <Card className="h-full border-2 border-gold shadow-lg shadow-gold/10 relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-primary-foreground text-xs font-black px-4 py-1 rounded-full uppercase">
+          <Card className="h-full border-2 border-accent shadow-lg shadow-accent/10 relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-black px-4 py-1 rounded-full uppercase">
               Meilleur choix
             </div>
             <CardContent className="p-4 md:p-8 pt-8">
               <div className="mb-6">
-                <h3 className="font-bold text-lg text-foreground">La Licence Artisans Validés</h3>
-                <p className="text-xs text-gold font-medium">Ce que vous méritez</p>
+                <h3 className="font-bold text-lg text-foreground">✅ La Licence Artisans Validés</h3>
+                <p className="text-xs text-accent font-medium">99€ HT/mois — prix fixe, zéro surprise</p>
               </div>
               <ul className="space-y-3">
                 {[
-                  "99€/mois, prix fixe et prévisible",
-                  "Maximum 2 artisans par ville et métier",
-                  "Clients pré-qualifiés, projet réel vérifié",
-                  "Exclusivité territoriale garantie",
-                  "0% de commission, vous gardez tout",
-                  "Accès fournisseurs négociés — achetez mieux, margez mieux",
-                  "Le client vient à vous directement",
+                  "99€/mois fixe — pas de variable",
+                  "Le client vient à vous, pas l'inverse",
+                  "Projets vérifiés, budgets confirmés",
+                  "Exclusivité territoriale stricte",
+                  "0% de commission — vous gardez tout",
+                  "Accès fournisseurs négociés en bonus",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-[13px] md:text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                     <span className="text-foreground font-medium break-words">{item}</span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-6 p-4 bg-gold/10 rounded-lg text-center">
-                <p className="text-sm font-bold text-gold">Un seul chantier rentabilise l'année</p>
+              <div className="mt-6 p-4 bg-accent/10 rounded-lg text-center">
+                <p className="text-sm font-bold text-accent">Un seul chantier rentabilise l'année</p>
               </div>
             </CardContent>
           </Card>
         </motion.div>
-      </div>
-
-      <div className="text-center mt-10">
-        <Button variant="gold" size="xl" onClick={onCTA} className="w-full sm:w-auto !font-black uppercase tracking-wider whitespace-normal text-center px-6">
-          VÉRIFIER MON ÉLIGIBILITÉ <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
-        </Button>
       </div>
     </div>
   </section>
@@ -474,11 +531,12 @@ const TestimonialsSection = () => (
 
 // --- AVAILABILITY TICKER ---
 const AVAILABILITY_MESSAGES = [
-  "🔴 Bordeaux — Plomberie : 1 place restante",
-  "🟢 Lyon — Électricité : disponible",
-  "🔴 Lille — Menuiserie : 1 place restante",
-  "🟢 Paris — Chauffage PAC : disponible",
-  "🔴 Marseille — Solaire : complet",
+  "🔴 Bordeaux — Solaire : COMPLET",
+  "🟡 Lyon — Électricité : 1 place restante",
+  "🟢 Toulouse — Plomberie : disponible",
+  "🟡 Lille — Rénovation : 1 place restante",
+  "🔴 Marseille — PAC : COMPLET",
+  "🟢 Nantes — Menuiserie : disponible",
 ];
 
 const AvailabilityTicker = () => {
@@ -784,10 +842,11 @@ const DevenirPartenaire = () => {
 
       <main>
         <HeroSection onCTA={scrollToForm} />
+        <PricingSection onCTA={scrollToForm} />
         <ComparisonSection onCTA={scrollToForm} />
         <PillarsSection />
-        <FOMOSection onCTA={scrollToForm} />
         <CockpitSection />
+        <FOMOSection onCTA={scrollToForm} />
         <IntegrationSection />
         <TestimonialsSection />
         <FormSection />
