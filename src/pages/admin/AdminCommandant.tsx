@@ -196,12 +196,12 @@ const AdminCommandant = () => {
     onError: () => toast.error("Erreur lors du changement de statut"),
   });
 
-  // Lien Magique → /activation-artisan-elite avec email pré-rempli
-  const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true) => {
+  // Lien Magique → /activation-artisan-elite avec email pré-rempli + source tracking
+  const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true, source = "direct") => {
     const email = artisan.email || artisan.profile?.email || "";
     const nom = artisan.business_name || "";
     const ville = artisan.city || "";
-    return `${PUBLISHED_URL}/activation-artisan-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}`;
+    return `${PUBLISHED_URL}/activation-artisan-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}&source=${source}`;
   };
 
   const copyLink = (artisan: CommandantArtisan) => {
