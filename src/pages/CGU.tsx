@@ -33,7 +33,7 @@ const CGU = () => {
               {/* Préambule */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">1</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">1</span>
                   Préambule
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -52,7 +52,7 @@ const CGU = () => {
               {/* Définitions */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">2</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">2</span>
                   Définitions
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -70,7 +70,7 @@ const CGU = () => {
               {/* Objet de la Plateforme */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">3</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">3</span>
                   Objet de la Plateforme
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -96,7 +96,7 @@ const CGU = () => {
               {/* Inscription et Compte */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">4</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">4</span>
                   Inscription et Compte Utilisateur
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -120,7 +120,7 @@ const CGU = () => {
               {/* Utilisation de la Plateforme */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">5</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">5</span>
                   Utilisation de la Plateforme
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -156,7 +156,7 @@ const CGU = () => {
               {/* Abonnements et Tarification */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">6</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">6</span>
                   Abonnements et Tarification
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -180,7 +180,7 @@ const CGU = () => {
               {/* Responsabilités */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">7</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">7</span>
                   Responsabilités
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -205,7 +205,7 @@ const CGU = () => {
               {/* Propriété intellectuelle */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">8</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">8</span>
                   Propriété intellectuelle
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -224,7 +224,7 @@ const CGU = () => {
               {/* Protection des données */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">9</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">9</span>
                   Protection des données personnelles
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -240,7 +240,7 @@ const CGU = () => {
               {/* Modification et Résiliation */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">10</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">10</span>
                   Modification et Résiliation
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -259,7 +259,7 @@ const CGU = () => {
               {/* Droit applicable et litiges */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">11</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">11</span>
                   Droit applicable et Règlement des litiges
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -278,7 +278,7 @@ const CGU = () => {
               {/* Contact */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">12</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">12</span>
                   Contact
                 </h2>
                 <div className="space-y-4 text-muted-foreground">

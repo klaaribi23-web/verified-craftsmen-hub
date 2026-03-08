@@ -48,24 +48,24 @@
     --radius: 0.75rem;
     
     /* Sidebar */
-    --sidebar-background: 215 62% 8%;
-    --sidebar-foreground: 210 40% 92%;
-    --sidebar-primary: 43 74% 53%;
-    --sidebar-primary-foreground: 215 62% 6%;
-    --sidebar-accent: 215 45% 14%;
-    --sidebar-accent-foreground: 210 40% 92%;
-    --sidebar-border: 215 30% 18%;
-    --sidebar-ring: 43 74% 53%;
+    --sidebar-background: 150 50% 8%;
+    --sidebar-foreground: 40 20% 92%;
+    --sidebar-primary: 22 67% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 40% 14%;
+    --sidebar-accent-foreground: 40 20% 92%;
+    --sidebar-border: 150 30% 18%;
+    --sidebar-ring: 22 67% 46%;
     
     /* Gradients */
-    --gradient-gold: linear-gradient(135deg, hsl(43 74% 53%) 0%, hsl(35 80% 58%) 100%);
-    --gradient-navy: linear-gradient(135deg, hsl(215 62% 8%) 0%, hsl(215 55% 14%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(215 62% 6%) 0%, hsl(215 55% 10%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(22 67% 46%) 0%, hsl(22 70% 55%) 100%);
+    --gradient-navy: linear-gradient(135deg, hsl(150 50% 8%) 0%, hsl(150 40% 14%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(150 50% 6%) 0%, hsl(150 44% 10%) 100%);
     
-    /* Andrea Neon */
-    --andrea-purple: 265 85% 55%;
-    --andrea-blue: 220 90% 55%;
-    --andrea-glow: 265 90% 65%;
+    /* Andrea Glow */
+    --andrea-purple: 150 50% 35%;
+    --andrea-blue: 150 44% 26%;
+    --andrea-glow: 22 67% 55%;
 
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
@@ -162,8 +162,8 @@
 
   /* Clean prestige card — subtle gold top-border, deep shadow */
   .card-prestige {
-    border: 1px solid hsl(215 30% 18%);
-    border-top: 1px solid hsla(43, 100%, 50%, 0.25);
+    border: 1px solid hsl(150 30% 18%);
+    border-top: 1px solid hsla(22, 67%, 46%, 0.25);
     box-shadow:
       0 8px 32px -8px hsl(0 0% 0% / 0.5),
       0 2px 8px -2px hsl(0 0% 0% / 0.3);
@@ -282,15 +282,15 @@ body:has(.mobile-navbar-active) footer {
 .supabase-auth-ui_ui-input,
 .supabase-auth-ui_ui-label,
 .supabase-auth-ui_ui-message {
-  background-color: hsl(215 62% 6%) !important;
+  background-color: hsl(150 50% 6%) !important;
   color: hsl(0 0% 100%) !important;
-  border-color: hsl(43 74% 53% / 0.3) !important;
+  border-color: hsl(22 67% 46% / 0.3) !important;
 }
 
 [data-supabase-auth] button,
 .supabase-auth-ui_ui-button {
-  background-color: hsl(43 74% 53%) !important;
-  color: hsl(215 62% 6%) !important;
+  background-color: hsl(22 67% 46%) !important;
+  color: hsl(0 0% 100%) !important;
   font-weight: 700 !important;
 }
 

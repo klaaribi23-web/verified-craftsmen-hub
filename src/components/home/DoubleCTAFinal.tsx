@@ -18,7 +18,7 @@ const DoubleCTAFinal = () => (
           <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
             Déposez votre projet gratuitement. Vos coordonnées restent privées jusqu'à ce que vous décidiez.
           </p>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold btn-shine" asChild>
+          <Button variant="gold" className="font-bold btn-shine" asChild>
             <Link to="/demande-devis">
               Lancer mon projet
               <ArrowRight className="w-4 h-4 ml-2" />
