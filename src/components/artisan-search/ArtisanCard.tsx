@@ -200,12 +200,12 @@ const ArtisanCard = ({
             loading="lazy"
           />
         ) : profileImage ? (
-          <div className="absolute inset-0 w-full h-full flex items-center justify-center p-6" style={{ backgroundColor: '#0D1F35' }}>
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center p-6 bg-primary">
             <img src={optimizeImageUrl(profileImage, 'card')} alt={`Logo de ${name}`} className="max-w-[60%] max-h-[80%] object-contain" loading="lazy" />
           </div>
         ) : (
-          <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ backgroundColor: '#0D1F35' }}>
-            <span className="text-3xl font-black" style={{ color: 'rgba(240,165,0,0.3)' }}>{name.charAt(0)}</span>
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-primary">
+            <span className="text-3xl font-black text-accent/30">{name.charAt(0)}</span>
           </div>
         )}
 

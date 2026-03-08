@@ -74,8 +74,8 @@ const Footer = () => {
             <Link to="/" className="flex items-center gap-2 mb-6">
               <img src={logo} alt="Logo Artisans Validés" width={40} height={40} className="w-10 h-10 rounded-lg" />
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-white leading-tight">ARTISANS</span>
-                <span className="text-xs font-semibold text-white/60 -mt-1">VALIDÉS</span>
+                <span className="text-lg font-bold text-primary-foreground leading-tight">ARTISANS</span>
+                <span className="text-xs font-semibold text-primary-foreground/60 -mt-1">VALIDÉS</span>
               </div>
             </Link>
             <p className="text-primary-foreground/70 text-sm mb-6 max-w-sm">
