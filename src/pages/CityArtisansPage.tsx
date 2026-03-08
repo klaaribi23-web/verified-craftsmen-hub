@@ -80,22 +80,22 @@ const CityArtisansPage = () => {
 
       <main>
         {/* Hero */}
-        <section className="bg-navy py-12 md:py-20">
+        <section className="bg-primary py-12 md:py-20">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-4">
-                <MapPin className="h-4 w-4 text-gold" />
-                <span className="text-sm text-white/80">{cityName}</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-foreground/10 rounded-full mb-4">
+                <MapPin className="h-4 w-4 text-accent" />
+                <span className="text-sm text-primary-foreground/80">{cityName}</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">
                 Artisans vérifiés à{" "}
                 <span className="text-gradient-gold">{cityName}</span>
               </h1>
-              <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8">
+              <p className="text-lg text-primary-foreground/70 max-w-2xl mx-auto mb-8">
                 {cityArtisans.length} professionnel
                 {cityArtisans.length > 1 ? "s" : ""} validé
                 {cityArtisans.length > 1 ? "s" : ""} par notre équipe dans
@@ -104,23 +104,23 @@ const CityArtisansPage = () => {
 
               {/* Stats */}
               <div className="flex flex-wrap justify-center gap-6 mt-6">
-                <div className="flex items-center gap-2 text-white/80">
-                  <Users className="h-5 w-5 text-gold" />
-                  <span className="text-lg font-semibold text-white">
+                <div className="flex items-center gap-2 text-primary-foreground/80">
+                  <Users className="h-5 w-5 text-accent" />
+                  <span className="text-lg font-semibold text-primary-foreground">
                     {cityArtisans.length}
                   </span>
                   <span className="text-sm">artisans</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/80">
-                  <Star className="h-5 w-5 text-gold fill-gold" />
-                  <span className="text-lg font-semibold text-white">
+                <div className="flex items-center gap-2 text-primary-foreground/80">
+                  <Star className="h-5 w-5 text-accent fill-accent" />
+                  <span className="text-lg font-semibold text-primary-foreground">
                     {avgRating.toFixed(1)}
                   </span>
                   <span className="text-sm">note moyenne</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/80">
-                  <MapPin className="h-5 w-5 text-gold" />
-                  <span className="text-lg font-semibold text-white">
+                <div className="flex items-center gap-2 text-primary-foreground/80">
+                  <MapPin className="h-5 w-5 text-accent" />
+                  <span className="text-lg font-semibold text-primary-foreground">
                     {cityCategories.length}
                   </span>
                   <span className="text-sm">métiers</span>
@@ -226,10 +226,10 @@ const CityArtisansPage = () => {
         <section className="py-10 md:py-16 bg-muted">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="bg-gradient-gold rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 text-center">
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-navy-dark mb-3">
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-3">
                 Besoin d'un artisan à {cityName} ?
               </h2>
-              <p className="text-navy-dark/70 mb-6 max-w-xl mx-auto text-sm md:text-base">
+              <p className="text-foreground/70 mb-6 max-w-xl mx-auto text-sm md:text-base">
                 Décrivez votre projet et recevez des devis de professionnels
                 vérifiés près de chez vous.
               </p>

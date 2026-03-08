@@ -175,12 +175,11 @@ const ArtisanCard = ({
       onClick={handleProfileClick}
       className={cn(
         "rounded-xl overflow-hidden relative cursor-pointer group h-full flex flex-col",
-        "border border-white/[0.06]",
+        "border border-border bg-card",
         "transition-all duration-250 ease-out",
-        "hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(240,165,0,0.15)]",
+        "hover:-translate-y-1 hover:shadow-[0_12px_40px_hsl(var(--accent)/0.15)]",
         "active:scale-[0.98] active:transition-[transform] active:duration-150",
       )}
-      style={{ backgroundColor: '#111827' }}
     >
       {/* ══ IMAGE ZONE ══ */}
       <div className="relative w-full overflow-hidden flex-shrink-0" style={{ aspectRatio: '4/3' }}>
@@ -199,7 +198,6 @@ const ArtisanCard = ({
             alt={`Réalisation de ${name}`}
             className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-400 group-hover:scale-[1.04]"
             loading="lazy"
-            style={{ backgroundColor: '#111827' }}
           />
         ) : profileImage ? (
           <div className="absolute inset-0 w-full h-full flex items-center justify-center p-6" style={{ backgroundColor: '#0D1F35' }}>
@@ -214,7 +212,7 @@ const ArtisanCard = ({
         {/* Bottom gradient overlay for name */}
         <div
           className="absolute inset-0 pointer-events-none z-[1]"
-          style={{ background: 'linear-gradient(to top, rgba(10,15,28,0.95) 0%, rgba(10,15,28,0.4) 50%, transparent 100%)' }}
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)' }}
         />
 
         {/* ─ OVERLAY: Urgent ribbon (top-left, above everything) ─ */}
@@ -245,35 +243,14 @@ const ArtisanCard = ({
               aria-label="Voir le résumé d'audit"
             >
               <div
-                className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
-                style={{
-                  backgroundColor: '#f0a500',
-                  color: '#0d1117',
-                  borderRadius: '20px',
-                  padding: '4px 10px',
-                  fontSize: '10px',
-                  fontWeight: 800,
-                  boxShadow: '0 2px 8px rgba(240,165,0,0.5)',
-                }}
+                className="badge-shimmer flex items-center gap-1 whitespace-nowrap bg-accent text-accent-foreground rounded-full px-2.5 py-1 text-[10px] font-extrabold shadow-[0_2px_8px_hsl(var(--accent)/0.5)]"
               >
                 <ShieldCheck className="flex-shrink-0" style={{ width: '11px', height: '11px' }} />
                 <span>✓ AUDITÉ</span>
               </div>
             </button>
             {badgeTooltip === 'audited' && (
-              <div
-                className="absolute top-full mt-1 right-0 z-50 animate-fade-in"
-                style={{
-                  backgroundColor: '#0A192F',
-                  color: 'white',
-                  fontSize: '11px',
-                  borderRadius: '6px',
-                  padding: '6px 10px',
-                  width: '200px',
-                  lineHeight: '1.4',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-                }}
-              >
+              <div className="absolute top-full mt-1 right-0 z-50 animate-fade-in bg-primary text-primary-foreground text-[11px] rounded-md px-2.5 py-1.5 w-[200px] leading-[1.4] shadow-lg">
                 Artisan vérifié physiquement sur le terrain par l'équipe Artisans Validés
               </div>
             )}
@@ -290,35 +267,14 @@ const ArtisanCard = ({
               className="cursor-pointer"
             >
               <div
-                className="badge-shimmer flex items-center gap-1 whitespace-nowrap"
-                style={{
-                  backgroundColor: '#22c55e',
-                  color: '#0d1117',
-                  borderRadius: '20px',
-                  padding: '4px 10px',
-                  fontSize: '10px',
-                  fontWeight: 800,
-                  boxShadow: '0 2px 8px rgba(34,197,94,0.5)',
-                }}
+                className="badge-shimmer flex items-center gap-1 whitespace-nowrap bg-success text-success-foreground rounded-full px-2.5 py-1 text-[10px] font-extrabold shadow-[0_2px_8px_hsl(var(--success)/0.5)]"
               >
                 <ShieldCheck className="flex-shrink-0" style={{ width: '11px', height: '11px' }} />
                 <span>✓ VALIDÉ</span>
               </div>
             </button>
             {badgeTooltip === 'validated' && (
-              <div
-                className="absolute top-full mt-1 right-0 z-50 animate-fade-in"
-                style={{
-                  backgroundColor: '#0A192F',
-                  color: 'white',
-                  fontSize: '11px',
-                  borderRadius: '6px',
-                  padding: '6px 10px',
-                  width: '200px',
-                  lineHeight: '1.4',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-                }}
-              >
+              <div className="absolute top-full mt-1 right-0 z-50 animate-fade-in bg-primary text-primary-foreground text-[11px] rounded-md px-2.5 py-1.5 w-[200px] leading-[1.4] shadow-lg">
                 Assurances, SIRET et décennale vérifiés administrativement
               </div>
             )}
@@ -343,11 +299,10 @@ const ArtisanCard = ({
         {hasVideos && !showVideo && (
           <button
             onClick={handleVideoClick}
-            className="absolute inset-0 m-auto w-10 h-10 z-10 rounded-full flex items-center justify-center transition-colors"
-            style={{ backgroundColor: 'rgba(255,255,255,0.75)' }}
+            className="absolute inset-0 m-auto w-10 h-10 z-10 rounded-full flex items-center justify-center transition-colors bg-white/75"
             aria-label="Voir la vidéo"
           >
-            <Play className="w-5 h-5 fill-current" style={{ color: '#f0a500' }} />
+            <Play className="w-5 h-5 fill-current text-accent" />
           </button>
         )}
 
@@ -367,19 +322,17 @@ const ArtisanCard = ({
             }}
             className={cn(
               "w-8 h-8 rounded-full object-cover border-2 flex-shrink-0",
-              hasActiveStories ? "border-green-500 cursor-pointer animate-story-pulse" : "border-[#f0a500]/60",
+              hasActiveStories ? "border-success cursor-pointer animate-story-pulse" : "border-accent/60",
             )}
           />
           <div className="flex-1 min-w-0">
             <h3
-              className="truncate text-white font-['Syne'] leading-tight"
-              style={{ fontSize: '15px', fontWeight: 800 }}
+              className="truncate text-white font-['DM_Sans'] leading-tight text-[15px] font-extrabold"
             >
               {name}
             </h3>
             <p
-              className="truncate leading-tight"
-              style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(240,165,0,0.9)' }}
+              className="truncate leading-tight text-[11px] font-semibold text-accent"
             >
               {profession}
             </p>
@@ -388,21 +341,21 @@ const ArtisanCard = ({
       </div>
 
       {/* ══ INFO ZONE ══ */}
-      <div className="p-3 flex flex-col flex-1 gap-1.5" style={{ backgroundColor: '#111827' }}>
+      <div className="p-3 flex flex-col flex-1 gap-1.5 bg-card">
         {/* Line 1: City + response time */}
-        <div className="flex items-center gap-1 text-[11px] min-w-0" style={{ color: '#8b95a8' }}>
+        <div className="flex items-center gap-1 text-[11px] min-w-0 text-muted-foreground">
           <span className="truncate flex items-center gap-1">
             📍 {location}
             {distance !== null && distance !== undefined && (
-              <span className="font-medium" style={{ color: '#f0a500' }}>({Math.round(distance)} km)</span>
+              <span className="font-medium text-accent">({Math.round(distance)} km)</span>
             )}
           </span>
           <span className="shrink-0">&nbsp;·&nbsp;</span>
           <span className="shrink-0 flex items-center gap-0.5">
-            {availableUrgent ? (
-              <span className="font-semibold" style={{ color: '#f97316' }}>⚡ Dispo. immédiate</span>
+           {availableUrgent ? (
+              <span className="font-semibold text-orange-500">⚡ Dispo. immédiate</span>
             ) : (
-              <span style={{ color: '#22c55e' }}>⚡ Répond en 24h</span>
+              <span className="text-success">⚡ Répond en 24h</span>
             )}
           </span>
         </div>
@@ -410,9 +363,9 @@ const ArtisanCard = ({
         {/* Rating (compact, only if > 0) */}
         {rating > 0 && (
           <div className="flex items-center gap-1 text-[11px]">
-            <Star className="w-3 h-3 fill-[#f0a500] text-[#f0a500]" />
-            <span className="font-semibold text-white">{rating.toFixed(1)}</span>
-            {reviews > 0 && <span style={{ color: '#8b95a8' }}>({reviews})</span>}
+            <Star className="w-3 h-3 fill-accent text-accent" />
+            <span className="font-semibold text-foreground">{rating.toFixed(1)}</span>
+            {reviews > 0 && <span className="text-muted-foreground">({reviews})</span>}
           </div>
         )}
 
@@ -422,13 +375,7 @@ const ArtisanCard = ({
             {infoBadges.slice(0, 2).map((b, i) => (
               <span
                 key={i}
-                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold"
-                style={{
-                  backgroundColor: 'rgba(34,197,94,0.1)',
-                  color: '#22c55e',
-                  borderRadius: '4px',
-                  height: '20px',
-                }}
+                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-success/10 text-success h-5"
               >
                 {b.label}
               </span>

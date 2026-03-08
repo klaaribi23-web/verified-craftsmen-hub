@@ -65,7 +65,7 @@ const Footer = () => {
     "Provence-Alpes-Côte d'Azur", "Occitanie", "Nouvelle-Aquitaine",
     "Bretagne", "Grand Est", "Pays de la Loire", "Normandie",
   ];
-  return <footer className="bg-navy text-white">
+  return <footer className="bg-primary text-primary-foreground">
       {/* Main Footer */}
       <div className="container mx-auto px-4 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-10">
@@ -78,19 +78,19 @@ const Footer = () => {
                 <span className="text-xs font-semibold text-white/60 -mt-1">VALIDÉS</span>
               </div>
             </Link>
-            <p className="text-white/70 text-sm mb-6 max-w-sm">
+            <p className="text-primary-foreground/70 text-sm mb-6 max-w-sm">
               La plateforme de confiance qui vous connecte avec des artisans vérifiés et qualifiés dans toute la France.
             </p>
             <div className="space-y-3">
-              <a href="tel:+33353632999" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
+              <a href="tel:+33353632999" className="flex items-center gap-3 text-primary-foreground/70 hover:text-primary-foreground transition-colors">
                 <Phone className="w-4 h-4" />
                 <span className="text-sm">03 53 63 29 99</span>
               </a>
-              <a href="mailto:contact@artisansvalides.fr" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
+              <a href="mailto:contact@artisansvalides.fr" className="flex items-center gap-3 text-primary-foreground/70 hover:text-primary-foreground transition-colors">
                 <Mail className="w-4 h-4" />
                 <span className="text-sm">contact@artisansvalides.fr</span>
               </a>
-              <div className="flex items-center gap-3 text-white/70">
+              <div className="flex items-center gap-3 text-primary-foreground/70">
                 <MapPin className="w-4 h-4" />
                 <span className="text-sm">77 rue de la Monnaie, 59800 Lille</span>
               </div>
@@ -99,10 +99,10 @@ const Footer = () => {
 
           {/* Services */}
           <nav aria-label="Nos métiers">
-            <h2 className="font-semibold text-white mb-4">Nos métiers</h2>
+            <h2 className="font-semibold text-primary-foreground mb-4">Nos métiers</h2>
             <ul className="space-y-3">
               {footerLinks.services.map(link => <li key={link.label}>
-                  <Link to={link.href} className="text-[13px] md:text-sm text-white/70 hover:text-white transition-colors block min-h-[44px] flex items-center">
+                  <Link to={link.href} className="text-[13px] md:text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors block min-h-[44px] flex items-center">
                     {link.label}
                   </Link>
                 </li>)}
@@ -111,10 +111,10 @@ const Footer = () => {
 
           {/* Company */}
           <nav aria-label="Entreprise">
-            <h2 className="font-semibold text-white mb-4">Entreprise</h2>
+            <h2 className="font-semibold text-primary-foreground mb-4">Entreprise</h2>
             <ul className="space-y-3">
               {footerLinks.company.map(link => <li key={link.href}>
-                  <Link to={link.href} className="text-[13px] md:text-sm text-white/70 hover:text-white transition-colors block min-h-[44px] flex items-center">
+                  <Link to={link.href} className="text-[13px] md:text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors block min-h-[44px] flex items-center">
                     {link.label}
                   </Link>
                 </li>)}
@@ -123,10 +123,10 @@ const Footer = () => {
 
           {/* Legal */}
           <nav aria-label="Informations légales">
-            <h2 className="font-semibold text-white mb-4">Informations</h2>
+            <h2 className="font-semibold text-primary-foreground mb-4">Informations</h2>
             <ul className="space-y-3">
           {footerLinks.legal.map(link => <li key={link.href}>
-                  <Link to={link.href} className="text-[13px] md:text-sm text-white/70 hover:text-white transition-colors block min-h-[44px] flex items-center">
+                  <Link to={link.href} className="text-[13px] md:text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors block min-h-[44px] flex items-center">
                     {link.label}
                   </Link>
                 </li>)}
@@ -136,7 +136,7 @@ const Footer = () => {
                     localStorage.removeItem("artisans-valides-cookie-preferences");
                     window.location.reload();
                   }}
-                  className="text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none p-0"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors cursor-pointer bg-transparent border-none p-0"
                 >
                   Gestion des cookies
                 </button>
@@ -146,15 +146,15 @@ const Footer = () => {
 
           {/* Cities by poles */}
           <nav aria-label="Nos villes" className="lg:col-span-2">
-            <h2 className="font-semibold text-white mb-4">Nos villes</h2>
+            <h2 className="font-semibold text-primary-foreground mb-4">Nos villes</h2>
             <div className="grid grid-cols-2 gap-4">
               {cityPoles.map(pole => (
                 <div key={pole.label}>
-                  <p className="text-xs font-semibold text-white/50 mb-1.5">{pole.label}</p>
+                  <p className="text-xs font-semibold text-primary-foreground/50 mb-1.5">{pole.label}</p>
                   <ul className="space-y-1.5">
                     {pole.cities.map(city => (
                       <li key={city.slug}>
-                        <Link to={`/artisans-ville/${city.slug}`} className="text-sm text-white/70 hover:text-white transition-colors">
+                        <Link to={`/artisans-ville/${city.slug}`} className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
                           {city.name}
                         </Link>
                       </li>
@@ -167,14 +167,14 @@ const Footer = () => {
         </div>
 
         {/* Zones d'intervention SEO */}
-        <div className="mt-12 pt-8 border-t border-white/10">
+        <div className="mt-12 pt-8 border-t border-primary-foreground/10">
           <div className="flex flex-col items-center gap-2 mb-4">
-            <h2 className="font-semibold text-white">Nos zones d'intervention</h2>
-            <p className="text-xs text-white/50">Présents dans toute la France.</p>
+            <h2 className="font-semibold text-primary-foreground">Nos zones d'intervention</h2>
+            <p className="text-xs text-primary-foreground/50">Présents dans toute la France.</p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             {regionLinks.map(region => (
-              <Link key={region} to={`/trouver-artisan?region=${encodeURIComponent(region)}`} className="text-sm text-white/60 bg-white/5 px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors">
+              <Link key={region} to={`/trouver-artisan?region=${encodeURIComponent(region)}`} className="text-sm text-primary-foreground/60 bg-primary-foreground/5 px-3 py-1.5 rounded-full hover:bg-primary-foreground/10 hover:text-primary-foreground transition-colors">
                 {region}
               </Link>
             ))}
@@ -183,26 +183,26 @@ const Footer = () => {
 
         {/* Andrea mention */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-white/40">Expertise terrain : <span className="text-white/60 font-semibold">Andrea</span> — Notre experte IA qui valide chaque artisan sur le terrain.</p>
+          <p className="text-xs text-primary-foreground/40">Expertise terrain : <span className="text-primary-foreground/60 font-semibold">Andrea</span> — Notre IA d'audit, entraînée sur 20 ans d'expertise terrain.</p>
         </div>
         </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-white/10">
+      <div className="border-t border-primary-foreground/10">
         <div className="container mx-auto px-4 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-white/50">
+            <p className="text-sm text-primary-foreground/50">
               © {currentYear} Artisans Validés. Tous droits réservés. —{" "}
-              <a href="https://www.artisansvalides.fr" className="hover:text-white transition-colors">www.artisansvalides.fr</a>
+              <a href="https://www.artisansvalides.fr" className="hover:text-primary-foreground transition-colors">www.artisansvalides.fr</a>
             </p>
             <div className="flex items-center gap-4" role="list" aria-label="Réseaux sociaux">
-              <a href="https://www.facebook.com/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors" aria-label="Facebook">
+              <a href="https://www.facebook.com/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors" aria-label="Facebook">
                 <Facebook className="w-5 h-5" aria-hidden="true" />
               </a>
-              <a href="https://www.instagram.com/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors" aria-label="Instagram">
+              <a href="https://www.instagram.com/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors" aria-label="Instagram">
                 <Instagram className="w-5 h-5" aria-hidden="true" />
               </a>
-              <a href="https://www.linkedin.com/company/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors" aria-label="LinkedIn">
+              <a href="https://www.linkedin.com/company/artisansvalides" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors" aria-label="LinkedIn">
                 <Linkedin className="w-5 h-5" aria-hidden="true" />
               </a>
             </div>
