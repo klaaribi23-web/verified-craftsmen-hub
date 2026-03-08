@@ -16,6 +16,7 @@ import {
   MapPin, Search, Copy, Link2, ExternalLink,
   Send, Eye, Loader2, ChevronLeft, ChevronRight,
   MessageCircle, FileText, Download, Mail, TrendingUp,
+  MousePointerClick, BarChart3,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -55,6 +56,120 @@ const tabConfig: { key: TabKey; label: string; icon: typeof Package; color: stri
   { key: "en-cours", label: "EN COURS", icon: Clock, color: "data-[state=active]:bg-orange-500 data-[state=active]:text-white" },
   { key: "clients", label: "CLIENTS", icon: UserCheck, color: "data-[state=active]:bg-emerald-600 data-[state=active]:text-white" },
 ];
+
+// --- Link Clicks Stats Component ---
+const LinkClicksStats = () => {
+  const { data: clickStats } = useQuery({
+    queryKey: ["commandant-link-clicks"],
+    queryFn: async () => {
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+      // Total clicks
+      const { count: total } = await supabase
+        .from("link_clicks")
+        .select("*", { count: "exact", head: true });
+
+      // Clicks today
+      const { count: today } = await supabase
+        .from("link_clicks")
+        .select("*", { count: "exact", head: true })
+        .gte("clicked_at", todayStart);
+
+      // Clicks this week
+      const { count: week } = await supabase
+        .from("link_clicks")
+        .select("*", { count: "exact", head: true })
+        .gte("clicked_at", weekStart);
+
+      // By source
+      const { data: sourceData } = await supabase
+        .from("link_clicks")
+        .select("source");
+
+      const sources: Record<string, number> = {};
+      sourceData?.forEach((row) => {
+        const s = row.source || "direct";
+        sources[s] = (sources[s] || 0) + 1;
+      });
+
+      // Top artisans by clicks (last 7 days)
+      const { data: recentClicks } = await supabase
+        .from("link_clicks")
+        .select("artisan_id")
+        .gte("clicked_at", weekStart);
+
+      const artisanClicks: Record<string, number> = {};
+      recentClicks?.forEach((row) => {
+        if (row.artisan_id) {
+          artisanClicks[row.artisan_id] = (artisanClicks[row.artisan_id] || 0) + 1;
+        }
+      });
+
+      return { total: total || 0, today: today || 0, week: week || 0, sources, artisanClicks };
+    },
+    refetchInterval: 30000,
+  });
+
+  if (!clickStats || clickStats.total === 0) return null;
+
+  const sourceLabels: Record<string, string> = {
+    whatsapp: "📱 WhatsApp",
+    sms: "💬 SMS",
+    email: "📧 Email",
+    link: "🔗 Lien copié",
+    direct: "🌐 Direct",
+    closing: "🎯 Closing",
+    preview: "👁️ Preview",
+  };
+
+  const sortedSources = Object.entries(clickStats.sources)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5);
+
+  return (
+    <Card className="mb-6 border-accent/30">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <MousePointerClick className="h-5 w-5 text-accent" />
+          <h3 className="font-bold text-sm">📊 Tracking des Clics</h3>
+        </div>
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="text-center p-2 rounded-lg bg-muted/50">
+            <p className="text-2xl font-black text-foreground">{clickStats.total}</p>
+            <p className="text-[10px] text-muted-foreground font-medium">TOTAL CLICS</p>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-accent/10">
+            <p className="text-2xl font-black text-accent">{clickStats.today}</p>
+            <p className="text-[10px] text-muted-foreground font-medium">AUJOURD'HUI</p>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-primary/10">
+            <p className="text-2xl font-black text-primary">{clickStats.week}</p>
+            <p className="text-[10px] text-muted-foreground font-medium">7 DERNIERS JOURS</p>
+          </div>
+        </div>
+        {sortedSources.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Par source</p>
+            {sortedSources.map(([source, count]) => {
+              const pct = Math.round((count / clickStats.total) * 100);
+              return (
+                <div key={source} className="flex items-center gap-2 text-xs">
+                  <span className="w-24 truncate font-medium">{sourceLabels[source] || source}</span>
+                  <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
+                    <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className="text-muted-foreground w-12 text-right font-mono">{count} ({pct}%)</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const AdminCommandant = () => {
   const queryClient = useQueryClient();
@@ -714,6 +829,9 @@ body{
                 </CardContent>
               </Card>
             </div>
+
+            {/* 📊 Stats de Clics — Link Tracking */}
+            <LinkClicksStats />
 
             <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="mb-6 flex-wrap bg-muted/50">

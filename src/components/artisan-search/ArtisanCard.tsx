@@ -21,6 +21,7 @@ import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn, ensureHttps, optimizeImageUrl } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
 import AuditSummaryDialog from "@/components/artisan-search/AuditSummaryDialog";
+import { useFounderBadge } from "@/hooks/useFounderBadge";
 
 interface ArtisanCardProps {
   id: string | number;
@@ -69,6 +70,7 @@ const ArtisanCard = ({
 
   const artisanId = typeof id === "string" ? id : id.toString();
   const { stories, hasActiveStories } = usePublicArtisanStories(artisanId);
+  const { isFounder } = useFounderBadge(artisanId);
 
   const artisanUrl = slug || id;
   const portfolioImages = portfolio && portfolio.length > 0 ? portfolio : [];
@@ -380,6 +382,15 @@ const ArtisanCard = ({
                 {b.label}
               </span>
             ))}
+          </div>
+        )}
+
+        {/* Founder Badge */}
+        {isFounder && (
+          <div className="flex items-center gap-1">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-accent/15 text-accent border border-accent/30 h-5">
+              🏛️ Membre Fondateur
+            </span>
           </div>
         )}
 

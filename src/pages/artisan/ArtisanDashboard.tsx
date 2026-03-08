@@ -40,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import { Link, useSearchParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
+import { useFounderBadge } from "@/hooks/useFounderBadge";
 
 export const ArtisanDashboard = () => {
   const { user } = useAuth();
@@ -331,6 +332,7 @@ export const ArtisanDashboard = () => {
   const displayBusinessName = demoMode ? "Durand Peinture & Décoration" : artisanProfile?.business_name;
 
   const isSubscribed = tier !== "free";
+  const { isFounder } = useFounderBadge(artisanProfile?.id);
 
   return (
     <>
@@ -358,6 +360,17 @@ export const ArtisanDashboard = () => {
             title="Tableau de bord" 
             subtitle={`Bienvenue${displayBusinessName ? `, ${displayBusinessName}` : ''} ! Voici un aperçu de votre activité.`}
           />
+
+          {/* Founder Badge Banner */}
+          {isFounder && (
+            <div className="mx-3 md:mx-6 mt-3 rounded-xl border border-accent/30 bg-accent/5 px-4 py-3 flex items-center gap-3">
+              <span className="text-2xl">🏛️</span>
+              <div>
+                <p className="text-sm font-bold text-accent">Membre Fondateur — Merci pour votre confiance</p>
+                <p className="text-xs text-muted-foreground">Vous faites partie des 20 premiers artisans à avoir rejoint le réseau. Ce badge est permanent.</p>
+              </div>
+            </div>
+          )}
 
           <main className="flex-1 p-3 md:p-6 pb-24 lg:pb-6 overflow-auto">
             {/* Subscription Warning Banner */}

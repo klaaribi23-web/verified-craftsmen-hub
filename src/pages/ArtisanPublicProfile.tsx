@@ -62,6 +62,7 @@ import ChatWidget from "@/components/chat/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
 
 import { supabase } from "@/integrations/supabase/client";
+import { useFounderBadge } from "@/hooks/useFounderBadge";
 import { usePublicArtisanStories } from "@/hooks/usePublicArtisanStories";
 import { cn, DEFAULT_AVATAR, ensureHttps } from "@/lib/utils";
 import StoryViewer from "@/components/stories/StoryViewer";
@@ -79,6 +80,17 @@ const getTomorrowDeadline = () => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   return tomorrow.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+};
+
+// Founder Badge inline component
+const FounderBadgeInline = ({ artisanId }: { artisanId: string }) => {
+  const { isFounder } = useFounderBadge(artisanId);
+  if (!isFounder) return null;
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/30">
+      <span className="text-xs font-bold text-accent uppercase tracking-wider">🏛️ Membre Fondateur</span>
+    </div>
+  );
 };
 
 const ArtisanPublicProfile = () => {
@@ -408,6 +420,8 @@ const ArtisanPublicProfile = () => {
                           <span className="text-xs font-bold text-primary uppercase tracking-wider">Artisan Validé</span>
                         </div>
                       ) : null}
+                      {/* Founder Badge */}
+                      {artisan?.id && <FounderBadgeInline artisanId={artisan.id} />}
                     </div>
 
                     {/* Info — Diploma-style header */}
