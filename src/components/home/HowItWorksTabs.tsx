@@ -3,17 +3,17 @@ import { FileText, Search, Phone, CheckCircle2, Target, ClipboardList, Briefcase
 import { motion, AnimatePresence } from "framer-motion";
 
 const particulierSteps = [
-  { icon: FileText, title: "Décrivez votre projet ou trouvez un artisan", num: "01" },
-  { icon: Phone, title: "Échangez en sécurité via notre messagerie", num: "02" },
-  { icon: Search, title: "Partagez vos coordonnées quand VOUS êtes prêt", num: "03" },
-  { icon: CheckCircle2, title: "Chantier réalisé, avis déposé", num: "04" },
+  { icon: FileText, title: "Décrivez votre projet en 2 minutes", desc: "Type de travaux, budget, localisation", num: "01" },
+  { icon: Search, title: "Andrea vérifie les artisans pour vous", desc: "Assurances, SIRET, avis — tout est contrôlé", num: "02" },
+  { icon: Phone, title: "Échangez sans partager vos coordonnées", desc: "Messagerie sécurisée intégrée", num: "03" },
+  { icon: CheckCircle2, title: "Vous choisissez, vous validez", desc: "Aucune pression, aucun démarchage", num: "04" },
 ];
 
 const artisanSteps = [
-  { icon: Target, title: "Votre secteur exclusif est réservé", num: "01" },
-  { icon: ClipboardList, title: "Andrea valide votre dossier", num: "02" },
-  { icon: Briefcase, title: "Vous recevez des clients qualifiés", num: "03" },
-  { icon: Coins, title: "Zéro commission sur vos chantiers", num: "04" },
+  { icon: Target, title: "Réservez votre zone exclusive", desc: "2 places max par ville et par métier", num: "01" },
+  { icon: ClipboardList, title: "Andrea valide votre dossier", desc: "Audit complet en moins de 24h", num: "02" },
+  { icon: Briefcase, title: "Recevez des clients qualifiés", desc: "Des vrais projets, des vrais budgets", num: "03" },
+  { icon: Coins, title: "Zéro commission — 100% pour vous", desc: "Pas d'intermédiaire sur vos chantiers", num: "04" },
 ];
 
 const HowItWorksTabs = () => {
@@ -74,7 +74,7 @@ const HowItWorksTabs = () => {
               {/* Connection line — desktop only */}
               <div className="hidden md:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
-              {steps.map(({ icon: Icon, title, num }, i) => (
+              {steps.map(({ icon: Icon, title, desc, num }, i) => (
                 <motion.div
                   key={num + tab}
                   initial={{ opacity: 0, y: 20 }}
@@ -89,7 +89,8 @@ const HowItWorksTabs = () => {
                   <span className="text-xs font-bold text-muted-foreground tracking-widest uppercase mb-2 block">
                     Étape {num}
                   </span>
-                  <h3 className="text-sm font-bold text-foreground leading-snug">{title}</h3>
+                  <h3 className="text-sm font-bold text-foreground leading-snug mb-1">{title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
                 </motion.div>
               ))}
             </div>

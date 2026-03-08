@@ -6,10 +6,10 @@ type StatItem =
   | { type: "static"; display: string; label: string; subLabel?: string };
 
 const stats: StatItem[] = [
-  { value: 1200, suffix: "+", label: "chantiers accompagnés" },
-  { value: 87, suffix: "%", label: "taux de refus artisans" },
-  { type: "static", display: "N°1", label: "Sélection rigoureuse" },
-  { value: 24, suffix: "h", label: "délai moyen de réponse" },
+  { value: 87, suffix: "%", label: "des artisans refusés", subLabel: "Seuls les meilleurs passent l'audit" },
+  { value: 1200, suffix: "+", label: "chantiers accompagnés", subLabel: "Partout en France" },
+  { value: 24, suffix: "h", label: "réponse garantie", subLabel: "Ou on vous trouve une alternative" },
+  { value: 2, suffix: " max", label: "artisans par zone", subLabel: "Exclusivité territoriale stricte" },
 ];
 
 const AnimatedNumber = ({ target, suffix, decimals = 0 }: { target: number; suffix: string; decimals?: number }) => {
@@ -78,7 +78,8 @@ const ImpactStats = () => (
             ) : (
               <>
                 <AnimatedNumber target={stat.value} suffix={stat.suffix} decimals={stat.decimals} />
-                <p className="text-sm text-muted-foreground mt-2 font-medium">{stat.label}</p>
+                <p className="text-sm text-foreground mt-2 font-semibold">{stat.label}</p>
+                {stat.subLabel && <p className="text-xs text-muted-foreground mt-0.5">{stat.subLabel}</p>}
               </>
             )}
           </motion.div>
