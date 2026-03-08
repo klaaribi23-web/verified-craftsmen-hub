@@ -205,12 +205,12 @@ const AdminCommandant = () => {
   };
 
   const copyLink = (artisan: CommandantArtisan) => {
-    navigator.clipboard.writeText(getProfileUrl(artisan, true));
+    navigator.clipboard.writeText(getProfileUrl(artisan, true, "link"));
     toast.success("🔗 Lien Magique copié (mode owner) !");
   };
 
   const openTunnelTest = (artisan: CommandantArtisan) => {
-    const url = getProfileUrl(artisan) + "&preview=true";
+    const url = getProfileUrl(artisan, true, "preview") + "&preview=true";
     window.open(url, "_blank");
   };
 
