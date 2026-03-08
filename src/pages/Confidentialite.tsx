@@ -33,7 +33,7 @@ const Confidentialite = () => {
               {/* Introduction */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">1</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">1</span>
                   Introduction
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -52,7 +52,7 @@ const Confidentialite = () => {
               {/* Responsable du traitement */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">2</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">2</span>
                   Responsable du traitement
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -71,7 +71,7 @@ const Confidentialite = () => {
               {/* Données collectées */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">3</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">3</span>
                   Données personnelles collectées
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -116,7 +116,7 @@ const Confidentialite = () => {
               {/* Finalités du traitement */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">4</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">4</span>
                   Finalités du traitement
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -176,7 +176,7 @@ const Confidentialite = () => {
               {/* Durée de conservation */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">5</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">5</span>
                   Durée de conservation
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -197,7 +197,7 @@ const Confidentialite = () => {
               {/* Destinataires des données */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">6</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">6</span>
                   Destinataires des données
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -235,7 +235,7 @@ const Confidentialite = () => {
               {/* Transferts hors UE */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">7</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">7</span>
                   Transferts de données hors Union Européenne
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -256,7 +256,7 @@ const Confidentialite = () => {
               {/* Sécurité des données */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">8</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">8</span>
                   Sécurité des données
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -281,7 +281,7 @@ const Confidentialite = () => {
               {/* Cookies */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">9</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">9</span>
                   Cookies et technologies similaires
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -312,7 +312,7 @@ const Confidentialite = () => {
               {/* Vos droits */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">10</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">10</span>
                   Vos droits
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -360,7 +360,7 @@ const Confidentialite = () => {
               {/* Exercice des droits */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">11</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">11</span>
                   Comment exercer vos droits
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -392,7 +392,7 @@ const Confidentialite = () => {
               {/* Mineurs */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">12</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">12</span>
                   Protection des mineurs
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
@@ -408,7 +408,7 @@ const Confidentialite = () => {
               {/* Modifications */}
               <article className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
                 <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center text-navy font-bold text-sm">13</span>
+                  <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-sm">13</span>
                   Modifications de la Politique de Confidentialité
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
