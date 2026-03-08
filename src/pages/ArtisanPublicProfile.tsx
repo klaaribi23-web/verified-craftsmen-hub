@@ -399,7 +399,7 @@ const ArtisanPublicProfile = () => {
                     {/* Info — Diploma-style header */}
                     <div className="flex-1 text-center md:text-left">
                       <div className="flex flex-col md:flex-row md:items-center gap-2 mb-1">
-                        <h1 className="text-2xl md:text-3xl font-extrabold text-white font-['DM_Sans'] tracking-tight">{artisan.business_name}</h1>
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-foreground font-['DM_Sans'] tracking-tight">{artisan.business_name}</h1>
                         {(artisan as any).available_urgent && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-orange-500/15 text-orange-500 border border-orange-500/30 animate-pulse whitespace-nowrap">
                             <Zap className="w-3.5 h-3.5 fill-current" />
@@ -812,9 +812,9 @@ const ArtisanPublicProfile = () => {
                           className="flex items-center justify-between p-3 md:p-4 rounded-lg bg-secondary border border-primary/20 hover:border-primary/40 transition-colors"
                         >
                           <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm md:text-base truncate text-white">{service.title}</p>
+                            <p className="font-medium text-sm md:text-base truncate text-foreground">{service.title}</p>
                             {service.duration && (
-                              <p className="text-xs md:text-sm text-slate-400">
+                              <p className="text-xs md:text-sm text-muted-foreground">
                                 <Clock className="h-3 w-3 inline mr-1 text-primary" />
                                 {service.duration}
                               </p>
@@ -955,7 +955,7 @@ const ArtisanPublicProfile = () => {
                               <span
                                 className={cn(
                                   "text-xs md:text-sm font-semibold",
-                                  !isEnabled ? "text-red-500" : isToday ? "text-primary" : "text-slate-300",
+                                  !isEnabled ? "text-destructive" : isToday ? "text-primary" : "text-foreground",
                                 )}
                               >
                                 {displayTime}

@@ -609,7 +609,7 @@ const DevenirArtisan = () => {
                         {isLoading ? "Vérification..." : "VÉRIFIER MA ZONE & RÉSERVER MON ACCÈS"}
                       </Button>
                       <p className="text-xs text-muted-foreground mt-3 text-center">
-                        🔒 Validation finale par <strong className="text-foreground">Khalid</strong> sous 24h après audit de vos documents.
+                        🔒 Validation finale par <strong className="text-foreground">Andrea</strong> sous 24h après audit de vos documents.
                       </p>
                     </div>
                   </form>
