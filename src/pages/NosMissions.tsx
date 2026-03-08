@@ -1045,7 +1045,7 @@ const NosMissions = () => {
                       </p>
                     </div>
                     <Button variant="gold" size="lg" className="shrink-0 gap-2 font-bold" asChild>
-                      <Link to="/devenir-artisan">
+                      <Link to="/devenir-partenaire">
                         <Radar className="w-5 h-5" />
                         Activer mes alertes
                       </Link>
@@ -1142,7 +1142,7 @@ const NosMissions = () => {
               <p className="text-sm text-primary-foreground/50 mb-8 max-w-lg mx-auto">
                 Notre algorithme de confiance, combiné à 20 ans de savoir-faire terrain, sélectionne les meilleurs artisans de France.
               </p>
-              <Link to="/devenir-artisan">
+              <Link to="/devenir-partenaire">
                 <Button variant="gold" size="xl" className="gap-2">
                   Rejoindre le réseau certifié
                   <ArrowRight className="w-5 h-5" />
@@ -1193,7 +1193,7 @@ const NosMissions = () => {
           ) : role !== "artisan" ? (
             <div className="py-6 text-center">
               <p className="text-muted-foreground mb-4">Seuls les artisans peuvent postuler aux missions.</p>
-              <Link to="/devenir-artisan"><Button variant="outline">Devenir partenaire</Button></Link>
+              <Link to="/devenir-partenaire"><Button variant="outline">Devenir partenaire</Button></Link>
             </div>
           ) : !canApplyLimit ? (
             <div className="py-6 text-center">
@@ -1244,7 +1244,7 @@ const NosMissions = () => {
             </div>
             
             <div className="flex flex-col gap-3">
-              <Link to="/devenir-artisan" className="w-full" onClick={() => setShowTeasingModal(false)}>
+              <Link to="/devenir-partenaire" className="w-full" onClick={() => setShowTeasingModal(false)}>
                 <Button variant="gold" className="w-full gap-2" size="lg">
                   <UserPlus className="w-5 h-5" />
                   Devenir Membre
@@ -1281,7 +1281,7 @@ const NosMissions = () => {
               <Link to="/auth" className="w-full" onClick={() => setShowAuthModal(false)}>
                 <Button className="w-full gap-2"><LogIn className="w-4 h-4" />Se connecter</Button>
               </Link>
-              <Link to="/devenir-artisan" className="w-full" onClick={() => setShowAuthModal(false)}>
+              <Link to="/devenir-partenaire" className="w-full" onClick={() => setShowAuthModal(false)}>
                 <Button variant="outline" className="w-full gap-2"><UserPlus className="w-4 h-4" />Devenir partenaire</Button>
               </Link>
             </div>

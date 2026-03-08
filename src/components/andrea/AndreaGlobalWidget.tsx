@@ -182,7 +182,7 @@ const AndreaGlobalWidget = () => {
   }, [savedId, leadData.lead_type]);
 
   useEffect(() => {
-    if (leadData.lead_type === "artisan" || location.pathname === "/devenir-artisan") setShowArtisanCTA(true);
+    if (leadData.lead_type === "artisan" || location.pathname === "/devenir-partenaire") setShowArtisanCTA(true);
   }, [leadData.lead_type, location.pathname]);
 
   useEffect(() => {
@@ -221,7 +221,7 @@ const AndreaGlobalWidget = () => {
       return;
     }
     
-    const isHighValuePage = ["/", "/devenir-partenaire", "/devenir-artisan", "/trouver-artisan", "/demande-devis"].includes(location.pathname)
+    const isHighValuePage = ["/", "/devenir-partenaire", "/trouver-artisan", "/demande-devis"].includes(location.pathname)
       || !!artisanContext;
 
     if (!isHighValuePage) return;
@@ -680,7 +680,7 @@ const AndreaGlobalWidget = () => {
                         🏠 Je suis un <strong className="text-white">particulier</strong> — travaux, aides, économies
                       </button>
                       <button
-                        onClick={() => { setIsOpen(false); navigate("/devenir-artisan"); }}
+                        onClick={() => { setIsOpen(false); navigate("/devenir-partenaire"); }}
                         className="w-full text-left text-[12px] px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 border border-white/8 transition-all hover:border-gold/30 tracking-wide"
                       >
                         🔧 Je suis un <strong className="text-white">artisan</strong> — rejoindre le réseau
@@ -820,7 +820,7 @@ const AndreaGlobalWidget = () => {
                       500+ candidatures reçues · Seuls les 13% passent
                     </p>
                     <Button
-                      onClick={() => { setIsOpen(false); navigate("/devenir-artisan"); }}
+                      onClick={() => { setIsOpen(false); navigate("/devenir-partenaire"); }}
                       className="relative w-full font-black gap-2 h-10 text-sm hover:opacity-90 tracking-wide uppercase rounded-xl overflow-hidden"
                       style={{
                         background: "linear-gradient(135deg, hsl(30, 90%, 50%), hsl(45, 93%, 47%))",
@@ -874,7 +874,7 @@ const AndreaGlobalWidget = () => {
                     <button
                       onClick={() => {
                         setIsOpen(false);
-                        navigate("/devenir-artisan");
+                        navigate("/devenir-partenaire");
                       }}
                       disabled={isLoading}
                       className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"

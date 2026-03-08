@@ -12,7 +12,7 @@ const staticPages = [
   { loc: '/nos-missions', priority: '0.9', changefreq: 'daily' },
   { loc: '/demande-devis', priority: '0.9', changefreq: 'monthly' },
   { loc: '/comment-ca-marche', priority: '0.8', changefreq: 'monthly' },
-  { loc: '/devenir-artisan', priority: '0.8', changefreq: 'monthly' },
+  { loc: '/devenir-partenaire', priority: '0.8', changefreq: 'monthly' },
   { loc: '/a-propos', priority: '0.7', changefreq: 'monthly' },
   { loc: '/contact', priority: '0.7', changefreq: 'monthly' },
   { loc: '/blog', priority: '0.8', changefreq: 'weekly' },
