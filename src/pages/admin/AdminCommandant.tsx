@@ -390,6 +390,20 @@ const AdminCommandant = () => {
     onError: () => toast.error("Erreur lors du changement de statut"),
   });
 
+  // Refresh all heat scores
+  const refreshScoresMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.rpc("refresh_all_heat_scores");
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (count) => {
+      toast.success(`🔥 Heat scores mis à jour pour ${count} prospects`);
+      queryClient.invalidateQueries({ queryKey: ["commandant-artisans"] });
+    },
+    onError: () => toast.error("Erreur lors du calcul des scores"),
+  });
+
   // Lien Magique → /activation-artisan-elite avec email pré-rempli + source tracking
   const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true, source = "direct") => {
     const email = artisan.email || artisan.profile?.email || "";
