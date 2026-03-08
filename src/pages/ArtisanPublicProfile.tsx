@@ -82,6 +82,17 @@ const getTomorrowDeadline = () => {
   return tomorrow.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 };
 
+// Founder Badge inline component
+const FounderBadgeInline = ({ artisanId }: { artisanId: string }) => {
+  const { isFounder } = useFounderBadge(artisanId);
+  if (!isFounder) return null;
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/30">
+      <span className="text-xs font-bold text-accent uppercase tracking-wider">🏛️ Membre Fondateur</span>
+    </div>
+  );
+};
+
 const ArtisanPublicProfile = () => {
   const { slug } = useParams<{
     slug: string;
