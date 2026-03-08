@@ -669,12 +669,8 @@ const FormSection = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-6">Réservez votre accès</h2>
 
-            {/* Gold encart */}
-            <div className="bg-gold/10 border border-gold/30 rounded-xl p-4 mb-4 text-center">
-              <p className="text-sm text-gold font-medium">
-                💰 Rejoignez un réseau en construction volontairement limité. Soyez parmi les artisans fondateurs de votre ville.
-              </p>
-            </div>
+            {/* Founder urgency — live counter */}
+            <FounderUrgencyBanner />
 
             <div className="bg-gold/5 border border-gold/20 rounded-lg p-3 mb-3 text-center">
               <p className="text-sm text-gold font-bold flex items-center justify-center gap-2">
