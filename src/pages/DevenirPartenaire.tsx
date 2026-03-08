@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import ROISimulator from "@/components/devenir-partenaire/ROISimulator";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -566,6 +567,52 @@ const AvailabilityTicker = () => {
   );
 };
 
+// --- FOUNDER URGENCY BANNER (Live countdown) ---
+const FounderUrgencyBanner = () => {
+  const { data: founderCount = 0 } = useQuery({
+    queryKey: ["founder-count-live"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("subscription_events")
+        .select("artisan_id")
+        .eq("event_type", "checkout.session.completed");
+      const unique = new Set(data?.map(d => d.artisan_id).filter(Boolean));
+      return unique.size;
+    },
+    staleTime: 60000,
+  });
+
+  const remaining = Math.max(0, 20 - founderCount);
+  const isFull = remaining === 0;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`rounded-xl p-4 mb-4 text-center border ${
+        isFull
+          ? "bg-muted/50 border-border"
+          : remaining <= 5
+            ? "bg-red-500/10 border-red-500/30 animate-pulse"
+            : "bg-gold/10 border-gold/30"
+      }`}
+    >
+      {isFull ? (
+        <p className="text-sm font-bold text-muted-foreground">
+          🏆 Les 20 places Fondateur sont prises — inscrivez-vous pour la liste d'attente
+        </p>
+      ) : (
+        <p className="text-sm font-bold" style={{ color: remaining <= 5 ? "hsl(var(--destructive))" : "hsl(var(--gold, 40 96% 53%))" }}>
+          🔥 Plus que <span className="text-lg font-black">{remaining}</span> place{remaining > 1 ? "s" : ""} Membre Fondateur !
+          <span className="block text-xs font-medium mt-0.5 opacity-80">
+            Badge exclusif + visibilité prioritaire à vie
+          </span>
+        </p>
+      )}
+    </motion.div>
+  );
+};
+
 // --- SECTION 8: FORMULAIRE ---
 const formSchema = z.object({
   firstName: z.string().trim().min(2, "Prénom requis").max(50),
@@ -669,12 +716,8 @@ const FormSection = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-6">Réservez votre accès</h2>
 
-            {/* Gold encart */}
-            <div className="bg-gold/10 border border-gold/30 rounded-xl p-4 mb-4 text-center">
-              <p className="text-sm text-gold font-medium">
-                💰 Rejoignez un réseau en construction volontairement limité. Soyez parmi les artisans fondateurs de votre ville.
-              </p>
-            </div>
+            {/* Founder urgency — live counter */}
+            <FounderUrgencyBanner />
 
             <div className="bg-gold/5 border border-gold/20 rounded-lg p-3 mb-3 text-center">
               <p className="text-sm text-gold font-bold flex items-center justify-center gap-2">
