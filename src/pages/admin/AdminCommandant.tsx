@@ -112,7 +112,7 @@ const LinkClicksStats = () => {
     refetchInterval: 30000,
   });
 
-  if (!clickStats || clickStats.total === 0) return null;
+  if (!clickStats) return null;
 
   const sourceLabels: Record<string, string> = {
     whatsapp: "📱 WhatsApp",
