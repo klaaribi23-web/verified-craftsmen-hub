@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, AlertTriangle, Phone, Mail, Loader2, Eye, EyeOff } from "lucide-react";
+import { Lock, AlertTriangle, Phone, Mail, Loader2, Eye, EyeOff, Clock, CheckCircle2, XCircle } from "lucide-react";
 
 interface OwnerClosingTunnelProps {
   artisanName: string;
@@ -15,6 +15,35 @@ interface OwnerClosingTunnelProps {
 }
 
 const SUPPORT_PHONE = "03 53 63 29 99";
+
+// Deadline: tomorrow 18h
+const getDeadline = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setHours(18, 0, 0, 0);
+  return d;
+};
+
+const useCountdown = () => {
+  const [deadline] = useState(getDeadline);
+  const [timeLeft, setTimeLeft] = useState({ h: 0, m: 0, s: 0 });
+
+  useEffect(() => {
+    const tick = () => {
+      const diff = Math.max(0, deadline.getTime() - Date.now());
+      setTimeLeft({
+        h: Math.floor(diff / 3600000),
+        m: Math.floor((diff % 3600000) / 60000),
+        s: Math.floor((diff % 60000) / 1000),
+      });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [deadline]);
+
+  return timeLeft;
+};
 
 const OwnerClosingTunnel = ({
   artisanName,
@@ -31,6 +60,7 @@ const OwnerClosingTunnel = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [step, setStep] = useState<"form" | "success">("form");
+  const countdown = useCountdown();
 
   // Show sticky bar after delay OR after scrolling 40% of the page
   useEffect(() => {
@@ -71,7 +101,6 @@ const OwnerClosingTunnel = ({
 
     setIsSending(true);
     try {
-      // 1. Create account via edge function
       const { data, error } = await supabase.functions.invoke("create-artisan-account", {
         body: {
           email,
@@ -85,21 +114,16 @@ const OwnerClosingTunnel = ({
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      // 2. Clear owner mode
       sessionStorage.removeItem("owner_mode");
       sessionStorage.removeItem("owner_email");
-
-      // 3. Sign out any existing session
       await supabase.auth.signOut();
 
-      // 4. Instant auto-login with the credentials just created
       const { error: loginError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (loginError) {
-        // Fallback: show success but redirect to login
         console.error("Auto-login failed:", loginError);
         setStep("success");
         toast.success("Compte créé ! Connectez-vous avec vos identifiants.");
@@ -109,7 +133,6 @@ const OwnerClosingTunnel = ({
         return;
       }
 
-      // 5. Success — redirect to dashboard immediately
       setStep("success");
       toast.success("Bienvenue ! Redirection vers votre espace...");
       setTimeout(() => {
@@ -136,9 +159,11 @@ const OwnerClosingTunnel = ({
 
   if (!barVisible) return null;
 
+  const pad = (n: number) => String(n).padStart(2, "0");
+
   return (
     <>
-      {/* ═══ STICKY BOTTOM DECISION BAR ═══ */}
+      {/* ═══ STICKY BOTTOM DECISION BAR WITH COUNTDOWN ═══ */}
       <div
         className="fixed bottom-0 left-0 right-0 z-[999999] animate-in slide-in-from-bottom-full duration-500"
         style={{
@@ -148,6 +173,21 @@ const OwnerClosingTunnel = ({
         }}
       >
         <div className="container mx-auto px-4 py-4 md:py-5">
+          {/* Countdown timer */}
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Clock className="w-4 h-4 text-destructive animate-pulse" />
+            <span className="text-xs font-bold text-destructive uppercase tracking-wider">
+              Priorité expire dans
+            </span>
+            <div className="flex items-center gap-1 font-mono text-sm font-black text-destructive">
+              <span className="bg-destructive/15 px-1.5 py-0.5 rounded">{pad(countdown.h)}</span>
+              <span>:</span>
+              <span className="bg-destructive/15 px-1.5 py-0.5 rounded">{pad(countdown.m)}</span>
+              <span>:</span>
+              <span className="bg-destructive/15 px-1.5 py-0.5 rounded">{pad(countdown.s)}</span>
+            </div>
+          </div>
+
           <p className="text-center text-xs md:text-sm mb-3 md:mb-4 leading-relaxed text-foreground/85">
             Votre outil de travail est prêt. Voulez-vous{" "}
             <span className="font-bold text-primary">activer votre exclusivité</span>{" "}
@@ -158,13 +198,14 @@ const OwnerClosingTunnel = ({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               onClick={handleActivate}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground relative overflow-hidden"
               style={{
                 boxShadow: "0 6px 25px hsl(var(--primary) / 0.35)",
                 fontFamily: "'DM Sans',sans-serif",
               }}
             >
               ✅ OUI, J'ACTIVE MON ACCÈS
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
             </button>
 
             <button
@@ -178,10 +219,10 @@ const OwnerClosingTunnel = ({
         </div>
       </div>
 
-      {/* ═══ INLINE ACTIVATION MODAL — Email + Password → Instant Login ═══ */}
+      {/* ═══ ACTIVATION MODAL WITH BEFORE/AFTER ═══ */}
       <Dialog open={showAccessDialog} onOpenChange={setShowAccessDialog}>
         <DialogContent
-          className="sm:max-w-md border-0 bg-card"
+          className="sm:max-w-lg border-0 bg-card"
           style={{
             border: "1px solid hsl(var(--primary) / 0.3)",
             boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
@@ -196,6 +237,32 @@ const OwnerClosingTunnel = ({
 
           {step === "form" ? (
             <div className="space-y-5 pt-2">
+              {/* Before/After comparison */}
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 space-y-2">
+                  <p className="font-bold text-destructive text-center text-[11px] uppercase">❌ Sans activation</p>
+                  <ul className="space-y-1.5">
+                    {["Fiche non référencée", "0 appel client", "Pas de badge validé", "Concurrents prioritaires"].map(t => (
+                      <li key={t} className="flex items-start gap-1.5">
+                        <XCircle className="w-3 h-3 text-destructive shrink-0 mt-0.5" />
+                        <span className="text-muted-foreground">{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3 space-y-2">
+                  <p className="font-bold text-green-500 text-center text-[11px] uppercase">✅ Avec activation</p>
+                  <ul className="space-y-1.5">
+                    {["SEO local optimisé", "3-5 chantiers/mois", "Badge Artisan Validé", "Exclusivité secteur"].map(t => (
+                      <li key={t} className="flex items-start gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-green-500 shrink-0 mt-0.5" />
+                        <span className="text-foreground font-medium">{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
               {/* Email field */}
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-foreground/80">
@@ -254,6 +321,14 @@ const OwnerClosingTunnel = ({
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
                 )}
               </button>
+
+              {/* Countdown reminder */}
+              <div className="flex items-center justify-center gap-2 text-xs text-destructive">
+                <Clock className="w-3.5 h-3.5" />
+                <span className="font-bold">
+                  Priorité expire dans {pad(countdown.h)}h{pad(countdown.m)}
+                </span>
+              </div>
 
               {/* Notes */}
               <div className="space-y-3 pt-2">
