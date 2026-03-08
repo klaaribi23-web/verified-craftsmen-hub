@@ -429,7 +429,7 @@ export const ArtisanDashboard = () => {
             )}
 
             {/* Profile Views Counter */}
-            <ProfileViewsCard artisanId={artisanProfile?.id} demoMode={demoMode} />
+            <ProfileViewsCard artisanId={artisanProfile?.id} demoMode={demoMode} isSubscribed={isSubscribed} />
 
             {/* Ghost Missions FOMO — only for non-subscribers */}
             {!demoMode && !isLoadingSubscription && !isSubscribed && (

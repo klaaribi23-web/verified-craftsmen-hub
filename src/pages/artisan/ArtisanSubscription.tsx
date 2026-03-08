@@ -11,7 +11,11 @@ import { MONTHLY_PLAN, YEARLY_PLAN, STRIPE_PRICES } from "@/config/subscriptionP
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import { Crown, Calendar, Settings, CreditCard, Check, Shield, Star, Sparkles, Loader2 } from "lucide-react";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
+import MoneySection from "@/components/subscription/MoneySection";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const ArtisanSubscription = () => {
   const [searchParams] = useSearchParams();
