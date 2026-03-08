@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, User, Users, UserCheck, UserPlus, Upload, LogOut, LayoutDashboard, BarChart3, FileText, Settings, MessageCircle, ThumbsUp, ChevronDown, Heart, Briefcase, Camera, ClipboardList, Crown, Gift, Radar, Home, Search, PlusCircle } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-v2.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import {
