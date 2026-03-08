@@ -107,8 +107,8 @@ const App = () => (
           <Route path="/nos-missions" element={<NosMissions />} />
           <Route path="/demande-devis" element={<DemandeDevis />} />
           <Route path="/deposer-mission" element={<DemandeDevis />} />
-          <Route path="/devenir-artisan" element={<DevenirArtisan />} />
-          <Route path="/inscription-artisan" element={<Navigate to="/devenir-artisan" replace />} />
+          <Route path="/devenir-artisan" element={<Navigate to="/devenir-partenaire" replace />} />
+          <Route path="/inscription-artisan" element={<Navigate to="/devenir-partenaire" replace />} />
           <Route path="/devenir-partenaire" element={<DevenirPartenaire />} />
           <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
           <Route path="/connexion" element={<Connexion />} />

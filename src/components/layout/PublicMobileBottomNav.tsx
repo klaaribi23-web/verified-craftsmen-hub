@@ -33,7 +33,7 @@ const PublicMobileBottomNav = () => {
       id: "mon-acces",
       label: "Mon Accès",
       icon: ShieldCheck,
-      href: "/devenir-artisan",
+      href: "/devenir-partenaire",
       gold: true,
     },
     {

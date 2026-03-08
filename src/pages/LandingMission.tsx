@@ -91,7 +91,7 @@ const LandingMission = () => {
             className="space-y-3"
           >
             <Link
-              to={`/devenir-artisan?mission=${encodeURIComponent(title)}&ville=${encodeURIComponent(city)}`}
+              to={`/devenir-partenaire?mission=${encodeURIComponent(title)}&ville=${encodeURIComponent(city)}`}
               className="block"
             >
               <Button variant="gold" size="lg" className="w-full gap-2 !py-6 !text-base !font-bold">

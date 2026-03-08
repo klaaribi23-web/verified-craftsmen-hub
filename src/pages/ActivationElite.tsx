@@ -94,7 +94,7 @@ const ActivationElite = () => {
     if (email) params.set("email", email);
     if (nom) params.set("nom", nom);
     if (ville) params.set("ville", ville);
-    window.location.href = `/devenir-artisan?${params.toString()}`;
+    window.location.href = `/devenir-partenaire?${params.toString()}`;
   };
 
   const displayName = nom || artisan?.business_name || "Votre Entreprise";

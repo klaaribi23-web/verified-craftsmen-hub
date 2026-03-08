@@ -60,7 +60,7 @@ const CTASection = () => {
                   </li>)}
               </ul>
               <Button variant="gold" size="lg" asChild>
-                <Link to="/devenir-artisan">
+                <Link to="/devenir-partenaire">
                   Candidater au réseau
                   <ArrowRight className="w-5 h-5 ml-2" aria-hidden="true" />
                 </Link>
