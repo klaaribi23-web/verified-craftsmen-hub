@@ -926,6 +926,23 @@ body{
             {/* 📊 Stats de Clics — Link Tracking */}
             <LinkClicksStats />
 
+            {/* 🔥 Heat Score Refresh */}
+            <div className="flex items-center justify-end mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refreshScoresMutation.mutate()}
+                disabled={refreshScoresMutation.isPending}
+                className="text-xs"
+              >
+                {refreshScoresMutation.isPending ? (
+                  <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Calcul…</>
+                ) : (
+                  <>🔥 Recalculer Heat Scores</>
+                )}
+              </Button>
+            </div>
+
             <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="mb-6 flex-wrap bg-muted/50">
                 {tabConfig.map((tab) => (
