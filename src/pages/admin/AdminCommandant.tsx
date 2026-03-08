@@ -196,21 +196,21 @@ const AdminCommandant = () => {
     onError: () => toast.error("Erreur lors du changement de statut"),
   });
 
-  // Lien Magique → /activation-artisan-elite avec email pré-rempli
-  const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true) => {
+  // Lien Magique → /activation-artisan-elite avec email pré-rempli + source tracking
+  const getProfileUrl = (artisan: CommandantArtisan, _ownerMode = true, source = "direct") => {
     const email = artisan.email || artisan.profile?.email || "";
     const nom = artisan.business_name || "";
     const ville = artisan.city || "";
-    return `${PUBLISHED_URL}/activation-artisan-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}`;
+    return `${PUBLISHED_URL}/activation-artisan-elite?email=${encodeURIComponent(email)}&nom=${encodeURIComponent(nom)}&ville=${encodeURIComponent(ville)}&source=${source}`;
   };
 
   const copyLink = (artisan: CommandantArtisan) => {
-    navigator.clipboard.writeText(getProfileUrl(artisan, true));
+    navigator.clipboard.writeText(getProfileUrl(artisan, true, "link"));
     toast.success("🔗 Lien Magique copié (mode owner) !");
   };
 
   const openTunnelTest = (artisan: CommandantArtisan) => {
-    const url = getProfileUrl(artisan) + "&preview=true";
+    const url = getProfileUrl(artisan, true, "preview") + "&preview=true";
     window.open(url, "_blank");
   };
 
@@ -219,7 +219,7 @@ const AdminCommandant = () => {
     if (!phone) return null;
     let intlPhone = phone.startsWith("0") ? `33${phone.slice(1)}` : phone.startsWith("33") ? phone : `33${phone}`;
     intlPhone = intlPhone.replace("+", "");
-    const url = getProfileUrl(artisan);
+    const url = getProfileUrl(artisan, true, "whatsapp");
     const msg = `${artisan.business_name}, c'est Andrea d'Artisans Validés.
 
 On a analysé votre secteur à ${artisan.city} : il est encore libre. Votre diagnostic est prêt ici :
@@ -232,7 +232,7 @@ On bloque votre position ?`;
   };
 
   const generateAccessText = (artisan: CommandantArtisan) => {
-    const url = getProfileUrl(artisan);
+    const url = getProfileUrl(artisan, true, "sms");
     const dashboardUrl = `${PUBLISHED_URL}/connexion`;
     return `${artisan.business_name},
 
@@ -253,7 +253,7 @@ Tout est paramétré. Vos premiers clients peuvent vous contacter dès maintenan
   };
 
   const generateClosingMessage = (artisan: CommandantArtisan) => {
-    const url = getProfileUrl(artisan);
+    const url = getProfileUrl(artisan, true, "closing");
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const expiry = `demain à 18h`;

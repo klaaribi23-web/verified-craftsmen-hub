@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 Deno.serve(async (req) => {
@@ -49,6 +49,18 @@ Deno.serve(async (req) => {
       if (!updateError) {
         console.log(`[AUTO-TRACK] Artisan ${data.id} transitioned: pending → suspended`);
       }
+    }
+
+    // Log click server-side (with artisan_id now that we have it)
+    if (data?.id) {
+      supabase
+        .from("link_clicks")
+        .update({ artisan_id: data.id })
+        .eq("email", email.toLowerCase())
+        .is("artisan_id", null)
+        .order("clicked_at", { ascending: false })
+        .limit(1)
+        .then(() => {});
     }
 
     return new Response(JSON.stringify({ artisan: data }), {
