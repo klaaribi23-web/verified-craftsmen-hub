@@ -218,7 +218,7 @@ const APropos = () => {
               </motion.p>
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg" variant="gold" className="text-base md:text-lg px-8 md:px-10 h-14">
-                  <Link to="/devenir-artisan">
+                  <Link to="/devenir-partenaire">
                     Rejoindre l'Alliance
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>

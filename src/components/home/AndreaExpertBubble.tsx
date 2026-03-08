@@ -355,7 +355,7 @@ const AndreaExpertBubble = () => {
                     {/* Pricing CTA */}
                     {msg.role === "andrea" && msg.isPricing && !msg.isStreaming && (
                       <div className="flex flex-col gap-2 mt-2 ml-1">
-                        <Link to="/devenir-artisan" className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 border border-gold/30 text-sm font-semibold text-gold hover:bg-gold/20 transition-colors">
+                        <Link to="/devenir-partenaire" className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 border border-gold/30 text-sm font-semibold text-gold hover:bg-gold/20 transition-colors">
                           <CreditCard className="h-4 w-4" /> Accès — 99€ HT/mois
                         </Link>
                       </div>

@@ -99,7 +99,7 @@ const Navbar = () => {
   const navLinks = [
     { href: "/", label: "Accueil" },
     { href: "/trouver-artisan", label: "Particuliers" },
-    { href: "/devenir-artisan", label: "Espace Artisans" },
+    { href: "/devenir-partenaire", label: "Espace Artisans" },
   ];
 
   const isActive = (path: string) => location.pathname === path;

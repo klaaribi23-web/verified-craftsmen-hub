@@ -31,7 +31,7 @@ const AlertBanner = () => {
         <Flame className="w-3.5 h-3.5 shrink-0 animate-pulse" />
         <span className="truncate">
           <strong>{count} clients</strong> attendent un artisan.{" "}
-          <a href="/devenir-artisan" className="underline underline-offset-2 font-bold hover:text-white/90">
+          <a href="/devenir-partenaire" className="underline underline-offset-2 font-bold hover:text-white/90">
             Activez votre accès.
           </a>
         </span>

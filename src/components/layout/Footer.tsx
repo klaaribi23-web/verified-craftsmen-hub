@@ -32,7 +32,7 @@ const Footer = () => {
       href: "/comment-ca-marche"
     }, {
       label: "Devenir partenaire",
-      href: "/devenir-artisan"
+      href: "/devenir-partenaire"
     }, {
       label: "Blog",
       href: "/blog"

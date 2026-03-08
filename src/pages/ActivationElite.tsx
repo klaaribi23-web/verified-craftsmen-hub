@@ -89,12 +89,12 @@ const ActivationElite = () => {
       } catch {}
     }
 
-    // Fail-safe: redirect to /devenir-artisan with pre-filled params (never lose a prospect)
+    // Fail-safe: redirect to /devenir-partenaire with pre-filled params (never lose a prospect)
     const params = new URLSearchParams();
     if (email) params.set("email", email);
     if (nom) params.set("nom", nom);
     if (ville) params.set("ville", ville);
-    window.location.href = `/devenir-artisan?${params.toString()}`;
+    window.location.href = `/devenir-partenaire?${params.toString()}`;
   };
 
   const displayName = nom || artisan?.business_name || "Votre Entreprise";

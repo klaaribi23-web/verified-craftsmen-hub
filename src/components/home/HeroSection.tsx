@@ -115,7 +115,7 @@ const HeroSection = () => {
               className="w-full sm:w-auto border-2 border-border text-foreground hover:bg-muted hover:border-primary/40 font-semibold text-base md:text-lg px-10 py-7 min-h-[56px] transition-all duration-300"
               asChild
             >
-              <Link to="/devenir-artisan">
+              <Link to="/devenir-partenaire">
                 <Zap className="w-5 h-5 mr-2 text-accent" />
                 Rejoindre le réseau
               </Link>
