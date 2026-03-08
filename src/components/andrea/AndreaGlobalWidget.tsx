@@ -211,15 +211,46 @@ const AndreaGlobalWidget = () => {
     return () => document.removeEventListener("pointerdown", handler, true);
   }, []);
 
-  // On artisan pages: show preview bubble after 5s but do NOT auto-open chat
+  // Proactive trigger: on high-value pages (home, devenir-partenaire, trouver-artisan, artisan pages)
+  // Show preview bubble after 5s, auto-open after 8s of inactivity
   useEffect(() => {
-    if (!artisanContext || isOpen || dismissedAutoOpen) return;
+    if (isOpen || dismissedAutoOpen) return;
     const dismissKey = `andrea_dismissed_${location.pathname}`;
     if (sessionStorage.getItem(dismissKey)) {
       setDismissedAutoOpen(true);
       return;
     }
+    
+    const isHighValuePage = ["/", "/devenir-partenaire", "/devenir-artisan", "/trouver-artisan", "/demande-devis"].includes(location.pathname)
+      || !!artisanContext;
+
+    if (!isHighValuePage) return;
+
     const previewTimer = setTimeout(() => setShowPreviewBubble(true), 5000);
+    
+    // Auto-open chat only on artisan owner pages after 8s inactivity
+    let autoOpenTimer: ReturnType<typeof setTimeout> | undefined;
+    if (artisanContext) {
+      let lastActivity = Date.now();
+      const resetActivity = () => { lastActivity = Date.now(); };
+      window.addEventListener("mousemove", resetActivity, { passive: true });
+      window.addEventListener("scroll", resetActivity, { passive: true });
+      
+      autoOpenTimer = setTimeout(() => {
+        if (Date.now() - lastActivity >= 6000 && !isInteractingWithCallRef.current) {
+          setIsOpen(true);
+          setShowPreviewBubble(false);
+        }
+      }, 8000);
+      
+      return () => {
+        clearTimeout(previewTimer);
+        clearTimeout(autoOpenTimer);
+        window.removeEventListener("mousemove", resetActivity);
+        window.removeEventListener("scroll", resetActivity);
+      };
+    }
+
     return () => { clearTimeout(previewTimer); };
   }, [artisanContext, isOpen, dismissedAutoOpen, location.pathname]);
 

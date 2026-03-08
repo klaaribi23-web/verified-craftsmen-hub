@@ -33,6 +33,8 @@ import {
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { SubscriptionDashboardCard } from "@/components/subscription/SubscriptionDashboardCard";
+import { GhostMissionsCard } from "@/components/artisan-dashboard/GhostMissionsCard";
+import AdCarousel from "@/components/ads/AdCarousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
@@ -429,6 +431,11 @@ export const ArtisanDashboard = () => {
             {/* Profile Views Counter */}
             <ProfileViewsCard artisanId={artisanProfile?.id} demoMode={demoMode} />
 
+            {/* Ghost Missions FOMO — only for non-subscribers */}
+            {!demoMode && !isLoadingSubscription && !isSubscribed && (
+              <GhostMissionsCard />
+            )}
+
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
               <StatsCard
@@ -614,18 +621,12 @@ export const ArtisanDashboard = () => {
               </div>
             </div>
 
-            {/* Performance Chart Placeholder */}
-            <div className="mt-6 bg-card rounded-xl border border-border shadow-soft p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-foreground">Performance mensuelle</h2>
-              </div>
-              <div className="h-64 flex items-center justify-center bg-muted/30 rounded-lg">
-                <div className="text-center">
-                  <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-muted-foreground">Graphique de performance</p>
-                  <p className="text-sm text-muted-foreground/70">Sera disponible avec plus de données</p>
-                </div>
-              </div>
+            {/* Club Avantages — Sponsors/Ads */}
+            <div className="mt-6">
+              <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                🎁 Club Avantages — Offres partenaires exclusives
+              </h2>
+              <AdCarousel />
             </div>
           </main>
         </div>

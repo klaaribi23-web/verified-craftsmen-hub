@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import ROISimulator from "@/components/devenir-partenaire/ROISimulator";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
@@ -843,6 +844,7 @@ const DevenirPartenaire = () => {
       <main>
         <HeroSection onCTA={scrollToForm} />
         <PricingSection onCTA={scrollToForm} />
+        <ROISimulator onCTA={scrollToForm} />
         <ComparisonSection onCTA={scrollToForm} />
         <PillarsSection />
         <CockpitSection />
