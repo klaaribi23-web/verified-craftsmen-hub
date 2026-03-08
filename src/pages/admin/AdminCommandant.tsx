@@ -16,6 +16,7 @@ import {
   MapPin, Search, Copy, Link2, ExternalLink,
   Send, Eye, Loader2, ChevronLeft, ChevronRight,
   MessageCircle, FileText, Download, Mail, TrendingUp,
+  MousePointerClick, BarChart3,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { DEFAULT_AVATAR } from "@/lib/utils";
@@ -714,6 +715,9 @@ body{
                 </CardContent>
               </Card>
             </div>
+
+            {/* 📊 Stats de Clics — Link Tracking */}
+            <LinkClicksStats />
 
             <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="mb-6 flex-wrap bg-muted/50">
